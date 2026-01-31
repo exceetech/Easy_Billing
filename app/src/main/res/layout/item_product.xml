@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="12dp"
@@ -7,14 +8,14 @@
 
     <TextView
         android:id="@+id/tvProductName"
-        android:text="Item"
+        android:text="Product"
         android:textStyle="bold"
         android:textSize="16sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/tvPrice"
+        android:id="@+id/tvProductPrice"
         android:text="₹0"
         android:layout_marginTop="4dp"
         android:layout_width="wrap_content"
