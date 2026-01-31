@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.easy_billing.R
+import androidx.drawerlayout.widget.DrawerLayout
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -13,13 +13,23 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
+
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+        val btnAdmin = findViewById<Button>(R.id.btnAdmin)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
 
-        // Receive user name from login
+        // Welcome message
         val userName = intent.getStringExtra("USER_NAME")
         tvWelcome.text = "Welcome, $userName"
 
+        // Admin → Add Products
+        btnAdmin.setOnClickListener {
+            startActivity(Intent(this, AddProductActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        // Logout
         btnLogout.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
