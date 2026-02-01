@@ -6,9 +6,17 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.easy_billing.Product
 
-@Database(entities = [Product::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        Product::class,
+        Bill::class,
+        BillItem::class
+    ],
+    version = 2
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
+    abstract fun billDao(): BillDao
 
     companion object {
         @Volatile
@@ -16,13 +24,15 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "product_database"
-                ).build()
-                INSTANCE = instance
-                instance
+                    "easy_billing_db"
+                )
+                    .fallbackToDestructiveMigration() // 👈 ADD THIS LINE
+                    .build().also {
+                        INSTANCE = it
+                    }
             }
         }
     }

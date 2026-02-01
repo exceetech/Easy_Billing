@@ -36,19 +36,30 @@ class CartAdapter(
         holder.price.text = "₹${item.subTotal()}"
 
         holder.btnPlus.setOnClickListener {
-            item.quantity++
-            notifyItemChanged(position)
+
+            val currentPosition = holder.adapterPosition
+            if (currentPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+
+            cartItems[currentPosition].quantity++
+            notifyItemChanged(currentPosition)
             onCartUpdated()
         }
 
         holder.btnMinus.setOnClickListener {
-            item.quantity--
-            if (item.quantity <= 0) {
-                cartItems.removeAt(position)
-                notifyItemRemoved(position)
+
+            val currentPosition = holder.adapterPosition
+            if (currentPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+
+            val currentItem = cartItems[currentPosition]
+            currentItem.quantity--
+
+            if (currentItem.quantity <= 0) {
+                cartItems.removeAt(currentPosition)
+                notifyItemRemoved(currentPosition)
             } else {
-                notifyItemChanged(position)
+                notifyItemChanged(currentPosition)
             }
+
             onCartUpdated()
         }
     }

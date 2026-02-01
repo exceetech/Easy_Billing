@@ -20,4 +20,7 @@ interface ProductDao {
     abstract class AppDatabase : RoomDatabase() {
         abstract fun productDao(): ProductDao
     }
+
+    @Query("DELETE FROM products WHERE id = :productId")
+    suspend fun deleteById(productId: Int)
 }

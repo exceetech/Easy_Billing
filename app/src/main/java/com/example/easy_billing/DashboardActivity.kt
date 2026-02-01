@@ -15,6 +15,7 @@ import com.example.easy_billing.db.AppDatabase
 import kotlinx.coroutines.launch
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.adapter.CartAdapter
+import com.example.easy_billing.util.InvoiceDataHolder
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -27,6 +28,7 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        val btnGenerateBill = findViewById<Button>(R.id.btnGenerateBill)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         val btnAdmin = findViewById<Button>(R.id.btnAdmin)
@@ -57,10 +59,26 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+
+        btnGenerateBill.setOnClickListener {
+            if (cartItems.isEmpty()) {
+                Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            InvoiceDataHolder.cartItems.clear()
+            InvoiceDataHolder.cartItems.addAll(cartItems)
+            startActivity(Intent(this, InvoiceActivity::class.java))
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        if (InvoiceDataHolder.cartItems.isEmpty()) {
+            cartItems.clear()
+            cartAdapter.notifyDataSetChanged()
+            updateTotal()
+        }
         loadProducts()
     }
 
@@ -76,24 +94,43 @@ class DashboardActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
 
-                recyclerView.adapter = ProductAdapter(products) { product ->
-
-                    val existingItem = cartItems.find { it.product.id == product.id }
-
-                    if (existingItem != null) {
-                        existingItem.quantity++
-                    } else {
-                        cartItems.add(CartItem(product, 1))
+                recyclerView.adapter = ProductAdapter(
+                    products,
+                    onItemClick = { product ->
+                        // existing cart logic
+                        val existingItem = cartItems.find { it.product.id == product.id }
+                        if (existingItem != null) {
+                            existingItem.quantity++
+                        } else {
+                            cartItems.add(CartItem(product, 1))
+                        }
+                        cartAdapter.notifyDataSetChanged()
+                        updateTotal()
+                    },
+                    onItemLongClick = { product ->
+                        showDeleteDialog(product)
                     }
-
-                    cartAdapter.notifyDataSetChanged()
-                    updateTotal()
-                }
+                )
             }
         }
     }
     private fun updateTotal() {
         val total = cartItems.sumOf { it.subTotal() }
         tvTotal.text = "Total: ₹$total"
+    }
+
+    private fun showDeleteDialog(product: Product) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Remove Product")
+            .setMessage("Remove ${product.name} from items?")
+            .setPositiveButton("Remove") { _, _ ->
+                lifecycleScope.launch {
+                    val db = AppDatabase.getDatabase(this@DashboardActivity)
+                    db.productDao().deleteById(product.id)
+                    loadProducts()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

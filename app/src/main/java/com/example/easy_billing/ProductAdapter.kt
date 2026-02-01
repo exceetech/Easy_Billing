@@ -10,7 +10,8 @@ import com.example.easy_billing.R
 
 class ProductAdapter(
     private val products: List<Product>,
-    private val onItemClick: (Product) -> Unit
+    private val onItemClick: (Product) -> Unit,
+    private val onItemLongClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -26,11 +27,17 @@ class ProductAdapter(
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
+
         holder.name.text = product.name
         holder.price.text = "₹${product.price}"
 
         holder.itemView.setOnClickListener {
             onItemClick(product)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick(product)
+            true
         }
     }
 

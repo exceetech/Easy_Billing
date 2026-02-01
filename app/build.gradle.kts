@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.easy_billing"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.easy_billing"
@@ -38,6 +38,7 @@ dependencies {
     // Room - Fixed dependencies
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.activity)
     kapt(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
