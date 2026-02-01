@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
+        val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
 
         tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
@@ -42,6 +43,10 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Invalid Credentials", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+
+        tvForgotPassword.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
 }

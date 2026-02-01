@@ -1,8 +1,12 @@
 package com.example.easy_billing
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -12,29 +16,84 @@ class RegisterActivity : AppCompatActivity() {
 
         val etFullName = findViewById<EditText>(R.id.etFullName)
         val etEmail = findViewById<EditText>(R.id.etEmail)
-        val etPassword = findViewById<EditText>(R.id.etPassword)
-        val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
+        val etPhoneNumber = findViewById<EditText>(R.id.etPhoneNumber)
+        val etShopName = findViewById<EditText>(R.id.ShopName)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
         val tvBackToLogin = findViewById<TextView>(R.id.tvBackToLogin)
 
         btnRegister.setOnClickListener {
-            val name = etFullName.text.toString()
-            val email = etEmail.text.toString()
-            val password = etPassword.text.toString()
-            val confirmPassword = etConfirmPassword.text.toString()
 
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
-            } else if (password != confirmPassword) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Registered successfully!", Toast.LENGTH_SHORT).show()
-                finish() // go back to login
+            val name = etFullName.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val phone = etPhoneNumber.text.toString().trim()
+            val shopName = etShopName.text.toString().trim()
+
+
+            if (name.isEmpty() || email.isEmpty()) {
+                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            val ticket = generateTicketNumber()
+
+            val subject = "New Enquiry | Ticket $ticket"
+            val body = """
+        New enquiry received.
+
+        Name: $name
+        Email: $email
+        Phone: $phone
+        Shop Name: $shopName
+        Ticket: $ticket
+
+        Please respond to the user.
+    """.trimIndent()
+
+            Thread {
+                try {
+                    EmailSender.sendEmail(subject, body)
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            "Registration Successful!\nWe'll get back to you shortly",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        finish()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this,
+                            e.javaClass.simpleName + " : " + e.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }.start()
         }
 
         tvBackToLogin.setOnClickListener {
             finish()
         }
+    }
+
+    private fun sendEmail(subject: String, body: String) {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:exceetech@gmail.com")
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, body)
+        }
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun generateTicketNumber(): String {
+        val time = System.currentTimeMillis()
+        return "EXE-"+findViewById<EditText>(R.id.etPhoneNumber).text.toString().trim()+"$time"
     }
 }

@@ -46,22 +46,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/etPassword"
-            android:hint="@string/password"
-            android:inputType="textPassword"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/etConfirmPassword"
-            android:hint="@string/confirm_password"
-            android:inputType="textPassword"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
         <Button
             android:id="@+id/btnRegister"
             android:text="@string/register"
