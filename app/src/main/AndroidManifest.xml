@@ -16,19 +16,36 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Easy_Billing">
         <activity
+            android:name=".BillDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChangePasswordActivity" />
+        <activity
             android:name=".ForgotPasswordActivity" />
         <activity
             android:name=".InvoiceActivity"
             android:exported="false" />
         <activity
-            android:name=".AddProductActivity"
+            android:name=".AddProductsActivity"
             android:exported="false" />
+        <activity
+            android:name=".PreviousBillsActivity" />
         <activity
             android:name=".DashboardActivity"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
+        <activity
+            android:name=".SettingsActivity" />
+        <activity
+            android:name=".StoreSettingsActivity" />
+        <activity
+            android:name=".BillingSettingsActivity" />
+        <activity
+            android:name=".InvoiceDesignActivity" />
+        <activity
+            android:name=".DataSecurityActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -5,20 +5,27 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
 import android.print.PageRange
+import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.system.measureTimeMillis
 
 class PdfPrintAdapter(
     private val context: Context,
-    private val path: String
+    private val path: String,
+    private val shopId: String,        // 4-digit shop id
+    private val invoiceNumber: Long     // incremental invoice no
 ) : PrintDocumentAdapter() {
 
     override fun onLayout(
-        oldAttributes: android.print.PrintAttributes?,
-        newAttributes: android.print.PrintAttributes?,
+        oldAttributes: PrintAttributes?,
+        newAttributes: PrintAttributes?,
         cancellationSignal: CancellationSignal?,
         callback: LayoutResultCallback?,
         extras: Bundle?
@@ -28,8 +35,19 @@ class PdfPrintAdapter(
             return
         }
 
-        val info = PrintDocumentInfo.Builder("invoice.pdf")
+        val date = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+            .format(Date())
+
+        val invoiceFormatted = String.format("%04d", invoiceNumber)
+
+        val timeMillis = System.currentTimeMillis()
+
+        val fileName =
+            "${shopId}_${date}_INV_${invoiceFormatted}_${timeMillis}.pdf"
+
+        val info = PrintDocumentInfo.Builder(fileName)
             .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+            .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
             .build()
 
         callback?.onLayoutFinished(info, true)
@@ -41,14 +59,13 @@ class PdfPrintAdapter(
         cancellationSignal: CancellationSignal,
         callback: WriteResultCallback
     ) {
-        val file = File(path)
-        val input = FileInputStream(file)
-        val output = FileOutputStream(destination.fileDescriptor)
+        val inputFile = File(path)
 
-        input.copyTo(output)
-
-        input.close()
-        output.close()
+        FileInputStream(inputFile).use { input ->
+            FileOutputStream(destination.fileDescriptor).use { output ->
+                input.copyTo(output)
+            }
+        }
 
         callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
     }

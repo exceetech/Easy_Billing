@@ -7,6 +7,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.apply
+import kotlin.text.contains
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -76,6 +78,7 @@ class RegisterActivity : AppCompatActivity() {
         tvBackToLogin.setOnClickListener {
             finish()
         }
+        generateAndSaveShopId() //MUST BE CALLED AFTER FIRST LOGIN
     }
 
     private fun sendEmail(subject: String, body: String) {
@@ -95,5 +98,19 @@ class RegisterActivity : AppCompatActivity() {
     private fun generateTicketNumber(): String {
         val time = System.currentTimeMillis()
         return "EXE-"+findViewById<EditText>(R.id.etPhoneNumber).text.toString().trim()+"$time"
+    }
+
+    private fun generateAndSaveShopId() {
+        val prefs = getSharedPreferences("SHOP_PREFS", MODE_PRIVATE)
+
+        // If already exists, do NOT regenerate
+        if (prefs.contains("SHOP_ID")) return
+
+        val random4Digit = (1000..9999).random()
+        val shopId = "EXE-$random4Digit"
+
+        prefs.edit()
+            .putString("SHOP_ID", shopId)
+            .apply()
     }
 }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Display -->
+    <TextView
+        android:id="@+id/tvQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#EEEEEE"
+        android:hint="Enter the Quantity"
+        android:textSize="28sp"
+        android:gravity="center"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Number Pad -->
+    <GridLayout
+        android:id="@+id/gridPad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="4"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginBottom="12dp">
+
+        <Button android:text="1" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="2" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="3" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+
+        <Button android:text="4" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="5" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="6" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+
+        <Button android:text="7" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="8" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="9" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+
+        <Button android:text="C" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="0" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+        <Button android:text="⌫" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
+
+    </GridLayout>
+
+    <Button
+        android:id="@+id/btnAddQty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add to Cart"/>
+</LinearLayout>

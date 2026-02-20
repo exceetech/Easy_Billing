@@ -21,4 +21,10 @@ interface BillDao {
 
     @Query("SELECT * FROM bills WHERE id = :billId")
     suspend fun getBillById(billId: Int): Bill
+
+    @Query("DELETE FROM bills")
+    suspend fun deleteAllBills()
+
+    @Query("DELETE FROM bill_items")
+    suspend fun deleteAllItems()
 }

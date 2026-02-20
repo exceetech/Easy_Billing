@@ -1,0 +1,72 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:text="Invoice Design"
+            android:textStyle="bold"
+            android:titleTextColor="@android:color/white"/>
+
+        <!-- Footer Message -->
+        <TextView
+            android:text="Footer Message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etFooter"
+            android:hint="Thank You! Visit Again"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"/>
+
+        <Switch
+            android:id="@+id/switchShowLogo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Store Logo"
+            android:layout_marginTop="16dp"/>
+
+        <Switch
+            android:id="@+id/switchShowGstin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show GSTIN"/>
+
+        <Switch
+            android:id="@+id/switchShowPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Phone Number"/>
+
+        <Switch
+            android:id="@+id/switchShowDiscount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Discount Section"/>
+
+        <Switch
+            android:id="@+id/switchRoundOff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable Round Off"/>
+
+
+        <Button
+            android:id="@+id/btnSaveDesign"
+            android:text="Save Design Settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"/>
+
+    </LinearLayout>
+</ScrollView>

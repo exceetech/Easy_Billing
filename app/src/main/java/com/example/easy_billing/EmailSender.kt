@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.content.Context.MODE_PRIVATE
 import java.util.Properties
 import javax.mail.Authenticator
 import javax.mail.Message
@@ -12,7 +13,8 @@ import javax.mail.internet.MimeMessage
 object EmailSender {
 
     private const val SMTP_EMAIL = "exceetech@gmail.com"
-    private const val SMTP_PASSWORD = "omgehxxourwpejjz"
+    private const val SMTP_PASSWORD = "admin    1234" +
+            "a"
 
     fun sendEmail(subject: String, body: String) {
 

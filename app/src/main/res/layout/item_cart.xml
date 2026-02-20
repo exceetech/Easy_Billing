@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!-- ITEM NAME -->
     <TextView
         android:id="@+id/tvName"
         android:layout_width="0dp"
@@ -28,6 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <!-- QTY -->
     <TextView
         android:id="@+id/tvQty"
         android:text="1"
@@ -49,6 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <!-- PRICE -->
     <TextView
         android:id="@+id/tvPrice"
         android:text="₹0"
@@ -56,4 +59,16 @@
         android:layout_marginStart="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <!-- DELETE -->
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:src="@drawable/baseline_delete_24"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete item"
+        android:tint="#F44336"
+        android:layout_marginStart="8dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
+
 </LinearLayout>

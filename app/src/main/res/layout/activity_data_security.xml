@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:text="Data and Security"
+            android:textStyle="bold"
+            android:titleTextColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/btnChangePassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Login PIN"
+            android:layout_marginTop="12dp"/>
+
+        <!-- Manual Backup -->
+        <Button
+            android:id="@+id/btnManualBackup"
+            android:text="Backup Now"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"/>
+
+        <!-- Restore -->
+        <Button
+            android:id="@+id/btnRestoreBackup"
+            android:text="Restore Backup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Clear Bills -->
+        <Button
+            android:id="@+id/btnClearBills"
+            android:text="Clear All Bills"
+            android:backgroundTint="#E53935"
+            android:textColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"/>
+
+        <!-- Factory Reset -->
+        <Button
+            android:id="@+id/btnFactoryReset"
+            android:text="Factory Reset App"
+            android:backgroundTint="#B00020"
+            android:textColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+</ScrollView>
