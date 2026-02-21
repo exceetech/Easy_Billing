@@ -6,10 +6,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.example.easy_billing.DashboardActivity
+import androidx.core.content.edit
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -22,54 +21,60 @@ class MainActivity : AppCompatActivity() {
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
         val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
 
-
         val prefs = getSharedPreferences("easy_billing_prefs", MODE_PRIVATE)
 
-        // 👇 EXISTENCE CHECK HAPPENS HERE
+        // Check whether username exist or not?
         if (!prefs.contains("USERNAME")) {
             // First time app is opened EVER
-            prefs.edit()
-                .putString("USERNAME", "adeeb")
-                .putString("PASSWORD", "1111")   // temp password
-                .putBoolean("FIRST_LOGIN", true)
-                .apply()
+            prefs.edit {
+                putString("USERNAME", "adeeb")
+                    .putString("PASSWORD", "1111") // Temporary password
+                    .putBoolean("FIRST_LOGIN", true)
+            }
         }
 
+        // Register Button
         tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
+        // Login Button
         btnLogin.setOnClickListener {
 
             val username = etUsername.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
+            // Check for empty fields
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Check for valid credentials
             val savedUsername = prefs.getString("USERNAME", "")
             val savedPassword = prefs.getString("PASSWORD", "")
             val isFirstLogin = prefs.getBoolean("FIRST_LOGIN", false)
 
+            // Credentials matched
             if (username == savedUsername && password == savedPassword) {
 
+                // First login, then change password
                 if (isFirstLogin) {
-                    // 🚀 FIRST TIME LOGIN → CHANGE PASSWORD
                     startActivity(
                         Intent(this, ChangePasswordActivity::class.java)
                     )
                     finish()
-                } else {
-                    // ✅ NORMAL LOGIN → DASHBOARD
+                }
+                else {
+                    // Normal login, then go to dashboard
                     val intent = Intent(this, DashboardActivity::class.java)
                     intent.putExtra("USER_NAME", username)
                     startActivity(intent)
                     finish()
                 }
 
-            } else {
+            }
+            else {
                 Toast.makeText(this, "Invalid Credentials", Toast.LENGTH_SHORT).show()
             }
         }

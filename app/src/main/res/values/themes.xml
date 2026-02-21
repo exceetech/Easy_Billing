@@ -1,9 +1,69 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Easy_Billing" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <!-- ================= MAIN THEME ================= -->
+    <style name="Theme.EasyBilling" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="android:fontFamily">@font/quicksand</item>
+        <item name="fontFamily">@font/quicksand</item>
+
+        <!-- Primary Branding -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primaryLight</item>
+        <item name="colorOnPrimaryContainer">@color/primaryDark</item>
+
+        <!-- Secondary Branding -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">#D1FAE5</item> <!-- Light green container -->
+        <item name="colorOnSecondaryContainer">@color/secondaryDark</item>
+
+        <!-- Background & Surface -->
+        <item name="android:windowBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/textPrimary</item>
+        <item name="colorSurfaceVariant">@color/divider</item>
+        <item name="colorOnSurfaceVariant">@color/textSecondary</item>
+
+        <!-- Status & Navigation Bar -->
+        <item name="android:statusBarColor">@color/primaryDark</item>
+        <item name="android:navigationBarColor">@color/background</item>
+
+        <!-- Typography -->
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/textSecondary</item>
+        <item name="colorError">@color/error</item>
+
+        <!-- Default Widget Styles -->
+        <item name="materialButtonStyle">@style/Widget.EasyBilling.Button</item>
+        <item name="toolbarStyle">@style/Widget.EasyBilling.Toolbar</item>
+
     </style>
 
-    <style name="Theme.Easy_Billing" parent="Base.Theme.Easy_Billing" />
+    <!-- ================= BUTTON STYLE ================= -->
+    <style name="Widget.EasyBilling.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.EasyBilling.Button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <!-- Use primary color by default for filled buttons -->
+        <item name="backgroundTint">@color/primary</item>
+    </style>
+
+    <!-- Rounded Button Shape -->
+    <style name="ShapeAppearance.EasyBilling.Button"
+        parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <!-- ================= TOOLBAR ================= -->
+    <style name="Widget.EasyBilling.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextColor">@color/white</item>
+        <item name="android:background">@color/primary</item>
+        <item name="navigationIconTint">@color/white</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Material3.TitleLarge</item>
+    </style>
+
 </resources>

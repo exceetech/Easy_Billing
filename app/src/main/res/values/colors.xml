@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Professional & Clear Palette -->
+
+    <!-- Primary Branding - Deep, trustworthy blue -->
+    <color name="primary">#2563AB</color>
+    <color name="primaryDark">#1E3A8A</color>
+    <color name="primaryLight">#DBEAFE</color>
+
+    <!-- Secondary/Accent - Success/Money green for Billing -->
+    <color name="secondary">#059669</color>
+    <color name="secondaryDark">#065F46</color>
+
+    <!-- Neutral colors for background and surfaces -->
+    <color name="background">#F9FAFB</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="divider">#E5E7EB</color>
+
+    <!-- Typography - High contrast for readability -->
+    <color name="textPrimary">#111827</color>
+    <color name="textSecondary">#4B5563</color>
+    <color name="textHint">#9CA3AF</color>
+
+    <!-- Status Colors -->
+    <color name="error">#DC2626</color>
+    <color name="success">#10B981</color>
+    <color name="warning">#F59E0B</color>
+
+    <!-- Basic -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
 </resources>
