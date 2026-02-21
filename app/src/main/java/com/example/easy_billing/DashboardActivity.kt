@@ -2,6 +2,7 @@ package com.example.easy_billing
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +19,8 @@ import com.example.easy_billing.model.CartItem
 import kotlinx.coroutines.launch
 import android.widget.GridLayout
 import android.view.View
+import android.widget.ImageView
+import androidx.core.view.GravityCompat
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -47,6 +50,18 @@ class DashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard)
 
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
+        val btnMenu = findViewById<ImageView>(R.id.btnMenu)
+
+        btnMenu.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        val btnCart = findViewById<ImageView>(R.id.btnCart)
+
+        btnCart.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.END)
+        }
+
         val btnAdmin = findViewById<Button>(R.id.btnAdmin)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
         val btnGenerateBill = findViewById<Button>(R.id.btnGenerateBill)

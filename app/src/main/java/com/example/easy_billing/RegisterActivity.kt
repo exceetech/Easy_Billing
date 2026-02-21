@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,12 +10,18 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.apply
 import kotlin.text.contains
+import androidx.core.content.edit
+import androidx.core.net.toUri
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        // Setup professional toolbar with back arrow
+        setupToolbar(R.id.toolbar)
+        supportActionBar?.title = " "
 
         val etFullName = findViewById<EditText>(R.id.etFullName)
         val etEmail = findViewById<EditText>(R.id.etEmail)
@@ -31,13 +38,22 @@ class RegisterActivity : AppCompatActivity() {
             val shopName = etShopName.text.toString().trim()
 
 
+            // Check for empty fields
             if (name.isEmpty() || email.isEmpty()) {
                 Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Check for valid email
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Enter a valid email", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Generate ticket number
             val ticket = generateTicketNumber()
 
+            // Create mail subject and body
             val subject = "New Enquiry | Ticket $ticket"
             val body = """
         New enquiry received.
@@ -51,6 +67,7 @@ class RegisterActivity : AppCompatActivity() {
         Please respond to the user.
     """.trimIndent()
 
+            // Send email in background thread
             Thread {
                 try {
                     EmailSender.sendEmail(subject, body)
@@ -62,7 +79,8 @@ class RegisterActivity : AppCompatActivity() {
                         ).show()
                         finish()
                     }
-                } catch (e: Exception) {
+                }
+                catch (e: Exception) {
                     e.printStackTrace()
                     runOnUiThread {
                         Toast.makeText(
@@ -75,42 +93,49 @@ class RegisterActivity : AppCompatActivity() {
             }.start()
         }
 
+        // Back to Login
         tvBackToLogin.setOnClickListener {
             finish()
         }
         generateAndSaveShopId() //MUST BE CALLED AFTER FIRST LOGIN
     }
 
+    // Send email using intent
+    @SuppressLint("QueryPermissionsNeeded")
     private fun sendEmail(subject: String, body: String) {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:exceetech@gmail.com")
+            data = "mailto:exceetech@gmail.com".toUri()
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, body)
         }
 
+        // Check for email app
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
-        } else {
+        }
+        else {
             Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
         }
     }
 
+    // Generate ticket number
     private fun generateTicketNumber(): String {
         val time = System.currentTimeMillis()
         return "EXE-"+findViewById<EditText>(R.id.etPhoneNumber).text.toString().trim()+"$time"
     }
 
+    // Generate and save shop id
     private fun generateAndSaveShopId() {
         val prefs = getSharedPreferences("SHOP_PREFS", MODE_PRIVATE)
 
         // If already exists, do NOT regenerate
         if (prefs.contains("SHOP_ID")) return
 
-        val random4Digit = (1000..9999).random()
+        val random4Digit = (1000..999999).random()
         val shopId = "EXE-$random4Digit"
 
-        prefs.edit()
-            .putString("SHOP_ID", shopId)
-            .apply()
+        prefs.edit {
+            putString("SHOP_ID", shopId)
+        }
     }
 }

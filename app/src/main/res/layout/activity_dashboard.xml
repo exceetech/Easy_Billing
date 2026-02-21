@@ -8,83 +8,66 @@
     <!-- ================= MAIN CONTENT ================= -->
     <LinearLayout
         android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Welcome -->
-        <TextView
-            android:id="@+id/tvWelcome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Welcome 👋"
-            android:textSize="22sp"
-            android:textStyle="bold"
+        <!-- Header -->
+        <LinearLayout
+            android:orientation="horizontal"
             android:padding="16dp"
-            android:background="#E3F2FD"/>
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- MENU ICON -->
+            <ImageView
+                android:id="@+id/btnMenu"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_menu"
+                android:contentDescription="Menu"/>
+
+            <TextView
+                android:id="@+id/tvWelcome"
+                android:text="Welcome 👋"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+
+            <!-- CART ICON -->
+            <ImageView
+                android:id="@+id/btnCart"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_cart"
+                android:contentDescription="Cart"/>
+
+        </LinearLayout>
 
         <!-- PRODUCTS -->
-        <TextView
-            android:text="Products"
-            android:textStyle="bold"
-            android:layout_marginTop="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvProducts"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="8dp"/>
-
-        <!-- CART -->
-        <TextView
-            android:text="Cart"
-            android:textStyle="bold"
-            android:layout_marginTop="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCart"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginTop="4dp"/>
-
-        <!-- TOTAL -->
-        <TextView
-            android:id="@+id/tvTotal"
-            android:text="Total: ₹0"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <!-- GENERATE BILL -->
-        <Button
-            android:id="@+id/btnGenerateBill"
-            android:text="Generate Bill"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#4CAF50"
-            android:textColor="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"/>
+            android:layout_height="match_parent"
+            android:padding="16dp"/>
 
     </LinearLayout>
 
-    <!-- ================= DRAWER MENU ================= -->
+    <!-- ================= LEFT MENU DRAWER ================= -->
     <LinearLayout
-        android:id="@+id/drawerMenu"
+        android:id="@+id/leftDrawer"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
         android:layout_gravity="start"
         android:orientation="vertical"
-        android:padding="24dp"
-        android:background="#FFFFFF"
-        android:layout_width="260dp"
-        android:layout_height="match_parent">
+        android:background="@android:color/white"
+        android:padding="24dp">
 
         <TextView
             android:text="Menu"
@@ -94,30 +77,73 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdmin"
             android:text="Add Products"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPreviousBills"
             android:text="Previous Bills"
-            android:layout_marginTop="12dp"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSettings"
             android:text="Settings"
-            android:layout_marginTop="12dp"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             android:text="Logout"
-            android:layout_marginTop="24dp"
+            android:textColor="@color/error"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- ================= RIGHT CART DRAWER ================= -->
+    <LinearLayout
+        android:id="@+id/cartDrawer"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="16dp">
+
+        <TextView
+            android:text="Cart"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/tvTotal"
+            android:text="Total: ₹0"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGenerateBill"
+            android:text="Generate Bill"
+            android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
