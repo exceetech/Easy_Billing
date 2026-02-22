@@ -1,6 +1,5 @@
 package com.example.easy_billing
 
-import android.content.Context.MODE_PRIVATE
 import java.util.Properties
 import javax.mail.Authenticator
 import javax.mail.Message

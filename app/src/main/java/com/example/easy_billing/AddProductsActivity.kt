@@ -1,6 +1,5 @@
 package com.example.easy_billing
 
-import com.example.easy_billing.DefaultProduct
 import android.os.Bundle
 import android.view.View
 import android.widget.*

@@ -1,4 +1,4 @@
-package com.example.easy_billing.util
+package com.example.easy_billing
 
 import android.content.Context
 

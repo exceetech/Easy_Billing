@@ -1,23 +1,44 @@
-package com.example.easy_billing.adapter
+package com.example.easy_billing
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.easy_billing.Product
-import com.example.easy_billing.R
 
 class ProductAdapter(
-    private val products: List<Product>,
     private val onItemClick: (Product) -> Unit,
     private val onItemLongClick: (Product) -> Unit
-) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(DiffCallback()) {
 
-    class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val name: TextView = view.findViewById(R.id.tvProductName)
-        val price: TextView = view.findViewById(R.id.tvProductPrice)
+    // Full list for filtering
+    private var fullList: List<Product> = emptyList()
+
+    // ==================================================
+    // ================= VIEW HOLDER ====================
+    // ==================================================
+
+    inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val name: TextView = view.findViewById(R.id.tvProductName)
+        private val price: TextView = view.findViewById(R.id.tvProductPrice)
+
+        fun bind(product: Product) {
+            name.text = product.name
+            price.text = "₹${product.price}"
+
+            itemView.setOnClickListener { onItemClick(product) }
+            itemView.setOnLongClickListener {
+                onItemLongClick(product)
+                true
+            }
+        }
     }
+
+    // ==================================================
+    // ================= ADAPTER ========================
+    // ==================================================
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -26,20 +47,39 @@ class ProductAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        val product = products[position]
-
-        holder.name.text = product.name
-        holder.price.text = "₹${product.price}"
-
-        holder.itemView.setOnClickListener {
-            onItemClick(product)
-        }
-
-        holder.itemView.setOnLongClickListener {
-            onItemLongClick(product)
-            true
-        }
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount() = products.size
+    // ==================================================
+    // ================= FILTERING ======================
+    // ==================================================
+
+    fun filter(query: String) {
+
+        if (query.isBlank()) {
+            submitList(fullList)
+            return
+        }
+
+        val filtered = fullList.filter {
+            it.name.contains(query.trim(), ignoreCase = true)
+        }
+
+        submitList(filtered)
+    }
+
+    // ==================================================
+    // ================= DIFF UTIL ======================
+    // ==================================================
+
+    class DiffCallback : DiffUtil.ItemCallback<Product>() {
+
+        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

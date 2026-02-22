@@ -2,128 +2,61 @@ package com.example.easy_billing
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.CartAdapter
-import com.example.easy_billing.adapter.ProductAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.model.CartItem
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
-import android.widget.GridLayout
-import android.view.View
-import android.widget.ImageView
-import androidx.core.view.GravityCompat
 
 class DashboardActivity : AppCompatActivity() {
 
+    // ================= UI =================
+    private lateinit var drawerLayout: DrawerLayout
     private lateinit var rvProducts: RecyclerView
     private lateinit var rvCart: RecyclerView
     private lateinit var tvTotal: TextView
+    private lateinit var tvCartBadge: TextView
+    private lateinit var etSearch: TextInputEditText
 
-    private val cartItems = mutableListOf<CartItem>()
+    // ================= Adapters =================
+    private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
 
+    // ================= Data =================
+    private val cartItems = mutableListOf<CartItem>()
+
+    // ================= Activity Result =================
     private val invoiceLauncher =
         registerForActivityResult(
             androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
         ) { result ->
-
             if (result.resultCode == RESULT_OK) {
-
-                // ✅ Clear cart when Invoice closes
-                cartItems.clear()
-                cartAdapter.notifyDataSetChanged()
-                updateTotal()
+                clearCart()
             }
         }
+
+    // ==================================================
+    // ================= ON CREATE ======================
+    // ==================================================
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
-        val btnMenu = findViewById<ImageView>(R.id.btnMenu)
-
-        btnMenu.setOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
-
-        val btnCart = findViewById<ImageView>(R.id.btnCart)
-
-        btnCart.setOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.END)
-        }
-
-        val btnAdmin = findViewById<Button>(R.id.btnAdmin)
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
-        val btnGenerateBill = findViewById<Button>(R.id.btnGenerateBill)
-        val btnPreviousBills = findViewById<Button>(R.id.btnPreviousBills)
-        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
-        val btnSettings = findViewById<Button>(R.id.btnSettings)
-
-        val userName = intent.getStringExtra("USER_NAME")
-        tvWelcome.text = "Welcome, $userName 👋"
-
-        rvProducts = findViewById(R.id.rvProducts)
-        rvProducts.layoutManager = GridLayoutManager(this, 3)
-
-        rvCart = findViewById(R.id.rvCart)
-        rvCart.layoutManager = LinearLayoutManager(this)
-
-        tvTotal = findViewById(R.id.tvTotal)
-
-        cartAdapter = CartAdapter(
-            cartItems,
-            onQuantityChanged = {
-                updateTotal()
-            },
-            onDelete = { item ->
-                cartItems.remove(item)
-                cartAdapter.notifyDataSetChanged()
-                updateTotal()
-            }
-        )
-        rvCart.adapter = cartAdapter
-
-        btnAdmin.setOnClickListener {
-            startActivity(Intent(this, AddProductsActivity::class.java))
-            drawerLayout.closeDrawers()
-        }
-
-        btnPreviousBills.setOnClickListener {
-            startActivity(Intent(this, PreviousBillsActivity::class.java))
-            drawerLayout.closeDrawers()   // 👈 closes drawer automatically
-        }
-
-        btnLogout.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-
-        btnGenerateBill.setOnClickListener {
-
-            if (cartItems.isEmpty()) {
-                Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val intent = Intent(this, InvoiceActivity::class.java)
-            intent.putExtra("CART_ITEMS", ArrayList(cartItems))  // ✅ pass cart
-            invoiceLauncher.launch(intent)
-        }
-
-        btnSettings.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-            drawerLayout.closeDrawers()
-        }
+        initViews()
+        setupHeader()
+        setupRecyclerViews()
+        setupDrawerButtons()
+        setupSearch()
     }
 
     override fun onResume() {
@@ -131,29 +64,165 @@ class DashboardActivity : AppCompatActivity() {
         loadProducts()
     }
 
-    // 🔹 Load products from Room
+    // ==================================================
+    // ================= INITIALIZATION =================
+    // ==================================================
+
+    private fun initViews() {
+        drawerLayout = findViewById(R.id.drawerLayout)
+        rvProducts = findViewById(R.id.rvProducts)
+        rvCart = findViewById(R.id.rvCart)
+        tvTotal = findViewById(R.id.tvTotal)
+        tvCartBadge = findViewById(R.id.tvCartBadge)
+        etSearch = findViewById(R.id.etSearch)
+    }
+
+    private fun setupHeader() {
+        val btnMenu = findViewById<ImageView>(R.id.btnMenu)
+        val btnCart = findViewById<ImageView>(R.id.btnCart)
+        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+
+        val userName = intent.getStringExtra("USER_NAME") ?: "User"
+        tvWelcome.text = "Welcome, $userName 👋"
+
+        btnMenu.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        btnCart.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.END)
+        }
+    }
+
+    private fun setupRecyclerViews() {
+        rvProducts.layoutManager = GridLayoutManager(this, 5)
+        rvCart.layoutManager = LinearLayoutManager(this)
+
+        cartAdapter = CartAdapter(
+            cartItems,
+            onQuantityChanged = { updateTotal() },
+            onDelete = { item ->
+                cartItems.remove(item)
+                cartAdapter.notifyDataSetChanged()
+                updateTotal()
+            }
+        )
+
+        rvCart.adapter = cartAdapter
+    }
+
+    private fun setupDrawerButtons() {
+
+        findViewById<Button>(R.id.btnAdmin).setOnClickListener {
+            startActivity(Intent(this, AddProductsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<Button>(R.id.btnPreviousBills).setOnClickListener {
+            startActivity(Intent(this, PreviousBillsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<Button>(R.id.btnSettings).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<Button>(R.id.btnLogout).setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+
+        findViewById<Button>(R.id.btnGenerateBill).setOnClickListener {
+            generateBill()
+        }
+    }
+
+    private fun setupSearch() {
+        etSearch.clearFocus() // Do NOT auto open keyboard
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                productAdapter.filter(s.toString())
+            }
+
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+    }
+
+    // ==================================================
+    // ================= DATA LOADING ===================
+    // ==================================================
+
     private fun loadProducts() {
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@DashboardActivity)
-            val products = db.productDao().getAllProducts()
 
             runOnUiThread {
-                rvProducts.adapter = ProductAdapter(
-                    products,
-                    onItemClick = { product ->
-                        showQuantityDialog(product)
-                    },
-                    onItemLongClick = { product ->
-                        showDeleteDialog(product)
-                    }
+                productAdapter = ProductAdapter(
+                    onItemClick = { showQuantityDialog(it) },
+                    onItemLongClick = { showDeleteDialog(it) }
                 )
+
+                rvProducts.adapter = productAdapter
             }
         }
     }
 
-    // 🔹 Calculator-style quantity dialog
-    private fun showQuantityDialog(product: Product) {
+    // ==================================================
+    // ================= CART LOGIC =====================
+    // ==================================================
 
+    private fun addToCart(product: Product, qty: Int) {
+        val existing = cartItems.find { it.product.id == product.id }
+
+        if (existing != null) {
+            existing.quantity += qty
+        } else {
+            cartItems.add(CartItem(product, qty))
+        }
+
+        cartAdapter.notifyDataSetChanged()
+        updateTotal()
+    }
+
+    private fun updateTotal() {
+        val total = cartItems.sumOf { it.subTotal() }
+        tvTotal.text = "Total: ₹$total"
+
+        val count = cartItems.sumOf { it.quantity }
+
+        if (count <= 0) {
+            tvCartBadge.visibility = View.GONE
+        } else {
+            tvCartBadge.visibility = View.VISIBLE
+            tvCartBadge.text = if (count > 99) "99+" else count.toString()
+        }
+    }
+
+    private fun clearCart() {
+        cartItems.clear()
+        cartAdapter.notifyDataSetChanged()
+        updateTotal()
+    }
+
+    private fun generateBill() {
+        if (cartItems.isEmpty()) {
+            Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val intent = Intent(this, InvoiceActivity::class.java)
+        intent.putExtra("CART_ITEMS", ArrayList(cartItems))
+        invoiceLauncher.launch(intent)
+    }
+
+    // ==================================================
+    // ================= DIALOGS ========================
+    // ==================================================
+
+    private fun showQuantityDialog(product: Product) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_quantity_pad, null)
         val tvQuantity = dialogView.findViewById<TextView>(R.id.tvQuantity)
         val gridPad = dialogView.findViewById<GridLayout>(R.id.gridPad)
@@ -164,7 +233,6 @@ class DashboardActivity : AppCompatActivity() {
 
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(dialogView)
-            .setCancelable(true)
             .create()
 
         for (i in 0 until gridPad.childCount) {
@@ -180,13 +248,11 @@ class DashboardActivity : AppCompatActivity() {
                         quantity = (quantity * 10 + digit).coerceAtMost(999999)
                     }
                 }
-
                 tvQuantity.text = quantity.toString()
             }
         }
 
         btnAdd.setOnClickListener {
-
             if (quantity <= 0) {
                 Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -199,28 +265,6 @@ class DashboardActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    // 🔹 Add product to cart
-    private fun addToCart(product: Product, qty: Int) {
-
-        val existing = cartItems.find { it.product.id == product.id }
-
-        if (existing != null) {
-            existing.quantity += qty
-        } else {
-            cartItems.add(CartItem(product, qty))
-        }
-
-        cartAdapter.notifyDataSetChanged()
-        updateTotal()
-    }
-
-    // 🔹 Update total price
-    private fun updateTotal() {
-        val total = cartItems.sumOf { it.subTotal() }
-        tvTotal.text = "Total: ₹$total"
-    }
-
-    // 🔹 Delete product (long press)
     private fun showDeleteDialog(product: Product) {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Delete Product")
