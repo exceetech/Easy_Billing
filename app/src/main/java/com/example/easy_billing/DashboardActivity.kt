@@ -14,8 +14,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.model.CartItem
+import com.example.easy_billing.network.RetrofitClient
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -82,8 +84,27 @@ class DashboardActivity : AppCompatActivity() {
         val btnCart = findViewById<ImageView>(R.id.btnCart)
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
-        val userName = intent.getStringExtra("USER_NAME") ?: "User"
-        tvWelcome.text = "Welcome, $userName 👋"
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
+        if (token != null) {
+            lifecycleScope.launch {
+                try {
+                    val profile = RetrofitClient.api.getProfile("Bearer $token")
+                    tvWelcome.text = "Welcome, ${profile.email} 👋"
+                } catch (e: Exception) {
+
+                    // Token invalid → logout automatically
+                    getSharedPreferences("auth", MODE_PRIVATE)
+                        .edit {
+                            remove("TOKEN")
+                        }
+
+                    startActivity(Intent(this@DashboardActivity, MainActivity::class.java))
+                    finish()
+                }
+            }
+        }
 
         btnMenu.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
@@ -129,8 +150,14 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            getSharedPreferences("auth", MODE_PRIVATE)
+                .edit {
+                    remove("TOKEN")
+                }
+
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
 
         findViewById<Button>(R.id.btnGenerateBill).setOnClickListener {

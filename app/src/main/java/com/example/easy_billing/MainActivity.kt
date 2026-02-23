@@ -31,10 +31,10 @@ class MainActivity : BaseActivity() {
         // 🔹 Login
         btnLogin.setOnClickListener {
 
-            val email = etUsername.text.toString().trim()
+            val username = etUsername.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty()) {
+            if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -42,39 +42,44 @@ class MainActivity : BaseActivity() {
             lifecycleScope.launch {
                 try {
 
-                    // Call backend login
-                    val response = RetrofitClient.api.login(
-                        username = email,
-                        password = password
-                    )
+                    val response = RetrofitClient.api.login(username, password)
 
                     val token = response.access_token
 
-                    // Save JWT token
                     getSharedPreferences("auth", MODE_PRIVATE)
                         .edit {
                             putString("TOKEN", token)
                         }
 
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Login Successful",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if (response.is_first_login) {
 
-                    // Go to dashboard
-                    val intent = Intent(this@MainActivity, DashboardActivity::class.java)
-                    intent.putExtra("USER_NAME", email)
-                    startActivity(intent)
-                    finish()
+                        val intent = Intent(this@MainActivity, ChangePasswordActivity::class.java)
+                        startActivity(intent)
+                        finish()
+
+                    } else {
+
+                        startActivity(Intent(this@MainActivity, DashboardActivity::class.java))
+                        finish()
+                    }
 
                 } catch (e: Exception) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Login Failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+
+            if (e is retrofit2.HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                Toast.makeText(
+                    this@MainActivity,
+                    "HTTP ${e.code()} : $errorBody",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    e.message ?: "Unknown error",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
             }
         }
 
