@@ -14,7 +14,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.EasyBilling">
+        android:theme="@style/Theme.EasyBilling"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".BillDetailsActivity"
             android:exported="false" />

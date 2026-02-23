@@ -6,12 +6,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.network.RetrofitClient
+import kotlinx.coroutines.launch
 import androidx.core.content.edit
 
 class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -21,64 +23,62 @@ class MainActivity : BaseActivity() {
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
         val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
 
-        val prefs = getSharedPreferences("easy_billing_prefs", MODE_PRIVATE)
-
-        // Check whether username exist or not?
-        if (!prefs.contains("USERNAME")) {
-            // First time app is opened EVER
-            prefs.edit {
-                putString("USERNAME", "adeeb")
-                    .putString("PASSWORD", "1111") // Temporary password
-                    .putBoolean("FIRST_LOGIN", true)
-            }
-        }
-
-        // Register Button
+        // 🔹 Register
         tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
-        // Login Button
+        // 🔹 Login
         btnLogin.setOnClickListener {
 
-            val username = etUsername.text.toString().trim()
+            val email = etUsername.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            // Check for empty fields
-            if (username.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Check for valid credentials
-            val savedUsername = prefs.getString("USERNAME", "")
-            val savedPassword = prefs.getString("PASSWORD", "")
-            val isFirstLogin = prefs.getBoolean("FIRST_LOGIN", false)
+            lifecycleScope.launch {
+                try {
 
-            // Credentials matched
-            if (username == savedUsername && password == savedPassword) {
-
-                // First login, then change password
-                if (isFirstLogin) {
-                    startActivity(
-                        Intent(this, ChangePasswordActivity::class.java)
+                    // Call backend login
+                    val response = RetrofitClient.api.login(
+                        username = email,
+                        password = password
                     )
-                    finish()
-                }
-                else {
-                    // Normal login, then go to dashboard
-                    val intent = Intent(this, DashboardActivity::class.java)
-                    intent.putExtra("USER_NAME", username)
+
+                    val token = response.access_token
+
+                    // Save JWT token
+                    getSharedPreferences("auth", MODE_PRIVATE)
+                        .edit {
+                            putString("TOKEN", token)
+                        }
+
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Login Successful",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Go to dashboard
+                    val intent = Intent(this@MainActivity, DashboardActivity::class.java)
+                    intent.putExtra("USER_NAME", email)
                     startActivity(intent)
                     finish()
-                }
 
-            }
-            else {
-                Toast.makeText(this, "Invalid Credentials", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Login Failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
 
+        // 🔹 Forgot password
         tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
