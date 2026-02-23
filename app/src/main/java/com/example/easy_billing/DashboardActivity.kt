@@ -116,8 +116,17 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerViews() {
-        rvProducts.layoutManager = GridLayoutManager(this, 5)
+
+        rvProducts.layoutManager = GridLayoutManager(this, 4)
         rvCart.layoutManager = LinearLayoutManager(this)
+
+        // 🔥 Initialize productAdapter HERE
+        productAdapter = ProductAdapter(
+            onItemClick = { showQuantityDialog(it) },
+            onItemLongClick = { showDeleteDialog(it) }
+        )
+
+        rvProducts.adapter = productAdapter
 
         cartAdapter = CartAdapter(
             cartItems,
@@ -186,14 +195,10 @@ class DashboardActivity : AppCompatActivity() {
     private fun loadProducts() {
         lifecycleScope.launch {
 
-            runOnUiThread {
-                productAdapter = ProductAdapter(
-                    onItemClick = { showQuantityDialog(it) },
-                    onItemLongClick = { showDeleteDialog(it) }
-                )
+            val db = AppDatabase.getDatabase(this@DashboardActivity)
+            val products = db.productDao().getAllProducts()
 
-                rvProducts.adapter = productAdapter
-            }
+            productAdapter.updateData(products)
         }
     }
 

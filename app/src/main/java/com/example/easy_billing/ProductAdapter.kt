@@ -50,6 +50,11 @@ class ProductAdapter(
         holder.bind(getItem(position))
     }
 
+    fun updateData(newList: List<Product>) {
+        fullList = newList
+        submitList(newList)
+    }
+
     // ==================================================
     // ================= FILTERING ======================
     // ==================================================
