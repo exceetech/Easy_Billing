@@ -10,6 +10,7 @@ data class LoginResponse(
 
 interface ApiService {
 
+    // ================= AUTH =================
     @FormUrlEncoded
     @POST("auth/login")
     suspend fun login(
@@ -33,4 +34,28 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Field("new_password") newPassword: String
     ): retrofit2.Response<Unit>
+
+    // ================= PRODUCTS =================
+
+    @GET("products/catalog")
+    suspend fun getCatalog(
+        @Header("Authorization") token: String
+    ): List<GlobalProductResponse>
+
+    @GET("products/my-products")
+    suspend fun getMyProducts(
+        @Header("Authorization") token: String
+    ): List<ShopProductResponse>
+
+    @POST("products/add-to-shop")
+    suspend fun addProductToShop(
+        @Header("Authorization") token: String,
+        @Body request: AddProductRequest
+    ): MessageResponse
+
+    @PUT("products/deactivate/{id}")
+    suspend fun deactivateProduct(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    )
 }

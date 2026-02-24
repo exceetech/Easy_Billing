@@ -1,11 +1,10 @@
 package com.example.easy_billing.db
 
 import androidx.room.Dao
-import androidx.room.Database
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.RoomDatabase
 import com.example.easy_billing.Product
+
 
 @Dao
 interface ProductDao {
@@ -13,13 +12,11 @@ interface ProductDao {
     @Insert
     suspend fun insert(product: Product)
 
-    @Query("SELECT * FROM products")
-    suspend fun getAllProducts(): List<Product>
+    @Query("SELECT * FROM products ORDER BY name ASC")
+    suspend fun getAll(): List<Product>
 
-    @Database(entities = [Product::class], version = 1)
-    abstract class AppDatabase : RoomDatabase() {
-        abstract fun productDao(): ProductDao
-    }
+    @Query("DELETE FROM products")
+    suspend fun deleteAll()
 
     @Query("DELETE FROM products WHERE id = :productId")
     suspend fun deleteById(productId: Int)

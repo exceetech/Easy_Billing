@@ -18,6 +18,8 @@ import com.example.easy_billing.network.RetrofitClient
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.example.easy_billing.db.ProductDao
+import com.example.easy_billing.Product
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -159,6 +161,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
+
             getSharedPreferences("auth", MODE_PRIVATE)
                 .edit {
                     remove("TOKEN")
@@ -193,12 +196,38 @@ class DashboardActivity : AppCompatActivity() {
     // ==================================================
 
     private fun loadProducts() {
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
         lifecycleScope.launch {
 
             val db = AppDatabase.getDatabase(this@DashboardActivity)
-            val products = db.productDao().getAllProducts()
 
-            productAdapter.updateData(products)
+            try {
+                val backendProducts =
+                    RetrofitClient.api.getMyProducts("Bearer $token")
+
+                db.productDao().deleteAll()
+
+                backendProducts.forEach {
+                    db.productDao().insert(
+                        Product(
+                            id = it.id,
+                            name = it.name,
+                            price = it.price,
+                            isCustom = false
+                        )
+                    )
+                }
+
+            } catch (e: Exception) {
+                // Offline mode
+            }
+
+            val localProducts = db.productDao().getAll()
+
+            productAdapter.updateData(localProducts)
         }
     }
 
@@ -298,14 +327,43 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun showDeleteDialog(product: Product) {
+
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Delete Product")
+            .setTitle("Remove Product")
             .setMessage("Remove ${product.name}?")
-            .setPositiveButton("Delete") { _, _ ->
+            .setPositiveButton("Remove") { _, _ ->
+
                 lifecycleScope.launch {
+
                     val db = AppDatabase.getDatabase(this@DashboardActivity)
-                    db.productDao().deleteById(product.id)
-                    loadProducts()
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    try {
+                        // 1️⃣ Deactivate backend
+                        RetrofitClient.api.deactivateProduct(
+                            "Bearer $token",
+                            product.id
+                        )
+
+                        // 2️⃣ Remove locally
+                        db.productDao().deleteById(product.id)
+
+                        // 3️⃣ Reload from Room
+                        val updatedList = db.productDao().getAll()
+
+                        runOnUiThread {
+                            productAdapter.updateData(updatedList)
+                        }
+
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            this@DashboardActivity,
+                            "Failed to remove product",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)

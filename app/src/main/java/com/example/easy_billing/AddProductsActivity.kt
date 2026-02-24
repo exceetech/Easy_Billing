@@ -7,28 +7,50 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.network.AddProductRequest
+import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
 
 class AddProductsActivity : AppCompatActivity() {
 
     private lateinit var adapter: ArrayAdapter<String>
     private lateinit var db: AppDatabase
+    private var catalogList: List<String> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_products)
 
-        initDatabase()
+        db = AppDatabase.getDatabase(this)
+
         setupList()
         setupSearch()
-        loadInitialData()
+        loadCatalogFromBackend()
     }
 
-    // ================= INITIALIZATION =================
+    // ================= LOAD CATALOG FROM BACKEND =================
 
-    private fun initDatabase() {
-        db = AppDatabase.getDatabase(this)
+    private fun loadCatalogFromBackend() {
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
+        lifecycleScope.launch {
+            try {
+                val catalog = RetrofitClient.api.getCatalog("Bearer $token")
+
+                catalogList = catalog.map { it.name }
+
+                updateList(catalogList)
+
+            } catch (e: Exception) {
+                Toast.makeText(this@AddProductsActivity,
+                    "Failed to load products", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
+    // ================= LIST SETUP =================
 
     private fun setupList() {
         val listItems = findViewById<ListView>(R.id.listItems)
@@ -51,218 +73,33 @@ class AddProductsActivity : AppCompatActivity() {
         val etSearch = findViewById<EditText>(R.id.etSearch)
 
         etSearch.addTextChangedListener { text ->
-            lifecycleScope.launch {
-                val query = text.toString().trim()
+            val query = text.toString().trim().lowercase()
 
-                val results = if (query.isEmpty()) {
-                    db.defaultProductDao().getAll()
-                } else {
-                    db.defaultProductDao().search(query)
+            val filtered = if (query.isEmpty()) {
+                catalogList
+            } else {
+                catalogList.filter {
+                    it.lowercase().contains(query)
                 }
-
-                val names = results.map { it.name }.toMutableList()
-
-                if (names.isEmpty()) {
-                    names.add("Others")
-                }
-
-                adapter.clear()
-                adapter.addAll(names)
-                adapter.notifyDataSetChanged()
             }
+
+            updateList(filtered)
         }
     }
 
-    private fun loadInitialData() {
-        lifecycleScope.launch {
-            insertDefaultProductsIfNeeded()
-            loadProducts()
+    private fun updateList(list: List<String>) {
+        val displayList = list.toMutableList()
+
+        if (!displayList.contains("Others")) {
+            displayList.add("Others")
         }
-    }
-
-    // ================= DEFAULT PRODUCTS =================
-
-    private suspend fun insertDefaultProductsIfNeeded() {
-        val existing = db.defaultProductDao().getAll()
-
-        if (existing.isNotEmpty()) return
-
-        val defaultList = listOf(
-
-            // Grains
-            DefaultProduct(name = "Rice"),
-            DefaultProduct(name = "Basmati Rice"),
-            DefaultProduct(name = "Brown Rice"),
-            DefaultProduct(name = "Idli Rice"),
-            DefaultProduct(name = "Ponni Rice"),
-            DefaultProduct(name = "Kolam Rice"),
-            DefaultProduct(name = "Wheat Flour"),
-            DefaultProduct(name = "Multigrain Atta"),
-            DefaultProduct(name = "Maida"),
-            DefaultProduct(name = "Rava"),
-            DefaultProduct(name = "Fine Rava"),
-            DefaultProduct(name = "Poha"),
-            DefaultProduct(name = "Thin Poha"),
-            DefaultProduct(name = "Thick Poha"),
-            DefaultProduct(name = "Dalia"),
-            DefaultProduct(name = "Semolina"),
-
-            // Millets
-            DefaultProduct(name = "Ragi"),
-            DefaultProduct(name = "Jowar"),
-            DefaultProduct(name = "Bajra"),
-            DefaultProduct(name = "Foxtail Millet"),
-            DefaultProduct(name = "Little Millet"),
-            DefaultProduct(name = "Barnyard Millet"),
-            DefaultProduct(name = "Kodo Millet"),
-            DefaultProduct(name = "Quinoa"),
-
-            // Pulses
-            DefaultProduct(name = "Toor Dal"),
-            DefaultProduct(name = "Moong Dal"),
-            DefaultProduct(name = "Green Moong"),
-            DefaultProduct(name = "Sprouted Moong"),
-            DefaultProduct(name = "Chana Dal"),
-            DefaultProduct(name = "Masoor Dal"),
-            DefaultProduct(name = "Urad Dal"),
-            DefaultProduct(name = "Split Urad Dal"),
-            DefaultProduct(name = "Rajma"),
-            DefaultProduct(name = "Chole"),
-            DefaultProduct(name = "Black Chana"),
-            DefaultProduct(name = "Kabuli Chana"),
-            DefaultProduct(name = "White Peas"),
-            DefaultProduct(name = "Soya Beans"),
-            DefaultProduct(name = "Soya Chunks"),
-
-            // Dairy
-            DefaultProduct(name = "Milk"),
-            DefaultProduct(name = "Skimmed Milk"),
-            DefaultProduct(name = "Toned Milk"),
-            DefaultProduct(name = "Full Cream Milk"),
-            DefaultProduct(name = "Curd"),
-            DefaultProduct(name = "Butter"),
-            DefaultProduct(name = "Salted Butter"),
-            DefaultProduct(name = "Unsalted Butter"),
-            DefaultProduct(name = "Ghee"),
-            DefaultProduct(name = "Desi Ghee"),
-            DefaultProduct(name = "Paneer"),
-            DefaultProduct(name = "Fresh Paneer"),
-            DefaultProduct(name = "Cheese Slices"),
-            DefaultProduct(name = "Cheese Cubes"),
-            DefaultProduct(name = "Mozzarella Cheese"),
-            DefaultProduct(name = "Fresh Cream"),
-            DefaultProduct(name = "Buttermilk"),
-            DefaultProduct(name = "Lassi"),
-            DefaultProduct(name = "Condensed Milk"),
-            DefaultProduct(name = "Eggs"),
-            DefaultProduct(name = "Brown Eggs"),
-
-            // Vegetables
-            DefaultProduct(name = "Potato"),
-            DefaultProduct(name = "Onion"),
-            DefaultProduct(name = "Spring Onion"),
-            DefaultProduct(name = "Tomato"),
-            DefaultProduct(name = "Cherry Tomato"),
-            DefaultProduct(name = "Carrot"),
-            DefaultProduct(name = "Beetroot"),
-            DefaultProduct(name = "Radish"),
-            DefaultProduct(name = "Turnip"),
-            DefaultProduct(name = "Cabbage"),
-            DefaultProduct(name = "Cauliflower"),
-            DefaultProduct(name = "Broccoli"),
-            DefaultProduct(name = "Spinach"),
-            DefaultProduct(name = "Fenugreek Leaves"),
-            DefaultProduct(name = "Mustard Leaves"),
-            DefaultProduct(name = "Coriander Leaves"),
-            DefaultProduct(name = "Mint Leaves"),
-            DefaultProduct(name = "Drumstick"),
-            DefaultProduct(name = "Brinjal"),
-            DefaultProduct(name = "Lady Finger"),
-            DefaultProduct(name = "Bottle Gourd"),
-            DefaultProduct(name = "Ridge Gourd"),
-            DefaultProduct(name = "Snake Gourd"),
-            DefaultProduct(name = "Bitter Gourd"),
-            DefaultProduct(name = "Ash Gourd"),
-            DefaultProduct(name = "Pumpkin"),
-            DefaultProduct(name = "Green Chilli"),
-            DefaultProduct(name = "Capsicum Green"),
-            DefaultProduct(name = "Capsicum Yellow"),
-            DefaultProduct(name = "Capsicum Red"),
-            DefaultProduct(name = "Cucumber"),
-            DefaultProduct(name = "Zucchini"),
-            DefaultProduct(name = "Sweet Corn"),
-            DefaultProduct(name = "Mushroom"),
-            DefaultProduct(name = "Ginger"),
-            DefaultProduct(name = "Garlic"),
-
-            // Fruits
-            DefaultProduct(name = "Apple"),
-            DefaultProduct(name = "Green Apple"),
-            DefaultProduct(name = "Banana"),
-            DefaultProduct(name = "Robusta Banana"),
-            DefaultProduct(name = "Orange"),
-            DefaultProduct(name = "Mosambi"),
-            DefaultProduct(name = "Mandarin"),
-            DefaultProduct(name = "Mango"),
-            DefaultProduct(name = "Alphonso Mango"),
-            DefaultProduct(name = "Grapes"),
-            DefaultProduct(name = "Black Grapes"),
-            DefaultProduct(name = "Papaya"),
-            DefaultProduct(name = "Pineapple"),
-            DefaultProduct(name = "Watermelon"),
-            DefaultProduct(name = "Muskmelon"),
-            DefaultProduct(name = "Pomegranate"),
-            DefaultProduct(name = "Guava"),
-            DefaultProduct(name = "Pear"),
-            DefaultProduct(name = "Kiwi"),
-            DefaultProduct(name = "Strawberry"),
-            DefaultProduct(name = "Blueberry"),
-            DefaultProduct(name = "Chikoo"),
-
-            // Dry Fruits
-            DefaultProduct(name = "Almonds"),
-            DefaultProduct(name = "Cashews"),
-            DefaultProduct(name = "Pistachios"),
-            DefaultProduct(name = "Walnuts"),
-            DefaultProduct(name = "Raisins"),
-            DefaultProduct(name = "Dates"),
-            DefaultProduct(name = "Figs"),
-            DefaultProduct(name = "Chia Seeds"),
-            DefaultProduct(name = "Flax Seeds"),
-            DefaultProduct(name = "Pumpkin Seeds"),
-            DefaultProduct(name = "Sunflower Seeds"),
-            DefaultProduct(name = "Sesame Seeds"),
-
-            // Oils
-            DefaultProduct(name = "Oil"),
-            DefaultProduct(name = "Sunflower Oil"),
-            DefaultProduct(name = "Mustard Oil"),
-            DefaultProduct(name = "Groundnut Oil"),
-            DefaultProduct(name = "Rice Bran Oil"),
-            DefaultProduct(name = "Coconut Oil"),
-            DefaultProduct(name = "Olive Oil"),
-            DefaultProduct(name = "Butter Oil"),
-            DefaultProduct(name = "Vanaspati"),
-
-            // Continue same pattern for remaining categories...
-
-            DefaultProduct(name = "Disposable Cups"),
-            DefaultProduct(name = "Others")
-        )
-
-        db.defaultProductDao().insertAll(defaultList)
-    }
-
-    private suspend fun loadProducts() {
-        val products = db.defaultProductDao().getAll()
-        val names = products.map { it.name }
 
         adapter.clear()
-        adapter.addAll(names)
+        adapter.addAll(displayList)
         adapter.notifyDataSetChanged()
     }
 
-    // ================= ADD PRODUCT DIALOG =================
+    // ================= ADD PRODUCT =================
 
     private fun showAddProductDialog(selectedItem: String) {
 
@@ -273,7 +110,6 @@ class AddProductsActivity : AppCompatActivity() {
         val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
 
-        // Show custom name only if "Others"
         etCustomName.visibility =
             if (selectedItem == "Others") View.VISIBLE else View.GONE
 
@@ -281,7 +117,6 @@ class AddProductsActivity : AppCompatActivity() {
             .setView(dialogView)
             .create()
 
-        // Remove default white dialog background
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnAdd.setOnClickListener {
@@ -306,18 +141,34 @@ class AddProductsActivity : AppCompatActivity() {
 
             val price = priceText.toDouble()
 
-            lifecycleScope.launch {
-                db.productDao().insert(
-                    Product(
-                        name = name,
-                        price = price,
-                        isCustom = (selectedItem == "Others")
-                    )
-                )
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null)
 
-                toast("Product added")
-                dialog.dismiss()
-                finish()   // Return to dashboard
+            lifecycleScope.launch {
+                try {
+
+                    // 🔹 Send to backend
+                    RetrofitClient.api.addProductToShop(
+                        "Bearer $token",
+                        AddProductRequest(name, price)
+                    )
+
+                    // 🔹 Save locally for offline
+                    db.productDao().insert(
+                        Product(
+                            name = name,
+                            price = price,
+                            isCustom = (selectedItem == "Others")
+                        )
+                    )
+
+                    toast("Product added")
+                    dialog.dismiss()
+                    finish()
+
+                } catch (e: Exception) {
+                    toast("Already added or error")
+                }
             }
         }
 
@@ -327,8 +178,6 @@ class AddProductsActivity : AppCompatActivity() {
 
         dialog.show()
     }
-
-    // ================= UTILITY =================
 
     private fun toast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
