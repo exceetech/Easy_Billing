@@ -1,89 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
+
+    <!-- ================= HEADER ================= -->
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="24dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <TextView
-            android:text="Easy Billing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/shop_name"
             android:textSize="22sp"
             android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
             android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_marginTop="12dp"/>
 
         <TextView
             android:id="@+id/tvBillInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="Invoice #123\nDate: --"
-            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_marginTop="6dp"/>
 
         <View
-            android:layout_marginVertical="12dp"
-            android:background="#CCCCCC"
             android:layout_width="match_parent"
-            android:layout_height="1dp"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvInvoiceItems"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <View
-            android:layout_marginVertical="12dp"
-            android:background="#CCCCCC"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"/>
-
-        <TextView
-            android:id="@+id/tvTotal"
-            android:text="Total: ₹0"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="end"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <EditText
-            android:id="@+id/etGst"
-            android:hint="GST %"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/etDiscount"
-            android:hint="Discount ₹"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/btnConfirm"
-            android:text="Confirm Bill"
-            android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/btnPrint"
-            android:text="Print / Save PDF"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/btnClose"
-            android:text="Close"
-            android:layout_marginTop="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="?attr/colorSurfaceVariant"/>
 
     </LinearLayout>
-</ScrollView>
+
+
+    <!-- ================= ITEMS (SCROLLABLE) ================= -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvInvoiceItems"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="10dp"
+        android:clipToPadding="false"/>
+
+
+    <!-- ================= FIXED BOTTOM ================= -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/colorSurfaceVariant"/>
+
+        <!-- TOTAL -->
+        <TextView
+            android:id="@+id/tvTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: ₹0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:gravity="end"/>
+
+
+        <!-- GST INPUT -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:startIconDrawable="@drawable/ic_tax"
+            app:startIconTint="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etGst"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="GST (%)"
+                android:inputType="numberDecimal"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!-- DISCOUNT INPUT -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            app:startIconDrawable="@drawable/ic_discount"
+            app:startIconTint="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDiscount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Discount (₹)"
+                android:inputType="numberDecimal"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!-- CONFIRM BUTTON -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:text="Confirm Bill"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            style="@style/Widget.EasyBilling.Button"/>
+
+
+        <!-- PRINT BUTTON -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrint"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="10dp"
+            android:text="Print / Save PDF"
+            android:textAllCaps="false"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="1dp"/>
+
+
+        <!-- CLOSE BUTTON -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="Close"
+            android:textAllCaps="false"
+            style="@style/Widget.Material3.Button.TextButton"/>
+
+    </LinearLayout>
+
+</LinearLayout>

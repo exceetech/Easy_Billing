@@ -1,53 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="20dp"
+    app:cardCornerRadius="26dp"
+    app:cardElevation="14dp"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="?attr/colorSurface">
 
-    <!-- Display -->
-    <TextView
-        android:id="@+id/tvQuantity"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#EEEEEE"
-        android:hint="Enter the Quantity"
-        android:textSize="28sp"
-        android:gravity="center"
-        android:layout_marginBottom="12dp"/>
-
-    <!-- Number Pad -->
-    <GridLayout
-        android:id="@+id/gridPad"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:columnCount="3"
-        android:rowCount="4"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_marginBottom="12dp">
-
-        <Button android:text="1" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="2" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="3" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-
-        <Button android:text="4" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="5" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="6" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-
-        <Button android:text="7" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="8" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="9" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-
-        <Button android:text="C" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="0" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-        <Button android:text="⌫" style="@style/QtyButton" android:layout_width="80dp" android:layout_height="60dp"/>
-
-    </GridLayout>
-
-    <Button
-        android:id="@+id/btnAddQty"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add to Cart"/>
-</LinearLayout>
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <!-- ROUNDED 2D WHITE DISPLAY -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginBottom="18dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#E0E0E0"
+            app:cardBackgroundColor="@android:color/white">
+
+            <TextView
+                android:id="@+id/tvQuantity"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- KEYPAD -->
+        <GridLayout
+            android:id="@+id/gridPad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:useDefaultMargins="true">
+
+            <!-- NUMBER BUTTON TEMPLATE -->
+
+            <!-- 1 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="1"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 2 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="2"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 3 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="3"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 4 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="4"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 5 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="5"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 6 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="6"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 7 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="7"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 8 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="8"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- 9 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="9"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- CLEAR -->
+            <com.google.android.material.button.MaterialButton
+                android:text="C"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorError"
+                android:textColor="?attr/colorOnPrimary"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorError"/>
+
+            <!-- 0 -->
+            <com.google.android.material.button.MaterialButton
+                android:text="0"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+            <!-- BACKSPACE -->
+            <com.google.android.material.button.MaterialButton
+                android:text="⌫"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_columnWeight="1"
+                app:cornerRadius="14dp"
+                app:backgroundTint="?attr/colorSecondaryContainer"
+                android:textColor="?attr/colorOnSecondaryContainer"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline"/>
+
+        </GridLayout>
+
+        <!-- ADD BUTTON -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddQty"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="22dp"
+            android:text="Add to Cart"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            app:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorPrimary"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

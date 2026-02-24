@@ -1,61 +1,98 @@
 package com.example.easy_billing
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.*
-import android.widget.ArrayAdapter
+import androidx.appcompat.app.AppCompatActivity
 
 class BillingSettingsActivity : BaseActivity() {
 
     private lateinit var etGst: EditText
-    private lateinit var spPrinter: Spinner
+    private lateinit var autoPrinter: AutoCompleteTextView
     private lateinit var btnSave: Button
     private lateinit var prefs: android.content.SharedPreferences
+
+    private var isEditMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_billing_settings)
 
-        // Setup professional toolbar
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = "Billing Settings"
+        supportActionBar?.title = " "
 
         prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
 
         bindViews()
-        setupSpinner()
+        setupDropdown()
         loadData()
+
+        setEditable(false) // default state
         setupSave()
     }
 
+    // ===== MENU =====
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_edit, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_edit) {
+            toggleEditMode()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    // ===== VIEW BINDING =====
     private fun bindViews() {
         etGst = findViewById(R.id.etDefaultGst)
-        spPrinter = findViewById(R.id.spPrinterLayout)
+        autoPrinter = findViewById(R.id.spPrinterLayout)
         btnSave = findViewById(R.id.btnSaveBilling)
     }
 
-    private fun setupSpinner() {
-        val layouts = arrayOf("80mm", "A4")
+    private fun setupDropdown() {
+        val layouts = listOf("80mm", "A4")
 
-        spPrinter.adapter = ArrayAdapter(
+        val adapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_dropdown_item,
+            android.R.layout.simple_list_item_1,
             layouts
         )
+
+        autoPrinter.setAdapter(adapter)
     }
 
     private fun loadData() {
         etGst.setText(prefs.getFloat("default_gst", 0f).toString())
-
         val savedLayout = prefs.getString("printer_layout", "80mm")
-        spPrinter.setSelection(if (savedLayout == "A4") 1 else 0)
+        autoPrinter.setText(savedLayout, false)
     }
 
-    private fun setupSave() {
+    // ===== EDIT MODE =====
+    private fun toggleEditMode() {
+        isEditMode = !isEditMode
+        setEditable(isEditMode)
+        invalidateOptionsMenu()
+    }
 
+    private fun setEditable(enable: Boolean) {
+        etGst.isEnabled = enable
+        autoPrinter.isEnabled = enable
+
+        // 👇 THIS IS THE IMPORTANT PART
+        btnSave.visibility = if (enable) View.VISIBLE else View.GONE
+    }
+
+    // ===== SAVE =====
+    private fun setupSave() {
         btnSave.setOnClickListener {
 
             val gstValue = etGst.text.toString().toFloatOrNull() ?: 0f
-            val printerType = spPrinter.selectedItem.toString()
+            val printerType = autoPrinter.text.toString()
 
             prefs.edit()
                 .putFloat("default_gst", gstValue)
@@ -63,7 +100,16 @@ class BillingSettingsActivity : BaseActivity() {
                 .apply()
 
             Toast.makeText(this, "Billing Settings Saved", Toast.LENGTH_SHORT).show()
-            finish()
+
+            setEditable(false)
+            isEditMode = false
         }
+    }
+
+    // ===== CHANGE EDIT BUTTON TEXT =====
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val item = menu?.findItem(R.id.action_edit)
+        item?.title = if (isEditMode) "Done" else "Click here to Edit"
+        return super.onPrepareOptionsMenu(menu)
     }
 }

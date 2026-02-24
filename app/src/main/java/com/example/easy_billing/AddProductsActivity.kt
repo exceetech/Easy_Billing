@@ -11,15 +11,20 @@ import com.example.easy_billing.network.AddProductRequest
 import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class AddProductsActivity : AppCompatActivity() {
+class AddProductsActivity : BaseActivity() {
 
     private lateinit var adapter: ArrayAdapter<String>
     private lateinit var db: AppDatabase
     private var catalogList: List<String> = emptyList()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_products)
+
+        // Setup professional toolbar with back arrow
+        setupToolbar(R.id.toolbar)
+        supportActionBar?.title = " "
 
         db = AppDatabase.getDatabase(this)
 
@@ -110,7 +115,9 @@ class AddProductsActivity : AppCompatActivity() {
         val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
 
-        etCustomName.visibility =
+        val layoutCustomName = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutCustomName)
+
+        layoutCustomName.visibility =
             if (selectedItem == "Others") View.VISIBLE else View.GONE
 
         val dialog = android.app.AlertDialog.Builder(this)

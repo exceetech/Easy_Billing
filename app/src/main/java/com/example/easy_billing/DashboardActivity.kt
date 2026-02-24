@@ -296,6 +296,8 @@ class DashboardActivity : AppCompatActivity() {
             .setView(dialogView)
             .create()
 
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
         for (i in 0 until gridPad.childCount) {
             val btn = gridPad.getChildAt(i)
             if (btn !is Button) continue

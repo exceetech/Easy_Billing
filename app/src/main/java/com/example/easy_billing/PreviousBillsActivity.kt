@@ -20,6 +20,8 @@ class PreviousBillsActivity : BaseActivity() {
         setContentView(R.layout.activity_previous_bills)
 
         setupToolbar(R.id.toolbar)
+        supportActionBar?.title = " "
+
 
         rvBills = findViewById(R.id.rvBills)
         rvBills.layoutManager = LinearLayoutManager(this)

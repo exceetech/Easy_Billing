@@ -1,10 +1,7 @@
 package com.example.easy_billing
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 
 class StoreSettingsActivity : BaseActivity() {
 
@@ -16,20 +13,54 @@ class StoreSettingsActivity : BaseActivity() {
 
     private lateinit var prefs: android.content.SharedPreferences
 
+    private var isEditMode = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_store_settings)
 
-        // Setup toolbar
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = "Store Information"
+        supportActionBar?.title = ""
 
         prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
 
         bindViews()
         loadExistingData()
-        setupValidation()
+        setEditMode(false)   // 🔒 start in view mode
         setupSave()
+    }
+
+    // ===== Toolbar Menu =====
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_edit, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_edit -> {
+                toggleEditMode()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun toggleEditMode() {
+        isEditMode = !isEditMode
+        setEditMode(isEditMode)
+    }
+
+    // ===== Enable / Disable Fields =====
+    private fun setEditMode(enabled: Boolean) {
+
+        etStoreName.isEnabled = enabled
+        etStoreAddress.isEnabled = enabled
+        etStorePhone.isEnabled = enabled
+        etStoreGstin.isEnabled = enabled
+
+        btnSave.visibility = if (enabled) android.view.View.VISIBLE
+        else android.view.View.GONE
     }
 
     private fun bindViews() {
@@ -47,51 +78,7 @@ class StoreSettingsActivity : BaseActivity() {
         etStoreGstin.setText(prefs.getString("store_gstin", ""))
     }
 
-    // ================= VALIDATION =================
-    private fun setupValidation() {
-
-        val watcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                validateForm()
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        }
-
-        etStoreName.addTextChangedListener(watcher)
-        etStorePhone.addTextChangedListener(watcher)
-        etStoreGstin.addTextChangedListener(watcher)
-
-        validateForm()
-    }
-
-    private fun validateForm() {
-
-        val name = etStoreName.text.toString().trim()
-        val phone = etStorePhone.text.toString().trim()
-        val gstin = etStoreGstin.text.toString().trim()
-
-        var isValid = true
-
-        if (name.isEmpty()) {
-            etStoreName.error = "Store name required"
-            isValid = false
-        }
-
-        if (phone.isNotEmpty() && phone.length < 10) {
-            etStorePhone.error = "Invalid phone number"
-            isValid = false
-        }
-
-        if (gstin.isNotEmpty() && gstin.length != 15) {
-            etStoreGstin.error = "GSTIN must be 15 characters"
-            isValid = false
-        }
-
-        btnSave.isEnabled = isValid
-    }
-
-    // ================= SAVE =================
+    // ===== SAVE =====
     private fun setupSave() {
 
         btnSave.setOnClickListener {
@@ -108,9 +95,11 @@ class StoreSettingsActivity : BaseActivity() {
                 .putString("store_gstin", storeGstin)
                 .apply()
 
-            Toast.makeText(this, "Store details updated successfully", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,
+                "Store details updated successfully",
+                Toast.LENGTH_SHORT).show()
 
-            finish()
+            setEditMode(false)   // 🔒 back to view mode
         }
     }
 }

@@ -1,93 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="24dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="12dp"
-    app:cardUseCompatPadding="true">
+    app:cardCornerRadius="22dp"
+    app:cardElevation="14dp"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="28dp">
 
         <!-- Title -->
         <TextView
-            android:id="@+id/tvTitle"
-            android:text="Add Product"
-            android:textStyle="bold"
+            android:text="Change Login PIN"
             android:textSize="20sp"
+            android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <!-- Custom Name -->
+        <!-- New PIN -->
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutCustomName"
+            android:id="@+id/layoutNewPin"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:visibility="gone"
-            app:startIconDrawable="@drawable/ic_item"
-            app:startIconTint="?attr/colorPrimary"
-            app:boxCornerRadiusTopStart="16dp"
-            app:boxCornerRadiusTopEnd="16dp"
-            app:boxCornerRadiusBottomStart="16dp"
-            app:boxCornerRadiusBottomEnd="16dp">
+            app:startIconDrawable="@drawable/ic_edit"
+            app:startIconTint="?attr/colorPrimary">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etDialogCustomName"
+                android:id="@+id/etNewPin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="Custom product name"
-                android:inputType="textCapWords"/>
+                android:hint="New PIN"
+                android:inputType="numberPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Price -->
+        <!-- Confirm PIN -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutConfirmPin"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:startIconDrawable="@drawable/ic_currency"
-            app:startIconTint="?attr/colorPrimary"
-            app:boxCornerRadiusTopStart="16dp"
-            app:boxCornerRadiusTopEnd="16dp"
-            app:boxCornerRadiusBottomStart="16dp"
-            app:boxCornerRadiusBottomEnd="16dp">
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="?attr/colorPrimary">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etDialogPrice"
+                android:id="@+id/etConfirmPin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="Price"
-                android:inputType="numberDecimal"/>
+                android:hint="Confirm PIN"
+                android:inputType="numberPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="26dp"
             android:gravity="end">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDialogCancel"
+                android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:text="Cancel"
-                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                style="@style/Widget.Material3.Button.TextButton"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDialogAdd"
+                android:id="@+id/btnSavePin"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginStart="12dp"
-                android:text="Add"
-                app:cornerRadius="14dp"/>
+                android:text="Save"
+                style="@style/Widget.EasyBilling.Button"/>
         </LinearLayout>
 
     </LinearLayout>

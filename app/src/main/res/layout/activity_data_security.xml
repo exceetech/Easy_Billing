@@ -1,64 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="20dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <androidx.appcompat.widget.Toolbar
+        <!-- Toolbar -->
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:text="Data and Security"
-            android:textStyle="bold"
-            android:titleTextColor="@android:color/white"/>
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
+            app:titleTextColor="?attr/colorOnSurface"
+            app:navigationIconTint="?attr/colorOnSurface" />
 
-        <Button
+        <!-- Title -->
+        <TextView
+            android:text="Data and Security"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- 🟢 LOW RISK -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChangePassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change Login PIN"
-            android:layout_marginTop="12dp"/>
+            android:layout_height="60dp"
+            android:text="Change Login Password"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="18dp"
+            app:icon="@drawable/ic_lock"
+            app:iconPadding="16dp"
+            app:iconTint="@android:color/white"
+            app:backgroundTint="#2E7D32" />
 
-        <!-- Manual Backup -->
-        <Button
-            android:id="@+id/btnManualBackup"
-            android:text="Backup Now"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
-
-        <!-- Restore -->
-        <Button
-            android:id="@+id/btnRestoreBackup"
-            android:text="Restore Backup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
-
-        <!-- Clear Bills -->
-        <Button
+        <!-- 🟡 MEDIUM RISK -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClearBills"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:text="Clear All Bills"
-            android:backgroundTint="#E53935"
-            android:textColor="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="16dp"
+            app:cornerRadius="18dp"
+            app:icon="@drawable/ic_clear"
+            app:iconPadding="16dp"
+            app:iconTint="@android:color/black"
+            app:backgroundTint="#FBC02D" />
 
-        <!-- Factory Reset -->
-        <Button
+        <!-- 🟠 HIGH RISK -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFactoryReset"
-            android:text="Factory Reset App"
-            android:backgroundTint="#B00020"
-            android:textColor="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
+            android:layout_height="60dp"
+            android:text="Factory Reset App"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:cornerRadius="18dp"
+            app:icon="@drawable/ic_clean"
+            app:iconPadding="16dp"
+            app:iconTint="@android:color/white"
+            app:backgroundTint="#D84315" />
 
     </LinearLayout>
+
 </ScrollView>

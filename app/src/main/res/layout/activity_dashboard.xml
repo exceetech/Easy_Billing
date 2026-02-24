@@ -117,48 +117,127 @@
     <!-- ================= LEFT MENU DRAWER ================= -->
     <LinearLayout
         android:id="@+id/leftDrawer"
-        android:layout_width="280dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:orientation="vertical"
-        android:background="@android:color/white"
-        android:padding="20dp">
+        android:background="?attr/colorSurface"
+        android:paddingTop="40dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- HEADER -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Menu"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"/>
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dashboard Menu"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"/>
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="8dp"
+                android:background="?attr/colorPrimary"/>
+        </LinearLayout>
+
+        <!-- DIVIDER -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E7EB"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- MENU ITEMS -->
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdmin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Add Products"
+            android:textAllCaps="false"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+
+            app:icon="@drawable/ic_addproduct"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconSize="28dp"
+            app:iconTint="?attr/colorPrimary"
+
             style="@style/Widget.Material3.Button.TextButton"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPreviousBills"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Previous Bills"
+            android:textAllCaps="false"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+
+            app:icon="@drawable/ic_history"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconSize="28dp"
+            app:iconTint="?attr/colorPrimary"
+
             style="@style/Widget.Material3.Button.TextButton"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSettings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Settings"
+            android:textAllCaps="false"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+
+            app:icon="@drawable/ic_settings"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconSize="28dp"
+            app:iconTint="?attr/colorPrimary"
+
             style="@style/Widget.Material3.Button.TextButton"/>
+
+        <!-- SPACE -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- LOGOUT SECTION -->
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E7EB"
+            android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Logout"
+            android:layout_height="56dp"
+            android:text="@string/logout"
+            android:textAllCaps="false"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
             android:textColor="?attr/colorError"
+
+            app:icon="@drawable/ic_logout"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconSize="28dp"
+            app:iconTint="?attr/colorError"
+
             style="@style/Widget.Material3.Button.TextButton"/>
 
     </LinearLayout>

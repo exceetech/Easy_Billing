@@ -23,7 +23,7 @@
         <TextView
             android:id="@+id/tvProductName"
             android:text="Almonds"
-            android:textSize="14sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:maxLines="2"
             android:ellipsize="end"
@@ -40,7 +40,7 @@
         <TextView
             android:id="@+id/tvProductPrice"
             android:text="₹500"
-            android:textSize="13sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:paddingHorizontal="10dp"

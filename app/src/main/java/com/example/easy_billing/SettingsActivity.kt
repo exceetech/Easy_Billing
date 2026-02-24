@@ -12,7 +12,7 @@ class SettingsActivity : BaseActivity() {
 
         // Setup professional toolbar with back arrow
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = "Settings"
+        supportActionBar?.title = " "
 
         findViewById<Button>(R.id.btnStoreSettings).setOnClickListener {
             startActivity(Intent(this, StoreSettingsActivity::class.java))

@@ -538,7 +538,7 @@ class InvoiceActivity : AppCompatActivity() {
         document.writeTo(FileOutputStream(file))
         document.close()
 
-        Toast.makeText(this, "Professional Invoice Created", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Invoice Created", Toast.LENGTH_LONG).show()
 
         val printManager = getSystemService(PRINT_SERVICE) as PrintManager
         val printAdapter = PdfPrintAdapter(
