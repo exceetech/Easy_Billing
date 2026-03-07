@@ -30,7 +30,7 @@
             android:name=".AddProductsActivity"
             android:exported="false" />
         <activity
-            android:name=".PreviousBillsActivity" />
+            android:name=".BillHistoryActivity" />
         <activity
             android:name=".DashboardActivity"
             android:exported="false" />

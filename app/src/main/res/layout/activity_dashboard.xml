@@ -178,7 +178,7 @@
             android:id="@+id/btnPreviousBills"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Previous Bills"
+            android:text="Bill History"
             android:textAllCaps="false"
             android:gravity="start|center_vertical"
             android:paddingStart="16dp"

@@ -18,8 +18,6 @@ import com.example.easy_billing.network.RetrofitClient
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
-import com.example.easy_billing.db.ProductDao
-import com.example.easy_billing.Product
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -122,7 +120,7 @@ class DashboardActivity : AppCompatActivity() {
         rvProducts.layoutManager = GridLayoutManager(this, 4)
         rvCart.layoutManager = LinearLayoutManager(this)
 
-        // 🔥 Initialize productAdapter HERE
+        // Initialize productAdapter HERE
         productAdapter = ProductAdapter(
             onItemClick = { showQuantityDialog(it) },
             onItemLongClick = { showDeleteDialog(it) }
@@ -151,7 +149,7 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnPreviousBills).setOnClickListener {
-            startActivity(Intent(this, PreviousBillsActivity::class.java))
+            startActivity(Intent(this, BillHistoryActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
@@ -222,7 +220,11 @@ class DashboardActivity : AppCompatActivity() {
                 }
 
             } catch (e: Exception) {
-                // Offline mode
+                Toast.makeText(
+                    this@DashboardActivity,
+                    "Failed to load products",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             val localProducts = db.productDao().getAll()
@@ -343,16 +345,16 @@ class DashboardActivity : AppCompatActivity() {
                         .getString("TOKEN", null)
 
                     try {
-                        // 1️⃣ Deactivate backend
+                        // Deactivate backend
                         RetrofitClient.api.deactivateProduct(
                             "Bearer $token",
                             product.id
                         )
 
-                        // 2️⃣ Remove locally
+                        // Remove locally
                         db.productDao().deleteById(product.id)
 
-                        // 3️⃣ Reload from Room
+                        // Reload from Room
                         val updatedList = db.productDao().getAll()
 
                         runOnUiThread {

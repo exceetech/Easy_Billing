@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
+import com.example.easy_billing.util.InvoicePdfGenerator
 import com.example.easy_billing.util.PdfPrintAdapter
 import kotlinx.coroutines.launch
 import java.io.File
@@ -85,12 +86,19 @@ class BillDetailsActivity : AppCompatActivity() {
     }
 
     private fun generatePdfAndPrint() {
-        lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
-            val bill = db.billDao().getBillById(billId)
-            val billItems = db.billDao().getItemsForBill(billId)
 
-            generatePdfFromBill(bill, billItems)
+        lifecycleScope.launch {
+
+            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+
+            val bill = db.billDao().getBillById(billId)
+            val items = db.billDao().getItemsForBill(billId)
+
+            InvoicePdfGenerator.generatePdfFromBill(
+                this@BillDetailsActivity,
+                bill,
+                items
+            )
         }
     }
 

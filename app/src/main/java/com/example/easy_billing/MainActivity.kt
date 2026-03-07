@@ -65,25 +65,26 @@ class MainActivity : BaseActivity() {
 
                 } catch (e: Exception) {
 
-            if (e is retrofit2.HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Toast.makeText(
-                    this@MainActivity,
-                    "HTTP ${e.code()} : $errorBody",
-                    Toast.LENGTH_LONG
-                ).show()
-            } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    e.message ?: "Unknown error",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+                    if (e is retrofit2.HttpException) {
+                        val errorBody = e.response()?.errorBody()?.string()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "$errorBody",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            e.message ?: "Unknown error",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
             }
         }
 
-        // 🔹 Forgot password
+        // forgot password
         tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }

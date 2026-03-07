@@ -12,5 +12,6 @@ data class Bill(
     val subTotal: Double,
     val gst: Double,
     val discount: Double,
-    val total: Double
+    val total: Double,
+    val paymentMethod: String
 )

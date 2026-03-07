@@ -19,8 +19,8 @@ import kotlin.system.measureTimeMillis
 class PdfPrintAdapter(
     private val context: Context,
     private val path: String,
-    private val shopId: String,        // 4-digit shop id
-    private val invoiceNumber: Long     // incremental invoice no
+    private val shopId: String,
+    private val invoiceNumber: Long
 ) : PrintDocumentAdapter() {
 
     override fun onLayout(
@@ -30,20 +30,13 @@ class PdfPrintAdapter(
         callback: LayoutResultCallback?,
         extras: Bundle?
     ) {
+
         if (cancellationSignal?.isCanceled == true) {
             callback?.onLayoutCancelled()
             return
         }
 
-        val date = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
-            .format(Date())
-
-        val invoiceFormatted = String.format("%04d", invoiceNumber)
-
-        val timeMillis = System.currentTimeMillis()
-
-        val fileName =
-            "${shopId}_${date}_INV_${invoiceFormatted}_${timeMillis}.pdf"
+        val fileName = File(path).name
 
         val info = PrintDocumentInfo.Builder(fileName)
             .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
@@ -59,6 +52,7 @@ class PdfPrintAdapter(
         cancellationSignal: CancellationSignal,
         callback: WriteResultCallback
     ) {
+
         val inputFile = File(path)
 
         FileInputStream(inputFile).use { input ->
