@@ -11,6 +11,7 @@ data class LoginResponse(
 interface ApiService {
 
     // ================= AUTH =================
+
     @FormUrlEncoded
     @POST("auth/login")
     suspend fun login(
@@ -34,6 +35,7 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Field("new_password") newPassword: String
     ): retrofit2.Response<Unit>
+
 
     // ================= PRODUCTS =================
 
@@ -59,6 +61,7 @@ interface ApiService {
         @Path("id") id: Int
     )
 
+
     // ================= BILL =================
 
     @POST("bills/create")
@@ -66,34 +69,6 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: CreateBillRequest
     ): CreateBillResponse
-
-
-// ================= REPORTS =================
-
-    @GET("reports/daily")
-    suspend fun getDailyReport(
-        @Header("Authorization") token: String
-    ): List<DailyReportResponse>
-
-    @GET("reports/monthly")
-    suspend fun getMonthlyReport(
-        @Header("Authorization") token: String
-    ): List<MonthlyReportResponse>
-
-    @GET("reports/yearly")
-    suspend fun getYearlyReport(
-        @Header("Authorization") token: String
-    ): List<YearlyReportResponse>
-
-    @GET("reports/peak-hours")
-    suspend fun getPeakHours(
-        @Header("Authorization") token: String
-    ): List<PeakHourResponse>
-
-    @GET("reports/average-bill")
-    suspend fun getAverageBill(
-        @Header("Authorization") token: String
-    ): AverageBillResponse
 
     @GET("bills/{id}")
     suspend fun getBillDetails(
@@ -109,4 +84,84 @@ interface ApiService {
         @Query("payment") payment: String? = null,
         @Query("sort") sort: String? = null
     ): List<BillResponse>
+
+
+    // ================= REPORTS =================
+
+    @GET("reports/daily")
+    suspend fun getDailyReport(
+        @Header("Authorization") token: String
+    ): List<DailyReportResponse>
+
+    @GET("reports/weekly")
+    suspend fun getWeeklyReport(
+        @Header("Authorization") token: String
+    ): List<WeeklyReportResponse>
+
+    @GET("reports/monthly")
+    suspend fun getMonthlyReport(
+        @Header("Authorization") token: String
+    ): List<MonthlyReportResponse>
+
+    @GET("reports/yearly")
+    suspend fun getYearlyReport(
+        @Header("Authorization") token: String
+    ): List<YearlyReportResponse>
+
+
+    // ================= PRODUCT ANALYTICS =================
+
+    @GET("reports/top-products")
+    suspend fun getTopProducts(
+        @Header("Authorization") token: String
+    ): List<TopProductResponse>
+
+    @GET("reports/top-revenue-products")
+    suspend fun getTopRevenueProducts(
+        @Header("Authorization") token: String
+    ): List<TopRevenueProductResponse>
+
+
+    // ================= TIME ANALYTICS =================
+
+    @GET("reports/peak-hours")
+    suspend fun getPeakHours(
+        @Header("Authorization") token: String
+    ): List<PeakHourResponse>
+
+    @GET("reports/weekday-analysis")
+    suspend fun getWeekdayAnalysis(
+        @Header("Authorization") token: String
+    ): List<WeekdayAnalysisResponse>
+
+    @GET("reports/heatmap")
+    suspend fun getHeatmap(
+        @Header("Authorization") token: String
+    ): List<HeatmapResponse>
+
+
+    // ================= BUSINESS ANALYTICS =================
+
+    @GET("reports/payment-analysis")
+    suspend fun getPaymentAnalysis(
+        @Header("Authorization") token: String
+    ): List<PaymentAnalysisResponse>
+
+    @GET("reports/average-bill")
+    suspend fun getAverageBill(
+        @Header("Authorization") token: String
+    ): AverageBillResponse
+
+    @GET("reports/trend")
+    suspend fun getSalesTrend(
+        @Header("Authorization") token: String
+    ): List<SalesTrendResponse>
+
+
+    // ================= EMAIL REPORT =================
+
+    @POST("reports/email-report")
+    suspend fun sendEmailReport(
+        @Header("Authorization") token: String
+    ): MessageResponse
 }

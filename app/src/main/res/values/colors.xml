@@ -31,4 +31,8 @@
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
 
+    <color name="primaryColor">#4CAF50</color>
+    <color name="secondaryColor">#FF9800</color>
+    <color name="chartBlue">#2196F3</color>
+
 </resources>

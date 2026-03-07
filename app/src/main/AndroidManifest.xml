@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyBilling"
         android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".ReportsActivity"/>
         <activity
             android:name=".BillDetailsActivity"
             android:exported="false" />

@@ -158,6 +158,11 @@ class DashboardActivity : AppCompatActivity() {
             drawerLayout.closeDrawers()
         }
 
+        findViewById<Button>(R.id.btnReports).setOnClickListener {
+            startActivity(Intent(this, ReportsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
 
             getSharedPreferences("auth", MODE_PRIVATE)
