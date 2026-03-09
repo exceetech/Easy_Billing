@@ -6,4 +6,17 @@
         <item name="android:layout_margin">4dp</item>
     </style>
 
+    <style name="AppTextStyle">
+        <item name="android:fontFamily">@font/googlesans</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextBold">
+        <item name="android:fontFamily">@font/googlesans_bold</item>
+    </style>
+
+    <style name="TextMedium">
+        <item name="android:fontFamily">@font/googlesans_medium</item>
+    </style>
+
 </resources>

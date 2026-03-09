@@ -17,14 +17,14 @@
         android:padding="20dp">
 
         <TextView
+            android:id="@+id/tvStoreName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/shop_name"
-            android:textSize="22sp"
+            android:text="Store"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
             android:gravity="center"
-            android:layout_marginTop="12dp"/>
+            android:layout_marginBottom="4dp"/>
 
         <TextView
             android:id="@+id/tvBillInfo"
@@ -83,22 +83,33 @@
             android:gravity="end"/>
 
 
-        <!-- GST INPUT -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:startIconDrawable="@drawable/ic_tax"
-            app:startIconTint="?attr/colorPrimary">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etGst"
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_tax"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="GST (%)"
-                android:inputType="numberDecimal"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:text="GST:"
+                android:textStyle="bold"
+                android:layout_marginStart="6dp"/>
+
+            <TextView
+                android:id="@+id/tvGstPercent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
 
 
         <!-- DISCOUNT INPUT -->

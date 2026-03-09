@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:id="@+id/cardView"
+
     android:layout_width="match_parent"
     android:layout_height="140dp"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="6dp"
+    android:layout_margin="8dp"
+
+    app:cardCornerRadius="20dp"
+    app:cardElevation="10dp"
+
+    app:cardBackgroundColor="#FFFFFF"
+
     app:rippleColor="?attr/colorPrimary"
-    app:strokeColor="#EEEEEE"
-    app:strokeWidth="1dp">
+
+    app:strokeColor="#FFFFFF"
+    app:strokeWidth="2dp">
 
     <LinearLayout
         android:id="@+id/productContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:background="#F1F5F9">
+        android:padding="14dp">
 
         <!-- Product Name -->
+
         <TextView
             android:id="@+id/tvProductName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
             android:text="Almonds"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:textColor="#1F2937"
+
             android:maxLines="2"
-            android:ellipsize="end"
-            android:textColor="#222222"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:ellipsize="end"/>
 
         <View
             android:layout_width="match_parent"
@@ -37,18 +48,23 @@
             android:layout_weight="1"/>
 
         <!-- Price Badge -->
+
         <TextView
             android:id="@+id/tvProductPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
             android:text="₹500"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
+            android:textColor="@color/background"
+
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+
             android:background="@drawable/price_badge_bg"
-            android:layout_gravity="start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+
+            android:layout_gravity="start"/>
 
     </LinearLayout>
 

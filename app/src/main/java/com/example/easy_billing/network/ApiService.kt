@@ -1,5 +1,6 @@
 package com.example.easy_billing.network
 
+import retrofit2.Response
 import retrofit2.http.*
 
 data class LoginResponse(
@@ -36,6 +37,11 @@ interface ApiService {
         @Field("new_password") newPassword: String
     ): retrofit2.Response<Unit>
 
+    @POST("auth/verify-password")
+    suspend fun verifyPassword(
+        @Header("Authorization") token: String,
+        @Body request: VerifyPasswordRequest
+    ): retrofit2.Response<VerifyPasswordResponse>
 
     // ================= PRODUCTS =================
 
@@ -164,4 +170,46 @@ interface ApiService {
     suspend fun sendEmailReport(
         @Header("Authorization") token: String
     ): MessageResponse
+
+    // ================= SHOP SETTINGS =================
+
+    @GET("shop/settings")
+    suspend fun getStoreSettings(
+        @Header("Authorization") token: String
+    ): ShopSettingsResponse
+
+
+    @PUT("shop/settings")
+    suspend fun updateStoreSettings(
+        @Header("Authorization") token: String,
+        @Body request: ShopSettingsUpdateRequest
+    ): Map<String, String>
+
+    @GET("billing-settings")
+    suspend fun getBillingSettings(
+        @Header("Authorization") token: String
+    ): BillingSettingsResponse
+
+
+    @PUT("billing-settings")
+    suspend fun updateBillingSettings(
+        @Header("Authorization") token: String,
+        @Body request: BillingSettingsUpdateRequest
+    ): Map<String,String>
+
+    @PUT("security/clear-bills")
+    suspend fun clearBills(
+        @Header("Authorization") token: String
+    )
+
+    @PUT("security/factory-reset")
+    suspend fun factoryReset(
+        @Header("Authorization") token: String
+    )
+
+    @PUT("security/change-password")
+    suspend fun changePassword(
+        @Header("Authorization") token: String,
+        @Body request: ChangePasswordRequest
+    )
 }

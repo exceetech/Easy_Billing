@@ -1,4 +1,6 @@
 package com.example.easy_billing.network
 
-class BillingSettingsResponse {
-}
+data class BillingSettingsResponse(
+    val default_gst: Float,
+    val printer_layout: String
+)

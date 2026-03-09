@@ -23,9 +23,9 @@ import java.util.*
 
 class InvoiceActivity : AppCompatActivity() {
 
+    private lateinit var tvStoreName: TextView
     private lateinit var tvTotal: TextView
     private lateinit var tvBillInfo: TextView
-    private lateinit var etGst: EditText
     private lateinit var etDiscount: EditText
     private lateinit var rgPaymentMethod: RadioGroup
     private lateinit var items: List<CartItem>
@@ -33,6 +33,9 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var btnConfirm: Button
     private lateinit var btnPrint: Button
 
+    private var gstPercent: Double = 0.0
+
+    private lateinit var tvGstPercent: TextView
     private var savedBillId: Int = -1
     private var isBillSaved = false
     private var billNumber: String = ""
@@ -41,11 +44,12 @@ class InvoiceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_invoice)
 
+        tvStoreName = findViewById(R.id.tvStoreName)
         tvTotal = findViewById(R.id.tvTotal)
         tvBillInfo = findViewById(R.id.tvBillInfo)
-        etGst = findViewById(R.id.etGst)
         etDiscount = findViewById(R.id.etDiscount)
         rgPaymentMethod = findViewById(R.id.rgPaymentMethod)
+        tvGstPercent = findViewById(R.id.tvGstPercent)
 
         btnConfirm = findViewById(R.id.btnConfirm)
         btnPrint = findViewById(R.id.btnPrint)
@@ -67,6 +71,9 @@ class InvoiceActivity : AppCompatActivity() {
 
         tvBillInfo.text = "Invoice #$billNumber\nDate: $date"
 
+        loadShopName()
+        loadBillingSettings()
+
         calculateTotal()
 
         val watcher = object : TextWatcher {
@@ -75,7 +82,6 @@ class InvoiceActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
 
-        etGst.addTextChangedListener(watcher)
         etDiscount.addTextChangedListener(watcher)
 
         btnConfirm.setOnClickListener { saveBill() }
@@ -90,10 +96,12 @@ class InvoiceActivity : AppCompatActivity() {
     private fun calculateTotal() {
 
         val subTotal = items.sumOf { it.subTotal() }
-        val gstPercent = etGst.text.toString().toDoubleOrNull() ?: 0.0
-        val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+
+        val discount =
+            etDiscount.text.toString().toDoubleOrNull() ?: 0.0
 
         val gstAmount = (subTotal * gstPercent) / 100
+
         val total = subTotal + gstAmount - discount
 
         tvTotal.text = "Total: ₹%.2f".format(total)
@@ -113,7 +121,6 @@ class InvoiceActivity : AppCompatActivity() {
             val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
 
             val subTotal = items.sumOf { it.subTotal() }
-            val gstPercent = etGst.text.toString().toDoubleOrNull() ?: 0.0
             val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
 
             val gstAmount = (subTotal * gstPercent) / 100
@@ -135,9 +142,7 @@ class InvoiceActivity : AppCompatActivity() {
                     bill_number = billNumber,
                     items = requestItems,
                     payment_method = getPaymentMethod(),
-                    gst = gstAmount,
-                    discount = discount,
-                    total_amount = total
+                    discount = discount
                 )
 
                 val response = RetrofitClient.api.createBill(
@@ -230,6 +235,59 @@ class InvoiceActivity : AppCompatActivity() {
             R.id.rbUpi -> "UPI"
             R.id.rbCard -> "CARD"
             else -> "CASH"
+        }
+    }
+
+    private fun loadShopName() {
+
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                val profile =
+                    RetrofitClient.api.getProfile("Bearer $token")
+
+                tvStoreName.text = profile.shop_name
+
+            } catch (e: Exception) {
+
+                tvStoreName.text = "Store"
+
+            }
+        }
+    }
+
+    private fun loadBillingSettings() {
+
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                val response =
+                    RetrofitClient.api.getBillingSettings("Bearer $token")
+
+                gstPercent = response.default_gst.toDouble()
+
+                tvGstPercent.text = "${gstPercent}%"
+
+                calculateTotal()
+
+            } catch (e: Exception) {
+
+                e.printStackTrace()
+
+                Toast.makeText(
+                    this@InvoiceActivity,
+                    "Failed to load GST",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 }

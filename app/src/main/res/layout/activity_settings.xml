@@ -2,22 +2,22 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="#FAFAFA">
 
-    <!-- ===== TOOLBAR ===== -->
+    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/transparent"
+        android:background="#FAFAFA"
         android:elevation="0dp"
-        app:titleTextColor="@color/textPrimary"
-        app:navigationIconTint="@color/textPrimary" />
+        app:navigationIconTint="@color/textPrimary"
+        app:titleTextColor="@color/textPrimary"/>
 
-    <!-- ===== CONTENT ===== -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -28,99 +28,166 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- STORE INFO -->
+            <!-- Store Info Tile -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnStoreSettings"
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="75dp"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="18dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer">
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="#E8F0FE"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnStoreSettings"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Store Information"
-                    android:textAllCaps="false"
-                    android:gravity="start|center_vertical"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:paddingStart="20dp"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorOnSurface"
-                    app:icon="@drawable/ic_store"
-                    app:iconPadding="16dp"
-                    app:iconTint="?attr/colorPrimary"
-                    app:backgroundTint="@android:color/transparent"/>
+                    android:paddingEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_store"
+                        app:tint="#3B82F6" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Store Information"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:layout_marginStart="16dp"/>
+
+                </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- BILLING SETTINGS -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="18dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBillingSettings"
+            <!-- Billing Tile -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnBillingSettings"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="#E8F8F5"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Billing Settings"
-                    android:textAllCaps="false"
-                    android:gravity="start|center_vertical"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:paddingStart="20dp"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorOnSurface"
-                    app:icon="@drawable/ic_receipt"
-                    app:iconPadding="16dp"
-                    app:iconTint="?attr/colorPrimary"
-                    app:backgroundTint="@android:color/transparent"/>
+                    android:paddingEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_receipt"
+                        app:tint="#10B981" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Billing Settings"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:layout_marginStart="16dp"/>
+
+                </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- INVOICE DESIGN -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="18dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnInvoiceDesign"
+            <!-- Invoice Tile -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnInvoiceDesign"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="#FFF4E5"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Invoice Design"
-                    android:textAllCaps="false"
-                    android:gravity="start|center_vertical"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:paddingStart="20dp"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorOnSurface"
-                    app:icon="@drawable/ic_invoice"
-                    app:iconPadding="16dp"
-                    app:iconTint="?attr/colorPrimary"
-                    app:backgroundTint="@android:color/transparent"/>
+                    android:paddingEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_invoice"
+                        app:tint="#F59E0B" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Invoice Design"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:layout_marginStart="16dp"/>
+
+                </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- DATA & SECURITY -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                app:cardCornerRadius="18dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDataManagement"
+            <!-- Security Tile -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnDataManagement"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="#FCE7F3"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Data and Security Management"
-                    android:textAllCaps="false"
-                    android:gravity="start|center_vertical"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:paddingStart="20dp"
-                    android:textSize="16sp"
-                    android:textColor="?attr/colorOnSurface"
-                    app:icon="@drawable/ic_security"
-                    app:iconPadding="16dp"
-                    app:iconTint="?attr/colorPrimary"
-                    app:backgroundTint="@android:color/transparent"/>
+                    android:paddingEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_security"
+                        app:tint="#EC4899" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Data and Security Management"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:layout_marginStart="16dp"/>
+
+                </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>

@@ -10,7 +10,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/img_2">
 
         <!-- ================= TOP BAR ================= -->
         <LinearLayout
@@ -18,7 +19,7 @@
             android:layout_height="56dp"
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp"
-            android:background="?attr/colorSurface"
+            android:background="#FAFAFA"
             android:elevation="4dp">
 
             <!-- Menu -->
@@ -72,36 +73,59 @@
         </LinearLayout>
 
         <!-- ================= SEARCH BAR ================= -->
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="6dp"
-            android:background="?attr/colorSurface">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="6dp"
 
-            <com.google.android.material.textfield.TextInputLayout
+
+            app:cardCornerRadius="24dp"
+            app:cardElevation="16dp"
+            app:cardBackgroundColor="#FAFAFA"
+            app:strokeColor="#FFFFFF"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:startIconDrawable="@drawable/ic_search"
-                app:startIconTint="?attr/colorPrimary"
-                app:endIconMode="clear_text"
-                app:boxCornerRadiusTopStart="24dp"
-                app:boxCornerRadiusTopEnd="24dp"
-                app:boxCornerRadiusBottomStart="24dp"
-                app:boxCornerRadiusBottomEnd="24dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:padding="4dp"
+                android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSearch"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:hint="Search products..."
-                    android:inputType="text"/>
+                    android:layout_height="wrap_content"
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    app:startIconDrawable="@drawable/ic_search"
+                    app:startIconTint="?attr/colorPrimary"
+                    app:endIconMode="clear_text"
 
-        </LinearLayout>
+                    app:boxBackgroundMode="none"
+
+                    app:boxCornerRadiusTopStart="20dp"
+                    app:boxCornerRadiusTopEnd="20dp"
+                    app:boxCornerRadiusBottomStart="20dp"
+                    app:boxCornerRadiusBottomEnd="20dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="38dp"
+                        android:gravity="center_vertical"
+                        android:hint="Search products..."
+                        android:inputType="text"
+                        android:paddingStart="4dp"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="0dp"
+                        android:textColor="#000000"
+                        android:textColorHint="#888888" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- ================= PRODUCTS ================= -->
         <androidx.recyclerview.widget.RecyclerView

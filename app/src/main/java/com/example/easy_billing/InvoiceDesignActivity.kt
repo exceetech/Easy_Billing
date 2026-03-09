@@ -100,20 +100,64 @@ class InvoiceDesignActivity : BaseActivity() {
 
         btnSave.setOnClickListener {
 
-            prefs.edit()
-                .putString("footer_message", etFooter.text.toString())
-                .putBoolean("show_logo", switchLogo.isChecked)
-                .putBoolean("show_gstin", switchGstin.isChecked)
-                .putBoolean("show_phone", switchPhone.isChecked)
-                .putBoolean("show_discount", switchDiscount.isChecked)
-                .putBoolean("round_off", switchRoundOff.isChecked)
-                .apply()
+            showPasswordVerificationDialog {
+                saveDesignSettings()
+            }
 
-            Toast.makeText(this, "Design Settings Saved", Toast.LENGTH_SHORT).show()
-
-            setEditable(false)
-            isEditMode = false
-            invalidateOptionsMenu()
         }
+    }
+
+    private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
+
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnVerify.setOnClickListener {
+
+            val password = etPassword.text.toString().trim()
+
+            if (password.isEmpty()) {
+                etPassword.error = "Enter password"
+                return@setOnClickListener
+            }
+
+            verifyPassword(password) {
+                dialog.dismiss()
+                onVerified()
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun saveDesignSettings() {
+
+        prefs.edit()
+            .putString("footer_message", etFooter.text.toString())
+            .putBoolean("show_logo", switchLogo.isChecked)
+            .putBoolean("show_gstin", switchGstin.isChecked)
+            .putBoolean("show_phone", switchPhone.isChecked)
+            .putBoolean("show_discount", switchDiscount.isChecked)
+            .putBoolean("round_off", switchRoundOff.isChecked)
+            .apply()
+
+        Toast.makeText(this, "Design Settings Saved", Toast.LENGTH_SHORT).show()
+
+        setEditable(false)
+        isEditMode = false
+        invalidateOptionsMenu()
     }
 }

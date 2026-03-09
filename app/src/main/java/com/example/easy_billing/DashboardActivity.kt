@@ -1,10 +1,19 @@
 package com.example.easy_billing
 
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -15,9 +24,11 @@ import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.network.VerifyPasswordRequest
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
+
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -28,6 +39,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var tvTotal: TextView
     private lateinit var tvCartBadge: TextView
     private lateinit var etSearch: TextInputEditText
+    private lateinit var tvWelcome: TextView
 
     // ================= Adapters =================
     private lateinit var productAdapter: ProductAdapter
@@ -77,12 +89,12 @@ class DashboardActivity : AppCompatActivity() {
         tvTotal = findViewById(R.id.tvTotal)
         tvCartBadge = findViewById(R.id.tvCartBadge)
         etSearch = findViewById(R.id.etSearch)
+        tvWelcome = findViewById(R.id.tvWelcome)
     }
 
     private fun setupHeader() {
         val btnMenu = findViewById<ImageView>(R.id.btnMenu)
         val btnCart = findViewById<ImageView>(R.id.btnCart)
-        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
@@ -90,8 +102,7 @@ class DashboardActivity : AppCompatActivity() {
         if (token != null) {
             lifecycleScope.launch {
                 try {
-                    val profile = RetrofitClient.api.getProfile("Bearer $token")
-                    tvWelcome.text = "Welcome, ${profile.email} 👋"
+                    loadShopName()
                 } catch (e: Exception) {
 
                     // Token invalid → logout automatically
@@ -115,9 +126,49 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    fun typeWriter(textView: TextView, message: String, delay: Long = 40) {
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        var index = 0
+
+        handler.post(object : Runnable {
+            override fun run() {
+                if (index <= message.length) {
+                    textView.text = message.substring(0, index)
+                    index++
+                    handler.postDelayed(this, delay)
+                }
+            }
+        })
+    }
+
+    private fun loadShopName() {
+
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                val profile = RetrofitClient.api.getProfile("Bearer $token")
+
+                val shopName = profile.shop_name
+
+                typeWriter(
+                    tvWelcome,
+                    "Welcome to $shopName Dashboard 👋"
+                )
+
+            } catch (e: Exception) {
+
+                typeWriter(tvWelcome, "Welcome to Dashboard 👋")
+
+            }
+        }
+    }
     private fun setupRecyclerViews() {
 
-        rvProducts.layoutManager = GridLayoutManager(this, 4)
+        rvProducts.layoutManager = GridLayoutManager(this, 5)
         rvCart.layoutManager = LinearLayoutManager(this)
 
         // Initialize productAdapter HERE
@@ -143,22 +194,21 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupDrawerButtons() {
 
-        findViewById<Button>(R.id.btnAdmin).setOnClickListener {
+        findViewById<MaterialButton>(R.id.btnAdmin).setOnClickListener {
             startActivity(Intent(this, AddProductsActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<Button>(R.id.btnPreviousBills).setOnClickListener {
-            startActivity(Intent(this, BillHistoryActivity::class.java))
+        findViewById<MaterialButton>(R.id.btnSettings).setOnClickListener {
+
+            startActivity(
+                Intent(this, SettingsActivity::class.java)
+            )
+
             drawerLayout.closeDrawers()
         }
 
-        findViewById<Button>(R.id.btnSettings).setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-            drawerLayout.closeDrawers()
-        }
-
-        findViewById<Button>(R.id.btnReports).setOnClickListener {
+        findViewById<MaterialButton>(R.id.btnReports).setOnClickListener {
             startActivity(Intent(this, ReportsActivity::class.java))
             drawerLayout.closeDrawers()
         }
@@ -175,9 +225,24 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        findViewById<Button>(R.id.btnGenerateBill).setOnClickListener {
+        findViewById<MaterialButton>(R.id.btnGenerateBill).setOnClickListener {
             generateBill()
         }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        val view = getCurrentFocus()
+
+        if (view is EditText) {
+            val outRect = Rect()
+            view.getGlobalVisibleRect(outRect)
+
+            if (!outRect.contains(ev.getRawX().toInt(), ev.getRawY().toInt())) {
+                view.clearFocus()
+            }
+        }
+
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun setupSearch() {

@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.util.InvoicePdfGenerator
@@ -21,10 +20,13 @@ import com.example.easy_billing.util.PdfPrintAdapter
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import com.example.easy_billing.network.RetrofitClient
 
 class BillDetailsActivity : AppCompatActivity() {
 
     private lateinit var tvBillInfo: TextView
+
+    private lateinit var tvStoreName: TextView
     private lateinit var tvSubTotal: TextView
     private lateinit var tvGst: TextView
     private lateinit var tvDiscount: TextView
@@ -40,6 +42,7 @@ class BillDetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_bill_details)
 
         tvBillInfo = findViewById(R.id.tvBillInfo)
+        tvStoreName = findViewById(R.id.tvStoreName)
         tvSubTotal = findViewById(R.id.tvSubTotal)
         tvGst = findViewById(R.id.tvGst)
         tvDiscount = findViewById(R.id.tvDiscount)
@@ -70,18 +73,49 @@ class BillDetailsActivity : AppCompatActivity() {
     }
 
     private fun loadBillDetails() {
+
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
-            val bill = db.billDao().getBillById(billId)
-            val items = db.billDao().getItemsForBill(billId)
 
-            tvBillInfo.text = "Invoice #${bill.billNumber}\nDate: ${bill.date}"
-            tvSubTotal.text = "Subtotal: ₹%.2f".format(bill.subTotal)
-            tvGst.text = "GST: ₹%.2f".format(bill.gst)
-            tvDiscount.text = "Discount: ₹%.2f".format(bill.discount)
-            tvTotal.text = "Total: ₹%.2f".format(bill.total)
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
 
-            rvBillItems.adapter = BillDetailsAdapter(items)
+            try {
+
+                val response = RetrofitClient.api.getBillDetails(
+                    "Bearer $token",
+                    billId
+                )
+
+                val bill = response.bill
+                val items = response.items
+
+                val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+                val storeName = prefs.getString("store_name", "My Store")
+
+                tvStoreName.text = storeName
+
+                tvBillInfo.text =
+                    "Invoice #${bill.bill_number}\nDate: ${bill.created_at}"
+
+                val subtotal = bill.total_amount - bill.gst + bill.discount
+
+                tvSubTotal.text = "Subtotal: ₹%.2f".format(subtotal)
+                tvGst.text = "GST: ₹%.2f".format(bill.gst)
+                tvDiscount.text = "Discount: ₹%.2f".format(bill.discount)
+                tvTotal.text = "Total: ₹%.2f".format(bill.total_amount)
+
+                rvBillItems.adapter = BillDetailsAdapter(items)
+
+            } catch (e: Exception) {
+
+                e.printStackTrace()
+
+                Toast.makeText(
+                    this@BillDetailsActivity,
+                    "Failed to load bill details",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -89,16 +123,51 @@ class BillDetailsActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
 
-            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
 
-            val bill = db.billDao().getBillById(billId)
-            val items = db.billDao().getItemsForBill(billId)
+            try {
 
-            InvoicePdfGenerator.generatePdfFromBill(
-                this@BillDetailsActivity,
-                bill,
-                items
-            )
+                val response = RetrofitClient.api.getBillDetails(
+                    "Bearer $token",
+                    billId
+                )
+
+                val bill = Bill(
+                    id = response.bill.bill_id,
+                    billNumber = response.bill.bill_number,
+                    date = response.bill.created_at,
+                    subTotal = response.bill.total_amount,
+                    gst = response.bill.gst,
+                    discount = response.bill.discount,
+                    total = response.bill.total_amount,
+                    paymentMethod = response.bill.payment_method
+                )
+
+                val billItems = response.items.map {
+                    BillItem(
+                        billId = response.bill.bill_id,
+                        productName = it.product_name,
+                        price = it.price,
+                        quantity = it.quantity,
+                        subTotal = it.subtotal
+                    )
+                }
+
+                InvoicePdfGenerator.generatePdfFromBill(
+                    this@BillDetailsActivity,
+                    bill,
+                    billItems
+                )
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(
+                    this@BillDetailsActivity,
+                    "Failed to generate invoice",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -112,7 +181,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
         var y = 30
         paint.textSize = 14f
-        canvas.drawText("Easy Billing", 80f, y.toFloat(), paint)
+        canvas.drawText("", 80f, y.toFloat(), paint)
         y += 20
 
         paint.textSize = 10f

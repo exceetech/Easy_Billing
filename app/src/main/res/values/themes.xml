@@ -3,8 +3,7 @@
     <!-- ================= MAIN THEME ================= -->
     <style name="Theme.EasyBilling" parent="Theme.Material3.DayNight.NoActionBar">
 
-        <item name="android:fontFamily">@font/quicksand</item>
-        <item name="fontFamily">@font/quicksand</item>
+        <item name="android:textViewStyle">@style/AppTextStyle</item>
 
         <!-- Primary Branding -->
         <item name="colorPrimary">@color/primary</item>

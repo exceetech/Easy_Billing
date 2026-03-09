@@ -5,7 +5,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.network.BillingSettingsUpdateRequest
+import com.example.easy_billing.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class BillingSettingsActivity : BaseActivity() {
 
@@ -67,9 +70,28 @@ class BillingSettingsActivity : BaseActivity() {
     }
 
     private fun loadData() {
-        etGst.setText(prefs.getFloat("default_gst", 0f).toString())
-        val savedLayout = prefs.getString("printer_layout", "80mm")
-        autoPrinter.setText(savedLayout, false)
+
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                val response = RetrofitClient.api.getBillingSettings("Bearer $token")
+
+                etGst.setText(response.default_gst.toString())
+                autoPrinter.setText(response.printer_layout, false)
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@BillingSettingsActivity,
+                    "Failed to load billing settings",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     // ===== EDIT MODE =====
@@ -89,20 +111,91 @@ class BillingSettingsActivity : BaseActivity() {
 
     // ===== SAVE =====
     private fun setupSave() {
+
         btnSave.setOnClickListener {
 
-            val gstValue = etGst.text.toString().toFloatOrNull() ?: 0f
+            showPasswordVerificationDialog {
+                saveBillingSettings()
+            }
+
+        }
+    }
+
+    private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
+
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnVerify.setOnClickListener {
+
+            val password = etPassword.text.toString().trim()
+
+            if (password.isEmpty()) {
+                etPassword.error = "Enter password"
+                return@setOnClickListener
+            }
+
+            verifyPassword(password) {
+                dialog.dismiss()
+                onVerified()
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun saveBillingSettings() {
+
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            val gstValue = etGst.text.toString().toDoubleOrNull() ?: 0.0
             val printerType = autoPrinter.text.toString()
 
-            prefs.edit()
-                .putFloat("default_gst", gstValue)
-                .putString("printer_layout", printerType)
-                .apply()
+            try {
 
-            Toast.makeText(this, "Billing Settings Saved", Toast.LENGTH_SHORT).show()
+                val request = BillingSettingsUpdateRequest(
+                    default_gst = gstValue,
+                    printer_layout = printerType
+                )
 
-            setEditable(false)
-            isEditMode = false
+                RetrofitClient.api.updateBillingSettings(
+                    "Bearer $token",
+                    request
+                )
+
+                Toast.makeText(
+                    this@BillingSettingsActivity,
+                    "Billing settings updated",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                setEditable(false)
+                isEditMode = false
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@BillingSettingsActivity,
+                    "Failed to update settings",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

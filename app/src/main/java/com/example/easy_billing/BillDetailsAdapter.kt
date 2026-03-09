@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.easy_billing.db.BillItem
+import com.example.easy_billing.network.BillItemResponse
 
 class BillDetailsAdapter(
-    private val items: List<BillItem>
+    private val items: List<BillItemResponse>
 ) : RecyclerView.Adapter<BillDetailsAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -25,9 +25,9 @@ class BillDetailsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        holder.name.text = item.productName
+        holder.name.text = item.product_name
         holder.qty.text = "x${item.quantity}"
-        holder.price.text = "₹${item.subTotal}"
+        holder.price.text = "₹${item.subtotal}"
     }
 
     override fun getItemCount() = items.size

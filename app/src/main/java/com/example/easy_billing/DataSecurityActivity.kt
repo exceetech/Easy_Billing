@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.Menu
@@ -8,7 +9,10 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.network.ChangePasswordRequest
+import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class DataSecurityActivity : BaseActivity() {
 
@@ -32,15 +36,27 @@ class DataSecurityActivity : BaseActivity() {
         disableAllButtons()
 
         btnClearBills.setOnClickListener {
-            clearBills()
+
+            showPasswordVerificationDialog {
+                clearBills()
+            }
+
         }
 
         btnFactoryReset.setOnClickListener {
-            performFactoryReset()
+
+            showPasswordVerificationDialog {
+                performFactoryReset()
+            }
+
         }
 
         btnChangePassword.setOnClickListener {
-            showChangePinDialog()
+
+            showPasswordVerificationDialog {
+                showChangePinDialog()
+            }
+
         }
     }
 
@@ -91,28 +107,68 @@ class DataSecurityActivity : BaseActivity() {
     // ================= LOGIC =================
 
     private fun clearBills() {
-        lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@DataSecurityActivity)
-            db.billDao().deleteAllItems()
-            db.billDao().deleteAllBills()
 
-            Toast.makeText(this@DataSecurityActivity,
-                "All Bills Cleared",
-                Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                RetrofitClient.api.clearBills("Bearer $token")
+
+                val db = AppDatabase.getDatabase(this@DataSecurityActivity)
+                db.billDao().deleteAllItems()
+                db.billDao().deleteAllBills()
+
+                Toast.makeText(
+                    this@DataSecurityActivity,
+                    "Bills archived successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@DataSecurityActivity,
+                    "Failed to clear bills",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
     private fun performFactoryReset() {
-        val settingsPrefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-        settingsPrefs.edit().clear().apply()
 
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@DataSecurityActivity)
-            db.clearAllTables()
 
-            Toast.makeText(this@DataSecurityActivity,
-                "App Reset Complete",
-                Toast.LENGTH_LONG).show()
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                RetrofitClient.api.factoryReset("Bearer $token")
+
+                val settingsPrefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+                settingsPrefs.edit().clear().apply()
+
+                val db = AppDatabase.getDatabase(this@DataSecurityActivity)
+                db.clearAllTables()
+
+                Toast.makeText(
+                    this@DataSecurityActivity,
+                    "Factory Reset Completed",
+                    Toast.LENGTH_LONG
+                ).show()
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@DataSecurityActivity,
+                    "Factory reset failed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -137,20 +193,92 @@ class DataSecurityActivity : BaseActivity() {
             val confirmPin = etConfirmPin.text.toString().trim()
 
             if (newPin.length < 4) {
-                etNewPin.error = "PIN must be at least 4 digits"
+                etNewPin.error = "Password must be at least 4 digits"
                 return@setOnClickListener
             }
 
             if (newPin != confirmPin) {
-                etConfirmPin.error = "PINs do not match"
+                etConfirmPin.error = "Passwords do not match"
                 return@setOnClickListener
             }
 
-            val authPrefs = getSharedPreferences("easy_billing_prefs", MODE_PRIVATE)
-            authPrefs.edit().putString("PASSWORD", newPin).apply()
+            lifecycleScope.launch {
 
-            Toast.makeText(this, "PIN changed successfully", Toast.LENGTH_LONG).show()
+                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("TOKEN", null) ?: return@launch
+
+                try {
+
+                    RetrofitClient.api.changePassword(
+                        "Bearer $token",
+                        ChangePasswordRequest(newPin)
+                    )
+
+                    Toast.makeText(
+                        this@DataSecurityActivity,
+                        "Password changed. Please login again.",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    // logout user
+                    getSharedPreferences("auth", MODE_PRIVATE)
+                        .edit {
+                            remove("TOKEN")
+                        }
+
+                    val intent = Intent(this@DataSecurityActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+
+                    dialog.dismiss()
+
+                    dialog.dismiss()
+
+                } catch (e: Exception) {
+
+                    Toast.makeText(
+                        this@DataSecurityActivity,
+                        "Failed to change password",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+        btnCancel.setOnClickListener {
             dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
+
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnVerify.setOnClickListener {
+
+            val password = etPassword.text.toString().trim()
+
+            if (password.isEmpty()) {
+                etPassword.error = "Enter password"
+                return@setOnClickListener
+            }
+
+            verifyPassword(password) {
+                dialog.dismiss()
+                onVerified()
+            }
         }
 
         btnCancel.setOnClickListener {

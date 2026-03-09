@@ -12,6 +12,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.round
 
 object InvoicePdfGenerator {
 
@@ -23,11 +24,17 @@ object InvoicePdfGenerator {
 
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
-        val storeName = prefs.getString("store_name", "Easy Billing")
+        val storeName = prefs.getString("store_name", "")
         val storeAddress = prefs.getString("store_address", "")
         val storePhone = prefs.getString("store_phone", "")
         val storeGstin = prefs.getString("store_gstin", "")
-        val footerMessage = prefs.getString("invoice_footer", "Thank You! Visit Again")
+        val footerMessage = prefs.getString("footer_message", "Thank You! Visit Again")
+
+        val showLogo = prefs.getBoolean("show_logo", true)
+        val showGstin = prefs.getBoolean("show_gstin", true)
+        val showPhone = prefs.getBoolean("show_phone", true)
+        val showDiscount = prefs.getBoolean("show_discount", true)
+        val roundOff = prefs.getBoolean("round_off", false)
 
         val pageWidth = 300f
         val leftMargin = 10f
@@ -89,12 +96,14 @@ object InvoicePdfGenerator {
 
         // HEADER
         centerText(storeName ?: "", 22f, true)
-        centerText(storeAddress ?: "", 14f)
 
-        if (!storePhone.isNullOrEmpty())
+        if (!storeAddress.isNullOrEmpty())
+            centerText(storeAddress, 14f)
+
+        if (showPhone && !storePhone.isNullOrEmpty())
             centerText("Phone : $storePhone", 14f)
 
-        if (!storeGstin.isNullOrEmpty())
+        if (showGstin && !storeGstin.isNullOrEmpty())
             centerText("GSTIN : $storeGstin", 14f)
 
         dashedLine()
@@ -192,9 +201,12 @@ object InvoicePdfGenerator {
 
         dashedLine()
 
+        // SUBTOTAL
+        val subTotal = billItems.sumOf { it.subTotal }
+
         canvas.drawText("SubTotal", colItem, y.toFloat(), paint)
 
-        val sub = "%.2f".format(bill.subTotal)
+        val sub = "%.2f".format(subTotal)
         val subWidth = paint.measureText(sub)
 
         canvas.drawText(
@@ -206,12 +218,52 @@ object InvoicePdfGenerator {
 
         y += 22
 
+        // GST
+        canvas.drawText("GST", colItem, y.toFloat(), paint)
+
+        val gst = "%.2f".format(bill.gst)
+        val gstWidth = paint.measureText(gst)
+
+        canvas.drawText(
+            gst,
+            colAmount - gstWidth,
+            y.toFloat(),
+            paint
+        )
+
+        y += 22
+
+        // DISCOUNT
+        if (showDiscount) {
+
+            canvas.drawText("Discount", colItem, y.toFloat(), paint)
+
+            val disc = "%.2f".format(bill.discount)
+            val discWidth = paint.measureText(disc)
+
+            canvas.drawText(
+                disc,
+                colAmount - discWidth,
+                y.toFloat(),
+                paint
+            )
+
+            y += 22
+        }
+
+        // TOTAL
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
         paint.textSize = 18f
 
         canvas.drawText("TOTAL", colItem, y.toFloat(), paint)
 
-        val total = "%.2f".format(bill.total)
+        var finalTotal = bill.total
+
+        if (roundOff) {
+            finalTotal = round(finalTotal)
+        }
+
+        val total = "%.2f".format(finalTotal)
         val totalWidth = paint.measureText(total)
 
         canvas.drawText(
