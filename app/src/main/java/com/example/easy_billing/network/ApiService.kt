@@ -212,4 +212,10 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: ChangePasswordRequest
     )
+
+    @POST("auth/save-token")
+    suspend fun saveFcmToken(
+        @Header("Authorization") token: String,
+        @Body request: SaveTokenRequest
+    ): Response<Unit>
 }

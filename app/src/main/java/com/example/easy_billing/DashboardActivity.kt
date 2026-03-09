@@ -1,7 +1,10 @@
 package com.example.easy_billing
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -24,10 +27,12 @@ import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.network.SaveTokenRequest
 import com.example.easy_billing.network.VerifyPasswordRequest
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import com.google.firebase.messaging.FirebaseMessaging
 
 
 class DashboardActivity : AppCompatActivity() {
@@ -66,11 +71,85 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        if (Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                1001
+            )
+        }
+
         initViews()
         setupHeader()
         setupRecyclerViews()
         setupDrawerButtons()
         setupSearch()
+        getFcmToken()
+        createNotificationChannel()
+    }
+
+    private fun createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            val channel = NotificationChannel(
+                "easy_billing_channel",
+                "Easy Billing Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun getFcmToken() {
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+
+                if (!task.isSuccessful) {
+                    println("FCM TOKEN FAILED")
+                    return@addOnCompleteListener
+                }
+
+                val fcmToken = task.result
+
+                println("FCM TOKEN FROM FIREBASE: $fcmToken")
+
+                lifecycleScope.launch {
+
+                    val authToken = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    if (authToken == null) {
+                        println("AUTH TOKEN NULL")
+                        return@launch
+                    }
+
+                    try {
+
+                        val response = RetrofitClient.api.saveFcmToken(
+                            "Bearer $authToken",
+                            SaveTokenRequest(fcmToken)
+                        )
+
+                        if (response.isSuccessful) {
+
+                            println("FCM TOKEN SAVED SUCCESSFULLY")
+
+                        } else {
+
+                            println("BACKEND ERROR: ${response.code()}")
+
+                        }
+
+                    } catch (e: Exception) {
+
+                        println("FAILED TO SEND TOKEN: ${e.message}")
+
+                    }
+                }
+            }
     }
 
     override fun onResume() {

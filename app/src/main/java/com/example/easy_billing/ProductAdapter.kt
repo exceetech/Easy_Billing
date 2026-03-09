@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import androidx.core.graphics.toColorInt
+import com.example.easy_billing.util.PastelColor
 
 class ProductAdapter(
     private val onItemClick: (Product) -> Unit,
@@ -21,14 +22,14 @@ class ProductAdapter(
     private var fullList: List<Product> = emptyList()
 
     // Soft dashboard colors
-    private val pastelColors = listOf(
-        "#DCEBFF",
-        "#FFE4E8",
-        "#E6F7EC",
-        "#FFF1D6",
-        "#EFE6FF",
-        "#E3F6FF"
-    )
+//    private val pastelColors = listOf(
+//        "#DCEBFF",
+//        "#FFE4E8",
+//        "#E6F7EC",
+//        "#FFF1D6",
+//        "#EFE6FF",
+//        "#E3F6FF"
+//    )
 
     // ==================================================
     // ================= VIEW HOLDER ====================
@@ -46,7 +47,7 @@ class ProductAdapter(
             price.text = "₹${product.price}"
 
             // Stable color for each product
-            val color = pastelColors[product.id % pastelColors.size].toColorInt()
+            val color = PastelColor.random()
 
             card.setCardBackgroundColor(color)
 
