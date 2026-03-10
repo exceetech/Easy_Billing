@@ -68,6 +68,8 @@
         <activity
             android:name=".DataSecurityActivity" />
         <activity
+            android:name=".AiDashboardActivity"/>
+        <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>

@@ -218,4 +218,9 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: SaveTokenRequest
     ): Response<Unit>
+
+    @GET("analytics/ai-report")
+    suspend fun getAiReport(
+        @Header("Authorization") token: String
+    ): AiReportResponse
 }

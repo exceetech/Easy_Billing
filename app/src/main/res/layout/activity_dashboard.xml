@@ -136,6 +136,56 @@
             android:padding="16dp"
             android:clipToPadding="false"/>
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardNoticeBoard"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_margin="16dp"
+
+            app:cardCornerRadius="18dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <!-- icon -->
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_ai"
+                    app:tint="#F59E0B"/>
+
+                <!-- running notice -->
+
+                <TextView
+                    android:id="@+id/tvNoticeBoard"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+
+                    android:text="Loading AI suggestions..."
+                    android:textSize="15sp"
+                    android:textColor="#92400E"
+
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 
     <!-- ================= LEFT MENU DRAWER ================= -->
@@ -242,6 +292,25 @@
             android:paddingStart="16dp"
 
             app:icon="@drawable/ic_report"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconSize="28dp"
+            app:iconTint="?attr/colorPrimary"
+
+            style="@style/Widget.Material3.Button.TextButton"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAiInsights"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+
+            android:text="AI Insights"
+            android:textAllCaps="false"
+
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+
+            app:icon="@drawable/ic_ai"
             app:iconGravity="textStart"
             app:iconPadding="16dp"
             app:iconSize="28dp"

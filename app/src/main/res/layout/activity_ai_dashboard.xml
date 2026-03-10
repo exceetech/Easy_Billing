@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA">
+
+    <!-- Toolbar -->
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:titleTextColor="@color/textPrimary"
+        app:navigationIconTint="@color/textPrimary"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- ================= REVENUE CARD ================= -->
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardRevenue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+
+                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="#E8F0FE"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_report"
+                        app:tint="#2563EB"/>
+
+                    <!-- Label -->
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Revenue"
+                        android:textSize="18sp"
+                        android:textColor="@color/textPrimary"
+                        android:layout_marginStart="16dp"/>
+
+                    <!-- Spacer -->
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"/>
+
+                    <!-- Revenue Amount -->
+
+                    <TextView
+                        android:id="@+id/tvRevenue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="#059669"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- ================= TOP PRODUCTS CARD ================= -->
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTopProducts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+
+                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="#E8F8F5"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Top Selling Products"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+
+                    <!-- Table -->
+
+                    <TableLayout
+                        android:id="@+id/tableProducts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="*"
+                        android:divider="#DDDDDD"
+                        android:showDividers="middle">
+
+                        <!-- HEADER -->
+
+                        <TableRow
+                            android:background="#2563EB"
+                            android:padding="6dp">
+
+                            <TextView
+                                android:id="@+id/headerProduct"
+                                android:layout_width="0dp"
+                                android:layout_weight="2"
+                                android:gravity="start"
+                                android:text="Product"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="17sp"
+                                android:padding="12dp"/>
+
+                            <TextView
+                                android:id="@+id/headerQty"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:text="Qty"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="17sp"
+                                android:padding="12dp"/>
+
+                            <TextView
+                                android:id="@+id/headerRevenue"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="Revenue"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="17sp"
+                                android:padding="12dp"/>
+
+                        </TableRow>
+
+                    </TableLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- ================= AI SUGGESTIONS CARD ================= -->
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAiSuggestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="#FFF4E5"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Suggestions"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/tvAiInsights"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Analyzing your business..."
+                        android:textColor="@color/textPrimary"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="4dp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

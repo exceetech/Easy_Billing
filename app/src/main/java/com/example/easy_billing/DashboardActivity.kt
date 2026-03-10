@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -49,9 +50,10 @@ class DashboardActivity : AppCompatActivity() {
     // ================= Adapters =================
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
-
+    private lateinit var tvNoticeBoard: TextView
     // ================= Data =================
     private val cartItems = mutableListOf<CartItem>()
+
 
     // ================= Activity Result =================
     private val invoiceLauncher =
@@ -85,6 +87,9 @@ class DashboardActivity : AppCompatActivity() {
         setupSearch()
         getFcmToken()
         createNotificationChannel()
+
+        loadAiNoticeBoard()
+
     }
 
     private fun createNotificationChannel() {
@@ -169,6 +174,8 @@ class DashboardActivity : AppCompatActivity() {
         tvCartBadge = findViewById(R.id.tvCartBadge)
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
+
+        tvNoticeBoard = findViewById(R.id.tvNoticeBoard)
     }
 
     private fun setupHeader() {
@@ -289,6 +296,15 @@ class DashboardActivity : AppCompatActivity() {
 
         findViewById<MaterialButton>(R.id.btnReports).setOnClickListener {
             startActivity(Intent(this, ReportsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<MaterialButton>(R.id.btnAiInsights).setOnClickListener {
+
+            startActivity(
+                Intent(this, AiDashboardActivity::class.java)
+            )
+
             drawerLayout.closeDrawers()
         }
 
@@ -521,5 +537,44 @@ class DashboardActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun loadAiNoticeBoard() {
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
+        lifecycleScope.launch {
+
+            try {
+
+                if (token.isNullOrEmpty()) {
+                    tvNoticeBoard.text = "Session expired"
+                    return@launch
+                }
+
+                val response = RetrofitClient.api.getAiReport("Bearer $token")
+
+                var text = response.ai_report
+
+                // Fix escaped HTML
+                text = text.replace("&lt;", "<")
+                text = text.replace("&gt;", ">")
+
+                // Add visible spacing between lines
+                val noticeText = text.replace("\n", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
+
+                tvNoticeBoard.text = Html.fromHtml(
+                    noticeText,
+                    Html.FROM_HTML_MODE_LEGACY
+                )
+
+                tvNoticeBoard.isSelected = true
+
+            } catch (e: Exception) {
+
+                tvNoticeBoard.text = "AI insights unavailable"
+            }
+        }
     }
 }
