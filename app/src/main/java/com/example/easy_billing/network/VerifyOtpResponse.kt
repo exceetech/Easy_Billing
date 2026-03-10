@@ -1,4 +1,7 @@
 package com.example.easy_billing.network
 
-class VerifyOtpResponse {
-}
+data class VerifyOtpResponse(
+    val otp_verified: Boolean,
+    val access_token: String,
+    val token_type: String
+)

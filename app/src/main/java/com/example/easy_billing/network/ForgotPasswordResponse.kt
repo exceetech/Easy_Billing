@@ -1,4 +1,5 @@
 package com.example.easy_billing.network
 
-class ForgotPasswordResponse {
-}
+data class ForgotPasswordResponse(
+    val message: String
+)

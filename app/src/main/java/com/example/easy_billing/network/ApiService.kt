@@ -223,4 +223,23 @@ interface ApiService {
     suspend fun getAiReport(
         @Header("Authorization") token: String
     ): AiReportResponse
+
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(
+        @Body request: ForgotPasswordRequest
+    ): ForgotPasswordResponse
+
+    @POST("auth/verify-otp")
+    suspend fun verifyOtp(
+        @Query("email") email: String,
+        @Query("otp") otp: String
+    ): Response<VerifyOtpResponse>
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(
+        @Header("Authorization") token: String,
+        @Body request: ChangePasswordRequest
+    ): Response<Unit>
+
+
 }

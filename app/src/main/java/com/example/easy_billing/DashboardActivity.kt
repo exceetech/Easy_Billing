@@ -51,6 +51,15 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
     private lateinit var tvNoticeBoard: TextView
+
+    private val noticeHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    private val noticeRunnable = object : Runnable {
+        override fun run() {
+            loadAiNoticeBoard()
+            noticeHandler.postDelayed(this, 5 * 60 * 1000) // 5 minutes
+        }
+    }
     // ================= Data =================
     private val cartItems = mutableListOf<CartItem>()
 
@@ -90,6 +99,13 @@ class DashboardActivity : AppCompatActivity() {
 
         loadAiNoticeBoard()
 
+        noticeHandler.postDelayed(noticeRunnable, 5 * 60 * 1000)
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        noticeHandler.removeCallbacks(noticeRunnable)
     }
 
     private fun createNotificationChannel() {

@@ -72,18 +72,30 @@ class MainActivity : BaseActivity() {
 
                     val token = response.access_token
 
-                    getSharedPreferences("auth", MODE_PRIVATE)
-                        .edit {
-                            putString("TOKEN", token)
-                        }
+                    if (token.isNullOrEmpty()) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Invalid login response",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@launch
+                    }
+
+                    // save token
+                    val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+                    prefs.edit {
+                        putString("TOKEN", token)
+                    }
+
+                    // debug check
+                    val savedToken = prefs.getString("TOKEN", null)
+                    android.util.Log.d("TOKEN_DEBUG", "Saved Token: $savedToken")
 
                     if (response.is_first_login) {
 
-                        val intent = Intent(
-                            this@MainActivity,
-                            ChangePasswordActivity::class.java
+                        startActivity(
+                            Intent(this@MainActivity, ChangePasswordActivity::class.java)
                         )
-                        startActivity(intent)
                         finish()
 
                     } else {

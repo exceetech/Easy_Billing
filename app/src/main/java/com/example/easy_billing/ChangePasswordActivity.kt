@@ -2,14 +2,15 @@ package com.example.easy_billing
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.network.ChangePasswordRequest
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
 
 class ChangePasswordActivity : AppCompatActivity() {
 
@@ -18,55 +19,82 @@ class ChangePasswordActivity : AppCompatActivity() {
         setContentView(R.layout.activity_change_password)
 
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
+        val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val btnSave = findViewById<Button>(R.id.btnSavePassword)
 
         btnSave.setOnClickListener {
 
             val newPass = etNewPassword.text.toString().trim()
+            val confirmPass = etConfirmPassword.text.toString().trim()
 
             if (newPass.length < 4) {
-                Toast.makeText(this, "Password must be at least 4 characters", Toast.LENGTH_SHORT).show()
+                etNewPassword.error = "Password must be at least 4 characters"
                 return@setOnClickListener
             }
 
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null)
+            if (newPass != confirmPass) {
+                etConfirmPassword.error = "Passwords do not match"
+                return@setOnClickListener
+            }
 
-            if (token == null) {
-                Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, MainActivity::class.java))
+            val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+
+            // reset token saved after OTP verification
+            val token = prefs.getString("TOKEN", null)
+
+            Log.d("RESET_TOKEN", "Token = $token")
+
+            if (token.isNullOrEmpty()) {
+
+                Toast.makeText(
+                    this,
+                    "Reset session expired. Please request OTP again.",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                startActivity(Intent(this, ForgotPasswordActivity::class.java))
                 finish()
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
+
                 try {
-                    val response = RetrofitClient.api.changePassword(
+
+                    val response = RetrofitClient.api.resetPassword(
                         "Bearer $token",
-                        newPass
+                        ChangePasswordRequest(newPass)
                     )
 
-                    if (response.isSuccessful) {
+                    Toast.makeText(
+                        this@ChangePasswordActivity,
+                        "Password changed successfully",
+                        Toast.LENGTH_LONG
+                    ).show()
 
-                        Toast.makeText(
-                            this@ChangePasswordActivity,
-                            "Password changed. Please login again.",
-                            Toast.LENGTH_LONG
-                        ).show()
+                    // clear reset token
+                    prefs.edit().remove("TOKEN").apply()
 
-                        getSharedPreferences("auth", MODE_PRIVATE)
-                            .edit {
-                                remove("TOKEN")
-                            }
+                    val intent = Intent(
+                        this@ChangePasswordActivity,
+                        MainActivity::class.java
+                    )
 
-                        startActivity(Intent(this@ChangePasswordActivity, MainActivity::class.java))
-                        finish()
-                    } else {
-                        Toast.makeText(this@ChangePasswordActivity, "Failed", Toast.LENGTH_SHORT).show()
-                    }
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                    startActivity(intent)
+                    finish()
 
                 } catch (e: Exception) {
-                    Toast.makeText(this@ChangePasswordActivity, "Error occurred", Toast.LENGTH_SHORT).show()
+
+                    Log.e("RESET_PASSWORD_ERROR", e.message ?: "Unknown")
+
+                    Toast.makeText(
+                        this@ChangePasswordActivity,
+                        "Unable to reset password",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

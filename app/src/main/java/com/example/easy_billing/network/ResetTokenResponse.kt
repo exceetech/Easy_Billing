@@ -1,4 +1,6 @@
 package com.example.easy_billing.network
 
-class ResetTokenResponse {
-}
+data class ResetTokenResponse(
+    val reset_token: String,
+    val token_type: String
+)

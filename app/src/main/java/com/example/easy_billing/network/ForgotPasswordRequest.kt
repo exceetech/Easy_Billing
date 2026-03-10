@@ -1,4 +1,5 @@
 package com.example.easy_billing.network
 
-class fORGOTpASSWORDrEQUEST {
-}
+data class ForgotPasswordRequest(
+    val email: String
+)
