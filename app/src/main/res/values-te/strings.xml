@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ExPOS</string>
+
+    <string name="phone_number">ఫోన్ నంబర్</string>
+    <string name="full_name">పూర్తి పేరు</string>
+    <string name="create_account">ఖాతా సృష్టించండి</string>
+    <string name="email">ఇమెయిల్</string>
+    <string name="password">పాస్‌వర్డ్</string>
+    <string name="confirm_password">పాస్‌వర్డ్ నిర్ధారించండి</string>
+    <string name="register">నమోదు</string>
+    <string name="already_have_an_account_login">ఇప్పటికే ఖాతా ఉందా? లాగిన్ అవ్వండి</string>
+    <string name="shop_name">దుకాణం పేరు</string>
+    <string name="don_t_have_an_account_register">ఖాతా లేదా? నమోదు చేసుకోండి</string>
+    <string name="username">యూజర్ పేరు</string>
+    <string name="login_password">పాస్‌వర్డ్</string>
+    <string name="login">లాగిన్</string>
+    <string name="forgot_password">పాస్‌వర్డ్ మర్చిపోయారా?</string>
+    <string name="app_logo">యాప్ లోగో</string>
+    <string name="registered_email">నమోదైన ఇమెయిల్</string>
+    <string name="submit">సమర్పించండి</string>
+    <string name="logout">లాగౌట్</string>
+
+    <string name="edit">సవరించండి</string>
+    <string name="close">మూసివేయండి</string>
+
+    <string name="store_information">దుకాణ సమాచారం</string>
+    <string name="billing_settings">బిల్లింగ్ సెట్టింగ్స్</string>
+    <string name="invoice_design">ఇన్వాయిస్ డిజైన్</string>
+    <string name="localization_settings">భాష, ప్రాంతం మరియు కరెన్సీ</string>
+    <string name="data_security_management">డేటా మరియు భద్రత నిర్వహణ</string>
+
+    <string name="language">భాష</string>
+    <string name="region">ప్రాంతం</string>
+    <string name="currency">కరెన్సీ</string>
+
+    <string name="gst">జీఎస్టీ</string>
+    <string name="discount">డిస్కౌంట్</string>
+    <string name="total">మొత్తం</string>
+    <string name="store_name">దుకాణం పేరు</string>
+    <string name="invoice_info">ఇన్వాయిస్ #123\nతేదీ: --</string>
+    <string name="subtotal">ఉప మొత్తం</string>
+
+    <string name="confirm_bill">బిల్ నిర్ధారించండి</string>
+    <string name="print_save_pdf">ప్రింట్ / PDF సేవ్ చేయండి</string>
+
+    <string name="search_products">ఉత్పత్తులను వెతకండి</string>
+    <string name="custom_item">కస్టమ్ ఐటమ్ పేరు</string>
+
+    <string name="todo">ఐకాన్</string>
+
+    <string name="total_revenue">మొత్తం ఆదాయం</string>
+    <string name="_0">₹0</string>
+
+    <string name="top_selling_products">అత్యధికంగా అమ్ముడైన ఉత్పత్తులు</string>
+
+    <string name="product">ఉత్పత్తి</string>
+    <string name="qty">మొత్తం</string>
+    <string name="revenue">ఆదాయం</string>
+
+    <string name="ai_suggestions">ఎఐ సూచనలు</string>
+    <string name="analyzing_your_business">మీ వ్యాపార డేటాను విశ్లేషిస్తోంది...</string>
+
+    <string name="today_s_sales">ఈ రోజు అమ్మకాలు</string>
+    <string name="_0_00">₹0.00</string>
+    <string name="bills_today">ఈ రోజు బిల్లులు</string>
+    <string name="search_invoice_or_product">ఇన్వాయిస్ లేదా ఉత్పత్తి వెతకండి</string>
+    <string name="today">ఈ రోజు</string>
+    <string name="this_week">ఈ వారం</string>
+    <string name="this_month">ఈ నెల</string>
+    <string name="sort_amount">మొత్తం ప్రకారం సార్టు చేయండి</string>
+
+    <string name="default_gst">డిఫాల్ట్ GST (%)</string>
+    <string name="printer_layout">ప్రింటర్ లేఅవుట్</string>
+    <string name="save_billing_settings">బిల్లింగ్ సెట్టింగ్స్ సేవ్ చేయండి</string>
+
+    <string name="create_new_password">కొత్త పాస్‌వర్డ్ సృష్టించండి</string>
+    <string name="new_password">కొత్త పాస్‌వర్డ్</string>
+    <string name="save_password">పాస్‌వర్డ్ సేవ్ చేయండి</string>
+
+    <string name="menu">మెను</string>
+    <string name="welcome">స్వాగతం</string>
+    <string name="cart">కార్ట్</string>
+    <string name="loading_ai_suggestions">AI సూచనలు లోడ్ అవుతున్నాయి...</string>
+    <string name="dashboard_menu">డాష్‌బోర్డ్ మెను</string>
+    <string name="add_products">ఉత్పత్తులు జోడించండి</string>
+    <string name="bill_history">బిల్ చరిత్ర</string>
+    <string name="settings">సెట్టింగ్స్</string>
+    <string name="reports">రిపోర్ట్స్</string>
+    <string name="ai_insights">AI విశ్లేషణ</string>
+    <string name="generate_bill">బిల్ సృష్టించండి</string>
+    <string name="auto_translation">స్వయంచాలక అనువాదం</string>
+
+    <string name="data_and_security">డేటా మరియు భద్రత</string>
+    <string name="change_login_password">లాగిన్ పాస్‌వర్డ్ మార్చండి</string>
+    <string name="clear_all_bills">అన్ని బిల్లులను తొలగించండి</string>
+    <string name="factory_reset_app">యాప్ ఫ్యాక్టరీ రీసెట్ చేయండి</string>
+
+    <string name="enter_your_registered_email_to_reset_your_password">
+పాస్‌వర్డ్ రీసెట్ చేయడానికి మీ నమోదు చేసిన ఇమెయిల్ నమోదు చేయండి
+</string>
+    <string name="enter_otp">OTP నమోదు చేయండి</string>
+    <string name="_6_digit_otp">6 అంకెల OTP</string>
+    <string name="verify_otp">OTP ధృవీకరించండి</string>
+
+    <string name="store">దుకాణం</string>
+    <string name="invoice_123_ndate">ఇన్వాయిస్ #123\nతేదీ: --</string>
+    <string name="total_0">మొత్తం: ₹0</string>
+    <string name="cash">నగదు</string>
+    <string name="upi">UPI</string>
+    <string name="card">కార్డ్</string>
+
+    <string name="footer_message">ఫుటర్ సందేశం</string>
+    <string name="thank_you_visit_again">ధన్యవాదాలు! మళ్లీ రండి</string>
+    <string name="show_store_logo">దుకాణం లోగో చూపించండి</string>
+    <string name="show_gstin">GSTIN చూపించండి</string>
+    <string name="show_phone_number">ఫోన్ నంబర్ చూపించండి</string>
+    <string name="show_discount_section">డిస్కౌంట్ విభాగం చూపించండి</string>
+    <string name="enable_round_off">రౌండ్ ఆఫ్ ప్రారంభించండి</string>
+    <string name="save_design_settings">డిజైన్ సెట్టింగ్స్ సేవ్ చేయండి</string>
+
+    <string name="not_yet_registered_create_new_account">ఇంకా నమోదు కాలేదా? కొత్త ఖాతా సృష్టించండి</string>
+
+    <string name="analytics_reports">అనలిటిక్స్ నివేదికలు</string>
+    <string name="overview">సారాంశం</string>
+    <string name="bills">బిల్లులు</string>
+    <string name="avg_bill">సగటు బిల్</string>
+    <string name="sales_trend">అమ్మకాల ధోరణి</string>
+    <string name="peak_hours">పీక్ గంటలు</string>
+    <string name="daily_sales">రోజువారీ అమ్మకాలు</string>
+    <string name="monthly_sales">మాసిక అమ్మకాలు</string>
+    <string name="top_products">అగ్ర ఉత్పత్తులు</string>
+    <string name="peak_hour_details">పీక్ గంటల వివరాలు</string>
+    <string name="business_insights">వ్యాపార అవగాహనలు</string>
+    <string name="send_report_to_email">నివేదికను ఇమెయిల్‌కు పంపండి</string>
+
+    <string name="store_address">దుకాణ చిరునామా</string>
+    <string name="gstin">జీఎస్టీఐఎన్</string>
+    <string name="save_changes">మార్పులను సేవ్ చేయండి</string>
+
+    <string name="add_product">ఉత్పత్తి జోడించండి</string>
+    <string name="custom_product_name">కస్టమ్ ఉత్పత్తి పేరు</string>
+    <string name="price">ధర</string>
+    <string name="cancel">రద్దు</string>
+    <string name="add">జోడించండి</string>
+
+    <string name="enter_quantity">పరిమాణాన్ని నమోదు చేయండి</string>
+    <string name="add_to_cart">కార్ట్‌లో జోడించండి</string>
+
+    <string name="confirm_identity">గుర్తింపును నిర్ధారించండి</string>
+    <string name="enter_your_login_password">మీ లాగిన్ పాస్‌వర్డ్‌ను నమోదు చేయండి</string>
+    <string name="verify">ధృవీకరించండి</string>
+
+    <string name="item">అంశం</string>
+    <string name="delete_item">అంశాన్ని తొలగించండి</string>
+
+    <string name="date">తేదీ</string>
+    <string name="_0_bills">0 బిల్లులు</string>
+
+    <string name="month">నెల</string>
+
+    <string name="product_name">ఉత్పత్తి పేరు</string>
+    <string name="sold_0">అమ్మినవి: 0</string>
+
+</resources>

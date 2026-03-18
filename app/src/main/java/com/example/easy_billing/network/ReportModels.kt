@@ -19,6 +19,7 @@ data class YearlyReportResponse(
 )
 
 data class PeakHourResponse(
+    val date: String,
     val hour: Int,
     val bills: Int,
     val revenue: Double
@@ -27,7 +28,11 @@ data class PeakHourResponse(
 data class AverageBillResponse(
     val average_bill: Double,
     val total_revenue: Double,
-    val total_bills: Int
+    val total_bills: Int,
+
+    val prev_revenue: Double,
+    val prev_bills: Int,
+    val prev_avg: Double
 )
 
 data class TopProductResponse(
@@ -68,5 +73,7 @@ data class TopRevenueProductResponse(
 
 data class SalesTrendResponse(
     val date: String,
-    val revenue: Double
+    val hour: Int,
+    val revenue: Double,
+    val month: String
 )

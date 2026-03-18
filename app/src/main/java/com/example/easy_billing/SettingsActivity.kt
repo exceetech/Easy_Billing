@@ -18,6 +18,10 @@ class SettingsActivity : BaseActivity() {
             startActivity(Intent(this, StoreSettingsActivity::class.java))
         }
 
+        findViewById<View>(R.id.btnLocalization).setOnClickListener {
+            startActivity(Intent(this, LocalizationSettingsActivity::class.java))
+        }
+
         findViewById<View>(R.id.btnBillingSettings).setOnClickListener {
             startActivity(Intent(this, BillingSettingsActivity::class.java))
         }

@@ -19,4 +19,34 @@
         <item name="android:fontFamily">@font/googlesans_medium</item>
     </style>
 
+    <style name="PosKeypadButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">#EEF2FF</item>
+        <item name="android:textColor">#1F2937</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="PosKeypadButtonClear">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">#FEE2E2</item>
+        <item name="android:textColor">#DC2626</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="PosKeypadButtonDelete">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="backgroundTint">#E0F2FE</item>
+        <item name="android:textColor">#0369A1</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ExPOS</string>
+
+    <string name="phone_number">ಫೋನ್ ಸಂಖ್ಯೆ</string>
+    <string name="full_name">ಪೂರ್ಣ ಹೆಸರು</string>
+    <string name="create_account">ಖಾತೆ ರಚಿಸಿ</string>
+    <string name="email">ಇಮೇಲ್</string>
+    <string name="password">ಪಾಸ್‌ವರ್ಡ್</string>
+    <string name="confirm_password">ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ</string>
+    <string name="register">ನೋಂದಣಿ</string>
+    <string name="already_have_an_account_login">ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯಾ? ಲಾಗಿನ್ ಮಾಡಿ</string>
+    <string name="shop_name">ಅಂಗಡಿ ಹೆಸರು</string>
+    <string name="don_t_have_an_account_register">ಖಾತೆ ಇಲ್ಲವೇ? ನೋಂದಣಿ ಮಾಡಿ</string>
+    <string name="username">ಬಳಕೆದಾರ ಹೆಸರು</string>
+    <string name="login_password">ಪಾಸ್‌ವರ್ಡ್</string>
+    <string name="login">ಲಾಗಿನ್</string>
+    <string name="forgot_password">ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?</string>
+    <string name="app_logo">ಆಪ್ ಲೋಗೋ</string>
+    <string name="registered_email">ನೋಂದಾಯಿತ ಇಮೇಲ್</string>
+    <string name="submit">ಸಲ್ಲಿಸಿ</string>
+    <string name="logout">ಲಾಗ್ ಔಟ್</string>
+
+    <string name="edit">ಸಂಪಾದಿಸಿ</string>
+    <string name="close">ಮುಚ್ಚಿ</string>
+
+    <string name="store_information">ಅಂಗಡಿ ಮಾಹಿತಿ</string>
+    <string name="billing_settings">ಬಿಲ್ಲಿಂಗ್ ಸೆಟ್ಟಿಂಗ್ಸ್</string>
+    <string name="invoice_design">ಇನ್ವಾಯ್ಸ್ ವಿನ್ಯಾಸ</string>
+    <string name="localization_settings">ಭಾಷೆ, ಪ್ರದೇಶ ಮತ್ತು ಕರೆನ್ಸಿ</string>
+    <string name="data_security_management">ಡೇಟಾ ಮತ್ತು ಭದ್ರತಾ ನಿರ್ವಹಣೆ</string>
+
+    <string name="language">ಭಾಷೆ</string>
+    <string name="region">ಪ್ರದೇಶ</string>
+    <string name="currency">ಕರೆನ್ಸಿ</string>
+
+    <string name="gst">ಜಿಎಸ್‌ಟಿ</string>
+    <string name="discount">ರಿಯಾಯಿತಿ</string>
+    <string name="total">ಒಟ್ಟು</string>
+    <string name="store_name">ಅಂಗಡಿ ಹೆಸರು</string>
+    <string name="invoice_info">ಇನ್ವಾಯ್ಸ್ #123\nದಿನಾಂಕ: --</string>
+    <string name="subtotal">ಉಪ ಒಟ್ಟು</string>
+
+    <string name="confirm_bill">ಬಿಲ್ ದೃಢೀಕರಿಸಿ</string>
+    <string name="print_save_pdf">ಪ್ರಿಂಟ್ / PDF ಸೇವ್ ಮಾಡಿ</string>
+
+    <string name="search_products">ಉತ್ಪನ್ನಗಳನ್ನು ಹುಡುಕಿ</string>
+    <string name="custom_item">ಕಸ್ಟಮ್ ಐಟಂ ಹೆಸರು</string>
+
+    <string name="todo">ಐಕಾನ್</string>
+
+    <string name="total_revenue">ಒಟ್ಟು ಆದಾಯ</string>
+    <string name="_0">₹0</string>
+
+    <string name="top_selling_products">ಹೆಚ್ಚು ಮಾರಾಟವಾದ ಉತ್ಪನ್ನಗಳು</string>
+
+    <string name="product">ಉತ್ಪನ್ನ</string>
+    <string name="qty">ಪ್ರಮಾಣ</string>
+    <string name="revenue">ಆದಾಯ</string>
+
+    <string name="ai_suggestions">ಎಐ ಸಲಹೆಗಳು</string>
+    <string name="analyzing_your_business">ನಿಮ್ಮ ವ್ಯವಹಾರದ ಡೇಟಾವನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...</string>
+
+    <string name="today_s_sales">ಇಂದಿನ ಮಾರಾಟ</string>
+    <string name="_0_00">₹0.00</string>
+    <string name="bills_today">ಇಂದಿನ ಬಿಲ್‌ಗಳು</string>
+    <string name="search_invoice_or_product">ಇನ್ವಾಯ್ಸ್ ಅಥವಾ ಉತ್ಪನ್ನವನ್ನು ಹುಡುಕಿ</string>
+    <string name="today">ಇಂದು</string>
+    <string name="this_week">ಈ ವಾರ</string>
+    <string name="this_month">ಈ ತಿಂಗಳು</string>
+    <string name="sort_amount">ಮೊತ್ತದ ಆಧಾರದ ಮೇಲೆ ಸರಿಸಿ</string>
+
+    <string name="default_gst">ಡೀಫಾಲ್ಟ್ ಜಿಎಸ್ಟಿ (%)</string>
+    <string name="printer_layout">ಪ್ರಿಂಟರ್ ವಿನ್ಯಾಸ</string>
+    <string name="save_billing_settings">ಬಿಲ್ಲಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಿ</string>
+
+    <string name="create_new_password">ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ</string>
+    <string name="new_password">ಹೊಸ ಪಾಸ್‌ವರ್ಡ್</string>
+    <string name="save_password">ಪಾಸ್‌ವರ್ಡ್ ಉಳಿಸಿ</string>
+
+    <string name="menu">ಮೆನು</string>
+    <string name="welcome">ಸ್ವಾಗತ</string>
+    <string name="cart">ಕಾರ್ಟ್</string>
+    <string name="loading_ai_suggestions">AI ಸಲಹೆಗಳು ಲೋಡ್ ಆಗುತ್ತಿದೆ...</string>
+    <string name="dashboard_menu">ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಮೆನು</string>
+    <string name="add_products">ಉತ್ಪನ್ನಗಳನ್ನು ಸೇರಿಸಿ</string>
+    <string name="bill_history">ಬಿಲ್ ಇತಿಹಾಸ</string>
+    <string name="settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="reports">ವರದಿಗಳು</string>
+    <string name="ai_insights">AI ಒಳನೋಟಗಳು</string>
+    <string name="generate_bill">ಬಿಲ್ ರಚಿಸಿ</string>
+    <string name="auto_translation">ಸ್ವಯಂ ಅನುವಾದ</string>
+
+    <string name="data_and_security">ಡೇಟಾ ಮತ್ತು ಭದ್ರತೆ</string>
+    <string name="change_login_password">ಲಾಗಿನ್ ಪಾಸ್‌ವರ್ಡ್ ಬದಲಿಸಿ</string>
+    <string name="clear_all_bills">ಎಲ್ಲಾ ಬಿಲ್‌ಗಳನ್ನು ಅಳಿಸಿ</string>
+    <string name="factory_reset_app">ಆಪ್ ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್</string>
+
+    <string name="enter_your_registered_email_to_reset_your_password">
+ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸಲು ನಿಮ್ಮ ನೋಂದಾಯಿತ ಇಮೇಲ್ ನಮೂದಿಸಿ
+</string>
+    <string name="enter_otp">OTP ನಮೂದಿಸಿ</string>
+    <string name="_6_digit_otp">6 ಅಂಕೆಗಳ OTP</string>
+    <string name="verify_otp">OTP ಪರಿಶೀಲಿಸಿ</string>
+
+    <string name="store">ಅಂಗಡಿ</string>
+    <string name="invoice_123_ndate">ಇನ್ವಾಯ್ಸ್ #123\nದಿನಾಂಕ: --</string>
+    <string name="total_0">ಒಟ್ಟು: ₹0</string>
+    <string name="cash">ನಗದು</string>
+    <string name="upi">UPI</string>
+    <string name="card">ಕಾರ್ಡ್</string>
+
+    <string name="footer_message">ಫುಟರ್ ಸಂದೇಶ</string>
+    <string name="thank_you_visit_again">ಧನ್ಯವಾದಗಳು! ಮತ್ತೆ ಭೇಟಿ ನೀಡಿ</string>
+    <string name="show_store_logo">ಅಂಗಡಿ ಲೋಗೋ ತೋರಿಸಿ</string>
+    <string name="show_gstin">GSTIN ತೋರಿಸಿ</string>
+    <string name="show_phone_number">ಫೋನ್ ಸಂಖ್ಯೆ ತೋರಿಸಿ</string>
+    <string name="show_discount_section">ರಿಯಾಯಿತಿ ವಿಭಾಗ ತೋರಿಸಿ</string>
+    <string name="enable_round_off">ರೌಂಡ್ ಆಫ್ ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
+    <string name="save_design_settings">ಡಿಸೈನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಿ</string>
+
+    <string name="not_yet_registered_create_new_account">ಇನ್ನೂ ನೋಂದಾಯಿಸಿಲ್ಲವೇ? ಹೊಸ ಖಾತೆ ರಚಿಸಿ</string>
+
+    <string name="analytics_reports">ವಿಶ್ಲೇಷಣಾ ವರದಿಗಳು</string>
+    <string name="overview">ಸಾರಾಂಶ</string>
+    <string name="bills">ಬಿಲ್ಲುಗಳು</string>
+    <string name="avg_bill">ಸರಾಸರಿ ಬಿಲ್</string>
+    <string name="sales_trend">ಮಾರಾಟದ ಪ್ರವೃತ್ತಿ</string>
+    <string name="peak_hours">ಪೀಕ್ ಗಂಟೆಗಳು</string>
+    <string name="daily_sales">ದೈನಂದಿನ ಮಾರಾಟ</string>
+    <string name="monthly_sales">ಮಾಸಿಕ ಮಾರಾಟ</string>
+    <string name="top_products">ಮುಖ್ಯ ಉತ್ಪನ್ನಗಳು</string>
+    <string name="peak_hour_details">ಪೀಕ್ ಗಂಟೆಗಳ ವಿವರಗಳು</string>
+    <string name="business_insights">ವ್ಯಾಪಾರ ಒಳನೋಟಗಳು</string>
+    <string name="send_report_to_email">ವರದಿಯನ್ನು ಇಮೇಲ್‌ಗೆ ಕಳುಹಿಸಿ</string>
+
+    <string name="store_address">ದುಕಾನದ ವಿಳಾಸ</string>
+    <string name="gstin">ಜಿಎಸ್ಟಿಐಎನ್</string>
+    <string name="save_changes">ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ</string>
+
+    <string name="add_product">ಉತ್ಪನ್ನವನ್ನು ಸೇರಿಸಿ</string>
+    <string name="custom_product_name">ಕಸ್ಟಮ್ ಉತ್ಪನ್ನ ಹೆಸರು</string>
+    <string name="price">ಬೆಲೆ</string>
+    <string name="cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="add">ಸೇರಿಸಿ</string>
+
+    <string name="enter_quantity">ಪ್ರಮಾಣವನ್ನು ನಮೂದಿಸಿ</string>
+    <string name="add_to_cart">ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಿ</string>
+
+    <string name="confirm_identity">ಗುರುತನ್ನು ದೃಢೀಕರಿಸಿ</string>
+    <string name="enter_your_login_password">ನಿಮ್ಮ ಲಾಗಿನ್ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ</string>
+    <string name="verify">ಪರಿಶೀಲಿಸಿ</string>
+
+    <string name="item">ಐಟಂ</string>
+    <string name="delete_item">ಐಟಂ ಅಳಿಸಿ</string>
+
+    <string name="date">ದಿನಾಂಕ</string>
+    <string name="_0_bills">0 ಬಿಲ್ಲುಗಳು</string>
+
+    <string name="month">ತಿಂಗಳು</string>
+
+    <string name="product_name">ಉತ್ಪನ್ನದ ಹೆಸರು</string>
+    <string name="sold_0">ಮಾರಾಟ: 0</string>
+
+</resources>

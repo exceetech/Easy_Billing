@@ -9,6 +9,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.model.CartItem
+import java.text.NumberFormat
+import java.util.Locale
 
 class CartAdapter(
     private val items: MutableList<CartItem>,
@@ -36,7 +38,15 @@ class CartAdapter(
 
         holder.tvName.text = item.product.name
         holder.tvQty.text = item.quantity.toString()
-        holder.tvPrice.text = "₹${item.subTotal()}"
+
+
+        val price = item.subTotal()
+
+        // Format number in Indian currency style
+        val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
+        val formattedPrice = formatter.format(price)
+
+        holder.tvPrice.text = "₹$formattedPrice"
 
         holder.btnPlus.setOnClickListener {
             item.quantity++

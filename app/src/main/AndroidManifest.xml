@@ -70,6 +70,8 @@
         <activity
             android:name=".AiDashboardActivity"/>
         <activity
+            android:name=".LocalizationSettingsActivity"/>
+        <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>

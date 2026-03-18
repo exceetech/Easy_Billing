@@ -2,14 +2,16 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="280dp"
+
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:layout_margin="20dp"
+
     app:cardCornerRadius="26dp"
-    app:cardElevation="14dp"
-    app:cardUseCompatPadding="true"
-    app:cardBackgroundColor="?attr/colorSurface">
+    app:cardElevation="0dp"
+
+    app:cardBackgroundColor="@color/transparent"
+    app:cardUseCompatPadding="false"
+    app:contentPadding="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,25 +19,32 @@
         android:orientation="vertical"
         android:padding="22dp">
 
-        <!-- ROUNDED 2D WHITE DISPLAY -->
+        <!-- TITLE -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enter_quantity"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- DISPLAY -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginBottom="18dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#E0E0E0"
-            app:cardBackgroundColor="@android:color/white">
+            android:layout_height="90dp"
+            app:cardCornerRadius="18dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <TextView
                 android:id="@+id/tvQuantity"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:textSize="28sp"
+                android:text="0"
+                android:textSize="34sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"/>
+                android:textColor="@color/textPrimary"/>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- KEYPAD -->
@@ -43,178 +52,60 @@
             android:id="@+id/gridPad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
             android:columnCount="3"
             android:useDefaultMargins="true">
 
-            <!-- NUMBER BUTTON TEMPLATE -->
-
-            <!-- 1 -->
+            <!-- number button style -->
             <com.google.android.material.button.MaterialButton
                 android:text="1"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 2 -->
             <com.google.android.material.button.MaterialButton
                 android:text="2"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 3 -->
             <com.google.android.material.button.MaterialButton
                 android:text="3"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 4 -->
             <com.google.android.material.button.MaterialButton
                 android:text="4"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 5 -->
             <com.google.android.material.button.MaterialButton
                 android:text="5"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 6 -->
             <com.google.android.material.button.MaterialButton
                 android:text="6"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 7 -->
             <com.google.android.material.button.MaterialButton
                 android:text="7"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 8 -->
             <com.google.android.material.button.MaterialButton
                 android:text="8"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
-            <!-- 9 -->
             <com.google.android.material.button.MaterialButton
                 android:text="9"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
             <!-- CLEAR -->
             <com.google.android.material.button.MaterialButton
                 android:text="C"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorError"
-                android:textColor="?attr/colorOnPrimary"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorError"/>
+                style="@style/PosKeypadButtonClear"/>
 
-            <!-- 0 -->
             <com.google.android.material.button.MaterialButton
                 android:text="0"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButton"/>
 
             <!-- BACKSPACE -->
             <com.google.android.material.button.MaterialButton
                 android:text="⌫"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_columnWeight="1"
-                app:cornerRadius="14dp"
-                app:backgroundTint="?attr/colorSecondaryContainer"
-                android:textColor="?attr/colorOnSecondaryContainer"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutline"/>
+                style="@style/PosKeypadButtonDelete"/>
 
         </GridLayout>
 
@@ -222,16 +113,14 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddQty"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="22dp"
-            android:text="Add to Cart"
-            android:textSize="14sp"
+            android:layout_height="54dp"
+            android:text="@string/add_to_cart"
             android:textStyle="bold"
-            app:cornerRadius="16dp"
-            app:backgroundTint="?attr/colorPrimary"
-            android:textColor="?attr/colorOnPrimary"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorPrimary"/>
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            app:cornerRadius="18dp"
+            app:backgroundTint="#3B82F6"
+            android:textColor="@android:color/white"/>
 
     </LinearLayout>
 

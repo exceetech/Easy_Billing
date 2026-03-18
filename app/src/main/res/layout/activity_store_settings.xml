@@ -24,7 +24,7 @@
 
         <!-- Title -->
         <TextView
-            android:text="Store Information"
+            android:text="@string/store_information"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
@@ -42,7 +42,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etStoreName"
-                android:hint="Store Name"
+                android:hint="@string/store_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -58,7 +58,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etStoreAddress"
-                android:hint="Store Address"
+                android:hint="@string/store_address"
                 android:inputType="textMultiLine"
                 android:minLines="2"
                 android:layout_width="match_parent"
@@ -76,7 +76,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etStorePhone"
-                android:hint="Phone Number"
+                android:hint="@string/phone_number"
                 android:inputType="phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -93,7 +93,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etStoreGstin"
-                android:hint="GSTIN"
+                android:hint="@string/gstin"
                 android:textAllCaps="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -102,7 +102,7 @@
         <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
-            android:text="Save Changes"
+            android:text="@string/save_changes"
             android:textAllCaps="false"
             android:textColor="?attr/colorPrimaryContainer"
             android:layout_marginTop="28dp"

@@ -3,12 +3,15 @@ package com.example.easy_billing
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridLayout
@@ -29,14 +32,16 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaveTokenRequest
-import com.example.easy_billing.network.VerifyPasswordRequest
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import com.google.firebase.messaging.FirebaseMessaging
+import java.text.NumberFormat
+import java.util.Locale
 
 
-class DashboardActivity : AppCompatActivity() {
+class DashboardActivity : BaseActivity() {
 
     // ================= UI =================
     private lateinit var drawerLayout: DrawerLayout
@@ -47,12 +52,19 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var etSearch: TextInputEditText
     private lateinit var tvWelcome: TextView
 
+    private var searchRunnable: Runnable? = null
+    private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
     // ================= Adapters =================
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
     private lateinit var tvNoticeBoard: TextView
 
     private val noticeHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    private var currentLanguage = "en"
+
+    private lateinit var switchTranslate: SwitchMaterial
 
     private val noticeRunnable = object : Runnable {
         override fun run() {
@@ -82,6 +94,45 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        // ✅ 1. Initialize ALL views FIRST
+        initViews()
+
+        // ✅ 2. Now safe to use etSearch
+        window.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        )
+
+        etSearch.clearFocus()
+
+        setupOutsideTouch()
+
+        // ❌ REMOVE duplicate call
+        // setupOutsideTouch()
+
+        val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+
+        // Load language setting
+        currentLanguage = prefs.getString("app_language", "en") ?: "en"
+
+        // Setup translation switch
+        switchTranslate.isChecked =
+            prefs.getBoolean("translation_enabled", true)
+
+        switchTranslate.setOnCheckedChangeListener { _, isChecked ->
+
+            prefs.edit().putBoolean("translation_enabled", isChecked).apply()
+
+            if (isChecked) {
+                Toast.makeText(this, "Translation ON", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Translation OFF", Toast.LENGTH_SHORT).show()
+            }
+
+            setupRecyclerViews()
+            loadProducts()
+        }
+
+        // Notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= 33) {
             requestPermissions(
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
@@ -89,18 +140,17 @@ class DashboardActivity : AppCompatActivity() {
             )
         }
 
-        initViews()
         setupHeader()
         setupRecyclerViews()
         setupDrawerButtons()
         setupSearch()
+
         getFcmToken()
         createNotificationChannel()
 
         loadAiNoticeBoard()
 
         noticeHandler.postDelayed(noticeRunnable, 5 * 60 * 1000)
-
     }
 
     override fun onDestroy() {
@@ -190,8 +240,9 @@ class DashboardActivity : AppCompatActivity() {
         tvCartBadge = findViewById(R.id.tvCartBadge)
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
-
         tvNoticeBoard = findViewById(R.id.tvNoticeBoard)
+
+        switchTranslate = findViewById(R.id.switchTranslate)
     }
 
     private fun setupHeader() {
@@ -273,8 +324,15 @@ class DashboardActivity : AppCompatActivity() {
         rvProducts.layoutManager = GridLayoutManager(this, 5)
         rvCart.layoutManager = LinearLayoutManager(this)
 
+        val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+
+        val translationEnabled =
+            prefs.getBoolean("translation_enabled", true)
+
         // Initialize productAdapter HERE
         productAdapter = ProductAdapter(
+            language = currentLanguage,
+            translationEnabled = translationEnabled,
             onItemClick = { showQuantityDialog(it) },
             onItemLongClick = { showDeleteDialog(it) }
         )
@@ -315,6 +373,11 @@ class DashboardActivity : AppCompatActivity() {
             drawerLayout.closeDrawers()
         }
 
+        findViewById<MaterialButton>(R.id.btnPreviousBills).setOnClickListener {
+            startActivity(Intent(this, BillHistoryActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
         findViewById<MaterialButton>(R.id.btnAiInsights).setOnClickListener {
 
             startActivity(
@@ -342,14 +405,28 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        val view = getCurrentFocus()
 
-        if (view is EditText) {
-            val outRect = Rect()
-            view.getGlobalVisibleRect(outRect)
+        if (currentFocus == etSearch) {
 
-            if (!outRect.contains(ev.getRawX().toInt(), ev.getRawY().toInt())) {
-                view.clearFocus()
+            val outRect = android.graphics.Rect()
+            etSearch.getGlobalVisibleRect(outRect)
+
+            if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+
+                // ✅ Clear text
+                etSearch.text?.clear()
+
+                // ✅ Remove focus
+                etSearch.clearFocus()
+
+                // ✅ Hide keyboard
+                val imm = getSystemService(INPUT_METHOD_SERVICE)
+                        as android.view.inputmethod.InputMethodManager
+
+                imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+
+                // ✅ Reset list (IMPORTANT for POS)
+                productAdapter.filter("")
             }
         }
 
@@ -357,13 +434,34 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupSearch() {
-        etSearch.clearFocus() // Do NOT auto open keyboard
+
+        etSearch.clearFocus()
 
         etSearch.addTextChangedListener(object : android.text.TextWatcher {
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                productAdapter.filter(s.toString())
+
+                // Cancel previous search (debounce)
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+                searchRunnable = Runnable {
+
+                    val query = s?.toString()
+                        ?.trim()
+                        ?.take(50) // limit length (security + performance)
+                        ?: ""
+
+                    if (query.isEmpty()) {
+                        productAdapter.filter("")
+                    } else {
+                        productAdapter.filter(query)
+                    }
+                }
+
+                // Delay search by 300ms
+                searchHandler.postDelayed(searchRunnable!!, 300)
             }
 
             override fun afterTextChanged(s: android.text.Editable?) {}
@@ -433,7 +531,12 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun updateTotal() {
         val total = cartItems.sumOf { it.subTotal() }
-        tvTotal.text = "Total: ₹$total"
+
+        // Format number in Indian currency style
+        val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
+        val formattedTotal = formatter.format(total)
+
+        tvTotal.text = "Total: ₹$formattedTotal"
 
         val count = cartItems.sumOf { it.quantity }
 
@@ -475,30 +578,46 @@ class DashboardActivity : AppCompatActivity() {
         var quantity = 0
         tvQuantity.text = ""
 
-        val dialog = android.app.AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+
+        val MAX_QTY = 999999999
 
         for (i in 0 until gridPad.childCount) {
             val btn = gridPad.getChildAt(i)
             if (btn !is Button) continue
 
             btn.setOnClickListener {
-                when (btn.text.toString()) {
+
+                val key = btn.text.toString()
+
+                when (key) {
                     "C" -> quantity = 0
                     "⌫" -> quantity /= 10
                     else -> {
-                        val digit = btn.text.toString().toInt()
-                        quantity = (quantity * 10 + digit).coerceAtMost(999999)
+                        if (key.all { it.isDigit() }) {
+                            val digit = key.toInt()
+
+                            // prevent overflow
+                            if (quantity <= MAX_QTY / 10) {
+                                quantity = (quantity * 10 + digit).coerceAtMost(MAX_QTY)
+                            }
+                        }
                     }
                 }
+
                 tvQuantity.text = quantity.toString()
             }
         }
 
         btnAdd.setOnClickListener {
+
             if (quantity <= 0) {
                 Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -591,6 +710,26 @@ class DashboardActivity : AppCompatActivity() {
 
                 tvNoticeBoard.text = "AI insights unavailable"
             }
+        }
+    }
+
+    private fun setupOutsideTouch() {
+
+        val root = findViewById<View>(android.R.id.content)
+
+        root.setOnTouchListener { _, _ ->
+
+            // Clear text
+            etSearch.text?.clear()
+
+            // Remove focus
+            etSearch.clearFocus()
+
+            // Hide keyboard
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+
+            false
         }
     }
 }

@@ -18,7 +18,7 @@
         <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
-            android:text="Add Product"
+            android:text="@string/add_product"
             android:textStyle="bold"
             android:textSize="20sp"
             android:textColor="?attr/colorOnSurface"
@@ -43,7 +43,7 @@
                 android:id="@+id/etDialogCustomName"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="Custom product name"
+                android:hint="@string/custom_product_name"
                 android:inputType="textCapWords"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -63,7 +63,7 @@
                 android:id="@+id/etDialogPrice"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="Price"
+                android:hint="@string/price"
                 android:inputType="numberDecimal"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +78,7 @@
                 android:id="@+id/btnDialogCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 style="@style/Widget.MaterialComponents.Button.TextButton"/>
 
             <com.google.android.material.button.MaterialButton
@@ -86,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginStart="12dp"
-                android:text="Add"
+                android:text="@string/add"
                 app:cornerRadius="14dp"/>
         </LinearLayout>
 

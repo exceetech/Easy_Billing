@@ -1,5 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- App -->
     <string name="app_name">ExPOS</string>
+
+    <!-- Authentication -->
     <string name="phone_number">Phone Number</string>
     <string name="full_name">Full Name</string>
     <string name="create_account">Create Account</string>
@@ -8,15 +13,160 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="register">Register</string>
     <string name="already_have_an_account_login">Already have an account? Login</string>
-    <string name="shop_name">Shop Name</string>
     <string name="don_t_have_an_account_register">Don\'t have an account? Register</string>
     <string name="username">Username</string>
     <string name="login_password">Password</string>
     <string name="login">Login</string>
     <string name="forgot_password">Forgot Password?</string>
-    <string name="app_logo">App Logo</string>
     <string name="registered_email">Registered Email</string>
     <string name="submit">Submit</string>
     <string name="logout">Logout</string>
+
+    <!-- Shop -->
+    <string name="shop_name">Shop Name</string>
+    <string name="app_logo">App Logo</string>
+
+    <!-- General -->
     <string name="edit">Edit</string>
+    <string name="close">Close</string>
+
+    <!-- Settings -->
+    <string name="store_information">Store Information</string>
+    <string name="billing_settings">Billing Settings</string>
+    <string name="invoice_design">Invoice Design</string>
+    <string name="localization_settings">Language, Region and Currency</string>
+    <string name="data_security_management">Data and Security Management</string>
+
+    <!-- Localization -->
+    <string name="language">Language</string>
+    <string name="region">Region</string>
+    <string name="currency">Currency</string>
+
+    <!-- Billing -->
+    <string name="gst">GST</string>
+    <string name="discount">Discount</string>
+    <string name="total">Total</string>
+    <string name="store_name">Store Name</string>
+    <string name="invoice_info">Invoice #123\nDate: --</string>
+    <string name="subtotal">Subtotal</string>
+
+    <!-- Invoice -->
+    <string name="confirm_bill">Confirm Bill</string>
+    <string name="print_save_pdf">Print / Save PDF</string>
+
+
+    <string name="search_products">Search products...</string>
+    <string name="custom_item">Custom item</string>
+
+    <string name="todo">TODO</string>
+    <string name="total_revenue">Total Revenue</string>
+    <string name="_0">₹0</string>
+    <string name="top_selling_products">Top Selling Products</string>
+    <string name="product">Product</string>
+    <string name="qty">Qty</string>
+    <string name="revenue">Revenue</string>
+    <string name="ai_suggestions">AI Suggestions</string>
+    <string name="analyzing_your_business">Analyzing your business...</string>
+
+    <string name="today_s_sales">Today\'s Sales</string>
+    <string name="_0_00">₹0.00</string>
+    <string name="bills_today">Bills Today</string>
+    <string name="search_invoice_or_product">Search invoice or product</string>
+    <string name="today">Today</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="sort_amount">Sort by Amount</string>
+
+
+    <string name="default_gst">Default GST (%)</string>
+    <string name="printer_layout">Printer Layout</string>
+    <string name="save_billing_settings">Save Billing Settings</string>
+
+    <string name="create_new_password">Create New Password</string>
+    <string name="new_password">New Password</string>
+    <string name="save_password">Save Password</string>
+
+    <string name="menu">Menu</string>
+    <string name="welcome">Welcome</string>
+    <string name="cart">Cart</string>
+    <string name="loading_ai_suggestions">Loading AI suggestions...</string>
+    <string name="dashboard_menu">Dashboard Menu</string>
+    <string name="add_products">Add Products</string>
+    <string name="bill_history">Bill History</string>
+    <string name="settings">Settings</string>
+    <string name="reports">Reports</string>
+    <string name="ai_insights">AI Insights</string>
+    <string name="generate_bill">Generate Bill</string>
+    <string name="auto_translation">Auto Translation</string>
+
+
+    <string name="data_and_security">Data and Security</string>
+    <string name="change_login_password">Change Login Password</string>
+    <string name="clear_all_bills">Clear All Bills</string>
+    <string name="factory_reset_app">Factory Reset App</string>
+
+    <string name="enter_your_registered_email_to_reset_your_password">Enter your registered email to reset your password.</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="_6_digit_otp">6-digit OTP</string>
+    <string name="verify_otp">Verify OTP</string>
+
+    <string name="store">Store</string>
+    <string name="invoice_123_ndate">Invoice #123\nDate: --</string>
+    <string name="total_0">Total: ₹0</string>
+    <string name="cash">Cash</string>
+    <string name="upi">UPI</string>
+    <string name="card">Card</string>
+
+    <string name="footer_message">Footer Message</string>
+    <string name="thank_you_visit_again">Thank you! Visit again</string>
+    <string name="show_store_logo">Show Store Logo</string>
+    <string name="show_gstin">Show GSTIN</string>
+    <string name="show_phone_number">Show Phone Number</string>
+    <string name="show_discount_section">Show Discount Section</string>
+    <string name="enable_round_off">Enable Round Off</string>
+    <string name="save_design_settings">Save Design Settings</string>
+
+    <string name="not_yet_registered_create_new_account">Not Yet Registered? Create New Account</string>
+
+    <string name="analytics_reports">Analytics Reports</string>
+    <string name="overview">Overview</string>
+    <string name="bills">Bills</string>
+    <string name="avg_bill">Average Bill</string>
+    <string name="sales_trend">Sales Trend</string>
+    <string name="peak_hours">Peak Hours</string>
+    <string name="daily_sales">Daily Sales</string>
+    <string name="monthly_sales">Monthly Sales</string>
+    <string name="top_products">Top Products</string>
+    <string name="peak_hour_details">Peak Hour Details</string>
+    <string name="business_insights">Business Insights</string>
+    <string name="send_report_to_email">Send Report to Email</string>
+
+    <string name="store_address">Store Address</string>
+    <string name="gstin">GSTIN</string>
+    <string name="save_changes">Save Changes</string>
+
+    <string name="add_product">Add Product</string>
+    <string name="custom_product_name">Custom product name</string>
+    <string name="price">Price</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add</string>
+
+    <string name="enter_quantity">Enter Quantity</string>
+    <string name="add_to_cart">Add to Cart</string>
+
+    <string name="confirm_identity">Confirm Identity</string>
+    <string name="enter_your_login_password">Enter your login password</string>
+    <string name="verify">Verify</string>
+
+    <string name="item">Item</string>
+    <string name="delete_item">Delete item</string>
+
+    <string name="date">Date</string>
+    <string name="_0_bills">0 bills</string>
+    <string name="month">Month</string>
+
+    <string name="product_name">Product Name</string>
+    <string name="sold_0">Sold: 0</string>
+    <string name="this_year">this_year</string>
+
 </resources>

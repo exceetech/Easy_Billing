@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textStyle="bold"
-            android:text="Month"/>
+            android:text="@string/month"/>
 
         <TextView
             android:id="@+id/tvRevenue"
@@ -33,7 +33,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="?attr/colorPrimary"
-            android:text="₹0.00"/>
+            android:text="@string/_0_00"/>
 
         <TextView
             android:id="@+id/tvBills"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="end"
-            android:text="0 bills"/>
+            android:text="@string/_0_bills"/>
 
     </LinearLayout>
 

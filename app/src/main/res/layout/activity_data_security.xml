@@ -24,7 +24,7 @@
 
         <!-- Title -->
         <TextView
-            android:text="Data and Security"
+            android:text="@string/data_and_security"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
@@ -37,7 +37,7 @@
             android:id="@+id/btnChangePassword"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="Change Login Password"
+            android:text="@string/change_login_password"
             android:textAllCaps="false"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -54,7 +54,7 @@
             android:id="@+id/btnClearBills"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="Clear All Bills"
+            android:text="@string/clear_all_bills"
             android:textAllCaps="false"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -71,7 +71,7 @@
             android:id="@+id/btnFactoryReset"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="Factory Reset App"
+            android:text="@string/factory_reset_app"
             android:textAllCaps="false"
             android:textSize="16sp"
             android:textStyle="bold"

@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.ProductReport
 import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
+import androidx.core.graphics.toColorInt
 
 class AiDashboardActivity : BaseActivity() {
 
@@ -34,7 +35,7 @@ class AiDashboardActivity : BaseActivity() {
         setContentView(R.layout.activity_ai_dashboard)
 
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = "AI Business Insights"
+        supportActionBar?.title = " "
 
         tvRevenue = findViewById(R.id.tvRevenue)
         tvAiInsights = findViewById(R.id.tvAiInsights)
@@ -140,7 +141,7 @@ class AiDashboardActivity : BaseActivity() {
             val row = TableRow(this)
 
             if (index % 2 == 0) {
-                row.setBackgroundColor(Color.parseColor("#F9FAFB"))
+                row.setBackgroundColor("#F9FAFB".toColorInt())
             } else {
                 row.setBackgroundColor(Color.WHITE)
             }
@@ -165,7 +166,7 @@ class AiDashboardActivity : BaseActivity() {
             revenue.text = "₹${item.revenue}"
             revenue.textAlignment = TextView.TEXT_ALIGNMENT_TEXT_END
             revenue.textSize = 16f
-            revenue.setTextColor(Color.parseColor("#059669"))
+            revenue.setTextColor("#059669".toColorInt())
 
             row.addView(product)
             row.addView(qty)

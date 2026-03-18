@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:padding="12dp"
     android:gravity="center_vertical"
@@ -11,10 +12,10 @@
         android:id="@+id/tvName"
         android:layout_width="0dp"
         android:layout_weight="2"
-        android:text="Item"
+        android:text="@string/item"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- MINUS -->
     <Button
@@ -27,7 +28,7 @@
         android:minHeight="48dp"
         android:layout_marginEnd="4dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- QTY -->
     <TextView
@@ -36,7 +37,7 @@
         android:textSize="16sp"
         android:padding="8dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- PLUS -->
     <Button
@@ -49,26 +50,26 @@
         android:minHeight="48dp"
         android:layout_marginStart="4dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- PRICE -->
     <TextView
         android:id="@+id/tvPrice"
-        android:text="₹0"
+        android:text="@string/_0"
         android:textSize="16sp"
         android:layout_marginStart="8dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- DELETE -->
     <ImageButton
         android:id="@+id/btnDelete"
         android:src="@drawable/baseline_delete_24"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete item"
-        android:tint="#F44336"
+        android:contentDescription="@string/delete_item"
         android:layout_marginStart="8dp"
         android:layout_width="40dp"
-        android:layout_height="40dp"/>
+        android:layout_height="40dp"
+        app:tint="#F44336" />
 
 </LinearLayout>

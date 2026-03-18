@@ -10,8 +10,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusable="true"
         android:orientation="vertical"
-        android:background="@drawable/img_2">
+        android:background="@drawable/img_2"
+        android:focusableInTouchMode="true"
+        android:clickable="true">
 
         <!-- ================= TOP BAR ================= -->
         <LinearLayout
@@ -30,18 +33,26 @@
                 android:padding="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_menu"
-                android:contentDescription="Menu"/>
+                android:contentDescription="@string/menu"/>
 
             <!-- Welcome -->
-            <TextView
-                android:id="@+id/tvWelcome"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingStart="8dp"
-                android:text="Welcome 👋"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvWelcome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:text="@string/welcome"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
 
             <!-- Cart with Badge -->
             <FrameLayout
@@ -55,7 +66,7 @@
                     android:padding="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_cart"
-                    android:contentDescription="Cart"/>
+                    android:contentDescription="@string/cart"/>
 
                 <TextView
                     android:id="@+id/tvCartBadge"
@@ -63,7 +74,7 @@
                     android:layout_height="16dp"
                     android:layout_gravity="end|top"
                     android:background="@drawable/badge_background"
-                    android:text="0"
+                    android:text="@string/_0"
                     android:textSize="9sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
@@ -111,13 +122,25 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etSearch"
                         android:layout_width="match_parent"
-                        android:layout_height="38dp"
+                        android:layout_height="44dp"
+
                         android:gravity="center_vertical"
-                        android:hint="Search products..."
+                        android:includeFontPadding="false"
+
+                        android:hint="@string/search_products"
+
                         android:inputType="text"
+                        android:maxLength="50"
+                        android:singleLine="true"
+                        android:imeOptions="actionSearch"
+
+                        android:importantForAutofill="no"
+                        android:autofillHints=""
+
                         android:paddingStart="4dp"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="0dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+
                         android:textColor="#000000"
                         android:textColorHint="#888888" />
 
@@ -159,6 +182,7 @@
                 <ImageView
                     android:layout_width="26dp"
                     android:layout_height="26dp"
+                    android:contentDescription="@string/todo"
                     android:src="@drawable/ic_ai"
                     app:tint="#F59E0B"/>
 
@@ -170,7 +194,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
 
-                    android:text="Loading AI suggestions..."
+                    android:text="@string/loading_ai_suggestions"
                     android:textSize="15sp"
                     android:textColor="#92400E"
 
@@ -210,7 +234,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dashboard Menu"
+                android:text="@string/dashboard_menu"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"/>
@@ -231,11 +255,56 @@
 
         <!-- MENU ITEMS -->
 
+        <!-- TRANSLATION TOGGLE -->
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginBottom="12dp"
+
+            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="#EEF2FF"
+            app:strokeColor="#FFFFFF"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_language"
+                    app:tint="?attr/colorPrimary"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/auto_translation"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="14dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchTranslate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"/>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdmin"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Add Products"
+            android:text="@string/add_products"
             android:textAllCaps="false"
             android:gravity="start|center_vertical"
             android:paddingStart="16dp"
@@ -252,7 +321,7 @@
             android:id="@+id/btnPreviousBills"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Bill History"
+            android:text="@string/bill_history"
             android:textAllCaps="false"
             android:gravity="start|center_vertical"
             android:paddingStart="16dp"
@@ -269,7 +338,7 @@
             android:id="@+id/btnSettings"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Settings"
+            android:text="@string/settings"
             android:textAllCaps="false"
             android:gravity="start|center_vertical"
             android:paddingStart="16dp"
@@ -286,7 +355,7 @@
             android:id="@+id/btnReports"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Reports"
+            android:text="@string/reports"
             android:textAllCaps="false"
             android:gravity="start|center_vertical"
             android:paddingStart="16dp"
@@ -304,7 +373,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
 
-            android:text="AI Insights"
+            android:text="@string/ai_insights"
             android:textAllCaps="false"
 
             android:gravity="start|center_vertical"
@@ -368,7 +437,7 @@
             android:layout_height="56dp"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:text="Cart"
+            android:text="@string/cart"
             android:textSize="18sp"
             android:textStyle="bold"/>
 
@@ -409,7 +478,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Total"
+                    android:text="@string/total"
                     android:textSize="14sp"
                     android:textColor="#666666"/>
 
@@ -417,7 +486,7 @@
                     android:id="@+id/tvTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₹0"
+                    android:text="@string/_0"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
             </LinearLayout>
@@ -427,7 +496,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
-                android:text="Generate Bill"
+                android:text="@string/generate_bill"
                 app:cornerRadius="12dp"/>
 
         </LinearLayout>

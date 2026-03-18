@@ -24,7 +24,7 @@
 
         <!-- Title -->
         <TextView
-            android:text="Billing Settings"
+            android:text="@string/billing_settings"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
@@ -42,7 +42,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDefaultGst"
-                android:hint="Default GST (%)"
+                android:hint="@string/default_gst"
                 android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -59,7 +59,7 @@
 
             <AutoCompleteTextView
                 android:id="@+id/spPrinterLayout"
-                android:hint="Printer Layout"
+                android:hint="@string/printer_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"/>
@@ -68,7 +68,7 @@
         <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveBilling"
-            android:text="Save Billing Settings"
+            android:text="@string/save_billing_settings"
             android:textAllCaps="false"
             android:layout_marginTop="28dp"
             android:layout_width="match_parent"

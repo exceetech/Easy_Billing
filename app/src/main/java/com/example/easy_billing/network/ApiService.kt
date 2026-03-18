@@ -96,7 +96,10 @@ interface ApiService {
 
     @GET("reports/daily")
     suspend fun getDailyReport(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("type") type: String? = null,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null
     ): List<DailyReportResponse>
 
     @GET("reports/weekly")
@@ -114,6 +117,13 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<YearlyReportResponse>
 
+    @GET("reports/custom")
+    suspend fun getCustomReport(
+        @Header("Authorization") token: String,
+        @Query("start_date") start: String,
+        @Query("end_date") end: String
+    ): List<SalesTrendResponse>
+
 
     // ================= PRODUCT ANALYTICS =================
 
@@ -127,12 +137,20 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<TopRevenueProductResponse>
 
+    @GET("reports/today-hourly")
+    suspend fun getTodayHourlySales(
+        @Header("Authorization") token: String
+    ): List<PeakHourResponse>
+
 
     // ================= TIME ANALYTICS =================
 
     @GET("reports/peak-hours")
     suspend fun getPeakHours(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") start: String? = null,
+        @Query("end_date") end: String? = null
     ): List<PeakHourResponse>
 
     @GET("reports/weekday-analysis")
@@ -155,7 +173,10 @@ interface ApiService {
 
     @GET("reports/average-bill")
     suspend fun getAverageBill(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") start: String? = null,
+        @Query("end_date") end: String? = null
     ): AverageBillResponse
 
     @GET("reports/trend")
@@ -168,7 +189,10 @@ interface ApiService {
 
     @POST("reports/email-report")
     suspend fun sendEmailReport(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null
     ): MessageResponse
 
     // ================= SHOP SETTINGS =================

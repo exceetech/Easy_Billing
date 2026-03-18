@@ -113,6 +113,7 @@
 
                     android:layout_marginBottom="20dp"
 
+                    android:contentDescription="@string/todo"
                     android:scaleType="fitCenter"
                     android:src="@drawable/app_logo" />
 
@@ -138,7 +139,7 @@
 
                         android:background="@android:color/transparent"
 
-                        android:hint="Username"
+                        android:hint="@string/username"
 
                         android:paddingHorizontal="16dp"
 
@@ -171,7 +172,7 @@
 
                         android:background="@android:color/transparent"
 
-                        android:hint="Password"
+                        android:hint="@string/password"
 
                         android:inputType="textPassword"
 
@@ -192,7 +193,7 @@
 
                     android:layout_marginTop="20dp"
 
-                    android:text="Login"
+                    android:text="@string/login"
                     android:textColor="@color/black"
 
                     app:cornerRadius="18dp"
@@ -212,7 +213,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_gravity="center"
 
-                    android:text="Forgot Password?"
+                    android:text="@string/forgot_password"
                     android:textColor="@color/textPrimary"
                     android:textStyle="bold" />
 
@@ -227,7 +228,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_gravity="center"
 
-                    android:text="Not Yet Registered? Create New Account"
+                    android:text="@string/not_yet_registered_create_new_account"
                     android:textColor="@color/textPrimary" />
 
             </LinearLayout>

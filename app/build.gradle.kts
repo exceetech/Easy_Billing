@@ -64,6 +64,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.google.android.material:material:1.11.0")
 
     implementation("com.google.firebase:firebase-messaging:23.4.1")
+
 }

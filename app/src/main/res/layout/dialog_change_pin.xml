@@ -19,7 +19,7 @@
 
         <!-- Title -->
         <TextView
-            android:text="Change Login Password"
+            android:text="@string/change_login_password"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
@@ -40,7 +40,7 @@
                 android:id="@+id/etNewPin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="New Password"
+                android:hint="@string/new_password"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,7 +58,7 @@
                 android:id="@+id/etConfirmPin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:hint="Confirm Password"
+                android:hint="@string/confirm_password"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -73,7 +73,7 @@
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 style="@style/Widget.Material3.Button.TextButton"/>
 
             <com.google.android.material.button.MaterialButton
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginStart="12dp"
-                android:text="Save"
+                android:text="@string/save_changes"
                 style="@style/Widget.EasyBilling.Button"/>
         </LinearLayout>
 

@@ -42,6 +42,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:padding="18dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
@@ -54,7 +55,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:text="Today's Sales"
+                    android:text="@string/today_s_sales"
                     android:textSize="13sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_height="wrap_content"
@@ -62,7 +63,7 @@
 
                 <TextView
                     android:id="@+id/tvTodaySales"
-                    android:text="₹0.00"
+                    android:text="@string/_0_00"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorPrimary"
@@ -78,7 +79,7 @@
                 android:gravity="end">
 
                 <TextView
-                    android:text="Bills Today"
+                    android:text="@string/bills_today"
                     android:textSize="13sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_height="wrap_content"
@@ -86,7 +87,7 @@
 
                 <TextView
                     android:id="@+id/tvBillsToday"
-                    android:text="0"
+                    android:text="@string/_0"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorPrimary"
@@ -118,7 +119,15 @@
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="Search invoice or product"/>
+
+            android:hint="@string/search_invoice_or_product"
+
+            android:maxLength="50"
+            android:inputType="textNoSuggestions"
+            android:singleLine="true"
+
+            android:importantForAutofill="no"
+            android:autofillHints=""/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -140,28 +149,28 @@
             android:id="@+id/btnToday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Today"
+            android:text="@string/today"
             style="@style/Widget.Material3.Chip.Filter"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnWeek"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This Week"
+            android:text="@string/this_week"
             style="@style/Widget.Material3.Chip.Filter"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This Month"
+            android:text="@string/this_month"
             style="@style/Widget.Material3.Chip.Filter"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnSortAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sort Amount"
+            android:text="@string/sort_amount"
             style="@style/Widget.Material3.Chip.Filter"/>
 
     </com.google.android.material.chip.ChipGroup>

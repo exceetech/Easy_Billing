@@ -2,7 +2,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -58,7 +57,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Store Information"
+                        android:text="@string/store_information"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/textPrimary"
@@ -68,6 +67,45 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Localization Tile -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnLocalization"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="#EEF2FF"
+                app:strokeColor="#FFFFFF"
+                app:strokeWidth="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_language"
+                        app:tint="#6366F1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/localization_settings"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:layout_marginStart="16dp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Billing Tile -->
             <com.google.android.material.card.MaterialCardView
@@ -99,7 +137,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Billing Settings"
+                        android:text="@string/billing_settings"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/textPrimary"
@@ -108,7 +146,6 @@
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
 
             <!-- Invoice Tile -->
             <com.google.android.material.card.MaterialCardView
@@ -140,7 +177,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Invoice Design"
+                        android:text="@string/invoice_design"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/textPrimary"
@@ -149,7 +186,6 @@
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
 
             <!-- Security Tile -->
             <com.google.android.material.card.MaterialCardView
@@ -180,7 +216,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Data and Security Management"
+                        android:text="@string/data_security_management"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/textPrimary"

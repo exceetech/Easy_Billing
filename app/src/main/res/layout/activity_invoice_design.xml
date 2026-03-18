@@ -24,7 +24,7 @@
 
         <!-- Title -->
         <TextView
-            android:text="Invoice Design"
+            android:text="@string/invoice_design"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
@@ -42,8 +42,8 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFooter"
-                android:hint="Footer Message"
-                android:text="Thank You! Visit Again"
+                android:hint="@string/footer_message"
+                android:text="@string/thank_you_visit_again"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -59,34 +59,34 @@
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchShowLogo"
-            android:text="Show Store Logo"
+            android:text="@string/show_store_logo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchShowGstin"
-            android:text="Show GSTIN"
+            android:text="@string/show_gstin"
             android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchShowPhone"
-            android:text="Show Phone Number"
+            android:text="@string/show_phone_number"
             android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchShowDiscount"
-            android:text="Show Discount Section"
+            android:text="@string/show_discount_section"
             android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchRoundOff"
-            android:text="Enable Round Off"
+            android:text="@string/enable_round_off"
             android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -94,7 +94,7 @@
         <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveDesign"
-            android:text="Save Design Settings"
+            android:text="@string/save_design_settings"
             android:textAllCaps="false"
             android:layout_marginTop="32dp"
             android:layout_width="match_parent"

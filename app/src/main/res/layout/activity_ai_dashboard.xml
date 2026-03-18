@@ -54,6 +54,7 @@
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:contentDescription="@string/todo"
                         android:src="@drawable/ic_report"
                         app:tint="#2563EB"/>
 
@@ -62,7 +63,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total Revenue"
+                        android:text="@string/total_revenue"
                         android:textSize="18sp"
                         android:textColor="@color/textPrimary"
                         android:layout_marginStart="16dp"/>
@@ -80,7 +81,7 @@
                         android:id="@+id/tvRevenue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="₹0"
+                        android:text="@string/_0"
                         android:textSize="26sp"
                         android:textStyle="bold"
                         android:textColor="#059669"/>
@@ -112,7 +113,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Top Selling Products"
+                        android:text="@string/top_selling_products"
                         android:textColor="@color/textPrimary"
                         android:textSize="17sp"
                         android:textStyle="bold"
@@ -140,7 +141,7 @@
                                 android:layout_width="0dp"
                                 android:layout_weight="2"
                                 android:gravity="start"
-                                android:text="Product"
+                                android:text="@string/product"
                                 android:textColor="#FFFFFF"
                                 android:textStyle="bold"
                                 android:textSize="17sp"
@@ -151,7 +152,7 @@
                                 android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:gravity="center"
-                                android:text="Qty"
+                                android:text="@string/qty"
                                 android:textColor="#FFFFFF"
                                 android:textStyle="bold"
                                 android:textSize="17sp"
@@ -162,7 +163,7 @@
                                 android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:gravity="end"
-                                android:text="Revenue"
+                                android:text="@string/revenue"
                                 android:textColor="#FFFFFF"
                                 android:textStyle="bold"
                                 android:textSize="17sp"
@@ -198,7 +199,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AI Suggestions"
+                        android:text="@string/ai_suggestions"
                         android:textColor="@color/textPrimary"
                         android:textSize="17sp"
                         android:textStyle="bold"
@@ -208,7 +209,7 @@
                         android:id="@+id/tvAiInsights"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Analyzing your business..."
+                        android:text="@string/analyzing_your_business"
                         android:textColor="@color/textPrimary"
                         android:textSize="14sp"
                         android:lineSpacingExtra="4dp"/>

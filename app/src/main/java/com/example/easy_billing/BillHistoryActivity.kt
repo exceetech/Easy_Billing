@@ -2,11 +2,15 @@ package com.example.easy_billing
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.postDelayed
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +32,9 @@ class BillHistoryActivity : BaseActivity() {
     private lateinit var chipWeek: Chip
     private lateinit var chipMonth: Chip
     private lateinit var chipSortAmount: Chip
+
+    private var searchRunnable: Runnable? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     private var allBills: List<BillResponse> = listOf()
 
@@ -113,35 +120,72 @@ class BillHistoryActivity : BaseActivity() {
 
     private fun setupSearch() {
 
+        // ✅ Prevent auto focus on start
+        etSearch.clearFocus()
+
         etSearch.addTextChangedListener(object : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
 
-                val query = text.toString().trim().lowercase()
+                val query = text?.toString()?.trim()?.lowercase() ?: ""
 
                 adapter.setSearchQuery(query)
 
-                if (query.isEmpty()) {
-                    adapter.submitList(allBills)
-                    return
+                // ✅ REMOVE previous pending search
+                searchRunnable?.let { handler.removeCallbacks(it) }
+
+                // ✅ CREATE new delayed search
+                searchRunnable = Runnable {
+
+                    if (query.isEmpty()) {
+                        adapter.submitList(allBills)
+                        return@Runnable
+                    }
+
+                    val filtered = allBills.filter { bill ->
+
+                        bill.bill_number.contains(query, ignoreCase = true) ||
+                                bill.payment_method.contains(query, ignoreCase = true) ||
+                                bill.total_amount.toString().contains(query) ||
+                                bill.created_at.contains(query, ignoreCase = true)
+                    }
+
+                    adapter.submitList(filtered)
                 }
 
-                val filtered = allBills.filter { bill ->
-
-                    bill.bill_number.lowercase().contains(query) ||
-                            bill.payment_method.lowercase().contains(query) ||
-                            bill.total_amount.toString().contains(query) ||
-                            bill.created_at.lowercase().contains(query)
-
-                }
-
-                adapter.submitList(filtered)
+                // ✅ DELAY execution (debounce)
+                handler.postDelayed(searchRunnable!!, 300)
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+
+        if (currentFocus == etSearch) {
+
+            val outRect = android.graphics.Rect()
+            etSearch.getGlobalVisibleRect(outRect)
+
+            if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+
+                etSearch.text?.clear()
+                etSearch.clearFocus()
+
+                val imm = getSystemService(INPUT_METHOD_SERVICE)
+                        as android.view.inputmethod.InputMethodManager
+
+                imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+
+                // ✅ RESET LIST
+                adapter.submitList(allBills)
+            }
+        }
+
+        return super.dispatchTouchEvent(ev)
     }
 
     // ================= FILTERS =================

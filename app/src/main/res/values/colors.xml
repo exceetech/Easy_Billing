@@ -6,6 +6,8 @@
     <color name="primary">#2563AB</color>
     <color name="primaryDark">#1E3A8A</color>
     <color name="primaryLight">#DBEAFE</color>
+    <color name="green">#4CAF50</color>
+    <color name="red">#F44336</color>
 
     <!-- Secondary/Accent - Success/Money green for Billing -->
     <color name="secondary">#059669</color>

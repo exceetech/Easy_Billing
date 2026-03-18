@@ -22,7 +22,7 @@ import java.io.File
 import java.io.FileOutputStream
 import com.example.easy_billing.network.RetrofitClient
 
-class BillDetailsActivity : AppCompatActivity() {
+class BillDetailsActivity : BaseActivity() {
 
     private lateinit var tvBillInfo: TextView
 

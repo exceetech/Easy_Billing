@@ -12,7 +12,7 @@ import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.ChangePasswordRequest
 import kotlinx.coroutines.launch
 
-class ChangePasswordActivity : AppCompatActivity() {
+class ChangePasswordActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
