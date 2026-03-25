@@ -30,11 +30,13 @@ object InvoicePdfGenerator {
         val storeGstin = prefs.getString("store_gstin", "")
         val footerMessage = prefs.getString("footer_message", "Thank You! Visit Again")
 
-        val showLogo = prefs.getBoolean("show_logo", true)
-        val showGstin = prefs.getBoolean("show_gstin", true)
         val showPhone = prefs.getBoolean("show_phone", true)
+        val showGstin = prefs.getBoolean("show_gstin", true)
         val showDiscount = prefs.getBoolean("show_discount", true)
         val roundOff = prefs.getBoolean("round_off", false)
+
+        // ✅ Currency symbol
+        val currencySymbol = CurrencyHelper.getCurrencySymbol(context)
 
         val pageWidth = 300f
         val leftMargin = 10f
@@ -60,23 +62,14 @@ object InvoicePdfGenerator {
         var y = 40
 
         fun dashedLine() {
-
             val dashPaint = Paint()
             dashPaint.pathEffect = DashPathEffect(floatArrayOf(8f, 8f), 0f)
 
-            canvas.drawLine(
-                leftMargin,
-                y.toFloat(),
-                rightMargin,
-                y.toFloat(),
-                dashPaint
-            )
-
+            canvas.drawLine(leftMargin, y.toFloat(), rightMargin, y.toFloat(), dashPaint)
             y += 18
         }
 
         fun centerText(text: String, size: Float, bold: Boolean = false) {
-
             paint.textSize = size
             paint.typeface =
                 if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
@@ -84,35 +77,28 @@ object InvoicePdfGenerator {
 
             val width = paint.measureText(text)
 
-            canvas.drawText(
-                text,
-                (pageWidth - width) / 2,
-                y.toFloat(),
-                paint
-            )
-
+            canvas.drawText(text, (pageWidth - width) / 2, y.toFloat(), paint)
             y += size.toInt() + 6
         }
 
-        // HEADER
+        // ================= HEADER =================
+
         centerText(storeName ?: "", 22f, true)
 
-        if (!storeAddress.isNullOrEmpty())
-            centerText(storeAddress, 14f)
-
-        if (showPhone && !storePhone.isNullOrEmpty())
-            centerText("Phone : $storePhone", 14f)
-
-        if (showGstin && !storeGstin.isNullOrEmpty())
-            centerText("GSTIN : $storeGstin", 14f)
+        if (!storeAddress.isNullOrEmpty()) centerText(storeAddress, 14f)
+        if (showPhone && !storePhone.isNullOrEmpty()) centerText("Phone : $storePhone", 14f)
+        if (showGstin && !storeGstin.isNullOrEmpty()) centerText("GSTIN : $storeGstin", 14f)
 
         dashedLine()
 
-        // INVOICE INFO
+        // ================= BILL INFO =================
+
         centerText("Invoice : ${bill.billNumber}", 14f)
         centerText("Date : ${bill.date}", 14f)
 
         dashedLine()
+
+        // ================= TABLE HEADER =================
 
         val colItem = leftMargin
         val colQty = 115f
@@ -123,27 +109,25 @@ object InvoicePdfGenerator {
 
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
 
+        val rateHeader = "Rate($currencySymbol)"
+        val amtHeader = "Amt($currencySymbol)"
+
+        // Draw headers
         canvas.drawText("Item", colItem, y.toFloat(), paint)
         canvas.drawText("Qty", colQty, y.toFloat(), paint)
-        canvas.drawText("Rate", colRate, y.toFloat(), paint)
+        canvas.drawText(rateHeader, colRate, y.toFloat(), paint)
 
-        val amtHeader = "Amt"
+        // Right align Amt column
         val amtWidth = paint.measureText(amtHeader)
-
-        canvas.drawText(
-            amtHeader,
-            colAmount - amtWidth,
-            y.toFloat(),
-            paint
-        )
+        canvas.drawText(amtHeader, colAmount - amtWidth, y.toFloat(), paint)
 
         y += 20
-
         dashedLine()
 
         paint.typeface = Typeface.MONOSPACE
 
-        // ITEMS
+        // ================= ITEMS =================
+
         billItems.forEach {
 
             val words = it.productName.split(" ")
@@ -151,14 +135,9 @@ object InvoicePdfGenerator {
             var currentLine = ""
 
             for (word in words) {
+                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
 
-                val testLine =
-                    if (currentLine.isEmpty()) word
-                    else "$currentLine $word"
-
-                val width = paint.measureText(testLine)
-
-                if (width <= itemColumnWidth) {
+                if (paint.measureText(testLine) <= itemColumnWidth) {
                     currentLine = testLine
                 } else {
                     lines.add(currentLine)
@@ -177,117 +156,66 @@ object InvoicePdfGenerator {
             val amountText = "%.2f".format(it.subTotal)
             val amountWidth = paint.measureText(amountText)
 
-            canvas.drawText(
-                amountText,
-                colAmount - amountWidth,
-                y.toFloat(),
-                paint
-            )
+            canvas.drawText(amountText, colAmount - amountWidth, y.toFloat(), paint)
 
             y += 20
 
             for (i in 1 until lines.size) {
-
-                canvas.drawText(
-                    lines[i],
-                    colItem,
-                    y.toFloat(),
-                    paint
-                )
-
+                canvas.drawText(lines[i], colItem, y.toFloat(), paint)
                 y += 18
             }
         }
 
         dashedLine()
 
-        // SUBTOTAL
+        // ================= SUMMARY =================
+
         val subTotal = billItems.sumOf { it.subTotal }
 
         canvas.drawText("SubTotal", colItem, y.toFloat(), paint)
-
-        val sub = "%.2f".format(subTotal)
-        val subWidth = paint.measureText(sub)
-
-        canvas.drawText(
-            sub,
-            colAmount - subWidth,
-            y.toFloat(),
-            paint
-        )
-
+        val sub = "$currencySymbol%.2f".format(subTotal)
+        canvas.drawText(sub, colAmount - paint.measureText(sub), y.toFloat(), paint)
         y += 22
 
-        // GST
         canvas.drawText("GST", colItem, y.toFloat(), paint)
-
-        val gst = "%.2f".format(bill.gst)
-        val gstWidth = paint.measureText(gst)
-
-        canvas.drawText(
-            gst,
-            colAmount - gstWidth,
-            y.toFloat(),
-            paint
-        )
-
+        val gst = "$currencySymbol%.2f".format(bill.gst)
+        canvas.drawText(gst, colAmount - paint.measureText(gst), y.toFloat(), paint)
         y += 22
 
-        // DISCOUNT
         if (showDiscount) {
-
             canvas.drawText("Discount", colItem, y.toFloat(), paint)
-
-            val disc = "%.2f".format(bill.discount)
-            val discWidth = paint.measureText(disc)
-
-            canvas.drawText(
-                disc,
-                colAmount - discWidth,
-                y.toFloat(),
-                paint
-            )
-
+            val disc = "$currencySymbol%.2f".format(bill.discount)
+            canvas.drawText(disc, colAmount - paint.measureText(disc), y.toFloat(), paint)
             y += 22
         }
 
-        // TOTAL
+        // ================= TOTAL =================
+
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
         paint.textSize = 18f
 
         canvas.drawText("TOTAL", colItem, y.toFloat(), paint)
 
         var finalTotal = bill.total
+        if (roundOff) finalTotal = round(finalTotal)
 
-        if (roundOff) {
-            finalTotal = round(finalTotal)
-        }
-
-        val total = "%.2f".format(finalTotal)
-        val totalWidth = paint.measureText(total)
-
-        canvas.drawText(
-            total,
-            colAmount - totalWidth,
-            y.toFloat(),
-            paint
-        )
+        val total = "$currencySymbol%.2f".format(finalTotal)
+        canvas.drawText(total, colAmount - paint.measureText(total), y.toFloat(), paint)
 
         y += 40
-
         dashedLine()
 
         centerText(footerMessage ?: "Thank You! Visit Again", 14f)
 
         document.finishPage(page)
 
-        val shopName = (storeName ?: "Shop").replace(" ", "_")
+        // ================= SAVE FILE =================
 
-        val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
-        val dateString = dateFormat.format(Date())
+        val shopNameSafe = (storeName ?: "Shop").replace(" ", "_")
+        val dateString = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
 
         val fileName =
-            "${shopName}_${bill.billNumber}_${dateString}_${System.currentTimeMillis()}.pdf"
+            "${shopNameSafe}_${bill.billNumber}_${dateString}_${System.currentTimeMillis()}.pdf"
 
         val file = File(
             context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
@@ -298,6 +226,8 @@ object InvoicePdfGenerator {
         document.writeTo(fileOutput)
         fileOutput.close()
         document.close()
+
+        // ================= PRINT =================
 
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
 
@@ -313,10 +243,6 @@ object InvoicePdfGenerator {
             .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
             .build()
 
-        printManager.print(
-            fileName,
-            printAdapter,
-            printAttributes
-        )
+        printManager.print(fileName, printAdapter, printAttributes)
     }
 }

@@ -1,15 +1,22 @@
 package com.example.easy_billing
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.DeviceUtils
 import com.example.easy_billing.util.PastelColor
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,6 +26,41 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        RetrofitClient.setContext(this)
+
+        // 🔥 GET FCM TOKEN (VERY IMPORTANT)
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val fcmToken = task.result
+
+                    println("🔥 FCM TOKEN: $fcmToken")
+
+                    // ✅ SAVE LOCALLY (optional but useful)
+                    val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+                    prefs.edit { putString("FCM_TOKEN", fcmToken) }
+
+                } else {
+                    println("❌ FCM TOKEN FAILED")
+                }
+            }
+
+
+        // 🔔 REQUEST NOTIFICATION PERMISSION (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1
+                )
+            }
+        }
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
@@ -56,6 +98,7 @@ class MainActivity : BaseActivity() {
 
             val username = etUsername.text.toString().trim()
             val password = etPassword.text.toString().trim()
+            val deviceId = DeviceUtils.getDeviceId(this)
 
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
@@ -100,6 +143,7 @@ class MainActivity : BaseActivity() {
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
                     prefs.edit {
                         putString("TOKEN", token)
+                        putString("DEVICE_ID", deviceId)
                     }
 
                     android.util.Log.d("TOKEN_DEBUG", "Saved Token: $token")

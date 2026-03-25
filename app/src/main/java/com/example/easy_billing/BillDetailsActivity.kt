@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.CurrencyHelper
 
 class BillDetailsActivity : BaseActivity() {
 
@@ -99,10 +100,10 @@ class BillDetailsActivity : BaseActivity() {
 
                 val subtotal = bill.total_amount - bill.gst + bill.discount
 
-                tvSubTotal.text = "Subtotal: ₹%.2f".format(subtotal)
-                tvGst.text = "GST: ₹%.2f".format(bill.gst)
-                tvDiscount.text = "Discount: ₹%.2f".format(bill.discount)
-                tvTotal.text = "Total: ₹%.2f".format(bill.total_amount)
+                tvSubTotal.text = "Subtotal: ${CurrencyHelper.format(this@BillDetailsActivity, subtotal)}"
+                tvGst.text = "GST: ${CurrencyHelper.format(this@BillDetailsActivity, bill.gst)}"
+                tvDiscount.text = "Discount: ${CurrencyHelper.format(this@BillDetailsActivity, bill.discount)}"
+                tvTotal.text = "Total: ${CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)}"
 
                 rvBillItems.adapter = BillDetailsAdapter(items)
 
@@ -195,7 +196,7 @@ class BillDetailsActivity : BaseActivity() {
 
         billItems.forEach {
             canvas.drawText(
-                "${it.productName} x${it.quantity}  ₹${it.subTotal}",
+                "${it.productName} x${it.quantity}  ${CurrencyHelper.format(this, it.subTotal)}",
                 10f,
                 y.toFloat(),
                 paint
@@ -204,18 +205,20 @@ class BillDetailsActivity : BaseActivity() {
         }
 
         y += 10
+
+
         canvas.drawLine(10f, y.toFloat(), 290f, y.toFloat(), paint)
         y += 15
 
-        canvas.drawText("Subtotal: ₹${bill.subTotal}", 10f, y.toFloat(), paint)
+        canvas.drawText("Subtotal: ${CurrencyHelper.format(this, bill.subTotal)}", 10f, y.toFloat(), paint)
         y += 15
-        canvas.drawText("GST: ₹${bill.gst}", 10f, y.toFloat(), paint)
+        canvas.drawText("GST: ${CurrencyHelper.format(this, bill.gst)}", 10f, y.toFloat(), paint)
         y += 15
-        canvas.drawText("Discount: ₹${bill.discount}", 10f, y.toFloat(), paint)
+        canvas.drawText("Discount: ${CurrencyHelper.format(this, bill.discount)}", 10f, y.toFloat(), paint)
         y += 15
 
         paint.textSize = 12f
-        canvas.drawText("TOTAL: ₹${bill.total}", 10f, y.toFloat(), paint)
+        canvas.drawText("TOTAL: ${CurrencyHelper.format(this, bill.total)}", 10f, y.toFloat(), paint)
 
         document.finishPage(page)
 

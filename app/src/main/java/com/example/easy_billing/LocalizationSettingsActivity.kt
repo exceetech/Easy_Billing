@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.VerifyPasswordRequest
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class LocalizationSettingsActivity : BaseActivity() {
 
@@ -149,7 +150,11 @@ class LocalizationSettingsActivity : BaseActivity() {
 
         spLanguage.setText(prefs.getString("app_language_name","English"), false)
         spRegion.setText(prefs.getString("app_region","India"), false)
-        spCurrency.setText(prefs.getString("app_currency","₹ INR"), false)
+        val savedSymbol = prefs.getString("app_currency", "₹") ?: "₹"
+
+        val displayCurrency = currencies.find { it.startsWith(savedSymbol) } ?: "₹ INR"
+
+        spCurrency.setText(displayCurrency, false)
     }
 
     // ===== Save Settings =====
@@ -171,12 +176,17 @@ class LocalizationSettingsActivity : BaseActivity() {
         val languageName = spLanguage.text.toString()
         val languageIndex = languages.indexOf(languageName)
 
-        prefs.edit()
-            .putString("app_language", codes[languageIndex])
-            .putString("app_language_name", languageName)
-            .putString("app_region", spRegion.text.toString())
-            .putString("app_currency", spCurrency.text.toString())
-            .apply()
+        val currencyFull = spCurrency.text.toString()
+
+        // ✅ Extract symbol only (important fix)
+        val currencySymbol = currencyFull.split(" ")[0]
+
+        prefs.edit {
+            putString("app_language", codes[languageIndex])
+                .putString("app_language_name", languageName)
+                .putString("app_region", spRegion.text.toString())
+                .putString("app_currency", currencySymbol)
+        }
 
         restartApp()
     }

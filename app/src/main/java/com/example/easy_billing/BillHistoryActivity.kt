@@ -6,16 +6,15 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.MotionEvent
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.os.postDelayed
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillResponse
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
@@ -33,19 +32,32 @@ class BillHistoryActivity : BaseActivity() {
     private lateinit var chipMonth: Chip
     private lateinit var chipSortAmount: Chip
 
-    private var searchRunnable: Runnable? = null
     private val handler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
-    private var allBills: List<BillResponse> = listOf()
+    private var allBills: List<BillResponse> = emptyList()
+
+    // 🔥 Track active filter
+    private var activeFilter: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_bill_history)
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
 
+        initViews()
+        setupRecycler()
+        setupSearch()
+        setupFilters()
+
+        loadBills()
+    }
+
+    // ================= INIT =================
+
+    private fun initViews() {
         rvBills = findViewById(R.id.rvBills)
         etSearch = findViewById(R.id.etSearch)
 
@@ -56,62 +68,45 @@ class BillHistoryActivity : BaseActivity() {
         chipWeek = findViewById(R.id.btnWeek)
         chipMonth = findViewById(R.id.btnMonth)
         chipSortAmount = findViewById(R.id.btnSortAmount)
+    }
 
+    // ================= RECYCLER =================
+
+    private fun setupRecycler() {
         rvBills.layoutManager = LinearLayoutManager(this)
 
         adapter = BillHistoryAdapter { bill ->
-
             val intent = Intent(this, BillDetailsActivity::class.java)
             intent.putExtra("BILL_ID", bill.bill_id)
             startActivity(intent)
         }
 
         rvBills.adapter = adapter
-
-        loadBills()
-
-        setupSearch()
-        setupFilters()
     }
 
-    // ================= LOAD BILLS =================
+    // ================= LOAD =================
 
     private fun loadBills() {
-
         lifecycleScope.launch {
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null)
 
             if (token == null) {
-                Toast.makeText(
-                    this@BillHistoryActivity,
-                    "User not logged in",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@BillHistoryActivity, "User not logged in", Toast.LENGTH_SHORT).show()
                 return@launch
             }
 
             try {
-
-                val bills = RetrofitClient.api.getBills(
-                    "Bearer $token"
-                )
+                val bills = RetrofitClient.api.getBills("Bearer $token")
 
                 allBills = bills
                 adapter.submitList(bills)
-
                 updateSummary(bills)
 
             } catch (e: Exception) {
-
                 e.printStackTrace()
-
-                Toast.makeText(
-                    this@BillHistoryActivity,
-                    "Failed to load bills",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@BillHistoryActivity, "Failed to load bills", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -119,43 +114,37 @@ class BillHistoryActivity : BaseActivity() {
     // ================= SEARCH =================
 
     private fun setupSearch() {
-
-        // ✅ Prevent auto focus on start
         etSearch.clearFocus()
 
         etSearch.addTextChangedListener(object : TextWatcher {
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
 
                 val query = text?.toString()?.trim()?.lowercase() ?: ""
-
                 adapter.setSearchQuery(query)
 
-                // ✅ REMOVE previous pending search
                 searchRunnable?.let { handler.removeCallbacks(it) }
 
-                // ✅ CREATE new delayed search
                 searchRunnable = Runnable {
 
+                    val baseList = applyActiveFilter()
+
                     if (query.isEmpty()) {
-                        adapter.submitList(allBills)
+                        adapter.submitList(baseList)
                         return@Runnable
                     }
 
-                    val filtered = allBills.filter { bill ->
-
-                        bill.bill_number.contains(query, ignoreCase = true) ||
-                                bill.payment_method.contains(query, ignoreCase = true) ||
+                    val filtered = baseList.filter { bill ->
+                        bill.bill_number.contains(query, true) ||
+                                bill.payment_method.contains(query, true) ||
                                 bill.total_amount.toString().contains(query) ||
-                                bill.created_at.contains(query, ignoreCase = true)
+                                bill.created_at.contains(query, true)
                     }
 
                     adapter.submitList(filtered)
                 }
 
-                // ✅ DELAY execution (debounce)
                 handler.postDelayed(searchRunnable!!, 300)
             }
 
@@ -163,118 +152,67 @@ class BillHistoryActivity : BaseActivity() {
         })
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-
-        if (currentFocus == etSearch) {
-
-            val outRect = android.graphics.Rect()
-            etSearch.getGlobalVisibleRect(outRect)
-
-            if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
-
-                etSearch.text?.clear()
-                etSearch.clearFocus()
-
-                val imm = getSystemService(INPUT_METHOD_SERVICE)
-                        as android.view.inputmethod.InputMethodManager
-
-                imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
-
-                // ✅ RESET LIST
-                adapter.submitList(allBills)
-            }
-        }
-
-        return super.dispatchTouchEvent(ev)
-    }
-
     // ================= FILTERS =================
 
     private fun setupFilters() {
 
-        chipToday.setOnClickListener {
-            filterToday()
-        }
-
-        chipWeek.setOnClickListener {
-            filterWeek()
-        }
-
-        chipMonth.setOnClickListener {
-            filterMonth()
-        }
-
-        chipSortAmount.setOnClickListener {
-            sortByAmount()
-        }
+        chipToday.setOnClickListener { toggleFilter("TODAY") }
+        chipWeek.setOnClickListener { toggleFilter("WEEK") }
+        chipMonth.setOnClickListener { toggleFilter("MONTH") }
+        chipSortAmount.setOnClickListener { toggleFilter("SORT") }
     }
 
-    // ================= TODAY FILTER =================
+    private fun toggleFilter(filter: String) {
 
-    private fun filterToday() {
+        // 🔥 Toggle logic
+        activeFilter = if (activeFilter == filter) null else filter
 
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd")
-            .format(java.util.Date())
-
-        val filtered = allBills.filter {
-            it.created_at.startsWith(today)
-        }
-
-        adapter.submitList(filtered)
-        updateSummary(filtered)
+        val result = applyActiveFilter()
+        adapter.submitList(result)
+        updateSummary(result)
     }
 
-    // ================= WEEK FILTER =================
+    private fun applyActiveFilter(): List<BillResponse> {
 
-    private fun filterWeek() {
+        return when (activeFilter) {
 
-        val calendar = java.util.Calendar.getInstance()
-        calendar.add(java.util.Calendar.DAY_OF_YEAR, -7)
+            "TODAY" -> {
+                val today = java.text.SimpleDateFormat("yyyy-MM-dd")
+                    .format(java.util.Date())
 
-        val weekStart = calendar.time
+                allBills.filter {
+                    it.created_at.startsWith(today)
+                }
+            }
 
-        val filtered = allBills.filter {
+            "WEEK" -> {
+                val calendar = java.util.Calendar.getInstance()
+                calendar.add(java.util.Calendar.DAY_OF_YEAR, -7)
 
-            val date = java.text.SimpleDateFormat("yyyy-MM-dd")
-                .parse(it.created_at.substring(0, 10))
+                allBills.filter {
+                    val date = java.text.SimpleDateFormat("yyyy-MM-dd")
+                        .parse(it.created_at.substring(0, 10))
+                    date != null && date.after(calendar.time)
+                }
+            }
 
-            date != null && date.after(weekStart)
+            "MONTH" -> {
+                val calendar = java.util.Calendar.getInstance()
+                calendar.add(java.util.Calendar.MONTH, -1)
+
+                allBills.filter {
+                    val date = java.text.SimpleDateFormat("yyyy-MM-dd")
+                        .parse(it.created_at.substring(0, 10))
+                    date != null && date.after(calendar.time)
+                }
+            }
+
+            "SORT" -> {
+                allBills.sortedByDescending { it.total_amount }
+            }
+
+            else -> allBills
         }
-
-        adapter.submitList(filtered)
-        updateSummary(filtered)
-    }
-
-    // ================= MONTH FILTER =================
-
-    private fun filterMonth() {
-
-        val calendar = java.util.Calendar.getInstance()
-        calendar.add(java.util.Calendar.MONTH, -1)
-
-        val monthStart = calendar.time
-
-        val filtered = allBills.filter {
-
-            val date = java.text.SimpleDateFormat("yyyy-MM-dd")
-                .parse(it.created_at.substring(0, 10))
-
-            date != null && date.after(monthStart)
-        }
-
-        adapter.submitList(filtered)
-        updateSummary(filtered)
-    }
-
-    // ================= SORT =================
-
-    private fun sortByAmount() {
-
-        val sorted = allBills.sortedByDescending {
-            it.total_amount
-        }
-
-        adapter.submitList(sorted)
     }
 
     // ================= SUMMARY =================
@@ -288,11 +226,9 @@ class BillHistoryActivity : BaseActivity() {
             it.created_at.startsWith(today)
         }
 
-        val totalToday = todayBills.sumOf {
-            it.total_amount
-        }
+        val totalToday = todayBills.sumOf { it.total_amount }
 
-        tvTodaySales.text = "₹%.2f".format(totalToday)
+        tvTodaySales.text = CurrencyHelper.format(this, totalToday)
         tvBillsToday.text = todayBills.size.toString()
     }
 }

@@ -266,4 +266,21 @@ interface ApiService {
     ): Response<Unit>
 
 
+// ================= USER =================
+
+    @GET("subscription/")
+    suspend fun getSubscription(
+        @Header("Authorization") token: String
+    ): SubscriptionResponse
+
+
+    // ================= ADMIN =================
+
+    @POST("subscription/admin/activate")
+    suspend fun adminActivateSubscription(
+        @Query("shop_id") shopId: Int,
+        @Query("plan") plan: String
+    ): MessageResponse
+
+
 }

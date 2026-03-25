@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.network.PeakHourResponse
+import com.example.easy_billing.util.CurrencyHelper
 
 class PeakHourAdapter(
     private val data: List<PeakHourResponse>
@@ -31,9 +32,12 @@ class PeakHourAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val r = data[position]
+        val context = holder.itemView.context
 
         holder.tvHour.text = "${r.hour}:00"
         holder.tvBills.text = "${r.bills} bills"
-        holder.tvRevenue.text = "₹ %.2f".format(r.revenue)
+
+        // ✅ FIXED: dynamic currency
+        holder.tvRevenue.text = CurrencyHelper.format(context, r.revenue)
     }
 }

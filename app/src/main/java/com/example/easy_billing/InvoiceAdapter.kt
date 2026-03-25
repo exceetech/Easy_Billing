@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.model.CartItem
+import com.example.easy_billing.util.CurrencyHelper
 
 class InvoiceAdapter(
     private val items: List<CartItem>
@@ -25,10 +26,17 @@ class InvoiceAdapter(
     }
 
     override fun onBindViewHolder(holder: InvoiceViewHolder, position: Int) {
-        val item = items[position]
+
+        val item = items[position
+        ]
+
+        val context = holder.itemView.context
+
         holder.name.text = item.product.name
         holder.qty.text = "x${item.quantity}"
-        holder.price.text = "₹${item.subTotal()}"
+
+        // ✅ FIXED: dynamic currency
+        holder.price.text = CurrencyHelper.format(context, item.subTotal())
     }
 
     override fun getItemCount() = items.size

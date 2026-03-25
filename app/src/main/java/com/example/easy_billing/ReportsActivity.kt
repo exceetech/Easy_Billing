@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.MonthlyReportAdapter
 import com.example.easy_billing.adapter.PeakHourAdapter
 import com.example.easy_billing.network.*
+import com.example.easy_billing.util.CurrencyHelper
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.*
@@ -236,9 +237,11 @@ class ReportsActivity : BaseActivity() {
                     end
                 )
 
-                tvRevenue.text = "₹ %.2f".format(avg.total_revenue)
+                val context = this@ReportsActivity
+
+                tvRevenue.text = CurrencyHelper.format(context, avg.total_revenue)
                 tvBills.text = avg.total_bills.toString()
-                tvAverage.text = "₹ %.2f".format(avg.average_bill)
+                tvAverage.text = CurrencyHelper.format(context, avg.average_bill)
 
                 val revenueGrowth =
                     growthPercent(avg.total_revenue, avg.prev_revenue)

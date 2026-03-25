@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillItemResponse
+import com.example.easy_billing.util.CurrencyHelper
 
 class BillDetailsAdapter(
     private val items: List<BillItemResponse>
@@ -27,7 +28,7 @@ class BillDetailsAdapter(
         val item = items[position]
         holder.name.text = item.product_name
         holder.qty.text = "x${item.quantity}"
-        holder.price.text = "₹${item.subtotal}"
+        holder.price.text = CurrencyHelper.format(holder.itemView.context, item.subtotal)
     }
 
     override fun getItemCount() = items.size

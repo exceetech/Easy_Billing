@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.network.MonthlyReportResponse
+import com.example.easy_billing.util.CurrencyHelper
 
 class MonthlyReportAdapter(
     private val data: List<MonthlyReportResponse>
@@ -31,9 +32,13 @@ class MonthlyReportAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val r = data[position]
+        val context = holder.itemView.context
 
         holder.tvMonth.text = r.month
-        holder.tvRevenue.text = "₹ %.2f".format(r.revenue)
+
+        // ✅ FIXED: dynamic currency
+        holder.tvRevenue.text = CurrencyHelper.format(context, r.revenue)
+
         holder.tvBills.text = "${r.bills} bills"
     }
 }

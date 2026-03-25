@@ -71,6 +71,9 @@
             android:name=".AiDashboardActivity"/>
         <activity
             android:name=".LocalizationSettingsActivity"/>
+
+        <activity
+            android:name=".SubscriptionActivity"/>
         <activity
             android:name=".SplashActivity"
             android:exported="true">

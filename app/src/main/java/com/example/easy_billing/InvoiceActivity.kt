@@ -16,6 +16,7 @@ import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.BillItemRequest
 import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.InvoicePdfGenerator
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -104,7 +105,24 @@ class InvoiceActivity : AppCompatActivity() {
 
         val total = subTotal + gstAmount - discount
 
-        tvTotal.text = "Total: ₹%.2f".format(total)
+        // ✅ ADD HERE
+        val formattedSubTotal = CurrencyHelper.format(this, subTotal)
+        val formattedGst = CurrencyHelper.format(this, gstAmount)
+        val formattedDiscount = CurrencyHelper.format(this, discount)
+        val formattedTotal = CurrencyHelper.format(this, total)
+
+        // ✅ USE IT (choose one UI style below)
+
+        // 🔹 SIMPLE (your current style)
+        tvTotal.text = "Total: $formattedTotal"
+
+        // 🔹 OR ADVANCED (if you want full breakdown in one TextView)
+        tvTotal.text = """
+            Subtotal: $formattedSubTotal
+            GST: $formattedGst
+            Discount: $formattedDiscount
+            Total: $formattedTotal
+        """.trimIndent()
     }
 
     private fun saveBill() {

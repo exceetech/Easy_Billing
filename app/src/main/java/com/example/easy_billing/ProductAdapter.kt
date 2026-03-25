@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.card.MaterialCardView
 import com.example.easy_billing.util.PastelColor
 import com.example.easy_billing.util.GoogleTranslator
@@ -61,7 +62,8 @@ class ProductAdapter(
             }
 
             // Price
-            price.text = "₹${product.price}"
+            val context = itemView.context
+            price.text = CurrencyHelper.format(context, product.price)
 
             // Random pastel color
             val color = PastelColor.random()

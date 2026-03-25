@@ -68,4 +68,6 @@ dependencies {
 
     implementation("com.google.firebase:firebase-messaging:23.4.1")
 
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
 }

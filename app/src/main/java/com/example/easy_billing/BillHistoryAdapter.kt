@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillResponse
+import com.example.easy_billing.util.CurrencyHelper
 
 class BillHistoryAdapter(
     private val onBillClick: (BillResponse) -> Unit
@@ -33,10 +34,8 @@ class BillHistoryAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_previous_bill, parent, false)
-
         return ViewHolder(view)
     }
 
@@ -45,17 +44,19 @@ class BillHistoryAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val bill = bills[position]
+        val context = holder.itemView.context
 
         val text = buildString {
             append("Invoice #${bill.bill_number}\n")
-            append("Total: ₹%.2f\n".format(bill.total_amount))
+            append("Total: ${CurrencyHelper.format(context, bill.total_amount)}\n")
             append("Payment: ${bill.payment_method}\n")
             append("Date: ${bill.created_at}")
         }
 
         holder.tvBillInfo.text = highlightText(text)
 
-        holder.itemView.setOnClickListener {
+        // ✅ FINAL CLICK (reliable)
+        holder.tvBillInfo.setOnClickListener {
             onBillClick(bill)
         }
     }

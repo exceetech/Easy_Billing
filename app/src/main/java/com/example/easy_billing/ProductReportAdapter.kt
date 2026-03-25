@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.TopProductResponse
+import com.example.easy_billing.util.CurrencyHelper
 
 class ProductReportAdapter(
     private val data: List<TopProductResponse>
@@ -30,9 +31,12 @@ class ProductReportAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val r = data[position]
+        val context = holder.itemView.context
 
         holder.tvProduct.text = r.product
         holder.tvQuantity.text = "Sold: ${r.quantity}"
-        holder.tvRevenue.text = "₹ %.2f".format(r.revenue)
+
+        // ✅ FIXED: dynamic currency
+        holder.tvRevenue.text = CurrencyHelper.format(context, r.revenue)
     }
 }

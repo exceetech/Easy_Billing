@@ -32,7 +32,10 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaveTokenRequest
+import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.DeviceUtils
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -51,6 +54,7 @@ class DashboardActivity : BaseActivity() {
     private lateinit var tvCartBadge: TextView
     private lateinit var etSearch: TextInputEditText
     private lateinit var tvWelcome: TextView
+    private lateinit var cardNoticeBoard: MaterialCardView
 
     private var searchRunnable: Runnable? = null
     private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -94,8 +98,12 @@ class DashboardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        validateLocalDevice()
+
         // ✅ 1. Initialize ALL views FIRST
         initViews()
+
+        checkSubscription()
 
         // ✅ 2. Now safe to use etSearch
         window.setSoftInputMode(
@@ -120,7 +128,7 @@ class DashboardActivity : BaseActivity() {
 
         switchTranslate.setOnCheckedChangeListener { _, isChecked ->
 
-            prefs.edit().putBoolean("translation_enabled", isChecked).apply()
+            prefs.edit { putBoolean("translation_enabled", isChecked) }
 
             if (isChecked) {
                 Toast.makeText(this, "Translation ON", Toast.LENGTH_SHORT).show()
@@ -144,6 +152,7 @@ class DashboardActivity : BaseActivity() {
         setupRecyclerViews()
         setupDrawerButtons()
         setupSearch()
+        updateTotal()
 
         getFcmToken()
         createNotificationChannel()
@@ -226,6 +235,7 @@ class DashboardActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         loadProducts()
+        checkSubscription()
     }
 
     // ==================================================
@@ -241,6 +251,7 @@ class DashboardActivity : BaseActivity() {
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
         tvNoticeBoard = findViewById(R.id.tvNoticeBoard)
+        cardNoticeBoard = findViewById(R.id.cardNoticeBoard)
 
         switchTranslate = findViewById(R.id.switchTranslate)
     }
@@ -375,6 +386,11 @@ class DashboardActivity : BaseActivity() {
 
         findViewById<MaterialButton>(R.id.btnPreviousBills).setOnClickListener {
             startActivity(Intent(this, BillHistoryActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<MaterialButton>(R.id.btnSubscription).setOnClickListener {
+            startActivity(Intent(this, SubscriptionActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
@@ -530,13 +546,11 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun updateTotal() {
+
         val total = cartItems.sumOf { it.subTotal() }
 
-        // Format number in Indian currency style
-        val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
-        val formattedTotal = formatter.format(total)
-
-        tvTotal.text = "Total: ₹$formattedTotal"
+        // ✅ Dynamic currency
+        tvTotal.text = "Total: ${CurrencyHelper.format(this, total)}"
 
         val count = cartItems.sumOf { it.quantity }
 
@@ -706,6 +720,16 @@ class DashboardActivity : BaseActivity() {
 
                 tvNoticeBoard.isSelected = true
 
+                cardNoticeBoard.scaleX = 0.9f
+                cardNoticeBoard.scaleY = 0.9f
+                cardNoticeBoard.alpha = 0f
+
+                cardNoticeBoard.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(400)
+
             } catch (e: Exception) {
 
                 tvNoticeBoard.text = "AI insights unavailable"
@@ -730,6 +754,98 @@ class DashboardActivity : BaseActivity() {
             imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
 
             false
+        }
+    }
+
+    // ================= SUBSCRIPTION CHECK =================
+
+    private fun checkSubscription() {
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
+        // 🔴 If no token → logout
+        if (token.isNullOrEmpty()) {
+            redirectToLogin()
+            return
+        }
+
+        lifecycleScope.launch {
+
+            try {
+
+                val res = RetrofitClient.api.getSubscription("Bearer $token")
+
+                // 🔴 If not active → block user
+                if (res.status != "active") {
+                    showSubscriptionDialog()
+                }
+
+            } catch (e: retrofit2.HttpException) {
+
+                // 🔴 Backend blocked (403)
+                if (e.code() == 403) {
+                    showSubscriptionDialog()
+                }
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@DashboardActivity,
+                    "Unable to verify subscription",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun showSubscriptionDialog() {
+
+        AlertDialog.Builder(this)
+            .setTitle("Subscription Required")
+            .setMessage("Your subscription has expired. Please renew to continue using the app.")
+            .setCancelable(false)
+            .setPositiveButton("Renew") { _, _ ->
+
+                startActivity(
+                    Intent(this@DashboardActivity, SubscriptionActivity::class.java)
+                )
+
+                finish() // 🔥 IMPORTANT → close dashboard
+            }
+            .show()
+    }
+
+    private fun redirectToLogin() {
+
+        getSharedPreferences("auth", MODE_PRIVATE)
+            .edit {
+                remove("TOKEN")
+            }
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        startActivity(intent)
+        finish()
+    }
+
+    private fun validateLocalDevice() {
+
+        val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+
+        val savedDevice = prefs.getString("DEVICE_ID", null)
+        val currentDevice = DeviceUtils.getDeviceId(this)
+
+        if (savedDevice != currentDevice) {
+
+            Toast.makeText(
+                this,
+                "Unauthorized device",
+                Toast.LENGTH_LONG
+            ).show()
+
+            finishAffinity() // 🔥 CLOSE APP
         }
     }
 }

@@ -71,7 +71,7 @@
     <string name="today_s_sales">Today\'s Sales</string>
     <string name="_0_00">₹0.00</string>
     <string name="bills_today">Bills Today</string>
-    <string name="search_invoice_or_product">Search invoice or product</string>
+    <string name="search_invoice_or_product">Search invoice...</string>
     <string name="today">Today</string>
     <string name="this_week">This Week</string>
     <string name="this_month">This Month</string>
@@ -168,5 +168,12 @@
     <string name="product_name">Product Name</string>
     <string name="sold_0">Sold: 0</string>
     <string name="this_year">this_year</string>
+    <string name="checking">Checking...</string>
+    <string name="plan">Plan: -</string>
+    <string name="expiry">Expiry: -</string>
+    <string name="days_left">Days left: -</string>
+    <string name="scan_and_pay">Scan and Pay</string>
+    <string name="pay_monthly_999">Pay Monthly ₹999</string>
+    <string name="pay_yearly_9999">Pay Yearly ₹9999</string>
 
 </resources>
