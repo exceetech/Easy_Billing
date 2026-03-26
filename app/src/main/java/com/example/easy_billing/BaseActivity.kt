@@ -29,6 +29,13 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        requestedOrientation =
+            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    }
+
     // ---------------- TOOLBAR ----------------
 
     protected fun setupToolbar(toolbarId: Int, showBack: Boolean = true) {
@@ -99,8 +106,8 @@ open class BaseActivity : AppCompatActivity() {
 
         val diff = now - lastOnline
 
-        // val limit = 1 * 60 * 1000L          // 🔴 TEST (1 min)
-        val limit = 12 * 60 * 60 * 1000L // ✅ PROD
+        val limit = 1 * 60 * 1000L          // 🔴 TEST (1 min)
+        //val limit = 12 * 60 * 60 * 1000L // ✅ PROD
 
         val warningTime = limit - (15 * 1000L)
 
@@ -110,6 +117,7 @@ open class BaseActivity : AppCompatActivity() {
         // ✅ REAL INTERNET CHECK
         if (isInternetAvailable()) {
             warningShown = false
+            updateLastOnlineTime()   // 🔥 KEEP SESSION ALIVE
             return
         }
 
@@ -122,7 +130,7 @@ open class BaseActivity : AppCompatActivity() {
         // ❌ LOGOUT
         val isAuthScreen = this is MainActivity
 
-        if (!isAuthScreen && lastOnline != 0L && diff > limit) {
+        if (!isAuthScreen && lastOnline > 0 && diff > limit) {
             forceLogout()
         }
     }
@@ -130,7 +138,7 @@ open class BaseActivity : AppCompatActivity() {
     fun forceLogout() {
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-        prefs.edit().clear()
+        prefs.edit().clear().apply()
 
         Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show()
 

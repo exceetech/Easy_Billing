@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.core.content.edit
 
 class InvoiceActivity : AppCompatActivity() {
 
@@ -72,7 +71,7 @@ class InvoiceActivity : AppCompatActivity() {
 
         val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
 
-        billNumber = "xxxxxx"
+        billNumber = " "
 
         tvBillInfo.text = "Invoice #$billNumber\nDate: $date"
 
@@ -101,9 +100,23 @@ class InvoiceActivity : AppCompatActivity() {
     private fun calculateTotal() {
 
         val subTotal = items.sumOf { it.subTotal() }
-        val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
         val gstAmount = (subTotal * gstPercent) / 100
-        val total = subTotal + gstAmount - discount
+
+        val maxDiscount = subTotal + gstAmount
+
+        var discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+
+        // 🔥 LIMIT DISCOUNT
+        if (discount > maxDiscount) {
+            discount = maxDiscount
+
+            etDiscount.setText(maxDiscount.toInt().toString())
+            etDiscount.setSelection(etDiscount.text.length)
+
+            Toast.makeText(this, "Discount cannot exceed total", Toast.LENGTH_SHORT).show()
+        }
+
+        val total = maxDiscount - discount   // ✅ always ≥ 0
 
         val formattedSubTotal = CurrencyHelper.format(this, subTotal)
         val formattedGst = CurrencyHelper.format(this, gstAmount)
@@ -111,21 +124,21 @@ class InvoiceActivity : AppCompatActivity() {
         val formattedTotal = CurrencyHelper.format(this, total)
 
         tvTotal.text = """
-            Subtotal: $formattedSubTotal
-            GST: $formattedGst
-            Discount: $formattedDiscount
-            Total: $formattedTotal
-        """.trimIndent()
+        Subtotal: $formattedSubTotal
+        GST: $formattedGst
+        Discount: $formattedDiscount
+        Total: $formattedTotal
+    """.trimIndent()
     }
 
     // ================= SAVE BILL =================
 
     private fun saveBill() {
 
-        if (isBillSaved) {
-            Toast.makeText(this, "Bill already saved", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (isBillSaved) return
+
+        isBillSaved = true
+        btnConfirm.isEnabled = false
 
         lifecycleScope.launch(Dispatchers.IO) {
 
@@ -137,12 +150,41 @@ class InvoiceActivity : AppCompatActivity() {
             val gstAmount = (subTotal * gstPercent) / 100
             val total = subTotal + gstAmount - discount
 
+            // ✅ STEP 1: SAVE LOCALLY FIRST
+            val billId = db.billDao().insertBill(
+                Bill(
+                    billNumber = billNumber,
+                    date = date,
+                    subTotal = subTotal,
+                    gst = gstAmount,
+                    discount = discount,
+                    total = total,
+                    paymentMethod = getPaymentMethod(),
+                    isSynced = false
+                )
+            ).toInt()
+
+            db.billItemDao().insertAll(
+                items.map {
+                    BillItem(
+                        billId = billId,
+                        productId = it.product.id,
+                        productName = it.product.name,
+                        price = it.product.price,
+                        quantity = it.quantity,
+                        subTotal = it.subTotal(),
+                        isSynced = false
+                    )
+                }
+            )
+
+            // ✅ STEP 2: TRY API ONLY IF ONLINE
             try {
                 val token = getSharedPreferences("auth", MODE_PRIVATE)
                     .getString("TOKEN", null)
 
                 val request = CreateBillRequest(
-                    bill_number = billNumber,
+                    bill_number = "",
                     items = items.map {
                         BillItemRequest(it.product.id, it.quantity)
                     },
@@ -153,52 +195,23 @@ class InvoiceActivity : AppCompatActivity() {
                 )
 
                 val response = RetrofitClient.api.createBill("Bearer $token", request)
-                billNumber = response.bill_number
 
-                val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-                prefs.edit { putBoolean("ai_reset", false) }
+                if (response.bill_number.isNotEmpty()) {
+                    billNumber = response.bill_number
+
+                    db.billDao().markBillSynced(billId)
+                    db.billItemDao().markItemsSynced(billId)
+                }
 
             } catch (_: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@InvoiceActivity, "Backend failed (offline mode)", Toast.LENGTH_SHORT).show()
-                }
+                // offline → will sync later
             }
-
-            val billId = db.billDao().insertBill(
-                Bill(
-                    billNumber = billNumber,
-                    date = date,
-                    subTotal = subTotal,
-                    gst = gstAmount,
-                    discount = discount,
-                    total = total,
-                    paymentMethod = getPaymentMethod(),
-                    isSynced = false   // 🔥 important if exists in model
-                )
-            ).toInt()
-
-            val billItems = items.map {
-                BillItem(
-                    billId = billId,
-                    productId = it.product.id,
-                    productName = it.product.name,
-                    price = it.product.price,
-                    quantity = it.quantity,
-                    subTotal = it.subTotal(),
-                    isSynced = false
-                )
-            }
-
-            db.billItemDao().insertAll(billItems)
 
             savedBillId = billId
-            isBillSaved = true
 
             withContext(Dispatchers.Main) {
-                tvBillInfo.text = "Invoice #$billNumber\nDate: $date"
-                btnConfirm.isEnabled = false
                 btnPrint.isEnabled = true
-                Toast.makeText(this@InvoiceActivity, "Bill Saved Successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()
             }
         }
     }

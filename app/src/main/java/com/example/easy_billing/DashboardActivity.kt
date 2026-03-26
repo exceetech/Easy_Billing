@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -13,13 +12,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -29,11 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
-import com.example.easy_billing.db.Bill
-import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.model.CartItem
-import com.example.easy_billing.network.BillItemRequest
-import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaveTokenRequest
 import com.example.easy_billing.sync.SyncManager
@@ -46,8 +39,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import com.google.firebase.messaging.FirebaseMessaging
-import java.text.NumberFormat
-import java.util.Locale
 
 
 class DashboardActivity : BaseActivity() {
@@ -553,11 +544,31 @@ class DashboardActivity : BaseActivity() {
     // ==================================================
 
     private fun addToCart(product: Product, qty: Int) {
+
+        val MAX_QTY = 10000
+
         val existing = cartItems.find { it.product.id == product.id }
 
         if (existing != null) {
-            existing.quantity += qty
+
+            val newQty = existing.quantity + qty
+
+            if (newQty > MAX_QTY) {
+                existing.quantity = MAX_QTY
+                cartAdapter.notifyDataSetChanged()
+                Toast.makeText(this, "Max quantity limit reached", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            existing.quantity = newQty
+
         } else {
+
+            if (qty > MAX_QTY) {
+                Toast.makeText(this, "Max quantity limit is $MAX_QTY", Toast.LENGTH_SHORT).show()
+                return
+            }
+
             cartItems.add(CartItem(product, qty))
         }
 
@@ -624,7 +635,7 @@ class DashboardActivity : BaseActivity() {
             setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
-        val MAX_QTY = 999999999
+        val MAX_QTY = 10000
 
         for (i in 0 until gridPad.childCount) {
             val btn = gridPad.getChildAt(i)
@@ -658,6 +669,11 @@ class DashboardActivity : BaseActivity() {
             if (quantity <= 0) {
                 Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
+            }
+
+            if (quantity > MAX_QTY) {
+                quantity = MAX_QTY
+                Toast.makeText(this, "Max quantity reached", Toast.LENGTH_SHORT).show()
             }
 
             addToCart(product, quantity)

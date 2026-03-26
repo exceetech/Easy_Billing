@@ -10,14 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.util.CurrencyHelper
-import java.text.NumberFormat
-import java.util.Locale
 
 class CartAdapter(
     private val items: MutableList<CartItem>,
     private val onQuantityChanged: () -> Unit,
     private val onDelete: (CartItem) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
+
+    private val MAX_QTY = 10000   // ✅ SAME LIMIT AS DASHBOARD
 
     inner class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvName: TextView = view.findViewById(R.id.tvName)
@@ -40,18 +40,29 @@ class CartAdapter(
         holder.tvName.text = item.product.name
         holder.tvQty.text = item.quantity.toString()
 
-
         val context = holder.itemView.context
-        val price = item.subTotal()
+        val price = item.subTotal()  // now Long-safe
 
-        holder.tvPrice.text = CurrencyHelper.format(context, price)
+        holder.tvPrice.text = CurrencyHelper.format(context, price.toDouble())
 
+        // ✅ PLUS BUTTON FIX
         holder.btnPlus.setOnClickListener {
+
+            if (item.quantity >= MAX_QTY) {
+                android.widget.Toast.makeText(
+                    context,
+                    "Max quantity reached ($MAX_QTY)",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
             item.quantity++
             notifyItemChanged(position)
             onQuantityChanged()
         }
 
+        // ✅ MINUS BUTTON (SAFE)
         holder.btnMinus.setOnClickListener {
             if (item.quantity > 1) {
                 item.quantity--

@@ -13,6 +13,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.DeviceUtils
 import com.example.easy_billing.util.PastelColor
 import com.google.android.material.card.MaterialCardView
@@ -134,16 +135,16 @@ class MainActivity : BaseActivity() {
                         return@launch
                     }
 
-                    // ✅ CLEAR DB
-                    withContext(Dispatchers.IO) {
-                        AppDatabase.getDatabase(this@MainActivity).clearAllTables()
-                    }
-
                     // ✅ SAVE TOKEN
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
                     prefs.edit {
                         putString("TOKEN", token)
                         putString("DEVICE_ID", deviceId)
+                    }
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val syncManager = SyncManager(this@MainActivity)
+                        syncManager.syncBills()
                     }
 
                     android.util.Log.d("TOKEN_DEBUG", "Saved Token: $token")

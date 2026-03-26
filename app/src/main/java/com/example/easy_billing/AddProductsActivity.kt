@@ -130,8 +130,30 @@ class AddProductsActivity : BaseActivity() {
 
             val priceText = etPrice.text.toString().trim()
 
+            // 1. EMPTY CHECK (KEEP THIS)
             if (priceText.isEmpty()) {
                 toast("Enter price")
+                return@setOnClickListener
+            }
+
+            // 2. SAFE CONVERSION
+            val price = priceText.toDoubleOrNull()
+            if (price == null) {
+                toast("Invalid price")
+                return@setOnClickListener
+            }
+
+            // 3. VALUE CHECKS
+            if (price <= 0) {
+                toast("Price must be greater than 0")
+                return@setOnClickListener
+            }
+
+            // 4. MAX LIMIT
+            val MAX_PRICE = 1000000.0
+
+            if (price > MAX_PRICE) {
+                toast("Price cannot exceed ₹$MAX_PRICE")
                 return@setOnClickListener
             }
 
@@ -146,7 +168,24 @@ class AddProductsActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            val price = priceText.toDouble()
+            val custom_price = priceText.toDoubleOrNull()
+
+            if (custom_price == null) {
+                toast("Invalid price")
+                return@setOnClickListener
+            }
+
+            if (custom_price <= 0) {
+                toast("Price must be greater than 0")
+                return@setOnClickListener
+            }
+
+            val CUSTOM_MAX_PRICE = 1000000.0  // 🔥 set your limit here
+
+            if (price > CUSTOM_MAX_PRICE) {
+                toast("Price cannot exceed ₹$MAX_PRICE")
+                return@setOnClickListener
+            }
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null)

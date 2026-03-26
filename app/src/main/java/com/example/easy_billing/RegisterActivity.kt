@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -11,6 +12,8 @@ import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
 
 class RegisterActivity : BaseActivity() {
+
+    private var isRegistering = false   // 🔥 FLAG TO PREVENT DOUBLE CLICK
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,26 +31,33 @@ class RegisterActivity : BaseActivity() {
 
         btnRegister.setOnClickListener {
 
+            // 🔥 PREVENT MULTIPLE CLICKS
+            if (isRegistering) return@setOnClickListener
+            isRegistering = true
+            btnRegister.isEnabled = false
+            btnRegister.text = "Registering..."
+
             val name = etFullName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val phone = etPhoneNumber.text.toString().trim()
             val shopName = etShopName.text.toString().trim()
 
-            // Validation
             if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || shopName.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                resetButton(btnRegister)
                 return@setOnClickListener
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 Toast.makeText(this, "Enter valid email", Toast.LENGTH_SHORT).show()
+                resetButton(btnRegister)
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
                 try {
 
-                    val response = RetrofitClient.api.register(
+                    RetrofitClient.api.register(
                         RegisterRequest(
                             shop_name = shopName,
                             owner_name = name,
@@ -56,22 +66,17 @@ class RegisterActivity : BaseActivity() {
                         )
                     )
 
-                    Toast.makeText(
-                        this@RegisterActivity,
-                        response.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    finish()
+                    showSuccessDialog(email)
 
                 } catch (e: Exception) {
-                    e.printStackTrace()
 
                     Toast.makeText(
                         this@RegisterActivity,
-                        e.message ?: "Unknown Error",
-                        Toast.LENGTH_LONG
+                        e.message ?: "Error",
+                        Toast.LENGTH_SHORT
                     ).show()
+
+                    resetButton(btnRegister)
                 }
             }
         }
@@ -79,5 +84,30 @@ class RegisterActivity : BaseActivity() {
         tvBackToLogin.setOnClickListener {
             finish()
         }
+    }
+
+    // 🔥 RESET BUTTON STATE
+    private fun resetButton(button: Button) {
+        isRegistering = false
+        button.isEnabled = true
+        button.text = "Register"
+    }
+
+    private fun showSuccessDialog(email: String) {
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Account Registered")
+            .setMessage("Verification in process.\n\nOTP has been sent to your email.")
+            .setCancelable(false)
+            .setPositiveButton("Continue") { _, _ ->
+
+                val intent = Intent(this, OtpVerificationActivity::class.java)
+                intent.putExtra("EMAIL", email)
+                startActivity(intent)
+                finish()
+            }
+            .create()
+
+        dialog.show()
     }
 }

@@ -18,7 +18,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyBilling"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:screenOrientation="sensorLandscape">
 
         <service
             android:name=".MyFirebaseService"
@@ -71,6 +72,9 @@
             android:name=".AiDashboardActivity"/>
         <activity
             android:name=".LocalizationSettingsActivity"/>
+
+        <activity
+            android:name=".OtpVerificationActivity" />
 
         <activity
             android:name=".SubscriptionActivity"/>

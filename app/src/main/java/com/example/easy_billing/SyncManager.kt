@@ -34,7 +34,7 @@ class SyncManager(private val context: Context) {
                 }
 
                 val request = CreateBillRequest(
-                    bill_number = bill.billNumber,
+                    bill_number = "",
                     items = apiItems,
                     payment_method = bill.paymentMethod,
                     discount = bill.discount,
