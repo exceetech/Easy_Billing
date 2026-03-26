@@ -8,6 +8,7 @@ import android.print.PrintAttributes
 import android.print.PrintManager
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
+import com.example.easy_billing.db.StoreInfo
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -19,23 +20,25 @@ object InvoicePdfGenerator {
     fun generatePdfFromBill(
         context: Context,
         bill: Bill,
-        billItems: List<BillItem>
+        billItems: List<BillItem>,
+        storeInfo: StoreInfo?   // ✅ FROM ROOM
     ) {
 
+        // ✅ UI SETTINGS ONLY (allowed)
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
-        val storeName = prefs.getString("store_name", "")
-        val storeAddress = prefs.getString("store_address", "")
-        val storePhone = prefs.getString("store_phone", "")
-        val storeGstin = prefs.getString("store_gstin", "")
         val footerMessage = prefs.getString("footer_message", "Thank You! Visit Again")
-
         val showPhone = prefs.getBoolean("show_phone", true)
         val showGstin = prefs.getBoolean("show_gstin", true)
         val showDiscount = prefs.getBoolean("show_discount", true)
         val roundOff = prefs.getBoolean("round_off", false)
 
-        // ✅ Currency symbol
+        // ✅ STORE INFO FROM ROOM
+        val storeName = storeInfo?.name ?: "My Store"
+        val storeAddress = storeInfo?.address ?: ""
+        val storePhone = storeInfo?.phone ?: ""
+        val storeGstin = storeInfo?.gstin ?: ""
+
         val currencySymbol = CurrencyHelper.getCurrencySymbol(context)
 
         val pageWidth = 300f
@@ -48,7 +51,8 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.MONOSPACE
         paint.textSize = 14f
 
-        val pageHeight = 900 + billItems.size * 22
+        // ✅ SAFE HEIGHT
+        val pageHeight = 1200 + billItems.size * 30
 
         val pageInfo = PdfDocument.PageInfo.Builder(
             pageWidth.toInt(),
@@ -64,7 +68,6 @@ object InvoicePdfGenerator {
         fun dashedLine() {
             val dashPaint = Paint()
             dashPaint.pathEffect = DashPathEffect(floatArrayOf(8f, 8f), 0f)
-
             canvas.drawLine(leftMargin, y.toFloat(), rightMargin, y.toFloat(), dashPaint)
             y += 18
         }
@@ -76,18 +79,17 @@ object InvoicePdfGenerator {
                 else Typeface.MONOSPACE
 
             val width = paint.measureText(text)
-
             canvas.drawText(text, (pageWidth - width) / 2, y.toFloat(), paint)
             y += size.toInt() + 6
         }
 
         // ================= HEADER =================
 
-        centerText(storeName ?: "", 22f, true)
+        centerText(storeName, 22f, true)
 
-        if (!storeAddress.isNullOrEmpty()) centerText(storeAddress, 14f)
-        if (showPhone && !storePhone.isNullOrEmpty()) centerText("Phone : $storePhone", 14f)
-        if (showGstin && !storeGstin.isNullOrEmpty()) centerText("GSTIN : $storeGstin", 14f)
+        if (storeAddress.isNotEmpty()) centerText(storeAddress, 14f)
+        if (showPhone && storePhone.isNotEmpty()) centerText("Phone : $storePhone", 14f)
+        if (showGstin && storeGstin.isNotEmpty()) centerText("GSTIN : $storeGstin", 14f)
 
         dashedLine()
 
@@ -112,12 +114,10 @@ object InvoicePdfGenerator {
         val rateHeader = "Rate($currencySymbol)"
         val amtHeader = "Amt($currencySymbol)"
 
-        // Draw headers
         canvas.drawText("Item", colItem, y.toFloat(), paint)
         canvas.drawText("Qty", colQty, y.toFloat(), paint)
         canvas.drawText(rateHeader, colRate, y.toFloat(), paint)
 
-        // Right align Amt column
         val amtWidth = paint.measureText(amtHeader)
         canvas.drawText(amtHeader, colAmount - amtWidth, y.toFloat(), paint)
 
@@ -155,7 +155,6 @@ object InvoicePdfGenerator {
 
             val amountText = "%.2f".format(it.subTotal)
             val amountWidth = paint.measureText(amountText)
-
             canvas.drawText(amountText, colAmount - amountWidth, y.toFloat(), paint)
 
             y += 20
@@ -211,7 +210,7 @@ object InvoicePdfGenerator {
 
         // ================= SAVE FILE =================
 
-        val shopNameSafe = (storeName ?: "Shop").replace(" ", "_")
+        val shopNameSafe = storeName.replace(" ", "_")
         val dateString = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
 
         val fileName =
@@ -235,7 +234,7 @@ object InvoicePdfGenerator {
             context,
             file.absolutePath,
             "invoice",
-            bill.billNumber.toLong()
+            bill.billNumber.hashCode().toLong() // ✅ SAFE
         )
 
         val printAttributes = PrintAttributes.Builder()

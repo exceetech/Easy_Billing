@@ -13,33 +13,47 @@ import com.example.easy_billing.DefaultProductDao
         Product::class,
         Bill::class,
         BillItem::class,
-        DefaultProduct::class
+        DefaultProduct::class,
+        StoreInfo::class,
+        BillingSettings::class
     ],
-    version = 3
+    version = 6
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun productDao(): ProductDao
     abstract fun billDao(): BillDao
+
+    abstract fun billItemDao(): BillItemDao
+
     abstract fun defaultProductDao(): DefaultProductDao
 
+    abstract fun storeInfoDao(): StoreInfoDao
+
+    abstract fun billingSettingsDao(): BillingSettingsDao
+
     companion object {
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "easy_billing_db"
                 )
                     .fallbackToDestructiveMigration()
                     .build()
-                    .also {
-                        INSTANCE = it
-                    }
+                    .also { INSTANCE = it }
             }
+        }
+
+        // 🔥 ADD THIS
+        fun destroyInstance() {
+            INSTANCE?.close()
+            INSTANCE = null
         }
     }
 }

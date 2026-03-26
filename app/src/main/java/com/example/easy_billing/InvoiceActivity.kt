@@ -12,15 +12,19 @@ import com.example.easy_billing.adapter.InvoiceAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
+import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.BillItemRequest
 import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.InvoicePdfGenerator
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.content.edit
 
 class InvoiceActivity : AppCompatActivity() {
 
@@ -68,55 +72,44 @@ class InvoiceActivity : AppCompatActivity() {
 
         val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
 
-        billNumber = System.currentTimeMillis().toString().takeLast(6)
+        billNumber = "xxxxxx"
 
         tvBillInfo.text = "Invoice #$billNumber\nDate: $date"
 
-        loadShopName()
+        loadStoreInfo()
         loadBillingSettings()
 
         calculateTotal()
 
-        val watcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { calculateTotal() }
+        etDiscount.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) = calculateTotal()
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        }
-
-        etDiscount.addTextChangedListener(watcher)
+        })
 
         btnConfirm.setOnClickListener { saveBill() }
         btnPrint.setOnClickListener { generatePdfAndPrint() }
 
         btnClose.setOnClickListener {
-            if (isBillSaved) setResult(RESULT_OK) else setResult(RESULT_CANCELED)
+            setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
             finish()
         }
     }
 
+    // ================= CALC =================
+
     private fun calculateTotal() {
 
         val subTotal = items.sumOf { it.subTotal() }
-
-        val discount =
-            etDiscount.text.toString().toDoubleOrNull() ?: 0.0
-
+        val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
         val gstAmount = (subTotal * gstPercent) / 100
-
         val total = subTotal + gstAmount - discount
 
-        // ✅ ADD HERE
         val formattedSubTotal = CurrencyHelper.format(this, subTotal)
         val formattedGst = CurrencyHelper.format(this, gstAmount)
         val formattedDiscount = CurrencyHelper.format(this, discount)
         val formattedTotal = CurrencyHelper.format(this, total)
 
-        // ✅ USE IT (choose one UI style below)
-
-        // 🔹 SIMPLE (your current style)
-        tvTotal.text = "Total: $formattedTotal"
-
-        // 🔹 OR ADVANCED (if you want full breakdown in one TextView)
         tvTotal.text = """
             Subtotal: $formattedSubTotal
             GST: $formattedGst
@@ -125,6 +118,8 @@ class InvoiceActivity : AppCompatActivity() {
         """.trimIndent()
     }
 
+    // ================= SAVE BILL =================
+
     private fun saveBill() {
 
         if (isBillSaved) {
@@ -132,52 +127,40 @@ class InvoiceActivity : AppCompatActivity() {
             return
         }
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
 
             val db = AppDatabase.getDatabase(this@InvoiceActivity)
 
             val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-
             val subTotal = items.sumOf { it.subTotal() }
             val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
-
             val gstAmount = (subTotal * gstPercent) / 100
             val total = subTotal + gstAmount - discount
 
             try {
-
                 val token = getSharedPreferences("auth", MODE_PRIVATE)
                     .getString("TOKEN", null)
 
-                val requestItems = items.map {
-                    BillItemRequest(
-                        shop_product_id = it.product.id,
-                        quantity = it.quantity
-                    )
-                }
-
                 val request = CreateBillRequest(
                     bill_number = billNumber,
-                    items = requestItems,
+                    items = items.map {
+                        BillItemRequest(it.product.id, it.quantity)
+                    },
                     payment_method = getPaymentMethod(),
-                    discount = discount
+                    discount = discount,
+                    gst = gstAmount,
+                    total_amount = total
                 )
 
-                val response = RetrofitClient.api.createBill(
-                    "Bearer $token",
-                    request
-                )
-
+                val response = RetrofitClient.api.createBill("Bearer $token", request)
                 billNumber = response.bill_number
 
-            } catch (e: Exception) {
+                val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+                prefs.edit { putBoolean("ai_reset", false) }
 
-                runOnUiThread {
-                    Toast.makeText(
-                        this@InvoiceActivity,
-                        "Backend failed (offline mode)",
-                        Toast.LENGTH_SHORT
-                    ).show()
+            } catch (_: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@InvoiceActivity, "Backend failed (offline mode)", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -189,40 +172,38 @@ class InvoiceActivity : AppCompatActivity() {
                     gst = gstAmount,
                     discount = discount,
                     total = total,
-                    paymentMethod = getPaymentMethod()
+                    paymentMethod = getPaymentMethod(),
+                    isSynced = false   // 🔥 important if exists in model
                 )
             ).toInt()
 
             val billItems = items.map {
                 BillItem(
                     billId = billId,
+                    productId = it.product.id,
                     productName = it.product.name,
                     price = it.product.price,
                     quantity = it.quantity,
-                    subTotal = it.subTotal()
+                    subTotal = it.subTotal(),
+                    isSynced = false
                 )
             }
 
-            db.billDao().insertItems(billItems)
+            db.billItemDao().insertAll(billItems)
 
             savedBillId = billId
             isBillSaved = true
 
-            runOnUiThread {
-
+            withContext(Dispatchers.Main) {
                 tvBillInfo.text = "Invoice #$billNumber\nDate: $date"
-
                 btnConfirm.isEnabled = false
                 btnPrint.isEnabled = true
-
-                Toast.makeText(
-                    this@InvoiceActivity,
-                    "Bill Saved Successfully",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@InvoiceActivity, "Bill Saved Successfully", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    // ================= PRINT =================
 
     private fun generatePdfAndPrint() {
 
@@ -231,81 +212,127 @@ class InvoiceActivity : AppCompatActivity() {
             return
         }
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
 
             val db = AppDatabase.getDatabase(this@InvoiceActivity)
 
             val bill = db.billDao().getBillById(savedBillId)
             val items = db.billDao().getItemsForBill(savedBillId)
+            val storeInfo = db.storeInfoDao().get()
 
-            InvoicePdfGenerator.generatePdfFromBill(
-                this@InvoiceActivity,
-                bill,
-                items
-            )
+            withContext(Dispatchers.Main) {
+                InvoicePdfGenerator.generatePdfFromBill(this@InvoiceActivity, bill, items, storeInfo)
+            }
+        }
+    }
+
+    // ================= STORE =================
+
+    private fun loadStoreInfo() {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+
+            var store = db.storeInfoDao().get()
+
+            if (store == null) {
+                store = StoreInfo(
+                    name = "My Store",
+                    address = "",
+                    phone = "",
+                    gstin = "",
+                    isSynced = false
+                )
+                db.storeInfoDao().insert(store)
+            }
+
+            withContext(Dispatchers.Main) {
+                tvStoreName.text = store.name
+            }
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                val response = RetrofitClient.api.getStoreSettings("Bearer $token")
+
+                val updated = StoreInfo(
+                    name = response.shop_name ?: "",
+                    address = response.store_address ?: "",
+                    phone = response.phone ?: "",
+                    gstin = response.store_gstin ?: "",
+                    isSynced = true
+                )
+
+                db.storeInfoDao().insert(updated)
+
+                val refreshed = db.storeInfoDao().get()
+
+                withContext(Dispatchers.Main) {
+                    tvStoreName.text = refreshed?.name ?: "My Store"
+                }
+
+            } catch (_: Exception) {
+                // offline ignore
+            }
+        }
+    }
+
+    // ================= GST =================
+
+    private fun loadBillingSettings() {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+
+            // ✅ 1. LOAD FROM ROOM FIRST (OFFLINE SUPPORT)
+            val local = db.billingSettingsDao().get()
+
+            withContext(Dispatchers.Main) {
+                local?.let {
+                    gstPercent = it.defaultGst.toDouble()
+                    tvGstPercent.text = "${gstPercent}%"
+                    calculateTotal()
+                }
+            }
+
+            // ✅ 2. TRY SYNC FROM BACKEND (IF ONLINE)
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+
+                val response = RetrofitClient.api.getBillingSettings("Bearer $token")
+
+                val updated = com.example.easy_billing.db.BillingSettings(
+                    defaultGst = response.default_gst,
+                    printerLayout = response.printer_layout
+                )
+
+                // ✅ UPDATE ROOM
+                db.billingSettingsDao().insert(updated)
+
+                withContext(Dispatchers.Main) {
+                    gstPercent = updated.defaultGst.toDouble()
+                    tvGstPercent.text = "${gstPercent}%"
+                    calculateTotal()
+                }
+
+            } catch (_: Exception) {
+                // offline → ignore
+            }
         }
     }
 
     private fun getPaymentMethod(): String {
-
         return when (rgPaymentMethod.checkedRadioButtonId) {
             R.id.rbCash -> "CASH"
             R.id.rbUpi -> "UPI"
             R.id.rbCard -> "CARD"
             else -> "CASH"
-        }
-    }
-
-    private fun loadShopName() {
-
-        lifecycleScope.launch {
-
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return@launch
-
-            try {
-
-                val profile =
-                    RetrofitClient.api.getProfile("Bearer $token")
-
-                tvStoreName.text = profile.shop_name
-
-            } catch (e: Exception) {
-
-                tvStoreName.text = "Store"
-
-            }
-        }
-    }
-
-    private fun loadBillingSettings() {
-
-        lifecycleScope.launch {
-
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return@launch
-
-            try {
-
-                val response =
-                    RetrofitClient.api.getBillingSettings("Bearer $token")
-
-                gstPercent = response.default_gst.toDouble()
-
-                tvGstPercent.text = "${gstPercent}%"
-
-                calculateTotal()
-
-            } catch (e: Exception) {
-
-                e.printStackTrace()
-
-                Toast.makeText(
-                    this@InvoiceActivity,
-                    "Failed to load GST",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
         }
     }
 }

@@ -1,25 +1,17 @@
 package com.example.easy_billing
 
-import android.graphics.Paint
-import android.graphics.pdf.PdfDocument
 import android.os.Bundle
-import android.os.Environment
-import android.print.PrintAttributes
-import android.print.PrintManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.util.InvoicePdfGenerator
-import com.example.easy_billing.util.PdfPrintAdapter
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.CurrencyHelper
 
@@ -129,6 +121,8 @@ class BillDetailsActivity : BaseActivity() {
 
             try {
 
+                val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+
                 val response = RetrofitClient.api.getBillDetails(
                     "Bearer $token",
                     billId
@@ -148,6 +142,7 @@ class BillDetailsActivity : BaseActivity() {
                 val billItems = response.items.map {
                     BillItem(
                         billId = response.bill.bill_id,
+                        productId = it.shop_product_id,
                         productName = it.product_name,
                         price = it.price,
                         quantity = it.quantity,
@@ -155,10 +150,13 @@ class BillDetailsActivity : BaseActivity() {
                     )
                 }
 
+                val storeInfo = db.storeInfoDao().get()
+                
                 InvoicePdfGenerator.generatePdfFromBill(
-                    this@BillDetailsActivity,
-                    bill,
-                    billItems
+                    context = this@BillDetailsActivity,
+                    bill = bill,
+                    billItems = billItems,
+                    storeInfo = storeInfo
                 )
 
             } catch (e: Exception) {
@@ -169,77 +167,6 @@ class BillDetailsActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        }
-    }
-
-    private fun generatePdfFromBill(bill: Bill, billItems: List<BillItem>) {
-        val document = PdfDocument()
-        val paint = Paint()
-
-        val pageInfo = PdfDocument.PageInfo.Builder(300, 600, 1).create()
-        val page = document.startPage(pageInfo)
-        val canvas = page.canvas
-
-        var y = 30
-        paint.textSize = 14f
-        canvas.drawText("", 80f, y.toFloat(), paint)
-        y += 20
-
-        paint.textSize = 10f
-        canvas.drawText("Invoice #${bill.billNumber}", 10f, y.toFloat(), paint)
-        y += 15
-        canvas.drawText("Date: ${bill.date}", 10f, y.toFloat(), paint)
-        y += 15
-
-        canvas.drawLine(10f, y.toFloat(), 290f, y.toFloat(), paint)
-        y += 15
-
-        billItems.forEach {
-            canvas.drawText(
-                "${it.productName} x${it.quantity}  ${CurrencyHelper.format(this, it.subTotal)}",
-                10f,
-                y.toFloat(),
-                paint
-            )
-            y += 15
-        }
-
-        y += 10
-
-
-        canvas.drawLine(10f, y.toFloat(), 290f, y.toFloat(), paint)
-        y += 15
-
-        canvas.drawText("Subtotal: ${CurrencyHelper.format(this, bill.subTotal)}", 10f, y.toFloat(), paint)
-        y += 15
-        canvas.drawText("GST: ${CurrencyHelper.format(this, bill.gst)}", 10f, y.toFloat(), paint)
-        y += 15
-        canvas.drawText("Discount: ${CurrencyHelper.format(this, bill.discount)}", 10f, y.toFloat(), paint)
-        y += 15
-
-        paint.textSize = 12f
-        canvas.drawText("TOTAL: ${CurrencyHelper.format(this, bill.total)}", 10f, y.toFloat(), paint)
-
-        document.finishPage(page)
-
-        val file = File(
-            getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-            "Invoice_${bill.billNumber}.pdf"
-        )
-
-        try {
-            document.writeTo(FileOutputStream(file))
-            document.close()
-
-            Toast.makeText(this, "Invoice PDF saved", Toast.LENGTH_LONG).show()
-
-            val printManager = getSystemService(PRINT_SERVICE) as PrintManager
-            val printAdapter = PdfPrintAdapter(this, file.absolutePath, "1234", bill.billNumber.toLong())
-
-            printManager.print("Invoice", printAdapter, PrintAttributes.Builder().build())
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error generating PDF", Toast.LENGTH_SHORT).show()
         }
     }
 }

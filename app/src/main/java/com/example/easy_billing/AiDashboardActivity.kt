@@ -12,6 +12,7 @@ import com.example.easy_billing.network.ProductReport
 import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
 import androidx.core.graphics.toColorInt
+import androidx.core.content.edit
 
 class AiDashboardActivity : BaseActivity() {
 
@@ -47,7 +48,22 @@ class AiDashboardActivity : BaseActivity() {
 
         setupSorting()
 
-        loadAiReport()
+        // 🔥 CHECK RESET FLAG FIRST
+        val isReset = getSharedPreferences("app_settings", MODE_PRIVATE)
+            .getBoolean("ai_reset", false)
+
+        if (isReset) {
+            forceClearUi()
+
+            // remove flag after use
+            getSharedPreferences("app_settings", MODE_PRIVATE)
+                .edit {
+                    putBoolean("ai_reset", false)
+                }
+
+        } else {
+            loadAiReport()
+        }
     }
 
     private fun loadAiReport() {
@@ -60,6 +76,11 @@ class AiDashboardActivity : BaseActivity() {
             try {
 
                 val response = RetrofitClient.api.getAiReport("Bearer $token")
+
+                if (response.report_data.isEmpty()) {
+                    forceClearUi()
+                    return@launch
+                }
 
                 reportData = response.report_data.toMutableList()
 
@@ -75,7 +96,7 @@ class AiDashboardActivity : BaseActivity() {
                 text = text.replace("&lt;", "<")
                 text = text.replace("&gt;", ">")
 
-// Convert new lines to HTML
+                // Convert new lines to HTML
                 text = text.replace("\n", "<br>")
 
                 tvAiInsights.text = Html.fromHtml(
@@ -174,5 +195,22 @@ class AiDashboardActivity : BaseActivity() {
 
             tableProducts.addView(row)
         }
+    }
+
+    private fun forceClearUi() {
+
+        // Reset revenue
+        tvRevenue.text = "₹0"
+
+        // Reset insights
+        tvAiInsights.text = "Start selling to see AI insights 📊"
+
+        // Clear table
+        if (tableProducts.childCount > 1) {
+            tableProducts.removeViews(1, tableProducts.childCount - 1)
+        }
+
+        // Clear data list
+        reportData.clear()
     }
 }

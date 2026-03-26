@@ -6,9 +6,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.BillingSettings
 import com.example.easy_billing.network.BillingSettingsUpdateRequest
 import com.example.easy_billing.network.RetrofitClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BillingSettingsActivity : BaseActivity() {
 
@@ -71,8 +75,21 @@ class BillingSettingsActivity : BaseActivity() {
 
     private fun loadData() {
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
 
+            val db = AppDatabase.getDatabase(this@BillingSettingsActivity)
+
+            // ✅ LOAD FROM ROOM FIRST
+            val local = db.billingSettingsDao().get()
+
+            withContext(Dispatchers.Main) {
+                local?.let {
+                    etGst.setText(it.defaultGst.toString())
+                    autoPrinter.setText(it.printerLayout, false)
+                }
+            }
+
+            // ✅ TRY SYNC FROM BACKEND
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
 
@@ -80,16 +97,20 @@ class BillingSettingsActivity : BaseActivity() {
 
                 val response = RetrofitClient.api.getBillingSettings("Bearer $token")
 
-                etGst.setText(response.default_gst.toString())
-                autoPrinter.setText(response.printer_layout, false)
+                val updated = BillingSettings(
+                    defaultGst = response.default_gst,
+                    printerLayout = response.printer_layout
+                )
 
-            } catch (e: Exception) {
+                db.billingSettingsDao().insert(updated)
 
-                Toast.makeText(
-                    this@BillingSettingsActivity,
-                    "Failed to load billing settings",
-                    Toast.LENGTH_SHORT
-                ).show()
+                withContext(Dispatchers.Main) {
+                    etGst.setText(updated.defaultGst.toString())
+                    autoPrinter.setText(updated.printerLayout, false)
+                }
+
+            } catch (_: Exception) {
+                // offline → keep Room data
             }
         }
     }
@@ -159,12 +180,19 @@ class BillingSettingsActivity : BaseActivity() {
 
     private fun saveBillingSettings() {
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return@launch
+                .getString("TOKEN", null)
 
-            val gstValue = etGst.text.toString().toDoubleOrNull() ?: 0.0
+            if (token == null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@BillingSettingsActivity, "No internet connection", Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
+
+            val gstValue = etGst.text.toString().toFloatOrNull() ?: 0.0f
             val printerType = autoPrinter.text.toString()
 
             try {
@@ -174,27 +202,30 @@ class BillingSettingsActivity : BaseActivity() {
                     printer_layout = printerType
                 )
 
-                RetrofitClient.api.updateBillingSettings(
-                    "Bearer $token",
-                    request
+                // ✅ UPDATE BACKEND FIRST
+                RetrofitClient.api.updateBillingSettings("Bearer $token", request)
+
+                // ✅ THEN UPDATE ROOM
+                val db = AppDatabase.getDatabase(this@BillingSettingsActivity)
+
+                val updated = BillingSettings(
+                    defaultGst = gstValue,
+                    printerLayout = printerType
                 )
 
-                Toast.makeText(
-                    this@BillingSettingsActivity,
-                    "Billing settings updated",
-                    Toast.LENGTH_SHORT
-                ).show()
+                db.billingSettingsDao().insert(updated)
 
-                setEditable(false)
-                isEditMode = false
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@BillingSettingsActivity, "Billing settings updated", Toast.LENGTH_SHORT).show()
+                    setEditable(false)
+                    isEditMode = false
+                }
 
-            } catch (e: Exception) {
+            } catch (_: Exception) {
 
-                Toast.makeText(
-                    this@BillingSettingsActivity,
-                    "Failed to update settings",
-                    Toast.LENGTH_SHORT
-                ).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@BillingSettingsActivity, "Update failed (check internet)", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

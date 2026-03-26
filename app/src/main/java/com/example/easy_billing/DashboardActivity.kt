@@ -29,11 +29,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.Bill
+import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.model.CartItem
+import com.example.easy_billing.network.BillItemRequest
+import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaveTokenRequest
+import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.DeviceUtils
+import com.example.easy_billing.util.NetworkReceiver
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -98,6 +104,7 @@ class DashboardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        NetworkReceiver(this).startListening()
         validateLocalDevice()
 
         // ✅ 1. Initialize ALL views FIRST
@@ -236,6 +243,19 @@ class DashboardActivity : BaseActivity() {
         super.onResume()
         loadProducts()
         checkSubscription()
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
+        if (token != null) {
+            lifecycleScope.launch {
+                val syncManager = SyncManager(this@DashboardActivity)
+                syncManager.syncStoreInfo()
+                syncManager.syncBillingSettings()
+                syncManager.syncBills()
+                loadStoreFromRoom()
+            }
+        }
     }
 
     // ==================================================
@@ -569,13 +589,16 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun generateBill() {
+
         if (cartItems.isEmpty()) {
             Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // 🚀 ONLY PASS DATA → DO NOT SAVE HERE
         val intent = Intent(this, InvoiceActivity::class.java)
         intent.putExtra("CART_ITEMS", ArrayList(cartItems))
+
         invoiceLauncher.launch(intent)
     }
 
@@ -690,6 +713,16 @@ class DashboardActivity : BaseActivity() {
 
     private fun loadAiNoticeBoard() {
 
+        val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+
+        // 🔥 STEP 1: CHECK RESET FLAG
+        val isReset = prefs.getBoolean("ai_reset", false)
+
+        if (isReset) {
+            tvNoticeBoard.text = "Your AI insights will appear after your first sale 🚀"
+            return
+        }
+
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
 
@@ -704,14 +737,21 @@ class DashboardActivity : BaseActivity() {
 
                 val response = RetrofitClient.api.getAiReport("Bearer $token")
 
+                // 🔥 STEP 2: EMPTY DATA CHECK
+                if (response.report_data.isEmpty()) {
+                    tvNoticeBoard.text = "Start selling to see insights 📊"
+                    return@launch
+                }
+
                 var text = response.ai_report
 
-                // Fix escaped HTML
                 text = text.replace("&lt;", "<")
                 text = text.replace("&gt;", ">")
 
-                // Add visible spacing between lines
-                val noticeText = text.replace("\n", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
+                val noticeText = text.replace(
+                    "\n",
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                )
 
                 tvNoticeBoard.text = Html.fromHtml(
                     noticeText,
@@ -846,6 +886,18 @@ class DashboardActivity : BaseActivity() {
             ).show()
 
             finishAffinity() // 🔥 CLOSE APP
+        }
+    }
+
+    private suspend fun loadStoreFromRoom() {
+
+        val db = AppDatabase.getDatabase(this)
+        val store = db.storeInfoDao().get()
+
+        runOnUiThread {
+            // wherever you show store name
+            findViewById<TextView>(R.id.tvStoreName)?.text =
+                store?.name ?: "My Store"
         }
     }
 }

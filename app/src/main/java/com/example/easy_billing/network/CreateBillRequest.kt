@@ -4,7 +4,9 @@ data class CreateBillRequest(
     val bill_number: String,
     val items: List<BillItemRequest>,
     val payment_method: String,
-    val discount: Double
+    val discount: Double,
+    val gst: Double,
+    val total_amount: Double
 )
 
 data class BillItemRequest(

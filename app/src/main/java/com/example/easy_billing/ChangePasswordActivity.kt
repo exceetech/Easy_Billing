@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.ChangePasswordRequest
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class ChangePasswordActivity : BaseActivity() {
 
@@ -73,7 +74,7 @@ class ChangePasswordActivity : BaseActivity() {
                     ).show()
 
                     // clear reset token
-                    prefs.edit().remove("TOKEN").apply()
+                    prefs.edit { remove("TOKEN") }
 
                     val intent = Intent(
                         this@ChangePasswordActivity,

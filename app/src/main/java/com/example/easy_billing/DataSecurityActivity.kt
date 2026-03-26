@@ -13,6 +13,8 @@ import com.example.easy_billing.network.ChangePasswordRequest
 import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class DataSecurityActivity : BaseActivity() {
 
@@ -140,34 +142,71 @@ class DataSecurityActivity : BaseActivity() {
 
     private fun performFactoryReset() {
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return@launch
+                .getString("TOKEN", null)
 
             try {
 
-                RetrofitClient.api.factoryReset("Bearer $token")
+                // ✅ STEP 1: BACKEND RESET (MANDATORY)
+                if (token != null) {
+                    RetrofitClient.api.factoryReset("Bearer $token")
+                }
 
-                val settingsPrefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-                settingsPrefs.edit().clear().apply()
+                // ✅ STEP 2: DESTROY ROOM INSTANCE
+                AppDatabase.destroyInstance()
 
-                val db = AppDatabase.getDatabase(this@DataSecurityActivity)
-                db.clearAllTables()
+                // ✅ STEP 3: DELETE DATABASE FILE
+                applicationContext.deleteDatabase("easy_billing_db")
 
-                Toast.makeText(
-                    this@DataSecurityActivity,
-                    "Factory Reset Completed",
-                    Toast.LENGTH_LONG
-                ).show()
+                // ✅ STEP 4: CLEAR PREFS
+                val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+                prefs.edit().clear().apply()
+
+                // 🔥 STEP 5: RESET LOCALIZATION DEFAULTS
+                prefs.edit {
+                    putString("app_language", "en")
+                        .putString("app_language_name", "English")
+                        .putString("app_region", "India")
+                        .putString("app_currency", "₹")
+                }
+
+                // 🔥 CLEAR AI CACHE FLAG
+                prefs.edit {
+                    putBoolean("ai_reset", true)
+                    .apply()
+                }
+
+                // ✅ STEP 6: CLEAR AUTH (LOGOUT)
+                getSharedPreferences("auth", MODE_PRIVATE)
+                    .edit {
+                        clear()
+                    }
+
+                withContext(Dispatchers.Main) {
+
+                    Toast.makeText(
+                        this@DataSecurityActivity,
+                        "Factory Reset Completed",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    // ✅ STEP 7: RESTART APP (CLEAR UI CACHE)
+                    val intent = Intent(this@DataSecurityActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
 
             } catch (e: Exception) {
 
-                Toast.makeText(
-                    this@DataSecurityActivity,
-                    "Factory reset failed",
-                    Toast.LENGTH_SHORT
-                ).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@DataSecurityActivity,
+                        "Reset failed: Check internet",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
