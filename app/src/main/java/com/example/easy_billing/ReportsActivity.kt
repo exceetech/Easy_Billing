@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -9,13 +10,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.MonthlyReportAdapter
 import com.example.easy_billing.adapter.PeakHourAdapter
+import com.example.easy_billing.DailyReportAdapter
+import com.example.easy_billing.ProductReportAdapter
 import com.example.easy_billing.network.*
+import com.example.easy_billing.util.BarChartMarker
+import com.example.easy_billing.util.ChartMarkerView
 import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.RoundedBarChartRenderer
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.model.GradientColor
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -237,11 +246,56 @@ class ReportsActivity : BaseActivity() {
                     end
                 )
 
+//                setupMiniChart(findViewById(R.id.chartRevenueMini), listOf(10f, 20f, 15f, 30f), getColor(R.color.primaryColor))
+//
+//                setupMiniChart(findViewById(R.id.chartBillsMini), listOf(5f, 8f, 6f, 10f), getColor(R.color.secondaryColor))
+//
+//                setupMiniChart(findViewById(R.id.chartAvgMini), listOf(2f, 3f, 4f, 3f), getColor(R.color.orange))
+
                 val context = this@ReportsActivity
 
                 tvRevenue.text = CurrencyHelper.format(context, avg.total_revenue)
                 tvBills.text = avg.total_bills.toString()
                 tvAverage.text = CurrencyHelper.format(context, avg.average_bill)
+
+                val chartRevenueMini = findViewById<LineChart>(R.id.chartRevenueMini)
+                val chartBillsMini = findViewById<LineChart>(R.id.chartBillsMini)
+                val chartAvgMini = findViewById<LineChart>(R.id.chartAvgMini)
+
+                // 🔥 Replace with real backend data if available
+                val revenueList = listOf(
+                    avg.prev_revenue.toFloat(),
+                    avg.total_revenue.toFloat()
+                )
+
+                val billsList = listOf(
+                    avg.prev_bills.toFloat(),
+                    avg.total_bills.toFloat()
+                )
+
+                val avgList = listOf(
+                    avg.prev_avg.toFloat(),
+                    avg.average_bill.toFloat()
+                )
+
+                val revenueColor = if (isTrendPositive(revenueList))
+                    getColor(R.color.green)
+                else
+                    getColor(R.color.red)
+
+                val billsColor = if (isTrendPositive(billsList))
+                    getColor(R.color.green)
+                else
+                    getColor(R.color.red)
+
+                val avgColor = if (isTrendPositive(avgList))
+                    getColor(R.color.green)
+                else
+                    getColor(R.color.red)
+
+                setupMiniChart(chartRevenueMini, revenueList, revenueColor)
+                setupMiniChart(chartBillsMini, billsList, billsColor)
+                setupMiniChart(chartAvgMini, avgList, avgColor)
 
                 val revenueGrowth =
                     growthPercent(avg.total_revenue, avg.prev_revenue)
@@ -256,20 +310,9 @@ class ReportsActivity : BaseActivity() {
                 tvBillsGrowth.text = billsGrowth.first
                 tvAverageGrowth.text = avgGrowth.first
 
-                tvRevenueGrowth.setTextColor(
-                    if (revenueGrowth.second) getColor(R.color.green)
-                    else getColor(R.color.red)
-                )
-
-                tvBillsGrowth.setTextColor(
-                    if (billsGrowth.second) getColor(R.color.green)
-                    else getColor(R.color.red)
-                )
-
-                tvAverageGrowth.setTextColor(
-                    if (avgGrowth.second) getColor(R.color.green)
-                    else getColor(R.color.red)
-                )
+                styleGrowth(tvRevenueGrowth, revenueGrowth.second)
+                styleGrowth(tvBillsGrowth, billsGrowth.second)
+                styleGrowth(tvAverageGrowth, avgGrowth.second)
 
             } catch (e: Exception) {
 
@@ -370,14 +413,52 @@ class ReportsActivity : BaseActivity() {
             labels.add("$i:00")
         }
 
-        val set = LineDataSet(entries, "Hourly Sales")
+        val set = LineDataSet(entries, "")
 
         set.color = getColor(R.color.primaryColor)
-        set.setCircleColor(getColor(R.color.primaryColor))
         set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+
+        set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.setDrawCircles(false)
         set.setDrawValues(false)
 
+        // ✅ CROSSHAIR SETTINGS (ADD HERE)
+        set.highLightColor = Color.BLACK
+        set.enableDashedHighlightLine(10f, 5f, 0f)
+        set.setDrawVerticalHighlightIndicator(true)
+        set.setDrawHorizontalHighlightIndicator(false)
+
+        set.setDrawFilled(true)
+        set.fillDrawable = getDrawable(R.drawable.chart_gradient)
+
+//        set.color = getColor(R.color.primaryColor)
+        set.setCircleColor(getColor(R.color.primaryColor))
+//        set.lineWidth = 3f
+//        set.setDrawValues(false)
+
         chartSalesTrend.data = LineData(set)
+
+        chartSalesTrend.highlightValue(0f, 0)
+
+        // 🔥 SNAP + INTERACTION (ADD HERE)
+        chartSalesTrend.isHighlightPerTapEnabled = true
+        chartSalesTrend.isHighlightPerDragEnabled = true
+        chartSalesTrend.setMaxHighlightDistance(50f)
+
+        // Smooth drag feel
+        chartSalesTrend.setDragEnabled(true)
+        chartSalesTrend.setScaleEnabled(true)
+        chartSalesTrend.setPinchZoom(true)
+        chartSalesTrend.setDragDecelerationEnabled(true)
+        chartSalesTrend.dragDecelerationFrictionCoef = 0.9f
+
+        val marker = ChartMarkerView(this)
+        chartSalesTrend.marker = marker
+
+        stylePremiumLineChart(chartSalesTrend)
 
         val xAxis = chartSalesTrend.xAxis
         xAxis.valueFormatter = IndexAxisValueFormatter(labels)
@@ -426,14 +507,52 @@ class ReportsActivity : BaseActivity() {
             )
         }
 
-        val set = LineDataSet(entries, "Weekly Sales")
+        val set = LineDataSet(entries, "")
 
         set.color = getColor(R.color.primaryColor)
-        set.setCircleColor(getColor(R.color.primaryColor))
         set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+
+        set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.setDrawCircles(false)
         set.setDrawValues(false)
 
+        // ✅ CROSSHAIR SETTINGS (ADD HERE)
+        set.highLightColor = Color.BLACK
+        set.enableDashedHighlightLine(10f, 5f, 0f)
+        set.setDrawVerticalHighlightIndicator(true)
+        set.setDrawHorizontalHighlightIndicator(false)
+
+        set.setDrawFilled(true)
+        set.fillDrawable = getDrawable(R.drawable.chart_gradient)
+
+//        set.color = getColor(R.color.primaryColor)
+        set.setCircleColor(getColor(R.color.primaryColor))
+//        set.lineWidth = 3f
+//        set.setDrawValues(false)
+
         chartSalesTrend.data = LineData(set)
+
+        chartSalesTrend.highlightValue(0f, 0)
+
+        // 🔥 SNAP + INTERACTION (ADD HERE)
+        chartSalesTrend.isHighlightPerTapEnabled = true
+        chartSalesTrend.isHighlightPerDragEnabled = true
+        chartSalesTrend.setMaxHighlightDistance(50f)
+
+        // Smooth drag feel
+        chartSalesTrend.setDragEnabled(true)
+        chartSalesTrend.setScaleEnabled(true)
+        chartSalesTrend.setPinchZoom(true)
+        chartSalesTrend.setDragDecelerationEnabled(true)
+        chartSalesTrend.dragDecelerationFrictionCoef = 0.9f
+
+        val marker = ChartMarkerView(this)
+        chartSalesTrend.marker = marker
+
+        stylePremiumLineChart(chartSalesTrend)
 
         val xAxis = chartSalesTrend.xAxis
         xAxis.valueFormatter = IndexAxisValueFormatter(labels)
@@ -479,12 +598,51 @@ class ReportsActivity : BaseActivity() {
             labels.add(SimpleDateFormat("dd").format(calendar.time))
         }
 
-        val set = LineDataSet(entries, "Monthly Sales")
+        val set = LineDataSet(entries, "")
 
         set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+
+        set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.setDrawCircles(false)
+        set.setDrawValues(false)
+
+
+        // ✅ CROSSHAIR SETTINGS (ADD HERE)
+        set.highLightColor = Color.BLACK
+        set.enableDashedHighlightLine(10f, 5f, 0f)
+        set.setDrawVerticalHighlightIndicator(true)
+        set.setDrawHorizontalHighlightIndicator(false)
+
+        set.setDrawFilled(true)
+        set.fillDrawable = getDrawable(R.drawable.chart_gradient)
+
+//        set.color = getColor(R.color.primaryColor)
         set.setCircleColor(getColor(R.color.primaryColor))
 
         chartSalesTrend.data = LineData(set)
+
+        chartSalesTrend.highlightValue(0f, 0)
+
+        // 🔥 SNAP + INTERACTION (ADD HERE)
+        chartSalesTrend.isHighlightPerTapEnabled = true
+        chartSalesTrend.isHighlightPerDragEnabled = true
+        chartSalesTrend.setMaxHighlightDistance(50f)
+
+        // Smooth drag feel
+        chartSalesTrend.setDragEnabled(true)
+        chartSalesTrend.setScaleEnabled(true)
+        chartSalesTrend.setPinchZoom(true)
+        chartSalesTrend.setDragDecelerationEnabled(true)
+        chartSalesTrend.dragDecelerationFrictionCoef = 0.9f
+
+        val marker = ChartMarkerView(this)
+        chartSalesTrend.marker = marker
+
+        stylePremiumLineChart(chartSalesTrend)
 
         chartSalesTrend.xAxis.valueFormatter =
             IndexAxisValueFormatter(labels)
@@ -514,14 +672,52 @@ class ReportsActivity : BaseActivity() {
             labels.add(formatter.format(date!!))
         }
 
-        val set = LineDataSet(entries, "Yearly Sales")
+        val set = LineDataSet(entries, "")
 
         set.color = getColor(R.color.primaryColor)
-        set.setCircleColor(getColor(R.color.primaryColor))
         set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+
+        set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.setDrawCircles(false)
         set.setDrawValues(false)
 
+        // ✅ CROSSHAIR SETTINGS (ADD HERE)
+        set.highLightColor = Color.BLACK
+        set.enableDashedHighlightLine(10f, 5f, 0f)
+        set.setDrawVerticalHighlightIndicator(true)
+        set.setDrawHorizontalHighlightIndicator(false)
+
+        set.setDrawFilled(true)
+        set.fillDrawable = getDrawable(R.drawable.chart_gradient)
+
+//        set.color = getColor(R.color.primaryColor)
+        set.setCircleColor(getColor(R.color.primaryColor))
+//        set.lineWidth = 3f
+//        set.setDrawValues(false)
+
         chartSalesTrend.data = LineData(set)
+
+        chartSalesTrend.highlightValue(0f, 0)
+
+        // 🔥 SNAP + INTERACTION (ADD HERE)
+        chartSalesTrend.isHighlightPerTapEnabled = true
+        chartSalesTrend.isHighlightPerDragEnabled = true
+        chartSalesTrend.setMaxHighlightDistance(50f)
+
+        // Smooth drag feel
+        chartSalesTrend.setDragEnabled(true)
+        chartSalesTrend.setScaleEnabled(true)
+        chartSalesTrend.setPinchZoom(true)
+        chartSalesTrend.setDragDecelerationEnabled(true)
+        chartSalesTrend.dragDecelerationFrictionCoef = 0.9f
+
+        val marker = ChartMarkerView(this)
+        chartSalesTrend.marker = marker
+
+        stylePremiumLineChart(chartSalesTrend)
 
         val xAxis = chartSalesTrend.xAxis
         xAxis.valueFormatter = IndexAxisValueFormatter(labels)
@@ -550,11 +746,49 @@ class ReportsActivity : BaseActivity() {
                 labels.add(item.date.substring(5))
             }
 
-        val set = LineDataSet(entries, "Custom Sales")
+        val set = LineDataSet(entries, "")
 
         set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+
+        set.color = getColor(R.color.primaryColor)
+        set.lineWidth = 3f
+        set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.setDrawCircles(false)
+        set.setDrawValues(false)
+
+        // ✅ CROSSHAIR SETTINGS (ADD HERE)
+        set.highLightColor = Color.BLACK
+        set.enableDashedHighlightLine(10f, 5f, 0f)
+        set.setDrawVerticalHighlightIndicator(true)
+        set.setDrawHorizontalHighlightIndicator(false)
+
+        set.setDrawFilled(true)
+        set.fillDrawable = getDrawable(R.drawable.chart_gradient)
+
+//        set.color = getColor(R.color.primaryColor)
 
         chartSalesTrend.data = LineData(set)
+
+        chartSalesTrend.highlightValue(0f, 0)
+
+        // 🔥 SNAP + INTERACTION (ADD HERE)
+        chartSalesTrend.isHighlightPerTapEnabled = true
+        chartSalesTrend.isHighlightPerDragEnabled = true
+        chartSalesTrend.setMaxHighlightDistance(50f)
+
+        // Smooth drag feel
+        chartSalesTrend.setDragEnabled(true)
+        chartSalesTrend.setScaleEnabled(true)
+        chartSalesTrend.setPinchZoom(true)
+        chartSalesTrend.setDragDecelerationEnabled(true)
+        chartSalesTrend.dragDecelerationFrictionCoef = 0.9f
+
+        val marker = ChartMarkerView(this)
+        chartSalesTrend.marker = marker
+
+        stylePremiumLineChart(chartSalesTrend)
 
         chartSalesTrend.xAxis.valueFormatter =
             IndexAxisValueFormatter(labels)
@@ -598,26 +832,110 @@ class ReportsActivity : BaseActivity() {
     private fun drawPeakHoursChart(data: List<PeakHourResponse>) {
 
         val entries = ArrayList<BarEntry>()
+        val secondEntries = ArrayList<BarEntry>()
         val labels = ArrayList<String>()
 
-        data.sortedBy { it.hour }
-            .forEachIndexed { index, item ->
+        val sortedData = data.sortedBy { it.hour }
 
-                entries.add(
-                    BarEntry(index.toFloat(), item.revenue.toFloat())
-                )
+        sortedData.forEachIndexed { index, item ->
 
-                labels.add("${item.hour}:00")
+            // Revenue
+            entries.add(BarEntry(index.toFloat(), item.revenue.toFloat()))
+
+            // Bills count
+            secondEntries.add(BarEntry(index.toFloat(), item.bills.toFloat()))
+
+            labels.add("${item.hour}:00")
+        }
+
+        val dataSet = BarDataSet(entries, "")
+        val secondDataSet = BarDataSet(secondEntries, "")
+
+        // 🔥 Assign axis
+        dataSet.axisDependency = YAxis.AxisDependency.LEFT
+        secondDataSet.axisDependency = YAxis.AxisDependency.RIGHT
+
+        // 🔥 Colors
+        dataSet.color = getColor(R.color.primarySoft)
+        secondDataSet.color = getColor(R.color.secondaryColor)
+
+        dataSet.setDrawValues(false)
+        secondDataSet.setDrawValues(false)
+
+        // 🔥 Highlight
+        dataSet.highLightColor = getColor(R.color.black)
+        secondDataSet.highLightColor = getColor(R.color.black)
+
+        val barData = BarData(dataSet, secondDataSet)
+
+        // 🔥 Spacing (important)
+        val barWidth = 0.35f
+        val barSpace = 0.001f
+        val groupSpace = 0.2f
+
+        barData.barWidth = barWidth
+
+        chartPeakHours.data = barData
+
+        chartPeakHours.xAxis.axisMinimum = 0f
+        chartPeakHours.xAxis.axisMaximum =
+            0f + barData.getGroupWidth(groupSpace, barSpace) * entries.size
+
+        chartPeakHours.groupBars(0f, groupSpace, barSpace)
+
+        // 🔥 Marker
+        val marker = BarChartMarker(this)
+        chartPeakHours.marker = marker
+
+        // 🔥 Style
+        stylePremiumBarChart(chartPeakHours)
+
+        // 🔥 X Axis
+        chartPeakHours.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter(labels)
+            granularity = 1f
+            setDrawGridLines(false)
+            textSize = 11f
+            setCenterAxisLabels(true)
+        }
+
+        // 🔥 LEFT AXIS (Revenue ₹)
+        chartPeakHours.axisLeft.apply {
+
+            axisMinimum = 0f
+            setDrawGridLines(true)
+            gridLineWidth = 0.5f
+            textSize = 11f
+
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+
+                    return String.format("%,d", value.toInt())
+                }
             }
+        }
 
-        val dataSet = BarDataSet(entries, "Peak Revenue")
+        // 🔥 RIGHT AXIS (Bills count)
+        chartPeakHours.axisRight.apply {
+            axisMinimum = 0f
+            setDrawGridLines(false)
+            setDrawAxisLine(false)
+            textSize = 11f
 
-        dataSet.color = getColor(R.color.primaryColor)
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return value.toInt().toString()
+                }
+            }
+        }
 
-        chartPeakHours.data = BarData(dataSet)
+        chartPeakHours.setFitBars(true)
 
-        chartPeakHours.xAxis.valueFormatter =
-            IndexAxisValueFormatter(labels)
+        // 🔥 Smooth animation
+        chartPeakHours.animateY(
+            900,
+            com.github.mikephil.charting.animation.Easing.EaseOutCubic
+        )
 
         chartPeakHours.invalidate()
     }
@@ -792,5 +1110,163 @@ class ReportsActivity : BaseActivity() {
             Pair("↑ $formatted", true)
         else
             Pair("↓ $formatted", false)
+    }
+
+    private fun stylePremiumLineChart(chart: LineChart) {
+
+        chart.setBackgroundColor(getColor(R.color.white))
+        chart.setViewPortOffsets(40f, 20f, 20f, 40f)
+
+        chart.axisLeft.setDrawLabels(true)
+        chart.axisLeft.labelCount = 4
+
+        chart.description.isEnabled = false
+        chart.legend.isEnabled = false
+
+        chart.setTouchEnabled(true)
+        chart.setTouchEnabled(true)
+        chart.setDragEnabled(true)
+        chart.setScaleEnabled(true)
+        chart.setPinchZoom(true)
+        chart.isDoubleTapToZoomEnabled = true
+
+        // ✨ Animation
+        chart.animateX(800)
+
+        // ❌ Remove right axis
+        chart.axisRight.isEnabled = false
+
+        // ✅ X Axis (clean)
+        val xAxis = chart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.setDrawAxisLine(false)
+        xAxis.textColor = getColor(R.color.gray)
+        xAxis.textSize = 11f
+
+        // ✅ Y Axis (minimal)
+        val leftAxis = chart.axisLeft
+        leftAxis.setDrawGridLines(true)
+        leftAxis.gridColor = getColor(R.color.light_gray)
+        leftAxis.setDrawAxisLine(false)
+        leftAxis.textColor = getColor(R.color.gray)
+    }
+
+    private fun stylePremiumBarChart(chart: BarChart) {
+
+        chart.setBackgroundColor(getColor(R.color.white))
+        chart.description.isEnabled = false
+        chart.legend.isEnabled = false
+
+        // 🔥 Interaction
+        chart.setTouchEnabled(true)
+        chart.setDragEnabled(true)
+        chart.setScaleEnabled(false)
+        chart.setPinchZoom(false)
+
+        chart.isHighlightPerTapEnabled = true
+        chart.isHighlightPerDragEnabled = true
+        chart.maxHighlightDistance = 40f
+
+        // 🔥 X Axis
+        val xAxis = chart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawAxisLine(false)
+        xAxis.setDrawGridLines(false)
+        xAxis.textColor = getColor(R.color.gray)
+
+        // 🔥 LEFT AXIS (Revenue)
+        val leftAxis = chart.axisLeft
+        leftAxis.setDrawAxisLine(false)
+        leftAxis.setDrawGridLines(true)
+        leftAxis.gridColor = getColor(R.color.light_gray)
+        leftAxis.textColor = getColor(R.color.gray)
+
+        // 🔥 RIGHT AXIS (Bills)
+        val rightAxis = chart.axisRight
+        rightAxis.isEnabled = true
+        rightAxis.setDrawAxisLine(false)
+        rightAxis.setDrawGridLines(false)
+        rightAxis.textColor = getColor(R.color.gray)
+
+        // 🔥 Clean UI
+        chart.setNoDataText("")
+        chart.setDrawGridBackground(false)
+    }
+
+    fun styleGrowth(view: TextView, isPositive: Boolean) {
+
+        view.setTextColor(
+            if (isPositive) getColor(R.color.green)
+            else getColor(R.color.red)
+        )
+
+        view.setBackgroundResource(
+            if (isPositive) R.drawable.bg_growth_positive
+            else R.drawable.bg_growth_negative
+        )
+
+        view.setPadding(12, 4, 12, 4)
+    }
+
+    private fun setupMiniChart(chart: LineChart, values: List<Float>, color: Int) {
+
+        val entries = values.mapIndexed { index, v ->
+            Entry(index.toFloat(), v)
+        }
+
+        val dataSet = LineDataSet(entries, "")
+
+        // 🔥 LINE STYLE
+        dataSet.color = color
+        dataSet.lineWidth = 2.5f
+        dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+
+        // ❌ remove dots & values
+        dataSet.setDrawCircles(false)
+        dataSet.setDrawValues(false)
+
+        // 🔥 SOFT GLOW EFFECT
+        dataSet.highLightColor = color
+        dataSet.setDrawHighlightIndicators(false)
+
+        // 🔥 GRADIENT FILL (VERY IMPORTANT)
+        dataSet.setDrawFilled(true)
+        dataSet.fillDrawable = android.graphics.drawable.GradientDrawable(
+            android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                color,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
+
+        chart.data = LineData(dataSet)
+
+        // 🔥 CLEAN UI
+        chart.description.isEnabled = false
+        chart.legend.isEnabled = false
+
+        chart.axisLeft.isEnabled = false
+        chart.axisRight.isEnabled = false
+        chart.xAxis.isEnabled = false
+
+        // 🔥 REMOVE TOUCH (mini charts shouldn't scroll)
+        chart.setTouchEnabled(false)
+
+        // 🔥 REMOVE GRID BACKGROUND
+        chart.setDrawGridBackground(false)
+
+        // 🔥 ANIMATION (smooth entry)
+        chart.animateX(600)
+
+        chart.invalidate()
+    }
+
+    private fun isTrendPositive(values: List<Float>): Boolean {
+        var score = 0
+        for (i in 1 until values.size) {
+            if (values[i] >= values[i - 1]) score++ else score--
+        }
+        return score >= 0
     }
 }

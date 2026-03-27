@@ -91,120 +91,186 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:weightSum="3">
 
+                <!-- ================= REVENUE ================= -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="100dp"
                     android:layout_margin="6dp"
-                    app:cardCornerRadius="14dp">
+                    android:layout_height="160dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    android:backgroundTint="#EEF2FF">
 
                     <LinearLayout
-                        android:orientation="vertical"
-                        android:padding="12dp"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="14dp">
 
-                        <TextView
-                            android:text="Revenue"
-                            android:textSize="13sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                        <!-- TOP ROW -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical">
 
+                            <TextView
+                                android:text="Revenue"
+                                android:textColor="#6366F1"
+                                android:textSize="12sp"
+                                android:layout_weight="1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <ImageView
+                                android:src="@drawable/ic_money"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"/>
+                        </LinearLayout>
+
+                        <!-- VALUE -->
                         <TextView
                             android:id="@+id/tvRevenue"
-                            android:textSize="20sp"
+                            android:textSize="22sp"
                             android:textStyle="bold"
+                            android:layout_marginTop="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
 
+                        <!-- GROWTH -->
                         <TextView
                             android:id="@+id/tvRevenueGrowth"
-                            android:text="↑ 0%"
-                            android:textSize="12sp"
-                            android:textColor="#4CAF50"
-                            android:layout_marginTop="2dp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
+
+                        <!-- MINI GRAPH -->
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/chartRevenueMini"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="6dp"/>
 
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
 
-
+                <!-- ================= BILLS ================= -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="100dp"
                     android:layout_margin="6dp"
-                    app:cardCornerRadius="14dp">
+                    android:layout_height="160dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    android:backgroundTint="#ECFEFF">
 
                     <LinearLayout
+                        android:padding="14dp"
                         android:orientation="vertical"
-                        android:padding="12dp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <TextView
-                            android:text="Bills"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:text="Bills"
+                                android:textColor="#0891B2"
+                                android:textSize="12sp"
+                                android:layout_weight="1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <ImageView
+                                android:src="@drawable/ic_receipt"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvBills"
-                            android:textSize="20sp"
+                            android:textSize="22sp"
                             android:textStyle="bold"
+                            android:layout_marginTop="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
 
                         <TextView
                             android:id="@+id/tvBillsGrowth"
-                            android:text="↑ 0%"
-                            android:textSize="12sp"
-                            android:textColor="#4CAF50"
-                            android:layout_marginTop="2dp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/chartBillsMini"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="6dp"/>
 
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
 
-
+                <!-- ================= AVG ================= -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="100dp"
                     android:layout_margin="6dp"
-                    app:cardCornerRadius="14dp">
+                    android:layout_height="160dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    android:backgroundTint="#FFF7ED">
 
                     <LinearLayout
+                        android:padding="14dp"
                         android:orientation="vertical"
-                        android:padding="12dp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <TextView
-                            android:text="Avg Bill"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:text="Avg Bill"
+                                android:textColor="#EA580C"
+                                android:textSize="12sp"
+                                android:layout_weight="1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <ImageView
+                                android:src="@drawable/ic_calculations"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvAverage"
-                            android:textSize="20sp"
+                            android:textSize="22sp"
                             android:textStyle="bold"
+                            android:layout_marginTop="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
 
                         <TextView
                             android:id="@+id/tvAverageGrowth"
-                            android:text="↑ 0%"
-                            android:textSize="12sp"
-                            android:textColor="#4CAF50"
-                            android:layout_marginTop="2dp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="6dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/chartAvgMini"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="6dp"/>
 
                     </LinearLayout>
 

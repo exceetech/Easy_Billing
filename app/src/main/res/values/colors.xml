@@ -35,6 +35,11 @@
 
     <color name="primaryColor">#4CAF50</color>
     <color name="secondaryColor">#FF9800</color>
+    <color name="orange">#FF9800</color>
     <color name="chartBlue">#2196F3</color>
+
+    <color name="primarySoft">#6366F1</color>
+    <color name="gray">#6B7280</color>
+    <color name="light_gray">#E5E7EB</color>
 
 </resources>
