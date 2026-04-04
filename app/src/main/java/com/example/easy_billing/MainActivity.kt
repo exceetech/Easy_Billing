@@ -122,7 +122,11 @@ class MainActivity : BaseActivity() {
 
                     btnLogin.isEnabled = false   // prevent double click
 
-                    val response = RetrofitClient.api.login(username, password)
+                    val response = RetrofitClient.api.login(
+                        username,
+                        password,
+                        deviceId   // ✅ ADD THIS
+                    )
                     val token = response.access_token
 
                     if (token.isNullOrEmpty()) {

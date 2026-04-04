@@ -17,7 +17,8 @@ interface ApiService {
     @POST("auth/login")
     suspend fun login(
         @Field("username") username: String,
-        @Field("password") password: String
+        @Field("password") password: String,
+        @Header("device-id") deviceId: String
     ): LoginResponse
 
     @POST("auth/register")
