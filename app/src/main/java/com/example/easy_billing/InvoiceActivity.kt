@@ -4,19 +4,19 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.InvoiceAdapter
-import com.example.easy_billing.db.AppDatabase
-import com.example.easy_billing.db.Bill
-import com.example.easy_billing.db.BillItem
-import com.example.easy_billing.db.StoreInfo
+import com.example.easy_billing.db.*
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.BillItemRequest
 import com.example.easy_billing.network.CreateBillRequest
+import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.InvoicePdfGenerator
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +31,7 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var tvTotal: TextView
     private lateinit var tvBillInfo: TextView
     private lateinit var etDiscount: EditText
+
     private lateinit var rgPaymentMethod: RadioGroup
     private lateinit var items: List<CartItem>
 
@@ -73,7 +74,7 @@ class InvoiceActivity : AppCompatActivity() {
 
         billNumber = " "
 
-        tvBillInfo.text = "Invoice #$billNumber\nDate: $date"
+        tvBillInfo.text = "Date: $date"
 
         loadStoreInfo()
         loadBillingSettings()
@@ -86,7 +87,14 @@ class InvoiceActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        btnConfirm.setOnClickListener { saveBill() }
+        btnConfirm.setOnClickListener {
+
+            if (getPaymentMethod() == "CREDIT") {
+                handleCreditFlow()
+            } else {
+                saveBill()
+            }
+        }
         btnPrint.setOnClickListener { generatePdfAndPrint() }
 
         btnClose.setOnClickListener {
@@ -320,7 +328,7 @@ class InvoiceActivity : AppCompatActivity() {
 
                 val response = RetrofitClient.api.getBillingSettings("Bearer $token")
 
-                val updated = com.example.easy_billing.db.BillingSettings(
+                val updated = BillingSettings(
                     defaultGst = response.default_gst,
                     printerLayout = response.printer_layout
                 )
@@ -345,7 +353,164 @@ class InvoiceActivity : AppCompatActivity() {
             R.id.rbCash -> "CASH"
             R.id.rbUpi -> "UPI"
             R.id.rbCard -> "CARD"
+            R.id.rbCredit -> "CREDIT"
             else -> "CASH"
         }
+    }
+
+    private fun handleCreditFlow() {
+
+        lifecycleScope.launch {
+
+            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+            val accounts = db.creditAccountDao().getAll()
+
+            if (accounts.isEmpty()) {
+                showAddCustomerDialog()
+                return@launch
+            }
+
+            val names = accounts.map {
+                "${it.name} (${it.phone}) - ₹${it.dueAmount}"
+            }.toTypedArray()
+
+            AlertDialog.Builder(this@InvoiceActivity)
+                .setTitle("Select Customer")
+                .setItems(names) { _, which ->
+
+                    val selected = accounts[which]
+                    addCreditAndSaveBill(selected)
+                }
+                .setPositiveButton("New Customer") { _, _ ->
+                    showAddCustomerDialog()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun addCreditAndSaveBill(account: CreditAccount) {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+
+            val subTotal = items.sumOf { it.subTotal() }
+            val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+            val gstAmount = (subTotal * gstPercent) / 100
+            val total = subTotal + gstAmount - discount
+
+            // ✅ UPDATE ACCOUNT DUE
+            val newDue = account.dueAmount + total
+            db.creditAccountDao().updateDue(account.id, newDue)
+
+            // ✅ INSERT CREDIT TRANSACTION
+            db.creditTransactionDao().insert(
+                CreditTransaction(
+                    accountId = account.id,
+                    amount = total,
+                    type = "ADD"
+                )
+            )
+
+            // 🔥 SYNC CREDIT IMMEDIATELY
+            SyncManager(this@InvoiceActivity).syncCredit()
+
+            // ✅ NOW SAVE BILL
+            withContext(Dispatchers.Main) {
+                saveBill()
+            }
+        }
+    }
+
+    private fun showAddCustomerDialog() {
+
+        val view = layoutInflater.inflate(R.layout.dialog_add_customer, null)
+
+        val etName = view.findViewById<EditText>(R.id.etName)
+        val etPhone = view.findViewById<EditText>(R.id.etPhone)
+
+        AlertDialog.Builder(this)
+            .setTitle("Add Customer")
+            .setView(view)
+            .setPositiveButton("Save") { _, _ ->
+
+                val name = etName.text.toString().trim()
+                val phone = etPhone.text.toString().trim()
+
+                if (name.isEmpty() || phone.isEmpty()) {
+                    Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                lifecycleScope.launch(Dispatchers.IO) {
+
+                    val db = AppDatabase.getDatabase(this@InvoiceActivity)
+
+                    val existing = db.creditAccountDao().getByPhone(phone)
+
+                    if (existing != null) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@InvoiceActivity, "Customer already exists", Toast.LENGTH_SHORT).show()
+                        }
+                        return@launch
+                    }
+
+                    val api = RetrofitClient.api
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    if (token == null) {
+                        println("❌ TOKEN NULL")
+
+                        db.creditAccountDao().insert(
+                            CreditAccount(
+                                name = name,
+                                phone = phone,
+                                isSynced = false
+                            )
+                        )
+                        return@launch
+                    }
+
+                    try {
+                        val response = api.createCreditAccount(
+                            "Bearer $token",
+                            CreateCreditAccountRequest(name, phone)
+                        )
+
+                        db.creditAccountDao().insert(
+                            CreditAccount(
+                                name = response.name,
+                                phone = response.phone,
+                                dueAmount = response.due_amount,
+                                serverId = response.id,
+                                isSynced = true
+                            )
+                        )
+
+                        println("✅ Created account: ${response.id}")
+
+                    } catch (e: Exception) {
+
+                        e.printStackTrace()
+
+                        db.creditAccountDao().insert(
+                            CreditAccount(
+                                name = name,
+                                phone = phone,
+                                isSynced = false
+                            )
+                        )
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@InvoiceActivity, "Customer added", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

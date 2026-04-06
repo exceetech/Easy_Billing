@@ -15,9 +15,11 @@ import com.example.easy_billing.DefaultProductDao
         BillItem::class,
         DefaultProduct::class,
         StoreInfo::class,
-        BillingSettings::class
+        BillingSettings::class,
+        CreditAccount::class,
+        CreditTransaction::class
     ],
-    version = 6
+    version = 7
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -31,6 +33,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun storeInfoDao(): StoreInfoDao
 
     abstract fun billingSettingsDao(): BillingSettingsDao
+
+    abstract fun creditAccountDao(): CreditAccountDao
+
+    abstract fun creditTransactionDao(): CreditTransactionDao
 
     companion object {
 

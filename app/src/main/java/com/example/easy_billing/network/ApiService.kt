@@ -1,5 +1,6 @@
 package com.example.easy_billing.network
 
+import com.example.easy_billing.db.CreditTransaction
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -282,6 +283,24 @@ interface ApiService {
         @Query("shop_id") shopId: Int,
         @Query("plan") plan: String
     ): MessageResponse
+
+    // ================= CREDIT =================
+
+    @POST("credit/sync")
+    suspend fun syncCredit(
+        @Body request: CreditSyncRequest
+    ): Response<Unit>
+
+    @POST("credit/account")
+    suspend fun createCreditAccount(
+        @Header("Authorization") token: String,
+        @Body request: CreateCreditAccountRequest
+    ): CreditAccountResponse
+
+    @GET("credit/accounts")
+    suspend fun getCreditAccounts(
+        @Header("Authorization") token: String
+    ): List<CreditAccountResponse>
 
 
 }

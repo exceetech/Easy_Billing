@@ -1,9 +1,12 @@
 package com.example.easy_billing.adapter
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.network.PeakHourResponse
@@ -14,10 +17,20 @@ class PeakHourAdapter(
 ) : RecyclerView.Adapter<PeakHourAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
         val tvHour: TextView = view.findViewById(R.id.tvHour)
         val tvBills: TextView = view.findViewById(R.id.tvBills)
         val tvRevenue: TextView = view.findViewById(R.id.tvRevenue)
+
+        // 🔥 NEW
+        val tvRank: TextView = view.findViewById(R.id.tvRank)
+        val tvStatus: TextView = view.findViewById(R.id.tvStatus)
+        val progressBar: ProgressBar = view.findViewById(R.id.progressBar)
+        val cardRoot: CardView = view.findViewById(R.id.cardRoot)
     }
+
+    private val maxRevenue = data.maxOfOrNull { it.revenue } ?: 1.0
+    private val minRevenue = data.minOfOrNull { it.revenue } ?: 0.0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -31,13 +44,77 @@ class PeakHourAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val r = data[position]
+        val item = data[position]
         val context = holder.itemView.context
 
-        holder.tvHour.text = "${r.hour}:00"
-        holder.tvBills.text = "${r.bills} bills"
+        // ⏰ Hour
+        holder.tvHour.text = "${item.hour}:00"
 
-        // ✅ FIXED: dynamic currency
-        holder.tvRevenue.text = CurrencyHelper.format(context, r.revenue)
+        // 🧾 Bills
+        holder.tvBills.text = "${item.bills} bills"
+
+        // 💰 Revenue
+        holder.tvRevenue.text =
+            CurrencyHelper.format(context, item.revenue)
+
+        // 🏆 Rank
+        holder.tvRank.text = "#${position + 1}"
+
+        when (position) {
+            0 -> holder.tvRank.setBackgroundResource(R.drawable.bg_rank_gold)
+            1 -> holder.tvRank.setBackgroundResource(R.drawable.bg_rank_silver)
+            2 -> holder.tvRank.setBackgroundResource(R.drawable.bg_rank_bronze)
+            else -> holder.tvRank.setBackgroundResource(R.drawable.bg_rank_chip)
+        }
+
+        // 📊 PERFORMANCE LOGIC
+        val ratio = item.revenue / maxRevenue
+
+        val isPeak = ratio >= 0.8
+        val isLow = ratio <= 0.3
+
+        val statusText = when {
+            isPeak -> "🔥 Peak"
+            isLow -> "⚠ Slow"
+            else -> "⚖ Avg"
+        }
+
+        val statusColor = when {
+            isPeak -> context.getColor(R.color.green)
+            isLow -> context.getColor(R.color.red)
+            else -> context.getColor(R.color.gray)
+        }
+
+        holder.tvStatus.text = statusText
+        holder.tvStatus.setTextColor(statusColor)
+
+        // 📊 PROGRESS (easy to understand)
+        val range = (maxRevenue - minRevenue).takeIf { it > 0 } ?: 1.0
+
+        val progress = ((item.revenue - minRevenue) / range * 100)
+            .toInt()
+            .coerceIn(0, 100)
+
+        holder.progressBar.progress = progress
+        holder.progressBar.progressTintList = ColorStateList.valueOf(statusColor)
+
+        // 🎨 CARD BACKGROUND
+        val bgRes = when {
+            isPeak -> R.drawable.bg_card_profit
+            isLow -> R.drawable.bg_card_loss
+            else -> R.drawable.bg_card_neutral
+        }
+
+        holder.cardRoot.setCardBackgroundColor(
+            context.getColor(android.R.color.transparent)
+        )
+        holder.cardRoot.setBackgroundResource(bgRes)
+
+        // ✨ SMOOTH ENTRY
+        holder.itemView.alpha = 0f
+        holder.itemView.animate()
+            .alpha(1f)
+            .setDuration(200)
+            .start()
     }
 }

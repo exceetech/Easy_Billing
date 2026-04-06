@@ -84,6 +84,15 @@ class DashboardActivity : BaseActivity() {
         ) { result ->
             if (result.resultCode == RESULT_OK) {
                 clearCart()
+
+                // 🔥 FORCE SYNC AFTER BILL
+                lifecycleScope.launch {
+                    val syncManager = SyncManager(this@DashboardActivity)
+                    syncManager.syncBills()
+                    syncManager.pullAccountsFromServer()
+                    syncManager.syncAccounts()
+                    syncManager.syncCredit()
+                }
             }
         }
 
@@ -244,6 +253,9 @@ class DashboardActivity : BaseActivity() {
                 syncManager.syncStoreInfo()
                 syncManager.syncBillingSettings()
                 syncManager.syncBills()
+                syncManager.pullAccountsFromServer()
+                syncManager.syncAccounts()
+                syncManager.syncCredit()
                 loadStoreFromRoom()
             }
         }
@@ -397,6 +409,11 @@ class DashboardActivity : BaseActivity() {
 
         findViewById<MaterialButton>(R.id.btnPreviousBills).setOnClickListener {
             startActivity(Intent(this, BillHistoryActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<MaterialButton>(R.id.btnCreditAccounts).setOnClickListener {
+            startActivity(Intent(this, CreditAccountsActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
