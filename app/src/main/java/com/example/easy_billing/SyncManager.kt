@@ -123,25 +123,27 @@ class SyncManager(private val context: Context) {
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
 
-        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
-        val txns = db.creditTransactionDao().getUnsynced()
+        val token = prefs.getString("TOKEN", null) ?: return
+        val shopId = prefs.getInt("SHOP_ID", 1)
+
+        val txns = db.creditTransactionDao().getUnsynced(shopId)
 
         for (txn in txns) {
 
             try {
 
-                // ✅ GET ACCOUNT FROM ROOM
-                val account = db.creditAccountDao().getById(txn.accountId)
+                // ✅ FIX: pass shopId
+                val account = db.creditAccountDao().getById(txn.accountId, shopId)
 
                 if (account?.serverId == null) {
                     println("❌ Account not synced yet → txnId=${txn.id}")
                     continue
                 }
 
-                // ✅ USE serverId instead of local id
                 val res = api.syncCredit(
+                    "Bearer $token",   // 🔥 FIX
                     CreditSyncRequest(
                         account_id = account.serverId,
                         amount = txn.amount,
@@ -150,7 +152,7 @@ class SyncManager(private val context: Context) {
                 )
 
                 if (res.isSuccessful) {
-                    db.creditTransactionDao().markSynced(txn.id)
+                    db.creditTransactionDao().markSynced(txn.id, shopId)
                 } else {
                     println("❌ ERROR: ${res.code()} ${res.errorBody()?.string()}")
                     break
@@ -168,10 +170,13 @@ class SyncManager(private val context: Context) {
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
 
-        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
-        val accounts = db.creditAccountDao().getAll()
+        val token = prefs.getString("TOKEN", null) ?: return
+        val shopId = prefs.getInt("SHOP_ID", 1)
+
+        // ✅ FIX: filter by shopId
+        val accounts = db.creditAccountDao().getAll(shopId)
             .filter { !it.isSynced }
 
         for (acc in accounts) {
@@ -184,7 +189,8 @@ class SyncManager(private val context: Context) {
                 db.creditAccountDao().insert(
                     acc.copy(
                         serverId = res.id,
-                        isSynced = true
+                        isSynced = true,
+                        shopId = shopId   // 🔥 IMPORTANT
                     )
                 )
 
@@ -199,23 +205,42 @@ class SyncManager(private val context: Context) {
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
 
-        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+
+        val token = prefs.getString("TOKEN", null) ?: return
+        val shopId = prefs.getInt("SHOP_ID", 1)
 
         try {
 
             val accounts = api.getCreditAccounts("Bearer $token")
 
             for (acc in accounts) {
-                db.creditAccountDao().insert(
-                    CreditAccount(
-                        serverId = acc.id,
-                        name = acc.name,
-                        phone = acc.phone,
-                        dueAmount = acc.due_amount,
-                        isSynced = true
+
+                val existing = db.creditAccountDao()
+                    .getByServerId(acc.id, shopId)
+
+                if (existing != null) {
+                    db.creditAccountDao().insert(
+                        existing.copy(
+                            name = acc.name,
+                            phone = acc.phone,
+                            dueAmount = acc.due_amount,
+                            isActive = true
+                        )
                     )
-                )
+                } else {
+                    db.creditAccountDao().insert(
+                        CreditAccount(
+                            serverId = acc.id,
+                            name = acc.name,
+                            phone = acc.phone,
+                            dueAmount = acc.due_amount,
+                            isSynced = true,
+                            shopId = shopId,
+                            isActive = true
+                        )
+                    )
+                }
             }
 
         } catch (e: Exception) {

@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -360,33 +361,81 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun handleCreditFlow() {
 
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_customer_picker, null)
+
+        val etSearch = view.findViewById<EditText>(R.id.etSearchCustomer)
+        val rvCustomers = view.findViewById<RecyclerView>(R.id.rvCustomers)
+        val btnNew = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnNewCustomer)
+
+        rvCustomers.layoutManager = LinearLayoutManager(this)
+
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        var runnable: Runnable? = null
+
         lifecycleScope.launch {
 
             val db = AppDatabase.getDatabase(this@InvoiceActivity)
-            val accounts = db.creditAccountDao().getAll()
 
-            if (accounts.isEmpty()) {
-                showAddCustomerDialog()
-                return@launch
+            val shopId = getSharedPreferences("auth", MODE_PRIVATE)
+                .getInt("SHOP_ID", 1)
+
+            val allCustomers = db.creditAccountDao().getAll(shopId)
+
+            var currentList = allCustomers.toMutableList()
+
+            val adapter = CreditAdapter(currentList) { customer ->
+                dialog.dismiss()
+                addCreditAndSaveBill(customer)
             }
 
-            val names = accounts.map {
-                "${it.name} (${it.phone}) - ₹${it.dueAmount}"
-            }.toTypedArray()
+            rvCustomers.adapter = adapter
 
-            AlertDialog.Builder(this@InvoiceActivity)
-                .setTitle("Select Customer")
-                .setItems(names) { _, which ->
+            fun updateList(data: List<CreditAccount>) {
+                currentList.clear()
+                currentList.addAll(data)
+                adapter.notifyDataSetChanged()
+            }
 
-                    val selected = accounts[which]
-                    addCreditAndSaveBill(selected)
+            // 🔍 SEARCH
+            etSearch.addTextChangedListener(object : TextWatcher {
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                    runnable?.let { handler.removeCallbacks(it) }
+
+                    runnable = Runnable {
+
+                        val query = s?.toString()?.trim()?.take(50) ?: ""
+
+                        val result = if (query.isEmpty()) {
+                            allCustomers
+                        } else {
+                            allCustomers.filter {
+                                it.name.contains(query, true) ||
+                                        it.phone.contains(query)
+                            }
+                        }
+
+                        updateList(result)
+                    }
+
+                    handler.postDelayed(runnable!!, 300)
                 }
-                .setPositiveButton("New Customer") { _, _ ->
-                    showAddCustomerDialog()
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+
+                override fun afterTextChanged(s: Editable?) {}
+            })
         }
+
+        btnNew.setOnClickListener {
+            dialog.dismiss()
+            showAddCustomerDialog()
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     private fun addCreditAndSaveBill(account: CreditAccount) {
@@ -400,14 +449,17 @@ class InvoiceActivity : AppCompatActivity() {
             val gstAmount = (subTotal * gstPercent) / 100
             val total = subTotal + gstAmount - discount
 
+            val shopId = getSharedPreferences("auth", MODE_PRIVATE)
+                .getInt("SHOP_ID", 1)
+
             // ✅ UPDATE ACCOUNT DUE
             val newDue = account.dueAmount + total
-            db.creditAccountDao().updateDue(account.id, newDue)
+            db.creditAccountDao().updateDue(account.id, newDue, shopId)
 
-            // ✅ INSERT CREDIT TRANSACTION
             db.creditTransactionDao().insert(
                 CreditTransaction(
                     accountId = account.id,
+                    shopId = shopId,   // 🔥 REQUIRED
                     amount = total,
                     type = "ADD"
                 )
@@ -429,88 +481,105 @@ class InvoiceActivity : AppCompatActivity() {
 
         val etName = view.findViewById<EditText>(R.id.etName)
         val etPhone = view.findViewById<EditText>(R.id.etPhone)
+        val btnSave = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSave)
+        val btnCancel = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
 
-        AlertDialog.Builder(this)
-            .setTitle("Add Customer")
+        val dialog = AlertDialog.Builder(this)
             .setView(view)
-            .setPositiveButton("Save") { _, _ ->
+            .setCancelable(true)
+            .create()
 
-                val name = etName.text.toString().trim()
-                val phone = etPhone.text.toString().trim()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-                if (name.isEmpty() || phone.isEmpty()) {
-                    Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSave.setOnClickListener {
+
+            val name = etName.text.toString().trim()
+            val phone = etPhone.text.toString().trim()
+
+            if (name.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch(Dispatchers.IO) {
+
+                val db = AppDatabase.getDatabase(this@InvoiceActivity)
+
+                val shopId = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getInt("SHOP_ID", 1)
+
+                val existing = db.creditAccountDao().getByPhone(phone, shopId)
+
+                if (existing != null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@InvoiceActivity, "Customer already exists", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
                 }
 
-                lifecycleScope.launch(Dispatchers.IO) {
+                val api = RetrofitClient.api
 
-                    val db = AppDatabase.getDatabase(this@InvoiceActivity)
+                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("TOKEN", null)
 
-                    val existing = db.creditAccountDao().getByPhone(phone)
+                if (token == null) {
+                    println("❌ TOKEN NULL")
 
-                    if (existing != null) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@InvoiceActivity, "Customer already exists", Toast.LENGTH_SHORT).show()
-                        }
-                        return@launch
-                    }
-
-                    val api = RetrofitClient.api
-
-                    val token = getSharedPreferences("auth", MODE_PRIVATE)
-                        .getString("TOKEN", null)
-
-                    if (token == null) {
-                        println("❌ TOKEN NULL")
-
-                        db.creditAccountDao().insert(
-                            CreditAccount(
-                                name = name,
-                                phone = phone,
-                                isSynced = false
-                            )
+                    db.creditAccountDao().insert(
+                        CreditAccount(
+                            name = name,
+                            phone = phone,
+                            isSynced = false,
+                            shopId = shopId
                         )
-                        return@launch
-                    }
+                    )
+                    return@launch
+                }
 
-                    try {
-                        val response = api.createCreditAccount(
-                            "Bearer $token",
-                            CreateCreditAccountRequest(name, phone)
+                try {
+                    val response = api.createCreditAccount(
+                        "Bearer $token",
+                        CreateCreditAccountRequest(name, phone)
+                    )
+
+                    db.creditAccountDao().insert(
+                        CreditAccount(
+                            name = response.name,
+                            phone = response.phone,
+                            dueAmount = response.due_amount,
+                            serverId = response.id,
+                            isSynced = true,
+                            shopId = shopId   // 🔥 REQUIRED
                         )
+                    )
 
-                        db.creditAccountDao().insert(
-                            CreditAccount(
-                                name = response.name,
-                                phone = response.phone,
-                                dueAmount = response.due_amount,
-                                serverId = response.id,
-                                isSynced = true
-                            )
+                    println("✅ Created account: ${response.id}")
+
+                } catch (e: Exception) {
+
+                    e.printStackTrace()
+
+                    db.creditAccountDao().insert(
+                        CreditAccount(
+                            name = name,
+                            phone = phone,
+                            isSynced = false,
+                            shopId = shopId   // 🔥 REQUIRED
                         )
+                    )
+                }
 
-                        println("✅ Created account: ${response.id}")
-
-                    } catch (e: Exception) {
-
-                        e.printStackTrace()
-
-                        db.creditAccountDao().insert(
-                            CreditAccount(
-                                name = name,
-                                phone = phone,
-                                isSynced = false
-                            )
-                        )
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@InvoiceActivity, "Customer added", Toast.LENGTH_SHORT).show()
-                    }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@InvoiceActivity, "Customer added", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss() // ✅ manual close
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        dialog.show()
     }
 }

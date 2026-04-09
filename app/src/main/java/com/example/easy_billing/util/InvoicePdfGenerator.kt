@@ -1,11 +1,13 @@
 package com.example.easy_billing.util
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
 import android.os.Environment
 import android.print.PrintAttributes
 import android.print.PrintManager
+import android.widget.Toast
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.db.StoreInfo
@@ -243,5 +245,231 @@ object InvoicePdfGenerator {
             .build()
 
         printManager.print(fileName, printAdapter, printAttributes)
+    }
+
+    fun generateLedgerPdf(
+        activity: Activity,
+        storeInfo: StoreInfo?,   // 🔥 SAME AS BILL
+        customerName: String,
+        phone: String,
+        rows: List<List<String>>,
+        totalDebit: Double,
+        totalCredit: Double,
+        finalBalance: Double
+    ){
+
+        val pageWidth = 595
+        val pageHeight = 842
+        val margin = 40f
+
+        val document = PdfDocument()
+        val paint = Paint()
+
+        paint.typeface = Typeface.MONOSPACE
+        paint.textSize = 12f
+
+        val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+        val page = document.startPage(pageInfo)
+        val canvas = page.canvas
+
+        var y = 50f
+
+        // ================= HELPERS =================
+
+        fun center(text: String, size: Float, bold: Boolean = false) {
+            paint.textSize = size
+            paint.typeface =
+                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+                else Typeface.MONOSPACE
+
+            val width = paint.measureText(text)
+            canvas.drawText(text, (pageWidth - width) / 2, y, paint)
+            y += size + 10
+        }
+
+        fun line() {
+            val dash = Paint()
+            dash.pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
+            canvas.drawLine(margin, y, pageWidth - margin, y, dash)
+            y += 15
+        }
+
+        fun rightText(text: String, x: Float, y: Float) {
+            val width = paint.measureText(text)
+            canvas.drawText(text, x - width, y, paint)
+        }
+
+
+        // ================= HEADER (BILL STYLE) =================
+
+        // ===== REPORT TITLE =====
+
+        center("Credit / Debit Report", 22f, true)
+
+        // 🔥 Fetch store info (same as bill)
+        val prefs = activity.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+
+        // ================= STORE FROM ROOM =================
+
+        val storeName = storeInfo?.name ?: "My Store"
+        val storeAddress = storeInfo?.address ?: ""
+        val storePhone = storeInfo?.phone ?: ""
+        val storeGstin = storeInfo?.gstin ?: ""
+
+        // ===== STORE DETAILS =====
+
+        center(storeName, 18f, true)
+
+        if (storeAddress.isNotEmpty()) {
+            center(storeAddress, 14f)
+        }
+
+        if (storePhone.isNotEmpty()) {
+            center("Shop Phone: $storePhone", 14f)
+        }
+
+        if (storeGstin.isNotEmpty()) {
+            center("GSTIN: $storeGstin", 14f)
+        }
+
+        line()
+
+        // ===== CUSTOMER DETAILS =====
+
+        y += 5
+        center("Customer Name: $customerName", 16f, true)
+        center("Customer Phone: $phone", 14f)
+        center("Date: ${SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date())}", 12f)
+        y += 5
+
+        line()
+
+        // ================= TABLE SETUP =================
+
+        val colDate = margin
+        val colType = 170f
+        val colDrRight = 360f
+        val colCrRight = 440f
+        val colBalRight = pageWidth - margin
+
+        paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        paint.textSize = 12f
+
+        canvas.drawText("Date", colDate, y, paint)
+        canvas.drawText("Type", colType, y, paint)
+
+        // ✅ ₹ ONLY IN HEADER
+        rightText("Dr (₹)", colDrRight, y)
+        rightText("Cr (₹)", colCrRight, y)
+        rightText("Balance (₹)", colBalRight, y)
+
+        y += 20
+        line()
+
+        paint.typeface = Typeface.MONOSPACE
+
+        // ================= ROWS =================
+
+        rows.forEach {
+
+            canvas.drawText(it[0], colDate, y, paint)
+            canvas.drawText(it[1], colType, y, paint)
+
+            // ✅ REMOVE ₹ from values (clean columns)
+            rightText(it[2].replace("₹", ""), colDrRight, y)
+            rightText(it[3].replace("₹", ""), colCrRight, y)
+            rightText(it[4].replace("₹", ""), colBalRight, y)
+
+            y += 18
+
+            if (y > pageHeight - 100) {
+                document.finishPage(page)
+            }
+        }
+
+        line()
+
+        // ================= TOTALS =================
+
+        paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        paint.textSize = 12f
+
+        y += 15
+
+        fun drawTotalRow(label: String, value: Double) {
+
+            val labelText = label
+            val valueText = "%.2f".format(value)
+
+            val labelWidth = paint.measureText(labelText)
+            val valueWidth = paint.measureText(valueText)
+
+            val spacing = 15f
+
+            val startX = colBalRight - (labelWidth + spacing + valueWidth)
+
+            canvas.drawText(labelText, startX, y, paint)
+            canvas.drawText(valueText, startX + labelWidth + spacing, y, paint)
+
+            y += 20
+        }
+
+        drawTotalRow("Total Debit:", totalDebit)
+        drawTotalRow("Total Credit:", totalCredit)
+
+        paint.textSize = 14f
+        drawTotalRow("Final Balance:", finalBalance)
+
+        y += 10
+        line()
+
+        center("Thank You!", 14f)
+
+        document.finishPage(page)
+
+        // ================= SAVE =================
+
+        val fileName = "${phone}_${System.currentTimeMillis()}.pdf"
+
+        val file = File(
+            activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+                ?: activity.filesDir,
+            fileName
+        )
+
+        try {
+            FileOutputStream(file).use {
+                document.writeTo(it)
+            }
+            document.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(activity, "PDF save failed", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // ================= PRINT =================
+
+        try {
+            val printManager = activity.getSystemService(PrintManager::class.java)
+
+            val printAdapter = PdfPrintAdapter(
+                activity,
+                file.absolutePath,
+                "ledger",
+                System.currentTimeMillis()
+            )
+
+            val attributes = PrintAttributes.Builder()
+                .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                .build()
+
+            printManager.print(fileName, printAdapter, attributes)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(activity, "Print failed", Toast.LENGTH_SHORT).show()
+        }
     }
 }

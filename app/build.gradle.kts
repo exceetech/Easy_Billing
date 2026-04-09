@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.activity)
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.material3)
     kapt(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)

@@ -80,6 +80,10 @@
             android:name=".SubscriptionActivity"/>
         <activity
             android:name=".CreditAccountsActivity"/>
+
+        <activity
+            android:name=".CustomerTransactionsActivity" />
+
         <activity
             android:name=".SplashActivity"
             android:exported="true">

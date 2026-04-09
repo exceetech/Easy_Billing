@@ -29,30 +29,17 @@ class CreditAdapter(
     override fun getItemCount() = list.size
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val item = list[position]
 
+        val item = list[position]
         val name = item.name.trim()
 
         holder.name.text = name
         holder.phone.text = item.phone
-        holder.due.text = "₹${item.dueAmount.toFloat()}"
 
-        // ✅ Avatar letter
-        holder.tvAvatar.text = if (name.isNotEmpty()) {
-            name[0].uppercase()
-        } else {
-            "?"
-        }
+        // ✅ Avatar
+        holder.tvAvatar.text = if (name.isNotEmpty()) name[0].uppercase() else "?"
 
-        // ✅ Dynamic avatar color (stable per user)
-        val colors = listOf(
-            "#2563EB", // blue
-            "#7C3AED", // purple
-            "#059669", // green
-            "#DC2626", // red
-            "#EA580C"  // orange
-        )
-
+        val colors = listOf("#2563EB", "#7C3AED", "#059669", "#DC2626", "#EA580C")
         val color = colors[Math.abs(name.hashCode()) % colors.size]
 
         holder.tvAvatar.backgroundTintList =
@@ -60,11 +47,20 @@ class CreditAdapter(
                 android.graphics.Color.parseColor(color)
             )
 
-        // ✅ Due color logic
-        if (item.dueAmount > 0) {
-            holder.due.setTextColor(android.graphics.Color.parseColor("#DC2626")) // red
-        } else {
-            holder.due.setTextColor(android.graphics.Color.parseColor("#16A34A")) // green
+        // 🔥 FINAL DUE LOGIC
+        when {
+            item.dueAmount > 0 -> {
+                holder.due.setTextColor(android.graphics.Color.parseColor("#DC2626")) // red
+                holder.due.text = "Due: ₹${item.dueAmount}"
+            }
+            item.dueAmount < 0 -> {
+                holder.due.setTextColor(android.graphics.Color.parseColor("#16A34A")) // green
+                holder.due.text = "Advance: ₹${-item.dueAmount}"
+            }
+            else -> {
+                holder.due.setTextColor(android.graphics.Color.GRAY)
+                holder.due.text = "Settled"
+            }
         }
 
         holder.itemView.setOnClickListener {

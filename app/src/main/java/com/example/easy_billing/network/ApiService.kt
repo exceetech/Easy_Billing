@@ -288,8 +288,9 @@ interface ApiService {
 
     @POST("credit/sync")
     suspend fun syncCredit(
+        @Header("Authorization") token: String,
         @Body request: CreditSyncRequest
-    ): Response<Unit>
+    ): Response<Map<String, String>>
 
     @POST("credit/account")
     suspend fun createCreditAccount(
@@ -301,6 +302,23 @@ interface ApiService {
     suspend fun getCreditAccounts(
         @Header("Authorization") token: String
     ): List<CreditAccountResponse>
+
+    @GET("credit/transactions/{accountId}")
+    suspend fun getTransactions(
+        @Header("Authorization") token: String,
+        @Path("accountId") accountId: Int
+    ): List<CreditTransactionResponse>
+
+    @PATCH("credit/account/{id}/deactivate")
+    suspend fun deactivateCreditAccount(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<Unit>
+
+    @PATCH("credit/reset")
+    suspend fun resetCredit(
+        @Header("Authorization") token: String
+    ): Response<Unit>
 
 
 }

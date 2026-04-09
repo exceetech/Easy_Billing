@@ -6,108 +6,94 @@
 
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="10dp"
+    android:layout_marginVertical="6dp"
 
-    app:cardCornerRadius="24dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="#FFFFFF"
-    app:strokeColor="#E5E7EB"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="#F9FAFB"
+    app:strokeColor="#EEF2F7"
     app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="72dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp">
 
-        <!-- 🔥 LEFT ACCENT STRIP -->
-        <View
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_accent_gradient"/>
+        <!-- 🔵 AVATAR -->
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:gravity="center"
+            android:text="A"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_avatar_premium"/>
 
-        <!-- MAIN CONTENT -->
+        <!-- 👤 NAME + PHONE -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
 
-            <!-- 🔵 AVATAR -->
             <TextView
-                android:id="@+id/tvAvatar"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:gravity="center"
-                android:text="A"
+                android:id="@+id/tvName"
+                android:text="Customer Name"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/bg_avatar_premium"/>
-
-            <!-- 👤 NAME + PHONE -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="14dp">
-
-                <TextView
-                    android:id="@+id/tvName"
-                    android:text="Customer Name"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#020617"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvPhone"
-                    android:text="9876543210"
-                    android:textSize="13sp"
-                    android:textColor="#64748B"
-                    android:layout_marginTop="3dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <!-- subtle divider -->
-                <View
-                    android:layout_width="40dp"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="6dp"
-                    android:background="#E2E8F0"/>
-            </LinearLayout>
-
-            <!-- 💰 DUE PANEL -->
-            <LinearLayout
+                android:textColor="#0F172A"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:paddingStart="10dp">
+                android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:text="DUE"
-                    android:textSize="10sp"
-                    android:letterSpacing="0.1"
-                    android:textColor="#94A3B8"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvDue"
-                    android:text="₹0"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:textColor="#DC2626"
-                    android:layout_marginTop="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
+            <TextView
+                android:id="@+id/tvPhone"
+                android:text="9876543210"
+                android:textSize="12sp"
+                android:textColor="#64748B"
+                android:layout_marginTop="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
 
+        <!-- 💰 AMOUNT + STATUS -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/tvDue"
+                android:text="₹0"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#DC2626"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:text="Due"
+                android:textSize="11sp"
+                android:textColor="#94A3B8"
+                android:layout_marginTop="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- ➡️ ARROW -->
+        <TextView
+            android:text="›"
+            android:textSize="18sp"
+            android:textColor="#CBD5F5"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

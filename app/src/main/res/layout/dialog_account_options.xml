@@ -1,0 +1,98 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@android:color/white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- DRAG HANDLE -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:background="#D1D5DB"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- CUSTOMER NAME -->
+    <TextView
+        android:id="@+id/tvCustomerName"
+        android:text="Customer"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- OPTION 1 -->
+    <LinearLayout
+        android:id="@+id/optionAdd"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="💰 Add Payment"
+            android:textSize="16sp"
+            android:textColor="#16A34A"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- OPTION 2 -->
+    <LinearLayout
+        android:id="@+id/optionSettle"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="6dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="🧾 Settle Account"
+            android:textSize="16sp"
+            android:textColor="#2563EB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- OPTION 3 -->
+    <LinearLayout
+        android:id="@+id/optionView"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="6dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="📊 View Transactions"
+            android:textSize="16sp"
+            android:textColor="#111827"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- OPTION DELETE -->
+    <LinearLayout
+        android:id="@+id/optionDelete"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="6dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="🗑 Delete Account"
+            android:textSize="16sp"
+            android:textColor="#DC2626"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</LinearLayout>

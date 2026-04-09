@@ -1,55 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:layout_margin="24dp"
 
-    <!-- TITLE (optional if using AlertDialog title) -->
-    <!--
-    <TextView
-        android:text="Add Customer"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginBottom="12dp"/>
-    -->
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@android:color/white">
 
-    <!-- NAME FIELD -->
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Customer Name"
-        app:startIconDrawable="@drawable/ic_person"
-        app:startIconTint="?attr/colorPrimary">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etName"
+        <!-- TITLE -->
+        <TextView
+            android:text="Add Customer"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginBottom="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- NAME FIELD -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:maxLength="50"/>
-    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- PHONE FIELD -->
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:hint="Phone Number"
-        app:startIconDrawable="@drawable/ic_phone"
-        app:startIconTint="?attr/colorPrimary">
+            app:startIconDrawable="@drawable/ic_person"
+            app:startIconTint="#6B7280"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPhone"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="Customer Name"
+                android:textColor="#111827"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- PHONE FIELD -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="phone"
-            android:maxLength="15"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="10dp"
 
-</LinearLayout>
+            app:startIconDrawable="@drawable/ic_phone"
+            app:startIconTint="#6B7280"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPhone"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:textColor="#111827"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- BUTTONS -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:textColor="#111827"
+                app:cornerRadius="16dp"
+                app:backgroundTint="#E5E7EB"
+                app:iconPadding="6dp"
+                app:iconTint="#111827"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:layout_marginStart="10dp"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                app:cornerRadius="16dp"
+                app:backgroundTint="#2563EB"
+                app:iconPadding="6dp"
+                app:iconTint="@android:color/white"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

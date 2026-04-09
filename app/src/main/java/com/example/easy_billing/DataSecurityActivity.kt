@@ -154,6 +154,14 @@ class DataSecurityActivity : BaseActivity() {
                     RetrofitClient.api.factoryReset("Bearer $token")
                 }
 
+                if (token != null) {
+                    val response = RetrofitClient.api.resetCredit("Bearer $token")
+
+                    if (!response.isSuccessful) {
+                        throw Exception("Backend reset failed")
+                    }
+                }
+
                 // ✅ STEP 2: DESTROY ROOM INSTANCE
                 AppDatabase.destroyInstance()
 

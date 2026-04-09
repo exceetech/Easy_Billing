@@ -1,12 +1,17 @@
 package com.example.easy_billing
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.example.easy_billing.network.RetrofitClient
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -101,7 +106,99 @@ class ReportsActivity : BaseActivity() {
     private fun setupSendReportButton() {
 
         findViewById<MaterialButton>(R.id.btnSendReport)?.setOnClickListener {
-            // Optional: handle report sending
+            showReportOptions()
+        }
+    }
+
+    private fun showReportOptions() {
+
+        val options = arrayOf(
+            "Today's Bills",
+            "Weekly Bills",
+            "Monthly Bills",
+            "Custom Report"
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle("Send Report")
+            .setItems(options) { _, which ->
+
+                when (which) {
+
+                    0 -> sendEmailReport("today")
+                    1 -> sendEmailReport("weekly")
+                    2 -> sendEmailReport("monthly")
+                    3 -> openEmailDatePicker()
+                }
+
+            }
+            .show()
+    }
+
+    private fun openEmailDatePicker() {
+
+        val picker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText("Select Report Range")
+            .build()
+
+        picker.show(supportFragmentManager, "EMAIL_RANGE")
+
+        picker.addOnPositiveButtonClickListener {
+
+            val start = sdf.format(Date(it.first))
+            val end = sdf.format(Date(it.second))
+
+            sendEmailReport(
+                type = "custom",
+                startDate = start,
+                endDate = end
+            )
+        }
+    }
+
+    private fun sendEmailReport(
+        type: String,
+        startDate: String? = null,
+        endDate: String? = null
+    ) {
+
+        lifecycleScope.launch {
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null)
+
+            if (token == null) {
+                Toast.makeText(
+                    this@ReportsActivity,
+                    "Authentication error. Please login again.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+
+            try {
+
+                val response = RetrofitClient.api.sendEmailReport(
+                    token = "Bearer $token",
+                    type = type,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+
+                Toast.makeText(
+                    this@ReportsActivity,
+                    response.message ?: "Report sent successfully 📧",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@ReportsActivity,
+                    "Failed to send report",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

@@ -88,35 +88,407 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- 📊 PREMIUM KPI ROW -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="4"
+        android:layout_marginTop="6dp">
 
-    <!-- 👥 PREMIUM CUSTOMER LIST -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCustomers"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDue"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+
+            android:clickable="true"
+            android:focusable="true"
+
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+
+            app:cardBackgroundColor="#FFFFFF"
+            app:rippleColor="#FCA5A5"
+
+            app:strokeColor="#FEE2E2"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <!-- TITLE (LIKE PRODUCT NAME) -->
+                <TextView
+                    android:text="Total Due"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:maxLines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <!-- SUBTEXT -->
+                <TextView
+                    android:text="Outstanding balance"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <!-- SPACE PUSH (IMPORTANT FOR CLEAN UI) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <!-- AMOUNT BADGE (LIKE PRICE) -->
+                <TextView
+                    android:id="@+id/tvTotalDue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="₹0"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+
+                    android:background="@drawable/bg_due_badge"
+
+                    android:layout_gravity="start"/>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAdvance"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+
+            android:clickable="true"
+            android:focusable="true"
+
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+
+            app:cardBackgroundColor="#FFFFFF"
+            app:rippleColor="#86EFAC"
+
+            app:strokeColor="#DCFCE7"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <!-- TITLE -->
+                <TextView
+                    android:text="Advance"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:maxLines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <!-- SUBTEXT -->
+                <TextView
+                    android:text="Customer balance"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <!-- SPACE (VERY IMPORTANT FOR CLEAN LOOK) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <!-- BADGE -->
+                <TextView
+                    android:id="@+id/tvTotalAdvance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="₹0"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+
+                    android:background="@drawable/bg_advance_badge"
+
+                    android:layout_gravity="start"/>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ⚖️ NET -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardNet"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+
+            android:clickable="true"
+            android:focusable="true"
+
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+
+            app:cardBackgroundColor="#FFFFFF"
+            app:rippleColor="#CBD5F5"
+
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <!-- TITLE -->
+                <TextView
+                    android:text="Net Balance"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:maxLines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <!-- SUBTEXT -->
+                <TextView
+                    android:text="Overall position"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <!-- SPACE -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <!-- BADGE -->
+                <TextView
+                    android:id="@+id/tvNetBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="₹0"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+
+                    android:background="@drawable/bg_net_badge"
+
+                    android:layout_gravity="start"/>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCustomers"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+
+            android:clickable="true"
+            android:focusable="true"
+
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+
+            app:cardBackgroundColor="#FFFFFF"
+            app:rippleColor="#C7D2FE"
+
+            app:strokeColor="#E0E7FF"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <!-- TITLE -->
+                <TextView
+                    android:text="Customers"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <!-- SUBTEXT -->
+                <TextView
+                    android:text="Account distribution"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <!-- SPACE -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"/>
+
+                <!-- ROW 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:text="Due"
+                        android:textSize="12sp"
+                        android:textColor="#6B7280"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvDueCount"
+                        android:text="0"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="#DC2626"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+                </LinearLayout>
+
+                <!-- ROW 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:text="Advance"
+                        android:textSize="12sp"
+                        android:textColor="#6B7280"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvAdvanceCount"
+                        android:text="0"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="#16A34A"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+                </LinearLayout>
+
+                <!-- ROW 3 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:text="Settled"
+                        android:textSize="12sp"
+                        android:textColor="#6B7280"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvSettledCount"
+                        android:text="0"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="#111827"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="1">
 
-        android:layout_marginTop="8dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="20dp"
+        <!-- 👥 CUSTOMER LIST -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCustomers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
 
-        android:clipToPadding="false"
-        android:overScrollMode="never"
-        android:scrollbars="none"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="80dp"
 
-        android:background="@android:color/transparent"/>
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:scrollbars="none"
 
+            android:background="@android:color/white"/>
 
-    <!-- ➕ BUTTON -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddCustomer"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="10dp"
-        android:text="Add Customer"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        app:backgroundTint="#2563EB"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddCustomer"
+            android:layout_width="300dp"
+            android:layout_height="60dp"
 
+            android:layout_gravity="bottom|center"
+            android:layout_margin="16dp"
+
+            android:text="Add Customer"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="17sp"
+
+            android:textColor="@android:color/white"
+
+            app:icon="@drawable/ic_plus"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="@android:color/white"
+
+            android:paddingStart="16dp"
+            android:paddingEnd="18dp"
+
+            app:cornerRadius="26dp"
+
+            android:background="@drawable/bg_button_gradient"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+
+            app:elevation="8dp"/>
+    </FrameLayout>
 </LinearLayout>

@@ -6,15 +6,25 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "credit_accounts",
-    indices = [Index(value = ["phone"], unique = true)]  // ✅ ADD THIS
+    indices = [
+        Index(value = ["phone", "shopId"], unique = true),
+        Index(value = ["serverId", "shopId"], unique = true)
+    ]
 )
 data class CreditAccount(
+
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
     val serverId: Int? = null,
+
     val name: String,
     val phone: String,
+
     val dueAmount: Double = 0.0,
-    val isSynced: Boolean = false
+
+    val isSynced: Boolean = false,
+    var isActive: Boolean = true,
+
+    val shopId: Int   // 🔥 IMPORTANT (MULTI-SHOP FIX)
 )
