@@ -143,7 +143,7 @@ class SyncManager(private val context: Context) {
                 }
 
                 val res = api.syncCredit(
-                    "Bearer $token",   // 🔥 FIX
+                    "Bearer $token",
                     CreditSyncRequest(
                         account_id = account.serverId,
                         amount = txn.amount,
