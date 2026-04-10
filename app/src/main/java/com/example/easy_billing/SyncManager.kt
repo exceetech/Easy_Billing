@@ -137,8 +137,8 @@ class SyncManager(private val context: Context) {
                 // ✅ FIX: pass shopId
                 val account = db.creditAccountDao().getById(txn.accountId, shopId)
 
-                if (account?.serverId == null) {
-                    println("❌ Account not synced yet → txnId=${txn.id}")
+                if (account?.serverId == null || account.serverId == -1) {
+                    println("⏳ Waiting for account sync → txnId=${txn.id}")
                     continue
                 }
 
@@ -155,12 +155,12 @@ class SyncManager(private val context: Context) {
                     db.creditTransactionDao().markSynced(txn.id, shopId)
                 } else {
                     println("❌ ERROR: ${res.code()} ${res.errorBody()?.string()}")
-                    break
+                    continue
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                break
+                continue
             }
         }
     }
@@ -186,16 +186,15 @@ class SyncManager(private val context: Context) {
                     CreateCreditAccountRequest(acc.name, acc.phone)
                 )
 
-                db.creditAccountDao().insert(
-                    acc.copy(
-                        serverId = res.id,
-                        isSynced = true,
-                        shopId = shopId   // 🔥 IMPORTANT
-                    )
+                db.creditAccountDao().updateServerId(
+                    acc.id,
+                    res.id,
+                    shopId
                 )
 
             } catch (e: Exception) {
-                break
+                e.printStackTrace()
+                continue
             }
         }
     }

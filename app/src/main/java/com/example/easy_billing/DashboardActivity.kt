@@ -253,8 +253,8 @@ class DashboardActivity : BaseActivity() {
                 syncManager.syncStoreInfo()
                 syncManager.syncBillingSettings()
                 syncManager.syncBills()
-                syncManager.pullAccountsFromServer()
                 syncManager.syncAccounts()
+                syncManager.pullAccountsFromServer()
                 syncManager.syncCredit()
                 loadStoreFromRoom()
             }

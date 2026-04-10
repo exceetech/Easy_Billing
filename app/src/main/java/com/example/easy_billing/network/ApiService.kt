@@ -7,7 +7,8 @@ import retrofit2.http.*
 data class LoginResponse(
     val access_token: String,
     val token_type: String,
-    val is_first_login: Boolean
+    val is_first_login: Boolean,
+    val shop_id: Int
 )
 
 interface ApiService {

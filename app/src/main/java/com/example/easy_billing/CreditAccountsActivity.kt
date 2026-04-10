@@ -189,10 +189,67 @@ class CreditAccountsActivity : BaseActivity() {
                 val existing = db.creditAccountDao().getByPhone(phone, shopId)
 
                 if (existing != null) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@CreditAccountsActivity, "Customer already exists", Toast.LENGTH_SHORT).show()
+
+                    if (!existing.isActive) {
+
+                        withContext(Dispatchers.Main) {
+
+                            dialog.dismiss()
+
+                            AlertDialog.Builder(this@CreditAccountsActivity)
+                                .setTitle("Restore Customer")
+                                .setMessage(
+                                    "This customer was deleted.\n\n" +
+                                            "Old Name: ${existing.name}\n" +
+                                            "New Name: $name\n\n" +
+                                            "Do you want to restore?"
+                                )
+                                .setPositiveButton("Restore") { _, _ ->
+
+                                    lifecycleScope.launch(Dispatchers.IO) {
+
+                                        db.creditAccountDao().restoreAccount(
+                                            phone = phone,
+                                            name = name,
+                                            isSynced = false,
+                                            shopId = shopId
+                                        )
+
+                                        withContext(Dispatchers.Main) {
+
+                                            loadAccounts()
+
+                                            lifecycleScope.launch {
+                                                val syncManager = SyncManager(this@CreditAccountsActivity)
+                                                syncManager.syncAccounts()
+                                                syncManager.syncCredit()
+                                            }
+
+                                            Toast.makeText(
+                                                this@CreditAccountsActivity,
+                                                "Customer restored",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+
+                        return@launch
+                    } else {
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@CreditAccountsActivity,
+                                "Customer already exists",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        return@launch
                     }
-                    return@launch
                 }
 
                 val api = RetrofitClient.api
@@ -201,8 +258,6 @@ class CreditAccountsActivity : BaseActivity() {
                     .getString("TOKEN", null)
 
                 if (token == null) {
-                    println("❌ TOKEN NULL")
-
                     db.creditAccountDao().insert(
                         CreditAccount(
                             name = name,
@@ -249,7 +304,6 @@ class CreditAccountsActivity : BaseActivity() {
 
                 withContext(Dispatchers.Main) {
 
-                    // ✅ SAME LOGIC (unchanged)
                     val updated = db.creditAccountDao().getAll(shopId)
 
                     list.clear()
@@ -258,7 +312,7 @@ class CreditAccountsActivity : BaseActivity() {
 
                     Toast.makeText(this@CreditAccountsActivity, "Customer added", Toast.LENGTH_SHORT).show()
 
-                    dialog.dismiss() // 🔥 manual close
+                    dialog.dismiss()
                 }
             }
         }
@@ -310,7 +364,7 @@ class CreditAccountsActivity : BaseActivity() {
 
         val intent = Intent(this, CustomerTransactionsActivity::class.java)
 
-        intent.putExtra("ACCOUNT_ID", account.id)
+        intent.putExtra("ACCOUNT_ID", account.serverId)
         intent.putExtra("ACCOUNT_NAME", account.name)
         intent.putExtra("ACCOUNT_PHONE", account.phone)
 
@@ -586,42 +640,65 @@ class CreditAccountsActivity : BaseActivity() {
         val message = view.findViewById<TextView>(R.id.tvMessage)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemove)
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnCancel)
+        val btnOk = view.findViewById<MaterialButton>(R.id.btnOk)
 
-        message.text = "You're about to remove ${account.name}\n\n• Account will be removed from your database"
+        // ================= NO INTERNET =================
+        if (!isInternetAvailable()) {
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
+            message.text = "Internet is required to remove ${account.name}"
+
+            btnRemove.visibility = View.GONE   // 🔥 hide remove
+            btnCancel.visibility = View.GONE   // 🔥 hide cancel
+            btnOk.visibility = View.VISIBLE    // 🔥 show only OK
+
+            btnOk.setOnClickListener {
+                dialog.dismiss()
+            }
+
         }
+        // ================= INTERNET AVAILABLE =================
+        else {
 
-        btnRemove.setOnClickListener {
+            message.text = "You're about to remove ${account.name}\n\n• Account will be removed from your database"
 
-            lifecycleScope.launch(Dispatchers.IO) {
+            btnOk.visibility = View.GONE       // 🔥 hide OK
+            btnRemove.visibility = View.VISIBLE
+            btnCancel.visibility = View.VISIBLE
 
-                val token = getSharedPreferences("auth", MODE_PRIVATE)
-                    .getString("TOKEN", null)
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
 
-                val api = RetrofitClient.api
+            btnRemove.setOnClickListener {
 
-                try {
-                    if (token != null && account.serverId != null) {
-                        api.deactivateCreditAccount("Bearer $token", account.serverId!!)
+                lifecycleScope.launch(Dispatchers.IO) {
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    val api = RetrofitClient.api
+
+                    try {
+                        if (token != null && account.serverId != -1) {
+                            api.deactivateCreditAccount("Bearer $token", account.serverId!!)
+                        }
+
+                        db.creditAccountDao().deactivate(account.id, shopId)
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
 
-                    db.creditAccountDao().deactivate(account.id, shopId)
+                    withContext(Dispatchers.Main) {
+                        dialog.dismiss()
+                        loadAccounts()
 
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                withContext(Dispatchers.Main) {
-                    dialog.dismiss()
-                    loadAccounts()
-
-                    Toast.makeText(
-                        this@CreditAccountsActivity,
-                        "Account removed",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        Toast.makeText(
+                            this@CreditAccountsActivity,
+                            "Account removed",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }

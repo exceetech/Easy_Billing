@@ -141,9 +141,11 @@ class MainActivity : BaseActivity() {
 
                     // ✅ SAVE TOKEN
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+
                     prefs.edit {
-                        putString("TOKEN", token)
+                        putString("TOKEN", response.access_token)
                         putString("DEVICE_ID", deviceId)
+                        putInt("SHOP_ID", response.shop_id)
                     }
 
                     lifecycleScope.launch(Dispatchers.IO) {
@@ -153,7 +155,6 @@ class MainActivity : BaseActivity() {
 
                     android.util.Log.d("TOKEN_DEBUG", "Saved Token: $token")
 
-                    // ✅ START SESSION
                     updateLastOnlineTime()
                     android.util.Log.d("SESSION", "Session initialized")
 

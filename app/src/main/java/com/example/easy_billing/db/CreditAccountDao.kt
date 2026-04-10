@@ -67,4 +67,33 @@ interface CreditAccountDao {
         WHERE id = :id AND shopId = :shopId
     """)
     suspend fun deactivate(id: Int, shopId: Int)
+
+    @Query("""
+    UPDATE credit_accounts
+    SET 
+        serverId = :serverId,
+        isSynced = 1,
+        isActive = 1
+    WHERE id = :localId AND shopId = :shopId
+""")
+    suspend fun updateServerId(
+        localId: Int,
+        serverId: Int,
+        shopId: Int
+    )
+
+    @Query("""
+    UPDATE credit_accounts
+    SET 
+        isActive = 1,
+        name = :name,
+        isSynced = :isSynced
+    WHERE phone = :phone AND shopId = :shopId
+""")
+    suspend fun restoreAccount(
+        phone: String,
+        name: String,
+        isSynced: Boolean,
+        shopId: Int
+    )
 }

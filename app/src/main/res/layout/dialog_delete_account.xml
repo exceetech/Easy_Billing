@@ -69,6 +69,17 @@
             android:background="@drawable/bg_premium_outline_button"
             app:cornerRadius="28dp"/>
 
+        <!-- OK -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOk"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="OK"
+            android:textAllCaps="false"
+            android:textColor="#111827"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_premium_outline_button"
+            app:cornerRadius="28dp"/>
     </LinearLayout>
 
 </LinearLayout>
