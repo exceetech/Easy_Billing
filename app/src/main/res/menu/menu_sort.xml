@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/sort_az"
+        android:title="A → Z" />
+
+    <item
+        android:id="@+id/sort_za"
+        android:title="Z → A" />
+
+</menu>

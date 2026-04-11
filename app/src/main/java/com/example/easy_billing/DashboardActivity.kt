@@ -8,12 +8,15 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -26,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.Product
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaveTokenRequest
@@ -39,6 +43,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class DashboardActivity : BaseActivity() {
@@ -64,6 +70,8 @@ class DashboardActivity : BaseActivity() {
     private val noticeHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     private var currentLanguage = "en"
+
+    private var currentSort = SortType.A_TO_Z
 
     private lateinit var switchTranslate: SwitchMaterial
 
@@ -280,8 +288,9 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun setupHeader() {
-        val btnMenu = findViewById<ImageView>(R.id.btnMenu)
-        val btnCart = findViewById<ImageView>(R.id.btnCart)
+        val btnMenu = findViewById<LinearLayout>(R.id.btnMenuContainer)
+        val btnSort = findViewById<LinearLayout>(R.id.btnSortContainer)
+        val btnCart = findViewById<LinearLayout>(R.id.btnCartContainer)
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
@@ -306,6 +315,32 @@ class DashboardActivity : BaseActivity() {
 
         btnMenu.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        btnSort.setOnClickListener {
+
+            val popup = PopupMenu(this, btnSort, Gravity.END)
+            popup.menuInflater.inflate(R.menu.menu_sort, popup.menu)
+
+            popup.setOnMenuItemClickListener { item ->
+
+                when (item.itemId) {
+
+                    R.id.sort_az -> {
+                        sortProducts("AZ")
+                        true
+                    }
+
+                    R.id.sort_za -> {
+                        sortProducts("ZA")
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+
+            popup.show()
         }
 
         btnCart.setOnClickListener {
@@ -536,6 +571,8 @@ class DashboardActivity : BaseActivity() {
                         Product(
                             id = it.id,
                             name = it.name,
+                            variant = it.variant ?: "",
+                            unit = it.unit,
                             price = it.price,
                             isCustom = false
                         )
@@ -552,7 +589,14 @@ class DashboardActivity : BaseActivity() {
 
             val localProducts = db.productDao().getAll()
 
-            productAdapter.updateData(localProducts)
+            val sortedList = when (currentSort) {
+
+                SortType.A_TO_Z -> localProducts.sortedBy { it.name.lowercase() }
+
+                SortType.Z_TO_A -> localProducts.sortedByDescending { it.name.lowercase() }
+            }
+
+            productAdapter.updateData(sortedList)
         }
     }
 
@@ -884,7 +928,7 @@ class DashboardActivity : BaseActivity() {
                     Intent(this@DashboardActivity, SubscriptionActivity::class.java)
                 )
 
-                finish() // 🔥 IMPORTANT → close dashboard
+                finish()
             }
             .show()
     }
@@ -918,7 +962,7 @@ class DashboardActivity : BaseActivity() {
                 Toast.LENGTH_LONG
             ).show()
 
-            finishAffinity() // 🔥 CLOSE APP
+            finishAffinity()
         }
     }
 
@@ -933,4 +977,52 @@ class DashboardActivity : BaseActivity() {
                 store?.name ?: "My Store"
         }
     }
+
+    enum class SortType {
+        A_TO_Z,
+        Z_TO_A,
+    }
+
+    private fun showSortDialog() {
+
+        val options = arrayOf(
+            "A → Z",
+            "Z → A"
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle("Sort Products")
+            .setItems(options) { _, which ->
+
+                currentSort = when (which) {
+                    0 -> SortType.A_TO_Z
+                    1 -> SortType.Z_TO_A
+                    else -> SortType.A_TO_Z
+                }
+
+                loadProducts()
+            }
+            .show()
+    }
+    private fun sortProducts(type: String) {
+
+        lifecycleScope.launch(Dispatchers.Default) {
+
+            val list = productAdapter.getCurrentList().toMutableList()
+
+            val sorted = when (type) {
+
+                "AZ" -> list.sortedBy { it.name.lowercase() }
+
+                "ZA" -> list.sortedByDescending { it.name.lowercase() }
+
+                else -> list
+            }
+
+            withContext(Dispatchers.Main) {
+                productAdapter.submitList(sorted)
+            }
+        }
+    }
+
 }

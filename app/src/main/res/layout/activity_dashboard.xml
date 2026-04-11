@@ -25,15 +25,35 @@
             android:background="#FAFAFA"
             android:elevation="4dp">
 
-            <!-- Menu -->
-            <ImageView
-                android:id="@+id/btnMenu"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_menu"
-                android:contentDescription="@string/menu"/>
+            <!-- MENU BUTTON (MATCHING STYLE) -->
+            <LinearLayout
+                android:id="@+id/btnMenuContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_menu"
+                    android:tint="@android:color/black"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MENU"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="6dp"/>
+            </LinearLayout>
 
             <!-- Welcome -->
             <LinearLayout
@@ -54,27 +74,89 @@
 
             </LinearLayout>
 
-            <!-- Cart with Badge -->
-            <FrameLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp">
+            <!-- ================= ACTION BUTTONS (SORT + CART) ================= -->
+
+            <!-- SORT BUTTON -->
+            <LinearLayout
+                android:id="@+id/btnSortContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
 
                 <ImageView
-                    android:id="@+id/btnCart"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:padding="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_cart"
-                    android:contentDescription="@string/cart"/>
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_sort"
+                    android:tint="@android:color/black"/>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SORT"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="6dp"/>
+            </LinearLayout>
+
+            <!-- SEPARATOR -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="20dp"
+                android:background="#CCCCCC"
+                android:layout_marginHorizontal="6dp"/>
+
+            <!-- CART BUTTON -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="6dp">
+
+                <LinearLayout
+                    android:id="@+id/btnCartContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_cart"
+                        android:tint="@android:color/black"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CART"
+                        android:textColor="@android:color/black"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="6dp"/>
+                </LinearLayout>
+
+                <!-- 🔥 BADGE -->
                 <TextView
                     android:id="@+id/tvCartBadge"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_gravity="end|top"
+                    android:layout_marginTop="-4dp"
+                    android:layout_marginEnd="-4dp"
                     android:background="@drawable/badge_background"
-                    android:text="@string/_0"
+                    android:text="0"
                     android:textSize="9sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"

@@ -4,6 +4,8 @@ data class ShopProductResponse(
     val id: Int,
     val shop_id: Int,
     val name: String,
+    val variant: String?,
+    val unit: String,
     val global_product_id: Int,
     val price: Double,
     val is_active: Boolean

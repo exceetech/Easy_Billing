@@ -47,6 +47,49 @@
                 android:inputType="textCapWords"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Variant Name -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutVariantName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:startIconDrawable="@drawable/ic_item"
+            app:startIconTint="?attr/colorPrimary"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etVariantName"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Variant (e.g. Small, 500ml)"
+                android:inputType="textCapWords"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Unit -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutUnit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:startIconDrawable="@drawable/ic_scale"
+            app:startIconTint="?attr/colorPrimary"
+            app:endIconMode="dropdown_menu"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/etUnit"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Unit"
+                android:inputType="none"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Price -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

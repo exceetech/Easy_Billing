@@ -14,69 +14,103 @@
     app:cardElevation="10dp"
 
     app:cardBackgroundColor="#FFFFFF"
-
     app:rippleColor="?attr/colorPrimary"
 
     app:strokeColor="#FFFFFF"
     app:strokeWidth="2dp">
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/productContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:padding="14dp">
 
-        <!-- Product Name -->
-
-        <TextView
-            android:id="@+id/tvProductName"
+        <!-- 🔥 MAIN CONTENT -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#1F2937"
-            android:maxLines="2"
-            android:ellipsize="end"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <!-- Translated Name -->
+            <!-- PRODUCT NAME -->
+            <TextView
+                android:id="@+id/tvProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#111827"
+                android:maxLines="2"
+                android:ellipsize="end"/>
 
+            <!-- TRANSLATED NAME -->
+            <TextView
+                android:id="@+id/tvTranslatedName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="6dp"
+
+                android:textSize="14sp"
+                android:textColor="#6B7280"
+
+                android:fontFamily="sans-serif-medium"
+
+                android:letterSpacing="0.02"
+
+                android:maxLines="1"
+                android:ellipsize="end"
+
+                android:alpha="0.9"
+
+                android:visibility="gone"/>
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <!-- PRICE -->
+            <TextView
+                android:id="@+id/tvProductPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/background"
+
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="6dp"
+
+                android:background="@drawable/price_badge_bg"
+
+                android:layout_gravity="start"/>
+        </LinearLayout>
+
+        <!-- 🔥 VARIANT BADGE (ALIGNED WITH NAME LINE) -->
         <TextView
-            android:id="@+id/tvProductNameTranslated"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#6B7280"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:layout_marginTop="2dp"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-
-
-        <!-- Price Badge -->
-
-        <TextView
-            android:id="@+id/tvProductPrice"
+            android:id="@+id/tvVariantName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:text="@string/_0"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/background"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="4dp"
 
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:textColor="#2563EB"
 
-            android:background="@drawable/price_badge_bg"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
 
-            android:layout_gravity="start"/>
+            android:background="@drawable/bg_variant_chip"
 
-    </LinearLayout>
+            android:elevation="3dp"
+
+            android:visibility="gone"/>
+
+    </FrameLayout>
 
 </com.google.android.material.card.MaterialCardView>

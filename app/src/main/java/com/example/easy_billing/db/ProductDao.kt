@@ -3,7 +3,7 @@ package com.example.easy_billing.db
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.easy_billing.Product
+import com.example.easy_billing.db.Product
 
 
 @Dao

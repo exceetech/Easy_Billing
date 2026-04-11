@@ -3,10 +3,11 @@ package com.example.easy_billing
 import android.os.Bundle
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.text.capitalize
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.Product
 import com.example.easy_billing.network.AddProductRequest
 import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
@@ -17,12 +18,10 @@ class AddProductsActivity : BaseActivity() {
     private lateinit var db: AppDatabase
     private var catalogList: List<String> = emptyList()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_products)
 
-        // Setup professional toolbar with back arrow
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
 
@@ -33,7 +32,7 @@ class AddProductsActivity : BaseActivity() {
         loadCatalogFromBackend()
     }
 
-    // ================= LOAD CATALOG FROM BACKEND =================
+    // ================= LOAD CATALOG =================
 
     private fun loadCatalogFromBackend() {
 
@@ -43,11 +42,8 @@ class AddProductsActivity : BaseActivity() {
         lifecycleScope.launch {
             try {
                 val catalog = RetrofitClient.api.getCatalog("Bearer $token")
-
                 catalogList = catalog.map { it.name }
-
                 updateList(catalogList)
-
             } catch (e: Exception) {
                 Toast.makeText(this@AddProductsActivity,
                     "Failed to load products", Toast.LENGTH_SHORT).show()
@@ -55,7 +51,7 @@ class AddProductsActivity : BaseActivity() {
         }
     }
 
-    // ================= LIST SETUP =================
+    // ================= LIST =================
 
     private fun setupList() {
         val listItems = findViewById<ListView>(R.id.listItems)
@@ -69,9 +65,155 @@ class AddProductsActivity : BaseActivity() {
         listItems.adapter = adapter
 
         listItems.setOnItemClickListener { _, _, position, _ ->
+
             val selected = adapter.getItem(position) ?: return@setOnItemClickListener
-            showAddProductDialog(selected)
+
+            if (selected == "Others") {
+                showAddProductDialog(selected)
+            } else {
+                showVariantDialog(selected)
+            }
         }
+    }
+
+    private fun showVariantDialog(productName: String) {
+
+        lifecycleScope.launch {
+
+            val products = db.productDao().getAll()
+
+            val variants = products.filter { it.name == productName }
+
+            val dialogView = layoutInflater.inflate(R.layout.dialog_variants, null)
+
+            val tvTitle = dialogView.findViewById<TextView>(R.id.tvProductTitle)
+            val listView = dialogView.findViewById<ListView>(R.id.listVariants)
+            val btnAdd = dialogView.findViewById<Button>(R.id.btnAddVariant)
+
+            tvTitle.text = productName
+
+            val displayList = variants.map {
+
+                val variantText = it.variant?.takeIf { v -> v.isNotBlank() } ?: ""
+
+                if (variantText.isNullOrEmpty()) {
+                    "(${it.unit?: "piece"}) - ₹${it.price}"
+                } else {
+                    "$variantText (${it.unit}) - ₹${it.price}"
+                }
+            }
+
+            val adapter = ArrayAdapter(
+                this@AddProductsActivity,
+                android.R.layout.simple_list_item_1,
+                displayList
+            )
+
+            listView.adapter = adapter
+
+            val dialog = android.app.AlertDialog.Builder(this@AddProductsActivity)
+                .setView(dialogView)
+                .create()
+
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            // 🔥 CLICK VARIANT → UPDATE PRICE
+            listView.setOnItemClickListener { _, _, position, _ ->
+                val selectedVariant = variants[position]
+                dialog.dismiss()
+                showUpdatePriceDialog(selectedVariant)
+            }
+
+            // 🔥 ADD NEW VARIANT
+            btnAdd.setOnClickListener {
+                dialog.dismiss()
+                showAddProductDialog(productName)
+            }
+            dialog.show()
+        }
+    }
+
+    private fun showUpdatePriceDialog(product: Product) {
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_product, null)
+
+        val etPrice = dialogView.findViewById<EditText>(R.id.etDialogPrice)
+        val etVariant = dialogView.findViewById<EditText>(R.id.etVariantName)
+        val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
+
+        val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
+
+        // 🔥 pre-fill
+        etVariant.setText(product.variant)
+        etVariant.isEnabled = false
+        etVariant.isFocusable = false
+        etVariant.isClickable = false
+        etVariant.alpha = 0.5f
+
+        etUnit.setText(product.unit, false)
+        etUnit.isEnabled = false
+        etUnit.isFocusable = false
+        etUnit.isClickable = false
+        etUnit.alpha = 0.5f
+
+        etPrice.setText(product.price.toString())
+
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnAdd.text = "Update"
+
+        btnAdd.setOnClickListener {
+
+            val newPrice = etPrice.text.toString().toDoubleOrNull()
+
+            if (newPrice == null || newPrice <= 0) {
+                toast("Invalid price")
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                try {
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    RetrofitClient.api.addProductToShop(
+                        "Bearer $token",
+                        AddProductRequest(
+                            name = product.name,
+                            variant_name = product.variant,
+                            unit = normalizeUnit(product.unit),
+                            price = newPrice
+                        )
+                    )
+
+                    // 🔥 LOCAL SYNC
+                    db.productDao().deleteById(product.id)
+
+                    db.productDao().insert(
+                        product.copy(price = newPrice)
+                    )
+
+                    toast("Price updated")
+                    dialog.dismiss()
+                    finish()
+
+                } catch (e: Exception) {
+                    toast("Update failed")
+                }
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun setupSearch() {
@@ -105,13 +247,14 @@ class AddProductsActivity : BaseActivity() {
     }
 
     // ================= ADD PRODUCT =================
-
     private fun showAddProductDialog(selectedItem: String) {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_product, null)
 
         val etPrice = dialogView.findViewById<EditText>(R.id.etDialogPrice)
         val etCustomName = dialogView.findViewById<EditText>(R.id.etDialogCustomName)
+        val etVariant = dialogView.findViewById<EditText>(R.id.etVariantName)
+        val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
         val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
 
@@ -119,6 +262,15 @@ class AddProductsActivity : BaseActivity() {
 
         layoutCustomName.visibility =
             if (selectedItem == "Others") View.VISIBLE else View.GONE
+
+        val units = listOf("piece", "kilogram", "litre", "gram", "millilitre")
+        val unitAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_1,
+            units
+        )
+        etUnit.setAdapter(unitAdapter)
+        etUnit.setText("piece", false)
 
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(dialogView)
@@ -130,28 +282,23 @@ class AddProductsActivity : BaseActivity() {
 
             val priceText = etPrice.text.toString().trim()
 
-            // 1. EMPTY CHECK (KEEP THIS)
             if (priceText.isEmpty()) {
                 toast("Enter price")
                 return@setOnClickListener
             }
 
-            // 2. SAFE CONVERSION
             val price = priceText.toDoubleOrNull()
             if (price == null) {
                 toast("Invalid price")
                 return@setOnClickListener
             }
 
-            // 3. VALUE CHECKS
             if (price <= 0) {
                 toast("Price must be greater than 0")
                 return@setOnClickListener
             }
 
-            // 4. MAX LIMIT
             val MAX_PRICE = 1000000.0
-
             if (price > MAX_PRICE) {
                 toast("Price cannot exceed ₹$MAX_PRICE")
                 return@setOnClickListener
@@ -168,24 +315,10 @@ class AddProductsActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            val custom_price = priceText.toDoubleOrNull()
-
-            if (custom_price == null) {
-                toast("Invalid price")
-                return@setOnClickListener
-            }
-
-            if (custom_price <= 0) {
-                toast("Price must be greater than 0")
-                return@setOnClickListener
-            }
-
-            val CUSTOM_MAX_PRICE = 1000000.0  // 🔥 set your limit here
-
-            if (price > CUSTOM_MAX_PRICE) {
-                toast("Price cannot exceed ₹$MAX_PRICE")
-                return@setOnClickListener
-            }
+            // 🔥 NEW FIELDS
+            val variantInput = etVariant.text.toString().trim()
+            val variantName = if (variantInput.isEmpty()) null else variantInput
+            val unit = normalizeUnit(etUnit.text.toString())
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null)
@@ -193,27 +326,48 @@ class AddProductsActivity : BaseActivity() {
             lifecycleScope.launch {
                 try {
 
-                    // 🔹 Send to backend
-                    RetrofitClient.api.addProductToShop(
+                    val response = RetrofitClient.api.addProductToShop(
                         "Bearer $token",
-                        AddProductRequest(name, price)
+                        AddProductRequest(
+                            name = name,
+                            variant_name = variantName,
+                            unit = unit,
+                            price = price
+                        )
                     )
 
-                    // 🔹 Save locally for offline
+                    val message = response.message ?: ""
+
+                    when {
+                        message.contains("updated", true) -> {
+                            toast("Price updated")
+                        }
+
+                        message.contains("reactivated", true) -> {
+                            toast("Product restored")
+                        }
+
+                        else -> {
+                            toast("Product added")
+                        }
+                    }
+
+                    // ✅ LOCAL DB SYNC (IMPORTANT)
                     db.productDao().insert(
                         Product(
                             name = name,
+                            variant = variantName,
+                            unit = unit,
                             price = price,
                             isCustom = (selectedItem == "Others")
                         )
                     )
 
-                    toast("Product added")
                     dialog.dismiss()
                     finish()
 
                 } catch (e: Exception) {
-                    toast("Already added or error")
+                    toast("Failed to add product")
                 }
             }
         }
@@ -223,6 +377,17 @@ class AddProductsActivity : BaseActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun normalizeUnit(unit: String?): String {
+        return when (unit?.lowercase()) {
+            "piece" -> "piece"
+            "kilogram", "kg" -> "kg"
+            "litre", "liter", "l", "ltr" -> "litre"
+            "gram", "g" -> "gram"
+            "millilitre", "ml" -> "ml"
+            else -> "piece"
+        }
     }
 
     private fun toast(message: String) {

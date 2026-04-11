@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.db.Product
 import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.card.MaterialCardView
 import com.example.easy_billing.util.PastelColor
@@ -22,50 +23,69 @@ class ProductAdapter(
 
     private var fullList: List<Product> = emptyList()
 
-    // ==================================================
-    // ================= VIEW HOLDER ====================
-    // ==================================================
+    // 🔥 Scoped coroutine (instead of GlobalScope)
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         private val name: TextView = view.findViewById(R.id.tvProductName)
-        private val translatedName: TextView =
-            view.findViewById(R.id.tvProductNameTranslated)
+        private val translatedView: TextView =
+            view.findViewById(R.id.tvTranslatedName)
+        private val variantView: TextView =
+            view.findViewById(R.id.tvVariantName)
 
         private val price: TextView = view.findViewById(R.id.tvProductPrice)
         private val card: MaterialCardView = view.findViewById(R.id.cardView)
 
         fun bind(product: Product) {
 
-            // Original name
+            // ================= NAME =================
             name.text = product.name
 
-            // Hide translation if English
-            if (!translationEnabled || language == "en") {
+            // ================= VARIANT =================
+            val variantText = product.variant?.takeIf { it.isNotBlank() }
 
-                translatedName.visibility = View.GONE
-
+            if (variantText != null) {
+                variantView.visibility = View.VISIBLE
+                variantView.text = variantText
             } else {
-
-                translatedName.visibility = View.VISIBLE
-                translatedName.text = "..."
-
-                GlobalScope.launch(Dispatchers.IO) {
-
-                    val translated =
-                        GoogleTranslator.translate(product.name, language)
-
-                    withContext(Dispatchers.Main) {
-                        translatedName.text = translated
-                    }
-                }
+                variantView.visibility = View.GONE
             }
 
-            // Price
-            val context = itemView.context
-            price.text = CurrencyHelper.format(context, product.price)
+            // ================= TRANSLATION =================
+            if (translationEnabled && language != "en") {
 
-            // Random pastel color
+                translatedView.visibility = View.VISIBLE
+                translatedView.text = "..."
+
+                val currentName = product.name
+
+                scope.launch {
+
+                    val translated = withContext(Dispatchers.IO) {
+                        GoogleTranslator.translate(currentName, language)
+                    }
+
+                    // 🔥 Prevent wrong binding due to recycling
+                    if (name.text == currentName) {
+                        translatedView.text = translated
+                    }
+                }
+
+            } else {
+                translatedView.visibility = View.GONE
+            }
+
+            // ================= PRICE =================
+            val context = itemView.context
+            val formattedPrice = CurrencyHelper.format(context, product.price)
+
+            val unit = product.unit?.takeIf { it.isNotBlank() } ?: "unit"
+            val unitText = formatUnit(unit)
+
+            price.text = "$formattedPrice / $unitText"
+
+            // ================= UI =================
             val color = PastelColor.random()
             card.setCardBackgroundColor(color)
 
@@ -80,12 +100,9 @@ class ProductAdapter(
         }
     }
 
-    // ==================================================
-    // ================= ADAPTER ========================
-    // ==================================================
+    // ================= ADAPTER =================
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_product, parent, false)
 
@@ -93,20 +110,15 @@ class ProductAdapter(
     }
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-
-        val product = getItem(position)
-        holder.bind(product)
+        holder.bind(getItem(position))
     }
 
     fun updateData(newList: List<Product>) {
-
         fullList = newList
         submitList(newList)
     }
 
-    // ==================================================
-    // ================= FILTERING ======================
-    // ==================================================
+    // ================= FILTER =================
 
     fun filter(query: String) {
 
@@ -115,16 +127,28 @@ class ProductAdapter(
             return
         }
 
+        val q = query.trim()
+
         val filtered = fullList.filter {
-            it.name.contains(query.trim(), ignoreCase = true)
+            it.name.contains(q, true) ||
+                    (it.variant?.contains(q, true) ?: false)
         }
 
         submitList(filtered)
     }
 
-    // ==================================================
-    // ================= DIFF UTIL ======================
-    // ==================================================
+    private fun formatUnit(unit: String): String {
+        return when (unit.lowercase()) {
+            "piece" -> "Pc"
+            "kg" -> "Kg"
+            "litre" -> "L"
+            "gram" -> "g"
+            "ml" -> "ml"
+            else -> unit
+        }
+    }
+
+    // ================= DIFF =================
 
     class DiffCallback : DiffUtil.ItemCallback<Product>() {
 

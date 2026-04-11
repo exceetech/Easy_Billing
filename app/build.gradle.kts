@@ -59,6 +59,7 @@ dependencies {
 
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("com.sun.mail:android-activation:1.6.7")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
