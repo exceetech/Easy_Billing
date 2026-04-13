@@ -6,9 +6,11 @@ data class BillDetailResponse(
 )
 
 data class BillItemResponse(
-    val shop_product_id: Int,  // 🔥 ADD
+    val shop_product_id: Int,
     val product_name: String,
-    val quantity: Int,
+    val variant: String?,
+    val unit: String?,
+    val quantity: Double,
     val price: Double,
     val subtotal: Double
 )

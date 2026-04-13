@@ -11,8 +11,10 @@ data class BillItem(
     val billId: Int,
     val productId: Int,
     val productName: String,
+    val variant: String?,
+    val unit: String,
     val price: Double,
-    val quantity: Int,
+    val quantity: Double,
     val subTotal: Double,
 
     @ColumnInfo(name = "is_synced")

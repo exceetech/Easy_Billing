@@ -6,7 +6,7 @@ import java.io.Serializable
 
 data class CartItem(
     val product: Product,
-    var quantity: Int
+    var quantity: Double
 ) : Serializable {
 
     fun subTotal(): Double {

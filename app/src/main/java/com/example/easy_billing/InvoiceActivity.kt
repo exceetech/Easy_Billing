@@ -29,6 +29,8 @@ import java.util.*
 class InvoiceActivity : AppCompatActivity() {
 
     private lateinit var tvStoreName: TextView
+    private lateinit var tvSubtotal: TextView
+    private lateinit var tvGst: TextView
     private lateinit var tvTotal: TextView
     private lateinit var tvBillInfo: TextView
     private lateinit var etDiscount: EditText
@@ -44,6 +46,8 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var tvGstPercent: TextView
     private var savedBillId: Int = -1
     private var isBillSaved = false
+
+    private var isUpdating = false
     private var billNumber: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +55,8 @@ class InvoiceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_invoice)
 
         tvStoreName = findViewById(R.id.tvStoreName)
+        tvSubtotal = findViewById(R.id.tvSubtotal)
+        tvGst = findViewById(R.id.tvGst)
         tvTotal = findViewById(R.id.tvTotal)
         tvBillInfo = findViewById(R.id.tvBillInfo)
         etDiscount = findViewById(R.id.etDiscount)
@@ -108,6 +114,8 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun calculateTotal() {
 
+        if (isUpdating) return   // ✅ prevent infinite loop
+
         val subTotal = items.sumOf { it.subTotal() }
         val gstAmount = (subTotal * gstPercent) / 100
 
@@ -119,25 +127,24 @@ class InvoiceActivity : AppCompatActivity() {
         if (discount > maxDiscount) {
             discount = maxDiscount
 
+            isUpdating = true
             etDiscount.setText(maxDiscount.toInt().toString())
             etDiscount.setSelection(etDiscount.text.length)
+            isUpdating = false
 
             Toast.makeText(this, "Discount cannot exceed total", Toast.LENGTH_SHORT).show()
         }
 
-        val total = maxDiscount - discount   // ✅ always ≥ 0
+        val total = maxDiscount - discount
 
         val formattedSubTotal = CurrencyHelper.format(this, subTotal)
         val formattedGst = CurrencyHelper.format(this, gstAmount)
         val formattedDiscount = CurrencyHelper.format(this, discount)
         val formattedTotal = CurrencyHelper.format(this, total)
 
-        tvTotal.text = """
-        Subtotal: $formattedSubTotal
-        GST: $formattedGst
-        Discount: $formattedDiscount
-        Total: $formattedTotal
-    """.trimIndent()
+        tvSubtotal.text = formattedSubTotal
+        tvGst.text = formattedGst
+        tvTotal.text = formattedTotal
     }
 
     // ================= SAVE BILL =================
@@ -178,10 +185,15 @@ class InvoiceActivity : AppCompatActivity() {
                     BillItem(
                         billId = billId,
                         productId = it.product.id,
+
                         productName = it.product.name,
+                        variant = it.product.variant,
+                        unit = it.product.unit ?: "unit",
+
                         price = it.product.price,
                         quantity = it.quantity,
                         subTotal = it.subTotal(),
+
                         isSynced = false
                     )
                 }
@@ -195,7 +207,7 @@ class InvoiceActivity : AppCompatActivity() {
                 val request = CreateBillRequest(
                     bill_number = "",
                     items = items.map {
-                        BillItemRequest(it.product.id, it.quantity)
+                        BillItemRequest(it.product.id, it.quantity, it.product.variant)
                     },
                     payment_method = getPaymentMethod(),
                     discount = discount,
@@ -208,6 +220,7 @@ class InvoiceActivity : AppCompatActivity() {
                 if (response.bill_number.isNotEmpty()) {
                     billNumber = response.bill_number
 
+                    db.billDao().updateBillNumber(billId, billNumber)
                     db.billDao().markBillSynced(billId)
                     db.billItemDao().markItemsSynced(billId)
                 }

@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.GridLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -604,9 +605,9 @@ class DashboardActivity : BaseActivity() {
     // ================= CART LOGIC =====================
     // ==================================================
 
-    private fun addToCart(product: Product, qty: Int) {
+    private fun addToCart(product: Product, qty: Double) {
 
-        val MAX_QTY = 10000
+        val MAX_QTY = 10000.0
 
         val existing = cartItems.find { it.product.id == product.id }
 
@@ -630,7 +631,12 @@ class DashboardActivity : BaseActivity() {
                 return
             }
 
-            cartItems.add(CartItem(product, qty))
+            cartItems.add(
+                CartItem(
+                    product = product,
+                    quantity = qty
+                )
+            )
         }
 
         cartAdapter.notifyDataSetChanged()
@@ -644,7 +650,7 @@ class DashboardActivity : BaseActivity() {
         // ✅ Dynamic currency
         tvTotal.text = "Total: ${CurrencyHelper.format(this, total)}"
 
-        val count = cartItems.sumOf { it.quantity }
+        val count = cartItems.size
 
         if (count <= 0) {
             tvCartBadge.visibility = View.GONE
@@ -679,62 +685,127 @@ class DashboardActivity : BaseActivity() {
     // ==================================================
 
     private fun showQuantityDialog(product: Product) {
+
         val dialogView = layoutInflater.inflate(R.layout.dialog_quantity_pad, null)
+
         val tvQuantity = dialogView.findViewById<TextView>(R.id.tvQuantity)
         val gridPad = dialogView.findViewById<GridLayout>(R.id.gridPad)
-        val btnAdd = dialogView.findViewById<Button>(R.id.btnAddQty)
+        val btnAdd = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAddQty)
+        val btnBackspace = dialogView.findViewById<ImageButton>(R.id.btnBackspace)
 
-        var quantity = 0
-        tvQuantity.text = ""
+        var quantityStr = ""
+
+        val isDecimalAllowed = when (product.unit?.lowercase()) {
+            "kilogram", "kg", "litre", "l" -> true
+            else -> false
+        }
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialog.setOnShowListener {
+            dialog.window?.setLayout(
+                (resources.displayMetrics.widthPixels * 0.55).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
 
-        val MAX_QTY = 10000
+        // 🔥 FAST DISPLAY (no lag)
+        fun updateDisplay() {
+            tvQuantity.text = if (quantityStr.isEmpty()) "0" else quantityStr
+        }
 
+        // 🔥 BUTTON PRESS ANIMATION
+        fun View.pressAnim() {
+            this.animate().scaleX(0.92f).scaleY(0.92f).setDuration(60)
+                .withEndAction {
+                    this.animate().scaleX(1f).scaleY(1f).setDuration(60)
+                }
+        }
+
+        // 🔥 HAPTIC FEEDBACK
+        fun View.vibrate() {
+            this.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        // 🔥 KEYPAD LOOP
         for (i in 0 until gridPad.childCount) {
+
             val btn = gridPad.getChildAt(i)
-            if (btn !is Button) continue
+            if (btn !is com.google.android.material.button.MaterialButton) continue
+
+            val key = btn.text.toString()
+
+            // 🔥 HIDE DOT FOR NON-DECIMAL ITEMS
+            if (key == "." && !isDecimalAllowed) {
+                btn.visibility = View.GONE
+                continue
+            }
 
             btn.setOnClickListener {
 
-                val key = btn.text.toString()
+                btn.pressAnim()
+                btn.vibrate()
 
-                when (key) {
-                    "C" -> quantity = 0
-                    "⌫" -> quantity /= 10
-                    else -> {
-                        if (key.all { it.isDigit() }) {
-                            val digit = key.toInt()
+                when {
 
-                            // prevent overflow
-                            if (quantity <= MAX_QTY / 10) {
-                                quantity = (quantity * 10 + digit).coerceAtMost(MAX_QTY)
-                            }
+                    key == "C" -> {
+                        quantityStr = ""
+                    }
+
+                    key == "." -> {
+
+                        if (quantityStr.contains(".")) return@setOnClickListener
+
+                        quantityStr = if (quantityStr.isEmpty()) "0." else "$quantityStr."
+                    }
+
+                    key.all { it.isDigit() } -> {
+
+                        // prevent too long input
+                        if (quantityStr.length >= 7) return@setOnClickListener
+
+                        // limit decimal precision
+                        if (quantityStr.contains(".")) {
+                            val parts = quantityStr.split(".")
+                            if (parts.size == 2 && parts[1].length >= 3) return@setOnClickListener
                         }
+
+                        quantityStr += key
                     }
                 }
 
-                tvQuantity.text = quantity.toString()
+                updateDisplay()
             }
         }
 
+        // 🔥 BACKSPACE
+        btnBackspace.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+
+            if (quantityStr.isNotEmpty()) {
+                quantityStr = quantityStr.dropLast(1)
+                updateDisplay()
+            }
+        }
+
+        btnBackspace.setOnLongClickListener {
+            quantityStr = ""
+            updateDisplay()
+            true
+        }
+
+        // 🔥 ADD BUTTON
         btnAdd.setOnClickListener {
 
-            if (quantity <= 0) {
-                Toast.makeText(this, "Enter quantity", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            val quantity = quantityStr.toDoubleOrNull()
 
-            if (quantity > MAX_QTY) {
-                quantity = MAX_QTY
-                Toast.makeText(this, "Max quantity reached", Toast.LENGTH_SHORT).show()
+            if (quantity == null || quantity <= 0) {
+                Toast.makeText(this, "Enter valid quantity", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
             addToCart(product, quantity)
@@ -746,46 +817,58 @@ class DashboardActivity : BaseActivity() {
 
     private fun showDeleteDialog(product: Product) {
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Remove Product")
-            .setMessage("Remove ${product.name}?")
-            .setPositiveButton("Remove") { _, _ ->
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_delete, null)
 
-                lifecycleScope.launch {
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
 
-                    val db = AppDatabase.getDatabase(this@DashboardActivity)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-                    val token = getSharedPreferences("auth", MODE_PRIVATE)
-                        .getString("TOKEN", null)
+        view.findViewById<TextView>(R.id.tvMessage).text =
+            "Remove ${product.name}?"
 
-                    try {
-                        // Deactivate backend
-                        RetrofitClient.api.deactivateProduct(
-                            "Bearer $token",
-                            product.id
-                        )
+        view.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+            dialog.dismiss()
+        }
 
-                        // Remove locally
-                        db.productDao().deleteById(product.id)
+        // 🔥 Delete
+        view.findViewById<Button>(R.id.btnDelete).setOnClickListener {
 
-                        // Reload from Room
-                        val updatedList = db.productDao().getAll()
+            dialog.dismiss()
 
-                        runOnUiThread {
-                            productAdapter.updateData(updatedList)
-                        }
+            lifecycleScope.launch {
 
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            this@DashboardActivity,
-                            "Failed to remove product",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                val db = AppDatabase.getDatabase(this@DashboardActivity)
+
+                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("TOKEN", null)
+
+                try {
+                    RetrofitClient.api.deactivateProduct(
+                        "Bearer $token",
+                        product.id
+                    )
+
+                    db.productDao().deleteById(product.id)
+
+                    val updatedList = db.productDao().getAll()
+
+                    runOnUiThread {
+                        productAdapter.updateData(updatedList)
                     }
+
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        this@DashboardActivity,
+                        "Failed to remove product",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        dialog.show()
     }
 
     private fun loadAiNoticeBoard() {
@@ -983,27 +1066,6 @@ class DashboardActivity : BaseActivity() {
         Z_TO_A,
     }
 
-    private fun showSortDialog() {
-
-        val options = arrayOf(
-            "A → Z",
-            "Z → A"
-        )
-
-        AlertDialog.Builder(this)
-            .setTitle("Sort Products")
-            .setItems(options) { _, which ->
-
-                currentSort = when (which) {
-                    0 -> SortType.A_TO_Z
-                    1 -> SortType.Z_TO_A
-                    else -> SortType.A_TO_Z
-                }
-
-                loadProducts()
-            }
-            .show()
-    }
     private fun sortProducts(type: String) {
 
         lifecycleScope.launch(Dispatchers.Default) {

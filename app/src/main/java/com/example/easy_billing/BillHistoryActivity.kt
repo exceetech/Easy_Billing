@@ -17,9 +17,10 @@ import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BillHistoryActivity : BaseActivity() {
-
     private lateinit var rvBills: RecyclerView
     private lateinit var adapter: BillHistoryAdapter
     private lateinit var etSearch: EditText
@@ -37,7 +38,6 @@ class BillHistoryActivity : BaseActivity() {
 
     private var allBills: List<BillResponse> = emptyList()
 
-    // 🔥 Track active filter
     private var activeFilter: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +55,7 @@ class BillHistoryActivity : BaseActivity() {
         loadBills()
     }
 
-    // ================= INIT =================
+// ================= INIT =================
 
     private fun initViews() {
         rvBills = findViewById(R.id.rvBills)
@@ -70,7 +70,7 @@ class BillHistoryActivity : BaseActivity() {
         chipSortAmount = findViewById(R.id.btnSortAmount)
     }
 
-    // ================= RECYCLER =================
+// ================= RECYCLER =================
 
     private fun setupRecycler() {
         rvBills.layoutManager = LinearLayoutManager(this)
@@ -84,7 +84,7 @@ class BillHistoryActivity : BaseActivity() {
         rvBills.adapter = adapter
     }
 
-    // ================= LOAD =================
+// ================= LOAD =================
 
     private fun loadBills() {
         lifecycleScope.launch {
@@ -93,25 +93,30 @@ class BillHistoryActivity : BaseActivity() {
                 .getString("TOKEN", null)
 
             if (token == null) {
-                Toast.makeText(this@BillHistoryActivity, "User not logged in", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@BillHistoryActivity, "User not logged in", Toast.LENGTH_SHORT)
+                    .show()
                 return@launch
             }
 
             try {
                 val bills = RetrofitClient.api.getBills("Bearer $token")
 
-                allBills = bills
-                adapter.submitList(bills)
-                updateSummary(bills)
+                // ✅ Sort latest first
+                val sorted = bills.sortedByDescending { it.created_at }
+
+                allBills = sorted
+                adapter.submitList(sorted)
+                updateSummary(sorted)
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@BillHistoryActivity, "Failed to load bills", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@BillHistoryActivity, "Failed to load bills", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
 
-    // ================= SEARCH =================
+// ================= SEARCH =================
 
     private fun setupSearch() {
         etSearch.clearFocus()
@@ -128,7 +133,7 @@ class BillHistoryActivity : BaseActivity() {
 
                 searchRunnable = Runnable {
 
-                    val baseList = applyActiveFilter()
+                    val baseList = applyActiveFilter(allBills)
 
                     if (query.isEmpty()) {
                         adapter.submitList(baseList)
@@ -152,10 +157,9 @@ class BillHistoryActivity : BaseActivity() {
         })
     }
 
-    // ================= FILTERS =================
+// ================= FILTERS =================
 
     private fun setupFilters() {
-
         chipToday.setOnClickListener { toggleFilter("TODAY") }
         chipWeek.setOnClickListener { toggleFilter("WEEK") }
         chipMonth.setOnClickListener { toggleFilter("MONTH") }
@@ -164,63 +168,72 @@ class BillHistoryActivity : BaseActivity() {
 
     private fun toggleFilter(filter: String) {
 
-        // 🔥 Toggle logic
         activeFilter = if (activeFilter == filter) null else filter
 
-        val result = applyActiveFilter()
+        updateChipUI()
+
+        val result = applyActiveFilter(allBills)
         adapter.submitList(result)
         updateSummary(result)
     }
 
-    private fun applyActiveFilter(): List<BillResponse> {
+    private fun updateChipUI() {
+
+        val chips = listOf(chipToday, chipWeek, chipMonth, chipSortAmount)
+
+        chips.forEach { it.isChecked = false }
+
+        when (activeFilter) {
+            "TODAY" -> chipToday.isChecked = true
+            "WEEK" -> chipWeek.isChecked = true
+            "MONTH" -> chipMonth.isChecked = true
+            "SORT" -> chipSortAmount.isChecked = true
+        }
+    }
+
+    private fun applyActiveFilter(source: List<BillResponse>): List<BillResponse> {
+
+        val today = SimpleDateFormat("yyyy-MM-dd").format(Date())
 
         return when (activeFilter) {
 
-            "TODAY" -> {
-                val today = java.text.SimpleDateFormat("yyyy-MM-dd")
-                    .format(java.util.Date())
-
-                allBills.filter {
-                    it.created_at.startsWith(today)
-                }
+            "TODAY" -> source.filter {
+                it.created_at.startsWith(today)
             }
 
             "WEEK" -> {
-                val calendar = java.util.Calendar.getInstance()
-                calendar.add(java.util.Calendar.DAY_OF_YEAR, -7)
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.DAY_OF_YEAR, -7)
 
-                allBills.filter {
-                    val date = java.text.SimpleDateFormat("yyyy-MM-dd")
-                        .parse(it.created_at.substring(0, 10))
-                    date != null && date.after(calendar.time)
+                source.filter {
+                    val dateStr = it.created_at.substring(0, 10)
+                    val billDate = SimpleDateFormat("yyyy-MM-dd").parse(dateStr)
+                    billDate != null && billDate.after(cal.time)
                 }
             }
 
             "MONTH" -> {
-                val calendar = java.util.Calendar.getInstance()
-                calendar.add(java.util.Calendar.MONTH, -1)
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.MONTH, -1)
 
-                allBills.filter {
-                    val date = java.text.SimpleDateFormat("yyyy-MM-dd")
-                        .parse(it.created_at.substring(0, 10))
-                    date != null && date.after(calendar.time)
+                source.filter {
+                    val dateStr = it.created_at.substring(0, 10)
+                    val billDate = SimpleDateFormat("yyyy-MM-dd").parse(dateStr)
+                    billDate != null && billDate.after(cal.time)
                 }
             }
 
-            "SORT" -> {
-                allBills.sortedByDescending { it.total_amount }
-            }
+            "SORT" -> source.sortedByDescending { it.total_amount }
 
-            else -> allBills
+            else -> source
         }
     }
 
-    // ================= SUMMARY =================
+// ================= SUMMARY =================
 
     private fun updateSummary(bills: List<BillResponse>) {
 
-        val today = java.text.SimpleDateFormat("yyyy-MM-dd")
-            .format(java.util.Date())
+        val today = SimpleDateFormat("yyyy-MM-dd").format(Date())
 
         val todayBills = bills.filter {
             it.created_at.startsWith(today)

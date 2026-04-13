@@ -11,5 +11,6 @@ data class CreateBillRequest(
 
 data class BillItemRequest(
     val shop_product_id: Int,
-    val quantity: Int
+    val quantity: Double,
+    val variant: String?
 )

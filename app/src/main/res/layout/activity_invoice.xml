@@ -6,200 +6,317 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorSurface">
-
-    <!-- ================= HEADER CARD ================= -->
+    android:background="#F3F4F6">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="10dp"
+
+        app:cardCornerRadius="26dp"
+        app:cardElevation="12dp"
+        app:cardBackgroundColor="#2F2E2F">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+            android:gravity="center">
 
+            <!-- STORE NAME -->
             <TextView
                 android:id="@+id/tvStoreName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:text="My Store"
+                android:textColor="#FFFFFF"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnPrimaryContainer"
-                android:gravity="center"/>
+                android:letterSpacing="0.04"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
+            <!-- SMALL LINE -->
+            <View
+                android:layout_width="36dp"
+                android:layout_height="3dp"
+                android:layout_marginVertical="8dp"
+                android:background="#22C55E"/>
+
+            <!-- BILL INFO -->
             <TextView
                 android:id="@+id/tvBillInfo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Date: --"
-                android:textSize="14sp"
-                android:textColor="?attr/colorOnPrimaryContainer"
+                android:text="Date"
+                android:textColor="#9CA3AF"
+                android:textSize="12sp"
                 android:gravity="center"
-                android:layout_marginTop="6dp"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
-    <!-- ================= ITEMS ================= -->
-
+    <!-- 🔥 ITEMS -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvInvoiceItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingHorizontal="16dp"
-        android:clipToPadding="false"/>
-
-    <!-- ================= BOTTOM CARD ================= -->
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"/>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="?attr/colorSurface">
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="12dp"
 
+        app:cardCornerRadius="24dp"
+        app:cardElevation="12dp"
+        app:cardUseCompatPadding="true"
+
+        app:cardBackgroundColor="#FFFBFF"
+        app:strokeColor="#F1F5F9"
+        app:strokeWidth="1dp">
+
+
+        <!-- 🔥 BILL SUMMARY -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:padding="16dp"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <!-- TOTAL -->
-            <TextView
-                android:id="@+id/tvTotal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="₹0.00"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorPrimary"
-                android:gravity="end"/>
-
-            <!-- GST ROW -->
+            <!-- SUBTOTAL -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:text="Subtotal"
+                    android:textColor="#374151"
+                    android:textSize="14sp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvSubtotal"
+                    android:text="₹0"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+
+            <!-- GST -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="6dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_tax"
-                    app:tint="?attr/colorPrimary"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- LEFT: GST + % -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="GST"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_tax"
+                        app:tint="#6B7280"/>
+
+                    <TextView
+                        android:text="GST"
+                        android:textColor="#374151"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="6dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvGstPercent"
+                        android:text="(0%)"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"
+                        android:layout_marginStart="4dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <!-- RIGHT: GST AMOUNT -->
+                <TextView
+                    android:id="@+id/tvGst"
+                    android:text="₹0"
                     android:textStyle="bold"
-                    android:layout_marginStart="6dp"/>
-
-                <TextView
-                    android:id="@+id/tvGstPercent"
+                    android:textColor="#111827"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:layout_marginStart="4dp"/>
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <!-- DISCOUNT -->
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="6dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- LEFT: LABEL -->
+                <TextView
+                    android:text="Discount"
+                    android:textColor="#374151"
+                    android:textSize="14sp"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="10dp"/>
+
+                <!-- RIGHT: INPUT BOX -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxCornerRadiusBottomEnd="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etDiscount"
+                        android:hint="Discount"
+                        android:inputType="numberDecimal"
+                        android:padding="8dp"
+                        android:textSize="13sp"
+                        android:gravity="end"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- DIVIDER -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="#E5E7EB"/>
+
+            <!-- TOTAL -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:startIconDrawable="@drawable/ic_discount">
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etDiscount"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:text="Total"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:hint="Enter discount"
-                    android:inputType="numberDecimal"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:text="₹0"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#16A34A"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
 
             <!-- PAYMENT -->
             <RadioGroup
                 android:id="@+id/rgPaymentMethod"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginTop="12dp"
-                android:weightSum="4">
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
 
-                <RadioButton
-                    android:id="@+id/rbCash"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="Cash"
-                    android:layout_height="wrap_content"/>
+                <RadioButton android:id="@+id/rbCash" android:text="Cash" android:checked="true"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+                <RadioButton android:id="@+id/rbUpi" android:text="UPI"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+                <RadioButton android:id="@+id/rbCard" android:text="Card"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+                <RadioButton android:id="@+id/rbCredit" android:text="Credit"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
 
-                <RadioButton
-                    android:id="@+id/rbUpi"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="UPI"
-                    android:layout_height="wrap_content"/>
-
-                <RadioButton
-                    android:id="@+id/rbCard"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="Card"
-                    android:layout_height="wrap_content"/>
-
-                <RadioButton
-                    android:id="@+id/rbCredit"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="Credit"
-                    android:layout_height="wrap_content"/>
             </RadioGroup>
 
-            <!-- CONFIRM -->
+            <!-- BUTTON -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirm"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="20dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="18dp"
+
                 android:text="Confirm Bill"
+                android:textAllCaps="false"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp"
-                app:backgroundTint="?attr/colorPrimary"/>
+                android:textColor="@android:color/white"
 
-            <!-- PRINT -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPrint"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="10dp"
-                android:text="Print / Save PDF"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                app:cornerRadius="12dp"/>
+                android:backgroundTint="#16A34A"
+                android:elevation="8dp"
+                android:letterSpacing="0.04"
 
-            <!-- CLOSE -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClose"
+                app:icon="@drawable/ic_ok"
+                app:iconTint="@android:color/white"
+                app:iconPadding="8dp"
+                app:iconGravity="textStart"/>
+
+            <!-- ACTIONS -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                android:text="Close"
-                style="@style/Widget.Material3.Button.TextButton"/>
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPrint"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
+                    android:text="Print"
+
+                    app:icon="@drawable/ic_print"
+                    app:iconPadding="6dp"
+                    app:iconGravity="textStart"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClose"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
+                    android:text="Close"
+                    android:textColor="#EF4444"
+
+                    app:icon="@drawable/ic_close"
+                    app:iconTint="#EF4444"
+                    app:iconPadding="6dp"
+                    app:iconGravity="textStart"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            </LinearLayout>
 
         </LinearLayout>
-
     </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

@@ -16,6 +16,7 @@ class InvoiceAdapter(
     class InvoiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tvName)
         val qty: TextView = view.findViewById(R.id.tvQty)
+        val rate: TextView = view.findViewById(R.id.tvRate)
         val price: TextView = view.findViewById(R.id.tvPrice)
     }
 
@@ -27,16 +28,54 @@ class InvoiceAdapter(
 
     override fun onBindViewHolder(holder: InvoiceViewHolder, position: Int) {
 
-        val item = items[position
-        ]
-
+        val item = items[position]
         val context = holder.itemView.context
 
-        holder.name.text = item.product.name
-        holder.qty.text = "x${item.quantity}"
+        val product = item.product
+        val qty = item.quantity
+        val unit = product.unit?.lowercase() ?: "unit"
 
-        // ✅ FIXED: dynamic currency
-        holder.price.text = CurrencyHelper.format(context, item.subTotal())
+        // ✅ FORMAT QUANTITY
+        val formattedQty = if (qty % 1 == 0.0) {
+            qty.toInt().toString()
+        } else {
+            String.format("%.2f", qty).trimEnd('0').trimEnd('.')
+        }
+
+        // ✅ NAME
+        holder.name.text = buildString {
+            append(product.name)
+            if (!product.variant.isNullOrBlank()) {
+                append(" (${product.variant})")
+            }
+        }
+
+        // ✅ QUANTITY DISPLAY
+        holder.qty.text = when (unit) {
+            "kilogram" -> "$formattedQty kg"
+            "litre" -> "$formattedQty L"
+            "gram" -> "$formattedQty g"
+            "millilitre" -> "$formattedQty ml"
+            "piece" -> "x$formattedQty"
+            else -> "$formattedQty $unit"
+        }
+
+
+        val unitText = when (unit) {
+            "kilogram" -> "kg"
+            "litre" -> "L"
+            "gram" -> "g"
+            "millilitre" -> "ml"
+            "piece" -> "pc"
+            else -> unit
+        }
+
+        val formattedUnitPrice = CurrencyHelper.format(context, product.price)
+        val formattedSubtotal = CurrencyHelper.format(context, item.subTotal())
+
+        holder.qty.text = "$formattedQty $unitText"
+        holder.rate.text = "$formattedUnitPrice/$unitText"
+        holder.price.text = formattedSubtotal
     }
 
     override fun getItemCount() = items.size

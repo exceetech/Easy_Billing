@@ -11,16 +11,11 @@ import android.print.PrintDocumentInfo
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlin.system.measureTimeMillis
 
 class PdfPrintAdapter(
     private val context: Context,
     private val path: String,
-    private val shopId: String,
-    private val invoiceNumber: Long
+    private val jobName: String
 ) : PrintDocumentAdapter() {
 
     override fun onLayout(
@@ -36,31 +31,34 @@ class PdfPrintAdapter(
             return
         }
 
-        val fileName = File(path).name
-
-        val info = PrintDocumentInfo.Builder(fileName)
+        val info = PrintDocumentInfo.Builder("$jobName.pdf")
             .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-            .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
             .build()
 
         callback?.onLayoutFinished(info, true)
     }
 
     override fun onWrite(
-        pages: Array<PageRange>,
-        destination: ParcelFileDescriptor,
-        cancellationSignal: CancellationSignal,
-        callback: WriteResultCallback
+        pages: Array<out PageRange>?,
+        destination: ParcelFileDescriptor?,
+        cancellationSignal: CancellationSignal?,
+        callback: WriteResultCallback?
     ) {
 
-        val inputFile = File(path)
+        try {
+            val file = File(path)
 
-        FileInputStream(inputFile).use { input ->
-            FileOutputStream(destination.fileDescriptor).use { output ->
-                input.copyTo(output)
+            FileInputStream(file).use { input ->
+                FileOutputStream(destination?.fileDescriptor).use { output ->
+                    input.copyTo(output)
+                }
             }
-        }
 
-        callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
+            callback?.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            callback?.onWriteFailed(e.message)
+        }
     }
 }

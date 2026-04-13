@@ -1,75 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:gravity="center_vertical"
+
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
 
-    <!-- ITEM NAME -->
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="0dp"
-        android:layout_weight="2"
-        android:text="@string/item"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_height="wrap_content" />
+    android:layout_marginVertical="2dp"
+    android:layout_marginHorizontal="6dp"
 
-    <!-- MINUS -->
-    <Button
-        android:id="@+id/btnMinus"
-        android:text="-"
-        android:textSize="18sp"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#F44336"
-        android:minWidth="48dp"
-        android:minHeight="48dp"
-        android:layout_marginEnd="4dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    app:cardCornerRadius="18dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true"
 
-    <!-- QTY -->
-    <TextView
-        android:id="@+id/tvQty"
-        android:text="1"
-        android:textSize="16sp"
-        android:padding="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    app:cardBackgroundColor="#FFFAD1"
+    app:strokeWidth="0dp">
 
-    <!-- PLUS -->
-    <Button
-        android:id="@+id/btnPlus"
-        android:text="+"
-        android:textSize="18sp"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#4CAF50"
-        android:minWidth="48dp"
-        android:minHeight="48dp"
-        android:layout_marginStart="4dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- PRICE -->
-    <TextView
-        android:id="@+id/tvPrice"
-        android:text="@string/_0"
-        android:textSize="16sp"
-        android:layout_marginStart="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <!-- 🔥 NAME -->
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-    <!-- DELETE -->
-    <ImageButton
-        android:id="@+id/btnDelete"
-        android:src="@drawable/baseline_delete_24"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/delete_item"
-        android:layout_marginStart="8dp"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:tint="#F44336" />
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#111827"
 
-</LinearLayout>
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <!-- 🔥 CONTROLS ROW -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- LEFT SIDE -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- MINUS -->
+                <ImageButton
+                    android:id="@+id/btnMinus"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:src="@drawable/ic_minus"
+                    android:scaleType="center"
+                    android:background="@drawable/bg_minus_btn"                    android:contentDescription="Decrease"
+                    app:tint="#EF4444" />
+
+                <!-- QTY -->
+                <TextView
+                    android:id="@+id/tvQty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+
+                    android:background="@drawable/bg_variant_chip"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"/>
+
+                <!-- PLUS -->
+                <ImageButton
+                    android:id="@+id/btnPlus"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:src="@drawable/ic_plus"
+                    android:scaleType="center"
+                    android:background="@drawable/bg_plus_btn"                    android:contentDescription="Increase"
+                    app:tint="#22C55E" />
+            </LinearLayout>
+
+            <!-- PUSH RIGHT -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <!-- RIGHT SIDE -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- PRICE -->
+                <TextView
+                    android:id="@+id/tvPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+
+                    android:background="@drawable/bg_price_premium"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"/>
+
+                <!-- DELETE -->
+                <ImageButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/baseline_delete_24"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="#EF4444" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

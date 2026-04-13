@@ -32,7 +32,8 @@ class SyncManager(private val context: Context) {
                 val apiItems = items.map {
                     BillItemRequest(
                         shop_product_id = it.productId,
-                        quantity = it.quantity
+                        quantity = it.quantity,
+                        variant = it.productName
                     )
                 }
 

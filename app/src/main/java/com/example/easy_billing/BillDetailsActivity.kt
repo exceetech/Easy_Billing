@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +15,9 @@ import com.example.easy_billing.util.InvoicePdfGenerator
 import kotlinx.coroutines.launch
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.CurrencyHelper
+import java.util.Locale
 
-class BillDetailsActivity : BaseActivity() {
+class BillDetailsActivity : AppCompatActivity() {
 
     private lateinit var tvBillInfo: TextView
 
@@ -82,20 +84,33 @@ class BillDetailsActivity : BaseActivity() {
                 val bill = response.bill
                 val items = response.items
 
-                val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-                val storeName = prefs.getString("store_name", "My Store")
+                lifecycleScope.launch {
 
-                tvStoreName.text = storeName
+                    val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+                    val store = db.storeInfoDao().get()
 
-                tvBillInfo.text =
-                    "Invoice #${bill.bill_number}\nDate: ${bill.created_at}"
+                    tvStoreName.text = store?.name ?: "My Store"
+                }
+
+                val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                val outputFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+
+                val cleanDate = try {
+                    val raw = bill.created_at.substring(0, 19)
+                    val date = inputFormat.parse(raw)
+                    outputFormat.format(date!!)
+                } catch (e: Exception) {
+                    bill.created_at // fallback
+                }
+
+                tvBillInfo.text = "Invoice: #${bill.bill_number}\nDate: $cleanDate"
 
                 val subtotal = bill.total_amount - bill.gst + bill.discount
 
-                tvSubTotal.text = "Subtotal: ${CurrencyHelper.format(this@BillDetailsActivity, subtotal)}"
-                tvGst.text = "GST: ${CurrencyHelper.format(this@BillDetailsActivity, bill.gst)}"
-                tvDiscount.text = "Discount: ${CurrencyHelper.format(this@BillDetailsActivity, bill.discount)}"
-                tvTotal.text = "Total: ${CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)}"
+                tvSubTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, subtotal)}"
+                tvGst.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.gst)}"
+                tvDiscount.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.discount)}"
+                tvTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)}"
 
                 rvBillItems.adapter = BillDetailsAdapter(items)
 
@@ -140,10 +155,24 @@ class BillDetailsActivity : BaseActivity() {
                 )
 
                 val billItems = response.items.map {
+
+                    val safeUnit = when (it.unit?.lowercase()) {
+                        "kilogram" -> "kg"
+                        "gram" -> "g"
+                        "litre" -> "l"
+                        "millilitre" -> "ml"
+                        else -> it.unit ?: "unit"
+                    }
+
                     BillItem(
                         billId = response.bill.bill_id,
                         productId = it.shop_product_id,
+
                         productName = it.product_name,
+
+                        variant = it.variant ?: "",
+                        unit = safeUnit,
+
                         price = it.price,
                         quantity = it.quantity,
                         subTotal = it.subtotal
@@ -151,7 +180,7 @@ class BillDetailsActivity : BaseActivity() {
                 }
 
                 val storeInfo = db.storeInfoDao().get()
-                
+
                 InvoicePdfGenerator.generatePdfFromBill(
                     context = this@BillDetailsActivity,
                     bill = bill,

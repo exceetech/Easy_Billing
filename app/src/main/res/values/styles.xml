@@ -64,4 +64,29 @@
         <item name="android:textColorPrimary">#111827</item>
     </style>
 
+    <style name="PosKeyTall">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:layout_columnWeight">1</item>
+
+        <item name="android:textColor">#F8FAFC</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="backgroundTint">#1F2937</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
+
+    <style name="PosKeyClearTall">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_columnWeight">1</item>
+
+        <item name="android:textColor">#EF4444</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="backgroundTint">#2D1F1F</item>
+        <item name="cornerRadius">12dp</item>
+    </style>
 </resources>

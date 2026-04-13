@@ -43,7 +43,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_menu"
-                    android:tint="@android:color/black"/>
+                    app:tint="@android:color/black" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -94,7 +94,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_sort"
-                    android:tint="@android:color/black"/>
+                    app:tint="@android:color/black" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -113,55 +113,50 @@
                 android:background="#CCCCCC"
                 android:layout_marginHorizontal="6dp"/>
 
-            <!-- CART BUTTON -->
-            <FrameLayout
+            <LinearLayout
+                android:id="@+id/btnCartContainer"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginStart="6dp">
+                android:layout_height="40dp"
+                android:minWidth="110dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
 
-                <LinearLayout
-                    android:id="@+id/btnCartContainer"
+                <!-- ICON -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_cart"
+                    app:tint="@android:color/black" />
+
+                <!-- TEXT -->
+                <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
+                    android:layout_height="wrap_content"
+                    android:text="CART"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"/>
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_cart"
-                        android:tint="@android:color/black"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CART"
-                        android:textColor="@android:color/black"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:layout_marginStart="6dp"/>
-                </LinearLayout>
-
-                <!-- 🔥 BADGE -->
+                <!-- 🔥 BADGE INSIDE -->
                 <TextView
                     android:id="@+id/tvCartBadge"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_gravity="end|top"
-                    android:layout_marginTop="-4dp"
-                    android:layout_marginEnd="-4dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="8dp"
                     android:background="@drawable/badge_background"
-                    android:text="0"
-                    android:textSize="9sp"
+                    android:text="3"
+                    android:textSize="10sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    android:visibility="gone"/>
-            </FrameLayout>
+                    android:visibility="visible"/>
+            </LinearLayout>
 
         </LinearLayout>
 

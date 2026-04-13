@@ -23,7 +23,7 @@ object InvoicePdfGenerator {
         context: Context,
         bill: Bill,
         billItems: List<BillItem>,
-        storeInfo: StoreInfo?   // ✅ FROM ROOM
+        storeInfo: StoreInfo?
     ) {
 
         // ✅ UI SETTINGS ONLY (allowed)
@@ -113,12 +113,12 @@ object InvoicePdfGenerator {
 
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
 
-        val rateHeader = "Rate($currencySymbol)"
+        //val rateHeader = "Rate($currencySymbol)"
         val amtHeader = "Amt($currencySymbol)"
 
-        canvas.drawText("Item", colItem, y.toFloat(), paint)
-        canvas.drawText("Qty", colQty, y.toFloat(), paint)
-        canvas.drawText(rateHeader, colRate, y.toFloat(), paint)
+        canvas.drawText("Item Description", colItem, y.toFloat(), paint)
+        //canvas.drawText("Qty", colQty, y.toFloat(), paint)
+        //canvas.drawText(rateHeader, colRate, y.toFloat(), paint)
 
         val amtWidth = paint.measureText(amtHeader)
         canvas.drawText(amtHeader, colAmount - amtWidth, y.toFloat(), paint)
@@ -132,39 +132,62 @@ object InvoicePdfGenerator {
 
         billItems.forEach {
 
-            val words = it.productName.split(" ")
-            val lines = mutableListOf<String>()
-            var currentLine = ""
-
-            for (word in words) {
-                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-
-                if (paint.measureText(testLine) <= itemColumnWidth) {
-                    currentLine = testLine
-                } else {
-                    lines.add(currentLine)
-                    currentLine = word
-                }
+            // ✅ NAME + VARIANT
+            val displayName = if (!it.variant.isNullOrBlank()) {
+                "${it.productName} (${it.variant})"
+            } else {
+                it.productName
             }
 
-            if (currentLine.isNotEmpty()) lines.add(currentLine)
+            // ================= FORMAT =================
 
-            canvas.drawText(lines[0], colItem, y.toFloat(), paint)
-            canvas.drawText(it.quantity.toString(), colQty, y.toFloat(), paint)
+            val qtyText = if (it.quantity % 1 == 0.0) {
+                it.quantity.toInt().toString()
+            } else {
+                String.format("%.2f", it.quantity).trimEnd('0').trimEnd('.')
+            }
 
-            val rateText = "%.2f".format(it.price)
-            canvas.drawText(rateText, colRate, y.toFloat(), paint)
+            val unit = when (it.unit.lowercase()) {
+                "kilogram" -> "kg"
+                "gram" -> "g"
+                "litre" -> "L"
+                "millilitre" -> "ml"
+                "piece" -> "pc"
+                else -> it.unit
+            }
 
-            val amountText = "%.2f".format(it.subTotal)
-            val amountWidth = paint.measureText(amountText)
-            canvas.drawText(amountText, colAmount - amountWidth, y.toFloat(), paint)
+            val rateText = "$currencySymbol%.2f/$unit".format(it.price)
+            val amountText = "$currencySymbol%.2f".format(it.subTotal)
+
+            // ================= LINE 1 (NAME) =================
+            paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            paint.textSize = 14f
+
+            canvas.drawText(displayName, colItem, y.toFloat(), paint)
 
             y += 20
 
-            for (i in 1 until lines.size) {
-                canvas.drawText(lines[i], colItem, y.toFloat(), paint)
-                y += 18
-            }
+            // ================= LINE 2 (DETAILS) =================
+            paint.typeface = Typeface.MONOSPACE
+            paint.textSize = 13f
+
+            val leftText = "$qtyText × $rateText"
+
+            canvas.drawText(leftText, colItem, y.toFloat(), paint)
+
+            val amountWidth = paint.measureText(amountText)
+            canvas.drawText(amountText, colAmount - amountWidth, y.toFloat(), paint)
+
+            y += 24
+
+            // ================= SEPARATOR =================
+            val linePaint = Paint()
+            linePaint.color = Color.LTGRAY
+            linePaint.strokeWidth = 1f
+
+            canvas.drawLine(colItem, y.toFloat(), colAmount, y.toFloat(), linePaint)
+
+            y += 16
         }
 
         dashedLine()
@@ -212,31 +235,41 @@ object InvoicePdfGenerator {
 
         // ================= SAVE FILE =================
 
-        val shopNameSafe = storeName.replace(" ", "_")
+        val shopNameSafe = storeName
+            .trim()
+            .replace("\\s+".toRegex(), "_")
+            .ifEmpty { "Store" }
+
+        val billNoSafe = bill.billNumber
+            ?.trim()
+            ?.ifEmpty { "NA" } ?: "NA"
+
         val dateString = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
 
-        val fileName =
-            "${shopNameSafe}_${bill.billNumber}_${dateString}_${System.currentTimeMillis()}.pdf"
+        val baseName = listOf(shopNameSafe, billNoSafe, dateString)
+            .filter { it.isNotBlank() }
+            .joinToString("_")
+
+        val fileName = "$baseName.pdf"
 
         val file = File(
             context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
             fileName
         )
 
-        val fileOutput = FileOutputStream(file)
-        document.writeTo(fileOutput)
-        fileOutput.close()
+        FileOutputStream(file).use {
+            document.writeTo(it)
+        }
         document.close()
 
-        // ================= PRINT =================
+// ================= PRINT =================
 
-        val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
+        val printManager = context.getSystemService(PrintManager::class.java)
 
         val printAdapter = PdfPrintAdapter(
             context,
             file.absolutePath,
-            "invoice",
-            bill.billNumber.hashCode().toLong() // ✅ SAFE
+            baseName
         )
 
         val printAttributes = PrintAttributes.Builder()
@@ -244,12 +277,31 @@ object InvoicePdfGenerator {
             .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
             .build()
 
-        printManager.print(fileName, printAdapter, printAttributes)
+        printManager.print(baseName, printAdapter, printAttributes)
+    }
+
+    private fun extractUnitAndVariant(name: String): Pair<String, String?> {
+
+        val lower = name.lowercase()
+
+        val unit = when {
+            lower.contains("kg") || lower.contains("kilogram") -> "kg"
+            lower.contains("litre") || lower.contains("l") -> "L"
+            lower.contains("gram") || lower.contains("g") -> "g"
+            lower.contains("ml") || lower.contains("millilitre") -> "ml"
+            lower.contains("piece") || lower.contains("pc") -> "pc"
+            else -> "unit"
+        }
+
+        // extract variant inside ()
+        val variant = Regex("\\((.*?)\\)").find(name)?.groupValues?.get(1)
+
+        return Pair(unit, variant)
     }
 
     fun generateLedgerPdf(
         activity: Activity,
-        storeInfo: StoreInfo?,   // 🔥 SAME AS BILL
+        storeInfo: StoreInfo?,
         customerName: String,
         phone: String,
         rows: List<List<String>>,
@@ -456,8 +508,7 @@ object InvoicePdfGenerator {
             val printAdapter = PdfPrintAdapter(
                 activity,
                 file.absolutePath,
-                "ledger",
-                System.currentTimeMillis()
+                "Invoice"
             )
 
             val attributes = PrintAttributes.Builder()
