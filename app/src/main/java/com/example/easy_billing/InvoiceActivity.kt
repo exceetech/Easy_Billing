@@ -566,7 +566,7 @@ class InvoiceActivity : AppCompatActivity() {
                             dueAmount = response.due_amount,
                             serverId = response.id,
                             isSynced = true,
-                            shopId = shopId   // 🔥 REQUIRED
+                            shopId = shopId
                         )
                     )
 
