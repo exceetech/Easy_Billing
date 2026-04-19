@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -61,24 +62,53 @@ class ReportsActivity : BaseActivity() {
 
     private fun setupFilters() {
 
-        findViewById<Chip>(R.id.chipToday)?.setOnClickListener {
+        val chipToday = findViewById<Chip>(R.id.chipToday)
+        val chipWeek = findViewById<Chip>(R.id.chipWeek)
+        val chipMonth = findViewById<Chip>(R.id.chipMonth)
+        val chipYear = findViewById<Chip>(R.id.chipYear)
+        val chipCustom = findViewById<Chip>(R.id.chipCustom)
+
+        chipToday?.setOnClickListener {
+            selectChip(chipToday)
             notifyFragments(ReportFilter.TODAY)
         }
 
-        findViewById<Chip>(R.id.chipWeek)?.setOnClickListener {
+        chipWeek?.setOnClickListener {
+            selectChip(chipWeek)
             notifyFragments(ReportFilter.WEEK)
         }
 
-        findViewById<Chip>(R.id.chipMonth)?.setOnClickListener {
+        chipMonth?.setOnClickListener {
+            selectChip(chipMonth)
             notifyFragments(ReportFilter.MONTH)
         }
 
-        findViewById<Chip>(R.id.chipYear)?.setOnClickListener {
+        chipYear?.setOnClickListener {
+            selectChip(chipYear)
             notifyFragments(ReportFilter.YEAR)
         }
 
-        findViewById<Chip>(R.id.chipCustom)?.setOnClickListener {
+        chipCustom?.setOnClickListener {
+            selectChip(chipCustom)
             openCustomDatePicker()
+        }
+    }
+
+    // ---------------- bold for tab ----------------------
+    private fun selectChip(selectedChip: Chip) {
+
+        val chips = listOf(
+            findViewById<Chip>(R.id.chipToday),
+            findViewById<Chip>(R.id.chipWeek),
+            findViewById<Chip>(R.id.chipMonth),
+            findViewById<Chip>(R.id.chipYear),
+            findViewById<Chip>(R.id.chipCustom)
+        )
+
+        chips.forEach { chip ->
+            chip?.apply {
+                setTypeface(null, if (this == selectedChip) Typeface.BOLD else Typeface.NORMAL)
+            }
         }
     }
 

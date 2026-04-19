@@ -45,7 +45,13 @@ class ProductReportAdapter(
         val context = holder.itemView.context
 
         // 🏷 Product name
-        holder.tvProduct.text = item.product
+        val productText = if (!item.variant.isNullOrEmpty()) {
+            "${item.product} (${item.variant})"
+        } else {
+            item.product
+        }
+
+        holder.tvProduct.text = productText
 
         // 🧾 Quantity
         holder.tvQuantity.text = "${item.quantity} sold"

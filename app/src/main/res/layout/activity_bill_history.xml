@@ -1,194 +1,279 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:orientation="vertical"
+    android:background="#F8FAFC"
+    android:padding="16dp">
 
     <!-- ================= TOOLBAR ================= -->
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
-        app:title="Bill History"
-        app:titleCentered="true"
-        app:titleTextColor="@color/textPrimary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:elevation="0dp"
-        app:navigationIconTint="@color/textPrimary"/>
+        app:titleTextColor="@color/textPrimary"
+        app:navigationIconTint="@color/textPrimary" />
 
 
-    <!-- ================= SUMMARY CARD ================= -->
+    <!-- ================= SEARCH CARD ================= -->
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardSummary"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="?attr/colorOutline"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="6dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="10dp"
+        app:cardBackgroundColor="#FAFAFA"
+        app:strokeColor="#FFFFFF"
+        app:strokeWidth="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:padding="18dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:weightSum="2">
+            android:padding="4dp"
+            android:orientation="vertical"
+            android:focusableInTouchMode="true"
+            android:focusable="true">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                app:startIconDrawable="@drawable/ic_search"
+                app:startIconTint="?attr/colorPrimary"
+                app:endIconMode="clear_text"
+                app:boxBackgroundMode="none"
+                app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp">
 
-                <TextView
-                    android:text="@string/today_s_sales"
-                    android:textSize="13sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:hint="@string/search_invoice_or_product"
+                    android:inputType="textNoSuggestions"
+                    android:maxLength="50"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:autofillHints=""
+                    android:paddingStart="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
 
-                <TextView
-                    android:id="@+id/tvTodaySales"
-                    android:text="@string/_0_00"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end">
-
-                <TextView
-                    android:text="@string/bills_today"
-                    android:textSize="13sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvBillsToday"
-                    android:text="@string/_0"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-            </LinearLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
 
-    <!-- ================= SEARCH ================= -->
+    <!-- ================= KPI SUMMARY ROW ================= -->
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/searchContainer"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="20dp"
-        app:startIconDrawable="@drawable/ic_search"
-        app:endIconMode="clear_text"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        app:layout_constraintTop_toBottomOf="@id/cardSummary"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_marginTop="6dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etSearch"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+        <!-- Today's Sales Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="130dp"
+            android:layout_margin="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:rippleColor="#86EFAC"
+            app:strokeColor="#DCFCE7"
+            app:strokeWidth="2dp">
 
-            android:hint="@string/search_invoice_or_product"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="14dp">
 
-            android:maxLength="50"
-            android:inputType="textNoSuggestions"
-            android:singleLine="true"
+                <TextView
+                    android:text="@string/today_s_sales"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:maxLines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
-            android:importantForAutofill="no"
-            android:autofillHints=""/>
+                <TextView
+                    android:text="Revenue today"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/tvTodaySales"
+                    android:text="₹0.00"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_advance_badge"
+                    android:layout_gravity="start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bills Today Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="130dp"
+            android:layout_margin="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:rippleColor="#C7D2FE"
+            app:strokeColor="#E0E7FF"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:text="@string/bills_today"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:maxLines="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="Invoices raised"
+                    android:textSize="13sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/tvBillsToday"
+                    android:text="0"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_net_badge"
+                    android:layout_gravity="start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
 
 
     <!-- ================= FILTER CHIPS ================= -->
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/filterGroup"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingHorizontal="16dp"
-        app:singleSelection="true"
-        app:layout_constraintTop_toBottomOf="@id/searchContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_marginTop="6dp"
+        android:paddingHorizontal="8dp"
+        app:singleSelection="true">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnToday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/today"
-            style="@style/Widget.Material3.Chip.Filter"/>
+            style="@style/Widget.Material3.Chip.Filter" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnWeek"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/this_week"
-            style="@style/Widget.Material3.Chip.Filter"/>
+            style="@style/Widget.Material3.Chip.Filter" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnMonth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/this_month"
-            style="@style/Widget.Material3.Chip.Filter"/>
+            style="@style/Widget.Material3.Chip.Filter" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnSortAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sort_amount"
-            style="@style/Widget.Material3.Chip.Filter"/>
+            style="@style/Widget.Material3.Chip.Filter" />
 
     </com.google.android.material.chip.ChipGroup>
 
 
     <!-- ================= BILL LIST ================= -->
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvBills"
-        android:layout_width="0dp"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:paddingHorizontal="12dp"
-        android:clipToPadding="false"
+        android:layout_weight="1">
 
-        app:layout_constraintTop_toBottomOf="@id/filterGroup"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBills"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="16dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            android:background="@android:color/white" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+
+</LinearLayout>

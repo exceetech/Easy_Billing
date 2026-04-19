@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillResponse
 import com.example.easy_billing.util.CurrencyHelper
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BillHistoryAdapter(
     private val onBillClick: (BillResponse) -> Unit
@@ -30,7 +32,11 @@ class BillHistoryAdapter(
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvBillInfo: TextView = view.findViewById(R.id.tvBillInfo)
+        val tvAvatar: TextView       = view.findViewById(R.id.tvAvatar)
+        val tvBillNumber: TextView   = view.findViewById(R.id.tvBillNumber)
+        val tvBillDate: TextView     = view.findViewById(R.id.tvBillDate)
+        val tvBillAmount: TextView   = view.findViewById(R.id.tvBillAmount)
+        val tvPaymentMethod: TextView = view.findViewById(R.id.tvPaymentMethod)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -46,18 +52,46 @@ class BillHistoryAdapter(
         val bill = bills[position]
         val context = holder.itemView.context
 
-        val text = buildString {
-            append("Invoice #${bill.bill_number}\n")
-            append("Total: ${CurrencyHelper.format(context, bill.total_amount)}\n")
-            append("Payment: ${bill.payment_method}\n")
-            append("Date: ${bill.created_at}")
-        }
+        // Avatar — first character of bill number, uppercased
+        val initial = bill.bill_number.take(1).uppercase()
+        holder.tvAvatar.text = initial
 
-        holder.tvBillInfo.text = highlightText(text)
+        // Invoice number with search highlight
+        val invoiceLabel = "Invoice #${bill.bill_number}"
+        holder.tvBillNumber.text = highlightText(invoiceLabel)
 
-        // ✅ FINAL CLICK (reliable)
-        holder.tvBillInfo.setOnClickListener {
+        // Date — format from ISO string (yyyy-MM-dd'T'HH:mm or yyyy-MM-dd …)
+        holder.tvBillDate.text = formatDate(bill.created_at)
+
+        // Amount
+        holder.tvBillAmount.text = CurrencyHelper.format(context, bill.total_amount)
+
+        // Payment method with search highlight
+        holder.tvPaymentMethod.text = highlightText(bill.payment_method)
+
+        // Click
+        holder.itemView.setOnClickListener {
             onBillClick(bill)
+        }
+    }
+
+    // ================= DATE FORMAT =================
+
+    private fun formatDate(raw: String): String {
+        return try {
+            val parsers = listOf(
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()),
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()),
+                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            )
+            val date = parsers.firstNotNullOfOrNull { fmt ->
+                runCatching { fmt.parse(raw.substring(0, minOf(raw.length, 19))) }.getOrNull()
+            }
+            if (date != null)
+                SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(date)
+            else raw.substring(0, minOf(raw.length, 10))
+        } catch (e: Exception) {
+            raw.substring(0, minOf(raw.length, 10))
         }
     }
 

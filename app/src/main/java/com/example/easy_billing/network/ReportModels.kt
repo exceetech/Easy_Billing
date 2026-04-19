@@ -37,6 +37,7 @@ data class AverageBillResponse(
 
 data class TopProductResponse(
     val product: String,
+    val variant: String?,
     val quantity: Int,
     val revenue: Double
 )

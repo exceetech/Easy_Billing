@@ -123,8 +123,12 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
                 }
 
                 // 🔥 SAME API CALL (unchanged)
-                val products =
-                    RetrofitClient.api.getTopProducts("Bearer $token")
+                val products = RetrofitClient.api.getTopProducts(
+                    "Bearer $token",
+                    type,
+                    start,
+                    end
+                )
 
                 val sorted = products.sortedByDescending { it.revenue }
 

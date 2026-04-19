@@ -1,9 +1,11 @@
 package com.example.easy_billing.fragments
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,9 +17,8 @@ import com.example.easy_billing.adapter.PeakHourAdapter
 import com.example.easy_billing.network.PeakHourResponse
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.BarChartMarker
-import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ import java.util.*
 class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     private lateinit var rvPeakHours: RecyclerView
-    private lateinit var chartPeakHours: BarChart
+    private lateinit var chartPeakHours: LineChart
 
     private var currentFilter = ReportFilter.TODAY
     private var customStartDate: String? = null
@@ -38,7 +39,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rvPeakHours = view.findViewById(R.id.rvPeakHours)
+        rvPeakHours   = view.findViewById(R.id.rvPeakHours)
         chartPeakHours = view.findViewById(R.id.chartPeakHours)
 
         rvPeakHours.layoutManager = LinearLayoutManager(requireContext())
@@ -51,9 +52,9 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         startDate: String?,
         endDate: String?
     ) {
-        currentFilter = filter
+        currentFilter   = filter
         customStartDate = startDate
-        customEndDate = endDate
+        customEndDate   = endDate
 
         loadPeakHours()
     }
@@ -71,7 +72,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                 val calendar = Calendar.getInstance()
 
                 var start: String? = null
-                var end: String? = null
+                var end:   String? = null
                 var type = ""
 
                 when (currentFilter) {
@@ -116,11 +117,10 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                     }
 
                     ReportFilter.CUSTOM -> {
-                        // ✅ SAFE CHECK (no logic change)
                         if (customStartDate != null && customEndDate != null) {
                             start = customStartDate
-                            end = customEndDate
-                            type = "custom"
+                            end   = customEndDate
+                            type  = "custom"
                         } else {
                             return@launch
                         }
@@ -134,11 +134,11 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                     end
                 )
 
-                // 🔥 LIST (UNCHANGED)
+                // List — sorted by revenue descending (unchanged)
                 val sortedList = peak.sortedByDescending { it.revenue }
                 rvPeakHours.adapter = PeakHourAdapter(sortedList)
 
-                // 🔥 CHART
+                // Chart — revenue curve
                 drawChart(peak)
 
             } catch (e: Exception) {
@@ -156,91 +156,104 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     private fun drawChart(data: List<PeakHourResponse>) {
 
-        chartPeakHours.clear() // ✅ prevents overlay bug
+        chartPeakHours.clear()
 
         if (data.isEmpty()) {
             chartPeakHours.invalidate()
             return
         }
 
-        val revenueEntries = ArrayList<BarEntry>()
-        val billsEntries = ArrayList<BarEntry>()
-        val labels = ArrayList<String>()
-
         val sorted = data.sortedBy { it.hour }
 
-        sorted.forEachIndexed { index, item ->
-
-            revenueEntries.add(BarEntry(index.toFloat(), item.revenue.toFloat()))
-            billsEntries.add(BarEntry(index.toFloat(), item.bills.toFloat()))
-            labels.add("${item.hour}:00")
+        // ── Revenue entries only ──────────────────────────────────────────────
+        val revenueEntries = sorted.mapIndexed { index, item ->
+            Entry(index.toFloat(), item.revenue.toFloat())
         }
 
-        val revenueSet = BarDataSet(revenueEntries, "")
-        val billsSet = BarDataSet(billsEntries, "")
+        val labels = sorted.map { "${it.hour}:00" }
 
-        revenueSet.axisDependency = YAxis.AxisDependency.LEFT
-        billsSet.axisDependency = YAxis.AxisDependency.RIGHT
+        // ── Dataset styling ───────────────────────────────────────────────────
+        val primaryColor = ContextCompat.getColor(requireContext(), R.color.primarySoft)
 
-        revenueSet.color = requireContext().getColor(R.color.primarySoft)
-        billsSet.color = requireContext().getColor(R.color.secondaryColor)
+        val revenueSet = LineDataSet(revenueEntries, "Revenue").apply {
 
-        revenueSet.setDrawValues(false)
-        billsSet.setDrawValues(false)
+            // Smooth cubic curve
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            cubicIntensity = 0.2f
 
-        val barData = BarData(revenueSet, billsSet)
+            // Line
+            color = primaryColor
+            lineWidth = 2.5f
 
-        // ✅ stable grouping (IMPORTANT)
-        val barWidth = 0.4f
-        val barSpace = 0.02f
-        val groupSpace = 0.2f
+            // Dots
+            setCircleColor(primaryColor)
+            circleRadius = 4f
+            circleHoleRadius = 2f
+            setDrawCircleHole(true)
 
-        barData.barWidth = barWidth
+            // Gradient fill under the curve
+            setDrawFilled(true)
+            fillAlpha = 80
+            fillColor = primaryColor
 
-        val groupWidth = barData.getGroupWidth(groupSpace, barSpace)
+            // No value labels on points
+            setDrawValues(false)
 
-        chartPeakHours.data = barData
-        chartPeakHours.xAxis.axisMinimum = 0f
-        chartPeakHours.xAxis.axisMaximum = groupWidth * sorted.size
+            // Highlight line
+            highLightColor = Color.parseColor("#FF9800")
+            highlightLineWidth = 1.5f
+            enableDashedHighlightLine(8f, 4f, 0f)
 
-        chartPeakHours.groupBars(0f, groupSpace, barSpace)
-        chartPeakHours.xAxis.setCenterAxisLabels(true)
+            axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT
+        }
 
-        // 🔥 Marker
+        val lineData = LineData(revenueSet)
+        chartPeakHours.data = lineData
+
+        // ── Marker ────────────────────────────────────────────────────────────
         chartPeakHours.marker = BarChartMarker(requireContext())
 
-        // 🔥 UI STYLE (UNCHANGED)
+        // ── Chart-level settings ──────────────────────────────────────────────
         chartPeakHours.apply {
 
             description.isEnabled = false
-            legend.isEnabled = false
+            legend.isEnabled      = false
 
             setTouchEnabled(true)
             setDragEnabled(true)
             setScaleEnabled(false)
+            setPinchZoom(false)
 
-            animateY(900)
+            setDrawGridBackground(false)
+            setBackgroundColor(Color.TRANSPARENT)
+
+            extraBottomOffset = 8f
+
+            animateX(900)
         }
 
-        // 🔥 X Axis
+        // ── X Axis ─────────────────────────────────────────────────────────────
         chartPeakHours.xAxis.apply {
-            valueFormatter = IndexAxisValueFormatter(labels)
-            position = XAxis.XAxisPosition.BOTTOM
-            granularity = 1f
+            valueFormatter    = IndexAxisValueFormatter(labels)
+            position          = XAxis.XAxisPosition.BOTTOM
+            granularity       = 1f
             setDrawGridLines(false)
+            textColor         = Color.parseColor("#6B7280")
+            textSize          = 10f
+            labelRotationAngle = -45f
         }
 
-        // 🔥 LEFT Axis
+        // ── Left Axis (Revenue) ────────────────────────────────────────────────
         chartPeakHours.axisLeft.apply {
             axisMinimum = 0f
             setDrawGridLines(true)
+            gridColor   = Color.parseColor("#F3F4F6")
+            textColor   = Color.parseColor("#6B7280")
+            textSize    = 10f
         }
 
-        // 🔥 RIGHT Axis
-        chartPeakHours.axisRight.apply {
-            axisMinimum = 0f
-            setDrawGridLines(false)
-        }
+        // ── Right Axis (disabled) ──────────────────────────────────────────────
+        chartPeakHours.axisRight.isEnabled = false
 
         chartPeakHours.invalidate()
     }

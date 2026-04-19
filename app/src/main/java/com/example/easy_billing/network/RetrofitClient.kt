@@ -10,7 +10,7 @@ object RetrofitClient {
 
     //private const val BASE_URL = "http://34.47.246.206:8000/"
 
-    private const val BASE_URL = "http://192.168.1.16:8080/"
+    private const val BASE_URL = "http://192.168.1.11:8080/"
 
     //private const val BASE_URL = "http://192.168.31.212:8080/"
 

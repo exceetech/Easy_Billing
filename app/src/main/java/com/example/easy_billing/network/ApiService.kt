@@ -132,7 +132,10 @@ interface ApiService {
 
     @GET("reports/top-products")
     suspend fun getTopProducts(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start") start: String?,
+        @Query("end") end: String?
     ): List<TopProductResponse>
 
     @GET("reports/top-revenue-products")
