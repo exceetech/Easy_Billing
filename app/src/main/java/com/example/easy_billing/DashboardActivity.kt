@@ -94,13 +94,15 @@ class DashboardActivity : BaseActivity() {
             if (result.resultCode == RESULT_OK) {
                 clearCart()
 
-                // 🔥 FORCE SYNC AFTER BILL
                 lifecycleScope.launch {
                     val syncManager = SyncManager(this@DashboardActivity)
                     syncManager.syncBills()
                     syncManager.pullAccountsFromServer()
                     syncManager.syncAccounts()
                     syncManager.syncCredit()
+
+                    // 🔥 ADD THIS
+                    loadProducts()
                 }
             }
         }
@@ -453,6 +455,16 @@ class DashboardActivity : BaseActivity() {
             drawerLayout.closeDrawers()
         }
 
+        findViewById<MaterialButton>(R.id.btnInventory).setOnClickListener {
+            startActivity(Intent(this, InventoryActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<MaterialButton>(R.id.btnProfit).setOnClickListener {
+            startActivity(Intent(this, ProfitActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
         findViewById<MaterialButton>(R.id.btnSubscription).setOnClickListener {
             startActivity(Intent(this, SubscriptionActivity::class.java))
             drawerLayout.closeDrawers()
@@ -565,9 +577,13 @@ class DashboardActivity : BaseActivity() {
                 val backendProducts =
                     RetrofitClient.api.getMyProducts("Bearer $token")
 
-                db.productDao().deleteAll()
+                val existingProducts = db.productDao().getAll()
+                val existingMap = existingProducts.associateBy { it.id }
 
                 backendProducts.forEach {
+
+                    val existing = existingMap[it.id]
+
                     db.productDao().insert(
                         Product(
                             id = it.id,
@@ -575,6 +591,7 @@ class DashboardActivity : BaseActivity() {
                             variant = it.variant ?: "",
                             unit = it.unit,
                             price = it.price,
+                            trackInventory = existing?.trackInventory ?: false,
                             isCustom = false
                         )
                     )
@@ -588,16 +605,27 @@ class DashboardActivity : BaseActivity() {
                 ).show()
             }
 
+            // ================= 🔥 ADD THIS PART =================
+
             val localProducts = db.productDao().getAll()
 
+            val inventoryList = db.inventoryDao().getAll()
+
+            val inventoryMap = inventoryList.associate {
+                it.productId to it.currentStock
+            }
+
             val sortedList = when (currentSort) {
-
                 SortType.A_TO_Z -> localProducts.sortedBy { it.name.lowercase() }
-
                 SortType.Z_TO_A -> localProducts.sortedByDescending { it.name.lowercase() }
             }
 
-            productAdapter.updateData(sortedList)
+            withContext(Dispatchers.Main) {
+                productAdapter.updateData(sortedList)
+
+                // 🔥 THIS IS THE MAIN FIX
+                productAdapter.setInventoryMap(inventoryMap)
+            }
         }
     }
 
@@ -609,38 +637,112 @@ class DashboardActivity : BaseActivity() {
 
         val MAX_QTY = 10000.0
 
-        val existing = cartItems.find { it.product.id == product.id }
+        lifecycleScope.launch {
 
-        if (existing != null) {
+            val db = AppDatabase.getDatabase(this@DashboardActivity)
+            val inventory = db.inventoryDao().getInventory(product.id)
 
-            val newQty = existing.quantity + qty
+            // ================= 🔥 INVENTORY CHECK =================
+
+            if (product.trackInventory) {
+
+                if (inventory == null || inventory.currentStock <= 0) {
+                    Toast.makeText(this@DashboardActivity, "Out of stock", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+            }
+
+            val existing = cartItems.find { it.product.id == product.id }
+
+            val currentQty = existing?.quantity ?: 0.0
+            val newQty = currentQty + qty
+
+            // ================= 🔥 MAX LIMIT =================
 
             if (newQty > MAX_QTY) {
-                existing.quantity = MAX_QTY
-                cartAdapter.notifyDataSetChanged()
-                Toast.makeText(this, "Max quantity limit reached", Toast.LENGTH_SHORT).show()
-                return
+
+                Toast.makeText(this@DashboardActivity, "Max quantity limit reached", Toast.LENGTH_SHORT).show()
+
+                if (existing != null) {
+                    existing.quantity = MAX_QTY
+                    cartAdapter.notifyDataSetChanged()
+                    updateTotal()
+                }
+
+                return@launch
             }
 
-            existing.quantity = newQty
+            // ================= 🔥 STOCK LIMIT CHECK =================
 
-        } else {
+            if (product.trackInventory && inventory != null && newQty > inventory.currentStock) {
 
-            if (qty > MAX_QTY) {
-                Toast.makeText(this, "Max quantity limit is $MAX_QTY", Toast.LENGTH_SHORT).show()
-                return
+                val allowedQty = inventory.currentStock
+
+                runOnUiThread {
+
+                    val view = layoutInflater.inflate(R.layout.dialog_limited_stock, null)
+
+                    val dialog = AlertDialog.Builder(this@DashboardActivity)
+                        .setView(view)
+                        .create()
+
+                    dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                    val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+                    val btnCancel = view.findViewById<Button>(R.id.btnCancel)
+                    val btnAdd = view.findViewById<Button>(R.id.btnAddAvailable)
+
+                    // 🔥 Dynamic text
+                    tvMessage.text = "Only $allowedQty available.\nDo you want to add available quantity?"
+                    btnAdd.text = "Add $allowedQty"
+
+                    // ❌ Cancel
+                    btnCancel.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                    // ✅ Add Available
+                    btnAdd.setOnClickListener {
+
+                        if (existing != null) {
+                            existing.quantity = allowedQty
+                        } else {
+                            cartItems.add(
+                                CartItem(
+                                    product = product,
+                                    quantity = allowedQty
+                                )
+                            )
+                        }
+
+                        cartAdapter.notifyDataSetChanged()
+                        updateTotal()
+
+                        dialog.dismiss()
+                    }
+
+                    dialog.show()
+                }
+
+                return@launch
             }
 
-            cartItems.add(
-                CartItem(
-                    product = product,
-                    quantity = qty
+            // ================= 🔥 NORMAL FLOW =================
+
+            if (existing != null) {
+                existing.quantity = newQty
+            } else {
+                cartItems.add(
+                    CartItem(
+                        product = product,
+                        quantity = qty
+                    )
                 )
-            )
-        }
+            }
 
-        cartAdapter.notifyDataSetChanged()
-        updateTotal()
+            cartAdapter.notifyDataSetChanged()
+            updateTotal()
+        }
     }
 
     private fun updateTotal() {
@@ -817,58 +919,88 @@ class DashboardActivity : BaseActivity() {
 
     private fun showDeleteDialog(product: Product) {
 
-        val view = layoutInflater.inflate(R.layout.dialog_confirm_delete, null)
+        lifecycleScope.launch {
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(view)
-            .create()
+            val db = AppDatabase.getDatabase(this@DashboardActivity)
 
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            // 🔥 GET STOCK FROM INVENTORY
+            val stockQty = InventoryManager.getTotalStock(
+                db = db,
+                productId = product.id
+            )
 
-        view.findViewById<TextView>(R.id.tvMessage).text =
-            "Remove ${product.name}?"
+            val view = layoutInflater.inflate(R.layout.dialog_confirm_delete, null)
 
-        view.findViewById<Button>(R.id.btnCancel).setOnClickListener {
-            dialog.dismiss()
-        }
+            val dialog = AlertDialog.Builder(this@DashboardActivity)
+                .setView(view)
+                .create()
 
-        // 🔥 Delete
-        view.findViewById<Button>(R.id.btnDelete).setOnClickListener {
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-            dialog.dismiss()
+            val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+            val btnDelete = view.findViewById<Button>(R.id.btnDelete)
+            val btnCancel = view.findViewById<Button>(R.id.btnCancel)
 
-            lifecycleScope.launch {
+            // 🔥 BLOCK DELETE IF STOCK EXISTS
+            if (product.trackInventory && stockQty > 0.0) {
 
-                val db = AppDatabase.getDatabase(this@DashboardActivity)
+                tvMessage.text =
+                    "⚠️ Cannot delete ${product.name}\n\nStock available: $stockQty\n\nReduce stock to 0 first."
 
-                val token = getSharedPreferences("auth", MODE_PRIVATE)
-                    .getString("TOKEN", null)
+                btnDelete.text = "OK"
 
-                try {
-                    RetrofitClient.api.deactivateProduct(
-                        "Bearer $token",
-                        product.id
-                    )
+                btnDelete.setOnClickListener {
+                    dialog.dismiss()
+                }
 
-                    db.productDao().deleteById(product.id)
+            } else {
 
-                    val updatedList = db.productDao().getAll()
+                // ✅ ALLOW DELETE
+                tvMessage.text = "Remove ${product.name}?"
 
-                    runOnUiThread {
-                        productAdapter.updateData(updatedList)
+                btnDelete.text = "Delete"
+
+                btnDelete.setOnClickListener {
+
+                    dialog.dismiss()
+
+                    lifecycleScope.launch {
+
+                        val token = getSharedPreferences("auth", MODE_PRIVATE)
+                            .getString("TOKEN", null)
+
+                        try {
+
+                            RetrofitClient.api.deactivateProduct(
+                                "Bearer $token",
+                                product.id
+                            )
+
+                            db.productDao().deleteById(product.id)
+
+                            val updatedList = db.productDao().getAll()
+
+                            runOnUiThread {
+                                productAdapter.updateData(updatedList)
+                            }
+
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                this@DashboardActivity,
+                                "Failed to remove product",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
-
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        this@DashboardActivity,
-                        "Failed to remove product",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             }
-        }
 
-        dialog.show()
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
     }
 
     private fun loadAiNoticeBoard() {

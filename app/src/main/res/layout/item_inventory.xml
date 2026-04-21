@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:layout_marginVertical="2dp"
+    android:layout_marginHorizontal="6dp"
+
+    app:cardCornerRadius="18dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true"
+
+    app:cardBackgroundColor="#FFFAD1"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 🔥 HEADER ROW -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- PRODUCT NAME -->
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+
+                android:text="Product Name"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#111827"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <!-- 🔥 STOCK BADGE -->
+            <TextView
+                android:id="@+id/tvStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="10"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+
+                android:background="@drawable/bg_stock_badge"/>
+        </LinearLayout>
+
+        <!-- 🔥 COST + LABEL -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical">
+
+            <!-- LABEL -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:textSize="13sp"
+                android:textColor="#6B7280"/>
+
+            <!-- VALUE -->
+            <TextView
+                android:id="@+id/tvCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="8dp"
+
+                android:text="₹0.00"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#111827"/>
+        </LinearLayout>
+
+        <!-- 🔥 DIVIDER -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="14dp"
+            android:background="#E5E7EB"/>
+
+        <!-- 🔥 ACTION BUTTONS -->
+        <!-- 🔥 ACTION BUTTONS -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <!-- ➕ ADD STOCK -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddStock"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="52dp"
+
+                android:text="Add"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+
+                app:icon="@drawable/ic_plus"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+
+                app:cornerRadius="16dp"
+                app:backgroundTint="#16A34A"/>
+
+            <!-- ➖ REDUCE -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReduceStock"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="52dp"
+
+                android:layout_marginStart="8dp"
+
+                android:text="Reduce"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+
+                app:icon="@drawable/ic_minus"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+
+                app:cornerRadius="16dp"
+                app:backgroundTint="#F59E0B"/>
+
+            <!-- 🧹 CLEAR STOCK -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearStock"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="52dp"
+
+                android:layout_marginStart="8dp"
+
+                android:text="Clear"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+
+                app:cornerRadius="16dp"
+                app:backgroundTint="#DC2626"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

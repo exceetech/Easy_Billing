@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9FAFB">
+
+    <!-- ================= TOOLBAR ================= -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:titleTextColor="@color/textPrimary"
+        app:navigationIconTint="@color/textPrimary" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F9FAFB"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/filterContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- TODAY (SELECTED STYLE) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToday"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:text="Today"
+                android:textAllCaps="false"
+                android:textColor="#111827"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                app:backgroundTint="#E5E7EB"
+                app:strokeColor="#D1D5DB"
+                app:strokeWidth="1dp"
+                app:elevation="2dp"
+                app:rippleColor="#33000000" />
+
+            <!-- COMMON BUTTON STYLE -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWeek"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:text="Week"
+                android:textAllCaps="false"
+                android:textColor="#4B5563"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                app:backgroundTint="#F3F4F6"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp"
+                app:rippleColor="#33000000" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMonth"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:text="Month"
+                android:textAllCaps="false"
+                android:textColor="#4B5563"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                app:backgroundTint="#F3F4F6"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp"
+                app:rippleColor="#33000000" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAll"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:text="All"
+                android:textAllCaps="false"
+                android:textColor="#4B5563"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                app:backgroundTint="#F3F4F6"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp"
+                app:rippleColor="#33000000" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCustom"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Custom"
+                android:textAllCaps="false"
+                android:textColor="#4B5563"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="22dp"
+                app:backgroundTint="#F3F4F6"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp"
+                app:rippleColor="#33000000" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- ================= PREMIUM PROFIT KPI ROW ================= -->
+    <LinearLayout
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:orientation="horizontal"
+
+        android:weightSum="5"
+
+        android:paddingHorizontal="6dp">
+
+        <!-- 💸 EXPENSE -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="170dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:padding="14dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="Expense"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:text="Stock purchase"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tvExpense"
+                    android:text="₹0"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/bg_expense_badge"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 💰 REVENUE -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="170dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="#BFDBFE"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:padding="14dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="Revenue"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:text="Sales income"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tvRevenue"
+                    android:text="₹0"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/bg_revenue_badge"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 📦 COST -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="170dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="#FED7AA"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:padding="14dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="Cost"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:text="Cost of sold items"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tvCost"
+                    android:text="₹0"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/bg_cost_badge"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ⚠️ LOSS -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="170dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="#FECACA"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:padding="14dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="Loss"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1F2937"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:text="Damaged / expired"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tvLoss"
+                    android:text="₹0"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/bg_loss_badge"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 🚀 NET PROFIT -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="180dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="8dp"
+            app:strokeColor="#BBF7D0"
+            app:cardBackgroundColor="#ECFDF5"
+            app:strokeWidth="2dp">
+
+            <LinearLayout
+                android:padding="16dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="Net Profit"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#065F46"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <TextView
+                    android:text="Final earnings"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="2dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tvNetProfit"
+                    android:text="₹0"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#16A34A"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- ================= TABS ================= -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabIndicatorColor="#16A34A"
+        app:tabIndicatorHeight="3dp"
+        app:tabTextColor="#6B7280"
+        app:tabSelectedTextColor="#16A34A"/>
+
+    <!-- ================= VIEWPAGER ================= -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+</LinearLayout>

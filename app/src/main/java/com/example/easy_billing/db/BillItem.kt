@@ -17,6 +17,9 @@ data class BillItem(
     val quantity: Double,
     val subTotal: Double,
 
+    val costPriceUsed: Double = 0.0,
+    val profit: Double = 0.0,
+
     @ColumnInfo(name = "is_synced")
     var isSynced: Boolean = false
 )

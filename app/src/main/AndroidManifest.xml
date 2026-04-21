@@ -71,6 +71,11 @@
         <activity
             android:name=".AiDashboardActivity"/>
         <activity
+            android:name=".InventoryActivity"/>
+
+        <activity
+            android:name=".ProfitActivity"/>
+        <activity
             android:name=".LocalizationSettingsActivity"/>
 
         <activity

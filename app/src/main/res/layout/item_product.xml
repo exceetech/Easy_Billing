@@ -1,115 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:id="@+id/cardView"
-
     android:layout_width="match_parent"
-    android:layout_height="140dp"
-    android:layout_margin="8dp"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
 
-    app:cardCornerRadius="20dp"
-    app:cardElevation="10dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="1dp"
+    app:rippleColor="?attr/colorPrimary">
 
-    app:cardBackgroundColor="#FFFFFF"
-    app:rippleColor="?attr/colorPrimary"
-
-    app:strokeColor="#FFFFFF"
-    app:strokeWidth="2dp">
-
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/productContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="14dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- 🔥 MAIN CONTENT -->
+        <!-- ── ROW 1: Name + Variant chip ── -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="top">
 
-            <!-- PRODUCT NAME -->
-            <TextView
-                android:id="@+id/tvProductName"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#111827"
-                android:maxLines="2"
-                android:ellipsize="end"/>
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <!-- TRANSLATED NAME -->
+                <TextView
+                    android:id="@+id/tvProductName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:letterSpacing="-0.02"/>
+
+                <!-- Translated name: shown only when translation enabled -->
+                <TextView
+                    android:id="@+id/tvTranslatedName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOutline"
+                    android:fontFamily="serif"
+                    android:visibility="gone"/>
+
+                <!-- Low stock badge: sits inline below name, no floating -->
+                <TextView
+                    android:id="@+id/tvLowStockBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Low stock"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#633806"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="2dp"
+                    android:background="@drawable/bg_badge_warning"
+                    android:letterSpacing="0.03"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <!-- Variant chip: right-aligned, never overlaps name -->
             <TextView
-                android:id="@+id/tvTranslatedName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:layout_marginTop="6dp"
-
-                android:textSize="14sp"
-                android:textColor="#6B7280"
-
-                android:fontFamily="sans-serif-medium"
-
-                android:letterSpacing="0.02"
-
-                android:maxLines="1"
-                android:ellipsize="end"
-
-                android:alpha="0.9"
-
-                android:visibility="gone"/>
-
-            <!-- Spacer -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
-
-            <!-- PRICE -->
-            <TextView
-                android:id="@+id/tvProductPrice"
+                android:id="@+id/tvVariantName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:textSize="15sp"
+                android:layout_marginStart="10dp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                android:textColor="@color/background"
+                android:textColor="#185FA5"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_variant_chip"
+                android:visibility="gone"/>
 
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
-
-                android:background="@drawable/price_badge_bg"
-
-                android:layout_gravity="start"/>
         </LinearLayout>
 
-        <!-- 🔥 VARIANT BADGE (ALIGNED WITH NAME LINE) -->
-        <TextView
-            android:id="@+id/tvVariantName"
+        <!-- ── DIVIDER ── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="?attr/colorOutlineVariant"/>
+
+        <!-- ── ROW 2: Price block + Stock chip ── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Price + unit stacked vertically -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvProductPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:letterSpacing="-0.02"/>
+
+                <TextView
+                    android:id="@+id/tvProductUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOutline"/>
+
+            </LinearLayout>
+
+            <!-- Stock chip: only shown for tracked products -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Status dot -->
+                <View
+                    android:id="@+id/viewStockDot"
+                    android:layout_width="7dp"
+                    android:layout_height="7dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/bg_stock_dot"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvStock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="@color/white"
+                    android:paddingVertical="5dp"
+                    android:background="@drawable/bg_stock_chip"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/flOutOfStockOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#40FFFFFF" android:visibility="visible">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
 
-            android:layout_gravity="top|end"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="4dp"
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:alpha="0.7"
+                android:src="@drawable/ic_out_of_stock" />
 
-            android:textSize="14sp"
-            android:textStyle="normal"
-            android:textColor="#2563EB"
-
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-
-            android:background="@drawable/bg_variant_chip"
-
-            android:elevation="3dp"
-
-            android:visibility="gone"/>
+        </LinearLayout>
 
     </FrameLayout>
 

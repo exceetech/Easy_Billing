@@ -10,6 +10,7 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.network.AddProductRequest
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.InventoryManager
 import kotlinx.coroutines.launch
 
 class AddProductsActivity : BaseActivity() {
@@ -255,6 +256,12 @@ class AddProductsActivity : BaseActivity() {
         val etCustomName = dialogView.findViewById<EditText>(R.id.etDialogCustomName)
         val etVariant = dialogView.findViewById<EditText>(R.id.etVariantName)
         val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
+
+        val switchInventory = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTrackInventory)
+        val layoutInventory = dialogView.findViewById<LinearLayout>(R.id.layoutInventoryFields)
+        val etStock = dialogView.findViewById<EditText>(R.id.etInitialStock)
+        val etCost = dialogView.findViewById<EditText>(R.id.etCostPrice)
+
         val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
 
@@ -263,6 +270,7 @@ class AddProductsActivity : BaseActivity() {
         layoutCustomName.visibility =
             if (selectedItem == "Others") View.VISIBLE else View.GONE
 
+        // ================= UNIT SETUP =================
         val units = listOf("piece", "kilogram", "litre", "gram", "millilitre")
         val unitAdapter = ArrayAdapter(
             this,
@@ -271,6 +279,11 @@ class AddProductsActivity : BaseActivity() {
         )
         etUnit.setAdapter(unitAdapter)
         etUnit.setText("piece", false)
+
+        // ================= INVENTORY TOGGLE =================
+        switchInventory.setOnCheckedChangeListener { _, isChecked ->
+            layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
 
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(dialogView)
@@ -288,37 +301,42 @@ class AddProductsActivity : BaseActivity() {
             }
 
             val price = priceText.toDoubleOrNull()
-            if (price == null) {
+            if (price == null || price <= 0) {
                 toast("Invalid price")
                 return@setOnClickListener
             }
 
-            if (price <= 0) {
-                toast("Price must be greater than 0")
-                return@setOnClickListener
-            }
-
-            val MAX_PRICE = 1000000.0
-            if (price > MAX_PRICE) {
-                toast("Price cannot exceed ₹$MAX_PRICE")
+            if (price > 1_000_000) {
+                toast("Price too high")
                 return@setOnClickListener
             }
 
             val name = if (selectedItem == "Others") {
                 etCustomName.text.toString().trim()
-            } else {
-                selectedItem
-            }
+            } else selectedItem
 
             if (name.isEmpty()) {
                 toast("Enter product name")
                 return@setOnClickListener
             }
 
-            // 🔥 NEW FIELDS
             val variantInput = etVariant.text.toString().trim()
             val variantName = if (variantInput.isEmpty()) null else variantInput
+
             val unit = normalizeUnit(etUnit.text.toString())
+
+            val trackInventory = switchInventory.isChecked
+
+            val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
+            val costPrice = etCost.text.toString().toDoubleOrNull() ?: 0.0
+
+            // 🔥 VALIDATION FOR INVENTORY
+            if (trackInventory) {
+                if (stockQty <= 0 || costPrice <= 0) {
+                    toast("Enter stock and cost price")
+                    return@setOnClickListener
+                }
+            }
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null)
@@ -326,7 +344,10 @@ class AddProductsActivity : BaseActivity() {
             lifecycleScope.launch {
                 try {
 
-                    val response = RetrofitClient.api.addProductToShop(
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    RetrofitClient.api.addProductToShop(
                         "Bearer $token",
                         AddProductRequest(
                             name = name,
@@ -336,37 +357,60 @@ class AddProductsActivity : BaseActivity() {
                         )
                     )
 
-                    val message = response.message ?: ""
+                    // 🔥 STEP 1: CHECK EXISTING PRODUCT
+                    val existingProduct = db.productDao()
+                        .getByNameAndVariant(name, variantName)
 
-                    when {
-                        message.contains("updated", true) -> {
-                            toast("Price updated")
-                        }
+                    val productId: Int
 
-                        message.contains("reactivated", true) -> {
-                            toast("Product restored")
-                        }
+                    if (existingProduct != null) {
 
-                        else -> {
-                            toast("Product added")
-                        }
+                        // 🔥 REUSE PRODUCT
+                        productId = existingProduct.id
+
+                        // 🔥 UPDATE PRICE (optional)
+                        db.productDao().deleteById(existingProduct.id)
+
+                        db.productDao().insert(
+                            existingProduct.copy(
+                                price = price,
+                                trackInventory = trackInventory
+                            )
+                        )
+
+                    } else {
+
+                        // 🔥 CREATE NEW PRODUCT
+                        val newId = db.productDao().insert(
+                            Product(
+                                name = name,
+                                variant = variantName,
+                                unit = unit,
+                                price = price,
+                                trackInventory = trackInventory,
+                                isCustom = (selectedItem == "Others")
+                            )
+                        )
+
+                        productId = newId.toInt()
                     }
 
-                    // ✅ LOCAL DB SYNC (IMPORTANT)
-                    db.productDao().insert(
-                        Product(
-                            name = name,
-                            variant = variantName,
-                            unit = unit,
-                            price = price,
-                            isCustom = (selectedItem == "Others")
+                    // ================= ADD STOCK =================
+                    if (trackInventory) {
+                        InventoryManager.addStock(
+                            db = db,
+                            productId = productId,
+                            quantity = stockQty,
+                            costPrice = costPrice
                         )
-                    )
+                    }
 
+                    toast("Product saved successfully")
                     dialog.dismiss()
                     finish()
 
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     toast("Failed to add product")
                 }
             }

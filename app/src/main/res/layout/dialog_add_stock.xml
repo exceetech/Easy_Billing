@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_dialog_rounded"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- ICON -->
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:src="@android:drawable/ic_input_add"
+        app:tint="#10B981" />
+
+    <!-- TITLE -->
+    <TextView
+        android:text="Add Stock"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- QUANTITY INPUT -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etQty"
+            android:hint="Enter quantity"
+            android:inputType="numberDecimal"
+            android:textColor="#111827"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- COST INPUT -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCost"
+            android:hint="Enter cost"
+            android:inputType="numberDecimal"
+            android:textColor="#111827"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- BUTTON ROW -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <!-- CANCEL -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Cancel"
+            android:textColor="#111827"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#E5E7EB"
+            app:rippleColor="?attr/colorControlHighlight"/>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="1dp"/>
+
+        <!-- ADD -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAdd"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Add"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#10B981"
+            app:rippleColor="#33FFFFFF"/>
+    </LinearLayout>
+
+</LinearLayout>

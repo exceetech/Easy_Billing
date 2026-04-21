@@ -13,6 +13,7 @@ import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
 import androidx.core.graphics.toColorInt
 import androidx.core.content.edit
+import com.example.easy_billing.db.AppDatabase
 
 class AiDashboardActivity : BaseActivity() {
 
@@ -75,32 +76,38 @@ class AiDashboardActivity : BaseActivity() {
 
             try {
 
+                val db = AppDatabase.getDatabase(this@AiDashboardActivity)
+
                 val response = RetrofitClient.api.getAiReport("Bearer $token")
 
-                if (response.report_data.isEmpty()) {
-                    forceClearUi()
-                    return@launch
-                }
-
+                // ================= BACKEND DATA =================
                 reportData = response.report_data.toMutableList()
 
-                val totalRevenue = response.report_data.sumOf { it.revenue }
-
+                val totalRevenue = reportData.sumOf { it.revenue }
                 tvRevenue.text = "₹$totalRevenue"
 
-                renderTable(response.report_data)
+                renderTable(reportData)
 
-                var text = response.ai_report
+                // ================= BACKEND AI TEXT =================
+                var backendText = response.ai_report
+                backendText = backendText.replace("&lt;", "<")
+                backendText = backendText.replace("&gt;", ">")
+                backendText = backendText.replace("\n", "<br>")
 
-                // Fix escaped HTML if model returns it
-                text = text.replace("&lt;", "<")
-                text = text.replace("&gt;", ">")
+                // ================= LOCAL AI =================
+                val localInsights = generateLocalInsights(db)
 
-                // Convert new lines to HTML
-                text = text.replace("\n", "<br>")
+                val localText = if (localInsights.isEmpty()) {
+                    ""
+                } else {
+                    "<br><br><b>Smart Insights:</b><br>" +
+                            localInsights.joinToString("<br>") { "• $it" }
+                }
+
+                val finalText = backendText + localText
 
                 tvAiInsights.text = Html.fromHtml(
-                    text,
+                    finalText,
                     Html.FROM_HTML_MODE_LEGACY
                 )
 
@@ -113,6 +120,55 @@ class AiDashboardActivity : BaseActivity() {
                 ).show()
             }
         }
+    }
+
+
+    private suspend fun generateLocalInsights(db: AppDatabase): List<String> {
+
+        val insights = mutableListOf<String>()
+
+        val billItems = db.billItemDao().getAllItems()
+        val inventory = db.inventoryDao().getAll()
+
+        if (billItems.isEmpty()) return emptyList()
+
+        // ================= BEST SELLER =================
+        val bestSeller = billItems
+            .groupBy { it.productName }
+            .mapValues { it.value.sumOf { item -> item.quantity } }
+            .maxByOrNull { it.value }
+
+        bestSeller?.let {
+            insights.add("🔥 ${it.key} is your best selling product")
+        }
+
+        // ================= PROFIT =================
+        val profitMap = billItems
+            .groupBy { it.productName }
+            .mapValues { it.value.sumOf { it.profit } }
+
+        val bestProfit = profitMap.maxByOrNull { it.value }
+        val worstProfit = profitMap.minByOrNull { it.value }
+
+        bestProfit?.let {
+            insights.add("💰 ${it.key} gives highest profit")
+        }
+
+        worstProfit?.let {
+            if (it.value < 0) {
+                insights.add("❌ ${it.key} is causing loss")
+            }
+        }
+
+        // ================= LOW STOCK =================
+        inventory.forEach {
+
+            if (it.currentStock <= 5) {
+                insights.add("📦 Low stock alert for Product ID ${it.productId}")
+            }
+        }
+
+        return insights.take(5) // limit
     }
 
     private fun setupSorting() {

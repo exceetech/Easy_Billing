@@ -3,15 +3,18 @@ package com.example.easy_billing
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.util.CurrencyHelper
-import com.google.android.material.card.MaterialCardView
-import com.example.easy_billing.util.PastelColor
 import com.example.easy_billing.util.GoogleTranslator
+import com.example.easy_billing.util.PastelColor
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.*
 
 class ProductAdapter(
@@ -21,96 +24,22 @@ class ProductAdapter(
     private val translationEnabled: Boolean
 ) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(DiffCallback()) {
 
-    private var fullList: List<Product> = emptyList()
+    // ─────────────────────────────────────────────
+    // State
+    // ─────────────────────────────────────────────
 
-    // 🔥 Scoped coroutine (instead of GlobalScope)
+    private var fullList: List<Product> = emptyList()
+    private var inventoryMap: Map<Int, Double> = emptyMap()
+
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    // ─────────────────────────────────────────────
+    // Public API
+    // ─────────────────────────────────────────────
 
-        private val name: TextView = view.findViewById(R.id.tvProductName)
-        private val translatedView: TextView =
-            view.findViewById(R.id.tvTranslatedName)
-        private val variantView: TextView =
-            view.findViewById(R.id.tvVariantName)
-
-        private val price: TextView = view.findViewById(R.id.tvProductPrice)
-        private val card: MaterialCardView = view.findViewById(R.id.cardView)
-
-        fun bind(product: Product) {
-
-            // ================= NAME =================
-            name.text = product.name
-
-            // ================= VARIANT =================
-            val variantText = product.variant?.takeIf { it.isNotBlank() }
-
-            if (variantText != null) {
-                variantView.visibility = View.VISIBLE
-                variantView.text = variantText
-            } else {
-                variantView.visibility = View.GONE
-            }
-
-            // ================= TRANSLATION =================
-            if (translationEnabled && language != "en") {
-
-                translatedView.visibility = View.VISIBLE
-                translatedView.text = "..."
-
-                val currentName = product.name
-
-                scope.launch {
-
-                    val translated = withContext(Dispatchers.IO) {
-                        GoogleTranslator.translate(currentName, language)
-                    }
-
-                    // 🔥 Prevent wrong binding due to recycling
-                    if (name.text == currentName) {
-                        translatedView.text = translated
-                    }
-                }
-
-            } else {
-                translatedView.visibility = View.GONE
-            }
-
-            // ================= PRICE =================
-            val context = itemView.context
-            val formattedPrice = CurrencyHelper.format(context, product.price)
-
-            val unit = product.unit?.takeIf { it.isNotBlank() } ?: "unit"
-            val unitText = formatUnit(unit)
-
-            price.text = "$formattedPrice / $unitText"
-
-            // ================= UI =================
-            val color = PastelColor.random()
-            card.setCardBackgroundColor(color)
-
-            itemView.setOnClickListener {
-                onItemClick(product)
-            }
-
-            itemView.setOnLongClickListener {
-                onItemLongClick(product)
-                true
-            }
-        }
-    }
-
-    // ================= ADAPTER =================
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_product, parent, false)
-
-        return ProductViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    fun setInventoryMap(map: Map<Int, Double>) {
+        inventoryMap = map
+        notifyDataSetChanged()
     }
 
     fun updateData(newList: List<Product>) {
@@ -118,46 +47,179 @@ class ProductAdapter(
         submitList(newList)
     }
 
-    // ================= FILTER =================
-
     fun filter(query: String) {
-
         if (query.isBlank()) {
             submitList(fullList)
             return
         }
-
         val q = query.trim()
-
-        val filtered = fullList.filter {
-            it.name.contains(q, true) ||
-                    (it.variant?.contains(q, true) ?: false)
-        }
-
-        submitList(filtered)
+        submitList(fullList.filter {
+            it.name.contains(q, ignoreCase = true) ||
+                    it.variant?.contains(q, ignoreCase = true) == true
+        })
     }
 
-    private fun formatUnit(unit: String): String {
-        return when (unit.lowercase()) {
-            "piece" -> "Pc"
-            "kg" -> "Kg"
-            "litre" -> "L"
-            "gram" -> "g"
-            "ml" -> "ml"
-            else -> unit
+    fun cancelScope() {
+        scope.cancel()
+    }
+
+    // ─────────────────────────────────────────────
+    // RecyclerView
+    // ─────────────────────────────────────────────
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_product, parent, false)
+        return ProductViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    // ─────────────────────────────────────────────
+    // ViewHolder
+    // ─────────────────────────────────────────────
+
+    inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        private val card: MaterialCardView = view.findViewById(R.id.cardView)
+        private val name: TextView         = view.findViewById(R.id.tvProductName)
+        private val translated: TextView   = view.findViewById(R.id.tvTranslatedName)
+        private val variant: TextView      = view.findViewById(R.id.tvVariantName)
+        private val price: TextView        = view.findViewById(R.id.tvProductPrice)
+        private val unit: TextView         = view.findViewById(R.id.tvProductUnit)
+        private val stockDot: View         = view.findViewById(R.id.viewStockDot)
+        private val stock: TextView        = view.findViewById(R.id.tvStock)
+        private val lowBadge: TextView     = view.findViewById(R.id.tvLowStockBadge)
+        private val overlay: FrameLayout   = view.findViewById(R.id.flOutOfStockOverlay)
+
+        // Guards async translation against recycled views
+        private var boundName: String = ""
+
+        fun bind(product: Product) {
+            val context = itemView.context
+
+            // ── Hard reset ───────────────────────────────────────────────
+            card.alpha          = 1f
+            card.isClickable    = true
+            stock.visibility    = View.GONE
+            stockDot.visibility = View.GONE
+            overlay.visibility  = View.GONE
+            lowBadge.visibility = View.GONE
+
+            // ── Card tint ────────────────────────────────────────────────
+            card.setCardBackgroundColor(PastelColor.random())
+
+            // ── Name ─────────────────────────────────────────────────────
+            boundName = product.name
+            name.text = product.name
+
+            // ── Variant chip ─────────────────────────────────────────────
+            val variantText = product.variant?.takeIf { it.isNotBlank() }
+            variant.visibility = if (variantText != null) View.VISIBLE else View.GONE
+            variant.text       = variantText ?: ""
+
+            // ── Translation ──────────────────────────────────────────────
+            if (translationEnabled && language != "en") {
+                translated.visibility = View.VISIBLE
+                translated.text       = "…"
+                val snapshot = product.name
+                scope.launch {
+                    val result = withContext(Dispatchers.IO) {
+                        GoogleTranslator.translate(snapshot, language)
+                    }
+                    if (boundName == snapshot) translated.text = result
+                }
+            } else {
+                translated.visibility = View.GONE
+            }
+
+            // ── Price ────────────────────────────────────────────────────
+            val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
+            price.text = CurrencyHelper.format(context, product.price)
+            unit.text  = "per $unitLabel"
+
+            // ── Stock logic ──────────────────────────────────────────────
+            val qty = inventoryMap[product.id] ?: 0.0
+
+            when {
+
+                // ── Non-tracked product: no stock UI shown at all ─────────
+                !product.trackInventory -> {
+                    // stock chip, dot, and lowBadge remain GONE
+                    setClickListeners(product)
+                }
+
+                // ── Out of stock ──────────────────────────────────────────
+                qty <= 0 -> {
+                    overlay.visibility  = View.VISIBLE
+                    card.alpha          = 0.55f
+                    card.isClickable    = false
+                    itemView.setOnClickListener {
+                        Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
+                    }
+                    itemView.setOnLongClickListener { onItemLongClick(product); true }
+                }
+
+                // ── Low stock (≤ 5) ───────────────────────────────────────
+                qty <= 5 -> {
+                    lowBadge.visibility = View.VISIBLE
+
+                    stockDot.visibility = View.VISIBLE
+                    stockDot.background.setTint(0xFFEF9F27.toInt())
+
+                    stock.visibility = View.VISIBLE
+                    stock.text = "${String.format("%.2f", qty)} $unitLabel left"
+                    stock.setBackgroundResource(R.drawable.bg_stock_orange)
+                    stock.setTextColor(0xFF633806.toInt())
+
+                    setClickListeners(product)
+                }
+
+                // ── Normal stock ──────────────────────────────────────────
+                else -> {
+                    stockDot.visibility = View.VISIBLE
+                    stockDot.background.setTint(0xFF639922.toInt())
+
+                    stock.visibility = View.VISIBLE
+                    stock.text = "${String.format("%.2f", qty)} $unitLabel in stock"
+                    stock.setBackgroundResource(R.drawable.bg_stock_green)
+                    stock.setTextColor(0xFF27500A.toInt())
+
+                    setClickListeners(product)
+                }
+            }
+        }
+
+        private fun setClickListeners(product: Product) {
+            itemView.setOnClickListener { onItemClick(product) }
+            itemView.setOnLongClickListener { onItemLongClick(product); true }
         }
     }
 
-    // ================= DIFF =================
+    // ─────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────
+
+    private fun formatUnit(unit: String): String = when (unit.lowercase()) {
+        "piece"  -> "Pc"
+        "kg"     -> "Kg"
+        "litre"  -> "L"
+        "gram"   -> "g"
+        "ml"     -> "ml"
+        else     -> unit
+    }
+
+    // ─────────────────────────────────────────────
+    // DiffCallback
+    // ─────────────────────────────────────────────
 
     class DiffCallback : DiffUtil.ItemCallback<Product>() {
+        override fun areItemsTheSame(oldItem: Product, newItem: Product) =
+            oldItem.id == newItem.id
 
-        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
-            return oldItem == newItem
-        }
+        override fun areContentsTheSame(oldItem: Product, newItem: Product) =
+            oldItem == newItem
     }
 }

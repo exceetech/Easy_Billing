@@ -158,82 +158,168 @@ class InvoiceActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
 
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+            try {
 
-            val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-            val subTotal = items.sumOf { it.subTotal() }
-            val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
-            val gstAmount = (subTotal * gstPercent) / 100
-            val total = subTotal + gstAmount - discount
+                val db = AppDatabase.getDatabase(this@InvoiceActivity)
 
-            // ✅ STEP 1: SAVE LOCALLY FIRST
-            val billId = db.billDao().insertBill(
-                Bill(
-                    billNumber = billNumber,
-                    date = date,
-                    subTotal = subTotal,
-                    gst = gstAmount,
-                    discount = discount,
-                    total = total,
-                    paymentMethod = getPaymentMethod(),
-                    isSynced = false
-                )
-            ).toInt()
+                val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+                val subTotal = items.sumOf { it.subTotal() }
+                val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+                val gstAmount = (subTotal * gstPercent) / 100
+                val total = subTotal + gstAmount - discount
 
-            db.billItemDao().insertAll(
-                items.map {
-                    BillItem(
-                        billId = billId,
-                        productId = it.product.id,
-
-                        productName = it.product.name,
-                        variant = it.product.variant,
-                        unit = it.product.unit ?: "unit",
-
-                        price = it.product.price,
-                        quantity = it.quantity,
-                        subTotal = it.subTotal(),
-
+                // ================= SAVE BILL =================
+                val billId = db.billDao().insertBill(
+                    Bill(
+                        billNumber = billNumber,
+                        date = date,
+                        subTotal = subTotal,
+                        gst = gstAmount,
+                        discount = discount,
+                        total = total,
+                        paymentMethod = getPaymentMethod(),
                         isSynced = false
                     )
+                ).toInt()
+
+                val billItemsToInsert = mutableListOf<BillItem>()
+
+                // ================= PHASE 1: VALIDATE =================
+                for (cartItem in items) {
+
+                    val product = cartItem.product
+
+                    // 🔥 ONLY CHECK IF TRACKING ENABLED
+                    if (product.trackInventory) {
+
+                        val inventory = db.inventoryDao().getInventory(product.id)
+
+                        if (inventory == null || inventory.currentStock < cartItem.quantity) {
+
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@InvoiceActivity,
+                                    "Out of stock: ${product.name}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+
+                            isBillSaved = false
+                            btnConfirm.isEnabled = true
+                            return@launch
+                        }
+                    }
                 }
-            )
 
-            // ✅ STEP 2: TRY API ONLY IF ONLINE
-            try {
-                val token = getSharedPreferences("auth", MODE_PRIVATE)
-                    .getString("TOKEN", null)
+                // ================= PHASE 2: PREPARE BILL ITEMS =================
+                for (cartItem in items) {
 
-                val request = CreateBillRequest(
-                    bill_number = "",
-                    items = items.map {
-                        BillItemRequest(it.product.id, it.quantity, it.product.variant)
-                    },
-                    payment_method = getPaymentMethod(),
-                    discount = discount,
-                    gst = gstAmount,
-                    total_amount = total
-                )
+                    val product = cartItem.product
+                    val quantity = cartItem.quantity
+                    val subtotalItem = cartItem.subTotal()
 
-                val response = RetrofitClient.api.createBill("Bearer $token", request)
+                    val inventory = db.inventoryDao().getInventory(product.id)
 
-                if (response.bill_number.isNotEmpty()) {
-                    billNumber = response.bill_number
+                    val avgCost = inventory?.averageCost ?: 0.0
+                    val costUsed = avgCost * quantity
+                    val profit = subtotalItem - costUsed
 
-                    db.billDao().updateBillNumber(billId, billNumber)
-                    db.billDao().markBillSynced(billId)
-                    db.billItemDao().markItemsSynced(billId)
+                    billItemsToInsert.add(
+                        BillItem(
+                            billId = billId,
+                            productId = product.id,
+                            productName = product.name,
+                            variant = product.variant,
+                            unit = product.unit ?: "unit",
+                            price = product.price,
+                            quantity = quantity,
+                            subTotal = subtotalItem,
+                            costPriceUsed = costUsed,
+                            profit = profit,
+                            isSynced = false
+                        )
+                    )
                 }
 
-            } catch (_: Exception) {
-                // offline → will sync later
-            }
+                // ================= PHASE 3: UPDATE INVENTORY (FIXED) =================
+                for (cartItem in items) {
 
-            savedBillId = billId
+                    val product = cartItem.product
 
-            withContext(Dispatchers.Main) {
-                btnPrint.isEnabled = true
-                Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()
+                    // 🔥 ONLY REDUCE IF TRACKED
+                    if (product.trackInventory) {
+
+                        InventoryManager.reduceStock(
+                            db = db,
+                            productId = product.id,
+                            quantity = cartItem.quantity
+                        )
+
+                        db.inventoryLogDao().insert(
+                            InventoryLog(
+                                productId = cartItem.product.id,
+                                type = "SALE",
+                                quantity = cartItem.quantity,
+                                price = cartItem.product.price,
+                                date = System.currentTimeMillis()
+                            )
+                        )
+                    }
+                }
+
+                // ================= INSERT ITEMS =================
+                db.billItemDao().insertAll(billItemsToInsert)
+
+                savedBillId = billId
+
+                // ================= API CALL =================
+                try {
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    val request = CreateBillRequest(
+                        bill_number = "",
+                        items = items.map {
+                            BillItemRequest(it.product.id, it.quantity, it.product.variant)
+                        },
+                        payment_method = getPaymentMethod(),
+                        discount = discount,
+                        gst = gstAmount,
+                        total_amount = total
+                    )
+
+                    val response = RetrofitClient.api.createBill("Bearer $token", request)
+
+                    if (response.bill_number.isNotEmpty()) {
+
+                        db.billDao().updateBillNumber(savedBillId, response.bill_number)
+                        db.billDao().markBillSynced(savedBillId)
+                        db.billItemDao().markItemsSynced(savedBillId)
+                    }
+
+                } catch (_: Exception) {
+                    // offline safe
+                }
+
+                withContext(Dispatchers.Main) {
+                    btnPrint.isEnabled = true
+                    Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()
+                }
+
+            } catch (e: Exception) {
+
+                e.printStackTrace()
+
+                isBillSaved = false
+
+                withContext(Dispatchers.Main) {
+                    btnConfirm.isEnabled = true
+                    Toast.makeText(
+                        this@InvoiceActivity,
+                        e.message ?: "Error saving bill",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
