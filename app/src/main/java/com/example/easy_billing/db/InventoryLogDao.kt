@@ -44,4 +44,12 @@ interface InventoryLogDao {
         WHERE type = 'ADD'
     """)
     suspend fun getTotalExpense(): Double?
+
+    @Query("SELECT * FROM inventory_log WHERE isSynced = 0")
+
+    suspend fun getUnsyncedLogs(): List<InventoryLog>
+
+    @Query("UPDATE inventory_log SET isSynced = 1 WHERE id IN (:ids)")
+
+    suspend fun markAsSynced(ids: List<Int>)
 }

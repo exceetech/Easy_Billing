@@ -19,5 +19,6 @@ data class InventoryLog(
     val price: Double,
     // cost price for ADD/LOSS, selling price for SALE
 
-    val date: Long
+    val date: Long,
+    val isSynced: Boolean = false
 )

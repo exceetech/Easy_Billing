@@ -15,13 +15,8 @@ object InventoryManager {
         costPrice: Double
     ) {
 
-        if (productId <= 0) {
-            throw Exception("Invalid productId")
-        }
-
-        if (quantity <= 0 || costPrice <= 0) {
-            throw Exception("Invalid quantity or cost price")
-        }
+        require(productId > 0) { "Invalid productId" }
+        require(quantity > 0 && costPrice > 0) { "Invalid quantity or cost price" }
 
         val inventoryDao = db.inventoryDao()
         val transactionDao = db.inventoryTransactionDao()
@@ -30,7 +25,7 @@ object InventoryManager {
 
         if (existing == null) {
 
-            // 🔥 FIRST TIME STOCK
+            // 🔥 FIRST STOCK ENTRY
             inventoryDao.insert(
                 Inventory(
                     productId = productId,
@@ -55,12 +50,13 @@ object InventoryManager {
                 existing.copy(
                     currentStock = newStock,
                     averageCost = newAvg,
+                    isActive = true,
                     isSynced = false
                 )
             )
         }
 
-        // 🔥 ADD THIS BLOCK
+        // 🔥 LOG (ONLY PLACE WHERE LOG IS CREATED)
         db.inventoryLogDao().insert(
             InventoryLog(
                 productId = productId,
@@ -71,7 +67,7 @@ object InventoryManager {
             )
         )
 
-        // 🔥 TRANSACTION LOG
+        // 🔥 TRANSACTION
         transactionDao.insert(
             InventoryTransaction(
                 productId = productId,
@@ -87,16 +83,12 @@ object InventoryManager {
     suspend fun reduceStock(
         db: AppDatabase,
         productId: Int,
-        quantity: Double
+        quantity: Double,
+        type: String = "SALE" // SALE / LOSS / ADJUST
     ) {
 
-        if (productId <= 0) {
-            throw Exception("Invalid productId")
-        }
-
-        if (quantity <= 0) {
-            throw Exception("Invalid quantity")
-        }
+        require(productId > 0) { "Invalid productId" }
+        require(quantity > 0) { "Invalid quantity" }
 
         val inventoryDao = db.inventoryDao()
         val transactionDao = db.inventoryTransactionDao()
@@ -109,6 +101,7 @@ object InventoryManager {
         }
 
         val newStock = inventory.currentStock - quantity
+        val avgCost = inventory.averageCost
 
         inventoryDao.update(
             inventory.copy(
@@ -117,14 +110,25 @@ object InventoryManager {
             )
         )
 
-        // 🔥 TRANSACTION LOG
+        // 🔥 LOG (VERY IMPORTANT)
+        db.inventoryLogDao().insert(
+            InventoryLog(
+                productId = productId,
+                type = type, // SALE / LOSS / ADJUST
+                quantity = quantity,
+                price = avgCost,
+                date = System.currentTimeMillis()
+            )
+        )
+
+        // 🔥 TRANSACTION
         transactionDao.insert(
             InventoryTransaction(
                 productId = productId,
-                type = "SALE",
+                type = type,
                 quantity = quantity,
-                costPrice = inventory.averageCost,
-                totalCost = quantity * inventory.averageCost
+                costPrice = avgCost,
+                totalCost = quantity * avgCost
             )
         )
     }
@@ -132,12 +136,11 @@ object InventoryManager {
     // ================= CLEAR STOCK =================
     suspend fun clearStock(
         db: AppDatabase,
-        productId: Int
+        productId: Int,
+        type: String = "ADJUST" // or LOSS
     ) {
 
-        if (productId <= 0) {
-            throw Exception("Invalid productId")
-        }
+        require(productId > 0) { "Invalid productId" }
 
         val inventoryDao = db.inventoryDao()
         val transactionDao = db.inventoryTransactionDao()
@@ -146,6 +149,9 @@ object InventoryManager {
             ?: throw Exception("No inventory found")
 
         val oldStock = inventory.currentStock
+        val avgCost = inventory.averageCost
+
+        if (oldStock <= 0) return
 
         inventoryDao.update(
             inventory.copy(
@@ -154,18 +160,30 @@ object InventoryManager {
             )
         )
 
-        // 🔥 TRANSACTION LOG
+        // 🔥 LOG
+        db.inventoryLogDao().insert(
+            InventoryLog(
+                productId = productId,
+                type = type,
+                quantity = oldStock,
+                price = avgCost,
+                date = System.currentTimeMillis()
+            )
+        )
+
+        // 🔥 TRANSACTION
         transactionDao.insert(
             InventoryTransaction(
                 productId = productId,
                 type = "CLEAR",
                 quantity = oldStock,
-                costPrice = inventory.averageCost,
-                totalCost = oldStock * inventory.averageCost
+                costPrice = avgCost,
+                totalCost = oldStock * avgCost
             )
         )
     }
 
+    // ================= GET STOCK =================
     suspend fun getTotalStock(db: AppDatabase, productId: Int): Double {
         return db.inventoryDao().getTotalQuantity(productId) ?: 0.0
     }

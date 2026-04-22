@@ -141,49 +141,59 @@ class ProductAdapter(
             unit.text  = "per $unitLabel"
 
             // ── Stock logic ──────────────────────────────────────────────
-            val qty = inventoryMap[product.id] ?: 0.0
+            val stockEntry = inventoryMap[product.id]
 
             when {
 
-                // ── Non-tracked product: no stock UI shown at all ─────────
-                !product.trackInventory -> {
-                    // stock chip, dot, and lowBadge remain GONE
+                // ✅ NON-INVENTORY PRODUCT (NO ENTRY)
+                stockEntry == null -> {
+                    // Hide everything stock-related
+                    stock.visibility = View.GONE
+                    stockDot.visibility = View.GONE
+                    lowBadge.visibility = View.GONE
+                    overlay.visibility = View.GONE
+
                     setClickListeners(product)
                 }
 
-                // ── Out of stock ──────────────────────────────────────────
-                qty <= 0 -> {
+                // ✅ OUT OF STOCK
+                stockEntry <= 0 -> {
                     overlay.visibility  = View.VISIBLE
                     card.alpha          = 0.55f
                     card.isClickable    = false
+
                     itemView.setOnClickListener {
                         Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
                     }
-                    itemView.setOnLongClickListener { onItemLongClick(product); true }
+
+                    itemView.setOnLongClickListener {
+                        onItemLongClick(product)
+                        true
+                    }
                 }
 
-                // ── Low stock (≤ 5) ───────────────────────────────────────
-                qty <= 5 -> {
+                // ✅ LOW STOCK
+                stockEntry <= 5 -> {
                     lowBadge.visibility = View.VISIBLE
 
                     stockDot.visibility = View.VISIBLE
                     stockDot.background.setTint(0xFFEF9F27.toInt())
 
                     stock.visibility = View.VISIBLE
-                    stock.text = "${String.format("%.2f", qty)} $unitLabel left"
+                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel left"
                     stock.setBackgroundResource(R.drawable.bg_stock_orange)
                     stock.setTextColor(0xFF633806.toInt())
 
                     setClickListeners(product)
                 }
 
-                // ── Normal stock ──────────────────────────────────────────
+                // ✅ NORMAL STOCK
                 else -> {
                     stockDot.visibility = View.VISIBLE
                     stockDot.background.setTint(0xFF639922.toInt())
 
                     stock.visibility = View.VISIBLE
-                    stock.text = "${String.format("%.2f", qty)} $unitLabel in stock"
+                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel in stock"
                     stock.setBackgroundResource(R.drawable.bg_stock_green)
                     stock.setTextColor(0xFF27500A.toInt())
 

@@ -118,29 +118,24 @@ class DashboardActivity : BaseActivity() {
         NetworkReceiver(this).startListening()
         validateLocalDevice()
 
-        // ✅ 1. Initialize ALL views FIRST
+        // ✅ Initialize views FIRST
         initViews()
 
         checkSubscription()
 
-        // ✅ 2. Now safe to use etSearch
         window.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         )
 
         etSearch.clearFocus()
-
         setupOutsideTouch()
-
-        // ❌ REMOVE duplicate call
-        // setupOutsideTouch()
 
         val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
 
-        // Load language setting
+        // ✅ Language
         currentLanguage = prefs.getString("app_language", "en") ?: "en"
 
-        // Setup translation switch
+        // ✅ Translation toggle
         switchTranslate.isChecked =
             prefs.getBoolean("translation_enabled", true)
 
@@ -148,17 +143,20 @@ class DashboardActivity : BaseActivity() {
 
             prefs.edit { putBoolean("translation_enabled", isChecked) }
 
-            if (isChecked) {
-                Toast.makeText(this, "Translation ON", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Translation OFF", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(
+                this,
+                if (isChecked) "Translation ON" else "Translation OFF",
+                Toast.LENGTH_SHORT
+            ).show()
 
             setupRecyclerViews()
-            loadProducts()
+
+            lifecycleScope.launch {
+                loadProducts() // ✅ safe coroutine call
+            }
         }
 
-        // Notification permission (Android 13+)
+        // ✅ Notification permission
         if (Build.VERSION.SDK_INT >= 33) {
             requestPermissions(
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
@@ -176,8 +174,8 @@ class DashboardActivity : BaseActivity() {
         createNotificationChannel()
 
         loadAiNoticeBoard()
-
         noticeHandler.postDelayed(noticeRunnable, 5 * 60 * 1000)
+
     }
 
     override fun onDestroy() {
@@ -252,22 +250,56 @@ class DashboardActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadProducts()
+
         checkSubscription()
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
 
-        if (token != null) {
-            lifecycleScope.launch {
-                val syncManager = SyncManager(this@DashboardActivity)
+        lifecycleScope.launch {
+
+            val db = AppDatabase.getDatabase(this@DashboardActivity)
+            val syncManager = SyncManager(this@DashboardActivity)
+
+            if (token != null) {
+
+                // ================= STEP 1: PRODUCTS =================
+                loadProducts()
+
+                // ================= STEP 2: BASIC =================
                 syncManager.syncStoreInfo()
                 syncManager.syncBillingSettings()
-                syncManager.syncBills()
+
+                // ================= STEP 3: ACCOUNTS =================
                 syncManager.syncAccounts()
                 syncManager.pullAccountsFromServer()
+
+                // ================= STEP 4: INVENTORY =================
+                val isInventoryEmpty = db.inventoryDao().getAll().isEmpty()
+
+                if (isInventoryEmpty) {
+
+                    println("🆕 Fresh install → pulling inventory")
+                    syncManager.pullInventory()
+
+                } else {
+
+                    println("🔄 Existing user → syncing logs")
+                    syncManager.syncInventory()
+                }
+
+                // ================= STEP 5: BILLS =================
+                syncManager.syncBills()
+
+                // ================= STEP 6: CREDIT =================
                 syncManager.syncCredit()
+
+                // ================= STEP 7: FINAL UI =================
+                loadProducts()        // 🔥 refresh stock in tiles
                 loadStoreFromRoom()
+
+            } else {
+                loadProducts()
             }
         }
     }
@@ -564,68 +596,64 @@ class DashboardActivity : BaseActivity() {
     // ================= DATA LOADING ===================
     // ==================================================
 
-    private fun loadProducts() {
+    private suspend fun loadProducts() {
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
 
-        lifecycleScope.launch {
+        val db = AppDatabase.getDatabase(this@DashboardActivity)
 
-            val db = AppDatabase.getDatabase(this@DashboardActivity)
+        try {
+            val backendProducts =
+                RetrofitClient.api.getMyProducts("Bearer $token")
 
-            try {
-                val backendProducts =
-                    RetrofitClient.api.getMyProducts("Bearer $token")
+            val existingProducts = db.productDao().getAll()
+            val existingMap = existingProducts.associateBy { it.id }
 
-                val existingProducts = db.productDao().getAll()
-                val existingMap = existingProducts.associateBy { it.id }
+            backendProducts.forEach {
 
-                backendProducts.forEach {
+                val existing = existingMap[it.id]
 
-                    val existing = existingMap[it.id]
-
-                    db.productDao().insert(
-                        Product(
-                            id = it.id,
-                            name = it.name,
-                            variant = it.variant ?: "",
-                            unit = it.unit,
-                            price = it.price,
-                            trackInventory = existing?.trackInventory ?: false,
-                            isCustom = false
-                        )
+                db.productDao().insert(
+                    Product(
+                        id = it.id,
+                        serverId = it.id,   // ✅ correct
+                        name = it.name,
+                        variant = it.variant ?: "",
+                        unit = it.unit,
+                        price = it.price,
+                        trackInventory = existing?.trackInventory ?: true,
+                        isCustom = false
                     )
-                }
+                )
+            }
 
-            } catch (e: Exception) {
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
                 Toast.makeText(
                     this@DashboardActivity,
                     "Failed to load products",
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        }
 
-            // ================= 🔥 ADD THIS PART =================
+        // 🔥 UI update
+        val localProducts = db.productDao().getAll()
+        val inventoryList = db.inventoryDao().getAll()
 
-            val localProducts = db.productDao().getAll()
+        val inventoryMap = inventoryList.associate {
+            it.productId to it.currentStock
+        }
 
-            val inventoryList = db.inventoryDao().getAll()
+        val sortedList = when (currentSort) {
+            SortType.A_TO_Z -> localProducts.sortedBy { it.name.lowercase() }
+            SortType.Z_TO_A -> localProducts.sortedByDescending { it.name.lowercase() }
+        }
 
-            val inventoryMap = inventoryList.associate {
-                it.productId to it.currentStock
-            }
-
-            val sortedList = when (currentSort) {
-                SortType.A_TO_Z -> localProducts.sortedBy { it.name.lowercase() }
-                SortType.Z_TO_A -> localProducts.sortedByDescending { it.name.lowercase() }
-            }
-
-            withContext(Dispatchers.Main) {
-                productAdapter.updateData(sortedList)
-
-                // 🔥 THIS IS THE MAIN FIX
-                productAdapter.setInventoryMap(inventoryMap)
-            }
+        withContext(Dispatchers.Main) {
+            productAdapter.updateData(sortedList)
+            productAdapter.setInventoryMap(inventoryMap)
         }
     }
 
@@ -971,16 +999,20 @@ class DashboardActivity : BaseActivity() {
 
                         try {
 
-                            RetrofitClient.api.deactivateProduct(
-                                "Bearer $token",
-                                product.id
-                            )
+                            // ✅ USE SERVER ID
+                            product.serverId?.let { sid ->
+                                RetrofitClient.api.deactivateProduct(
+                                    "Bearer $token",
+                                    sid
+                                )
+                            }
 
+                            // ✅ delete locally using local id
                             db.productDao().deleteById(product.id)
 
                             val updatedList = db.productDao().getAll()
 
-                            runOnUiThread {
+                            withContext(Dispatchers.Main) {
                                 productAdapter.updateData(updatedList)
                             }
 

@@ -62,7 +62,7 @@ interface ApiService {
     suspend fun addProductToShop(
         @Header("Authorization") token: String,
         @Body request: AddProductRequest
-    ): MessageResponse
+    ): AddProductResponse
 
     @PUT("products/deactivate/{id}")
     suspend fun deactivateProduct(
@@ -324,5 +324,17 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Unit>
 
+    // ================= INVENTORY =================
 
+    @POST("inventory/sync")
+    suspend fun syncInventory(
+        @Header("Authorization") token: String,
+        @Body logs: List<InventoryLogRequest>
+    ): Response<MessageResponse>
+
+
+    @GET("inventory/my")
+    suspend fun getInventory(
+        @Header("Authorization") token: String
+    ): List<InventoryResponse>
 }

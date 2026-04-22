@@ -26,4 +26,10 @@ AND (:variant IS NULL OR variant = :variant)
 LIMIT 1
 """)
     suspend fun getByNameAndVariant(name: String, variant: String?): Product?
+
+    @Query("SELECT * FROM products WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): Product?
+
+    @Query("SELECT * FROM products WHERE serverId = :serverId LIMIT 1")
+    suspend fun getByServerId(serverId: Int): Product?
 }

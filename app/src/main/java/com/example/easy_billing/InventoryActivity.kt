@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.InventoryItemUI
-import com.example.easy_billing.db.InventoryLog
 import com.example.easy_billing.db.LossEntry
 import com.example.easy_billing.db.Product
+import com.example.easy_billing.sync.SyncManager
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,10 +43,10 @@ class InventoryActivity : BaseActivity() {
 
         adapter = InventoryAdapter(
             emptyList(),
-            onAddStock = { item -> 
+            onAddStock = { item ->
                 productMap[item.productId]?.let { showAddStockDialog(it) }
             },
-            onReduceStock = { item -> 
+            onReduceStock = { item ->
                 productMap[item.productId]?.let { showReduceStockDialog(it, item.stock) }
             },
             onClearStock = { item -> showClearStockDialog(item.productId) }
@@ -73,7 +73,7 @@ class InventoryActivity : BaseActivity() {
                 val newProductMap = products.associateBy { it.id }
 
                 val displayList = products
-                    .filter { it.trackInventory } // 🔥 only tracked products
+                    .filter { inventoryMap[it.id]?.isActive == true }
                     .map { product ->
 
                         val inv = inventoryMap[product.id]
@@ -94,7 +94,6 @@ class InventoryActivity : BaseActivity() {
                 }
 
             } catch (e: Exception) {
-
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@InventoryActivity,
@@ -126,7 +125,7 @@ class InventoryActivity : BaseActivity() {
             fullList.filter {
 
                 val name = it.productName.lowercase()
-                val variant = it.variant?.lowercase() ?: ""
+                val variant = it.variant!!.lowercase()
 
                 name.contains(currentQuery) || variant.contains(currentQuery)
             }
@@ -158,9 +157,7 @@ class InventoryActivity : BaseActivity() {
 
         val allowDecimal = isDecimalAllowed(product.unit)
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnAdd.setOnClickListener {
 
@@ -172,7 +169,6 @@ class InventoryActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            // 🔥 UNIT CHECK
             if (!allowDecimal && qtyText.contains(".")) {
                 etQty.error = "Decimal not allowed for ${product.unit}"
                 return@setOnClickListener
@@ -180,27 +176,13 @@ class InventoryActivity : BaseActivity() {
 
             val qty = qtyText.toDoubleOrNull() ?: 0.0
 
-            // ❌ Invalid quantity
             if (qty <= 0) {
                 etQty.error = "Invalid quantity"
                 return@setOnClickListener
             }
 
-            // ❌ MAX LIMIT (QUANTITY)
-            if (qty > 10000) {
-                etQty.error = "Max allowed is 10,000"
-                return@setOnClickListener
-            }
-
-            // ❌ Invalid cost
             if (cost <= 0) {
                 etCost.error = "Enter valid cost"
-                return@setOnClickListener
-            }
-
-            // ❌ MAX LIMIT (COST)
-            if (cost > 1_000_000) {
-                etCost.error = "Max cost is 10,00,000"
                 return@setOnClickListener
             }
 
@@ -208,6 +190,7 @@ class InventoryActivity : BaseActivity() {
 
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
+
                     InventoryManager.addStock(
                         db = db,
                         productId = product.id,
@@ -215,23 +198,15 @@ class InventoryActivity : BaseActivity() {
                         costPrice = cost
                     )
 
-                    db.inventoryLogDao().insert(
-                        InventoryLog(
-                            productId = product.id,
-                            type = "ADD",
-                            quantity = qty,
-                            price = cost,
-                            date = System.currentTimeMillis()
-                        )
-                    )
-
-                    runOnUiThread {
+                    withContext(Dispatchers.Main) {
                         loadInventory()
                         Toast.makeText(this@InventoryActivity, "Stock added", Toast.LENGTH_SHORT).show()
                     }
 
+                    SyncManager(this@InventoryActivity).syncInventory()
+
                 } catch (e: Exception) {
-                    runOnUiThread {
+                    withContext(Dispatchers.Main) {
                         Toast.makeText(this@InventoryActivity, "Failed to add stock", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -262,9 +237,7 @@ class InventoryActivity : BaseActivity() {
 
         val allowDecimal = isDecimalAllowed(product.unit)
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnRemove.setOnClickListener {
 
@@ -307,33 +280,18 @@ class InventoryActivity : BaseActivity() {
 
                 val inventory = db.inventoryDao().getInventory(product.id)
                 val avgCost = inventory?.averageCost ?: 0.0
-
-                // 🔥 LOSS VALUE
                 val lossAmount = qty * avgCost
 
                 try {
 
-                    // 🔥 REDUCE STOCK
                     InventoryManager.reduceStock(
                         db = db,
                         productId = product.id,
-                        quantity = qty
+                        quantity = qty,
+                        type = type
                     )
 
-                    // 🔥 SAVE LOG (VERY IMPORTANT)
-                    db.inventoryLogDao().insert(
-                        InventoryLog(
-                            productId = product.id,
-                            type = type, // LOSS or ADJUST
-                            quantity = qty,
-                            price = avgCost,
-                            date = System.currentTimeMillis()
-                        )
-                    )
-
-                    // 🔥 ONLY LOSS AFFECTS PROFIT
                     if (type == "LOSS") {
-
                         db.lossDao().insert(
                             LossEntry(
                                 productId = product.id,
@@ -348,6 +306,8 @@ class InventoryActivity : BaseActivity() {
                         loadInventory()
                         Toast.makeText(this@InventoryActivity, "Stock updated", Toast.LENGTH_SHORT).show()
                     }
+
+                    SyncManager(this@InventoryActivity).syncInventory()
 
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -406,23 +366,13 @@ class InventoryActivity : BaseActivity() {
 
                     val lossAmount = currentStock * avgCost
 
-                    // 🔥 CLEAR STOCK
-                    InventoryManager.clearStock(db, productId)
-
-                    // 🔥 LOG IT
-                    db.inventoryLogDao().insert(
-                        InventoryLog(
-                            productId = productId,
-                            type = type,
-                            quantity = currentStock,
-                            price = avgCost,
-                            date = System.currentTimeMillis()
-                        )
+                    InventoryManager.clearStock(
+                        db = db,
+                        productId = productId,
+                        type = type
                     )
 
-                    // 🔥 IF LOSS → IMPACT PROFIT
                     if (type == "LOSS") {
-
                         db.lossDao().insert(
                             LossEntry(
                                 productId = productId,
@@ -442,6 +392,9 @@ class InventoryActivity : BaseActivity() {
                         ).show()
                     }
 
+                    SyncManager(this@InventoryActivity).syncInventory()
+
+
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@InventoryActivity, "Error", Toast.LENGTH_SHORT).show()
@@ -451,18 +404,6 @@ class InventoryActivity : BaseActivity() {
         }
 
         dialog.show()
-    }
-
-    // ================= ERROR HANDLER =================
-
-    private suspend fun showError(message: String?) {
-        withContext(Dispatchers.Main) {
-            Toast.makeText(
-                this@InventoryActivity,
-                message ?: "Something went wrong",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
     }
 
     private fun isDecimalAllowed(unit: String?): Boolean {

@@ -183,7 +183,7 @@ class AddProductsActivity : BaseActivity() {
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
 
-                    RetrofitClient.api.addProductToShop(
+                    val response = RetrofitClient.api.addProductToShop(
                         "Bearer $token",
                         AddProductRequest(
                             name = product.name,
@@ -193,11 +193,16 @@ class AddProductsActivity : BaseActivity() {
                         )
                     )
 
+                    val serverId = response.product_id
+
                     // 🔥 LOCAL SYNC
                     db.productDao().deleteById(product.id)
 
                     db.productDao().insert(
-                        product.copy(price = newPrice)
+                        product.copy(
+                            price = newPrice,
+                            serverId = serverId
+                        )
                     )
 
                     toast("Price updated")
@@ -347,7 +352,7 @@ class AddProductsActivity : BaseActivity() {
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
 
-                    RetrofitClient.api.addProductToShop(
+                    val response = RetrofitClient.api.addProductToShop(
                         "Bearer $token",
                         AddProductRequest(
                             name = name,
@@ -357,6 +362,8 @@ class AddProductsActivity : BaseActivity() {
                         )
                     )
 
+                    val serverId = response.product_id
+
                     // 🔥 STEP 1: CHECK EXISTING PRODUCT
                     val existingProduct = db.productDao()
                         .getByNameAndVariant(name, variantName)
@@ -365,22 +372,22 @@ class AddProductsActivity : BaseActivity() {
 
                     if (existingProduct != null) {
 
-                        // 🔥 REUSE PRODUCT
+                        // 🔥 RESTORE / UPDATE
                         productId = existingProduct.id
 
-                        // 🔥 UPDATE PRICE (optional)
                         db.productDao().deleteById(existingProduct.id)
 
                         db.productDao().insert(
                             existingProduct.copy(
                                 price = price,
-                                trackInventory = trackInventory
+                                trackInventory = trackInventory,
+                                serverId = serverId
                             )
                         )
 
                     } else {
 
-                        // 🔥 CREATE NEW PRODUCT
+                        // 🔥 NEW PRODUCT
                         val newId = db.productDao().insert(
                             Product(
                                 name = name,
@@ -388,6 +395,7 @@ class AddProductsActivity : BaseActivity() {
                                 unit = unit,
                                 price = price,
                                 trackInventory = trackInventory,
+                                serverId = serverId,
                                 isCustom = (selectedItem == "Others")
                             )
                         )
@@ -395,14 +403,31 @@ class AddProductsActivity : BaseActivity() {
                         productId = newId.toInt()
                     }
 
-                    // ================= ADD STOCK =================
+                    // ================= INVENTORY (COMMON) =================
                     if (trackInventory) {
-                        InventoryManager.addStock(
-                            db = db,
-                            productId = productId,
-                            quantity = stockQty,
-                            costPrice = costPrice
-                        )
+
+                        val existingInventory = db.inventoryDao().getInventory(productId)
+
+                        if (existingInventory != null) {
+
+                            // 🔥 RESTORE + ADD
+                            InventoryManager.addStock(
+                                db = db,
+                                productId = productId,
+                                quantity = stockQty,
+                                costPrice = costPrice
+                            )
+
+                        } else {
+
+                            // 🔥 CREATE NEW
+                            InventoryManager.addStock(
+                                db = db,
+                                productId = productId,
+                                quantity = stockQty,
+                                costPrice = costPrice
+                            )
+                        }
                     }
 
                     toast("Product saved successfully")

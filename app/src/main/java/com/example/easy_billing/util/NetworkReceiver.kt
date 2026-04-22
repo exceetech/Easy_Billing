@@ -8,7 +8,6 @@ import kotlinx.coroutines.*
 
 class NetworkReceiver(private val context: Context) {
 
-    // ✅ Prevent multiple sync triggers
     private var isSyncing = false
 
     fun startListening() {
@@ -21,7 +20,6 @@ class NetworkReceiver(private val context: Context) {
 
                 override fun onAvailable(network: Network) {
 
-                    // 🔥 INTERNET BACK → START SYNC
                     if (isSyncing) return
 
                     isSyncing = true
@@ -29,13 +27,12 @@ class NetworkReceiver(private val context: Context) {
                     CoroutineScope(Dispatchers.IO).launch {
 
                         try {
+
+                            delay(1500)
+
                             val syncManager = SyncManager(context)
-
-                            // ✅ FIRST sync store info
-                            syncManager.syncStoreInfo()
-
-                            // ✅ THEN sync bills
-                            syncManager.syncBills()
+                            syncManager.syncAll()
+                            syncManager.pullInventory()
 
                         } catch (e: Exception) {
                             e.printStackTrace()

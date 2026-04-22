@@ -254,16 +254,6 @@ class InvoiceActivity : AppCompatActivity() {
                             productId = product.id,
                             quantity = cartItem.quantity
                         )
-
-                        db.inventoryLogDao().insert(
-                            InventoryLog(
-                                productId = cartItem.product.id,
-                                type = "SALE",
-                                quantity = cartItem.quantity,
-                                price = cartItem.product.price,
-                                date = System.currentTimeMillis()
-                            )
-                        )
                     }
                 }
 
