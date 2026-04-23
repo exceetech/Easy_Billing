@@ -439,140 +439,179 @@ class AddProductsActivity : BaseActivity() {
 
                     runOnUiThread {
 
-                        AlertDialog.Builder(this@AddProductsActivity)
-                            .setTitle("Product exists")
-                            .setMessage("Update existing or replace with new?")
+                        val customView = layoutInflater.inflate(R.layout.dialog_product_exists, null)
 
-                            // ================= RESTORE =================
-                            .setPositiveButton("Update") { _, _ ->
+                        val customDialog = AlertDialog.Builder(this@AddProductsActivity)
+                            .setView(customView)
+                            .create()
 
-                                lifecycleScope.launch {
+                        customDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-                                    val response = RetrofitClient.api.addProductToShop(
-                                        "Bearer $token",
-                                        AddProductRequest(
-                                            name = name,
-                                            variant_name = variantName,
-                                            unit = unit,
-                                            price = price,
-                                            track_inventory = trackInventory,
-                                            initial_stock = if (trackInventory) stockQty else null,
-                                            cost_price = if (trackInventory) costPrice else null
-                                        )
-                                    )
+                        val btnCancel = customView.findViewById<Button>(R.id.btnCancel)
+                        val btnUpdate = customView.findViewById<Button>(R.id.btnUpdate)
+                        val btnReplace = customView.findViewById<Button>(R.id.btnReplace)
 
-                                    val serverId = response.product_id
+                        val tvMessage = customView.findViewById<TextView>(R.id.tvMessage)
+                        val tvDetails = customView.findViewById<TextView>(R.id.tvDetails)
 
-                                    val productId = localExisting.id
+                        lifecycleScope.launch {
 
-                                    db.productDao().update(
-                                        localExisting.copy(
-                                            price = price,
-                                            trackInventory = trackInventory,
-                                            serverId = serverId,
-                                            isActive = true
-                                        )
-                                    )
+                            val inventory = db.inventoryDao()
+                                .getInventoryIncludingInactive(localExisting.id)
 
-                                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+                            val stock = inventory?.currentStock ?: 0.0
 
-                                    // 🔥 ON → OFF
-                                    if (localExisting.trackInventory && !trackInventory) {
-                                        if ((inventory?.currentStock ?: 0.0) > 0) {
-                                            toast("Cannot disable inventory (stock exists)")
-                                            return@launch
-                                        }
-                                        inventory?.let {
-                                            db.inventoryDao().update(it.copy(isActive = false))
-                                        }
-                                    }
+                            val detailsText = buildString {
+                                append("Selling Price: ₹${localExisting.price}\n")
 
-                                    // 🔥 OFF → ON
-                                    if (!localExisting.trackInventory && trackInventory) {
-                                        if (inventory != null) {
-                                            db.inventoryDao().update(inventory.copy(isActive = true))
-                                        }
-                                        if (stockQty > 0) {
-                                            InventoryManager.addStock(db, productId, stockQty, costPrice)
-                                        }
-                                    }
+                                if (!localExisting.variant.isNullOrEmpty()) {
+                                    append("Variant: ${localExisting.variant}\n")
+                                }
 
-                                    // 🔥 ON → ON
-                                    if (localExisting.trackInventory && trackInventory && stockQty > 0) {
-                                        InventoryManager.addStock(db, productId, stockQty, costPrice)
-                                    }
+                                append("Unit: ${localExisting.unit}\n")
 
-                                    toast("Product updated")
-                                    dialog.dismiss()
-                                    finish()
+                                if (localExisting.trackInventory) {
+                                    append("Stock: $stock")
+                                } else {
+                                    append("Inventory: OFF")
                                 }
                             }
 
-                            // ================= REPLACE =================
-                            .setNegativeButton("Replace") { _, _ ->
+                            runOnUiThread {
+                                tvMessage.text = "${localExisting.name} (${localExisting.unit}) ${localExisting.variant} already exists.\nDo you want to restore it?"
+                                tvDetails.text = detailsText
+                            }
+                        }
 
-                                lifecycleScope.launch {
+                        // ================= UPDATE =================
+                        btnUpdate.setOnClickListener {
 
-                                    // 🔥 deactivate old product
-                                    db.productDao().deactivate(localExisting.id)
+                            lifecycleScope.launch {
 
-                                    // 🔥 deactivate old inventory
-                                    val oldInventory = db.inventoryDao().getInventoryIncludingInactive(localExisting.id)
-                                    oldInventory?.let {
+                                val response = RetrofitClient.api.addProductToShop(
+                                    "Bearer $token",
+                                    AddProductRequest(
+                                        name = name,
+                                        variant_name = variantName,
+                                        unit = unit,
+                                        price = price,
+                                        track_inventory = trackInventory,
+                                        initial_stock = if (trackInventory) stockQty else null,
+                                        cost_price = if (trackInventory) costPrice else null
+                                    )
+                                )
+
+                                val serverId = response.product_id
+                                val productId = localExisting.id
+
+                                db.productDao().update(
+                                    localExisting.copy(
+                                        price = price,
+                                        trackInventory = trackInventory,
+                                        serverId = serverId,
+                                        isActive = true
+                                    )
+                                )
+
+                                val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+
+                                // 🔥 ON → OFF
+                                if (localExisting.trackInventory && !trackInventory) {
+                                    if ((inventory?.currentStock ?: 0.0) > 0) {
+                                        toast("Cannot disable inventory (stock exists)")
+                                        return@launch
+                                    }
+                                    inventory?.let {
                                         db.inventoryDao().update(it.copy(isActive = false))
                                     }
-
-                                    // 🔥 create new
-                                    val response = RetrofitClient.api.addProductToShop(
-                                        "Bearer $token",
-                                        AddProductRequest(
-                                            name = name,
-                                            variant_name = variantName,
-                                            unit = unit,
-                                            price = price,
-                                            track_inventory = trackInventory,
-                                            initial_stock = if (trackInventory) stockQty else null,
-                                            cost_price = if (trackInventory) costPrice else null
-                                        )
-                                    )
-
-                                    val serverId = response.product_id
-
-                                    val newId = db.productDao().insert(
-                                        Product(
-                                            name = name,
-                                            variant = variantName,
-                                            unit = unit,
-                                            price = price,
-                                            trackInventory = trackInventory,
-                                            serverId = serverId,
-                                            isActive = true,
-                                            isCustom = (selectedItem == "Others")
-                                        )
-                                    ).toInt()
-
-                                    if (trackInventory) {
-
-                                        // ✅ create fresh inventory
-                                        InventoryManager.addStock(db, newId, stockQty, costPrice)
-
-                                    } else {
-
-                                        // 🔥 IMPORTANT FIX → prevent ghost inventory
-                                        val inv = db.inventoryDao().getInventoryIncludingInactive(newId)
-                                        inv?.let {
-                                            db.inventoryDao().update(it.copy(isActive = false))
-                                        }
-                                    }
-
-                                    toast("Product replaced")
-                                    dialog.dismiss()
-                                    finish()
                                 }
-                            }
 
-                            .setNeutralButton("Cancel", null)
-                            .show()
+                                // 🔥 OFF → ON
+                                if (!localExisting.trackInventory && trackInventory) {
+                                    if (inventory != null) {
+                                        db.inventoryDao().update(inventory.copy(isActive = true))
+                                    }
+                                    if (stockQty > 0) {
+                                        InventoryManager.addStock(db, productId, stockQty, costPrice)
+                                    }
+                                }
+
+                                // 🔥 ON → ON
+                                if (localExisting.trackInventory && trackInventory && stockQty > 0) {
+                                    InventoryManager.addStock(db, productId, stockQty, costPrice)
+                                }
+
+                                toast("Product updated")
+                                customDialog.dismiss()
+                                dialog.dismiss()
+                                finish()
+                            }
+                        }
+
+                        // ================= REPLACE =================
+                        btnReplace.setOnClickListener {
+
+                            lifecycleScope.launch {
+
+                                db.productDao().deactivate(localExisting.id)
+
+                                val oldInventory = db.inventoryDao()
+                                    .getInventoryIncludingInactive(localExisting.id)
+
+                                oldInventory?.let {
+                                    db.inventoryDao().update(it.copy(isActive = false))
+                                }
+
+                                val response = RetrofitClient.api.addProductToShop(
+                                    "Bearer $token",
+                                    AddProductRequest(
+                                        name = name,
+                                        variant_name = variantName,
+                                        unit = unit,
+                                        price = price,
+                                        track_inventory = trackInventory,
+                                        initial_stock = if (trackInventory) stockQty else null,
+                                        cost_price = if (trackInventory) costPrice else null
+                                    )
+                                )
+
+                                val serverId = response.product_id
+
+                                val newId = db.productDao().insert(
+                                    Product(
+                                        name = name,
+                                        variant = variantName,
+                                        unit = unit,
+                                        price = price,
+                                        trackInventory = trackInventory,
+                                        serverId = serverId,
+                                        isActive = true,
+                                        isCustom = (selectedItem == "Others")
+                                    )
+                                ).toInt()
+
+                                if (trackInventory) {
+                                    InventoryManager.addStock(db, newId, stockQty, costPrice)
+                                } else {
+                                    val inv = db.inventoryDao().getInventoryIncludingInactive(newId)
+                                    inv?.let {
+                                        db.inventoryDao().update(it.copy(isActive = false))
+                                    }
+                                }
+
+                                toast("Product replaced")
+                                customDialog.dismiss()
+                                dialog.dismiss()
+                                finish()
+                            }
+                        }
+
+                        // ================= CANCEL =================
+                        btnCancel.setOnClickListener {
+                            customDialog.dismiss()
+                        }
+
+                        customDialog.show()
                     }
 
                 } catch (e: Exception) {
