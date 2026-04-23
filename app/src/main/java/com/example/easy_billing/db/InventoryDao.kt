@@ -5,10 +5,15 @@ import androidx.room.*
 @Dao
 interface InventoryDao {
 
-    @Query("SELECT * FROM inventory WHERE productId = :productId LIMIT 1")
+    @Query("""
+    SELECT * FROM inventory 
+    WHERE productId = :productId 
+    AND isActive = 1
+    LIMIT 1
+""")
     suspend fun getInventory(productId: Int): Inventory?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(inventory: Inventory)
 
     @Update
@@ -47,4 +52,29 @@ interface InventoryDao {
 
     @Query("SELECT SUM(currentStock) FROM inventory WHERE productId = :productId")
     suspend fun getTotalQuantity(productId: Int): Double?
+
+
+    // 🔥 DEACTIVATE INVENTORY
+    @Query("""
+    UPDATE inventory 
+    SET isActive = 0
+    WHERE productId = :productId
+""")
+    suspend fun deactivateInventory(productId: Int)
+
+
+    // 🔥 ACTIVATE INVENTORY
+    @Query("""
+    UPDATE inventory 
+    SET isActive = 1
+    WHERE productId = :productId
+""")
+    suspend fun activateInventory(productId: Int)
+
+    @Query("""
+    SELECT * FROM inventory 
+    WHERE productId = :productId 
+    LIMIT 1
+""")
+    suspend fun getInventoryIncludingInactive(productId: Int): Inventory?
 }

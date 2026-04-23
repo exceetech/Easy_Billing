@@ -48,6 +48,12 @@ interface ApiService {
 
     // ================= PRODUCTS =================
 
+    @POST("products/check")
+    suspend fun checkProduct(
+        @Header("Authorization") token: String,
+        @Body request: AddProductRequest
+    ): CheckProductResponse
+
     @GET("products/catalog")
     suspend fun getCatalog(
         @Header("Authorization") token: String

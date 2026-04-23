@@ -141,7 +141,11 @@ class ProductAdapter(
             unit.text  = "per $unitLabel"
 
             // ── Stock logic ──────────────────────────────────────────────
-            val stockEntry = inventoryMap[product.id]
+            val stockEntry = if (product.trackInventory) {
+                inventoryMap[product.id]
+            } else {
+                null
+            }
 
             when {
 

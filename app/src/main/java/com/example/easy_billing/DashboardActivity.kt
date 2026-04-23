@@ -642,9 +642,11 @@ class DashboardActivity : BaseActivity() {
         val localProducts = db.productDao().getAll()
         val inventoryList = db.inventoryDao().getAll()
 
-        val inventoryMap = inventoryList.associate {
-            it.productId to it.currentStock
-        }
+        val inventoryMap = inventoryList
+            .filter { it.isActive }
+            .associate {
+                it.productId to it.currentStock
+            }
 
         val sortedList = when (currentSort) {
             SortType.A_TO_Z -> localProducts.sortedBy { it.name.lowercase() }
@@ -951,7 +953,6 @@ class DashboardActivity : BaseActivity() {
 
             val db = AppDatabase.getDatabase(this@DashboardActivity)
 
-            // 🔥 GET STOCK FROM INVENTORY
             val stockQty = InventoryManager.getTotalStock(
                 db = db,
                 productId = product.id
@@ -969,11 +970,11 @@ class DashboardActivity : BaseActivity() {
             val btnDelete = view.findViewById<Button>(R.id.btnDelete)
             val btnCancel = view.findViewById<Button>(R.id.btnCancel)
 
-            // 🔥 BLOCK DELETE IF STOCK EXISTS
+            // ================= BLOCK DELETE =================
             if (product.trackInventory && stockQty > 0.0) {
 
                 tvMessage.text =
-                    "⚠️ Cannot delete ${product.name}\n\nStock available: $stockQty\n\nReduce stock to 0 first."
+                    "⚠️ Cannot remove ${product.name}\n\nStock available: $stockQty\n\nReduce stock to 0 first."
 
                 btnDelete.text = "OK"
 
@@ -983,10 +984,10 @@ class DashboardActivity : BaseActivity() {
 
             } else {
 
-                // ✅ ALLOW DELETE
+                // ================= ALLOW DEACTIVATE =================
                 tvMessage.text = "Remove ${product.name}?"
 
-                btnDelete.text = "Delete"
+                btnDelete.text = "Remove"
 
                 btnDelete.setOnClickListener {
 
@@ -999,7 +1000,7 @@ class DashboardActivity : BaseActivity() {
 
                         try {
 
-                            // ✅ USE SERVER ID
+                            // 🔥 BACKEND
                             product.serverId?.let { sid ->
                                 RetrofitClient.api.deactivateProduct(
                                     "Bearer $token",
@@ -1007,8 +1008,16 @@ class DashboardActivity : BaseActivity() {
                                 )
                             }
 
-                            // ✅ delete locally using local id
-                            db.productDao().deleteById(product.id)
+                            // 🔥 LOCAL SOFT DELETE
+                            db.productDao().deactivate(product.id)
+
+                            // 🔥 ALSO DEACTIVATE INVENTORY
+                            val inventory = db.inventoryDao().getInventory(product.id)
+                            if (inventory != null) {
+                                db.inventoryDao().update(
+                                    inventory.copy(isActive = false)
+                                )
+                            }
 
                             val updatedList = db.productDao().getAll()
 

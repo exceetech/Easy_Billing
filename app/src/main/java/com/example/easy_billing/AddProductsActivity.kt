@@ -1,16 +1,15 @@
 package com.example.easy_billing
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.*
-import androidx.compose.ui.text.capitalize
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.network.AddProductRequest
 import com.example.easy_billing.network.RetrofitClient
-import com.example.easy_billing.InventoryManager
 import kotlinx.coroutines.launch
 
 class AddProductsActivity : BaseActivity() {
@@ -97,8 +96,8 @@ class AddProductsActivity : BaseActivity() {
 
                 val variantText = it.variant?.takeIf { v -> v.isNotBlank() } ?: ""
 
-                if (variantText.isNullOrEmpty()) {
-                    "(${it.unit?: "piece"}) - ₹${it.price}"
+                if (variantText.isEmpty()) {
+                    "(${it.unit ?: "piece"}) - ₹${it.price}"
                 } else {
                     "$variantText (${it.unit}) - ₹${it.price}"
                 }
@@ -112,7 +111,7 @@ class AddProductsActivity : BaseActivity() {
 
             listView.adapter = adapter
 
-            val dialog = android.app.AlertDialog.Builder(this@AddProductsActivity)
+            val dialog = AlertDialog.Builder(this@AddProductsActivity)
                 .setView(dialogView)
                 .create()
 
@@ -142,25 +141,34 @@ class AddProductsActivity : BaseActivity() {
         val etVariant = dialogView.findViewById<EditText>(R.id.etVariantName)
         val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
 
+        val switchInventory = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTrackInventory)
+        val layoutInventory = dialogView.findViewById<LinearLayout>(R.id.layoutInventoryFields)
+        val etStock = dialogView.findViewById<EditText>(R.id.etInitialStock)
+        val etCost = dialogView.findViewById<EditText>(R.id.etCostPrice)
+
         val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
 
-        // 🔥 pre-fill
+        // 🔥 Prefill basic fields
         etVariant.setText(product.variant)
         etVariant.isEnabled = false
-        etVariant.isFocusable = false
-        etVariant.isClickable = false
         etVariant.alpha = 0.5f
 
         etUnit.setText(product.unit, false)
         etUnit.isEnabled = false
-        etUnit.isFocusable = false
-        etUnit.isClickable = false
         etUnit.alpha = 0.5f
 
         etPrice.setText(product.price.toString())
 
-        val dialog = android.app.AlertDialog.Builder(this)
+        // 🔥 Prefill inventory state
+        switchInventory.isChecked = product.trackInventory
+        layoutInventory.visibility = if (product.trackInventory) View.VISIBLE else View.GONE
+
+        switchInventory.setOnCheckedChangeListener { _, isChecked ->
+            layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
@@ -171,45 +179,102 @@ class AddProductsActivity : BaseActivity() {
         btnAdd.setOnClickListener {
 
             val newPrice = etPrice.text.toString().toDoubleOrNull()
-
             if (newPrice == null || newPrice <= 0) {
                 toast("Invalid price")
                 return@setOnClickListener
             }
 
+            val trackInventory = switchInventory.isChecked
+            val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
+            val costPrice = etCost.text.toString().toDoubleOrNull() ?: 0.0
+
+            if (trackInventory && stockQty > 0 && costPrice <= 0) {
+                toast("Enter valid cost price")
+                return@setOnClickListener
+            }
+
             lifecycleScope.launch {
+
                 try {
 
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
 
+                    val productId = product.id
+
+                    // 🔥 CALL API (ONLY PRODUCT UPDATE)
                     val response = RetrofitClient.api.addProductToShop(
                         "Bearer $token",
                         AddProductRequest(
                             name = product.name,
                             variant_name = product.variant,
                             unit = normalizeUnit(product.unit),
-                            price = newPrice
+                            price = newPrice,
+                            track_inventory = trackInventory,
+                            initial_stock = null,
+                            cost_price = null
                         )
                     )
 
                     val serverId = response.product_id
 
-                    // 🔥 LOCAL SYNC
-                    db.productDao().deleteById(product.id)
-
-                    db.productDao().insert(
+                    // 🔥 UPDATE LOCAL PRODUCT
+                    db.productDao().update(
                         product.copy(
                             price = newPrice,
-                            serverId = serverId
+                            trackInventory = trackInventory,
+                            serverId = serverId,
+                            isActive = true
                         )
                     )
 
-                    toast("Price updated")
+                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+
+                    // ================= STATE TRANSITIONS =================
+
+                    // 🔴 ON → OFF
+                    if (product.trackInventory && !trackInventory) {
+
+                        if ((inventory?.currentStock ?: 0.0) > 0) {
+                            toast("Reduce stock to 0 first")
+                            return@launch
+                        }
+
+                        inventory?.let {
+                            db.inventoryDao().update(it.copy(isActive = false))
+                        }
+                    }
+
+                    // 🟢 OFF → ON (RESTORE)
+                    if (!product.trackInventory && trackInventory) {
+
+                        if (inventory != null) {
+                            db.inventoryDao().update(inventory.copy(isActive = true))
+                        }
+
+                        if (stockQty > 0) {
+                            InventoryManager.addStock(db, productId, stockQty, costPrice)
+                        }
+                        if (stockQty <= 0) {
+                            toast("Enter stock \u0026 cost price")
+                            return@launch
+                        }
+                    }
+
+                    // 🔵 ON → ON (ADD STOCK)
+                    if (product.trackInventory && trackInventory && stockQty > 0) {
+
+                        InventoryManager.addStock(db, productId, stockQty, costPrice)
+                    }
+
+                    // ⚪ OFF → OFF (DO NOTHING)
+
+                    toast("Product updated")
                     dialog.dismiss()
                     finish()
 
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     toast("Update failed")
                 }
             }
@@ -275,22 +340,15 @@ class AddProductsActivity : BaseActivity() {
         layoutCustomName.visibility =
             if (selectedItem == "Others") View.VISIBLE else View.GONE
 
-        // ================= UNIT SETUP =================
         val units = listOf("piece", "kilogram", "litre", "gram", "millilitre")
-        val unitAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            units
-        )
-        etUnit.setAdapter(unitAdapter)
+        etUnit.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, units))
         etUnit.setText("piece", false)
 
-        // ================= INVENTORY TOGGLE =================
         switchInventory.setOnCheckedChangeListener { _, isChecked ->
             layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
         }
 
-        val dialog = android.app.AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
@@ -298,21 +356,9 @@ class AddProductsActivity : BaseActivity() {
 
         btnAdd.setOnClickListener {
 
-            val priceText = etPrice.text.toString().trim()
-
-            if (priceText.isEmpty()) {
-                toast("Enter price")
-                return@setOnClickListener
-            }
-
-            val price = priceText.toDoubleOrNull()
+            val price = etPrice.text.toString().toDoubleOrNull()
             if (price == null || price <= 0) {
                 toast("Invalid price")
-                return@setOnClickListener
-            }
-
-            if (price > 1_000_000) {
-                toast("Price too high")
                 return@setOnClickListener
             }
 
@@ -325,69 +371,47 @@ class AddProductsActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            val variantInput = etVariant.text.toString().trim()
-            val variantName = if (variantInput.isEmpty()) null else variantInput
-
+            val variantName = etVariant.text.toString().trim().ifEmpty { null }
             val unit = normalizeUnit(etUnit.text.toString())
-
             val trackInventory = switchInventory.isChecked
 
             val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
             val costPrice = etCost.text.toString().toDoubleOrNull() ?: 0.0
 
-            // 🔥 VALIDATION FOR INVENTORY
-            if (trackInventory) {
-                if (stockQty <= 0 || costPrice <= 0) {
-                    toast("Enter stock and cost price")
-                    return@setOnClickListener
-                }
+            if (trackInventory && (stockQty <= 0 || costPrice <= 0)) {
+                toast("Enter stock \u0026 cost price")
+                return@setOnClickListener
             }
 
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null)
-
             lifecycleScope.launch {
+
                 try {
 
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
 
-                    val response = RetrofitClient.api.addProductToShop(
-                        "Bearer $token",
-                        AddProductRequest(
-                            name = name,
-                            variant_name = variantName,
-                            unit = unit,
-                            price = price
-                        )
-                    )
-
-                    val serverId = response.product_id
-
-                    // 🔥 STEP 1: CHECK EXISTING PRODUCT
-                    val existingProduct = db.productDao()
+                    // 🔥 LOCAL CHECK FIRST (FAST + IMPORTANT)
+                    val localExisting = db.productDao()
                         .getByNameAndVariant(name, variantName)
 
-                    val productId: Int
+                    // ================= NEW PRODUCT =================
+                    if (localExisting == null) {
 
-                    if (existingProduct != null) {
-
-                        // 🔥 RESTORE / UPDATE
-                        productId = existingProduct.id
-
-                        db.productDao().deleteById(existingProduct.id)
-
-                        db.productDao().insert(
-                            existingProduct.copy(
+                        val response = RetrofitClient.api.addProductToShop(
+                            "Bearer $token",
+                            AddProductRequest(
+                                name = name,
+                                variant_name = variantName,
+                                unit = unit,
                                 price = price,
-                                trackInventory = trackInventory,
-                                serverId = serverId
+                                track_inventory = trackInventory,
+                                initial_stock = if (trackInventory) stockQty else null,
+                                cost_price = if (trackInventory) costPrice else null
                             )
                         )
 
-                    } else {
+                        val serverId = response.product_id
 
-                        // 🔥 NEW PRODUCT
                         val newId = db.productDao().insert(
                             Product(
                                 name = name,
@@ -396,54 +420,169 @@ class AddProductsActivity : BaseActivity() {
                                 price = price,
                                 trackInventory = trackInventory,
                                 serverId = serverId,
+                                isActive = true,
                                 isCustom = (selectedItem == "Others")
                             )
-                        )
+                        ).toInt()
 
-                        productId = newId.toInt()
-                    }
-
-                    // ================= INVENTORY (COMMON) =================
-                    if (trackInventory) {
-
-                        val existingInventory = db.inventoryDao().getInventory(productId)
-
-                        if (existingInventory != null) {
-
-                            // 🔥 RESTORE + ADD
-                            InventoryManager.addStock(
-                                db = db,
-                                productId = productId,
-                                quantity = stockQty,
-                                costPrice = costPrice
-                            )
-
-                        } else {
-
-                            // 🔥 CREATE NEW
-                            InventoryManager.addStock(
-                                db = db,
-                                productId = productId,
-                                quantity = stockQty,
-                                costPrice = costPrice
-                            )
+                        if (trackInventory) {
+                            InventoryManager.addStock(db, newId, stockQty, costPrice)
                         }
+
+                        toast("Product added")
+                        dialog.dismiss()
+                        finish()
+                        return@launch
                     }
 
-                    toast("Product saved successfully")
-                    dialog.dismiss()
-                    finish()
+                    // ================= EXISTING PRODUCT =================
+
+                    runOnUiThread {
+
+                        AlertDialog.Builder(this@AddProductsActivity)
+                            .setTitle("Product exists")
+                            .setMessage("Update existing or replace with new?")
+
+                            // ================= RESTORE =================
+                            .setPositiveButton("Update") { _, _ ->
+
+                                lifecycleScope.launch {
+
+                                    val response = RetrofitClient.api.addProductToShop(
+                                        "Bearer $token",
+                                        AddProductRequest(
+                                            name = name,
+                                            variant_name = variantName,
+                                            unit = unit,
+                                            price = price,
+                                            track_inventory = trackInventory,
+                                            initial_stock = if (trackInventory) stockQty else null,
+                                            cost_price = if (trackInventory) costPrice else null
+                                        )
+                                    )
+
+                                    val serverId = response.product_id
+
+                                    val productId = localExisting.id
+
+                                    db.productDao().update(
+                                        localExisting.copy(
+                                            price = price,
+                                            trackInventory = trackInventory,
+                                            serverId = serverId,
+                                            isActive = true
+                                        )
+                                    )
+
+                                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+
+                                    // 🔥 ON → OFF
+                                    if (localExisting.trackInventory && !trackInventory) {
+                                        if ((inventory?.currentStock ?: 0.0) > 0) {
+                                            toast("Cannot disable inventory (stock exists)")
+                                            return@launch
+                                        }
+                                        inventory?.let {
+                                            db.inventoryDao().update(it.copy(isActive = false))
+                                        }
+                                    }
+
+                                    // 🔥 OFF → ON
+                                    if (!localExisting.trackInventory && trackInventory) {
+                                        if (inventory != null) {
+                                            db.inventoryDao().update(inventory.copy(isActive = true))
+                                        }
+                                        if (stockQty > 0) {
+                                            InventoryManager.addStock(db, productId, stockQty, costPrice)
+                                        }
+                                    }
+
+                                    // 🔥 ON → ON
+                                    if (localExisting.trackInventory && trackInventory && stockQty > 0) {
+                                        InventoryManager.addStock(db, productId, stockQty, costPrice)
+                                    }
+
+                                    toast("Product updated")
+                                    dialog.dismiss()
+                                    finish()
+                                }
+                            }
+
+                            // ================= REPLACE =================
+                            .setNegativeButton("Replace") { _, _ ->
+
+                                lifecycleScope.launch {
+
+                                    // 🔥 deactivate old product
+                                    db.productDao().deactivate(localExisting.id)
+
+                                    // 🔥 deactivate old inventory
+                                    val oldInventory = db.inventoryDao().getInventoryIncludingInactive(localExisting.id)
+                                    oldInventory?.let {
+                                        db.inventoryDao().update(it.copy(isActive = false))
+                                    }
+
+                                    // 🔥 create new
+                                    val response = RetrofitClient.api.addProductToShop(
+                                        "Bearer $token",
+                                        AddProductRequest(
+                                            name = name,
+                                            variant_name = variantName,
+                                            unit = unit,
+                                            price = price,
+                                            track_inventory = trackInventory,
+                                            initial_stock = if (trackInventory) stockQty else null,
+                                            cost_price = if (trackInventory) costPrice else null
+                                        )
+                                    )
+
+                                    val serverId = response.product_id
+
+                                    val newId = db.productDao().insert(
+                                        Product(
+                                            name = name,
+                                            variant = variantName,
+                                            unit = unit,
+                                            price = price,
+                                            trackInventory = trackInventory,
+                                            serverId = serverId,
+                                            isActive = true,
+                                            isCustom = (selectedItem == "Others")
+                                        )
+                                    ).toInt()
+
+                                    if (trackInventory) {
+
+                                        // ✅ create fresh inventory
+                                        InventoryManager.addStock(db, newId, stockQty, costPrice)
+
+                                    } else {
+
+                                        // 🔥 IMPORTANT FIX → prevent ghost inventory
+                                        val inv = db.inventoryDao().getInventoryIncludingInactive(newId)
+                                        inv?.let {
+                                            db.inventoryDao().update(it.copy(isActive = false))
+                                        }
+                                    }
+
+                                    toast("Product replaced")
+                                    dialog.dismiss()
+                                    finish()
+                                }
+                            }
+
+                            .setNeutralButton("Cancel", null)
+                            .show()
+                    }
 
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    toast("Failed to add product")
+                    toast("Failed")
                 }
             }
         }
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }

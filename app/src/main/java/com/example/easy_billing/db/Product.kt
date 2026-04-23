@@ -18,6 +18,7 @@ data class Product(
     val serverId: Int? = null,
 
     val trackInventory: Boolean,
-    val isCustom: Boolean = false
+    val isCustom: Boolean = false,
+    val isActive: Boolean = true
 
 ) : Serializable
