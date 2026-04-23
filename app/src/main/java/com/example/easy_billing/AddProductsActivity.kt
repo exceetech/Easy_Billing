@@ -478,7 +478,7 @@ class AddProductsActivity : BaseActivity() {
                             }
 
                             runOnUiThread {
-                                tvMessage.text = "${localExisting.name} (${localExisting.unit}) ${localExisting.variant} already exists.\nDo you want to restore it?"
+                                tvMessage.text = "${localExisting.name} (${localExisting.variant}) already exists.\nDo you want to restore it?"
                                 tvDetails.text = detailsText
                             }
                         }
