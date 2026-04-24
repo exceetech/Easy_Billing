@@ -670,20 +670,8 @@ class DashboardActivity : BaseActivity() {
         lifecycleScope.launch {
 
             val db = AppDatabase.getDatabase(this@DashboardActivity)
-            val inventory = db.inventoryDao().getInventory(product.id)
-
-            // ================= 🔥 INVENTORY CHECK =================
-
-            if (product.trackInventory) {
-
-                if (inventory == null || inventory.currentStock <= 0) {
-                    Toast.makeText(this@DashboardActivity, "Out of stock", Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-            }
 
             val existing = cartItems.find { it.product.id == product.id }
-
             val currentQty = existing?.quantity ?: 0.0
             val newQty = currentQty + qty
 
@@ -702,59 +690,70 @@ class DashboardActivity : BaseActivity() {
                 return@launch
             }
 
-            // ================= 🔥 STOCK LIMIT CHECK =================
+            // ================= 🔥 INVENTORY LOGIC ONLY IF ENABLED =================
 
-            if (product.trackInventory && inventory != null && newQty > inventory.currentStock) {
+            if (product.trackInventory) {
 
-                val allowedQty = inventory.currentStock
+                val inventory = db.inventoryDao().getInventory(product.id)
 
-                runOnUiThread {
-
-                    val view = layoutInflater.inflate(R.layout.dialog_limited_stock, null)
-
-                    val dialog = AlertDialog.Builder(this@DashboardActivity)
-                        .setView(view)
-                        .create()
-
-                    dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-                    val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-                    val btnCancel = view.findViewById<Button>(R.id.btnCancel)
-                    val btnAdd = view.findViewById<Button>(R.id.btnAddAvailable)
-
-                    // 🔥 Dynamic text
-                    tvMessage.text = "Only $allowedQty available.\nDo you want to add available quantity?"
-                    btnAdd.text = "Add $allowedQty"
-
-                    // ❌ Cancel
-                    btnCancel.setOnClickListener {
-                        dialog.dismiss()
+                if (inventory != null) {
+                    // ❌ OUT OF STOCK
+                    if (inventory.currentStock <= 0) {
+                        Toast.makeText(this@DashboardActivity, "Out of stock", Toast.LENGTH_SHORT).show()
+                        return@launch
                     }
 
-                    // ✅ Add Available
-                    btnAdd.setOnClickListener {
+                    // ❌ LIMIT EXCEEDED
+                    if (newQty > inventory.currentStock) {
 
-                        if (existing != null) {
-                            existing.quantity = allowedQty
-                        } else {
-                            cartItems.add(
-                                CartItem(
-                                    product = product,
-                                    quantity = allowedQty
-                                )
-                            )
+                        val allowedQty = inventory.currentStock
+
+                        runOnUiThread {
+
+                            val view = layoutInflater.inflate(R.layout.dialog_limited_stock, null)
+
+                            val dialog = AlertDialog.Builder(this@DashboardActivity)
+                                .setView(view)
+                                .create()
+
+                            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                            val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+                            val btnCancel = view.findViewById<Button>(R.id.btnCancel)
+                            val btnAdd = view.findViewById<Button>(R.id.btnAddAvailable)
+
+                            tvMessage.text = "Only $allowedQty available.\nDo you want to add available quantity?"
+                            btnAdd.text = "Add $allowedQty"
+
+                            btnCancel.setOnClickListener {
+                                dialog.dismiss()
+                            }
+
+                            btnAdd.setOnClickListener {
+
+                                if (existing != null) {
+                                    existing.quantity = allowedQty
+                                } else {
+                                    cartItems.add(
+                                        CartItem(
+                                            product = product,
+                                            quantity = allowedQty
+                                        )
+                                    )
+                                }
+
+                                cartAdapter.notifyDataSetChanged()
+                                updateTotal()
+
+                                dialog.dismiss()
+                            }
+
+                            dialog.show()
                         }
 
-                        cartAdapter.notifyDataSetChanged()
-                        updateTotal()
-
-                        dialog.dismiss()
+                        return@launch
                     }
-
-                    dialog.show()
                 }
-
-                return@launch
             }
 
             // ================= 🔥 NORMAL FLOW =================

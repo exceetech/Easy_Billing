@@ -38,6 +38,7 @@ class SyncManager(private val context: Context) {
             .getString("TOKEN", null) ?: return
 
         val bills = db.billDao().getUnsyncedBills()
+        val productDao = db.productDao()
 
         for (bill in bills) {
 
@@ -45,12 +46,26 @@ class SyncManager(private val context: Context) {
 
                 val items = db.billItemDao().getItemsForBill(bill.id)
 
-                val apiItems = items.map {
+                val apiItems = items.mapNotNull {
+
+                    val product = productDao.getById(it.productId)
+                    val serverId = product?.serverId
+
+                    if (serverId == null || serverId <= 0) {
+                        println("❌ Skipping unsynced product: ${product?.name}")
+                        return@mapNotNull null
+                    }
+
                     BillItemRequest(
-                        shop_product_id = it.productId,
+                        shop_product_id = serverId,
                         quantity = it.quantity,
-                        variant = it.productName
+                        variant = product.variant
                     )
+                }
+
+                if (apiItems.size != items.size) {
+                    println("❌ Skipping bill ${bill.id} → invalid products")
+                    continue
                 }
 
                 val request = CreateBillRequest(
@@ -62,20 +77,18 @@ class SyncManager(private val context: Context) {
                     total_amount = bill.total
                 )
 
-                // 🔥 CALL API
-                val response = api.createBill(
-                    "Bearer $token",
-                    request
-                )
+                val response = api.createBill("Bearer $token", request)
 
-                // 🔥 ONLY AFTER SUCCESS
+                if (response.bill_number.isNotEmpty()) {
+                    db.billDao().updateBillNumber(bill.id, response.bill_number)
+                }
+
                 db.billDao().markBillSynced(bill.id)
                 db.billItemDao().markItemsSynced(bill.id)
 
             } catch (e: Exception) {
-
-                // ❌ STOP LOOP (important)
-                break
+                e.printStackTrace()
+                continue
             }
         }
     }

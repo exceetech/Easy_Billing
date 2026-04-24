@@ -343,4 +343,19 @@ interface ApiService {
     suspend fun getInventory(
         @Header("Authorization") token: String
     ): List<InventoryResponse>
+
+
+    @POST("sales/create")
+    suspend fun createSale(
+        @Header("Authorization") token: String,
+        @Body request: CreateSaleRequest
+    ): GenericResponse
+
+    @GET("profit/")
+    suspend fun getProfit(
+        @Header("Authorization") token: String,
+        @Query("filter") filter: String,
+        @Query("start_date") start: String?,
+        @Query("end_date") end: String?
+    ): ProfitResponse
 }

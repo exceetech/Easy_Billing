@@ -16,7 +16,9 @@ import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.BillItemRequest
 import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.CreateCreditAccountRequest
+import com.example.easy_billing.network.CreateSaleRequest
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.network.SaleItemDto
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.InvoicePdfGenerator
@@ -148,7 +150,6 @@ class InvoiceActivity : AppCompatActivity() {
     }
 
     // ================= SAVE BILL =================
-
     private fun saveBill() {
 
         if (isBillSaved) return
@@ -168,33 +169,17 @@ class InvoiceActivity : AppCompatActivity() {
                 val gstAmount = (subTotal * gstPercent) / 100
                 val total = subTotal + gstAmount - discount
 
-                // ================= SAVE BILL =================
-                val billId = db.billDao().insertBill(
-                    Bill(
-                        billNumber = billNumber,
-                        date = date,
-                        subTotal = subTotal,
-                        gst = gstAmount,
-                        discount = discount,
-                        total = total,
-                        paymentMethod = getPaymentMethod(),
-                        isSynced = false
-                    )
-                ).toInt()
-
-                val billItemsToInsert = mutableListOf<BillItem>()
-
-                // ================= PHASE 1: VALIDATE =================
+                // ================= 🔴 STEP 1: VALIDATE STOCK =================
                 for (cartItem in items) {
 
                     val product = cartItem.product
 
-                    // 🔥 ONLY CHECK IF TRACKING ENABLED
+                    // ✅ ONLY FOR TRACKED PRODUCTS
                     if (product.trackInventory) {
 
                         val inventory = db.inventoryDao().getInventory(product.id)
 
-                        if (inventory == null || inventory.currentStock < cartItem.quantity) {
+                        if (inventory != null && inventory.currentStock < cartItem.quantity) {
 
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(
@@ -211,20 +196,34 @@ class InvoiceActivity : AppCompatActivity() {
                     }
                 }
 
-                // ================= PHASE 2: PREPARE BILL ITEMS =================
+                // ================= 🟡 STEP 2: SAVE BILL =================
+                val billId = db.billDao().insertBill(
+                    Bill(
+                        billNumber = billNumber,
+                        date = date,
+                        subTotal = subTotal,
+                        gst = gstAmount,
+                        discount = discount,
+                        total = total,
+                        paymentMethod = getPaymentMethod(),
+                        isSynced = false
+                    )
+                ).toInt()
+
+                val billItems = mutableListOf<BillItem>()
+
+                // ================= 🟡 STEP 3: PREPARE ITEMS =================
                 for (cartItem in items) {
 
                     val product = cartItem.product
                     val quantity = cartItem.quantity
                     val subtotalItem = cartItem.subTotal()
 
-                    val inventory = db.inventoryDao().getInventory(product.id)
+                    val avgCost = if (product.trackInventory) {
+                        db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+                    } else 0.0
 
-                    val avgCost = inventory?.averageCost ?: 0.0
-                    val costUsed = avgCost * quantity
-                    val profit = subtotalItem - costUsed
-
-                    billItemsToInsert.add(
+                    billItems.add(
                         BillItem(
                             billId = billId,
                             productId = product.id,
@@ -234,43 +233,92 @@ class InvoiceActivity : AppCompatActivity() {
                             price = product.price,
                             quantity = quantity,
                             subTotal = subtotalItem,
-                            costPriceUsed = costUsed,
-                            profit = profit,
+                            costPriceUsed = avgCost * quantity,
+                            profit = subtotalItem - (avgCost * quantity),
                             isSynced = false
                         )
                     )
                 }
 
-                // ================= PHASE 3: UPDATE INVENTORY (FIXED) =================
+                db.billItemDao().insertAll(billItems)
+
+                savedBillId = billId
+
+                // ================= 🔵 STEP 4: SEND TO BACKEND (PROFIT) =================
+                try {
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    if (!token.isNullOrEmpty()) {
+
+                        val saleItems = items.map { cartItem ->
+
+                            val product = cartItem.product
+
+                            val avgCost = if (product.trackInventory) {
+                                db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+                            } else 0.0
+
+                            SaleItemDto(
+                                product_id = product.serverId ?: product.id,
+                                quantity = cartItem.quantity,
+                                selling_price = product.price,
+                                cost_price = avgCost,
+                                product_name = product.name,
+                                variant = product.variant
+                            )
+                        }
+
+                        RetrofitClient.api.createSale(
+                            "Bearer $token",
+                            CreateSaleRequest(saleItems)
+                        )
+                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    // ❗ do not break bill
+                }
+
+                // ================= 🟢 STEP 5: UPDATE INVENTORY =================
                 for (cartItem in items) {
 
                     val product = cartItem.product
 
-                    // 🔥 ONLY REDUCE IF TRACKED
                     if (product.trackInventory) {
 
-                        InventoryManager.reduceStock(
-                            db = db,
-                            productId = product.id,
-                            quantity = cartItem.quantity
-                        )
+                        val inventory = db.inventoryDao().getInventory(product.id)
+
+                        if (inventory != null) {
+                            InventoryManager.reduceStock(
+                                db = db,
+                                productId = product.id,
+                                quantity = cartItem.quantity
+                            )
+                        }
                     }
                 }
 
-                // ================= INSERT ITEMS =================
-                db.billItemDao().insertAll(billItemsToInsert)
-
-                savedBillId = billId
-
-                // ================= API CALL =================
+                // ================= 🟢 STEP 6: CREATE BILL (BACKEND) =================
                 try {
+
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
 
                     val request = CreateBillRequest(
                         bill_number = "",
                         items = items.map {
-                            BillItemRequest(it.product.id, it.quantity, it.product.variant)
+
+                            if (it.product.serverId == null) {
+                                throw Exception("Product not synced: ${it.product.name}")
+                            }
+
+                            BillItemRequest(
+                                it.product.serverId,
+                                it.quantity,
+                                it.product.variant
+                            )
                         },
                         payment_method = getPaymentMethod(),
                         discount = discount,
@@ -291,6 +339,7 @@ class InvoiceActivity : AppCompatActivity() {
                     // offline safe
                 }
 
+                // ================= UI =================
                 withContext(Dispatchers.Main) {
                     btnPrint.isEnabled = true
                     Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()

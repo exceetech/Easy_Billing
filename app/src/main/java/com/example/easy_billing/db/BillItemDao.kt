@@ -27,7 +27,12 @@ SELECT
     SUM(quantity) as totalQty,
     SUM(subTotal) as revenue,
     SUM(costPriceUsed) as cost,
-    SUM(profit) as profit
+    SUM(profit) as profit,
+    0.0 AS added,
+    0.0 AS sold,
+    0.0 AS remaining,
+    0.0 AS lossQty,
+    0.0 AS lossAmount
 FROM bill_items
 GROUP BY productId, variant
 ORDER BY profit DESC
