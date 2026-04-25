@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- HEADER -->
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            android:layout_marginBottom="16dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E7EB"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- BASIC INFO -->
+        <TextView
+            android:id="@+id/tvQty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Qty: 0"
+            android:textSize="16sp"
+            android:textColor="#374151"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvRevenue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Revenue: ₹0.00"
+            android:textSize="16sp"
+            android:textColor="#374151"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvCost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cost: ₹0.00"
+            android:textSize="16sp"
+            android:textColor="#374151"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvProfit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Profit: ₹0.00"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#16A34A"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- STOCK FLOW -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stock Summary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#9CA3AF"
+            android:textAllCaps="true"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvStockFlow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Added: 0 | Sold: 0 | Loss: 0"
+            android:textSize="14sp"
+            android:textColor="#4B5563"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvRemaining"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remaining: 0"
+            android:textSize="14sp"
+            android:textColor="#4B5563"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- LOSS & NET PROFIT -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Financial Impact"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#9CA3AF"
+            android:textAllCaps="true"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvLoss"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loss: ₹0.00"
+            android:textSize="14sp"
+            android:textColor="#DC2626"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvNetProfit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Net Profit: ₹0.00"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#16A34A"
+            android:layout_marginBottom="24dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Close"
+            app:cornerRadius="12dp"
+            android:backgroundTint="#111827"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -2,37 +2,37 @@ package com.example.easy_billing
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import androidx.fragment.app.Fragment
+import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
 import com.example.easy_billing.db.ProductProfitRaw
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
-class ProfitChartFragment : Fragment(R.layout.fragment_profit_chart) {
+class ProfitChartActivity : AppCompatActivity() {
 
     private lateinit var chart: BarChart
 
-    private var pendingData: List<ProductProfitRaw>? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_profit_chart)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        chart = view.findViewById(R.id.barChart)
+        chart = findViewById(R.id.barChart)
 
-        pendingData?.let {
-            setupChart(it)
-            pendingData = null
+        // 🔥 Close button
+        findViewById<ImageButton>(R.id.btnClose).setOnClickListener {
+            finish()
         }
-    }
 
-    fun updateChart(data: List<ProductProfitRaw>) {
-        if (::chart.isInitialized) {
+        // 🔥 Get data from intent
+        val data = intent.getSerializableExtra("DATA") as? ArrayList<ProductProfitRaw>
+
+        if (data != null) {
             setupChart(data)
         } else {
-            pendingData = data
+            chart.clear()
+            chart.setNoDataText("No data available")
         }
     }
 
@@ -44,7 +44,7 @@ class ProfitChartFragment : Fragment(R.layout.fragment_profit_chart) {
             return
         }
 
-        val topItems = data.take(7)
+        val topItems = data.take(10)
 
         val entries = ArrayList<BarEntry>()
         val labels = ArrayList<String>()
@@ -56,20 +56,20 @@ class ProfitChartFragment : Fragment(R.layout.fragment_profit_chart) {
                 item.productName
             else "${item.productName} (${item.variant})"
 
-            labels.add(label.take(8))
+            labels.add(label.take(10))
         }
 
         chart.clear()
 
-        // 🔥 TREND COLOR
+        // 🔥 COLOR BASED ON TREND
         val isUpTrend = if (entries.size >= 2) {
             entries.last().y >= entries[entries.lastIndex - 1].y
         } else true
 
         val barColor = if (isUpTrend)
-            Color.parseColor("#22C55E") // green
+            Color.parseColor("#22C55E")
         else
-            Color.parseColor("#EF4444") // red
+            Color.parseColor("#EF4444")
 
         val dataSet = BarDataSet(entries, "")
         dataSet.color = barColor
@@ -106,7 +106,7 @@ class ProfitChartFragment : Fragment(R.layout.fragment_profit_chart) {
             gridColor = Color.argb(25, 156, 163, 175)
 
             textColor = Color.parseColor("#6B7280")
-            labelCount = 4
+            labelCount = 5
         }
 
         chart.axisRight.isEnabled = false

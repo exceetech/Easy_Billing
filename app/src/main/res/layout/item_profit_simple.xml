@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp"
+    android:background="@android:color/white">
+
+    <!-- PRODUCT NAME -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Product Name"
+        android:textSize="14sp"
+        android:textColor="#111827"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+
+    <!-- QTY -->
+    <TextView
+        android:id="@+id/tvQty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="10 kg"
+        android:textSize="13sp"
+        android:textColor="#6B7280"
+        android:gravity="center"/>
+
+    <!-- PROFIT -->
+    <TextView
+        android:id="@+id/tvProfit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="₹1200"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#16A34A"/>
+
+</LinearLayout>

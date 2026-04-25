@@ -88,6 +88,8 @@
 
         <activity
             android:name=".CustomerTransactionsActivity" />
+        <activity
+            android:name=".ProfitChartActivity"/>
 
         <activity
             android:name=".SplashActivity"

@@ -21,9 +21,9 @@ interface BillItemDao {
 
     @Query("""
 SELECT 
-    productId,
     productName,
     variant,
+    unit,
     SUM(quantity) as totalQty,
     SUM(subTotal) as revenue,
     SUM(costPriceUsed) as cost,
@@ -34,7 +34,7 @@ SELECT
     0.0 AS lossQty,
     0.0 AS lossAmount
 FROM bill_items
-GROUP BY productId, variant
+GROUP BY productName, variant, unit
 ORDER BY profit DESC
 """)
     suspend fun getProductProfit(): List<ProductProfitRaw>
