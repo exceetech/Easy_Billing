@@ -141,7 +141,8 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("type") type: String,
         @Query("start") start: String?,
-        @Query("end") end: String?
+        @Query("end") end: String?,
+        @Query("sort_by") sortBy: String
     ): List<TopProductResponse>
 
     @GET("reports/top-revenue-products")

@@ -13,6 +13,7 @@ data class StoreInfo(
     val address: String,
     val phone: String,
     val gstin: String,
+    val type: String = "general",
 
     @ColumnInfo(name = "is_synced")
     var isSynced: Boolean = false

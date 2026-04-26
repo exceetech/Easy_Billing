@@ -18,6 +18,8 @@ class StoreSettingsActivity : BaseActivity() {
     private lateinit var etStoreAddress: EditText
     private lateinit var etStorePhone: EditText
     private lateinit var etStoreGstin: EditText
+
+    private lateinit var actShopType: AutoCompleteTextView
     private lateinit var btnSave: Button
 
     private var isEditMode = false
@@ -31,7 +33,7 @@ class StoreSettingsActivity : BaseActivity() {
 
         bindViews()
         setEditMode(false)
-
+        setupShopTypeDropdown()
         loadStoreSettings()
         setupSave()
     }
@@ -43,6 +45,7 @@ class StoreSettingsActivity : BaseActivity() {
         etStoreAddress = findViewById(R.id.etStoreAddress)
         etStorePhone = findViewById(R.id.etStorePhone)
         etStoreGstin = findViewById(R.id.etStoreGstin)
+        actShopType = findViewById(R.id.actShopType)
         btnSave = findViewById(R.id.btnSave)
     }
 
@@ -62,6 +65,17 @@ class StoreSettingsActivity : BaseActivity() {
             it.isClickable = enabled
             it.isCursorVisible = enabled
         }
+
+        actShopType.isEnabled = enabled
+        actShopType.isFocusable = enabled
+        actShopType.isFocusableInTouchMode = enabled
+        actShopType.isClickable = enabled
+        actShopType.isCursorVisible = enabled
+
+        val til = actShopType.parent.parent as? com.google.android.material.textfield.TextInputLayout
+        til?.isEndIconVisible = enabled
+
+        actShopType.alpha = if (enabled) 1f else 0.6f
 
         btnSave.visibility = if (enabled) View.VISIBLE else View.GONE
     }
@@ -94,7 +108,7 @@ class StoreSettingsActivity : BaseActivity() {
 
             val db = AppDatabase.getDatabase(this@StoreSettingsActivity)
 
-            // ✅ ALWAYS LOAD FROM ROOM FIRST
+            // ===== ROOM =====
             val local = db.storeInfoDao().get()
 
             withContext(Dispatchers.Main) {
@@ -103,10 +117,19 @@ class StoreSettingsActivity : BaseActivity() {
                     etStoreAddress.setText(it.address)
                     etStorePhone.setText(it.phone)
                     etStoreGstin.setText(it.gstin)
+
+                    val display = when (it.type) {
+                        "hotel" -> "Hotel"
+                        "bakery" -> "Bakery"
+                        "grocery" -> "Grocery"
+                        else -> "General"
+                    }
+
+                    actShopType.setText(display, false)
                 }
             }
 
-            // ✅ FETCH FROM BACKEND (IF ONLINE)
+            // ===== BACKEND =====
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
 
@@ -116,27 +139,39 @@ class StoreSettingsActivity : BaseActivity() {
 
                 if (!response.shop_name.isNullOrBlank()) {
 
+                    val type = response.type?.takeIf { it.isNotBlank() } ?: "general"
+
                     val updated = StoreInfo(
                         name = response.shop_name,
                         address = response.store_address ?: "",
                         phone = response.phone ?: "",
                         gstin = response.store_gstin ?: "",
+                        type = type,
                         isSynced = true
                     )
 
-                    // ✅ UPDATE ROOM ONLY AFTER SUCCESS
                     db.storeInfoDao().insert(updated)
 
                     withContext(Dispatchers.Main) {
+
                         etStoreName.setText(updated.name)
                         etStoreAddress.setText(updated.address)
                         etStorePhone.setText(updated.phone)
                         etStoreGstin.setText(updated.gstin)
+
+                        val display = when (type.lowercase()) {
+                            "hotel" -> "Hotel"
+                            "bakery" -> "Bakery"
+                            "grocery" -> "Grocery"
+                            else -> "General"
+                        }
+
+                        actShopType.setText(display, false)
                     }
                 }
 
-            } catch (_: Exception) {
-                // offline → keep Room data
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -159,6 +194,13 @@ class StoreSettingsActivity : BaseActivity() {
         val phone = etStorePhone.text.toString().trim()
         val gstin = etStoreGstin.text.toString().trim()
 
+        val type = when (actShopType.text.toString().lowercase()) {
+            "hotel" -> "hotel"
+            "bakery" -> "bakery"
+            "grocery" -> "grocery"
+            else -> "general"
+        }
+
         if (name.isEmpty()) {
             Toast.makeText(this, "Store name is required", Toast.LENGTH_SHORT).show()
             return
@@ -180,17 +222,16 @@ class StoreSettingsActivity : BaseActivity() {
 
             try {
 
-                val request = ShopSettingsUpdateRequest(name, address, phone, gstin)
+                val request = ShopSettingsUpdateRequest(name, address, phone, gstin, type)
 
-                // ✅ UPDATE BACKEND FIRST
                 RetrofitClient.api.updateStoreSettings("Bearer $token", request)
 
-                // ✅ THEN UPDATE ROOM (ONLY AFTER SUCCESS)
                 val updated = StoreInfo(
                     name = name,
                     address = address,
                     phone = phone,
                     gstin = gstin,
+                    type = type,
                     isSynced = true
                 )
 
@@ -246,5 +287,19 @@ class StoreSettingsActivity : BaseActivity() {
         }
 
         dialog.show()
+    }
+
+    // ================= DROPDOWN =================
+    private fun setupShopTypeDropdown() {
+
+        val options = listOf("General", "Hotel", "Bakery", "Grocery")
+
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            options
+        )
+
+        actShopType.setAdapter(adapter)
     }
 }

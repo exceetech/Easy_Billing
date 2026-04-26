@@ -26,9 +26,6 @@ class ProductReportAdapter(
             view.findViewById(R.id.cardRoot)
     }
 
-    private val maxRevenue = data.maxOfOrNull { it.revenue } ?: 1.0
-    private val minRevenue = data.minOfOrNull { it.revenue } ?: 0.0
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val view = LayoutInflater.from(parent.context)
@@ -44,6 +41,10 @@ class ProductReportAdapter(
         val item = data[position]
         val context = holder.itemView.context
 
+        // 🔥 CALCULATE HERE (FIX)
+        val maxRevenue = data.maxOfOrNull { it.revenue } ?: 1.0
+        val minRevenue = data.minOfOrNull { it.revenue } ?: 0.0
+
         // 🏷 Product name
         val productText = if (!item.variant.isNullOrEmpty()) {
             "${item.product} (${item.variant})"
@@ -54,7 +55,7 @@ class ProductReportAdapter(
         holder.tvProduct.text = productText
 
         // 🧾 Quantity
-        holder.tvQuantity.text = "${item.quantity} sold"
+        holder.tvQuantity.text = "${item.quantity} ${item.unit} sold • ${item.frequency} orders"
 
         // 🏆 Rank
         holder.tvRank.text = "#${position + 1}"
@@ -70,7 +71,7 @@ class ProductReportAdapter(
         holder.tvRevenue.text =
             CurrencyHelper.format(context, item.revenue)
 
-        // 🔥 PERFORMANCE LOGIC (CLEAN)
+        // 🔥 PERFORMANCE LOGIC (UNCHANGED)
         val ratio = item.revenue / maxRevenue
 
         val isBest = ratio >= 0.8
@@ -91,7 +92,7 @@ class ProductReportAdapter(
         holder.tvStatus.text = statusText
         holder.tvStatus.setTextColor(statusColor)
 
-        // 📊 PROGRESS (RANGE BASED — BEST UX)
+        // 📊 PROGRESS (UNCHANGED)
         val range = (maxRevenue - minRevenue).takeIf { it > 0 } ?: 1.0
 
         val progress = ((item.revenue - minRevenue) / range * 100)
@@ -103,7 +104,7 @@ class ProductReportAdapter(
         holder.progressBar.progressTintList =
             android.content.res.ColorStateList.valueOf(statusColor)
 
-        // 🎨 CARD BACKGROUND (BASED ON LOGIC, NOT STRING)
+        // 🎨 CARD BACKGROUND
         val bgRes = when {
             isBest -> R.drawable.bg_card_profit
             isLow -> R.drawable.bg_card_loss
@@ -115,7 +116,7 @@ class ProductReportAdapter(
         )
         holder.cardRoot.setBackgroundResource(bgRes)
 
-        // ✨ ANIMATION (OPTIMIZED)
+        // ✨ ANIMATION (UNCHANGED)
         holder.itemView.alpha = 0f
         holder.itemView.animate()
             .alpha(1f)

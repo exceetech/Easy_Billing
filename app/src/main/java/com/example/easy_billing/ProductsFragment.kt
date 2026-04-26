@@ -3,6 +3,9 @@ package com.example.easy_billing.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -21,10 +24,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
     private lateinit var rvProducts: RecyclerView
     private lateinit var tvEmpty: TextView
+    private lateinit var spSort: Spinner   // ✅ now used
 
     private var currentFilter = ReportFilter.TODAY
     private var customStartDate: String? = null
     private var customEndDate: String? = null
+
+    private var sortBy = "quantity"   // default
 
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -33,13 +39,55 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
         rvProducts = view.findViewById(R.id.rvProducts)
         tvEmpty = view.findViewById(R.id.tvEmpty)
+        spSort = view.findViewById(R.id.spSort)   // 🔥 FIX
 
         rvProducts.layoutManager = LinearLayoutManager(requireContext())
+
+        setupSpinner()   // 🔥 ADD THIS
 
         loadProducts()
     }
 
-    // ✅ UPDATED ONLY SIGNATURE (logic same)
+    // ================= SORT =================
+
+    private fun setupSpinner() {
+
+        val options = listOf(
+            "Fast Moving",
+            "Revenue",
+            "Popular",
+            "Smart"
+        )
+
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            options
+        )
+
+        spSort.adapter = adapter
+
+        spSort.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+
+                sortBy = when (position) {
+                    0 -> "quantity"
+                    1 -> "revenue"
+                    2 -> "frequency"
+                    3 -> "smart"
+                    else -> "quantity"
+                }
+
+                loadProducts()   // 🔥 reload on change
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+
+    // ================= FILTER =================
+
     override fun onFilterChanged(
         filter: ReportFilter,
         startDate: String?,
@@ -52,6 +100,8 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
         loadProducts()
     }
 
+    // ================= API =================
+
     private fun loadProducts() {
 
         lifecycleScope.launch {
@@ -62,7 +112,6 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
             try {
 
-                // 🔥 YOUR EXACT ORIGINAL LOGIC (UNCHANGED)
                 var type = "today"
                 var start: String? = null
                 var end: String? = null
@@ -111,7 +160,6 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
                     }
 
                     ReportFilter.CUSTOM -> {
-                        // ✅ ONLY SAFETY CHECK ADDED (no logic change)
                         if (customStartDate != null && customEndDate != null) {
                             start = customStartDate
                             end = customEndDate
@@ -122,20 +170,17 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
                     }
                 }
 
-                // 🔥 SAME API CALL (unchanged)
                 val products = RetrofitClient.api.getTopProducts(
                     "Bearer $token",
                     type,
                     start,
-                    end
+                    end,
+                    sortBy   // ✅ now working
                 )
 
-                val sorted = products.sortedByDescending { it.revenue }
+                rvProducts.adapter = ProductReportAdapter(products)
 
-                rvProducts.adapter = ProductReportAdapter(sorted)
-
-                // ✅ UI FIX ONLY (no logic impact)
-                if (sorted.isEmpty()) {
+                if (products.isEmpty()) {
                     tvEmpty.visibility = View.VISIBLE
                     rvProducts.visibility = View.GONE
                 } else {
