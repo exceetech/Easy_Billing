@@ -7,36 +7,32 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-
-    //private const val BASE_URL = "http://34.47.246.206:8000/"
-
     private const val BASE_URL = "http://192.168.1.11:8080/"
 
-    //private const val BASE_URL = "http://192.168.31.212:8080/"
-
-    //private const val BASE_URL = "http://10.0.2.2:8080/"
-
-    private var context: Context? = null
+    // Use lateinit instead of nullable → avoids repeated null checks
+    private lateinit var appContext: Context
 
     fun setContext(ctx: Context) {
-        context = ctx.applicationContext
+        // Always store application context to prevent leaks
+        if (!::appContext.isInitialized) {
+            appContext = ctx.applicationContext
+        }
     }
 
     private val client: OkHttpClient by lazy {
-
-        val ctx = context
-            ?: throw IllegalStateException("Call setContext() first")
+        if (!::appContext.isInitialized) {
+            throw IllegalStateException("RetrofitClient not initialized. Call setContext() in Application class.")
+        }
 
         OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(ctx)) // 🔥 IMPORTANT
+            .addInterceptor(AuthInterceptor(appContext)) // safe now
             .build()
     }
 
     val api: ApiService by lazy {
-
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client) // 🔥 THIS LINE IS CRITICAL
+            .client(client) // uses safe client
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

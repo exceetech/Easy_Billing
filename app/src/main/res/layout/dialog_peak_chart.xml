@@ -1,0 +1,21 @@
+<!-- dialog_peak_chart.xml -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#F7F8FA"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"/>
+
+    <ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="12dp"
+        android:src="@drawable/ic_close"
+        android:background="?attr/selectableItemBackgroundBorderless"/>
+</FrameLayout>

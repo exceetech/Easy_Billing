@@ -28,8 +28,6 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        RetrofitClient.setContext(this)
-
         // 🔥 GET FCM TOKEN (VERY IMPORTANT)
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->

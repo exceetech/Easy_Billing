@@ -17,9 +17,6 @@ class SplashActivity : BaseActivity() {
 
         setContentView(R.layout.activity_splash)
 
-        // ✅ IMPORTANT: Initialize Retrofit context
-        RetrofitClient.setContext(this)
-
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         val token = prefs.getString("TOKEN", null)
 

@@ -13,30 +13,41 @@ import com.example.easy_billing.network.PeakHourResponse
 import com.example.easy_billing.util.CurrencyHelper
 
 class PeakHourAdapter(
-    private val data: List<PeakHourResponse>
+    private var data: List<PeakHourResponse>
 ) : RecyclerView.Adapter<PeakHourAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
         val tvHour: TextView = view.findViewById(R.id.tvHour)
         val tvBills: TextView = view.findViewById(R.id.tvBills)
         val tvRevenue: TextView = view.findViewById(R.id.tvRevenue)
-
-        // 🔥 NEW
         val tvRank: TextView = view.findViewById(R.id.tvRank)
         val tvStatus: TextView = view.findViewById(R.id.tvStatus)
         val progressBar: ProgressBar = view.findViewById(R.id.progressBar)
         val cardRoot: CardView = view.findViewById(R.id.cardRoot)
     }
 
-    private val maxRevenue = data.maxOfOrNull { it.revenue } ?: 1.0
-    private val minRevenue = data.minOfOrNull { it.revenue } ?: 0.0
+    // 🔥 calculated once per dataset (like ProductAdapter but better)
+    private var maxRevenue = 1.0
+    private var minRevenue = 0.0
+
+    init {
+        recalculateStats()
+    }
+
+    fun updateData(newData: List<PeakHourResponse>) {
+        data = newData
+        recalculateStats()
+        notifyDataSetChanged()
+    }
+
+    private fun recalculateStats() {
+        maxRevenue = data.maxOfOrNull { it.revenue } ?: 1.0
+        minRevenue = data.minOfOrNull { it.revenue } ?: 0.0
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_peak_hour, parent, false)
-
         return ViewHolder(view)
     }
 
@@ -57,7 +68,7 @@ class PeakHourAdapter(
         holder.tvRevenue.text =
             CurrencyHelper.format(context, item.revenue)
 
-        // 🏆 Rank
+        // 🏆 Rank (same style as product adapter)
         holder.tvRank.text = "#${position + 1}"
 
         when (position) {
@@ -67,8 +78,8 @@ class PeakHourAdapter(
             else -> holder.tvRank.setBackgroundResource(R.drawable.bg_rank_chip)
         }
 
-        // 📊 PERFORMANCE LOGIC
-        val ratio = item.revenue / maxRevenue
+        // 📊 PERFORMANCE LOGIC (same pattern)
+        val ratio = if (maxRevenue == 0.0) 0.0 else item.revenue / maxRevenue
 
         val isPeak = ratio >= 0.8
         val isLow = ratio <= 0.3
@@ -88,7 +99,7 @@ class PeakHourAdapter(
         holder.tvStatus.text = statusText
         holder.tvStatus.setTextColor(statusColor)
 
-        // 📊 PROGRESS (easy to understand)
+        // 📊 Progress (same logic)
         val range = (maxRevenue - minRevenue).takeIf { it > 0 } ?: 1.0
 
         val progress = ((item.revenue - minRevenue) / range * 100)
@@ -96,9 +107,10 @@ class PeakHourAdapter(
             .coerceIn(0, 100)
 
         holder.progressBar.progress = progress
-        holder.progressBar.progressTintList = ColorStateList.valueOf(statusColor)
+        holder.progressBar.progressTintList =
+            ColorStateList.valueOf(statusColor)
 
-        // 🎨 CARD BACKGROUND
+        // 🎨 Background
         val bgRes = when {
             isPeak -> R.drawable.bg_card_profit
             isLow -> R.drawable.bg_card_loss
@@ -110,11 +122,7 @@ class PeakHourAdapter(
         )
         holder.cardRoot.setBackgroundResource(bgRes)
 
-        // ✨ SMOOTH ENTRY
-        holder.itemView.alpha = 0f
-        holder.itemView.animate()
-            .alpha(1f)
-            .setDuration(200)
-            .start()
+        // ✅ IMPORTANT: reset view state (prevents recycling bugs)
+        holder.itemView.alpha = 1f
     }
 }
