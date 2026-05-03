@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The login card lifts in from below and fades up. 600 ms,
+    decelerate-then-overshoot so it lands with a tiny bounce.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="600"
+    android:fillAfter="true"
+    android:interpolator="@android:interpolator/decelerate_quint">
+
+    <translate
+        android:fromYDelta="40%"
+        android:toYDelta="0%"/>
+
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"/>
+
+    <scale
+        android:fromXScale="0.96"
+        android:fromYScale="0.96"
+        android:toXScale="1.0"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"/>
+</set>

@@ -8,5 +8,7 @@ data class ShopProductResponse(
     val unit: String,
     val global_product_id: Int,
     val price: Double,
-    val is_active: Boolean
+    val is_active: Boolean,
+    val hsn_code: String? = null,
+    val default_gst_rate: Double? = 0.0
 )

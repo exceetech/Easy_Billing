@@ -359,4 +359,149 @@ interface ApiService {
         @Query("start_date") start: String?,
         @Query("end_date") end: String?
     ): ProfitResponse
+
+    // ================= GST =================
+
+    @GET("gst/lookup/{gstin}")
+    suspend fun lookupGstin(
+        @Header("Authorization") token: String,
+        @Path("gstin") gstin: String
+    ): GstProfileResponse
+
+    @POST("gst/profile")
+    suspend fun upsertGstProfile(
+        @Header("Authorization") token: String,
+        @Body profile: GstProfileRequest
+    ): GstProfileResponse
+
+    @GET("gst/profile")
+    suspend fun getGstProfile(
+        @Header("Authorization") token: String
+    ): GstProfileResponse
+
+    /* ================= Product / HSN / variant verification =================
+     *
+     * Used by AddProductsActivity + PurchaseActivity to validate user
+     * input against the global catalogue. The shop's backend is the
+     * authority — global product / HSN / variant data does NOT live
+     * locally and is not cached past the screen lifecycle.
+     */
+
+    @GET("products/verify-hsn/{hsn}")
+    suspend fun verifyHsn(
+        @Header("Authorization") token: String,
+        @Path("hsn") hsn: String
+    ): HsnVerificationResponse
+
+    @GET("products/{name}/variants")
+    suspend fun getProductVariants(
+        @Header("Authorization") token: String,
+        @Path("name") productName: String
+    ): VariantListResponse
+
+    @GET("products/verify-name")
+    suspend fun verifyProductName(
+        @Header("Authorization") token: String,
+        @Query("name") productName: String
+    ): ProductNameVerifyResponse
+
+    /* ================= Push-side sync endpoints =================
+     *
+     * The local DB is the source of truth while offline. These
+     * endpoints push the deltas back when the device reconnects.
+     */
+
+    /** Push unsynced shop_product rows (those with no server_id). */
+    @POST("products/sync")
+    suspend fun syncShopProducts(
+        @Header("Authorization") token: String,
+        @Body body: ShopProductSyncRequest
+    ): ShopProductSyncResponse
+
+    /** Register a product in the *global* catalogue. */
+    @POST("products/global/register")
+    suspend fun registerGlobalProduct(
+        @Header("Authorization") token: String,
+        @Body body: GlobalProductRegisterRequest
+    ): GlobalProductRegisterResponse
+
+    /** Push a batch of purchase invoices + their line items. */
+    @POST("purchases/sync")
+    suspend fun syncPurchases(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseSyncRequest
+    ): PurchaseSyncResponse
+
+    @POST("purchase-returns/sync")
+    suspend fun syncPurchaseReturns(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseReturnSyncRequest
+    ): PurchaseSyncResponse
+
+    @POST("scrap/sync")
+    suspend fun syncScrap(
+        @Header("Authorization") token: String,
+        @Body body: ScrapSyncRequest
+    ): PurchaseSyncResponse
+
+    /** Fetch the configurable list of units for this shop. */
+    @GET("units")
+    suspend fun getUnits(
+        @Header("Authorization") token: String
+    ): UnitListResponse
+
+    @POST("gst/sales/sync")
+    suspend fun syncGstSales(
+        @Header("Authorization") token: String,
+        @Body body: GstSalesSyncRequest
+    ): GstSyncResponse
+
+    @POST("gst/purchases/sync")
+    suspend fun syncGstPurchases(
+        @Header("Authorization") token: String,
+        @Body body: GstPurchaseSyncRequest
+    ): GstSyncResponse
+
+    @GET("gst/reports/gstr1")
+    suspend fun getGstr1(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Gstr1Response
+
+    @GET("gst/reports/gstr3b")
+    suspend fun getGstr3b(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Gstr3BResponse
+
+    @GET("gst/reports/hsn-summary")
+    suspend fun getHsnSummary(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): List<HsnSummaryItem>
+
+    @GET("gst/reports/gstr2")
+    suspend fun getGstr2(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Gstr2Response
+
+
+    @GET("global-catalog/products/{product_id}/variants")
+    suspend fun getVariants(
+        @Header("Authorization") token: String,
+        @Path("product_id") productId: Int
+    ): List<VariantResponse>
+
+
+    @GET("global-catalog/products/{product_id}/hsn")
+    suspend fun getHsn(
+        @Header("Authorization") token: String,
+        @Path("product_id") productId: Int
+    ): HsnResponse
+
 }

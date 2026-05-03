@@ -21,6 +21,7 @@ import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaleItemDto
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.util.InvoicePdfGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -119,34 +120,61 @@ class InvoiceActivity : AppCompatActivity() {
         if (isUpdating) return   // ✅ prevent infinite loop
 
         val subTotal = items.sumOf { it.subTotal() }
-        val gstAmount = (subTotal * gstPercent) / 100
 
-        val maxDiscount = subTotal + gstAmount
+        var gstAmount = 0.0
+        
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+            val storeInfo = db.storeInfoDao().get()
+            val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+            
+            val sellerStateCode = storeInfo?.stateCode ?: ""
+            val buyerStateCode = "" // B2C default for now in UI calc
+            val supplyType = if (isGstEnabled) {
+                if (GstEngine.isIntrastate(sellerStateCode, buyerStateCode)) "intrastate" else "interstate"
+            } else "intrastate"
 
-        var discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+            var totalGst = 0.0
+            
+            for (cartItem in items) {
+                val itemSubTotal = cartItem.subTotal()
+                val itemGstRate = if (isGstEnabled) cartItem.product.defaultGstRate else gstPercent
+                val breakup = GstEngine.calculateGstSplit(itemSubTotal, itemGstRate, supplyType)
+                totalGst += breakup.totalTax
+            }
+            
+            gstAmount = totalGst
 
-        // 🔥 LIMIT DISCOUNT
-        if (discount > maxDiscount) {
-            discount = maxDiscount
-
-            isUpdating = true
-            etDiscount.setText(maxDiscount.toInt().toString())
-            etDiscount.setSelection(etDiscount.text.length)
-            isUpdating = false
-
-            Toast.makeText(this, "Discount cannot exceed total", Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                val maxDiscount = subTotal + gstAmount
+        
+                var discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+        
+                // 🔥 LIMIT DISCOUNT
+                if (discount > maxDiscount) {
+                    discount = maxDiscount
+        
+                    isUpdating = true
+                    etDiscount.setText(maxDiscount.toInt().toString())
+                    etDiscount.setSelection(etDiscount.text.length)
+                    isUpdating = false
+        
+                    Toast.makeText(this@InvoiceActivity, "Discount cannot exceed total", Toast.LENGTH_SHORT).show()
+                }
+        
+                val total = maxDiscount - discount
+        
+                val formattedSubTotal = CurrencyHelper.format(this@InvoiceActivity, subTotal)
+                val formattedGst = CurrencyHelper.format(this@InvoiceActivity, gstAmount)
+                val formattedTotal = CurrencyHelper.format(this@InvoiceActivity, total)
+        
+                tvSubtotal.text = formattedSubTotal
+                tvGst.text = formattedGst
+                tvTotal.text = formattedTotal
+            }
         }
 
-        val total = maxDiscount - discount
-
-        val formattedSubTotal = CurrencyHelper.format(this, subTotal)
-        val formattedGst = CurrencyHelper.format(this, gstAmount)
-        val formattedDiscount = CurrencyHelper.format(this, discount)
-        val formattedTotal = CurrencyHelper.format(this, total)
-
-        tvSubtotal.text = formattedSubTotal
-        tvGst.text = formattedGst
-        tvTotal.text = formattedTotal
+        // The UI updates are now handled in the coroutine above.
     }
 
     // ================= SAVE BILL =================
@@ -166,8 +194,23 @@ class InvoiceActivity : AppCompatActivity() {
                 val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
                 val subTotal = items.sumOf { it.subTotal() }
                 val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
-                val gstAmount = (subTotal * gstPercent) / 100
-                val total = subTotal + gstAmount - discount
+                
+                // Fetch Store Info for GST Calculation
+                val storeInfo = db.storeInfoDao().get()
+                val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+                val sellerStateCode = storeInfo?.stateCode ?: ""
+                val customerType = "B2C" // Default for now
+                val customerGstin: String? = null
+                val buyerStateCode = GstEngine.getStateCode(customerGstin)
+                val placeOfSupply = buyerStateCode.ifBlank { sellerStateCode }
+                val supplyType = if (isGstEnabled) {
+                    if (GstEngine.isIntrastate(sellerStateCode, buyerStateCode)) "intrastate" else "interstate"
+                } else "intrastate"
+                
+                var totalCgstAmount = 0.0
+                var totalSgstAmount = 0.0
+                var totalIgstAmount = 0.0
+                var totalGstAmount = 0.0
 
                 // ================= 🔴 STEP 1: VALIDATE STOCK =================
                 for (cartItem in items) {
@@ -196,23 +239,8 @@ class InvoiceActivity : AppCompatActivity() {
                     }
                 }
 
-                // ================= 🟡 STEP 2: SAVE BILL =================
-                val billId = db.billDao().insertBill(
-                    Bill(
-                        billNumber = billNumber,
-                        date = date,
-                        subTotal = subTotal,
-                        gst = gstAmount,
-                        discount = discount,
-                        total = total,
-                        paymentMethod = getPaymentMethod(),
-                        isSynced = false
-                    )
-                ).toInt()
-
-                val billItems = mutableListOf<BillItem>()
-
                 // ================= 🟡 STEP 3: PREPARE ITEMS =================
+                val billItems = mutableListOf<BillItem>()
                 for (cartItem in items) {
 
                     val product = cartItem.product
@@ -223,9 +251,17 @@ class InvoiceActivity : AppCompatActivity() {
                         db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
                     } else 0.0
 
+                    val itemGstRate = if (isGstEnabled) product.defaultGstRate else gstPercent
+                    val breakup = GstEngine.calculateGstSplit(subtotalItem, itemGstRate, supplyType)
+                    
+                    totalCgstAmount += breakup.cgst
+                    totalSgstAmount += breakup.sgst
+                    totalIgstAmount += breakup.igst
+                    totalGstAmount += breakup.totalTax
+
                     billItems.add(
                         BillItem(
-                            billId = billId,
+                            billId = 0, // Temporarily set to 0, updated later
                             productId = product.id,
                             productName = product.name,
                             variant = product.variant,
@@ -235,12 +271,55 @@ class InvoiceActivity : AppCompatActivity() {
                             subTotal = subtotalItem,
                             costPriceUsed = avgCost * quantity,
                             profit = subtotalItem - (avgCost * quantity),
+                            hsnCode = product.hsnCode ?: "",
+                            gstRate = itemGstRate,
+                            cgstAmount = breakup.cgst,
+                            sgstAmount = breakup.sgst,
+                            igstAmount = breakup.igst,
+                            taxableValue = breakup.taxableValue,
                             isSynced = false
                         )
                     )
                 }
 
-                db.billItemDao().insertAll(billItems)
+                val total = subTotal + totalGstAmount - discount
+
+                // ================= 🟡 STEP 2: SAVE BILL =================
+                val finalBill = Bill(
+                    billNumber = billNumber,
+                    date = date,
+                    subTotal = subTotal,
+                    gst = totalGstAmount,
+                    discount = discount,
+                    total = total,
+                    paymentMethod = getPaymentMethod(),
+                    customerType = customerType,
+                    customerGstin = customerGstin,
+                    placeOfSupply = placeOfSupply,
+                    supplyType = supplyType,
+                    cgstAmount = totalCgstAmount,
+                    sgstAmount = totalSgstAmount,
+                    igstAmount = totalIgstAmount,
+                    isSynced = false
+                )
+                
+                val billId = db.billDao().insertBill(finalBill).toInt()
+
+                // Update bill items with real billId and insert
+                val finalBillItems = billItems.map { it.copy(billId = billId) }
+                db.billItemDao().insertAll(finalBillItems)
+
+                // ================= 🟢 STEP 3.5: SAVE GST SALES RECORDS =================
+                if (isGstEnabled && storeInfo != null) {
+                    val deviceId = getSharedPreferences("auth", MODE_PRIVATE).getString("DEVICE_ID", UUID.randomUUID().toString()) ?: ""
+                    val gstRecords = GstEngine.buildSalesRecords(
+                        bill = finalBill.copy(id = billId), // Make sure it has ID for reference if needed, though invoiceNumber is used
+                        items = finalBillItems,
+                        storeInfo = storeInfo,
+                        deviceId = deviceId
+                    )
+                    db.gstSalesRecordDao().insertAll(gstRecords)
+                }
 
                 savedBillId = billId
 
@@ -322,7 +401,7 @@ class InvoiceActivity : AppCompatActivity() {
                         },
                         payment_method = getPaymentMethod(),
                         discount = discount,
-                        gst = gstAmount,
+                        gst = totalGstAmount,
                         total_amount = total
                     )
 
@@ -584,8 +663,18 @@ class InvoiceActivity : AppCompatActivity() {
 
             val subTotal = items.sumOf { it.subTotal() }
             val discount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
-            val gstAmount = (subTotal * gstPercent) / 100
-            val total = subTotal + gstAmount - discount
+            
+            val storeInfo = db.storeInfoDao().get()
+            val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+            
+            var totalGst = 0.0
+            for (cartItem in items) {
+                val itemGstRate = if (isGstEnabled) cartItem.product.defaultGstRate else gstPercent
+                val breakup = GstEngine.calculateGstSplit(cartItem.subTotal(), itemGstRate, "intrastate")
+                totalGst += breakup.totalTax
+            }
+            
+            val total = subTotal + totalGst - discount
 
             val shopId = getSharedPreferences("auth", MODE_PRIVATE)
                 .getInt("SHOP_ID", 1)

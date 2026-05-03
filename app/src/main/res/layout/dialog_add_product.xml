@@ -9,6 +9,12 @@
     app:cardElevation="12dp"
     app:cardUseCompatPadding="true">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,26 +53,31 @@
                 android:inputType="textCapWords"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Variant Name -->
+        <!-- Variant Name (autocomplete from globally-verified variants) -->
+        <!-- Variant Name (dropdown from global variants) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutVariantName"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:startIconDrawable="@drawable/ic_item"
             app:startIconTint="?attr/colorPrimary"
+            app:endIconMode="dropdown_menu"
             app:boxCornerRadiusTopStart="16dp"
             app:boxCornerRadiusTopEnd="16dp"
             app:boxCornerRadiusBottomStart="16dp"
             app:boxCornerRadiusBottomEnd="16dp">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/etVariantName"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:hint="Variant (e.g. Small, 500ml)"
-                android:inputType="textCapWords"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:focusable="true"
+                android:clickable="true"
+                android:completionThreshold="1"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Unit -->
         <com.google.android.material.textfield.TextInputLayout
@@ -110,6 +121,110 @@
                 android:inputType="numberDecimal"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- HSN Code + help button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHsnCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="HSN/SAC Code (Mandatory for GST)"
+                    android:inputType="number"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHsnHelp"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:contentDescription="@string/hsn_help_cd"
+                android:minWidth="40dp"
+                android:text="@string/hsn_help_text"
+                android:textAllCaps="false"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <!-- CGST / SGST / IGST -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/cgst">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCgst"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                android:layout_width="6dp"
+                android:layout_height="match_parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/sgst">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSgst"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space
+                android:layout_width="6dp"
+                android:layout_height="match_parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/igst">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etIgst"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- Legacy single GST rate (kept hidden for backwards-compatibility
+             with code paths that still read etGstRate; new code should
+             use etCgst/etSgst/etIgst). -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etGstRate"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:inputType="numberDecimal"/>
+
         <!-- 🔥 Track Inventory Toggle -->
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switchTrackInventory"
@@ -140,19 +255,21 @@
                     android:inputType="numberDecimal"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Cost -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
+            <!-- Cost-price input was removed: own-made products
+                 don't have a meaningful purchase cost. The selling
+                 price is reused as the cost basis for inventory
+                 bookkeeping; for items added via PurchaseActivity the
+                 cost is computed as invoice_value / quantity instead.
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCostPrice"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:hint="Cost Price"
-                    android:inputType="numberDecimal"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                 The id below is kept (as a hidden, zero-sized input)
+                 so any older code path that still reads etCostPrice
+                 still resolves cleanly. -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCostPrice"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:inputType="numberDecimal"
+                android:visibility="gone"/>
 
         </LinearLayout>
 
@@ -180,5 +297,7 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    </ScrollView>
 
 </com.google.android.material.card.MaterialCardView>

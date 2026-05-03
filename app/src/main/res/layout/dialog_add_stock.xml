@@ -58,6 +58,46 @@
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- GST PURCHASE FIELDS -->
+    <LinearLayout
+        android:id="@+id/llGstFields"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- VENDOR GSTIN -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etVendorGstin"
+                android:hint="Vendor GSTIN (Optional)"
+                android:inputType="textCapCharacters"
+                android:maxLength="15"
+                android:textColor="#111827"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- INVOICE NUMBER -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etInvoiceNumber"
+                android:hint="Vendor Invoice Number"
+                android:inputType="textCapCharacters"
+                android:textColor="#111827"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
     <!-- BUTTON ROW -->
     <LinearLayout
         android:layout_width="match_parent"

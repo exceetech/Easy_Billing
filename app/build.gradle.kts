@@ -44,7 +44,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    
+
     // Room - Fixed dependencies
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -73,4 +73,11 @@ dependencies {
 
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
+    // ===== MVVM (ViewModel + Fragment + LiveData/Flow) =====
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }

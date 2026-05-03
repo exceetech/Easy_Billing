@@ -16,6 +16,14 @@ data class Bill(
     val total: Double,
     val paymentMethod: String,
 
+    val customerType: String = "B2C",
+    val customerGstin: String? = null,
+    val placeOfSupply: String = "",
+    val supplyType: String = "intrastate",
+    val cgstAmount: Double = 0.0,
+    val sgstAmount: Double = 0.0,
+    val igstAmount: Double = 0.0,
+
     @ColumnInfo(name = "is_synced")
     var isSynced: Boolean = false
 )

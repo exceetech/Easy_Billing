@@ -42,9 +42,17 @@ open class BaseActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(toolbarId)
         setSupportActionBar(toolbar)
 
-        if (showBack) {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayShowHomeEnabled(false)
+            setDisplayHomeAsUpEnabled(showBack)
+        }
+
+        // Optional: custom back icon (more premium)
+        toolbar.setNavigationIcon(R.drawable.ic_back_arrow)
+
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 

@@ -1,120 +1,283 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#020405">
 
-    <LinearLayout
+    <!-- Premium Animated Background -->
+    <com.example.easy_billing.util.PatternedBackgroundView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="match_parent" />
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            app:titleTextColor="@color/textPrimary"
-            app:navigationIconTint="@color/textPrimary" />
+    <!-- Top Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        app:navigationIconTint="#FAFAF7"
+        app:titleTextColor="#FAFAF7"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Title -->
-        <TextView
-            android:text="@string/create_account"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Full Name -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_person"
-            app:startIconTint="?attr/colorPrimary">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFullName"
-                android:hint="@string/full_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Email -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="16dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_mail"
-            app:startIconTint="?attr/colorPrimary">
+            android:paddingBottom="48dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail"
-                android:hint="@string/email"
-                android:inputType="textEmailAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                android:id="@+id/mainContent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                app:layout_constraintWidth_max="400dp"
+                app:layout_constraintWidth_percent="0.85"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Phone -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_phone"
-            app:startIconTint="?attr/colorPrimary">
+                <!-- Scalancer Style Category Header -->
+                <LinearLayout
+                    android:id="@+id/headerNewAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPhoneNumber"
-                android:hint="@string/phone_number"
-                android:inputType="phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                    <View
+                        android:id="@+id/lineNewAccount"
+                        android:layout_width="24dp"
+                        android:layout_height="1dp"
+                        android:background="#00FF41"/>
 
-        <!-- Shop Name -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_store"
-            app:startIconTint="?attr/colorPrimary">
+                    <TextView
+                        android:id="@+id/tvNewAccount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:letterSpacing="0.25"
+                        android:text="NEW ACCOUNT"
+                        android:textColor="#A1A1AA"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="true"/>
+                </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/ShopName"
-                android:hint="@string/shop_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- Scalancer Style Mixed-Serif Title -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+                    
+                    <TextView
+                        android:id="@+id/tvRegisterBase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Create "
+                        android:textSize="34sp"
+                        android:textColor="#FFFFFF"
+                        android:fontFamily="serif"/>
+                        
+                    <TextView
+                        android:id="@+id/tvRegisterAccent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Account"
+                        android:textSize="34sp"
+                        android:textColor="#D4A574"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"/>
+                </LinearLayout>
 
-        <!-- Register Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRegister"
-            android:text="@string/register"
-            android:layout_marginTop="24dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <!-- Trademark Elastic Green Line -->
+                <View
+                    android:id="@+id/wordmarkAccent"
+                    android:layout_width="60dp"
+                    android:layout_height="2dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#D4A574"/>
 
-        <!-- Back to Login -->
-        <TextView
-            android:id="@+id/tvBackToLogin"
-            android:text="@string/already_have_an_account_login"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginTop="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+                <TextView
+                    android:id="@+id/tvTagline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Set up your shop in minutes."
+                    android:textSize="14sp"
+                    android:textColor="#9CA3AF"
+                    android:fontFamily="sans-serif"
+                    android:layout_marginBottom="32dp"/>
 
-    </LinearLayout>
+                <!-- Full Name -->
+                <FrameLayout
+                    android:id="@+id/nameContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="@drawable/sel_premium_input">
+                    <ImageView
+                        android:id="@+id/iconFullName"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="20dp"
+                        android:src="@drawable/ic_person"
+                        app:tint="#8F9098"/>
+                    <EditText
+                        android:id="@+id/etFullName"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:paddingStart="60dp"
+                        android:paddingEnd="20dp"
+                        android:hint="Full Name"
+                        android:textColor="#FAFAF7"
+                        android:textColorHint="#71717A"
+                        android:fontFamily="sans-serif"
+                        android:inputType="textCapWords"
+                        android:imeOptions="actionNext"
+                        android:singleLine="true"
+                        android:textSize="16sp"
+                        android:focusableInTouchMode="true"/>
+                </FrameLayout>
 
-</ScrollView>
+                <!-- Email -->
+                <FrameLayout
+                    android:id="@+id/emailContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/sel_premium_input">
+                    <ImageView
+                        android:id="@+id/iconEmail"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="20dp"
+                        android:src="@drawable/ic_mail"
+                        app:tint="#8F9098"/>
+                    <EditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:paddingStart="60dp"
+                        android:paddingEnd="20dp"
+                        android:hint="Email Address"
+                        android:textColor="#FAFAF7"
+                        android:textColorHint="#71717A"
+                        android:fontFamily="sans-serif"
+                        android:inputType="textEmailAddress"
+                        android:imeOptions="actionNext"
+                        android:singleLine="true"
+                        android:textSize="16sp"
+                        android:focusableInTouchMode="true"/>
+                </FrameLayout>
+
+                <!-- Phone -->
+                <FrameLayout
+                    android:id="@+id/phoneContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/sel_premium_input">
+                    <ImageView
+                        android:id="@+id/iconPhone"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="20dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="#8F9098"/>
+                    <EditText
+                        android:id="@+id/etPhoneNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:paddingStart="60dp"
+                        android:paddingEnd="20dp"
+                        android:hint="Phone Number"
+                        android:textColor="#FAFAF7"
+                        android:textColorHint="#71717A"
+                        android:fontFamily="sans-serif"
+                        android:inputType="phone"
+                        android:imeOptions="actionNext"
+                        android:singleLine="true"
+                        android:textSize="16sp"
+                        android:focusableInTouchMode="true"/>
+                </FrameLayout>
+
+                <!-- Shop Name -->
+                <FrameLayout
+                    android:id="@+id/shopContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/sel_premium_input">
+                    <ImageView
+                        android:id="@+id/iconShop"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="20dp"
+                        android:src="@drawable/ic_store"
+                        app:tint="#8F9098"/>
+                    <EditText
+                        android:id="@+id/ShopName"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:paddingStart="60dp"
+                        android:paddingEnd="20dp"
+                        android:hint="Shop Name"
+                        android:textColor="#FAFAF7"
+                        android:textColorHint="#71717A"
+                        android:fontFamily="sans-serif"
+                        android:inputType="textCapWords"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:textSize="16sp"
+                        android:focusableInTouchMode="true"/>
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/PremiumButton"
+                    android:id="@+id/btnRegister"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="24dp"
+                    android:text="Create Account"
+                    android:stateListAnimator="@animator/button_press_anim"/>
+
+                <TextView
+                    android:id="@+id/tvBackToLogin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Already have an account? Log in"
+                    android:textColor="#A1A1AA"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -319,36 +319,68 @@
     <!-- ================= LEFT MENU DRAWER ================= -->
     <LinearLayout
         android:id="@+id/leftDrawer"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#F8FAFC"
+        android:background="#FFFFFF"
         android:orientation="vertical">
 
-        <!-- 🔥 PREMIUM HEADER -->
+        <!-- ============== PREMIUM HEADER ==============
+             Indigo gradient (matches login + register), brand
+             chip, large welcome line. -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="@drawable/bg_drawer_header"
-            android:gravity="center_vertical"
+            android:layout_height="160dp"
+            android:background="@drawable/bg_drawer_header_premium"
+            android:gravity="bottom"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="18dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_drawer_chip"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp">
+
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:background="@drawable/bg_login_button"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:letterSpacing="0.10"
+                    android:text="EXPOS · DASHBOARD"
+                    android:textColor="#FFEDD5"
+                    android:textSize="10sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="-0.02"
                 android:text="Dashboard"
                 android:textColor="#FFFFFF"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textSize="26sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Manage your business"
-                android:textColor="#E0E7FF"
-                android:textSize="13sp" />
+                android:textColor="#FFEDD5"
+                android:textSize="13sp"/>
         </LinearLayout>
 
         <!-- 🔥 SCROLLABLE CONTENT -->
@@ -364,42 +396,42 @@
                 android:orientation="vertical"
                 android:padding="14dp">
 
-                <!-- 🔥 TRANSLATION CARD -->
-                <com.google.android.material.card.MaterialCardView
+                <!-- ============== TRANSLATION CARD ==============
+                     Soft indigo glass surface — matches the login
+                     value-prop pills. Replaces the bright green
+                     block. -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="14dp"
-                    app:cardBackgroundColor="#B7FBC4"
-                    app:cardCornerRadius="0dp"
-                    app:cardElevation="1dp">
+                    android:background="@drawable/bg_drawer_translate_card"
+                    android:gravity="center_vertical"
+                    android:minHeight="60dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="10dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_language"
+                        app:tint="#4F46E5"/>
 
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_language"
-                            app:tint="#4F46E5" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:text="@string/auto_translation"
+                        android:textColor="#0F172A"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:text="@string/auto_translation"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switchTranslate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchTranslate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
 
                 <!-- 🔥 MENU ITEMS (PREMIUM SPACING) -->
 
@@ -425,7 +457,7 @@
                         android:paddingStart="14dp"
                         android:paddingEnd="14dp"
 
-                        android:text="@string/add_products"
+                        android:text="@string/add_edit_product"
                         android:textAllCaps="false"
 
                         android:textSize="16sp"
@@ -493,6 +525,33 @@
                         app:rippleColor="#E5E7EB"
                         android:background="@drawable/bg_nav_premium"/>
 
+                    <!-- 🔥 PURCHASE -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPurchase"
+                        style="@style/Widget.Material3.Button.TextButton"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="6dp"
+
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+
+                        android:text="@string/purchase_title"
+                        android:textAllCaps="false"
+
+                        android:textSize="16sp"
+                        android:textColor="#111827"
+                        android:letterSpacing="0.02"
+
+                        app:icon="@drawable/ic_inventory"
+                        app:iconPadding="14dp"
+                        app:iconTint="#6B7280"
+
+                        app:rippleColor="#E5E7EB"
+                        android:background="@drawable/bg_nav_premium"/>
+
                     <!-- 🔥 INVENTORY -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnInventory"
@@ -514,6 +573,33 @@
                         android:letterSpacing="0.02"
 
                         app:icon="@drawable/ic_inventory"
+                        app:iconPadding="14dp"
+                        app:iconTint="#6B7280"
+
+                        app:rippleColor="#E5E7EB"
+                        android:background="@drawable/bg_nav_premium"/>
+
+                    <!-- 🔥 PROFILE (NEW) -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnProfile"
+                        style="@style/Widget.Material3.Button.TextButton"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="6dp"
+
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+
+                        android:text="@string/profile"
+                        android:textAllCaps="false"
+
+                        android:textSize="16sp"
+                        android:textColor="#111827"
+                        android:letterSpacing="0.02"
+
+                        app:icon="@drawable/ic_profile"
                         app:iconPadding="14dp"
                         app:iconTint="#6B7280"
 
@@ -561,6 +647,33 @@
                         android:paddingEnd="14dp"
 
                         android:text="@string/reports"
+                        android:textAllCaps="false"
+
+                        android:textSize="16sp"
+                        android:textColor="#111827"
+                        android:letterSpacing="0.02"
+
+                        app:icon="@drawable/ic_report"
+                        app:iconPadding="14dp"
+                        app:iconTint="#6B7280"
+
+                        app:rippleColor="#E5E7EB"
+                        android:background="@drawable/bg_nav_premium"/>
+
+                    <!-- 🔥 GST REPORTS -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGstReports"
+                        style="@style/Widget.Material3.Button.TextButton"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="6dp"
+
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+
+                        android:text="GST Reports"
                         android:textAllCaps="false"
 
                         android:textSize="16sp"
@@ -657,13 +770,21 @@
 
                 </LinearLayout>
 
+                <!-- Subtle divider above the destructive action so
+                     it never feels adjacent to a navigation row. -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="#E5E7EB"/>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     style="@style/Widget.Material3.Button.TextButton"
 
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:layout_marginTop="10dp"
 
                     android:gravity="start|center_vertical"
                     android:paddingStart="14dp"
@@ -682,8 +803,8 @@
                     app:iconPadding="14dp"
                     app:iconTint="#DC2626"
 
-                    app:rippleColor="#FEE2E2"
-                    android:background="@drawable/bg_nav_logout"/>
+                    app:rippleColor="#33EF4444"
+                    android:background="@drawable/bg_drawer_logout_card"/>
 
             </LinearLayout>
 

@@ -1,0 +1,44 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#22FFFFFF">
+
+    <!-- MASK -->
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <solid android:color="#FFFFFF"/>
+        </shape>
+    </item>
+
+    <!-- CONTENT -->
+    <item>
+
+        <selector>
+
+            <!-- 🔥 PRESSED / HOVER (GREEN) -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="14dp"/>
+                    <gradient
+                        android:startColor="#00C853"
+                        android:endColor="#009624"
+                        android:angle="270"/>
+                </shape>
+            </item>
+
+            <!-- 🥂 DEFAULT (CHAMPAGNE) -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="14dp"/>
+                    <gradient
+                        android:startColor="#D6BC84"
+                        android:centerColor="#C5A96C"
+                        android:endColor="#A7854E"
+                        android:angle="270"/>
+                </shape>
+            </item>
+
+        </selector>
+
+    </item>
+
+</ripple>

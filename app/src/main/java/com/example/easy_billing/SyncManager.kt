@@ -13,20 +13,341 @@ import com.example.easy_billing.network.BillItemRequest
 import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.network.CreditSyncRequest
 import com.example.easy_billing.network.InventoryLogRequest
+import com.example.easy_billing.network.GstProfileRequest
+import com.example.easy_billing.network.GstSalesSyncRequest
+import com.example.easy_billing.network.GstPurchaseSyncRequest
+import com.example.easy_billing.network.GstSaleRecordDto
+import com.example.easy_billing.network.GstPurchaseRecordDto
+import com.example.easy_billing.network.AddProductRequest
+import com.example.easy_billing.network.GlobalProductRegisterRequest
+import com.example.easy_billing.network.PurchaseDto
+import com.example.easy_billing.network.PurchaseItemDto
+import com.example.easy_billing.network.PurchaseReturnDto
+import com.example.easy_billing.network.PurchaseReturnSyncRequest
+import com.example.easy_billing.network.PurchaseSyncRequest
+import com.example.easy_billing.network.ScrapDto
+import com.example.easy_billing.network.ScrapSyncRequest
+import android.util.Log
 
 class SyncManager(private val context: Context) {
 
 
     suspend fun syncAll() {
 
-        // 🔥 ORDER MATTERS
+        // 🔥 ORDER MATTERS — products before anything that references
+        // them (purchases, bills, returns, scrap), pulls last.
 
-        syncAccounts()        // account first
-        syncCredit()          // then transactions
-        syncInventory()       // 🔥 inventory BEFORE bills
-        syncBills()           // then bills
-        syncStoreInfo()       // pull latest
-        syncBillingSettings() // pull settings
+        syncAccounts()           // account first
+        syncCredit()             // then transactions
+        syncShopProducts()       // 🆕 push unsynced shop_product (and global)
+        syncInventory()          // 🔥 inventory BEFORE bills
+        syncBills()              // then bills
+        syncPurchases()          // 🆕 push purchase invoices + items
+        syncPurchaseReturns()    // 🆕 push returns
+        syncScrapEntries()       // 🆕 push scrap
+        syncGstProfile()
+        syncGstSales()
+        syncGstPurchases()
+        syncStoreInfo()          // pull latest
+        syncBillingSettings()    // pull settings
+    }
+
+    /* ==================================================================
+     *  Push-side sync — local rows → backend
+     * ================================================================== */
+
+    /**
+     * Pushes locally-created products that haven't been synced yet
+     * (those with `serverId == null`). For each row we:
+     *
+     *   1. Call `addProductToShop` → backend assigns a `product_id`.
+     *   2. Persist that id back to the local row.
+     *   3. Call `registerGlobalProduct` so the global catalogue
+     *      always receives the name/HSN/variant — independent of
+     *      whether the shop endpoint promotes them server-side.
+     */
+    suspend fun syncShopProducts() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncShopProducts skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.productDao().getUnsynced()
+        Log.d(SYNC_TAG, "syncShopProducts: ${pending.size} unsynced product(s)")
+        for (product in pending) {
+            try {
+                val response = api.addProductToShop(
+                    "Bearer $token",
+                    AddProductRequest(
+                        name             = product.name,
+                        variant_name     = product.variant,
+                        unit             = product.unit ?: "piece",
+                        price            = product.price,
+                        track_inventory  = product.trackInventory,
+                        initial_stock    = null,
+                        cost_price       = null,
+                        hsn_code         = product.hsnCode,
+                        default_gst_rate = product.defaultGstRate
+                    )
+                )
+                if (response.product_id > 0) {
+                    db.productDao().setServerId(product.id, response.product_id)
+                    Log.d(SYNC_TAG, "  product '${product.name}' → server id ${response.product_id}")
+                }
+
+                // Always also register globally — best-effort.
+                runCatching {
+                    api.registerGlobalProduct(
+                        "Bearer $token",
+                        GlobalProductRegisterRequest(
+                            name      = product.name,
+                            variant   = product.variant,
+                            hsn_code  = product.hsnCode
+                        )
+                    )
+                }.onFailure {
+                    Log.w(SYNC_TAG, "  global register failed for '${product.name}': ${it.message}")
+                }
+            } catch (e: Exception) {
+                Log.e(SYNC_TAG, "syncShopProducts: '${product.name}' push failed", e)
+                // Leave the row unsynced; next pass retries it.
+            }
+        }
+    }
+
+    /**
+     * Pushes every unsynced row in `purchase_table` (and its line
+     * items) in a single batch. The backend echoes a
+     * `local_id → server_id` map which we apply locally so future
+     * sync passes don't re-push the same rows.
+     */
+    suspend fun syncPurchases(): SyncResult {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncPurchases skipped — no auth token")
+                return SyncResult.Skipped("not signed in")
+            }
+        val db = AppDatabase.getDatabase(context)
+
+        val pending = db.purchaseDao().getUnsynced()
+        Log.d(SYNC_TAG, "syncPurchases: ${pending.size} unsynced purchase(s) in queue")
+        if (pending.isEmpty()) return SyncResult.NothingToDo
+
+        return pushPurchases(token, pending)
+    }
+
+    /**
+     * Push a SINGLE purchase + its items immediately. Called inline
+     * by [com.example.easy_billing.repository.PurchaseRepository]
+     * after the local transaction commits, so the user gets an
+     * actionable result back instead of having to wait for the
+     * background SyncCoordinator.
+     */
+    suspend fun pushPurchaseImmediately(purchaseId: Int): SyncResult {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return SyncResult.Skipped("not signed in")
+        val db = AppDatabase.getDatabase(context)
+
+        // Make sure the products this purchase references have been
+        // pushed first — otherwise their `shop_product_id` will come
+        // through as null and the backend has no canonical reference.
+        runCatching { syncShopProducts() }.onFailure {
+            Log.w(SYNC_TAG, "pushPurchaseImmediately: shop product pre-sync failed: ${it.message}")
+        }
+
+        val purchase = db.purchaseDao().getById(purchaseId)
+            ?: return SyncResult.Skipped("local purchase not found")
+        if (purchase.isSynced) return SyncResult.NothingToDo
+
+        val mainResult = pushPurchases(token, listOf(purchase))
+
+        // Also flush gst_purchase_records — savePurchase wrote one
+        // row per line item that has to land in the backend's
+        // `gst_purchase_record` table. Failures here don't override
+        // the main purchase result; they're logged and retried on
+        // the next sync pass.
+        runCatching { syncGstPurchases() }.onFailure {
+            Log.w(SYNC_TAG, "pushPurchaseImmediately: gst records flush failed: ${it.message}")
+        }
+
+        return mainResult
+    }
+
+    /** Shared push routine — keeps the DTO mapping in one place. */
+    private suspend fun pushPurchases(
+        token: String,
+        pending: List<com.example.easy_billing.db.Purchase>
+    ): SyncResult {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val productDao = db.productDao()
+        val itemDao    = db.purchaseItemDao()
+
+        val dtoBatch = pending.map { p ->
+            val items = itemDao.getByPurchase(p.id).map { item ->
+                val serverProductId = item.productId
+                    ?.let { productDao.getById(it)?.serverId }
+
+                PurchaseItemDto(
+                    local_id                 = item.id,
+                    shop_product_id          = serverProductId,
+                    product_name             = item.productName,
+                    variant                  = item.variant,
+                    hsn_code                 = item.hsnCode,
+                    quantity                 = item.quantity,
+                    unit                     = item.unit,
+                    taxable_amount           = item.taxableAmount,
+                    invoice_value            = item.invoiceValue,
+                    cost_price               = item.costPrice,
+                    purchase_cgst_percentage = item.purchaseCgstPercentage,
+                    purchase_sgst_percentage = item.purchaseSgstPercentage,
+                    purchase_igst_percentage = item.purchaseIgstPercentage,
+                    purchase_cgst_amount     = item.purchaseCgstAmount,
+                    purchase_sgst_amount     = item.purchaseSgstAmount,
+                    purchase_igst_amount     = item.purchaseIgstAmount,
+                    sales_cgst_percentage    = item.salesCgstPercentage,
+                    sales_sgst_percentage    = item.salesSgstPercentage,
+                    sales_igst_percentage    = item.salesIgstPercentage
+                )
+            }
+            PurchaseDto(
+                local_id         = p.id,
+                invoice_number   = p.invoiceNumber,
+                supplier_gstin   = p.supplierGstin,
+                supplier_name    = p.supplierName,
+                state            = p.state,
+                taxable_amount   = p.taxableAmount,
+                cgst_percentage  = p.cgstPercentage,
+                sgst_percentage  = p.sgstPercentage,
+                igst_percentage  = p.igstPercentage,
+                cgst_amount      = p.cgstAmount,
+                sgst_amount      = p.sgstAmount,
+                igst_amount      = p.igstAmount,
+                invoice_value    = p.invoiceValue,
+                created_at       = p.createdAt,
+                items            = items
+            )
+        }
+
+        return try {
+            Log.d(SYNC_TAG, "pushPurchases: POST /purchases/sync with ${dtoBatch.size} purchase(s)")
+            val response = api.syncPurchases(
+                "Bearer $token", PurchaseSyncRequest(dtoBatch)
+            )
+            Log.d(SYNC_TAG, "pushPurchases: server replied success_count=${response.success_count}, " +
+                "purchase_id_map=${response.purchase_id_map}")
+            response.purchase_id_map.forEach { (localIdStr, serverId) ->
+                val localId = localIdStr.toIntOrNull() ?: return@forEach
+                db.purchaseDao().markSynced(localId, serverId)
+                db.purchaseItemDao().markAllSyncedForPurchase(localId)
+            }
+            // Fallback: if server didn't echo a map, mark everything
+            // we sent as synced so we don't loop forever.
+            if (response.purchase_id_map.isEmpty()) {
+                pending.forEach {
+                    db.purchaseDao().markSynced(it.id, null)
+                    db.purchaseItemDao().markAllSyncedForPurchase(it.id)
+                }
+            }
+            SyncResult.Pushed(pending.size)
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pushPurchases: POST /purchases/sync FAILED", e)
+            SyncResult.Failed(e.message ?: e.javaClass.simpleName)
+        }
+    }
+
+    /** Outcome of a single push attempt — surfaced to the UI. */
+    sealed class SyncResult {
+        object NothingToDo : SyncResult()
+        data class Skipped(val reason: String) : SyncResult()
+        data class Pushed(val count: Int) : SyncResult()
+        data class Failed(val reason: String) : SyncResult()
+    }
+
+    private companion object {
+        const val SYNC_TAG = "PurchaseSync"
+    }
+
+    suspend fun syncPurchaseReturns() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.purchaseReturnDao().getUnsynced()
+        if (pending.isEmpty()) return
+
+        val productDao = db.productDao()
+        val dtos = pending.map { r ->
+            val serverProductId = r.productId?.let { productDao.getById(it)?.serverId }
+            PurchaseReturnDto(
+                local_id          = r.id,
+                shop_product_id   = serverProductId,
+                product_name      = r.productName,
+                hsn_code          = r.hsnCode,
+                quantity_returned = r.quantityReturned,
+                taxable_amount    = r.taxableAmount,
+                invoice_value     = r.invoiceValue,
+                cgst_percentage   = r.cgstPercentage,
+                sgst_percentage   = r.sgstPercentage,
+                igst_percentage   = r.igstPercentage,
+                cgst_amount       = r.cgstAmount,
+                sgst_amount       = r.sgstAmount,
+                igst_amount       = r.igstAmount,
+                supplier_gstin    = r.supplierGstin,
+                supplier_name     = r.supplierName,
+                created_at        = r.createdAt
+            )
+        }
+
+        try {
+            api.syncPurchaseReturns("Bearer $token", PurchaseReturnSyncRequest(dtos))
+            pending.forEach { db.purchaseReturnDao().markSynced(it.id) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun syncScrapEntries() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.scrapDao().getUnsynced()
+        if (pending.isEmpty()) return
+
+        val productDao = db.productDao()
+        val dtos = pending.map { s ->
+            val serverProductId = s.productId?.let { productDao.getById(it)?.serverId }
+            ScrapDto(
+                local_id        = s.id,
+                shop_product_id = serverProductId,
+                product_name    = s.productName,
+                hsn_code        = s.hsnCode,
+                quantity        = s.quantity,
+                taxable_amount  = s.taxableAmount,
+                invoice_value   = s.invoiceValue,
+                cgst_percentage = s.cgstPercentage,
+                sgst_percentage = s.sgstPercentage,
+                igst_percentage = s.igstPercentage,
+                cgst_amount     = s.cgstAmount,
+                sgst_amount     = s.sgstAmount,
+                igst_amount     = s.igstAmount,
+                reason          = s.reason,
+                created_at      = s.createdAt
+            )
+        }
+
+        try {
+            api.syncScrap("Bearer $token", ScrapSyncRequest(dtos))
+            pending.forEach { db.scrapDao().markSynced(it.id) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     suspend fun syncBills() {
@@ -290,7 +611,7 @@ class SyncManager(private val context: Context) {
 
         val productDao = db.productDao()
 
-        val validRequests = mutableListOf<com.example.easy_billing.network.InventoryLogRequest>()
+        val validRequests = mutableListOf<InventoryLogRequest>()
         val syncedLogIds = mutableListOf<Int>()
 
         for (log in logs) {
@@ -373,7 +694,7 @@ class SyncManager(private val context: Context) {
                     println("➡️ Processing product_id=${item.product_id}, stock=${item.stock}")
 
                     // 🔥 TRY TO FIND PRODUCT
-                    var product = productMap[item.product_id]
+                    val product = productMap[item.product_id]
                         ?: productDao.getByServerId(item.product_id)
 
                     if (product == null) {
@@ -463,6 +784,129 @@ class SyncManager(private val context: Context) {
 
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    suspend fun syncGstProfile() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+
+        val profile = db.gstProfileDao().get() ?: return
+        if (profile.syncStatus == "synced") return
+
+        try {
+            val request = GstProfileRequest(
+                gstin = profile.gstin,
+                legal_name = profile.legalName,
+                trade_name = profile.tradeName,
+                gst_scheme = profile.gstScheme,
+                registration_type = profile.registrationType,
+                state_code = profile.stateCode
+            )
+            
+            // Re-lookup or direct upsert
+            val response = api.upsertGstProfile("Bearer $token", request)
+            
+            db.gstProfileDao().insert(profile.copy(
+                legalName = response.legal_name,
+                tradeName = response.trade_name,
+                gstScheme = response.gst_scheme,
+                registrationType = response.registration_type,
+                stateCode = response.state_code,
+                syncStatus = "synced"
+            ))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun syncGstSales() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+
+        val unsynced = db.gstSalesRecordDao().getUnsynced()
+        if (unsynced.isEmpty()) return
+
+        val recordsDto = unsynced.map { record ->
+            GstSaleRecordDto(
+                record_id = record.id,
+                invoice_number = record.invoiceNumber,
+                invoice_date = record.invoiceDate,
+                customer_type = record.customerType,
+                customer_gstin = record.customerGstin,
+                place_of_supply = record.placeOfSupply,
+                supply_type = record.supplyType,
+                total_invoice_value = record.totalAmount,
+                taxable_value = record.taxableValue,
+                cgst_amount = record.cgstAmount,
+                sgst_amount = record.sgstAmount,
+                igst_amount = record.igstAmount,
+                cess_amount = 0.0,
+                hsn_code = record.hsnCode,
+                gst_rate = record.gstRate,
+                device_id = record.deviceId
+            )
+        }
+
+        try {
+            val response = api.syncGstSales("Bearer $token", GstSalesSyncRequest(recordsDto))
+            if (response.success_count > 0) {
+                // For simplicity, mark all as synced. In a robust system, check response.failed_records
+                db.gstSalesRecordDao().markAsSynced(unsynced.map { it.id })
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun syncGstPurchases() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncGstPurchases skipped — no auth token")
+                return
+            }
+
+        val unsynced = db.gstPurchaseRecordDao().getUnsynced()
+        Log.d(SYNC_TAG, "syncGstPurchases: ${unsynced.size} unsynced gst_purchase_records")
+        if (unsynced.isEmpty()) return
+
+        val recordsDto = unsynced.map { record ->
+            GstPurchaseRecordDto(
+                record_id = record.id,
+                vendor_gstin = record.vendorGstin,
+                vendor_name = record.vendorName,
+                invoice_number = record.invoiceNumber,
+                invoice_date = record.invoiceDate,
+                total_invoice_value = record.totalInvoiceValue,
+                taxable_value = record.taxableValue,
+                cgst_amount = record.cgstAmount,
+                sgst_amount = record.sgstAmount,
+                igst_amount = record.igstAmount,
+                cess_amount = record.cessAmount,
+                hsn_code = record.hsnCode,
+                gst_rate = record.gstRate,
+                itc_eligibility = record.itcEligibility
+            )
+        }
+
+        try {
+            Log.d(SYNC_TAG, "syncGstPurchases: POST /gst/purchases/sync with ${recordsDto.size} record(s)")
+            val response = api.syncGstPurchases("Bearer $token", GstPurchaseSyncRequest(recordsDto))
+            Log.d(SYNC_TAG, "syncGstPurchases: server replied success_count=${response.success_count}, message=${response.message}")
+            // We only get here if the HTTP call returned 2xx. Mark
+            // every row synced — even if `success_count` is 0 the
+            // server has accepted the payload, and looping forever
+            // re-pushing the same rows would mask any real backend
+            // problem.
+            db.gstPurchaseRecordDao().markAsSynced(unsynced.map { it.id })
+            Log.d(SYNC_TAG, "syncGstPurchases: marked ${unsynced.size} record(s) synced")
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncGstPurchases: POST /gst/purchases/sync FAILED", e)
+            db.gstPurchaseRecordDao().markFailed(unsynced.map { it.id })
         }
     }
 }

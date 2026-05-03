@@ -14,6 +14,10 @@ data class AddProductRequest(
 
     val initial_stock: Double?,
 
-    val cost_price: Double?
+    val cost_price: Double?,
+
+    val hsn_code: String? = null,
+
+    val default_gst_rate: Double? = 0.0
 
 )

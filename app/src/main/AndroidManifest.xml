@@ -66,6 +66,14 @@
         <activity
             android:name=".BillingSettingsActivity" />
         <activity
+            android:name=".ProfileActivity" />
+        <activity
+            android:name=".PurchaseActivity" />
+        <activity
+            android:name=".ManageProductsActivity" />
+        <activity
+            android:name=".EditProductActivity" />
+        <activity
             android:name=".InvoiceDesignActivity" />
         <activity
             android:name=".DataSecurityActivity" />
@@ -73,6 +81,8 @@
             android:name=".AiDashboardActivity"/>
         <activity
             android:name=".InventoryActivity"/>
+        <activity
+            android:name=".GstReportsActivity"/>
 
         <activity
             android:name=".ProfitActivity"/>

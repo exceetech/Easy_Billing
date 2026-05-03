@@ -14,6 +14,7 @@ import com.example.easy_billing.db.InventoryItemUI
 import com.example.easy_billing.db.LossEntry
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.util.GstEngine
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -148,6 +149,24 @@ class InventoryActivity : BaseActivity() {
 
         val etQty = view.findViewById<EditText>(R.id.etQty)
         val etCost = view.findViewById<EditText>(R.id.etCost)
+        val llGstFields = view.findViewById<LinearLayout>(R.id.llGstFields)
+        val etVendorGstin = view.findViewById<EditText>(R.id.etVendorGstin)
+        val etInvoiceNumber = view.findViewById<EditText>(R.id.etInvoiceNumber)
+
+        var isGstEnabled = false
+        var storeStateCode = ""
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val storeInfo = db.storeInfoDao().get()
+            isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+            storeStateCode = storeInfo?.stateCode ?: ""
+            
+            withContext(Dispatchers.Main) {
+                if (isGstEnabled) {
+                    llGstFields.visibility = View.VISIBLE
+                }
+            }
+        }
 
         etQty.filters = arrayOf(InputFilter.LengthFilter(5))
         etCost.filters = arrayOf(InputFilter.LengthFilter(7))
@@ -186,6 +205,14 @@ class InventoryActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
+            val vendorGstin = etVendorGstin.text.toString().trim()
+            val invoiceNumber = etInvoiceNumber.text.toString().trim()
+
+            if (isGstEnabled && invoiceNumber.isEmpty()) {
+                etInvoiceNumber.error = "Invoice Number required"
+                return@setOnClickListener
+            }
+
             dialog.dismiss()
 
             lifecycleScope.launch(Dispatchers.IO) {
@@ -197,6 +224,34 @@ class InventoryActivity : BaseActivity() {
                         quantity = qty,
                         costPrice = cost
                     )
+
+                    if (isGstEnabled) {
+                        val vendorStateCode = GstEngine.getStateCode(vendorGstin)
+                        val supplyType = if (GstEngine.isIntrastate(storeStateCode, vendorStateCode)) "intrastate" else "interstate"
+                        
+                        val taxableValue = qty * cost
+                        val breakup = GstEngine.calculateGstSplit(taxableValue, product.defaultGstRate, supplyType)
+                        val totalInvoiceValue = taxableValue + breakup.totalTax
+
+                        val purchaseRecord = com.example.easy_billing.db.GstPurchaseRecord(
+                            id = java.util.UUID.randomUUID().toString(),
+                            vendorGstin = vendorGstin,
+                            vendorName = "Vendor", // Can be extended to have a vendor master later
+                            invoiceNumber = invoiceNumber,
+                            invoiceDate = System.currentTimeMillis(),
+                            totalInvoiceValue = totalInvoiceValue,
+                            taxableValue = taxableValue,
+                            gstRate = product.defaultGstRate,
+                            cgstAmount = breakup.cgst,
+                            sgstAmount = breakup.sgst,
+                            igstAmount = breakup.igst,
+                            cessAmount = 0.0,
+                            hsnCode = product.hsnCode ?: "",
+                            itcEligibility = "Eligible", // Or Ineligible depending on business rules
+                            syncStatus = "pending"
+                        )
+                        db.gstPurchaseRecordDao().insert(purchaseRecord)
+                    }
 
                     withContext(Dispatchers.Main) {
                         loadInventory()
@@ -329,22 +384,32 @@ class InventoryActivity : BaseActivity() {
         val dialog = AlertDialog.Builder(this)
             .setView(view)
             .create()
-
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         val btnCancel = view.findViewById<Button>(R.id.btnCancel)
-        val btnClear = view.findViewById<Button>(R.id.btnClear)
+        val btnClear  = view.findViewById<Button>(R.id.btnClear)
+        val rbReturn  = view.findViewById<RadioButton>(R.id.rbReturn)
+        val rbScrap   = view.findViewById<RadioButton>(R.id.rbScrap)
+        val tvStock   = view.findViewById<TextView>(R.id.tvCurrentStock)
 
-        val rbDamage = view.findViewById<RadioButton>(R.id.rbDamage)
-        val rbAdjust = view.findViewById<RadioButton>(R.id.rbAdjust)
+        // Show "Quantity = full remaining stock" up-front. Quantity
+        // is *not* user-editable per current spec.
+        lifecycleScope.launch(Dispatchers.IO) {
+            val current = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
+            withContext(Dispatchers.Main) { tvStock.text = "Remaining: $current" }
+        }
 
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnClear.setOnClickListener {
 
-            val type = when {
-                rbDamage.isChecked -> "LOSS"
-                rbAdjust.isChecked -> "ADJUST"
+            val reason = when {
+                rbReturn.isChecked ->
+                    com.example.easy_billing.repository.InventoryReductionRepository
+                        .ClearReason.PURCHASE_RETURN
+                rbScrap.isChecked  ->
+                    com.example.easy_billing.repository.InventoryReductionRepository
+                        .ClearReason.SCRAP
                 else -> {
                     Toast.makeText(this, "Select reason", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
@@ -354,47 +419,32 @@ class InventoryActivity : BaseActivity() {
             dialog.dismiss()
 
             lifecycleScope.launch(Dispatchers.IO) {
-
                 try {
-
-                    val inventory = db.inventoryDao().getInventory(productId)
-
-                    val currentStock = inventory?.currentStock ?: 0.0
-                    val avgCost = inventory?.averageCost ?: 0.0
-
-                    if (currentStock <= 0) return@launch
-
-                    val lossAmount = currentStock * avgCost
-
-                    InventoryManager.clearStock(
-                        db = db,
-                        productId = productId,
-                        type = type
+                    val product = db.productDao().getById(productId) ?: return@launch
+                    val repo = com.example.easy_billing.repository
+                        .InventoryReductionRepository.get(this@InventoryActivity)
+                    val result = repo.clearRemainingStock(
+                        productId   = productId,
+                        productName = product.name,
+                        hsnCode     = product.hsnCode,
+                        reason      = reason,
+                        purchaseTaxCgst = product.cgstPercentage,
+                        purchaseTaxSgst = product.sgstPercentage,
+                        purchaseTaxIgst = product.igstPercentage
                     )
-
-                    if (type == "LOSS") {
-                        db.lossDao().insert(
-                            LossEntry(
-                                productId = productId,
-                                amount = lossAmount,
-                                reason = "Stock cleared",
-                                date = System.currentTimeMillis().toString()
-                            )
-                        )
-                    }
 
                     withContext(Dispatchers.Main) {
                         loadInventory()
-                        Toast.makeText(
-                            this@InventoryActivity,
-                            "Stock cleared",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        val msg = when (result) {
+                            is com.example.easy_billing.repository
+                                .InventoryReductionRepository.ClearStockResult.Cleared ->
+                                "Cleared ${result.quantity} units"
+                            else -> "No stock to clear"
+                        }
+                        Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                     }
 
                     SyncManager(this@InventoryActivity).syncInventory()
-
-
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@InventoryActivity, "Error", Toast.LENGTH_SHORT).show()

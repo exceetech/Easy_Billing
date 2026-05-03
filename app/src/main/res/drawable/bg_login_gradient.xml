@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Midnight + Champagne backdrop.
+
+    Production-grade fintech aesthetic. Deep blue-tinted dark
+    (`#0A0E1A → #11162B`) with two carefully-placed accent
+    blooms:
+      • Warm champagne spotlight in the upper-right that gives
+        the surface a "lit-from-above" feel without flattening
+        the depth.
+      • Faint navy bloom in the lower-left to balance the
+        composition and prevent the background reading as a
+        flat wash.
+
+    No neon, no rainbow gradient — just two accents that suggest
+    materials (brushed metal, dark velvet) instead of cosmetics.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#0A0E1A"
+                android:centerColor="#0E1322"
+                android:endColor="#11162B"
+                android:type="linear"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="900"
+                android:centerX="0.85"
+                android:centerY="0.10"
+                android:startColor="#33D4A574"
+                android:endColor="#00D4A574"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="800"
+                android:centerX="0.10"
+                android:centerY="0.95"
+                android:startColor="#332B3A6F"
+                android:endColor="#002B3A6F"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="1200"
+                android:centerX="0.50"
+                android:centerY="1.20"
+                android:startColor="#220A0E1A"
+                android:endColor="#000A0E1A"/>
+        </shape>
+    </item>
+</layer-list>

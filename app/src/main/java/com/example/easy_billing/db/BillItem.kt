@@ -20,6 +20,13 @@ data class BillItem(
     val costPriceUsed: Double = 0.0,
     val profit: Double = 0.0,
 
+    val hsnCode: String = "",
+    val gstRate: Double = 0.0,
+    val cgstAmount: Double = 0.0,
+    val sgstAmount: Double = 0.0,
+    val igstAmount: Double = 0.0,
+    val taxableValue: Double = 0.0,
+
     @ColumnInfo(name = "is_synced")
     var isSynced: Boolean = false
 )

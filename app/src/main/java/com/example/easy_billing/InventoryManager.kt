@@ -16,7 +16,8 @@ object InventoryManager {
     ) {
 
         require(productId > 0) { "Invalid productId" }
-        require(quantity > 0 && costPrice > 0) { "Invalid quantity or cost price" }
+        require(quantity > 0) { "Invalid quantity" }
+        require(costPrice >= 0) { "Cost price cannot be negative" }
 
         val inventoryDao = db.inventoryDao()
         val transactionDao = db.inventoryTransactionDao()
@@ -25,7 +26,9 @@ object InventoryManager {
 
         if (existing == null) {
 
-            // 🔥 FIRST STOCK ENTRY
+            // 🔥 FIRST STOCK ENTRY — costPrice may be 0 for manual
+            //   products that have no purchase history yet. The
+            //   averageCost simply mirrors whatever was passed in.
             inventoryDao.insert(
                 Inventory(
                     productId = productId,
@@ -43,8 +46,12 @@ object InventoryManager {
 
             val newStock = oldStock + quantity
 
-            val newAvg =
-                ((oldStock * oldAvg) + (quantity * costPrice)) / newStock
+            // Skip the weighted-average recompute when the new
+            // batch has no cost (manual add-stock from EditProduct).
+            // This preserves whatever the existing average was so
+            // future purchase-driven adds blend correctly.
+            val newAvg = if (costPrice <= 0.0) oldAvg
+                else ((oldStock * oldAvg) + (quantity * costPrice)) / newStock
 
             inventoryDao.update(
                 existing.copy(

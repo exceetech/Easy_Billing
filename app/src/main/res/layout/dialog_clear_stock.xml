@@ -1,97 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_dialog_rounded"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_rounded"
+    android:orientation="vertical"
+    android:padding="24dp">
 
-    <!-- ICON -->
     <ImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginBottom="12dp"
         android:src="@android:drawable/ic_delete"
-        app:tint="#EF4444" />
+        app:tint="#EF4444"/>
 
-    <!-- TITLE -->
     <TextView
-        android:text="Clear Stock"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/clear_stock_title"
         android:textColor="#111827"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
-    <!-- MESSAGE -->
     <TextView
-        android:text="Are you sure you want to remove all stock?"
-        android:textSize="14sp"
-        android:textColor="#6B7280"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/clear_stock_subtitle"
+        android:textColor="#6B7280"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/tvCurrentStock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:textColor="#111827"
+        android:textSize="13sp"
+        android:textStyle="bold"/>
 
     <RadioGroup
         android:id="@+id/rgType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp">
+        android:layout_marginTop="14dp">
 
         <RadioButton
-            android:id="@+id/rbDamage"
+            android:id="@+id/rbReturn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Damaged / Expired"/>
+            android:text="@string/reason_purchase_return"/>
 
         <RadioButton
-            android:id="@+id/rbAdjust"
+            android:id="@+id/rbScrap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stock Correction"/>
+            android:text="@string/reason_scrap"/>
     </RadioGroup>
 
-    <!-- BUTTON ROW -->
+    <!-- LEGACY ID — kept hidden so any older code path that toggles
+         it still compiles. The new dialog routes via rgType only. -->
+    <RadioButton
+        android:id="@+id/rbDamage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
+
+    <RadioButton
+        android:id="@+id/rbAdjust"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:orientation="horizontal">
 
-        <!-- CANCEL -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancel"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="48dp"
+            android:layout_weight="1"
             android:text="Cancel"
             android:textColor="#111827"
-            app:cornerRadius="12dp"
             app:backgroundTint="#E5E7EB"
+            app:cornerRadius="12dp"
             app:rippleColor="?attr/colorControlHighlight"/>
 
         <View
             android:layout_width="10dp"
             android:layout_height="1dp"/>
 
-        <!-- CLEAR -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClear"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="48dp"
+            android:layout_weight="1"
             android:text="Clear"
-            android:textStyle="bold"
             android:textColor="@android:color/white"
-            app:cornerRadius="12dp"
+            android:textStyle="bold"
             app:backgroundTint="#EF4444"
+            app:cornerRadius="12dp"
             app:rippleColor="#33FFFFFF"/>
     </LinearLayout>
-
 </LinearLayout>

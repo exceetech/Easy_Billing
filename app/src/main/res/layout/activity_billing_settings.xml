@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -24,56 +23,185 @@
 
         <!-- Title -->
         <TextView
-            android:text="@string/billing_settings"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="24dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="@string/billing_settings"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
 
-        <!-- Default GST -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/billing_settings_subtitle"
+            android:textColor="#6B7280"
+            android:textSize="13sp"/>
+
+        <!-- =================== GST PROFILE =================== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="@string/profile_gst_section"
+            android:textColor="#6B7280"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+
+        <!-- GSTIN (read-only — entered in Store Settings) -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_tax"
-            app:startIconTint="?attr/colorPrimary">
+            android:hint="@string/profile_label_gstin"
+            app:helperText="@string/billing_gstin_helper"
+            app:helperTextEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etDefaultGst"
-                android:hint="@string/default_gst"
-                android:inputType="numberDecimal"
+                android:id="@+id/etGstin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:enabled="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Printer Layout -->
+        <!-- Legal name -->
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/profile_label_legal_name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLegalName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Trade name -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/profile_label_trade_name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTradeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- GST scheme -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilScheme"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_marginTop="18dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/profile_label_scheme"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/spScheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilRegType"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/profile_label_reg_type"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/spRegType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- State code -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/profile_label_state">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStateCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="2"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Address -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="@string/profile_label_address">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="2"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- =================== PRINTER =================== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="6dp"
+            android:text="@string/printer_section"
+            android:textColor="#6B7280"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPrinter"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:startIconDrawable="@drawable/ic_print"
-            app:startIconTint="?attr/colorPrimary">
+            app:startIconTint="?attr/colorPrimary"
+            app:endIconMode="dropdown_menu">
 
             <AutoCompleteTextView
                 android:id="@+id/spPrinterLayout"
-                android:hint="@string/printer_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"/>
+                android:hint="@string/printer_layout"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Save Button -->
+        <!-- Save -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveBilling"
-            android:text="@string/save_billing_settings"
-            android:textAllCaps="false"
-            android:layout_marginTop="28dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="@string/save_billing_settings"
+            android:textAllCaps="false"/>
     </LinearLayout>
-
 </ScrollView>

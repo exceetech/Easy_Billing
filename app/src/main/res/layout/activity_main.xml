@@ -1,240 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#020405">
 
-    android:orientation="horizontal"
+    <!-- Premium Animated Background -->
+    <com.example.easy_billing.util.PatternedBackgroundView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    android:background="@drawable/img_2">
-
-    <!-- ================= LEFT SIDE WELCOME ================= -->
-
+    <!-- Centered Modal/Form Container -->
     <LinearLayout
+        android:id="@+id/mainContent"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintWidth_max="400dp"
+        app:layout_constraintWidth_percent="0.85"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        android:layout_weight="1"
-
-        android:gravity="center"
-
-        android:padding="60dp"
-
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tvWelcome"
-
+        <!-- Scalancer Style Category Header -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            android:textSize="42sp"
-            android:textStyle="bold"
-
-            android:textColor="@color/black"
-
-            android:shadowColor="#80000000"
-            android:shadowDx="0"
-            android:shadowDy="4"
-            android:shadowRadius="8"
-
-            android:text=""/>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="8dp"
-
-            app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
-
-            app:cardBackgroundColor="#000000">
+            <View
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:background="#00FF41"/>
 
             <TextView
-                android:id="@+id/tvTagline"
-
+                android:id="@+id/tvSecureLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:letterSpacing="0.25"
+                android:text="SECURE LOGIN"
+                android:textColor="#A1A1AA"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textAllCaps="true"/>
+        </LinearLayout>
 
-                android:text="Smart POS for modern businesses"
+        <!-- Scalancer Style Mixed-Serif Title -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            
+            <TextView
+                android:id="@+id/tvWelcomeBase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome to "
+                android:textSize="34sp"
+                android:textColor="#FFFFFF"
+                android:fontFamily="serif"/>
+                
+            <TextView
+                android:id="@+id/tvWelcomeAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ExPOS"
+                android:textSize="34sp"
+                android:textColor="#D4A574"
+                android:fontFamily="serif"
+                android:textStyle="italic"/>
+        </LinearLayout>
 
-                android:textSize="18sp"
+        <!-- Trademark Elastic Green Line -->
+        <View
+            android:id="@+id/wordmarkAccent"
+            android:layout_width="60dp"
+            android:layout_height="2dp"
+            android:layout_marginBottom="16dp"
+            android:background="#D4A574"/>
 
-                android:textColor="@color/white"
+        <TextView
+            android:id="@+id/tvTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log in to manage your shop"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif"
+            android:textColor="#9CA3AF"
+            android:layout_marginBottom="40dp"/>
 
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"/>
+        <!-- Username -->
+        <FrameLayout
+            android:id="@+id/usernameContainer"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
 
-        </com.google.android.material.card.MaterialCardView>
+            android:background="@drawable/sel_premium_input">
+            
+            <ImageView
+                android:id="@+id/iconUsername"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/ic_person"
+                app:tint="#8F9098"/>
+
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:paddingStart="60dp"
+                android:paddingEnd="20dp"
+                android:hint="Username"
+                android:textColor="#FAFAF7"
+                android:textColorHint="#71717A"
+                android:fontFamily="sans-serif"
+                android:inputType="text"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:textSize="16sp"/>
+        </FrameLayout>
+
+        <!-- Password -->
+        <FrameLayout
+            android:id="@+id/passwordContainer"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/sel_premium_input">
+            
+            <ImageView
+                android:id="@+id/iconPassword"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/ic_lock"
+                app:tint="#8F9098"/>
+            
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:paddingStart="60dp"
+                android:paddingEnd="20dp"
+                android:hint="Password"
+                android:textColor="#FAFAF7"
+                android:textColorHint="#71717A"
+                android:fontFamily="sans-serif"
+                android:inputType="textPassword"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
+                android:textSize="16sp"/>
+        </FrameLayout>
+
+        <!-- Forgot Password -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="12dp"
+            android:text="Forgot Password?"
+            android:textColor="#D4A574"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            style="@style/PremiumButton"
+            android:layout_width="match_parent"
+            android:layout_marginTop="24dp"
+            android:text="Continue to Shop"
+            android:stateListAnimator="@animator/button_press_anim"/>
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="New to ExPOS? Create an account"
+            android:textColor="#A1A1AA"
+            android:fontFamily="sans-serif"
+            android:textSize="14sp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
     </LinearLayout>
-
-
-    <!-- ================= RIGHT SIDE LOGIN ================= -->
-
-    <FrameLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center">
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/loginCard"
-
-            android:layout_width="460dp"
-            android:layout_height="560dp"
-
-            android:layout_gravity="center"
-
-            app:cardCornerRadius="26dp"
-            app:cardElevation="14dp"
-
-            app:strokeColor="@color/white"
-            app:strokeWidth="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:orientation="vertical"
-                android:padding="28dp">
-
-                <!-- Logo -->
-
-                <ImageView
-                    android:id="@+id/imgLogo"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-
-                    android:layout_gravity="center"
-
-                    android:layout_marginBottom="20dp"
-
-                    android:contentDescription="@string/todo"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/app_logo" />
-
-                <!-- Username -->
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/usernameCard"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="2dp">
-
-                    <EditText
-                        android:id="@+id/etUsername"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-
-                        android:background="@android:color/transparent"
-
-                        android:hint="@string/username"
-
-                        android:paddingHorizontal="16dp"
-
-                        android:textColor="@color/textPrimary"
-                        android:textColorHint="@color/textSecondary"/>
-                </com.google.android.material.card.MaterialCardView>
-
-
-                <!-- Password -->
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/passwordCard"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    android:layout_marginTop="16dp"
-
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="2dp">
-
-                    <EditText
-                        android:id="@+id/etPassword"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-
-                        android:background="@android:color/transparent"
-
-                        android:hint="@string/password"
-
-                        android:inputType="textPassword"
-
-                        android:paddingHorizontal="16dp"
-
-                        android:textColor="@color/textPrimary"
-                        android:textColorHint="@color/textSecondary"/>
-                </com.google.android.material.card.MaterialCardView>
-
-
-                <!-- Login Button -->
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLogin"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-
-                    android:layout_marginTop="20dp"
-
-                    android:text="@string/login"
-                    android:textColor="@color/black"
-
-                    app:cornerRadius="18dp"
-                    app:elevation="6dp"
-
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="2dp" />
-
-                <!-- Forgot -->
-
-                <TextView
-                    android:id="@+id/tvForgotPassword"
-
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:layout_marginTop="16dp"
-                    android:layout_gravity="center"
-
-                    android:text="@string/forgot_password"
-                    android:textColor="@color/textPrimary"
-                    android:textStyle="bold" />
-
-                <!-- Register -->
-
-                <TextView
-                    android:id="@+id/tvRegister"
-
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:layout_marginTop="10dp"
-                    android:layout_gravity="center"
-
-                    android:text="@string/not_yet_registered_create_new_account"
-                    android:textColor="@color/textPrimary" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-    </FrameLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

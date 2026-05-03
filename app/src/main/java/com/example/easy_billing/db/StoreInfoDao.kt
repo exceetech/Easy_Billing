@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StoreInfoDao {
@@ -13,6 +14,9 @@ interface StoreInfoDao {
 
     @Query("SELECT * FROM store_info LIMIT 1")
     suspend fun get(): StoreInfo?
+
+    @Query("SELECT * FROM store_info LIMIT 1")
+    fun observe(): Flow<StoreInfo?>
 
     @Query("SELECT * FROM store_info WHERE is_synced = 0 LIMIT 1")
     suspend fun getUnsynced(): StoreInfo?

@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://192.168.1.11:8080/"
+    private const val BASE_URL = "http://192.168.31.212:8080/"
 
     // Use lateinit instead of nullable → avoids repeated null checks
     private lateinit var appContext: Context

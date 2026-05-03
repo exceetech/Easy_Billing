@@ -251,7 +251,15 @@ class DashboardActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
 
+        NetworkReceiver(this).startListening()
         checkSubscription()
+
+        // Conflict-safe sync: pushes any locally-pending writes
+        // first (so user edits win), then pulls fresh server state
+        // for the read-mostly tables. No-op if offline.
+        com.example.easy_billing.sync.SyncCoordinator
+            .get(this)
+            .flushPending()
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
@@ -456,10 +464,46 @@ class DashboardActivity : BaseActivity() {
         rvCart.adapter = cartAdapter
     }
 
+    /**
+     * "Add/Edit Product" drawer entry now routes through a 2-option
+     * chooser:
+     *   • Add Purchased Product   → [PurchaseActivity]
+     *   • Add Non-Purchased       → [AddProductsActivity] (existing
+     *                                manual-product flow)
+     */
+    private fun showAddEditProductChooser() {
+        val view = layoutInflater.inflate(R.layout.dialog_add_product_chooser, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<MaterialButton>(R.id.btnPurchasedProduct).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, PurchaseActivity::class.java))
+        }
+        view.findViewById<MaterialButton>(R.id.btnNonPurchasedProduct).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, AddProductsActivity::class.java))
+        }
+        view.findViewById<MaterialButton>(R.id.btnManageProducts).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, ManageProductsActivity::class.java))
+        }
+        view.findViewById<MaterialButton>(R.id.btnChooserCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
     private fun setupDrawerButtons() {
 
         findViewById<MaterialButton>(R.id.btnAdmin).setOnClickListener {
-            startActivity(Intent(this, AddProductsActivity::class.java))
+            showAddEditProductChooser()
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<MaterialButton>(R.id.btnProfile).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
@@ -482,6 +526,11 @@ class DashboardActivity : BaseActivity() {
             drawerLayout.closeDrawers()
         }
 
+        findViewById<MaterialButton>(R.id.btnGstReports).setOnClickListener {
+            startActivity(Intent(this, GstReportsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
         findViewById<MaterialButton>(R.id.btnCreditAccounts).setOnClickListener {
             startActivity(Intent(this, CreditAccountsActivity::class.java))
             drawerLayout.closeDrawers()
@@ -489,6 +538,11 @@ class DashboardActivity : BaseActivity() {
 
         findViewById<MaterialButton>(R.id.btnInventory).setOnClickListener {
             startActivity(Intent(this, InventoryActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
+        findViewById<MaterialButton>(R.id.btnPurchase).setOnClickListener {
+            startActivity(Intent(this, PurchaseActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
@@ -602,30 +656,46 @@ class DashboardActivity : BaseActivity() {
             .getString("TOKEN", null)
 
         val db = AppDatabase.getDatabase(this@DashboardActivity)
+        val productRepo = com.example.easy_billing.repository.ProductRepository.get(this)
+        val currentShopId = productRepo.currentShopId()
 
         try {
             val backendProducts =
                 RetrofitClient.api.getMyProducts("Bearer $token")
 
-            val existingProducts = db.productDao().getAll()
+            val existingProducts = db.productDao().getAllWithInactive()
             val existingMap = existingProducts.associateBy { it.id }
 
             backendProducts.forEach {
 
                 val existing = existingMap[it.id]
 
-                db.productDao().insert(
-                    Product(
-                        id = it.id,
-                        serverId = it.id,   // ✅ correct
-                        name = it.name,
-                        variant = it.variant ?: "",
-                        unit = it.unit,
-                        price = it.price,
-                        trackInventory = existing?.trackInventory ?: true,
-                        isCustom = false
-                    )
+                // Preserve all locally-tracked fields when merging
+                // backend changes — otherwise hsnCode / cgst / sgst /
+                // igst / isPurchased / shopId all get clobbered to
+                // defaults on every dashboard refresh.
+                val merged = (existing ?: Product(
+                    id = it.id,
+                    serverId = it.id,
+                    name = it.name,
+                    variant = it.variant ?: "",
+                    unit = it.unit,
+                    price = it.price,
+                    trackInventory = true,
+                    isCustom = false,
+                    shopId = currentShopId
+                )).copy(
+                    id = it.id,
+                    serverId = it.id,
+                    name = it.name,
+                    variant = it.variant ?: existing?.variant.orEmpty(),
+                    unit = it.unit ?: existing?.unit,
+                    price = it.price,
+                    isActive = true,
+                    shopId = existing?.shopId?.takeIf { sid -> sid.isNotBlank() }
+                        ?: currentShopId
                 )
+                db.productDao().insert(merged)
             }
 
         } catch (e: Exception) {
@@ -638,8 +708,10 @@ class DashboardActivity : BaseActivity() {
             }
         }
 
-        // 🔥 UI update
-        val localProducts = db.productDao().getAll()
+        // 🔥 UI update — shop-scoped so cross-shop ghost rows from
+        // a previous login on the same device don't bleed into the
+        // tile grid.
+        val localProducts = productRepo.getAllForCurrentShop()
         val inventoryList = db.inventoryDao().getAll()
 
         val inventoryMap = inventoryList
@@ -1018,7 +1090,9 @@ class DashboardActivity : BaseActivity() {
                                 )
                             }
 
-                            val updatedList = db.productDao().getAll()
+                            val updatedList = com.example.easy_billing.repository
+                                .ProductRepository.get(this@DashboardActivity)
+                                .getAllForCurrentShop()
 
                             withContext(Dispatchers.Main) {
                                 productAdapter.updateData(updatedList)

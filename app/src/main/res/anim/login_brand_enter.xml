@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Welcome / tagline column on the left side. Slides in from
+    -16dp horizontally with a long fade so it feels deliberate.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="700"
+    android:fillAfter="true"
+    android:interpolator="@android:interpolator/decelerate_quint">
+
+    <translate
+        android:fromXDelta="-3%"
+        android:toXDelta="0%"/>
+
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"/>
+</set>

@@ -37,6 +37,11 @@
         <item name="materialButtonStyle">@style/Widget.EasyBilling.Button</item>
         <item name="toolbarStyle">@style/Widget.EasyBilling.Toolbar</item>
 
+        <item name="android:textColorHighlight">@android:color/transparent</item>
+        <item name="android:colorControlHighlight">@android:color/transparent</item>
+        <item name="android:autofilledHighlight">@android:color/transparent</item>
+
+
     </style>
 
     <!-- ================= BUTTON STYLE ================= -->

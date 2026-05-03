@@ -89,4 +89,39 @@
         <item name="backgroundTint">#2D1F1F</item>
         <item name="cornerRadius">12dp</item>
     </style>
+
+    <style name="PremiumButton" parent="Widget.Material3.Button">
+
+        <!-- SIZE & SHAPE -->
+        <item name="android:layout_height">58dp</item>
+        <item name="cornerRadius">14dp</item>
+
+        <!-- BACKGROUND -->
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/bg_premium_btn_ripple</item>
+
+        <!-- DEPTH (less elevation, more control) -->
+        <item name="android:elevation">2dp</item>
+        <item name="android:stateListAnimator">@null</item>
+
+        <!-- TEXT (this is where premium shows) -->
+        <item name="android:textColor">#2A1D0C</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item> <!-- tighter -->
+        <item name="android:textAllCaps">true</item>
+
+        <!-- PADDING (balanced, not bulky) -->
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+
+        <!-- RIPPLE (liquid feel) -->
+        <item name="rippleColor">#22EAD7A1</item>
+
+        <!-- ICON SUPPORT -->
+        <item name="iconGravity">textEnd</item>
+        <item name="iconPadding">6dp</item>
+
+    </style>
+
 </resources>

@@ -176,4 +176,109 @@
     <string name="pay_monthly_999">Pay Monthly ₹999</string>
     <string name="pay_yearly_9999">Pay Yearly ₹9999</string>
 
+    <!-- ============== Profile screen ============== -->
+    <string name="profile">Profile</string>
+    <string name="profile_subtitle">Your store identity and GST registration</string>
+    <string name="profile_store_info">Store information</string>
+    <string name="profile_gst_section">GST profile</string>
+    <string name="profile_edit_tax_rates">Edit tax rates</string>
+    <string name="profile_label_store_name">Store name</string>
+    <string name="profile_label_owner">Owner / Legal name</string>
+    <string name="profile_label_phone">Contact</string>
+    <string name="profile_label_address">Address</string>
+    <string name="profile_label_gstin">GSTIN</string>
+    <string name="profile_label_legal_name">Legal name</string>
+    <string name="profile_label_trade_name">Trade name</string>
+    <string name="profile_label_reg_type">Registration type</string>
+    <string name="profile_label_scheme">GST scheme</string>
+    <string name="profile_label_state">State code</string>
+    <string name="profile_saved_toast">Saved</string>
+
+    <!-- Tax labels (also reused in Billing settings) -->
+    <string name="cgst">CGST %</string>
+    <string name="sgst">SGST %</string>
+    <string name="igst">IGST %</string>
+    <string name="save_tax_rates">Save tax rates</string>
+
+    <!-- Sync states -->
+    <string name="sync_pending">Pending sync</string>
+    <string name="sync_synced">Synced</string>
+    <string name="sync_failed">Sync failed</string>
+
+    <!-- Generic -->
+    <string name="dash">—</string>
+
+    <!-- Billing settings additions -->
+    <string name="tax_breakdown">Tax breakdown</string>
+    <string name="tax_rates">Tax rates</string>
+    <string name="billing_autofill_note">Auto-filled from your GST profile when available. You can override.</string>
+
+    <!-- Billing settings -->
+    <string name="billing_settings_subtitle">GST profile and printer layout</string>
+    <string name="billing_gstin_helper">Set your GSTIN in Store Settings.</string>
+    <string name="printer_section">Printer</string>
+
+    <!-- HSN help -->
+    <string name="hsn_help_url">https://cbic-gst.gov.in/gst-goods-services-rates.html</string>
+    <string name="hsn_help_text">HSN list</string>
+    <string name="hsn_help_cd">Open the official HSN/GST rate list</string>
+
+    <!-- Purchase / inventory -->
+    <string name="purchase_title">New purchase invoice</string>
+    <string name="invoice_number">Invoice number</string>
+    <string name="supplier_name">Supplier name</string>
+    <string name="supplier_gstin">Supplier GSTIN (optional)</string>
+    <string name="state">State</string>
+    <string name="add_line">Add product</string>
+    <string name="save_purchase">Save purchase</string>
+    <string name="taxable_amount">Taxable amount</string>
+    <string name="invoice_value">Invoice value</string>
+    <string name="quantity">Quantity</string>
+    <string name="purchase_tax">Purchase tax</string>
+    <string name="sales_tax">Sales tax (when sold)</string>
+    <string name="selling_price">Selling price (per unit)</string>
+    <string name="purchased_stock_managed_note">Stock is managed through purchase entries</string>
+
+    <!-- Purchase line dialog -->
+    <string name="purchase_field_product">Product name</string>
+    <string name="purchase_field_variant">Variant name</string>
+    <string name="purchase_field_unit">Unit</string>
+
+    <!-- Edit + Manage Products -->
+    <string name="manage_products">Manage Products</string>
+    <string name="manage_products_subtitle">Edit existing products</string>
+    <string name="manage_products_search_hint">Search by name or HSN…</string>
+    <string name="manage_filter_all">All</string>
+    <string name="manage_filter_purchased">Purchased</string>
+    <string name="manage_filter_manual">Manual</string>
+    <string name="manage_empty_state">No products yet. Use \"Add/Edit Product\" to create your first one.</string>
+    <string name="badge_purchased">PURCHASED</string>
+    <string name="badge_manual">MANUAL</string>
+    <string name="edit_section_inventory">Inventory</string>
+    <string name="edit_current_stock">Current stock</string>
+    <string name="edit_stock_locked_helper">Stock is managed via purchases — add stock by recording a new purchase invoice.</string>
+    <string name="edit_track_inventory">Track inventory</string>
+    <string name="edit_add_stock_qty">Add stock (quantity)</string>
+    <string name="edit_add_stock_helper">Leave blank to keep current stock unchanged.</string>
+    <string name="edit_screen_title">Edit product</string>
+    <string name="edit_save_success">Saved</string>
+    <string name="variant_already_exists_title">Variant already exists</string>
+    <string name="variant_already_exists_message">"%1$s" already exists with this variant. Open it for editing instead?</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_already_added">Already added</string>
+    <string name="save">Save</string>
+
+    <!-- Add/Edit Product chooser -->
+    <string name="add_edit_product">Add/Edit Product</string>
+    <string name="add_edit_product_title">Add or edit a product</string>
+    <string name="add_edit_product_subtitle">How was this product acquired?</string>
+    <string name="add_purchased_product">Add Purchased Product</string>
+    <string name="add_non_purchased_product">Add Non-Purchased Product</string>
+
+    <!-- Clear stock -->
+    <string name="clear_stock_title">Clear remaining stock</string>
+    <string name="clear_stock_subtitle">All remaining stock will be removed.</string>
+    <string name="reason_purchase_return">Purchase return</string>
+    <string name="reason_scrap">Scrap</string>
+
 </resources>

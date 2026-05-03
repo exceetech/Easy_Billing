@@ -5,13 +5,25 @@ import android.view.View
 import android.widget.*
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.GstProfile
 import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.ShopSettingsUpdateRequest
+import com.example.easy_billing.util.GstEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Store info + GSTIN — fully manual entry.
+ *
+ * Per current product spec:
+ *   • This screen is the only place a GSTIN is entered.
+ *   • There is **no** GST verification or Sandbox lookup here.
+ *   • The full GST profile (legal name, trade name, scheme, …)
+ *     is edited in [BillingSettingsActivity]; this screen only
+ *     captures the GSTIN itself plus basic store contact info.
+ */
 class StoreSettingsActivity : BaseActivity() {
 
     private lateinit var etStoreName: EditText
@@ -38,27 +50,21 @@ class StoreSettingsActivity : BaseActivity() {
         setupSave()
     }
 
-    // ================= UI =================
+    /* ------------------------------------------------------------------
+     *  UI
+     * ------------------------------------------------------------------ */
 
     private fun bindViews() {
-        etStoreName = findViewById(R.id.etStoreName)
+        etStoreName    = findViewById(R.id.etStoreName)
         etStoreAddress = findViewById(R.id.etStoreAddress)
-        etStorePhone = findViewById(R.id.etStorePhone)
-        etStoreGstin = findViewById(R.id.etStoreGstin)
-        actShopType = findViewById(R.id.actShopType)
-        btnSave = findViewById(R.id.btnSave)
+        etStorePhone   = findViewById(R.id.etStorePhone)
+        etStoreGstin   = findViewById(R.id.etStoreGstin)
+        actShopType    = findViewById(R.id.actShopType)
+        btnSave        = findViewById(R.id.btnSave)
     }
 
     private fun setEditMode(enabled: Boolean) {
-
-        val fields = listOf(
-            etStoreName,
-            etStoreAddress,
-            etStorePhone,
-            etStoreGstin
-        )
-
-        fields.forEach {
+        listOf(etStoreName, etStoreAddress, etStorePhone, etStoreGstin).forEach {
             it.isEnabled = enabled
             it.isFocusable = enabled
             it.isFocusableInTouchMode = enabled
@@ -72,9 +78,9 @@ class StoreSettingsActivity : BaseActivity() {
         actShopType.isClickable = enabled
         actShopType.isCursorVisible = enabled
 
-        val til = actShopType.parent.parent as? com.google.android.material.textfield.TextInputLayout
+        val til = actShopType.parent.parent
+            as? com.google.android.material.textfield.TextInputLayout
         til?.isEndIconVisible = enabled
-
         actShopType.alpha = if (enabled) 1f else 0.6f
 
         btnSave.visibility = if (enabled) View.VISIBLE else View.GONE
@@ -92,23 +98,21 @@ class StoreSettingsActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_edit -> {
-                toggleEditMode()
-                true
-            }
+            R.id.action_edit -> { toggleEditMode(); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    // ================= LOAD =================
+    /* ------------------------------------------------------------------
+     *  Load
+     * ------------------------------------------------------------------ */
 
     private fun loadStoreSettings() {
-
         lifecycleScope.launch(Dispatchers.IO) {
 
             val db = AppDatabase.getDatabase(this@StoreSettingsActivity)
 
-            // ===== ROOM =====
+            // ---- Local cache ----
             val local = db.storeInfoDao().get()
 
             withContext(Dispatchers.Main) {
@@ -119,26 +123,23 @@ class StoreSettingsActivity : BaseActivity() {
                     etStoreGstin.setText(it.gstin)
 
                     val display = when (it.type) {
-                        "hotel" -> "Hotel"
-                        "bakery" -> "Bakery"
+                        "hotel"   -> "Hotel"
+                        "bakery"  -> "Bakery"
                         "grocery" -> "Grocery"
-                        else -> "General"
+                        else      -> "General"
                     }
-
                     actShopType.setText(display, false)
                 }
             }
 
-            // ===== BACKEND =====
+            // ---- Backend sync (best-effort) ----
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
 
             try {
-
                 val response = RetrofitClient.api.getStoreSettings("Bearer $token")
 
                 if (!response.shop_name.isNullOrBlank()) {
-
                     val type = response.type?.takeIf { it.isNotBlank() } ?: "general"
 
                     val updated = StoreInfo(
@@ -149,56 +150,51 @@ class StoreSettingsActivity : BaseActivity() {
                         type = type,
                         isSynced = true
                     )
-
                     db.storeInfoDao().insert(updated)
 
                     withContext(Dispatchers.Main) {
-
                         etStoreName.setText(updated.name)
                         etStoreAddress.setText(updated.address)
                         etStorePhone.setText(updated.phone)
                         etStoreGstin.setText(updated.gstin)
 
                         val display = when (type.lowercase()) {
-                            "hotel" -> "Hotel"
-                            "bakery" -> "Bakery"
+                            "hotel"   -> "Hotel"
+                            "bakery"  -> "Bakery"
                             "grocery" -> "Grocery"
-                            else -> "General"
+                            else      -> "General"
                         }
-
                         actShopType.setText(display, false)
                     }
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    // ================= SAVE =================
+    /* ------------------------------------------------------------------
+     *  Save — manual GSTIN entry, no verification
+     * ------------------------------------------------------------------ */
 
     private fun setupSave() {
-
         btnSave.setOnClickListener {
-            showPasswordVerificationDialog {
-                saveStoreSettings()
-            }
+            showPasswordVerificationDialog { saveStoreSettings() }
         }
     }
 
     private fun saveStoreSettings() {
 
-        val name = etStoreName.text.toString().trim()
+        val name    = etStoreName.text.toString().trim()
         val address = etStoreAddress.text.toString().trim()
-        val phone = etStorePhone.text.toString().trim()
-        val gstin = etStoreGstin.text.toString().trim()
+        val phone   = etStorePhone.text.toString().trim()
+        val gstin   = etStoreGstin.text.toString().trim().uppercase()
 
         val type = when (actShopType.text.toString().lowercase()) {
-            "hotel" -> "hotel"
-            "bakery" -> "bakery"
+            "hotel"   -> "hotel"
+            "bakery"  -> "bakery"
             "grocery" -> "grocery"
-            else -> "general"
+            else      -> "general"
         }
 
         if (name.isEmpty()) {
@@ -210,96 +206,104 @@ class StoreSettingsActivity : BaseActivity() {
 
             val db = AppDatabase.getDatabase(this@StoreSettingsActivity)
 
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null)
+            // ---- 1. Save store_info locally ----
+            val updated = StoreInfo(
+                name = name,
+                address = address,
+                phone = phone,
+                gstin = gstin,
+                type = type,
+                stateCode = GstEngine.getStateCode(gstin),
+                isSynced = false
+            )
+            db.storeInfoDao().insert(updated)
 
-            if (token == null) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@StoreSettingsActivity, "No internet connection", Toast.LENGTH_SHORT).show()
-                }
-                return@launch
+            // ---- 2. Stamp GSTIN onto the gst_profile row (manual,
+            //         no verification — full profile is filled in
+            //         BillingSettings). State code is auto-derived
+            //         from the GSTIN prefix only as a convenience.
+            if (gstin.isNotBlank()) {
+                val existingProfile = db.gstProfileDao().get()
+                val merged = (existingProfile ?: GstProfile(gstin = gstin)).copy(
+                    gstin     = gstin,
+                    stateCode = existingProfile?.stateCode
+                        ?.takeIf { it.isNotBlank() }
+                        ?: GstEngine.getStateCode(gstin),
+                    syncStatus = "pending",
+                    updatedAt  = System.currentTimeMillis()
+                )
+                db.gstProfileDao().insert(merged)
             }
 
-            try {
-
-                val request = ShopSettingsUpdateRequest(name, address, phone, gstin, type)
-
-                RetrofitClient.api.updateStoreSettings("Bearer $token", request)
-
-                val updated = StoreInfo(
-                    name = name,
-                    address = address,
-                    phone = phone,
-                    gstin = gstin,
-                    type = type,
-                    isSynced = true
-                )
-
-                db.storeInfoDao().insert(updated)
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@StoreSettingsActivity, "Store updated", Toast.LENGTH_SHORT).show()
-                    setEditMode(false)
+            // ---- 3. Push to backend (best-effort) ----
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null)
+            if (token != null) {
+                try {
+                    RetrofitClient.api.updateStoreSettings(
+                        "Bearer $token",
+                        ShopSettingsUpdateRequest(name, address, phone, gstin, type)
+                    )
+                    db.storeInfoDao().insert(updated.copy(isSynced = true))
+                } catch (_: Exception) {
+                    // offline → SyncManager will retry later
                 }
+            }
 
-            } catch (_: Exception) {
+            // Kick the SyncCoordinator so any other pending rows
+            // ride along with this network attempt. No-op if offline.
+            com.example.easy_billing.sync.SyncCoordinator
+                .get(this@StoreSettingsActivity)
+                .requestSync()
 
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@StoreSettingsActivity, "Update failed (check internet)", Toast.LENGTH_SHORT).show()
-                }
+            withContext(Dispatchers.Main) {
+                val msg = if (token == null) "Saved offline. Will sync when connected."
+                          else "Store updated"
+                Toast.makeText(this@StoreSettingsActivity, msg, Toast.LENGTH_SHORT).show()
+                setEditMode(false)
+                isEditMode = false
             }
         }
     }
 
-    // ================= PASSWORD =================
+    /* ------------------------------------------------------------------
+     *  Password gate
+     * ------------------------------------------------------------------ */
 
     private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
-
         val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
-
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setView(dialogView)
-            .create()
-
+            .setView(dialogView).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnVerify.setOnClickListener {
-
             val password = etPassword.text.toString().trim()
-
             if (password.isEmpty()) {
                 etPassword.error = "Enter password"
                 return@setOnClickListener
             }
-
             verifyPassword(password) {
                 dialog.dismiss()
                 onVerified()
             }
         }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
+        btnCancel.setOnClickListener { dialog.dismiss() }
         dialog.show()
     }
 
-    // ================= DROPDOWN =================
+    /* ------------------------------------------------------------------
+     *  Dropdown
+     * ------------------------------------------------------------------ */
+
     private fun setupShopTypeDropdown() {
-
         val options = listOf("General", "Hotel", "Bakery", "Grocery")
-
         val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            options
+            this, android.R.layout.simple_dropdown_item_1line, options
         )
-
         actShopType.setAdapter(adapter)
     }
 }
