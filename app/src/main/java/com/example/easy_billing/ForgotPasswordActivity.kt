@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -8,14 +9,20 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.ForgotPasswordRequest
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.applyPremiumClickAnimation
+import com.example.easy_billing.util.runPremiumEntrance
+import com.example.easy_billing.util.setupPremiumInputField
+import com.example.easy_billing.util.startPremiumHeaderOscillation
 import kotlinx.coroutines.launch
 
 class ForgotPasswordActivity : BaseActivity() {
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forgot_password)
@@ -30,6 +37,50 @@ class ForgotPasswordActivity : BaseActivity() {
         val otpLayout = findViewById<LinearLayout>(R.id.otpLayout)
         val etOtp = findViewById<EditText>(R.id.etOtp)
         val btnVerifyOtp = findViewById<Button>(R.id.btnVerifyOtp)
+        val mainContent = findViewById<View>(R.id.mainContent)
+        val wordmarkAccent = findViewById<View>(R.id.wordmarkAccent)
+
+        // Trademark Elastic Green Line Animation
+        wordmarkAccent.pivotX = 0f
+        wordmarkAccent.scaleX = 0f
+        wordmarkAccent.animate()
+            .scaleX(1f)
+            .setStartDelay(400L)
+            .setDuration(1500L)
+            .setInterpolator(android.view.animation.OvershootInterpolator(5f))
+            .start()
+
+        mainContent.runPremiumEntrance(
+            listOf(
+                findViewById(R.id.imgLogo),
+                findViewById(R.id.tvForgotBase),
+                findViewById(R.id.tvForgotAccent),
+                findViewById(R.id.tvTagline),
+                findViewById(R.id.emailContainer),
+                findViewById(R.id.btnSubmit)
+            )
+        )
+
+        listOfNotNull(
+            findViewById<TextView>(R.id.tvSecureLogin),
+            findViewById<TextView>(R.id.tvAccountRecovery)
+        )
+            .startPremiumHeaderOscillation()
+
+        setupPremiumInputField(
+            findViewById(R.id.emailContainer),
+            etEmail,
+            findViewById(R.id.iconEmail)
+        )
+
+        setupPremiumInputField(
+            findViewById(R.id.otpContainer),
+            findViewById(R.id.etOtp),
+            findViewById(R.id.iconOtp)
+        )
+
+        btnSubmit.applyPremiumClickAnimation()
+        btnVerifyOtp.applyPremiumClickAnimation()
 
         btnSubmit.setOnClickListener {
 
@@ -72,7 +123,7 @@ class ForgotPasswordActivity : BaseActivity() {
 
                         override fun onTick(millisUntilFinished: Long) {
                             val seconds = millisUntilFinished / 1000
-                            btnSubmit.text = "Resend OTP in ${seconds}s"
+                            btnSubmit.text = "Resend OTP in ${seconds} sec"
                             btnSubmit.isEnabled = false
                         }
 

@@ -6,6 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
+import com.example.easy_billing.R
 
 /**
  * Ultra-Premium "Kinetic Editorial" Pattern.
@@ -17,34 +18,14 @@ class PatternedBackgroundView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
+    private var isLightMode = false
+    private var colorBg = 0
+    private var colorPlatinumSolid = 0
+    private var colorPlatinumStroke = 0
+
     private var timeOffset = 0f
     private var animator: ValueAnimator? = null
 
-    // Platinum on Obsidian color palette (Extremely high-end, clean, no cheap colors)
-    private val colorBg = Color.parseColor("#030303") // Deep Obsidian
-    private val colorPlatinumSolid = Color.parseColor("#0AFFFFFF") // 4% Platinum (Very subtle)
-    private val colorPlatinumStroke = Color.parseColor("#14FFFFFF") // 8% Platinum for sharp edges
-
-    // Elegant Luxury Fashion Font (Serif Italic)
-    private val textPaintSerif = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorPlatinumSolid
-        textSize = 150f
-        typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
-        style = Paint.Style.FILL
-        letterSpacing = 0.02f
-    }
-
-    // Brutalist Modern Tech Font (Sans-Serif Black)
-    private val textPaintSansStroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorPlatinumStroke
-        textSize = 130f
-        typeface = Typeface.create("sans-serif-black", Typeface.NORMAL)
-        style = Paint.Style.STROKE
-        strokeWidth = 2.5f
-        letterSpacing = 0.06f
-    }
-
-    // Alternating between Editorial Luxury (Serif) and Tech Brutalism (Sans-Serif Stroke)
     private val ribbons = listOf(
         MarqueeRow("EXPOS · RETAIL · GROCERY · MARKETS · EXPOS · RETAIL · ", 1.2f, isStroke = false),
         MarqueeRow("BAKERY · CAFE · BISTRO · RESTAURANT · BAKERY · CAFE · ", -1.5f, isStroke = true),
@@ -56,8 +37,44 @@ class PatternedBackgroundView @JvmOverloads constructor(
         MarqueeRow("BILLING · INVENTORY · POINT OF SALE · BILLING · POS · ", -1.4f, isStroke = true)
     )
 
+    // Elegant Luxury Fashion Font (Serif Italic)
+    private val textPaintSerif = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textSize = 150f
+        typeface = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
+        style = Paint.Style.FILL
+        letterSpacing = 0.02f
+    }
+
+    // Brutalist Modern Tech Font (Sans-Serif Black)
+    private val textPaintSansStroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textSize = 130f
+        typeface = Typeface.create("sans-serif-black", Typeface.NORMAL)
+        style = Paint.Style.STROKE
+        strokeWidth = 2.5f
+        letterSpacing = 0.06f
+    }
+
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
+        
+        val a = context.obtainStyledAttributes(attrs, R.styleable.PatternedBackgroundView)
+        isLightMode = a.getBoolean(R.styleable.PatternedBackgroundView_isLightMode, false)
+        a.recycle()
+
+        if (isLightMode) {
+            // Cream Butter Palette (Dashboard)
+            colorBg = Color.parseColor("#FAF8F5")
+            colorPlatinumSolid = Color.parseColor("#0818181B") // Subtle dark
+            colorPlatinumStroke = Color.parseColor("#0F18181B") // Subtle stroke
+        } else {
+            // Midnight Black Palette (Auth Screens)
+            colorBg = Color.parseColor("#020405")
+            colorPlatinumSolid = Color.parseColor("#0AFFFFFF") // Subtle platinum
+            colorPlatinumStroke = Color.parseColor("#14FFFFFF") // Subtle platinum stroke
+        }
+
+        textPaintSerif.color = colorPlatinumSolid
+        textPaintSansStroke.color = colorPlatinumStroke
     }
 
     override fun onAttachedToWindow() {

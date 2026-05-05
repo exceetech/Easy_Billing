@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Minus stepper button -->
+<!-- Delete button -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape android:shape="oval">
-            <solid android:color="#FEF2F2"/>
+            <solid android:color="#FEE2E2"/>
             <stroke android:width="1.5dp" android:color="#EF4444"/>
         </shape>
     </item>

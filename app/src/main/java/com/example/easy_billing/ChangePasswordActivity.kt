@@ -10,8 +10,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.ChangePasswordRequest
+import com.example.easy_billing.util.applyPremiumClickAnimation
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import com.example.easy_billing.util.runPremiumEntrance
+import com.example.easy_billing.util.setupPremiumInputField
+import com.example.easy_billing.util.startPremiumHeaderOscillation
 
 class ChangePasswordActivity : BaseActivity() {
 
@@ -22,6 +29,54 @@ class ChangePasswordActivity : BaseActivity() {
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val btnSave = findViewById<Button>(R.id.btnSavePassword)
+
+        val mainContent = findViewById<View>(R.id.mainContent)
+        val wordmarkAccent = findViewById<View>(R.id.wordmarkAccent)
+
+        val iconNewPassword = findViewById<ImageView>(R.id.iconNewPassword)
+        val iconConfirmPassword = findViewById<ImageView>(R.id.iconConfirmPassword)
+
+        // Trademark Elastic Green Line Animation
+        wordmarkAccent.pivotX = 0f
+        wordmarkAccent.scaleX = 0f
+        wordmarkAccent.animate()
+            .scaleX(1f)
+            .setStartDelay(400L)
+            .setDuration(1500L)
+            .setInterpolator(android.view.animation.OvershootInterpolator(5f))
+            .start()
+
+
+        mainContent.runPremiumEntrance(
+            listOf(
+                findViewById(R.id.imgLogo),
+                findViewById(R.id.tvChangeBase),
+                findViewById(R.id.tvChangeAccent),
+                findViewById(R.id.tvTagline),
+                findViewById(R.id.newPasswordContainer),
+                findViewById(R.id.confirmPasswordContainer),
+                findViewById(R.id.btnSavePassword)
+            )
+        )
+
+        setupPremiumInputField(
+            findViewById(R.id.newPasswordContainer),
+            etNewPassword,
+            iconNewPassword
+        )
+
+        setupPremiumInputField(
+            findViewById(R.id.confirmPasswordContainer),
+            etConfirmPassword,
+            iconConfirmPassword
+        )
+
+        listOfNotNull(
+            findViewById<TextView>(R.id.tvSecurityUpdate)
+        )
+            .startPremiumHeaderOscillation()
+
+        btnSave.applyPremiumClickAnimation()
 
         btnSave.setOnClickListener {
 

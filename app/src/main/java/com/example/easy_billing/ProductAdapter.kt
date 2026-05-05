@@ -1,19 +1,19 @@
 package com.example.easy_billing
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GoogleTranslator
-import com.example.easy_billing.util.PastelColor
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.*
 
@@ -24,18 +24,24 @@ class ProductAdapter(
     private val translationEnabled: Boolean
 ) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(DiffCallback()) {
 
-    // ─────────────────────────────────────────────
-    // State
-    // ─────────────────────────────────────────────
-
     private var fullList: List<Product> = emptyList()
     private var inventoryMap: Map<Int, Double> = emptyMap()
-
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    // ─────────────────────────────────────────────
-    // Public API
-    // ─────────────────────────────────────────────
+    // Premium card palette (High-contrast pastels) - Optimized for light theme
+    private val cardPastels = listOf(
+        "#FFE4E6", "#DCFCE7", "#DBEAFE", "#FEF9C3", "#F3E8FF",
+        "#E0E7FF", "#D1FAE5", "#FFEDD5", "#CCFBF1", "#FCE7F3"
+    )
+
+    // Bold accent colors for monograms (High contrast)
+    private val monogramAccents = listOf(
+        "#E11D48", "#059669", "#2563EB", "#CA8A04", "#7C3AED",
+        "#4F46E5", "#047857", "#D97706", "#0D9488", "#DB2777"
+    )
+
+    private fun getStableIndex(name: String): Int = 
+        kotlin.math.abs(name.hashCode()) % cardPastels.size
 
     fun setInventoryMap(map: Map<Int, Double>) {
         inventoryMap = map
@@ -63,10 +69,6 @@ class ProductAdapter(
         scope.cancel()
     }
 
-    // ─────────────────────────────────────────────
-    // RecyclerView
-    // ─────────────────────────────────────────────
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_product, parent, false)
@@ -77,12 +79,7 @@ class ProductAdapter(
         holder.bind(getItem(position))
     }
 
-    // ─────────────────────────────────────────────
-    // ViewHolder
-    // ─────────────────────────────────────────────
-
     inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
         private val card: MaterialCardView = view.findViewById(R.id.cardView)
         private val name: TextView         = view.findViewById(R.id.tvProductName)
         private val translated: TextView   = view.findViewById(R.id.tvTranslatedName)
@@ -93,14 +90,15 @@ class ProductAdapter(
         private val stock: TextView        = view.findViewById(R.id.tvStock)
         private val lowBadge: TextView     = view.findViewById(R.id.tvLowStockBadge)
         private val overlay: FrameLayout   = view.findViewById(R.id.flOutOfStockOverlay)
+        private val monogram: TextView     = view.findViewById(R.id.tvProductMonogram)
+        private val monogramBg: View       = view.findViewById(R.id.viewProductMonogramBg)
 
-        // Guards async translation against recycled views
         private var boundName: String = ""
 
         fun bind(product: Product) {
             val context = itemView.context
+            val colorIdx = getStableIndex(product.name)
 
-            // ── Hard reset ───────────────────────────────────────────────
             card.alpha          = 1f
             card.isClickable    = true
             stock.visibility    = View.GONE
@@ -108,19 +106,24 @@ class ProductAdapter(
             overlay.visibility  = View.GONE
             lowBadge.visibility = View.GONE
 
-            // ── Card tint ────────────────────────────────────────────────
-            card.setCardBackgroundColor(PastelColor.random())
+            // ── Premium Pastel Concept ──────────────────────────────────
+            card.setCardBackgroundColor(Color.parseColor(cardPastels[colorIdx]))
 
-            // ── Name ─────────────────────────────────────────────────────
+            // ── Monogram Styling ─────────────────────────────────────────
+            val firstLetter = product.name.take(1).uppercase()
+            monogram.text = firstLetter
+            monogramBg.backgroundTintList = ColorStateList.valueOf(
+                Color.parseColor(monogramAccents[colorIdx])
+            )
+            monogram.setTextColor(Color.WHITE)
+
             boundName = product.name
             name.text = product.name
 
-            // ── Variant chip ─────────────────────────────────────────────
             val variantText = product.variant?.takeIf { it.isNotBlank() }
             variant.visibility = if (variantText != null) View.VISIBLE else View.GONE
             variant.text       = variantText ?: ""
 
-            // ── Translation ──────────────────────────────────────────────
             if (translationEnabled && language != "en") {
                 translated.visibility = View.VISIBLE
                 translated.text       = "…"
@@ -135,72 +138,45 @@ class ProductAdapter(
                 translated.visibility = View.GONE
             }
 
-            // ── Price ────────────────────────────────────────────────────
             val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
             price.text = CurrencyHelper.format(context, product.price)
             unit.text  = "per $unitLabel"
 
-            // ── Stock logic ──────────────────────────────────────────────
-            val stockEntry = if (product.trackInventory) {
-                inventoryMap[product.id]
-            } else {
-                null
-            }
+            val stockEntry = if (product.trackInventory) inventoryMap[product.id] else null
 
             when {
-
-                // ✅ NON-INVENTORY PRODUCT (NO ENTRY)
                 stockEntry == null -> {
-                    // Hide everything stock-related
-                    stock.visibility = View.GONE
-                    stockDot.visibility = View.GONE
-                    lowBadge.visibility = View.GONE
-                    overlay.visibility = View.GONE
-
                     setClickListeners(product)
                 }
-
-                // ✅ OUT OF STOCK
                 stockEntry <= 0 -> {
                     overlay.visibility  = View.VISIBLE
                     card.alpha          = 0.55f
                     card.isClickable    = false
-
                     itemView.setOnClickListener {
                         Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
                     }
-
                     itemView.setOnLongClickListener {
                         onItemLongClick(product)
                         true
                     }
                 }
-
-                // ✅ LOW STOCK
                 stockEntry <= 5 -> {
                     lowBadge.visibility = View.VISIBLE
-
                     stockDot.visibility = View.VISIBLE
                     stockDot.background.setTint(0xFFEF9F27.toInt())
-
                     stock.visibility = View.VISIBLE
                     stock.text = "${String.format("%.2f", stockEntry)} $unitLabel left"
                     stock.setBackgroundResource(R.drawable.bg_stock_orange)
-                    stock.setTextColor(0xFF633806.toInt())
-
+                    stock.setTextColor(0xFF92400E.toInt())
                     setClickListeners(product)
                 }
-
-                // ✅ NORMAL STOCK
                 else -> {
                     stockDot.visibility = View.VISIBLE
-                    stockDot.background.setTint(0xFF639922.toInt())
-
+                    stockDot.background.setTint(0xFF10B981.toInt())
                     stock.visibility = View.VISIBLE
-                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel in stock"
+                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel"
                     stock.setBackgroundResource(R.drawable.bg_stock_green)
-                    stock.setTextColor(0xFF27500A.toInt())
-
+                    stock.setTextColor(0xFF065F46.toInt())
                     setClickListeners(product)
                 }
             }
@@ -212,10 +188,6 @@ class ProductAdapter(
         }
     }
 
-    // ─────────────────────────────────────────────
-    // Helpers
-    // ─────────────────────────────────────────────
-
     private fun formatUnit(unit: String): String = when (unit.lowercase()) {
         "piece"  -> "Pc"
         "kg"     -> "Kg"
@@ -225,15 +197,8 @@ class ProductAdapter(
         else     -> unit
     }
 
-    // ─────────────────────────────────────────────
-    // DiffCallback
-    // ─────────────────────────────────────────────
-
     class DiffCallback : DiffUtil.ItemCallback<Product>() {
-        override fun areItemsTheSame(oldItem: Product, newItem: Product) =
-            oldItem.id == newItem.id
-
-        override fun areContentsTheSame(oldItem: Product, newItem: Product) =
-            oldItem == newItem
+        override fun areItemsTheSame(oldItem: Product, newItem: Product) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Product, newItem: Product) = oldItem == newItem
     }
 }

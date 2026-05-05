@@ -23,6 +23,9 @@ class CartAdapter(
         val tvName: TextView = view.findViewById(R.id.tvName)
         val tvQty: TextView = view.findViewById(R.id.tvQty)
         val tvPrice: TextView = view.findViewById(R.id.tvPrice)
+        val tvUnitPrice: TextView = view.findViewById(R.id.tvUnitPrice)
+        val tvMonogram: TextView = view.findViewById(R.id.tvMonogram)
+        val viewMonogramBg: View = view.findViewById(R.id.viewMonogramBg)
         val btnPlus: ImageButton = view.findViewById(R.id.btnPlus)
         val btnMinus: ImageButton = view.findViewById(R.id.btnMinus)
         val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
@@ -41,6 +44,13 @@ class CartAdapter(
         val product = item.product
 
         holder.tvName.text = product.name
+
+        // ✅ DYNAMIC MONOGRAM
+        val firstLetter = product.name.take(1).uppercase()
+        holder.tvMonogram.text = firstLetter
+        holder.viewMonogramBg.backgroundTintList = android.content.res.ColorStateList.valueOf(
+            getColorForProduct(product.name)
+        )
 
         val qty = item.quantity
         val unit = product.unit?.lowercase() ?: "unit"
@@ -62,9 +72,12 @@ class CartAdapter(
             else -> "$formattedQty $unit"
         }
 
-        // ✅ PRICE
-        holder.tvPrice.text =
-            CurrencyHelper.format(context, item.subTotal())
+        // ✅ PRICE (subtotal badge)
+        holder.tvPrice.text = CurrencyHelper.format(context, item.subTotal())
+
+        // ✅ UNIT PRICE label below product name
+        val unitPriceFormatted = CurrencyHelper.format(context, product.price ?: 0.0)
+        holder.tvUnitPrice.text = "$unitPriceFormatted / ${product.unit?.lowercase() ?: "unit"}"
 
         // ✅ STEP (CORRECT)
         val step = when (unit) {
@@ -201,5 +214,16 @@ class CartAdapter(
             .withEndAction {
                 this.animate().scaleX(1f).scaleY(1f).setDuration(70)
             }
+    }
+
+    private fun getColorForProduct(name: String): Int {
+        val colors = listOf(
+            "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8",
+            "#F06292", "#AED581", "#FFD54F", "#4DB6AC", "#7986CB",
+            "#9575CD", "#4FC3F7", "#81C784", "#DCE775", "#FF8A65"
+        )
+        val hash = name.hashCode()
+        val index = kotlin.math.abs(hash) % colors.size
+        return android.graphics.Color.parseColor(colors[index])
     }
 }

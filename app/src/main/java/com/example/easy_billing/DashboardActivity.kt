@@ -41,7 +41,7 @@ import com.example.easy_billing.util.NetworkReceiver
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
-import com.google.android.material.textfield.TextInputEditText
+import android.widget.EditText
 import kotlinx.coroutines.launch
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +56,12 @@ class DashboardActivity : BaseActivity() {
     private lateinit var rvCart: RecyclerView
     private lateinit var tvTotal: TextView
     private lateinit var tvCartBadge: TextView
-    private lateinit var etSearch: TextInputEditText
+    private lateinit var tvSubtotalCart: TextView
+    private lateinit var etSearch: EditText
     private lateinit var tvWelcome: TextView
+
+    private lateinit var tvDrawerNameBase: TextView
+    private lateinit var tvDrawerNameAccent: TextView
     private lateinit var cardNoticeBoard: MaterialCardView
 
     private var searchRunnable: Runnable? = null
@@ -120,6 +124,9 @@ class DashboardActivity : BaseActivity() {
 
         // ✅ Initialize views FIRST
         initViews()
+
+        // ✨ AI insight card animations — orb pulse + live-dot fade.
+        startAiCardAnimations()
 
         checkSubscription()
 
@@ -322,12 +329,24 @@ class DashboardActivity : BaseActivity() {
         rvCart = findViewById(R.id.rvCart)
         tvTotal = findViewById(R.id.tvTotal)
         tvCartBadge = findViewById(R.id.tvCartBadge)
+        tvSubtotalCart = findViewById(R.id.tvSubtotalCart)
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
         tvNoticeBoard = findViewById(R.id.tvNoticeBoard)
         cardNoticeBoard = findViewById(R.id.cardNoticeBoard)
 
         switchTranslate = findViewById(R.id.switchTranslate)
+        tvDrawerNameBase = findViewById(R.id.tvDrawerNameBase)
+        tvDrawerNameAccent = findViewById(R.id.tvDrawerNameAccent)
+
+        // ✅ Dynamic greeting based on time of day
+        val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        tvGreeting.text = when {
+            hour < 12 -> "Good Morning ☀️"
+            hour < 17 -> "Good Afternoon 🌤️"
+            else -> "Good Evening 🌙"
+        }
     }
 
     private fun setupHeader() {
@@ -418,7 +437,20 @@ class DashboardActivity : BaseActivity() {
                 val profile = RetrofitClient.api.getProfile("Bearer $token")
 
                 val shopName = profile.shop_name
+                val ownerName = profile.owner_name ?: "Store Owner"
 
+                // 🔥 Split name for premium UI
+                val parts = ownerName.trim().split(" ")
+
+                if (parts.size == 1) {
+                    tvDrawerNameBase.text = parts[0]
+                    tvDrawerNameAccent.text = ""
+                } else {
+                    tvDrawerNameBase.text = parts.first() + " "
+                    tvDrawerNameAccent.text = parts.drop(1).joinToString(" ")
+                }
+
+                // ✅ Welcome text
                 typeWriter(
                     tvWelcome,
                     "Welcome to $shopName Dashboard 👋"
@@ -428,9 +460,13 @@ class DashboardActivity : BaseActivity() {
 
                 typeWriter(tvWelcome, "Welcome to Dashboard 👋")
 
+                // 🔥 fallback
+                tvDrawerNameBase.text = "Store"
+                tvDrawerNameAccent.text = "Owner"
             }
         }
     }
+
     private fun setupRecyclerViews() {
 
         rvProducts.layoutManager = GridLayoutManager(this, 5)
@@ -497,17 +533,17 @@ class DashboardActivity : BaseActivity() {
 
     private fun setupDrawerButtons() {
 
-        findViewById<MaterialButton>(R.id.btnAdmin).setOnClickListener {
+        findViewById<View>(R.id.btnAdmin).setOnClickListener {
             showAddEditProductChooser()
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnProfile).setOnClickListener {
+        findViewById<View>(R.id.btnProfile).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnSettings).setOnClickListener {
+        findViewById<View>(R.id.btnSettings).setOnClickListener {
 
             startActivity(
                 Intent(this, SettingsActivity::class.java)
@@ -516,47 +552,47 @@ class DashboardActivity : BaseActivity() {
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnReports).setOnClickListener {
+        findViewById<View>(R.id.btnReports).setOnClickListener {
             startActivity(Intent(this, ReportsActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnPreviousBills).setOnClickListener {
+        findViewById<View>(R.id.btnPreviousBills).setOnClickListener {
             startActivity(Intent(this, BillHistoryActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnGstReports).setOnClickListener {
+        findViewById<View>(R.id.btnGstReports).setOnClickListener {
             startActivity(Intent(this, GstReportsActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnCreditAccounts).setOnClickListener {
+        findViewById<View>(R.id.btnCreditAccounts).setOnClickListener {
             startActivity(Intent(this, CreditAccountsActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnInventory).setOnClickListener {
+        findViewById<View>(R.id.btnInventory).setOnClickListener {
             startActivity(Intent(this, InventoryActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnPurchase).setOnClickListener {
+        findViewById<View>(R.id.btnPurchase).setOnClickListener {
             startActivity(Intent(this, PurchaseActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnProfit).setOnClickListener {
+        findViewById<View>(R.id.btnProfit).setOnClickListener {
             startActivity(Intent(this, ProfitActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnSubscription).setOnClickListener {
+        findViewById<View>(R.id.btnSubscription).setOnClickListener {
             startActivity(Intent(this, SubscriptionActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
-        findViewById<MaterialButton>(R.id.btnAiInsights).setOnClickListener {
+        findViewById<View>(R.id.btnAiInsights).setOnClickListener {
 
             startActivity(
                 Intent(this, AiDashboardActivity::class.java)
@@ -565,7 +601,7 @@ class DashboardActivity : BaseActivity() {
             drawerLayout.closeDrawers()
         }
 
-        findViewById<Button>(R.id.btnLogout).setOnClickListener {
+        findViewById<View>(R.id.btnLogout).setOnClickListener {
 
             getSharedPreferences("auth", MODE_PRIVATE)
                 .edit {
@@ -577,7 +613,7 @@ class DashboardActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        findViewById<MaterialButton>(R.id.btnGenerateBill).setOnClickListener {
+        findViewById<View>(R.id.btnGenerateBill).setOnClickListener {
             generateBill()
         }
     }
@@ -850,17 +886,17 @@ class DashboardActivity : BaseActivity() {
 
         val total = cartItems.sumOf { it.subTotal() }
 
-        // ✅ Dynamic currency
-        tvTotal.text = "Total: ${CurrencyHelper.format(this, total)}"
+        // ✅ Total and subtotal (taxes included, no extra label prefix)
+        tvTotal.text = CurrencyHelper.format(this, total)
+        tvSubtotalCart.text = CurrencyHelper.format(this, total)
 
+        // Badge — clean number, max 99+
         val count = cartItems.size
+        val badgeText = if (count > 99) "99+" else count.toString()
+        tvCartBadge.text = badgeText
 
-        if (count <= 0) {
-            tvCartBadge.visibility = View.GONE
-        } else {
-            tvCartBadge.visibility = View.VISIBLE
-            tvCartBadge.text = if (count > 99) "99+" else count.toString()
-        }
+        // Also update the cart drawer's neon badge
+        findViewById<TextView>(R.id.tvCartDrawerBadge)?.text = badgeText
     }
 
     private fun clearCart() {
@@ -1154,9 +1190,14 @@ class DashboardActivity : BaseActivity() {
                 text = text.replace("&lt;", "<")
                 text = text.replace("&gt;", ">")
 
-                val noticeText = text.replace(
+                // Premium Ticker Highlighting: Emerald for growth, Amber for numbers (Optimized for Light Theme)
+                val styledText = text
+                    .replace(Regex("(\\d+%|\\+\\d+%|\\-\\d+%)"), "<font color='#047857'><b>$1</b></font>")
+                    .replace(Regex("(\\b\\d+\\.\\d+\\b|\\b\\d+\\b)"), "<font color='#B45309'>$1</font>")
+
+                val noticeText = styledText.replace(
                     "\n",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ● &nbsp;&nbsp;&nbsp;&nbsp;"
                 )
 
                 tvNoticeBoard.text = Html.fromHtml(
@@ -1333,4 +1374,37 @@ class DashboardActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Slim ticker has only one moving piece now — the phosphor
+     * "live" dot fades 1.0 ↔ 0.35 every 1.2 s. The classic live
+     * indicator heartbeat, nothing more.
+     */
+    private fun startAiCardAnimations() {
+        animatePulse(R.id.aiLiveStatus, 1000L, 1.0f, 1.0f, alphaTo = 0.4f)
+    }
+
+    /** Reusable infinite-reverse pulse driver for the AI card. */
+    private fun animatePulse(
+        viewId: Int,
+        durationMs: Long,
+        from: Float,
+        to: Float,
+        alphaTo: Float? = null
+    ) {
+        val view = findViewById<android.view.View>(viewId) ?: return
+        val animators = mutableListOf<android.animation.ObjectAnimator>(
+            android.animation.ObjectAnimator.ofFloat(view, "scaleX", from, to),
+            android.animation.ObjectAnimator.ofFloat(view, "scaleY", from, to)
+        )
+        if (alphaTo != null) {
+            animators += android.animation.ObjectAnimator.ofFloat(view, "alpha", 1f, alphaTo)
+        }
+        animators.forEach {
+            it.duration = durationMs
+            it.repeatCount = android.animation.ObjectAnimator.INFINITE
+            it.repeatMode  = android.animation.ObjectAnimator.REVERSE
+            it.interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            it.start()
+        }
+    }
 }

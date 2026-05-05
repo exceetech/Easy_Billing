@@ -7,225 +7,220 @@
     android:layout_height="match_parent">
 
     <!-- ================= MAIN CONTENT ================= -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#FAF8F5"
         android:focusable="true"
-        android:orientation="vertical"
-        android:background="@drawable/img_2"
         android:focusableInTouchMode="true"
         android:clickable="true">
 
-        <!-- ================= TOP BAR ================= -->
+        <com.example.easy_billing.util.PatternedBackgroundView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:isLightMode="true" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="12dp"
-            android:background="#FAFAFA"
-            android:elevation="4dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <!-- MENU BUTTON (MATCHING STYLE) -->
-            <LinearLayout
-                android:id="@+id/btnMenuContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_menu"
-                    app:tint="@android:color/black" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="MENU"
-                    android:textColor="@android:color/black"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="6dp"/>
-            </LinearLayout>
-
-            <!-- Welcome -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tvWelcome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="8dp"
-                    android:text="@string/welcome"
-                    android:textSize="18sp"
-                    android:textStyle="bold"/>
-
-            </LinearLayout>
-
-            <!-- ================= ACTION BUTTONS (SORT + CART) ================= -->
-
-            <!-- SORT BUTTON -->
-            <LinearLayout
-                android:id="@+id/btnSortContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_sort"
-                    app:tint="@android:color/black" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SORT"
-                    android:textColor="@android:color/black"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="6dp"/>
-            </LinearLayout>
-
-            <!-- SEPARATOR -->
-            <View
-                android:layout_width="1dp"
-                android:layout_height="20dp"
-                android:background="#CCCCCC"
-                android:layout_marginHorizontal="6dp"/>
-
-            <LinearLayout
-                android:id="@+id/btnCartContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:minWidth="110dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="14dp"
-                android:paddingEnd="10dp"
-                android:layout_marginStart="10dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless">
-
-                <!-- ICON -->
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_cart"
-                    app:tint="@android:color/black" />
-
-                <!-- TEXT -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CART"
-                    android:textColor="@android:color/black"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"/>
-
-                <!-- 🔥 BADGE INSIDE -->
-                <TextView
-                    android:id="@+id/tvCartBadge"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/badge_background"
-                    android:text="3"
-                    android:textSize="10sp"
-                    android:textColor="@android:color/white"
-                    android:gravity="center"
-                    android:visibility="visible"/>
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- ================= SEARCH BAR ================= -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- ══════════════════════════════════════════════════════
+             PREMIUM HEADER — Cream Butter Editorial
+        ══════════════════════════════════════════════════════ -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="6dp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_header_bar"
+            android:elevation="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-
-            app:cardCornerRadius="24dp"
-            app:cardElevation="16dp"
-            app:cardBackgroundColor="#FAFAFA"
-            app:strokeColor="#FFFFFF"
-            app:strokeWidth="2dp">
-
+            <!-- ── ROW 1: Welcome + Action Buttons ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="6dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
+                <!-- Left: Menu button with real icon -->
+                <LinearLayout
+                    android:id="@+id/btnMenuContainer"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_header_action_btn"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="☰"
+                        android:textSize="22sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <!-- Center: Welcome greeting -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingHorizontal="16dp">
 
-                    app:startIconDrawable="@drawable/ic_search"
-                    app:startIconTint="?attr/colorPrimary"
-                    app:endIconMode="clear_text"
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Good Morning ☀️"
+                        android:textColor="#A1A1AA"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.05"/>
 
-                    app:boxBackgroundMode="none"
+                    <TextView
+                        android:id="@+id/tvWelcome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/welcome"
+                        android:textColor="#18181B"
+                        android:textSize="20sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:layout_marginTop="2dp"/>
+                </LinearLayout>
 
-                    app:boxCornerRadiusTopStart="20dp"
-                    app:boxCornerRadiusTopEnd="20dp"
-                    app:boxCornerRadiusBottomStart="20dp"
-                    app:boxCornerRadiusBottomEnd="20dp">
+                <!-- Right: Sort + Cart group -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="match_parent"
+                    <!-- Sort button with real icon -->
+                    <LinearLayout
+                        android:id="@+id/btnSortContainer"
+                        android:layout_width="44dp"
                         android:layout_height="44dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_header_action_btn"
+                        android:layout_marginEnd="10dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
 
-                        android:gravity="center_vertical"
-                        android:includeFontPadding="false"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔀"
+                            android:textSize="20sp"
+                            android:gravity="center"/>
+                    </LinearLayout>
 
-                        android:hint="@string/search_products"
+                    <!-- Cart: neon green pill with floating badge -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clipChildren="false"
+                        android:clipToPadding="false">
 
-                        android:inputType="text"
-                        android:maxLength="50"
-                        android:singleLine="true"
-                        android:imeOptions="actionSearch"
+                        <LinearLayout
+                            android:id="@+id/btnCartContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_header_cart_btn"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="16dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
 
-                        android:importantForAutofill="no"
-                        android:autofillHints=""
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🛒"
+                                android:textSize="18sp"/>
 
-                        android:paddingStart="4dp"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="2dp"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Cart"
+                                android:textColor="#04221A"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:layout_marginStart="8dp"/>
+                        </LinearLayout>
 
-                        android:textColor="#000000"
-                        android:textColorHint="#888888" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
+                        <!-- Floating badge — fully visible, no clipping -->
+                        <TextView
+                            android:id="@+id/tvCartBadge"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="-6dp"
+                            android:layout_marginEnd="-6dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_header_badge"
+                            android:text="0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:elevation="8dp"/>
+                    </FrameLayout>
+                </LinearLayout>
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+            <!-- ── ROW 2: Search Bar ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_search_bar"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="16dp"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_search"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:backgroundTint="#F0BD3E"
+                    android:layout_marginEnd="12dp"/>
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/search_products"
+                    android:textColorHint="#C4C4C4"
+                    android:textColor="#18181B"
+                    android:textSize="15sp"
+                    android:inputType="text"
+                    android:maxLength="50"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"/>
+            </LinearLayout>
+
+        </LinearLayout>
 
         <!-- ================= PRODUCTS ================= -->
         <androidx.recyclerview.widget.RecyclerView
@@ -236,578 +231,687 @@
             android:padding="16dp"
             android:clipToPadding="false"/>
 
+        <!-- ============================================================
+              AI TICKER BAR — slim, edge-to-edge, no card chrome.
+
+                ▌●  AI    Top product is Maggi · +28% growth · …
+
+              The card view itself stays (DashboardActivity holds a
+              MaterialCardView reference for the entrance animation)
+              but is reduced to a transparent, zero-elevation, zero-
+              radius hull. The visible bar is a 40dp black strip
+              with a single phosphor hairline at its top edge.
+
+              IDs preserved — `cardNoticeBoard`, `tvNoticeBoard`,
+              `aiLiveDot`. -->
+
+        <!-- ============================================================
+              AI TICKER BAR — Ultra-slim, edge-to-edge, bottom-anchored.
+              Removed from the main vertical flow to maximize product tile
+              space. This is now a subtle 'cyber' ticker at the bottom.
+        ============================================================ -->
+        <!-- ============================================================
+              PREMIUM AI ASSISTANT BAR — Obsidian Glass Design.
+              A sophisticated, 46dp bar that anchors the bottom of the screen.
+              Features a segmented 'Assistant' identity and marquee insights.
+        ============================================================ -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardNoticeBoard"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-
-            app:cardCornerRadius="22dp"
-            app:cardElevation="8dp"
-            app:strokeColor="#FFFFFF"
-            app:strokeWidth="1.5dp"
-            app:cardBackgroundColor="@android:color/transparent">
+            android:layout_height="46dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="12dp"
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_ai_premium_bar"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_notice_premium">
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
 
-                <!-- ICON WITH GLOW -->
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_glow">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_ai"
-                        app:tint="#F59E0B"/>
-                </FrameLayout>
-
-                <!-- TEXT SECTION -->
+                <!-- Premium AI Identity Chip -->
                 <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:background="@drawable/bg_ai_label_chip"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✨"
+                        android:textSize="12sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:letterSpacing="0.10"
+                        android:text="AI ASSISTANT"
+                        android:textColor="#18181B"
+                        android:textSize="9sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Stylized Separator -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="18dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="#D1D1D6"
+                    android:rotation="15"/>
+
+                <!-- Intelligence Marquee -->
+                <TextView
+                    android:id="@+id/tvNoticeBoard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="14dp">
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:singleLine="true"
+                    android:text="@string/loading_ai_suggestions"
+                    android:textColor="#27272A"
+                    android:textSize="13sp"
+                    android:letterSpacing="0.01"/>
 
-                    <!-- SCROLLING MESSAGE -->
+                <!-- Red LIVE Status Badge -->
+                <LinearLayout
+                    android:id="@+id/aiLiveStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="14dp"
+                    android:background="@drawable/bg_live_badge"
+                    android:gravity="center"
+                    android:paddingHorizontal="6dp">
+
                     <TextView
-                        android:id="@+id/tvNoticeBoard"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
-                        android:text="@string/loading_ai_suggestions"
-                        android:textSize="16sp"
-                        android:textColor="#92400E"
-
-                        android:singleLine="true"
-                        android:ellipsize="marquee"
-                        android:marqueeRepeatLimit="marquee_forever"
-
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:layout_marginTop="2dp"/>
+                        android:text="LIVE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05"/>
                 </LinearLayout>
 
-                <!-- LIVE BADGE -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="LIVE"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:background="@drawable/bg_live_badge_glow"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"/>
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- ================= LEFT MENU DRAWER ================= -->
     <LinearLayout
         android:id="@+id/leftDrawer"
-        android:layout_width="320dp"
+        android:layout_width="340dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#FFFFFF"
+        android:background="#FAF8F5"
         android:orientation="vertical">
 
-        <!-- ============== PREMIUM HEADER ==============
-             Indigo gradient (matches login + register), brand
-             chip, large welcome line. -->
-        <LinearLayout
+        <!-- ============== PREMIUM HEADER ============== -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:background="@drawable/bg_drawer_header_premium"
-            android:gravity="bottom"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="18dp">
+            android:layout_height="170dp"
+            android:background="#FAF8F5"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="32dp"
+            android:paddingBottom="16dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_drawer_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp">
+                android:orientation="vertical">
 
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:background="@drawable/bg_login_button"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_drawer_chip"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp">
+
+                    <View
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="#00FF88" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:letterSpacing="0.10"
+                        android:text="EXPOS DASHBOARD"
+                        android:textColor="#D4A574"
+                        android:textSize="10sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:letterSpacing="0.10"
-                    android:text="EXPOS · DASHBOARD"
-                    android:textColor="#FFEDD5"
-                    android:textSize="10sp"
-                    android:textStyle="bold"/>
+                    android:layout_marginTop="16dp"
+                    android:text="Welcome Back,"
+                    android:textColor="#71717A"
+                    android:textSize="14sp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvDrawerNameBase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Store "
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:textColor="#18181B"
+                        android:fontFamily="serif"/>
+
+                    <TextView
+                        android:id="@+id/tvDrawerNameAccent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Owner"
+                        android:textSize="30sp"
+                        android:textColor="#D4A574"
+                        android:fontFamily="serif"
+                        android:textStyle="bold|italic"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="-0.02"
-                android:text="Dashboard"
-                android:textColor="#FFFFFF"
-                android:textSize="26sp"
-                android:textStyle="bold"/>
+        </FrameLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Manage your business"
-                android:textColor="#FFEDD5"
-                android:textSize="13sp"/>
-        </LinearLayout>
+        <!-- Hairline separator -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EBEBEB"
+            android:layout_marginHorizontal="24dp"/>
 
-        <!-- 🔥 SCROLLABLE CONTENT -->
+        <!-- SCROLLABLE CONTENT -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="24dp"
             android:overScrollMode="never">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="14dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp">
 
-                <!-- ============== TRANSLATION CARD ==============
-                     Soft indigo glass surface — matches the login
-                     value-prop pills. Replaces the bright green
-                     block. -->
+                <!-- Auto Translate Toggle (Modern Glass Card) -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    android:background="@drawable/bg_drawer_translate_card"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
                     android:gravity="center_vertical"
-                    android:minHeight="60dp"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="10dp">
+                    android:paddingHorizontal="4dp">
 
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_language"
-                        app:tint="#4F46E5"/>
+                    <!-- Icon -->
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:gravity="center"
+                        android:text="🌐"
+                        android:textSize="22sp"/>
 
+                    <!-- Label -->
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="@string/auto_translation"
-                        android:textColor="#0F172A"
-                        android:textSize="14sp"
-                        android:textStyle="bold"/>
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
 
+                    <!-- Switch -->
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchTranslate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <!-- 🔥 MENU ITEMS (PREMIUM SPACING) -->
-
-                <!-- Wrap each button for elevation feel -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- SECTION: OPERATIONS -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:text="CORE OPERATIONS"
+                    android:textColor="#71717A"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.15"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="12dp"/>
 
-                    <!-- ITEM STYLE -->
-                    <!-- Repeat for all buttons -->
+                <!-- Add/Edit Product -->
+                <LinearLayout
+                    android:id="@+id/btnAdmin"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
 
-                    <!-- 🔥 ADD PRODUCTS -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAdmin"
-                        style="@style/Widget.Material3.Button.TextButton"
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="📦"
+                        android:textSize="22sp"/>
 
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:text="@string/add_edit_product"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_addproduct"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 BILL HISTORY -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPreviousBills"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="@string/bill_history"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_history"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 CREDIT -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCreditAccounts"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="Credit Accounts"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_wallet"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 PURCHASE -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPurchase"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="@string/purchase_title"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_inventory"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 INVENTORY -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnInventory"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="Inventory"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_inventory"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 PROFILE (NEW) -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnProfile"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="@string/profile"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_profile"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 SETTINGS -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSettings"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="@string/settings"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_settings"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 REPORTS -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnReports"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="@string/reports"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_report"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 GST REPORTS -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnGstReports"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="GST Reports"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_report"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 PROFIT -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnProfit"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="Profit Analytics"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_moneybag"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 SUBSCRIPTION (ALREADY PERFECT) -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSubscription"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="6dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="Subscription"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_subscription"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
-                    <!-- 🔥 AI -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAiInsights"
-                        style="@style/Widget.Material3.Button.TextButton"
-
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="8dp"
-
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-
-                        android:text="@string/ai_insights"
-                        android:textAllCaps="false"
-
-                        android:textSize="16sp"
-                        android:textColor="#111827"
-                        android:letterSpacing="0.02"
-
-                        app:icon="@drawable/ic_ai"
-                        app:iconPadding="14dp"
-                        app:iconTint="#6B7280"
-
-                        app:rippleColor="#E5E7EB"
-                        android:background="@drawable/bg_nav_premium"/>
-
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
                 </LinearLayout>
 
-                <!-- Subtle divider above the destructive action so
-                     it never feels adjacent to a navigation row. -->
+                <!-- Purchase -->
+                <LinearLayout
+                    android:id="@+id/btnPurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="🛒"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/purchase_title"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- SECTION: ANALYTICS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ANALYTICS &amp; REPORTS"
+                    android:textColor="#71717A"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="12dp"/>
+
+                <!-- Inventory -->
+                <LinearLayout
+                    android:id="@+id/btnInventory"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="🗄️"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Inventory"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Profit Analytics -->
+                <LinearLayout
+                    android:id="@+id/btnProfit"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="💰"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Profit Analytics"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Previous Bills -->
+                <LinearLayout
+                    android:id="@+id/btnPreviousBills"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="🧾"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/bill_history"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Credit Accounts -->
+                <LinearLayout
+                    android:id="@+id/btnCreditAccounts"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="💳"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Credit Accounts"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- GST Reports -->
+                <LinearLayout
+                    android:id="@+id/btnGstReports"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="📊"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="GST Reports"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Daily Reports -->
+                <LinearLayout
+                    android:id="@+id/btnReports"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="📅"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/reports"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- AI Insights -->
+                <LinearLayout
+                    android:id="@+id/btnAiInsights"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="✨"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/ai_insights"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- SECTION: ACCOUNT -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ACCOUNT"
+                    android:textColor="#71717A"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="12dp"/>
+
+                <!-- Profile -->
+                <LinearLayout
+                    android:id="@+id/btnProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="👤"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/profile"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Settings -->
+                <LinearLayout
+                    android:id="@+id/btnSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="⚙️"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/settings"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Subscription -->
+                <LinearLayout
+                    android:id="@+id/btnSubscription"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="💎"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Subscription"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="#E5E7EB"/>
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#E4E4E7"/>
 
-                <com.google.android.material.button.MaterialButton
+                <!-- Logout -->
+                <LinearLayout
                     android:id="@+id/btnLogout"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="296dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp">
 
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:gravity="center"
+                        android:text="🚪"
+                        android:textSize="22sp" />
 
-                    android:gravity="start|center_vertical"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-
-                    android:text="@string/logout"
-                    android:textAllCaps="false"
-
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#DC2626"
-
-                    android:letterSpacing="0.02"
-
-                    app:icon="@drawable/ic_logout"
-                    app:iconPadding="14dp"
-                    app:iconTint="#DC2626"
-
-                    app:rippleColor="#33EF4444"
-                    android:background="@drawable/bg_drawer_logout_card"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/logout"
+                        android:textColor="#EF4444"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
             </LinearLayout>
-
         </ScrollView>
 
     </LinearLayout>
@@ -815,80 +919,249 @@
     <!-- ================= RIGHT CART DRAWER ================= -->
     <LinearLayout
         android:id="@+id/cartDrawer"
-        android:layout_width="480dp"
+        android:layout_width="380dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        android:background="#FAF8F5"
         android:orientation="vertical"
-        android:background="@android:color/white"
-        android:elevation="12dp">
+        android:elevation="20dp">
 
-        <!-- Header -->
-        <TextView
+        <!-- ══════════════════════════════════════════
+             HEADER  — Cream Butter + editorial type
+        ══════════════════════════════════════════ -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:text="@string/cart"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FAF8F5"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="36dp"
+            android:paddingBottom="20dp">
 
+            <!-- Status chip row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_drawer_chip"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp">
+
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:background="#00FF88"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:letterSpacing="0.12"
+                    android:text="LIVE ORDER"
+                    android:textColor="#D4A574"
+                    android:textSize="10sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- Title + item count badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="14dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shopping"
+                        android:textColor="#71717A"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cart"
+                        android:textColor="#18181B"
+                        android:textSize="30sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Neon green circle badge -->
+                <TextView
+                    android:id="@+id/tvCartDrawerBadge"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_cart_badge"
+                    android:text="0"
+                    android:textColor="#04221A"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Hairline separator -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E0E0E0"/>
+            android:background="#EBEBEB"
+            android:layout_marginHorizontal="24dp"/>
 
-        <!-- Cart Items -->
+        <!-- ══════════════════════════════════════════
+             CART ITEMS  — scrollable list
+        ══════════════════════════════════════════ -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCart"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="12dp"
-            android:clipToPadding="false"/>
+            android:paddingHorizontal="14dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E0E0E0"/>
-
-        <!-- Bottom Summary -->
+        <!-- ══════════════════════════════════════════
+             ORDER SUMMARY PANEL  — floats at bottom
+        ══════════════════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="#FAFAFA">
+            android:background="@drawable/bg_cart_summary_panel"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="28dp"
+            android:elevation="12dp">
 
+            <!-- Section label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ORDER SUMMARY"
+                android:textColor="#A1A1AA"
+                android:textSize="10sp"
+                android:letterSpacing="0.14"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Subtotal row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/total"
-                    android:textSize="14sp"
-                    android:textColor="#666666"/>
+                    android:text="Subtotal"
+                    android:textColor="#71717A"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/tvSubtotalCart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹0.00"
+                    android:textColor="#18181B"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- Tax row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="GST / Taxes"
+                    android:textColor="#71717A"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Included"
+                    android:textColor="#00AA55"
+                    android:textSize="13sp"/>
+            </LinearLayout>
+
+            <!-- Full-width divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#F0F0F0"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Total row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="22dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textColor="#71717A"
+                        android:textSize="13sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Incl. all taxes"
+                        android:textColor="#A1A1AA"
+                        android:textSize="11sp"/>
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/_0_00"
-                    android:textSize="20sp"
+                    android:text="₹0.00"
+                    android:textColor="#18181B"
+                    android:textSize="26sp"
+                    android:fontFamily="serif"
                     android:textStyle="bold"/>
             </LinearLayout>
 
+            <!-- Generate Bill CTA -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGenerateBill"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:text="@string/generate_bill"
-                app:cornerRadius="12dp"/>
+                android:layout_height="58dp"
+                android:text="Generate Bill"
+                android:textColor="#04221A"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02"
+                android:background="@drawable/bg_premium_btn"
+                app:backgroundTint="@null"
+                app:cornerRadius="18dp"
+                android:stateListAnimator="@null"/>
 
         </LinearLayout>
 

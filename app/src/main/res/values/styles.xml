@@ -107,8 +107,6 @@
         <!-- TEXT (this is where premium shows) -->
         <item name="android:textColor">#2A1D0C</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:letterSpacing">0.02</item> <!-- tighter -->
         <item name="android:textAllCaps">true</item>
 
         <!-- PADDING (balanced, not bulky) -->

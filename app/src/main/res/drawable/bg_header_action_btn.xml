@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Menu/Action button: pill shape with warm tint -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <solid android:color="#F0EAE0"/>
+            <stroke android:width="1dp" android:color="#D4A574"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <solid android:color="#F5F0E8"/>
+            <stroke android:width="1dp" android:color="#E8E0D4"/>
+        </shape>
+    </item>
+</selector>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Animated AI orb — radial green→white core that pairs with
+    the bg_ai_orb_ring.xml outer ring. Two layers blended so
+    the orb reads as "energy", not a flat green disk.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="60"
+                android:centerX="0.5"
+                android:centerY="0.5"
+                android:startColor="#3300FF88"
+                android:endColor="#0000FF88"/>
+        </shape>
+    </item>
+
+    <item
+        android:left="6dp"
+        android:right="6dp"
+        android:top="6dp"
+        android:bottom="6dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="40"
+                android:centerX="0.4"
+                android:centerY="0.4"
+                android:startColor="#FFFFFFFF"
+                android:centerColor="#FF00FF88"
+                android:endColor="#FF00C853"/>
+        </shape>
+    </item>
+</layer-list>

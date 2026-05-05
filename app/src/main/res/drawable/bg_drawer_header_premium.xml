@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Drawer header — same midnight + champagne language as the
-     login backdrop, scoped to the smaller surface. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:angle="270"
-                android:startColor="#0A0E1A"
-                android:endColor="#13182A"
+                android:startColor="#FAF8F5"
+                android:endColor="#F3EFE9"
                 android:type="linear"/>
         </shape>
     </item>
@@ -32,8 +30,8 @@
                 android:gradientRadius="320"
                 android:centerX="0.10"
                 android:centerY="0.85"
-                android:startColor="#222B3A6F"
-                android:endColor="#002B3A6F"/>
+                android:startColor="#1100FF88"
+                android:endColor="#0000FF88"/>
         </shape>
     </item>
 </layer-list>
