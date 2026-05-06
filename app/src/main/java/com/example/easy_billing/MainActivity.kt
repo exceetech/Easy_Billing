@@ -170,7 +170,7 @@ class MainActivity : BaseActivity() {
 
                     lifecycleScope.launch(Dispatchers.IO) {
                         val syncManager = SyncManager(this@MainActivity)
-                        syncManager.syncBills()
+                        syncManager.syncAll()
                     }
 
                     android.util.Log.d("TOKEN_DEBUG", "Saved Token: $token")

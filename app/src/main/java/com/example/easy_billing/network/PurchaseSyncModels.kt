@@ -128,6 +128,7 @@ data class PurchaseReturnSyncRequest(
 
 data class PurchaseReturnDto(
     val local_id: Int,
+    val shop_id: String,
     val shop_product_id: Int?,
     val product_name: String,
     val hsn_code: String?,
@@ -140,6 +141,7 @@ data class PurchaseReturnDto(
     val cgst_amount: Double,
     val sgst_amount: Double,
     val igst_amount: Double,
+    val state: String,
     val supplier_gstin: String?,
     val supplier_name: String?,
     val created_at: Long
@@ -153,6 +155,7 @@ data class ScrapSyncRequest(
 
 data class ScrapDto(
     val local_id: Int,
+    val shop_id: String,
     val shop_product_id: Int?,
     val product_name: String,
     val hsn_code: String?,
@@ -165,6 +168,7 @@ data class ScrapDto(
     val cgst_amount: Double,
     val sgst_amount: Double,
     val igst_amount: Double,
+    val state: String,
     val reason: String,
     val created_at: Long
 )

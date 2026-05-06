@@ -37,7 +37,7 @@ import com.example.easy_billing.DefaultProductDao
         PurchaseReturn::class,
         ScrapEntry::class
     ],
-    version = 15
+    version = 16
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -435,6 +435,26 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v15 → v16
+         *
+         * Aligns purchase_return_table + scrap_table with the
+         * backend `purchase_return` / `scrap` SQLAlchemy schema:
+         * adds `shop_id` and `state` columns + a shop_id index on
+         * each so per-shop reads stay fast.
+         */
+        val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `shop_id` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `state` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_shop_id` ON `purchase_return_table`(`shop_id`)")
+
+                db.execSQL("ALTER TABLE `scrap_table` ADD COLUMN `shop_id` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `scrap_table` ADD COLUMN `state` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_scrap_table_shop_id` ON `scrap_table`(`shop_id`)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -447,7 +467,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_11_12,
                         MIGRATION_12_13,
                         MIGRATION_13_14,
-                        MIGRATION_14_15
+                        MIGRATION_14_15,
+                        MIGRATION_15_16
                     )
                     .fallbackToDestructiveMigration()
                     .build()

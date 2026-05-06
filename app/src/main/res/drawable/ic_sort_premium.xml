@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Premium "stair-step" sort icon — filled-pill version.
+
+    Four rounded-pill bars stacked vertically, each shorter than
+    the one above (lengths 14 → 10 → 6 → 2 viewport units, height
+    2). Drawn as **filled** paths (not strokes) so `app:tint` on
+    the host ImageView reliably re-colours the entire icon across
+    every API level — strokeColor isn't tintable on older devices.
+
+    The implicit direction is "descending" (bigger items on top),
+    which matches the universal sort metaphor used by Linear /
+    Notion / Stripe.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Bar 1 — full width (14u). -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,5 h14 a1,1 0 0 1 0,2 h-14 a1,1 0 0 1 0,-2 z"/>
+
+    <!-- Bar 2 — 10u. -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,10 h10 a1,1 0 0 1 0,2 h-10 a1,1 0 0 1 0,-2 z"/>
+
+    <!-- Bar 3 — 6u. -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,15 h6 a1,1 0 0 1 0,2 h-6 a1,1 0 0 1 0,-2 z"/>
+
+    <!-- Bar 4 — 2u. -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,20 h2 a1,1 0 0 1 0,2 h-2 a1,1 0 0 1 0,-2 z"/>
+</vector>

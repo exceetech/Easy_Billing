@@ -50,6 +50,8 @@ interface InventoryLogDao {
     suspend fun getUnsyncedLogs(): List<InventoryLog>
 
     @Query("UPDATE inventory_log SET isSynced = 1 WHERE id IN (:ids)")
-
     suspend fun markAsSynced(ids: List<Int>)
+
+    @Query("SELECT COUNT(*) FROM inventory_log WHERE productId = :productId AND isSynced = 0")
+    suspend fun getUnsyncedCountForProduct(productId: Int): Int
 }

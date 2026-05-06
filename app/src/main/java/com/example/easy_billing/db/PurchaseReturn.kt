@@ -8,21 +8,26 @@ import androidx.room.PrimaryKey
 /**
  * Stock returned to a supplier (`purchase_return_table`).
  *
- * Tax fields here mirror the *purchase* tax (i.e. what was
- * originally paid to the supplier) since a return reverses the
- * earlier purchase, not a sale.
+ * Fields mirror the backend `purchase_return` SQLAlchemy model
+ * 1:1 so the sync push is a straight copy. `shop_id` and `state`
+ * are populated from the local store_info / gst_profile at insert
+ * time (see [com.example.easy_billing.repository.InventoryReductionRepository]).
  */
 @Entity(
     tableName = "purchase_return_table",
     indices = [
         Index(value = ["productId"]),
-        Index(value = ["hsnCode"])
+        Index(value = ["hsnCode"]),
+        Index(value = ["shop_id"])
     ]
 )
 data class PurchaseReturn(
 
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
+    @ColumnInfo(name = "shop_id")
+    val shopId: String = "",
 
     val productId: Int? = null,
     val productName: String,
@@ -38,6 +43,8 @@ data class PurchaseReturn(
     @ColumnInfo(name = "cgst_amount")     val cgstAmount: Double = 0.0,
     @ColumnInfo(name = "sgst_amount")     val sgstAmount: Double = 0.0,
     @ColumnInfo(name = "igst_amount")     val igstAmount: Double = 0.0,
+
+    val state: String = "",
 
     val supplierGstin: String? = null,
     val supplierName: String? = null,

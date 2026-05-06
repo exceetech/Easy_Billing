@@ -52,7 +52,7 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var etInvoiceNumber: TextInputEditText
     private lateinit var etSupplierName: TextInputEditText
     private lateinit var etSupplierGstin: TextInputEditText
-    private lateinit var etState: TextInputEditText
+    private lateinit var etState: AutoCompleteTextView
     private lateinit var rv: RecyclerView
     private lateinit var btnAddLine: MaterialButton
     private lateinit var btnSave: MaterialButton
@@ -71,6 +71,30 @@ class PurchaseActivity : BaseActivity() {
         wireActions()
         observe()
         recomputeHeaderValid()
+
+        handlePrefill()
+    }
+
+    private fun handlePrefill() {
+        val inv = intent.getStringExtra("EXTRA_INVOICE_NUMBER")
+        val sup = intent.getStringExtra("EXTRA_SUPPLIER_NAME")
+        val gst = intent.getStringExtra("EXTRA_SUPPLIER_GSTIN")
+        val st = intent.getStringExtra("EXTRA_STATE")
+        val singleMode = intent.getBooleanExtra("EXTRA_SINGLE_MODE", false)
+
+        if (inv != null) etInvoiceNumber.setText(inv)
+        if (sup != null) etSupplierName.setText(sup)
+        if (gst != null) etSupplierGstin.setText(gst)
+        if (st != null) etState.setText(st, false)
+
+        if (singleMode) {
+            btnAddLine.visibility = View.GONE
+            val prodName = intent.getStringExtra("EXTRA_PRODUCT_NAME")
+            val variant = intent.getStringExtra("EXTRA_PRODUCT_VARIANT")
+            if (prodName != null) {
+                showLineDialog(prefillName = prodName, prefillVariant = variant)
+            }
+        }
     }
 
     private fun bindViews() {
@@ -83,6 +107,17 @@ class PurchaseActivity : BaseActivity() {
         btnSave         = findViewById(R.id.btnSavePurchase)
         tvTaxableTotal  = findViewById(R.id.tvTaxableTotal)
         tvInvoiceTotal  = findViewById(R.id.tvInvoiceTotal)
+
+        setupStateSuggestions()
+    }
+
+    private fun setupStateSuggestions() {
+        val states = com.example.easy_billing.util.GstEngine.INDIA_STATES.values.toList()
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, states)
+        etState.setAdapter(adapter)
+        
+        // Show dropdown on click
+        etState.setOnClickListener { etState.showDropDown() }
     }
 
     private fun setupRecycler() {
@@ -195,7 +230,7 @@ class PurchaseActivity : BaseActivity() {
      *  selling price + autofill from global verification)
      * ------------------------------------------------------------------ */
 
-    private fun showLineDialog() {
+    private fun showLineDialog(prefillName: String? = null, prefillVariant: String? = null) {
         val view = layoutInflater.inflate(R.layout.dialog_purchase_line, null)
 
         val etProduct  = view.findViewById<AutoCompleteTextView>(R.id.etProductName)
@@ -221,46 +256,6 @@ class PurchaseActivity : BaseActivity() {
 
         val productRepo = ProductRepository.get(this)
         val verifyRepo  = ProductVerificationRepository.get(this)
-
-        // Product autocomplete from existing local catalogue.
-        lifecycleScope.launch {
-            val names = withContext(Dispatchers.IO) { productRepo.distinctNames() }
-            etProduct.setAdapter(
-                ArrayAdapter(this@PurchaseActivity, android.R.layout.simple_list_item_1, names)
-            )
-        }
-
-        // Unit dropdown — backend list first, fall back to defaults
-        // when offline or the endpoint is missing.
-        val defaultUnits = listOf("piece", "kilogram", "litre", "gram", "millilitre")
-        etUnit.setText("piece", false)
-        etUnit.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, defaultUnits)
-        )
-        lifecycleScope.launch {
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null)
-            if (token != null) {
-                val backendUnits = withContext(Dispatchers.IO) {
-                    runCatching {
-                        com.example.easy_billing.network.RetrofitClient.api
-                            .getUnits("Bearer $token").units
-                    }.getOrNull()
-                }
-                val merged = ((backendUnits ?: emptyList()) + defaultUnits).distinct()
-                if (merged.isNotEmpty()) {
-                    etUnit.setAdapter(
-                        ArrayAdapter(
-                            this@PurchaseActivity,
-                            android.R.layout.simple_list_item_1,
-                            merged
-                        )
-                    )
-                }
-            }
-        }
-
-        btnHelp.setOnClickListener { HsnHelpLauncher.open(this) }
 
         // Reveal variant + autofill when the user picks / settles
         // on a product name.
@@ -298,6 +293,55 @@ class PurchaseActivity : BaseActivity() {
                 }
             }
         }
+
+        // Product autocomplete from existing local catalogue.
+        lifecycleScope.launch {
+            val names = withContext(Dispatchers.IO) { productRepo.distinctNames() }
+            etProduct.setAdapter(
+                ArrayAdapter(this@PurchaseActivity, android.R.layout.simple_list_item_1, names)
+            )
+
+            if (prefillName != null) {
+                etProduct.setText(prefillName)
+                onProductSettled()
+                if (prefillVariant != null) {
+                    etVariant.setText(prefillVariant)
+                }
+            }
+        }
+
+        // Unit dropdown — backend list first, fall back to defaults
+        // when offline or the endpoint is missing.
+        val defaultUnits = listOf("piece", "kilogram", "litre", "gram", "millilitre")
+        etUnit.setText("piece", false)
+        etUnit.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, defaultUnits)
+        )
+        lifecycleScope.launch {
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null)
+            if (token != null) {
+                val backendUnits = withContext(Dispatchers.IO) {
+                    runCatching {
+                        com.example.easy_billing.network.RetrofitClient.api
+                            .getUnits("Bearer $token").units
+                    }.getOrNull()
+                }
+                val merged = ((backendUnits ?: emptyList()) + defaultUnits).distinct()
+                if (merged.isNotEmpty()) {
+                    etUnit.setAdapter(
+                        ArrayAdapter(
+                            this@PurchaseActivity,
+                            android.R.layout.simple_list_item_1,
+                            merged
+                        )
+                    )
+                }
+            }
+        }
+
+        btnHelp.setOnClickListener { HsnHelpLauncher.open(this) }
+
         etProduct.setOnItemClickListener { _, _, _, _ -> onProductSettled() }
         etProduct.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) onProductSettled()

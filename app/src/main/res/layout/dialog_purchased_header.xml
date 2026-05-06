@@ -15,86 +15,95 @@
         android:padding="24dp"
         android:background="@drawable/bg_dialog_gradient">
 
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_remove"
-            app:tint="#F59E0B"/>
-
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Reduce Stock"
+            android:text="Purchase Header"
             android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
         <TextView
-            android:id="@+id/tvCurrentStockLabel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Available: 0"
+            android:text="Enter invoice details to continue"
             android:textColor="#B0FFFFFF"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"
             android:layout_marginBottom="24dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Quantity to reduce"
+            android:hint="Invoice Number"
             android:textColorHint="#80FFFFFF"
             app:boxStrokeColor="@color/white"
             app:hintTextColor="@color/white"
             android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etReduceQty"
+                android:id="@+id/etInvoiceNumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
+                android:inputType="textCapCharacters"
                 android:textColor="@color/white"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reason for reducing"
-            android:textColor="#80FFFFFF"
-            android:textSize="12sp"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginBottom="8dp"/>
-
-        <RadioGroup
-            android:id="@+id/rgReason"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:hint="Supplier Name"
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/white"
+            app:hintTextColor="@color/white"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSupplierName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Supplier GSTIN (Optional)"
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/white"
+            app:hintTextColor="@color/white"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSupplierGstin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Supplier State"
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/white"
+            app:hintTextColor="@color/white"
             android:layout_marginBottom="24dp">
 
-            <RadioButton
-                android:id="@+id/rbReturn"
+            <AutoCompleteTextView
+                android:id="@+id/etState"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Purchase Return"
+                android:inputType="textCapWords"
                 android:textColor="@color/white"
-                android:buttonTint="@color/white"
-                android:checked="true"/>
-
-            <RadioButton
-                android:id="@+id/rbScrap"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Scrap / Damage"
-                android:textColor="@color/white"
-                android:buttonTint="@color/white"/>
-        </RadioGroup>
+                android:completionThreshold="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -103,7 +112,7 @@
             android:gravity="end">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReduceCancel"
+                android:id="@+id/btnCancel"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -112,12 +121,12 @@
                 android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReduceConfirm"
+                android:id="@+id/btnContinue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reduce Now"
-                android:backgroundTint="#F59E0B"
-                android:textColor="@color/white"
+                android:text="Add Product"
+                android:backgroundTint="@color/white"
+                android:textColor="@color/black"
                 app:cornerRadius="12dp"/>
         </LinearLayout>
 

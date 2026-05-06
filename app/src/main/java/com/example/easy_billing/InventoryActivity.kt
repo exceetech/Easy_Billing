@@ -15,6 +15,7 @@ import com.example.easy_billing.db.LossEntry
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.GstEngine
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -139,133 +140,65 @@ class InventoryActivity : BaseActivity() {
 
     private fun showAddStockDialog(product: Product) {
 
-        val view = layoutInflater.inflate(R.layout.dialog_add_stock, null)
+        // Context-aware routing:
+        //   • Purchased products → Ask for header info, then go to PurchaseActivity.
+        //   • Manual products    → EditProductActivity (full product control).
+        if (product.isPurchased) {
+            showPurchasedHeaderDialog(product)
+            return
+        } else {
+            startActivity(
+                android.content.Intent(this, EditProductActivity::class.java)
+                    .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
+            )
+            return
+        }
+    }
 
+    private fun showPurchasedHeaderDialog(product: Product) {
+        val view = layoutInflater.inflate(R.layout.dialog_purchased_header, null)
         val dialog = AlertDialog.Builder(this)
             .setView(view)
             .create()
-
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        val etQty = view.findViewById<EditText>(R.id.etQty)
-        val etCost = view.findViewById<EditText>(R.id.etCost)
-        val llGstFields = view.findViewById<LinearLayout>(R.id.llGstFields)
-        val etVendorGstin = view.findViewById<EditText>(R.id.etVendorGstin)
-        val etInvoiceNumber = view.findViewById<EditText>(R.id.etInvoiceNumber)
-
-        var isGstEnabled = false
-        var storeStateCode = ""
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            val storeInfo = db.storeInfoDao().get()
-            isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
-            storeStateCode = storeInfo?.stateCode ?: ""
-            
-            withContext(Dispatchers.Main) {
-                if (isGstEnabled) {
-                    llGstFields.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        etQty.filters = arrayOf(InputFilter.LengthFilter(5))
-        etCost.filters = arrayOf(InputFilter.LengthFilter(7))
-
-        val btnAdd = view.findViewById<Button>(R.id.btnAdd)
+        val etInvoice = view.findViewById<EditText>(R.id.etInvoiceNumber)
+        val etSupplier = view.findViewById<EditText>(R.id.etSupplierName)
+        val etGstin = view.findViewById<EditText>(R.id.etSupplierGstin)
+        val etState = view.findViewById<AutoCompleteTextView>(R.id.etState)
+        val btnContinue = view.findViewById<Button>(R.id.btnContinue)
         val btnCancel = view.findViewById<Button>(R.id.btnCancel)
 
-        val allowDecimal = isDecimalAllowed(product.unit)
+        // Setup state suggestions
+        val states = com.example.easy_billing.util.GstEngine.INDIA_STATES.values.toList()
+        etState.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, states))
+        etState.setOnClickListener { etState.showDropDown() }
 
         btnCancel.setOnClickListener { dialog.dismiss() }
+        btnContinue.setOnClickListener {
+            val inv = etInvoice.text.toString().trim()
+            val sup = etSupplier.text.toString().trim()
+            val gst = etGstin.text.toString().trim()
+            val st = etState.text.toString().trim()
 
-        btnAdd.setOnClickListener {
-
-            val qtyText = etQty.text.toString().trim()
-            val cost = etCost.text.toString().toDoubleOrNull() ?: 0.0
-
-            if (qtyText.isEmpty()) {
-                etQty.error = "Enter quantity"
-                return@setOnClickListener
-            }
-
-            if (!allowDecimal && qtyText.contains(".")) {
-                etQty.error = "Decimal not allowed for ${product.unit}"
-                return@setOnClickListener
-            }
-
-            val qty = qtyText.toDoubleOrNull() ?: 0.0
-
-            if (qty <= 0) {
-                etQty.error = "Invalid quantity"
-                return@setOnClickListener
-            }
-
-            if (cost <= 0) {
-                etCost.error = "Enter valid cost"
-                return@setOnClickListener
-            }
-
-            val vendorGstin = etVendorGstin.text.toString().trim()
-            val invoiceNumber = etInvoiceNumber.text.toString().trim()
-
-            if (isGstEnabled && invoiceNumber.isEmpty()) {
-                etInvoiceNumber.error = "Invoice Number required"
+            if (inv.isEmpty() || sup.isEmpty() || st.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             dialog.dismiss()
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-
-                    InventoryManager.addStock(
-                        db = db,
-                        productId = product.id,
-                        quantity = qty,
-                        costPrice = cost
-                    )
-
-                    if (isGstEnabled) {
-                        val vendorStateCode = GstEngine.getStateCode(vendorGstin)
-                        val supplyType = if (GstEngine.isIntrastate(storeStateCode, vendorStateCode)) "intrastate" else "interstate"
-                        
-                        val taxableValue = qty * cost
-                        val breakup = GstEngine.calculateGstSplit(taxableValue, product.defaultGstRate, supplyType)
-                        val totalInvoiceValue = taxableValue + breakup.totalTax
-
-                        val purchaseRecord = com.example.easy_billing.db.GstPurchaseRecord(
-                            id = java.util.UUID.randomUUID().toString(),
-                            vendorGstin = vendorGstin,
-                            vendorName = "Vendor", // Can be extended to have a vendor master later
-                            invoiceNumber = invoiceNumber,
-                            invoiceDate = System.currentTimeMillis(),
-                            totalInvoiceValue = totalInvoiceValue,
-                            taxableValue = taxableValue,
-                            gstRate = product.defaultGstRate,
-                            cgstAmount = breakup.cgst,
-                            sgstAmount = breakup.sgst,
-                            igstAmount = breakup.igst,
-                            cessAmount = 0.0,
-                            hsnCode = product.hsnCode ?: "",
-                            itcEligibility = "Eligible", // Or Ineligible depending on business rules
-                            syncStatus = "pending"
-                        )
-                        db.gstPurchaseRecordDao().insert(purchaseRecord)
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        loadInventory()
-                        Toast.makeText(this@InventoryActivity, "Stock added", Toast.LENGTH_SHORT).show()
-                    }
-
-                    SyncManager(this@InventoryActivity).syncInventory()
-
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@InventoryActivity, "Failed to add stock", Toast.LENGTH_SHORT).show()
-                    }
-                }
+            val intent = android.content.Intent(this, PurchaseActivity::class.java).apply {
+                putExtra("EXTRA_INVOICE_NUMBER", inv)
+                putExtra("EXTRA_SUPPLIER_NAME", sup)
+                putExtra("EXTRA_SUPPLIER_GSTIN", gst)
+                putExtra("EXTRA_STATE", st)
+                putExtra("EXTRA_PRODUCT_ID", product.id)
+                putExtra("EXTRA_PRODUCT_NAME", product.name)
+                putExtra("EXTRA_PRODUCT_VARIANT", product.variant)
+                putExtra("EXTRA_SINGLE_MODE", true)
             }
+            startActivity(intent)
         }
 
         dialog.show()
@@ -276,97 +209,65 @@ class InventoryActivity : BaseActivity() {
     private fun showReduceStockDialog(product: Product, currentStock: Double) {
 
         val view = layoutInflater.inflate(R.layout.dialog_reduce_stock, null)
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(view)
-            .create()
-
+        val dialog = AlertDialog.Builder(this).setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        val etQty = view.findViewById<EditText>(R.id.etQty)
-        val btnCancel = view.findViewById<Button>(R.id.btnCancel)
-        val btnRemove = view.findViewById<Button>(R.id.btnRemove)
+        val tvCurrent     = view.findViewById<TextView>(R.id.tvCurrentStockLabel)
+        val rgReason      = view.findViewById<RadioGroup>(R.id.rgReason)
+        val rbReturn      = view.findViewById<RadioButton>(R.id.rbReturn)
+        val rbScrap       = view.findViewById<RadioButton>(R.id.rbScrap)
+        val etQty         = view.findViewById<EditText>(R.id.etReduceQty)
+        val btnCancel     = view.findViewById<Button>(R.id.btnReduceCancel)
+        val btnConfirm    = view.findViewById<Button>(R.id.btnReduceConfirm)
 
-        val rbDamage = view.findViewById<RadioButton>(R.id.rbDamage)
-        val rbAdjust = view.findViewById<RadioButton>(R.id.rbAdjust)
-
+        tvCurrent.text = "Available: ${formatStock(currentStock)} ${product.unit ?: "piece"}"
         val allowDecimal = isDecimalAllowed(product.unit)
 
         btnCancel.setOnClickListener { dialog.dismiss() }
 
-        btnRemove.setOnClickListener {
-
-            val qtyText = etQty.text.toString().trim()
-
-            if (qtyText.isEmpty()) {
-                etQty.error = "Enter quantity"
-                return@setOnClickListener
-            }
-
+        btnConfirm.setOnClickListener {
+            val qtyText = etQty.text?.toString()?.trim().orEmpty()
+            if (qtyText.isEmpty()) { etQty.error = "Enter quantity"; return@setOnClickListener }
             if (!allowDecimal && qtyText.contains(".")) {
-                etQty.error = "Decimal not allowed"
-                return@setOnClickListener
+                etQty.error = "Decimal not allowed"; return@setOnClickListener
             }
-
             val qty = qtyText.toDoubleOrNull() ?: 0.0
-
-            if (qty <= 0) {
-                etQty.error = "Invalid quantity"
-                return@setOnClickListener
-            }
-
+            if (qty <= 0) { etQty.error = "Invalid quantity"; return@setOnClickListener }
             if (qty > currentStock) {
-                etQty.error = "Exceeds stock"
-                return@setOnClickListener
+                etQty.error = "Exceeds available stock"; return@setOnClickListener
             }
 
-            val type = when {
-                rbDamage.isChecked -> "LOSS"
-                rbAdjust.isChecked -> "ADJUST"
-                else -> {
-                    Toast.makeText(this, "Select reason", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-            }
+            val reason = if (rbReturn.isChecked)
+                com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.PURCHASE_RETURN
+            else
+                com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.SCRAP
 
             dialog.dismiss()
 
             lifecycleScope.launch(Dispatchers.IO) {
-
-                val inventory = db.inventoryDao().getInventory(product.id)
-                val avgCost = inventory?.averageCost ?: 0.0
-                val lossAmount = qty * avgCost
-
+                val repo = com.example.easy_billing.repository.InventoryReductionRepository.get(this@InventoryActivity)
                 try {
-
-                    InventoryManager.reduceStock(
-                        db = db,
+                    val success = repo.reduceStockByReason(
                         productId = product.id,
+                        productName = product.name,
+                        hsnCode = product.hsnCode,
                         quantity = qty,
-                        type = type
+                        reason = reason,
+                        purchaseTaxCgst = product.cgstPercentage,
+                        purchaseTaxSgst = product.sgstPercentage,
+                        purchaseTaxIgst = product.igstPercentage
                     )
 
-                    if (type == "LOSS") {
-                        db.lossDao().insert(
-                            LossEntry(
-                                productId = product.id,
-                                amount = lossAmount,
-                                reason = "Damaged/Expired",
-                                date = System.currentTimeMillis().toString()
-                            )
-                        )
+                    if (success) {
+                        withContext(Dispatchers.Main) {
+                            loadInventory()
+                            Toast.makeText(this@InventoryActivity, "Stock reduced", Toast.LENGTH_SHORT).show()
+                        }
+                        SyncManager(this@InventoryActivity).syncInventory()
                     }
-
-                    withContext(Dispatchers.Main) {
-                        loadInventory()
-                        Toast.makeText(this@InventoryActivity, "Stock updated", Toast.LENGTH_SHORT).show()
-                    }
-
-                    SyncManager(this@InventoryActivity).syncInventory()
-
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@InventoryActivity, "Error", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@InventoryActivity, e.message ?: "Error", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -375,15 +276,15 @@ class InventoryActivity : BaseActivity() {
         dialog.show()
     }
 
+    private fun formatStock(value: Double): String =
+        if (value % 1.0 == 0.0) value.toInt().toString() else "%.2f".format(value)
+
     // ================= CLEAR STOCK =================
 
     private fun showClearStockDialog(productId: Int) {
 
         val view = layoutInflater.inflate(R.layout.dialog_clear_stock, null)
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(view)
-            .create()
+        val dialog = AlertDialog.Builder(this).setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         val btnCancel = view.findViewById<Button>(R.id.btnCancel)
@@ -392,24 +293,19 @@ class InventoryActivity : BaseActivity() {
         val rbScrap   = view.findViewById<RadioButton>(R.id.rbScrap)
         val tvStock   = view.findViewById<TextView>(R.id.tvCurrentStock)
 
-        // Show "Quantity = full remaining stock" up-front. Quantity
-        // is *not* user-editable per current spec.
         lifecycleScope.launch(Dispatchers.IO) {
             val current = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
-            withContext(Dispatchers.Main) { tvStock.text = "Remaining: $current" }
+            withContext(Dispatchers.Main) { tvStock.text = "Remaining: ${formatStock(current)}" }
         }
 
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnClear.setOnClickListener {
-
             val reason = when {
                 rbReturn.isChecked ->
-                    com.example.easy_billing.repository.InventoryReductionRepository
-                        .ClearReason.PURCHASE_RETURN
+                    com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.PURCHASE_RETURN
                 rbScrap.isChecked  ->
-                    com.example.easy_billing.repository.InventoryReductionRepository
-                        .ClearReason.SCRAP
+                    com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.SCRAP
                 else -> {
                     Toast.makeText(this, "Select reason", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
@@ -421,8 +317,7 @@ class InventoryActivity : BaseActivity() {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     val product = db.productDao().getById(productId) ?: return@launch
-                    val repo = com.example.easy_billing.repository
-                        .InventoryReductionRepository.get(this@InventoryActivity)
+                    val repo = com.example.easy_billing.repository.InventoryReductionRepository.get(this@InventoryActivity)
                     val result = repo.clearRemainingStock(
                         productId   = productId,
                         productName = product.name,
@@ -436,14 +331,12 @@ class InventoryActivity : BaseActivity() {
                     withContext(Dispatchers.Main) {
                         loadInventory()
                         val msg = when (result) {
-                            is com.example.easy_billing.repository
-                                .InventoryReductionRepository.ClearStockResult.Cleared ->
-                                "Cleared ${result.quantity} units"
+                            is com.example.easy_billing.repository.InventoryReductionRepository.ClearStockResult.Cleared ->
+                                "Cleared ${formatStock(result.quantity)} units"
                             else -> "No stock to clear"
                         }
                         Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                     }
-
                     SyncManager(this@InventoryActivity).syncInventory()
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {

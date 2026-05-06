@@ -8,20 +8,24 @@ import androidx.room.PrimaryKey
 /**
  * Stock written off as scrap / damage (`scrap_table`).
  *
- * Same shape as [PurchaseReturn] (purchase-side tax) so both can
- * feed the same accounting / reporting pipelines.
+ * Same fields as [PurchaseReturn] (per spec) so both feed identical
+ * accounting / reporting pipelines on the backend.
  */
 @Entity(
     tableName = "scrap_table",
     indices = [
         Index(value = ["productId"]),
-        Index(value = ["hsnCode"])
+        Index(value = ["hsnCode"]),
+        Index(value = ["shop_id"])
     ]
 )
 data class ScrapEntry(
 
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
+    @ColumnInfo(name = "shop_id")
+    val shopId: String = "",
 
     val productId: Int? = null,
     val productName: String,
@@ -38,6 +42,7 @@ data class ScrapEntry(
     @ColumnInfo(name = "sgst_amount")     val sgstAmount: Double = 0.0,
     @ColumnInfo(name = "igst_amount")     val igstAmount: Double = 0.0,
 
+    val state: String = "",
     val reason: String = "Scrap",
 
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),

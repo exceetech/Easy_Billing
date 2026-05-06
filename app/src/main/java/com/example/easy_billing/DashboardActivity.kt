@@ -290,18 +290,9 @@ class DashboardActivity : BaseActivity() {
                 syncManager.pullAccountsFromServer()
 
                 // ================= STEP 4: INVENTORY =================
-                val isInventoryEmpty = db.inventoryDao().getAll().isEmpty()
-
-                if (isInventoryEmpty) {
-
-                    println("🆕 Fresh install → pulling inventory")
-                    syncManager.pullInventory()
-
-                } else {
-
-                    println("🔄 Existing user → syncing logs")
-                    syncManager.syncInventory()
-                }
+                println("🔄 Syncing inventory (push logs -> pull master)")
+                syncManager.syncInventory()
+                syncManager.pullInventory()
 
                 // ================= STEP 5: BILLS =================
                 syncManager.syncBills()

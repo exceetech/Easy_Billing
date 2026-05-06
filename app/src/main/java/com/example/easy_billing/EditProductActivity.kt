@@ -153,9 +153,12 @@ class EditProductActivity : BaseActivity() {
         // Strict toggle: cannot turn OFF if stock exists.
         switchTrack.setOnCheckedChangeListener { _, isChecked ->
             val product = viewModel.product.value ?: return@setOnCheckedChangeListener
+            
+            var actualState = isChecked
             if (product.trackInventory && !isChecked && currentStock > 0) {
                 switchTrack.setOnCheckedChangeListener(null)
                 switchTrack.isChecked = true
+                actualState = true
                 wireToggleListener()
                 Toast.makeText(
                     this,
@@ -163,16 +166,19 @@ class EditProductActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            tilStock.visibility = if (isChecked) View.VISIBLE else View.GONE
+            tilStock.visibility = if (actualState) View.VISIBLE else View.GONE
         }
     }
 
     private fun wireToggleListener() {
         switchTrack.setOnCheckedChangeListener { _, isChecked ->
             val product = viewModel.product.value ?: return@setOnCheckedChangeListener
+            
+            var actualState = isChecked
             if (product.trackInventory && !isChecked && currentStock > 0) {
                 switchTrack.setOnCheckedChangeListener(null)
                 switchTrack.isChecked = true
+                actualState = true
                 wireToggleListener()
                 Toast.makeText(
                     this,
@@ -180,7 +186,7 @@ class EditProductActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            tilStock.visibility = if (isChecked) View.VISIBLE else View.GONE
+            tilStock.visibility = if (actualState) View.VISIBLE else View.GONE
         }
     }
 

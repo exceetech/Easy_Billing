@@ -285,6 +285,7 @@ class SyncManager(private val context: Context) {
             val serverProductId = r.productId?.let { productDao.getById(it)?.serverId }
             PurchaseReturnDto(
                 local_id          = r.id,
+                shop_id           = r.shopId,
                 shop_product_id   = serverProductId,
                 product_name      = r.productName,
                 hsn_code          = r.hsnCode,
@@ -297,6 +298,7 @@ class SyncManager(private val context: Context) {
                 cgst_amount       = r.cgstAmount,
                 sgst_amount       = r.sgstAmount,
                 igst_amount       = r.igstAmount,
+                state             = r.state,
                 supplier_gstin    = r.supplierGstin,
                 supplier_name     = r.supplierName,
                 created_at        = r.createdAt
@@ -325,6 +327,7 @@ class SyncManager(private val context: Context) {
             val serverProductId = s.productId?.let { productDao.getById(it)?.serverId }
             ScrapDto(
                 local_id        = s.id,
+                shop_id         = s.shopId,
                 shop_product_id = serverProductId,
                 product_name    = s.productName,
                 hsn_code        = s.hsnCode,
@@ -337,6 +340,7 @@ class SyncManager(private val context: Context) {
                 cgst_amount     = s.cgstAmount,
                 sgst_amount     = s.sgstAmount,
                 igst_amount     = s.igstAmount,
+                state           = s.state,
                 reason          = s.reason,
                 created_at      = s.createdAt
             )
@@ -648,11 +652,18 @@ class SyncManager(private val context: Context) {
             )
 
             if (response.isSuccessful) {
-
                 db.inventoryLogDao().markAsSynced(syncedLogIds)
 
-                println("✅ Inventory synced: ${syncedLogIds.size}")
+                // Update isSynced status for Inventory rows
+                val affectedPids = logs.map { it.productId }.distinct()
+                for (pid in affectedPids) {
+                    if (db.inventoryLogDao().getUnsyncedCountForProduct(pid) == 0) {
+                        val inv = db.inventoryDao().getInventory(pid)
+                        if (inv != null) db.inventoryDao().update(inv.copy(isSynced = true))
+                    }
+                }
 
+                println("✅ Inventory synced: ${syncedLogIds.size}")
             } else {
 
                 println("❌ Sync failed: ${response.code()}")
@@ -706,25 +717,21 @@ class SyncManager(private val context: Context) {
                     val existing = inventoryDao.getInventory(product.id)
 
                     if (existing != null) {
-
-                        // 🔥 SAFE MERGE (VERY IMPORTANT)
-                        val finalStock = if (existing.isSynced) {
-                            item.stock
-                        } else {
-                            maxOf(existing.currentStock, item.stock)
+                        // 🔥 PROTECT LOCAL CHANGES
+                        if (!existing.isSynced) {
+                            println("⏳ Skipping pull for productId=${product.id} → local has unsynced changes")
+                            continue
                         }
 
                         inventoryDao.update(
                             existing.copy(
-                                currentStock = finalStock,
+                                currentStock = item.stock,
                                 averageCost = item.avg_cost,
                                 isActive = item.is_active,
                                 isSynced = true
                             )
                         )
-
                         println("✅ Updated inventory for productId=${product.id}")
-
                     } else {
 
                         inventoryDao.insert(

@@ -21,19 +21,21 @@ object InventoryManager {
 
         val inventoryDao = db.inventoryDao()
         val transactionDao = db.inventoryTransactionDao()
+        val productDao = db.productDao()
+
+        val product = productDao.getById(productId)
+        val isPurchased = product?.isPurchased ?: true // default to true to be safe
 
         val existing = inventoryDao.getInventory(productId)
 
         if (existing == null) {
 
-            // 🔥 FIRST STOCK ENTRY — costPrice may be 0 for manual
-            //   products that have no purchase history yet. The
-            //   averageCost simply mirrors whatever was passed in.
+            // 🔥 FIRST STOCK ENTRY
             inventoryDao.insert(
                 Inventory(
                     productId = productId,
                     currentStock = quantity,
-                    averageCost = costPrice,
+                    averageCost = if (isPurchased) costPrice else 0.0,
                     isActive = true,
                     isSynced = false
                 )
@@ -46,12 +48,15 @@ object InventoryManager {
 
             val newStock = oldStock + quantity
 
-            // Skip the weighted-average recompute when the new
-            // batch has no cost (manual add-stock from EditProduct).
-            // This preserves whatever the existing average was so
-            // future purchase-driven adds blend correctly.
-            val newAvg = if (costPrice <= 0.0) oldAvg
-                else ((oldStock * oldAvg) + (quantity * costPrice)) / newStock
+            // Logic:
+            // 1. If not purchased -> avg cost is ALWAYS 0.
+            // 2. If purchased and new cost <= 0 -> preserve old avg.
+            // 3. If purchased and new cost > 0 -> recompute weighted average.
+            val newAvg = when {
+                !isPurchased -> 0.0
+                costPrice <= 0.0 -> oldAvg
+                else -> ((oldStock * oldAvg) + (quantity * costPrice)) / newStock
+            }
 
             inventoryDao.update(
                 existing.copy(
@@ -113,6 +118,7 @@ object InventoryManager {
         inventoryDao.update(
             inventory.copy(
                 currentStock = newStock,
+                averageCost = if (newStock <= 0.0) 0.0 else inventory.averageCost,
                 isActive = true,
                 isSynced = false
             )
@@ -164,6 +170,7 @@ object InventoryManager {
         inventoryDao.update(
             inventory.copy(
                 currentStock = 0.0,
+                averageCost = 0.0,
                 isActive = true,
                 isSynced = false
             )

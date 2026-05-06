@@ -108,7 +108,7 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                         db = db,
                         productId = current.id,
                         quantity = addStockQuantity,
-                        costPrice = if (current.price > 0) current.price else 1.0
+                        costPrice = 0.0
                     )
                 }
 

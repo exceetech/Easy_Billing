@@ -107,7 +107,7 @@
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
-                    <!-- Sort button with real icon -->
+                    <!-- Sort button — premium vector icon. -->
                     <LinearLayout
                         android:id="@+id/btnSortContainer"
                         android:layout_width="44dp"
@@ -119,12 +119,12 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🔀"
-                            android:textSize="20sp"
-                            android:gravity="center"/>
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_sort_premium"
+                            app:tint="#0F172A"/>
                     </LinearLayout>
 
                     <!-- Cart: neon green pill with floating badge -->
