@@ -28,4 +28,21 @@ object CurrencyHelper {
 
         return "$symbol$formatted"
     }
+
+    /**
+     * Same locale-aware formatting as [format] but *without* the
+     * currency symbol. Used in tabular layouts (e.g. the invoice
+     * line-item list) where the column header already declares
+     * the unit (e.g. "TOTAL (₹)") and repeating the symbol on
+     * every cell wastes horizontal space.
+     */
+    fun formatNoSymbol(context: Context, amount: Double): String {
+        val symbol = getCurrencySymbol(context)
+        val formatter = if (symbol == "₹") {
+            NumberFormat.getNumberInstance(Locale("en", "IN"))
+        } else {
+            NumberFormat.getNumberInstance(Locale.US)
+        }
+        return formatter.format(amount)
+    }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Pill for the GST scheme tag inside the editorial header.
+    Soft cream background + gold border — matches the
+    "INVOICE" tracked label aesthetic without being loud.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="999dp"/>
+    <solid android:color="#FFFFFF"/>
+    <stroke android:width="1dp" android:color="#E5DBC4"/>
+</shape>

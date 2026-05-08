@@ -250,6 +250,7 @@ class InventoryActivity : BaseActivity() {
                     val success = repo.reduceStockByReason(
                         productId = product.id,
                         productName = product.name,
+                        variantName = product.variant,
                         hsnCode = product.hsnCode,
                         quantity = qty,
                         reason = reason,
@@ -321,6 +322,7 @@ class InventoryActivity : BaseActivity() {
                     val result = repo.clearRemainingStock(
                         productId   = productId,
                         productName = product.name,
+                        variantName = product.variant,
                         hsnCode     = product.hsnCode,
                         reason      = reason,
                         purchaseTaxCgst = product.cgstPercentage,

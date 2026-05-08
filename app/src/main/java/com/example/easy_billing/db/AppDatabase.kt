@@ -31,13 +31,17 @@ import com.example.easy_billing.DefaultProductDao
         GstSalesRecord::class,
         GstPurchaseRecord::class,
 
+        // GST-aware billing (v18) — see [GstSalesInvoice]
+        GstSalesInvoice::class,
+        GstSalesInvoiceItem::class,
+
         // Purchase / inventory ops (v13)
         Purchase::class,
         PurchaseItem::class,
         PurchaseReturn::class,
         ScrapEntry::class
     ],
-    version = 16
+    version = 18
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -74,6 +78,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun purchaseItemDao(): PurchaseItemDao
     abstract fun purchaseReturnDao(): PurchaseReturnDao
     abstract fun scrapDao(): ScrapDao
+
+    // GST-aware billing (v18)
+    abstract fun gstSalesInvoiceDao(): GstSalesInvoiceDao
+    abstract fun gstSalesInvoiceItemDao(): GstSalesInvoiceItemDao
 
     companion object {
 
@@ -455,6 +463,85 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `variantName` TEXT")
+                db.execSQL("ALTER TABLE `scrap_table` ADD COLUMN `variantName` TEXT")
+            }
+        }
+
+        /**
+         * v17 → v18
+         *
+         * Introduces the GST-aware billing structure:
+         *   • `gst_sales_invoice_table` — invoice header with B2B/B2C
+         *     metadata, scheme, and pre-rounded GST totals.
+         *   • `gst_sales_items_table`   — per-line breakdown linked to
+         *     the parent invoice via `gst_invoice_id`.
+         *
+         * Both tables sit alongside the legacy `bills` / `bill_items`
+         * pair instead of replacing them — bill-history, reports and
+         * inventory deduction continue to work unchanged.
+         */
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `gst_sales_invoice_table` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `bill_id` INTEGER NOT NULL,
+                        `shop_id` TEXT NOT NULL DEFAULT '',
+                        `invoice_type` TEXT NOT NULL DEFAULT 'B2C',
+                        `gst_scheme` TEXT NOT NULL DEFAULT '',
+                        `customer_name` TEXT,
+                        `business_name` TEXT,
+                        `customer_phone` TEXT,
+                        `customer_gst` TEXT,
+                        `customer_state` TEXT,
+                        `subtotal` REAL NOT NULL DEFAULT 0.0,
+                        `total_cgst` REAL NOT NULL DEFAULT 0.0,
+                        `total_sgst` REAL NOT NULL DEFAULT 0.0,
+                        `total_igst` REAL NOT NULL DEFAULT 0.0,
+                        `total_tax` REAL NOT NULL DEFAULT 0.0,
+                        `grand_total` REAL NOT NULL DEFAULT 0.0,
+                        `created_at` INTEGER NOT NULL,
+                        `sync_status` TEXT NOT NULL DEFAULT 'pending',
+                        `server_id` INTEGER
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_invoice_table_bill_id` ON `gst_sales_invoice_table`(`bill_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_invoice_table_shop_id` ON `gst_sales_invoice_table`(`shop_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_invoice_table_sync_status` ON `gst_sales_invoice_table`(`sync_status`)")
+
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `gst_sales_items_table` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `gst_invoice_id` INTEGER NOT NULL,
+                        `product_id` INTEGER NOT NULL,
+                        `product_name` TEXT NOT NULL,
+                        `variant_name` TEXT,
+                        `hsn_code` TEXT NOT NULL DEFAULT '',
+                        `quantity` REAL NOT NULL,
+                        `selling_price` REAL NOT NULL,
+                        `taxable_amount` REAL NOT NULL,
+                        `sales_cgst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `sales_sgst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `sales_igst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `cgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `igst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `net_value` REAL NOT NULL DEFAULT 0.0
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_gst_invoice_id` ON `gst_sales_items_table`(`gst_invoice_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_product_id` ON `gst_sales_items_table`(`product_id`)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -468,7 +555,9 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_12_13,
                         MIGRATION_13_14,
                         MIGRATION_14_15,
-                        MIGRATION_15_16
+                        MIGRATION_15_16,
+                        MIGRATION_16_17,
+                        MIGRATION_17_18
                     )
                     .fallbackToDestructiveMigration()
                     .build()

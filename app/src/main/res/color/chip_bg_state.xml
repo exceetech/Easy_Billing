@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Chip background — used by the InvoiceActivity B2B / B2C chip
+    selector. Matches the editorial cream/gold palette used by
+    the dashboard header. Selected → gold; unselected → white
+    with a soft warm border (drawn by the chip's own stroke).
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true"  android:color="#D4A574"/>
+    <item                                android:color="#FFFFFF"/>
+</selector>

@@ -31,6 +31,7 @@ data class PurchaseReturn(
 
     val productId: Int? = null,
     val productName: String,
+    val variantName: String? = null,
     val hsnCode: String? = null,
 
     val quantityReturned: Double,

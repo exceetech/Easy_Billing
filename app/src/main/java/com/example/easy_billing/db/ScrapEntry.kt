@@ -29,6 +29,7 @@ data class ScrapEntry(
 
     val productId: Int? = null,
     val productName: String,
+    val variantName: String? = null,
     val hsnCode: String? = null,
 
     val quantity: Double,

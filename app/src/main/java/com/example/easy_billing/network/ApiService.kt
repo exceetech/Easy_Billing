@@ -491,6 +491,26 @@ interface ApiService {
     ): Gstr2Response
 
 
+    /* ================= GST-aware sales invoice batch sync =================
+     *
+     * Accepts a batch of GST sales invoices (header + items) created
+     * offline and persists them on the backend. Idempotent on
+     * `local_id` so retries are safe.
+     */
+    @POST("gst-sales/sync")
+    suspend fun syncGstSalesInvoices(
+        @Header("Authorization") token: String,
+        @Body body: GstSalesSyncBatchRequest
+    ): GstSalesSyncBatchResponse
+
+    /** History fetch for a given shop. */
+    @GET("gst-sales/{shop_id}")
+    suspend fun getGstSalesInvoices(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<GstSalesInvoiceResponse>
+
+
     @GET("global-catalog/products/{product_id}/variants")
     suspend fun getVariants(
         @Header("Authorization") token: String,

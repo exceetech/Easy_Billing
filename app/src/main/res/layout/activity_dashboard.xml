@@ -65,7 +65,9 @@
                         android:layout_height="wrap_content"
                         android:text="☰"
                         android:textSize="22sp"
-                        android:gravity="center"/>
+                        android:textStyle="bold"
+                        android:textColor="#0F172A"
+                        android:contentDescription="@null"/>
                 </LinearLayout>
 
                 <!-- Center: Welcome greeting -->
@@ -119,12 +121,12 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless">
 
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_sort_premium"
-                            app:tint="#0F172A"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔀"
+                            android:textSize="22sp"
+                            android:contentDescription="@null"/>
                     </LinearLayout>
 
                     <!-- Cart: neon green pill with floating badge -->
@@ -140,7 +142,7 @@
                             android:layout_height="44dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_header_cart_btn"
+                            android:background="@drawable/bg_header_action_btn"
                             android:paddingStart="14dp"
                             android:paddingEnd="16dp"
                             android:clickable="true"
@@ -151,16 +153,18 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🛒"
-                                android:textSize="18sp"/>
+                                android:textSize="22sp"
+                                android:contentDescription="@null"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Cart"
-                                android:textColor="#04221A"
+                                android:textColor="#18181B"
                                 android:textSize="13sp"
                                 android:textStyle="bold"
-                                android:layout_marginStart="8dp"/>
+                                android:layout_marginStart="8dp"
+                                android:letterSpacing="0.02"/>
                         </LinearLayout>
 
                         <!-- Floating badge — fully visible, no clipping -->
@@ -280,11 +284,11 @@
                     android:gravity="center_vertical"
                     android:paddingHorizontal="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="✨"
-                        android:textSize="12sp"/>
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_premium_ai_insights"
+                        android:contentDescription="@null"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -469,11 +473,11 @@
 
                     <!-- Icon -->
                     <TextView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="🌐"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <!-- Label -->
                     <TextView
@@ -517,11 +521,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="📦"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -546,11 +550,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="🛒"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -587,11 +591,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="🗄️"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -616,11 +620,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="💰"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -645,11 +649,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="🧾"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -674,11 +678,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="💳"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -703,11 +707,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
-                        android:text="📊"
-                        android:textSize="22sp"/>
+                        android:text="📑"
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -732,11 +736,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
-                        android:text="📅"
-                        android:textSize="22sp"/>
+                        android:text="📊"
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -761,11 +765,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
-                        android:text="✨"
-                        android:textSize="22sp"/>
+                        android:text="🤖"
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -802,11 +806,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="👤"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -831,11 +835,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="⚙️"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -860,11 +864,11 @@
                     android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="💎"
-                        android:textSize="22sp"/>
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -895,11 +899,11 @@
                     android:paddingHorizontal="12dp">
 
                     <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:text="🚪"
-                        android:textSize="22sp" />
+                        android:textSize="26sp" />
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -81,6 +81,7 @@ class InventoryReductionRepository private constructor(
     suspend fun reduceStockByReason(
         productId: Int,
         productName: String,
+        variantName: String?,
         hsnCode: String?,
         quantity: Double,
         reason: ClearReason,
@@ -97,20 +98,7 @@ class InventoryReductionRepository private constructor(
 
         val avgCost = inventory.averageCost
         val invoiceValue = quantity * avgCost
-
-        val totalTaxAmount = when {
-            purchaseTaxIgst > 0 -> {
-                invoiceValue * purchaseTaxIgst / (100 + purchaseTaxIgst)
-            }
-
-            else -> {
-                invoiceValue *
-                        (purchaseTaxCgst + purchaseTaxSgst) /
-                        (100 + purchaseTaxCgst + purchaseTaxSgst)
-            }
-        }
-
-        val taxableAmount = invoiceValue - totalTaxAmount
+        val taxableAmount = invoiceValue
         val cgstAmt = taxableAmount * purchaseTaxCgst / 100.0
         val sgstAmt = taxableAmount * purchaseTaxSgst / 100.0
         val igstAmt = taxableAmount * purchaseTaxIgst / 100.0
@@ -120,6 +108,7 @@ class InventoryReductionRepository private constructor(
                 PurchaseReturn(
                     productId        = productId,
                     productName      = productName,
+                    variantName      = variantName,
                     hsnCode          = hsnCode,
                     quantityReturned = quantity,
                     taxableAmount    = taxableAmount,
@@ -136,6 +125,7 @@ class InventoryReductionRepository private constructor(
                 ScrapEntry(
                     productId      = productId,
                     productName    = productName,
+                    variantName    = variantName,
                     hsnCode        = hsnCode,
                     quantity       = quantity,
                     taxableAmount  = taxableAmount,
@@ -167,6 +157,7 @@ class InventoryReductionRepository private constructor(
     suspend fun clearRemainingStock(
         productId: Int,
         productName: String,
+        variantName: String?,
         hsnCode: String?,
         reason: ClearReason,
         purchaseTaxCgst: Double = 0.0,
@@ -184,20 +175,7 @@ class InventoryReductionRepository private constructor(
 
         val avgCost = inventory.averageCost
         val invoiceValue = qty * avgCost
-
-        val totalTaxAmount = when {
-            purchaseTaxIgst > 0 -> {
-                invoiceValue * purchaseTaxIgst / (100 + purchaseTaxIgst)
-            }
-
-            else -> {
-                invoiceValue *
-                        (purchaseTaxCgst + purchaseTaxSgst) /
-                        (100 + purchaseTaxCgst + purchaseTaxSgst)
-            }
-        }
-
-        val taxableAmount = invoiceValue - totalTaxAmount
+        val taxableAmount = invoiceValue
         val cgstAmt = taxableAmount * purchaseTaxCgst / 100.0
         val sgstAmt = taxableAmount * purchaseTaxSgst / 100.0
         val igstAmt = taxableAmount * purchaseTaxIgst / 100.0
@@ -207,6 +185,7 @@ class InventoryReductionRepository private constructor(
                 PurchaseReturn(
                     productId        = productId,
                     productName      = productName,
+                    variantName      = variantName,
                     hsnCode          = hsnCode,
                     quantityReturned = qty,
                     taxableAmount    = taxableAmount,
@@ -225,6 +204,7 @@ class InventoryReductionRepository private constructor(
                 ScrapEntry(
                     productId      = productId,
                     productName    = productName,
+                    variantName    = variantName,
                     hsnCode        = hsnCode,
                     quantity       = qty,
                     taxableAmount  = taxableAmount,

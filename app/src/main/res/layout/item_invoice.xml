@@ -1,59 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Per-line row in the GST-aware invoice listing.
+
+    Columns (left → right):
+      1. Name      — 1.70x weight, single line, ellipsised
+      2. Qty       — 0.75x
+      3. Rate      — 0.85x  (price per unit)
+      4. CGST (₹)  — 0.95x  amount in rupees + (pct%) — intra only
+      5. SGST (₹)  — 0.95x  amount in rupees + (pct%) — intra only
+      6. IGST (₹)  — 0.95x  amount in rupees + (pct%) — inter only
+      7. Subtotal  — 0.90x  price × qty, BEFORE GST
+      8. Total     — 1.00x  subtotal + CGST + SGST + IGST
+
+    The header row in activity_invoice.xml MUST mirror these
+    weights or the cells won't line up under their labels.
+
+    Per spec, the rupee symbol lives in the header (e.g. "CGST (₹)")
+    and is *not* repeated on each cell — that lets the cell show
+    just "6 (6%)" instead of "₹6 (6%)" so it stays readable in
+    narrow column real estate.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:padding="10dp"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="4dp"
+    android:gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <!-- NAME -->
     <TextView
         android:id="@+id/tvName"
-        android:layout_weight="2.5"
+        android:layout_weight="1.70"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-
         android:text="Milk (500ml)"
         android:maxLines="1"
         android:ellipsize="end"
-
         android:textStyle="bold"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textColor="#111827"/>
 
     <!-- QTY -->
     <TextView
         android:id="@+id/tvQty"
-        android:layout_weight="1"
+        android:layout_weight="0.75"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-
         android:gravity="center"
         android:text="2 kg"
-        android:textSize="13sp"
+        android:textSize="12sp"
         android:textColor="#6B7280"/>
 
-    <!-- RATE -->
+    <!-- RATE — number per unit, no rupee prefix (header carries "(₹)") -->
     <TextView
         android:id="@+id/tvRate"
-        android:layout_weight="1"
+        android:layout_weight="0.85"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-
         android:gravity="center"
-        android:text="₹10/kg"
-        android:textSize="13sp"
+        android:text="10/kg"
+        android:textSize="12sp"
         android:textColor="#6B7280"/>
 
-    <!-- TOTAL -->
+    <!-- CGST — amount (pct%) -->
     <TextView
-        android:id="@+id/tvPrice"
-        android:layout_weight="1"
+        android:id="@+id/tvCgst"
+        android:layout_weight="0.95"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-
-        android:gravity="end"
-        android:text="₹20"
+        android:gravity="center"
+        android:text="—"
+        android:textSize="11sp"
         android:textStyle="bold"
-        android:textSize="14sp"
+        android:textColor="#0E7490"/>
+
+    <!-- SGST — amount (pct%) -->
+    <TextView
+        android:id="@+id/tvSgst"
+        android:layout_weight="0.95"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="—"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#0E7490"/>
+
+    <!-- IGST — amount (pct%) -->
+    <TextView
+        android:id="@+id/tvIgst"
+        android:layout_weight="0.95"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="—"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#7C3AED"/>
+
+    <!-- SUBTOTAL — price × quantity, BEFORE GST. No rupee prefix
+         here (header carries "(₹)"). -->
+    <TextView
+        android:id="@+id/tvSubtotal"
+        android:layout_weight="0.90"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="0"
+        android:textSize="12sp"
+        android:textColor="#475569"/>
+
+    <!-- TOTAL — subtotal + GST (final line amount). No rupee
+         prefix here (header carries "(₹)"). -->
+    <TextView
+        android:id="@+id/tvPrice"
+        android:layout_weight="1.00"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="0"
+        android:textStyle="bold"
+        android:textSize="13sp"
         android:textColor="#111827"/>
 </LinearLayout>

@@ -98,7 +98,7 @@ android:padding="18dp">
         app:cornerRadius="14dp"
         app:backgroundTint="#22C55E"
 
-        app:icon="@drawable/ic_cart"
+        app:icon="@drawable/ic_premium_cart_new"
         app:iconGravity="textStart"
         app:iconPadding="12dp"
         app:iconTint="@android:color/white"/>

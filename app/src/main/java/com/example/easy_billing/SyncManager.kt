@@ -18,6 +18,9 @@ import com.example.easy_billing.network.GstSalesSyncRequest
 import com.example.easy_billing.network.GstPurchaseSyncRequest
 import com.example.easy_billing.network.GstSaleRecordDto
 import com.example.easy_billing.network.GstPurchaseRecordDto
+import com.example.easy_billing.network.CreateGstSalesInvoiceDto
+import com.example.easy_billing.network.CreateGstSalesItemDto
+import com.example.easy_billing.network.GstSalesSyncBatchRequest
 import com.example.easy_billing.network.AddProductRequest
 import com.example.easy_billing.network.GlobalProductRegisterRequest
 import com.example.easy_billing.network.PurchaseDto
@@ -48,6 +51,7 @@ class SyncManager(private val context: Context) {
         syncGstProfile()
         syncGstSales()
         syncGstPurchases()
+        syncGstInvoices()        // 🆕 push GST-aware invoice batch
         syncStoreInfo()          // pull latest
         syncBillingSettings()    // pull settings
     }
@@ -288,6 +292,7 @@ class SyncManager(private val context: Context) {
                 shop_id           = r.shopId,
                 shop_product_id   = serverProductId,
                 product_name      = r.productName,
+                variant_name      = r.variantName,
                 hsn_code          = r.hsnCode,
                 quantity_returned = r.quantityReturned,
                 taxable_amount    = r.taxableAmount,
@@ -330,6 +335,7 @@ class SyncManager(private val context: Context) {
                 shop_id         = s.shopId,
                 shop_product_id = serverProductId,
                 product_name    = s.productName,
+                variant_name    = s.variantName,
                 hsn_code        = s.hsnCode,
                 quantity        = s.quantity,
                 taxable_amount  = s.taxableAmount,
@@ -914,6 +920,98 @@ class SyncManager(private val context: Context) {
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncGstPurchases: POST /gst/purchases/sync FAILED", e)
             db.gstPurchaseRecordDao().markFailed(unsynced.map { it.id })
+        }
+    }
+
+    /**
+     * Push every pending row from `gst_sales_invoice_table` (with
+     * its child items) to the backend in a single batch. Mirrors
+     * the shape used by [syncPurchases]:
+     *
+     *   • Server returns a `local_id → server_id` map; rows are
+     *     marked synced + their `server_id` populated.
+     *   • A 2xx with no map still flips the rows to `synced` so we
+     *     don't loop forever — the server has at least accepted the
+     *     payload.
+     *   • Anything else marks the rows `failed` so the next pass
+     *     retries them.
+     */
+    suspend fun syncGstInvoices() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncGstInvoices skipped — no auth token")
+                return
+            }
+
+        val pending = db.gstSalesInvoiceDao().getUnsynced()
+        Log.d(SYNC_TAG, "syncGstInvoices: ${pending.size} unsynced GST invoice(s)")
+        if (pending.isEmpty()) return
+
+        val itemDao = db.gstSalesInvoiceItemDao()
+
+        val dtoBatch = pending.map { inv ->
+            val items = itemDao.getByInvoice(inv.id).map { item ->
+                CreateGstSalesItemDto(
+                    product_id            = item.productId,
+                    product_name          = item.productName,
+                    variant_name          = item.variantName,
+                    hsn_code              = item.hsnCode,
+                    quantity              = item.quantity,
+                    selling_price         = item.sellingPrice,
+                    taxable_amount        = item.taxableAmount,
+                    sales_cgst_percentage = item.salesCgstPercentage,
+                    sales_sgst_percentage = item.salesSgstPercentage,
+                    sales_igst_percentage = item.salesIgstPercentage,
+                    cgst_amount           = item.cgstAmount,
+                    sgst_amount           = item.sgstAmount,
+                    igst_amount           = item.igstAmount,
+                    net_value             = item.netValue
+                )
+            }
+            CreateGstSalesInvoiceDto(
+                local_id       = inv.id,
+                bill_id        = inv.billId,
+                invoice_type   = inv.invoiceType,
+                gst_scheme     = inv.gstScheme,
+                customer_name  = inv.customerName,
+                business_name  = inv.businessName,
+                customer_phone = inv.customerPhone,
+                customer_gst   = inv.customerGst,
+                customer_state = inv.customerState,
+                subtotal       = inv.subtotal,
+                total_cgst     = inv.totalCgst,
+                total_sgst     = inv.totalSgst,
+                total_igst     = inv.totalIgst,
+                total_tax      = inv.totalTax,
+                grand_total    = inv.grandTotal,
+                created_at     = inv.createdAt,
+                items          = items
+            )
+        }
+
+        try {
+            Log.d(SYNC_TAG, "syncGstInvoices: POST /gst-sales/sync with ${dtoBatch.size} invoice(s)")
+            val response = api.syncGstSalesInvoices(
+                "Bearer $token",
+                GstSalesSyncBatchRequest(dtoBatch)
+            )
+            Log.d(SYNC_TAG, "syncGstInvoices: server replied success=${response.success_count}, failed=${response.failed_count}")
+
+            response.invoice_id_map.forEach { (localIdStr, serverId) ->
+                val localId = localIdStr.toIntOrNull() ?: return@forEach
+                db.gstSalesInvoiceDao().markSynced(localId, serverId)
+            }
+            // Fallback path — server didn't echo a map but accepted
+            // the payload (2xx). Flip everything to synced so we
+            // don't keep replaying the same rows forever.
+            if (response.invoice_id_map.isEmpty()) {
+                pending.forEach { db.gstSalesInvoiceDao().markSynced(it.id, null) }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncGstInvoices: POST /gst-sales/sync FAILED", e)
+            pending.forEach { db.gstSalesInvoiceDao().markFailed(it.id) }
         }
     }
 }

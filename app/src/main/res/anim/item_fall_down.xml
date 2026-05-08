@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Per-row "fall in from above" animation, attached to the items
+    RecyclerView via a LayoutAnimationController in the activity.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/decelerate_cubic"
+    android:fillBefore="true">
+
+    <translate
+        android:fromYDelta="-22"
+        android:toYDelta="0"
+        android:duration="320"/>
+
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        android:duration="320"/>
+</set>

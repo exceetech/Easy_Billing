@@ -35,6 +35,7 @@ class ClearStockViewModel(app: Application) : AndroidViewModel(app) {
                 repo.clearRemainingStock(
                     productId   = productId,
                     productName = product.name,
+                    variantName = product.variant,
                     hsnCode     = product.hsnCode,
                     reason      = reason,
                     purchaseTaxCgst = product.cgstPercentage,
