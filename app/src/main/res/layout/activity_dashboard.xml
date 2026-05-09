@@ -338,7 +338,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="LIVE"
+                            android:text="LIVE"
                         android:textColor="#FFFFFF"
                         android:textSize="9sp"
                         android:textStyle="bold"
@@ -356,96 +356,107 @@
     <!-- ================= LEFT MENU DRAWER ================= -->
     <LinearLayout
         android:id="@+id/leftDrawer"
-        android:layout_width="340dp"
+        android:layout_width="400dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#FAF8F5"
+        android:background="#FEF9F3"
         android:orientation="vertical">
 
-        <!-- ============== PREMIUM HEADER ============== -->
-        <FrameLayout
+        <!-- New Gen "Mesh Glow" Editorial Header (Navigation) -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:background="#FAF8F5"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_cart_header_mesh"
             android:paddingHorizontal="24dp"
-            android:paddingTop="32dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="36dp"
+            android:paddingBottom="28dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
+            <!-- Modern "Live Status" Cyber-Tag (Navigation Mirror) -->
+            <LinearLayout
+                android:id="@+id/containerNavStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:background="@drawable/bg_live_status_pill">
+
+                <FrameLayout
+                    android:layout_width="14dp"
+                    android:layout_height="14dp">
+                    
+                    <View
+                        android:id="@+id/viewNavRing"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_live_dot_ring"/>
+
+                    <View
+                        android:id="@+id/viewNavDot"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_live_dot_base"/>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvNavMenu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="DASHBOARD MENU"
+                    android:textColor="#34D399"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.2"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/googlesans_bold"/>
+            </LinearLayout>
+
+            <!-- Title + Status Orb -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="14dp">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_drawer_chip"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp">
-
-                    <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
-                        android:background="#00FF88" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:letterSpacing="0.10"
-                        android:text="EXPOS DASHBOARD"
-                        android:textColor="#D4A574"
-                        android:textSize="10sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Welcome Back,"
-                    android:textColor="#71717A"
-                    android:textSize="14sp"/>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                        android:text="Welcome Back,"
+                        android:textColor="#71717A"
+                        android:textSize="14sp"/>
 
                     <TextView
                         android:id="@+id/tvDrawerNameBase"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Store "
-                        android:textSize="30sp"
-                        android:textStyle="bold"
+                        android:text="Dashboard"
                         android:textColor="#18181B"
-                        android:fontFamily="serif"/>
-
-                    <TextView
-                        android:id="@+id/tvDrawerNameAccent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Owner"
                         android:textSize="30sp"
-                        android:textColor="#D4A574"
                         android:fontFamily="serif"
-                        android:textStyle="bold|italic"/>
-
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
             </LinearLayout>
+        </LinearLayout>
 
-        </FrameLayout>
-
-        <!-- Hairline separator -->
+        <!-- Premium Tapered Divider -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EBEBEB"
-            android:layout_marginHorizontal="24dp"/>
+            android:layout_height="3dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/bg_tapered_divider"/>
 
         <!-- SCROLLABLE CONTENT -->
         <ScrollView
@@ -501,10 +512,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CORE OPERATIONS"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.15"
-                    android:layout_marginBottom="12dp"
+                    android:textColor="#D4A574"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.14"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"
                     android:layout_marginStart="12dp"/>
 
                 <!-- Add/Edit Product -->
@@ -570,11 +582,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ANALYTICS &amp; REPORTS"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.15"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="12dp"
+                    android:textColor="#D4A574"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.14"
+                    android:textStyle="bold"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"
                     android:layout_marginStart="12dp"/>
 
                 <!-- Inventory -->
@@ -780,16 +793,58 @@
                         android:textSize="15sp"/>
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SYSTEM CONFIGURATION"
+                    android:textColor="#D4A574"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.14"
+                    android:textStyle="bold"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginStart="12dp"/>
+
+                <!-- Settings -->
+                <LinearLayout
+                    android:id="@+id/btnSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/sel_premium_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="⚙️"
+                        android:textSize="26sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/settings"
+                        android:textColor="#18181B"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
                 <!-- SECTION: ACCOUNT -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ACCOUNT"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.15"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="12dp"
+                    android:text="ACCOUNT &amp; PROFILE"
+                    android:textColor="#D4A574"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.14"
+                    android:textStyle="bold"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"
                     android:layout_marginStart="12dp"/>
 
                 <!-- Profile -->
@@ -821,34 +876,6 @@
                         android:textSize="15sp"/>
                 </LinearLayout>
 
-                <!-- Settings -->
-                <LinearLayout
-                    android:id="@+id/btnSettings"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:background="@drawable/sel_premium_menu_item"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="12dp"
-                    android:layout_marginBottom="4dp">
-
-                    <TextView
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:gravity="center"
-                        android:text="⚙️"
-                        android:textSize="26sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:text="@string/settings"
-                        android:textColor="#18181B"
-                        android:textSize="15sp"/>
-                </LinearLayout>
 
                 <!-- Subscription -->
                 <LinearLayout
@@ -914,7 +941,6 @@
                         android:textSize="15sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-
             </LinearLayout>
         </ScrollView>
 
@@ -923,48 +949,65 @@
     <!-- ================= RIGHT CART DRAWER ================= -->
     <LinearLayout
         android:id="@+id/cartDrawer"
-        android:layout_width="380dp"
+        android:layout_width="440dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="#FAF8F5"
+        android:background="#FEF9F3"
         android:orientation="vertical"
         android:elevation="20dp">
-
-        <!-- ══════════════════════════════════════════
-             HEADER  — Cream Butter + editorial type
-        ══════════════════════════════════════════ -->
+        <!-- New Gen "Mesh Glow" Editorial Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#FAF8F5"
+            android:background="@drawable/bg_cart_header_mesh"
             android:paddingHorizontal="24dp"
             android:paddingTop="36dp"
-            android:paddingBottom="20dp">
+            android:paddingBottom="28dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <!-- Status chip row -->
+            <!-- Premium Category Indicator — Scalancer Style -->
+            <!-- Modern "Live Status" Cyber-Tag -->
             <LinearLayout
+                android:id="@+id/containerLiveStatus"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_drawer_chip"
+                android:layout_height="32dp"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="5dp">
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:background="@drawable/bg_live_status_pill">
 
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:background="#00FF88"/>
+                <FrameLayout
+                    android:layout_width="14dp"
+                    android:layout_height="14dp">
+                    
+                    <View
+                        android:id="@+id/viewLiveRing"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_live_dot_ring"/>
+
+                    <View
+                        android:id="@+id/viewLiveDot"
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_live_dot_base"/>
+                </FrameLayout>
 
                 <TextView
+                    android:id="@+id/tvLiveOrder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:letterSpacing="0.12"
+                    android:layout_marginStart="10dp"
                     android:text="LIVE ORDER"
-                    android:textColor="#D4A574"
+                    android:textColor="#34D399"
                     android:textSize="10sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:letterSpacing="0.2"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/googlesans_bold"/>
             </LinearLayout>
 
             <!-- Title + item count badge -->
@@ -998,27 +1041,34 @@
                         android:textStyle="bold"/>
                 </LinearLayout>
 
-                <!-- Neon green circle badge -->
-                <TextView
-                    android:id="@+id/tvCartDrawerBadge"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:gravity="center"
-                    android:background="@drawable/bg_cart_badge"
-                    android:text="0"
-                    android:textColor="#04221A"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                <!-- New Gen "Glass Pill" Live Counter -->
+                <FrameLayout
+                    android:id="@+id/cartBadgeContainer"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_cart_count_green">
+
+                    <TextView
+                        android:id="@+id/tvCartDrawerBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:fontFamily="serif"
+                        android:includeFontPadding="false"/>
+                </FrameLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Hairline separator -->
+        <!-- New Gen "Tapered Glow" Divider (Claude Orange) -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EBEBEB"
-            android:layout_marginHorizontal="24dp"/>
-
+            android:layout_height="3dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/bg_tapered_divider"/>
         <!-- ══════════════════════════════════════════
              CART ITEMS  — scrollable list
         ══════════════════════════════════════════ -->
@@ -1056,62 +1106,6 @@
                 android:letterSpacing="0.14"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Subtotal row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Subtotal"
-                    android:textColor="#71717A"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/tvSubtotalCart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="₹0.00"
-                    android:textColor="#18181B"
-                    android:textSize="14sp"/>
-            </LinearLayout>
-
-            <!-- Tax row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="GST / Taxes"
-                    android:textColor="#71717A"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Included"
-                    android:textColor="#00AA55"
-                    android:textSize="13sp"/>
-            </LinearLayout>
-
-            <!-- Full-width divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0F0F0"
-                android:layout_marginBottom="16dp"/>
-
             <!-- Total row -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -1131,14 +1125,7 @@
                         android:layout_height="wrap_content"
                         android:text="Total"
                         android:textColor="#71717A"
-                        android:textSize="13sp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Incl. all taxes"
-                        android:textColor="#A1A1AA"
-                        android:textSize="11sp"/>
+                        android:textSize="14sp"/>
                 </LinearLayout>
 
                 <TextView
@@ -1153,19 +1140,50 @@
             </LinearLayout>
 
             <!-- Generate Bill CTA -->
-            <com.google.android.material.button.MaterialButton
+            <!-- High-End "New Gen" Floating Button -->
+            <FrameLayout
                 android:id="@+id/btnGenerateBill"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:text="Generate Bill"
-                android:textColor="#04221A"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.02"
+                android:layout_height="64dp"
                 android:background="@drawable/bg_premium_btn"
-                app:backgroundTint="@null"
-                app:cornerRadius="18dp"
-                android:stateListAnimator="@null"/>
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="12dp"
+                android:clipChildren="false"
+                android:stateListAnimator="@animator/button_press_anim"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GENERATE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:letterSpacing="0.18"
+                        android:alpha="0.85"
+                        android:textAllCaps="true"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="BILL"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.04"
+                        android:textAllCaps="true"/>
+                </LinearLayout>
+
+            </FrameLayout>
 
         </LinearLayout>
 

@@ -88,7 +88,7 @@ android:padding="18dp">
         android:layout_width="match_parent"
         android:layout_height="56dp"
 
-        android:text="Add to Cart"
+        android:text="🛒  Add to Cart"
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="@android:color/white"
@@ -98,7 +98,7 @@ android:padding="18dp">
         app:cornerRadius="14dp"
         app:backgroundTint="#22C55E"
 
-        app:icon="@drawable/ic_premium_cart_new"
+        app:icon="@null"
         app:iconGravity="textStart"
         app:iconPadding="12dp"
         app:iconTint="@android:color/white"/>

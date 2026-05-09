@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Vertical gold rail beside the lot number. Sits between the
+    "01/02/03" column and the item info, signalling that the
+    row is an entry in the editorial catalogue.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:startColor="#E5C58E"
+        android:centerColor="#D4A574"
+        android:endColor="#B6864A"
+        android:angle="270"/>
+    <corners android:radius="999dp"/>
+</shape>

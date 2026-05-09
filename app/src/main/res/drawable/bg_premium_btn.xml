@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#26FFFFFF"> <!-- softer ripple -->
+    android:color="#4DFFFFFF">
 
-    <!-- MASK (must match exact radius) -->
+    <!-- MASK -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <corners android:radius="30dp"/>
+            <corners android:radius="20dp"/>
             <solid android:color="#FFFFFF"/>
         </shape>
     </item>
@@ -13,30 +13,50 @@
     <!-- CONTENT -->
     <item>
         <layer-list>
-
-            <!-- 🔥 BASE GRADIENT -->
-            <item>
+            <!-- 1. DEEP OUTER SHADOW (simulated via offset shape) -->
+            <item android:top="2dp">
                 <shape android:shape="rectangle">
-                    <corners android:radius="30dp"/>
-                    <gradient
-                        android:startColor="#00FF88"
-                        android:endColor="#00C853"
-                        android:angle="0"/>
+                    <corners android:radius="20dp"/>
+                    <solid android:color="#26B85C43"/>
                 </shape>
             </item>
 
-            <!-- 🔥 TOP LIGHT GLOSS (premium touch) -->
-            <item android:top="0dp">
+            <!-- 2. MAIN GRADIENT BODY -->
+            <item android:bottom="2dp">
                 <shape android:shape="rectangle">
-                    <corners android:radius="30dp"/>
+                    <corners android:radius="20dp"/>
                     <gradient
-                        android:startColor="#33FFFFFF"
-                        android:endColor="#00FFFFFF"
+                        android:startColor="#E68565"
+                        android:centerColor="#D97757"
+                        android:endColor="#B85C43"
                         android:angle="270"/>
+                </shape>
+            </item>
+
+            <!-- 3. INNER GLOW / TOP HIGHLIGHT -->
+            <item android:bottom="4dp" android:left="1dp" android:right="1dp" android:top="1dp">
+                <shape android:shape="rectangle">
+                    <corners android:radius="19dp"/>
+                    <stroke android:width="1.2dp" android:color="#33FFFFFF"/>
+                    <solid android:color="@android:color/transparent"/>
+                </shape>
+            </item>
+
+            <!-- 4. SUBTLE CENTER SHINE (Diagonal Glass Effect) -->
+            <item android:bottom="2dp">
+                <shape android:shape="rectangle">
+                    <corners android:radius="20dp"/>
+                    <gradient
+                        android:startColor="#1AFFFFFF"
+                        android:centerColor="#00FFFFFF"
+                        android:endColor="#00FFFFFF"
+                        android:centerX="0.3"
+                        android:centerY="0.3"
+                        android:angle="135"
+                        android:type="linear"/>
                 </shape>
             </item>
 
         </layer-list>
     </item>
-
 </ripple>

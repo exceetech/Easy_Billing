@@ -38,6 +38,7 @@ import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.DeviceUtils
 import com.example.easy_billing.util.NetworkReceiver
+import com.example.easy_billing.util.applyPremiumClickAnimation
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -56,12 +57,10 @@ class DashboardActivity : BaseActivity() {
     private lateinit var rvCart: RecyclerView
     private lateinit var tvTotal: TextView
     private lateinit var tvCartBadge: TextView
-    private lateinit var tvSubtotalCart: TextView
     private lateinit var etSearch: EditText
     private lateinit var tvWelcome: TextView
 
     private lateinit var tvDrawerNameBase: TextView
-    private lateinit var tvDrawerNameAccent: TextView
     private lateinit var cardNoticeBoard: MaterialCardView
 
     private var searchRunnable: Runnable? = null
@@ -182,6 +181,9 @@ class DashboardActivity : BaseActivity() {
 
         loadAiNoticeBoard()
         noticeHandler.postDelayed(noticeRunnable, 5 * 60 * 1000)
+
+        // ✨ Premium indicators: Advanced Status Animation
+        startLiveStatusAnimation()
 
     }
 
@@ -320,7 +322,6 @@ class DashboardActivity : BaseActivity() {
         rvCart = findViewById(R.id.rvCart)
         tvTotal = findViewById(R.id.tvTotal)
         tvCartBadge = findViewById(R.id.tvCartBadge)
-        tvSubtotalCart = findViewById(R.id.tvSubtotalCart)
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
         tvNoticeBoard = findViewById(R.id.tvNoticeBoard)
@@ -328,16 +329,6 @@ class DashboardActivity : BaseActivity() {
 
         switchTranslate = findViewById(R.id.switchTranslate)
         tvDrawerNameBase = findViewById(R.id.tvDrawerNameBase)
-        tvDrawerNameAccent = findViewById(R.id.tvDrawerNameAccent)
-
-        // ✅ Dynamic greeting based on time of day
-        val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
-        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-        tvGreeting.text = when {
-            hour < 12 -> "Good Morning ☀️"
-            hour < 17 -> "Good Afternoon 🌤️"
-            else -> "Good Evening 🌙"
-        }
     }
 
     private fun setupHeader() {
@@ -432,13 +423,11 @@ class DashboardActivity : BaseActivity() {
 
                 // 🔥 Split name for premium UI
                 val parts = ownerName.trim().split(" ")
-
-                if (parts.size == 1) {
-                    tvDrawerNameBase.text = parts[0]
-                    tvDrawerNameAccent.text = ""
+                
+                if (parts.isNotEmpty()) {
+                    tvDrawerNameBase.text = ownerName
                 } else {
-                    tvDrawerNameBase.text = parts.first() + " "
-                    tvDrawerNameAccent.text = parts.drop(1).joinToString(" ")
+                    tvDrawerNameBase.text = "Store"
                 }
 
                 // ✅ Welcome text
@@ -453,7 +442,6 @@ class DashboardActivity : BaseActivity() {
 
                 // 🔥 fallback
                 tvDrawerNameBase.text = "Store"
-                tvDrawerNameAccent.text = "Owner"
             }
         }
     }
@@ -604,8 +592,11 @@ class DashboardActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        findViewById<View>(R.id.btnGenerateBill).setOnClickListener {
-            generateBill()
+        findViewById<View>(R.id.btnGenerateBill).apply {
+            applyPremiumClickAnimation()
+            setOnClickListener {
+                generateBill()
+            }
         }
     }
 
@@ -877,9 +868,8 @@ class DashboardActivity : BaseActivity() {
 
         val total = cartItems.sumOf { it.subTotal() }
 
-        // ✅ Total and subtotal (taxes included, no extra label prefix)
+        // ✅ Total (taxes included, no extra label prefix)
         tvTotal.text = CurrencyHelper.format(this, total)
-        tvSubtotalCart.text = CurrencyHelper.format(this, total)
 
         // Badge — clean number, max 99+
         val count = cartItems.size
@@ -1396,6 +1386,102 @@ class DashboardActivity : BaseActivity() {
             it.repeatMode  = android.animation.ObjectAnimator.REVERSE
             it.interpolator = android.view.animation.AccelerateDecelerateInterpolator()
             it.start()
+        }
+    }
+
+    /**
+     * Replicates the "Secure Login" breathing animation from MainActivity
+     * for premium text indicators.
+     */
+    private fun applyBreathingAnimation(viewId: Int, glowColorHex: String) {
+        val tv = findViewById<TextView>(viewId) ?: return
+
+        // Smooth alpha breathing
+        val alphaAnim = android.animation.ObjectAnimator.ofFloat(tv, View.ALPHA, 0.5f, 1f).apply {
+            duration = 1200
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            repeatMode = android.animation.ValueAnimator.REVERSE
+        }
+
+        // Slight premium scale effect
+        val scaleX = android.animation.ObjectAnimator.ofFloat(tv, View.SCALE_X, 0.98f, 1f).apply {
+            duration = 1200
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            repeatMode = android.animation.ValueAnimator.REVERSE
+        }
+
+        val scaleY = android.animation.ObjectAnimator.ofFloat(tv, View.SCALE_Y, 0.98f, 1f).apply {
+            duration = 1200
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            repeatMode = android.animation.ValueAnimator.REVERSE
+        }
+
+        // Subtle glow (matches the emerald green indicator line)
+        val glowAnim = android.animation.ValueAnimator.ofFloat(0.2f, 0.8f).apply {
+            duration = 1200
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            repeatMode = android.animation.ValueAnimator.REVERSE
+
+            addUpdateListener {
+                val alpha = it.animatedValue as Float
+                tv.setShadowLayer(
+                    8f * alpha,
+                    0f,
+                    0f,
+                    android.graphics.Color.parseColor(glowColorHex)
+                )
+            }
+        }
+
+        android.animation.AnimatorSet().apply {
+            playTogether(alphaAnim, scaleX, scaleY, glowAnim)
+            start()
+        }
+    }
+
+    private fun startLiveStatusAnimation() {
+        // --- 1. Right Drawer (Cart) Indicator ---
+        animateCyberTag(R.id.viewLiveRing, R.id.viewLiveDot)
+
+        // --- 2. Left Drawer (Nav) Indicator ---
+        animateCyberTag(R.id.viewNavRing, R.id.viewNavDot)
+    }
+
+    private fun animateCyberTag(ringId: Int, dotId: Int) {
+        val ring = findViewById<View>(ringId) ?: return
+        val dot = findViewById<View>(dotId) ?: return
+
+        // 1. Sonar Pulse for the ring (Expanding & Fading)
+        val scaleX = android.animation.ObjectAnimator.ofFloat(ring, View.SCALE_X, 1f, 2.5f)
+        val scaleY = android.animation.ObjectAnimator.ofFloat(ring, View.SCALE_Y, 1f, 2.5f)
+        val alpha = android.animation.ObjectAnimator.ofFloat(ring, View.ALPHA, 1f, 0f)
+
+        android.animation.AnimatorSet().apply {
+            playTogether(scaleX, scaleY, alpha)
+            duration = 2000
+            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            android.animation.ValueAnimator.INFINITE.let {
+                scaleX.repeatCount = it
+                scaleY.repeatCount = it
+                alpha.repeatCount = it
+            }
+            start()
+        }
+
+        // 2. Core Breathing for the dot
+        val dotScaleX = android.animation.ObjectAnimator.ofFloat(dot, View.SCALE_X, 1f, 1.4f)
+        val dotScaleY = android.animation.ObjectAnimator.ofFloat(dot, View.SCALE_Y, 1f, 1.4f)
+
+        android.animation.AnimatorSet().apply {
+            playTogether(dotScaleX, dotScaleY)
+            duration = 1000
+            android.animation.ValueAnimator.INFINITE.let {
+                dotScaleX.repeatCount = it
+                dotScaleY.repeatCount = it
+                dotScaleX.repeatMode = android.animation.ValueAnimator.REVERSE
+                dotScaleY.repeatMode = android.animation.ValueAnimator.REVERSE
+            }
+            start()
         }
     }
 }

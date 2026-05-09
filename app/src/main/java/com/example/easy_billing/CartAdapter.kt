@@ -29,6 +29,8 @@ class CartAdapter(
         val btnPlus: ImageButton = view.findViewById(R.id.btnPlus)
         val btnMinus: ImageButton = view.findViewById(R.id.btnMinus)
         val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
+        /** Editorial "lot number" — populated from the row's position. */
+        val tvLot: TextView = view.findViewById(R.id.tvLot)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
@@ -42,6 +44,13 @@ class CartAdapter(
         val item = items[position]
         val context = holder.itemView.context
         val product = item.product
+
+        // Editorial lot number — "01", "02"… 2-digit serif.
+        // Wraps to 3 digits if the cart somehow exceeds 99 items.
+        holder.tvLot.text = if (position + 1 < 100)
+            String.format(java.util.Locale.getDefault(), "%02d", position + 1)
+        else
+            (position + 1).toString()
 
         holder.tvName.text = product.name
 

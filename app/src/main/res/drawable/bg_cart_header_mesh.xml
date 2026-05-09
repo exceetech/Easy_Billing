@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Color -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+        </shape>
+    </item>
+
+    <!-- Orange Mesh Glow (Top Left) -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="400dp"
+                android:centerX="0.2"
+                android:centerY="0.2"
+                android:startColor="#15D97757"
+                android:endColor="#00FFFFFF"/>
+        </shape>
+    </item>
+
+    <!-- Emerald Mesh Glow (Bottom Right) -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="400dp"
+                android:centerX="0.8"
+                android:centerY="0.8"
+                android:startColor="#1000C853"
+                android:endColor="#00FFFFFF"/>
+        </shape>
+    </item>
+</layer-list>
