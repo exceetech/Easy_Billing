@@ -192,7 +192,6 @@ class RegisterActivity : BaseActivity() {
     private fun startHeaderOscillation() {
 
         val headers = listOf(
-            findViewById<TextView>(R.id.tvSecureLogin),
             findViewById<TextView>(R.id.tvNewAccount)
         ).filterNotNull()
 

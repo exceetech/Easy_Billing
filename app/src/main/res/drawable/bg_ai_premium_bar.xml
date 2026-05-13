@@ -1,35 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Premium Obsidian Glass Ticker
-    Deep black base with a subtle gradient and a phosphor-cyan top 'active' edge.
--->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- The shadow/glow cast upwards into the product list -->
+    <!-- Main Body: Premium Cream (Matches search bar) -->
     <item>
         <shape android:shape="rectangle">
-            <gradient
-                android:startColor="#00000000"
-                android:endColor="#15000000"
-                android:angle="90"/>
+            <corners android:radius="18dp"/>
+            <solid android:color="#EBE6DC"/>
+            <stroke android:width="1dp" android:color="#DED6CA"/>
         </shape>
     </item>
 
-    <!-- Main surface: Cream Butter with depth -->
-    <item android:top="2dp">
+    <!-- Subtle Depth Highlight -->
+    <item android:bottom="36dp" android:left="12dp" android:right="12dp" android:top="2dp">
         <shape android:shape="rectangle">
+            <corners android:radius="18dp"/>
             <gradient
-                android:startColor="#FAF8F5"
-                android:endColor="#F3F0E9"
-                android:angle="45"/>
+                android:angle="90"
+                android:endColor="#1AFFFFFF"
+                android:startColor="#00FFFFFF"/>
         </shape>
     </item>
-
-    <!-- Top Accent Hairline — Gold/Champagne Glow -->
-    <item android:bottom="44dp">
-        <shape android:shape="rectangle">
-            <solid android:color="#D4A574"/>
-        </shape>
-    </item>
-
 </layer-list>

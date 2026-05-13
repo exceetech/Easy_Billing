@@ -62,7 +62,6 @@ class ForgotPasswordActivity : BaseActivity() {
         )
 
         listOfNotNull(
-            findViewById<TextView>(R.id.tvSecureLogin),
             findViewById<TextView>(R.id.tvAccountRecovery)
         )
             .startPremiumHeaderOscillation()

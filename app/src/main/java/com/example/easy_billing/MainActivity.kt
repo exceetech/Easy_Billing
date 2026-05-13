@@ -69,35 +69,28 @@ class MainActivity : BaseActivity() {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
-        val tvWelcomeBase = findViewById<TextView>(R.id.tvWelcomeBase)
-        val tvWelcomeAccent = findViewById<TextView>(R.id.tvWelcomeAccent)
-        val wordmarkAccent = findViewById<View>(R.id.wordmarkAccent)
         val etUsername = findViewById<EditText>(R.id.etUsername)
         val etPassword = findViewById<EditText>(R.id.etPassword)
+        
+        // Ensure boxes are inactive on start
+        etUsername.clearFocus()
+        etPassword.clearFocus()
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
         val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
 
-        val mainContent = findViewById<View>(R.id.mainContent)
+        val loginContainer = findViewById<View>(R.id.loginContainer)
+        val mainContainerCard = findViewById<View>(R.id.mainContainerCard)
 
         setupInputField(R.id.usernameContainer, R.id.etUsername, R.id.iconUsername)
         setupInputField(R.id.passwordContainer, R.id.etPassword, R.id.iconPassword)
 
-        // Trademark Elastic Green Line Animation
-        wordmarkAccent.pivotX = 0f
-        wordmarkAccent.scaleX = 0f
-        wordmarkAccent.animate()
-            .scaleX(1f)
-            .setStartDelay(400L)
-            .setDuration(1500L)
-            .setInterpolator(android.view.animation.OvershootInterpolator(5f)) // Massive elastic snap
-            .start()
-
-        // Staggered premium entrance
+        // Premium split-screen entrance
         runEntranceAnimations(
-            container = mainContent,
+            leftPane = mainContainerCard,
+            formContainer = loginContainer,
             sequencedFields = listOf(
-                R.id.imgLogo, R.id.tvWelcomeBase, R.id.tvWelcomeAccent, R.id.tvTagline,
+                R.id.loginHeader,
                 R.id.usernameContainer, R.id.passwordContainer,
                 R.id.tvForgotPassword, R.id.btnLogin, R.id.tvRegister
             )
@@ -207,141 +200,55 @@ class MainActivity : BaseActivity() {
     // Typewriter removed for luxury aesthetic
 
     /**
-     * Premium entrance choreography:
+     * Premium entrance choreography for the split-screen layout:
      *
-     *   1. Brand column slides in from the left (0 ms).
-     *   2. Login card lifts + scales in (160 ms after).
-     *   3. Each child of [sequencedFields] fades up in turn,
-     *      80 ms apart, starting 360 ms after the card lands.
-     *   4. The three decoration orbs start a slow infinite drift
-     *      so the backdrop feels alive without being distracting.
+     *   1. Left illustration card slides in from the left (0 ms).
+     *   2. Form container fades in from the right (160 ms).
+     *   3. Form fields slide up in sequence (80 ms stagger).
      */
     private fun runEntranceAnimations(
-        container: View,
+        leftPane: View,
+        formContainer: View,
         sequencedFields: List<Int>
     ) {
-        // The container lifts slightly
-        container.alpha = 0f
-        container.translationY = 60f
-        container.animate()
+        // Left Pane slides in
+        leftPane.alpha = 0f
+        leftPane.translationX = -100f
+        leftPane.animate()
             .alpha(1f)
-            .translationY(0f)
-            .setStartDelay(100L)
-            .setDuration(800L)
+            .translationX(0f)
+            .setDuration(1000L)
             .setInterpolator(android.view.animation.DecelerateInterpolator(2.5f))
             .start()
 
-        // Each field fades, lifts, and scales up slightly for a luxurious feel
+        // Form Container fades in
+        formContainer.alpha = 0f
+        formContainer.translationX = 40f
+        formContainer.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setStartDelay(200L)
+            .setDuration(800L)
+            .setInterpolator(android.view.animation.DecelerateInterpolator(2.0f))
+            .start()
+
+        // Each field fades and lifts up
         sequencedFields.forEachIndexed { index, viewId ->
             val view = findViewById<View>(viewId) ?: return@forEachIndexed
             view.alpha = 0f
             view.translationY = 30f
-            view.scaleX = 0.95f
-            view.scaleY = 0.95f
             view.animate()
                 .alpha(1f)
                 .translationY(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setStartDelay(250L + index * 50L)
+                .setStartDelay(400L + index * 80L)
                 .setDuration(700L)
-                .setInterpolator(android.view.animation.OvershootInterpolator(1.0f))
+                .setInterpolator(android.view.animation.OvershootInterpolator(0.8f))
                 .start()
         }
-
-        // Production-grade detail: champagne shimmer pass on the brand wordmark
-        startShimmerOnWelcome()
-        startSecureLoginOscillation()
     }
 
 
 
-    /**
-     * Production-grade detail: slow champagne shimmer that drifts
-     * across the brand wordmark every ~5 seconds. Achieved by
-     * applying a horizontal `LinearGradient` shader to the text
-     * paint and animating a `Matrix` translation along the text
-     * width. Subtle enough to feel like a premium detail, not a
-     * gimmick.
-     */
-    private fun startShimmerOnWelcome() {
-        val tv = findViewById<TextView>(R.id.tvWelcomeAccent) ?: return
-        tv.post {
-            val width = tv.width.toFloat().takeIf { it > 0 } ?: return@post
-            val baseColor = 0xFFD4A574.toInt()   // your gold color
-            val highlight = 0xFFFFE6B0.toInt()   // brighter gold highlight
-            val shader = android.graphics.LinearGradient(
-                0f, 0f, width * 0.4f, 0f,
-                intArrayOf(baseColor, highlight, baseColor),
-                floatArrayOf(0f, 0.5f, 1f),
-                android.graphics.Shader.TileMode.CLAMP
-            )
-            tv.paint.shader = shader
-
-            val matrix = android.graphics.Matrix()
-            val sweep = android.animation.ValueAnimator.ofFloat(-width, width * 1.4f).apply {
-                duration = 2400L
-                startDelay = 1200L
-                repeatCount = android.animation.ValueAnimator.INFINITE
-                repeatMode = android.animation.ValueAnimator.RESTART
-                interpolator = android.view.animation.AccelerateDecelerateInterpolator()
-                addUpdateListener { va ->
-                    matrix.setTranslate(va.animatedValue as Float, 0f)
-                    shader.setLocalMatrix(matrix)
-                    tv.invalidate()
-                }
-            }
-            // Wait between sweeps: 3.5s gap.
-            sweep.startDelay = 3500L
-            sweep.start()
-        }
-    }
-
-    private fun startSecureLoginOscillation() {
-        val tv = findViewById<TextView>(R.id.tvSecureLogin) ?: return
-
-        // Smooth alpha breathing
-        val alphaAnim = android.animation.ObjectAnimator.ofFloat(tv, View.ALPHA, 0.5f, 1f).apply {
-            duration = 1200
-            repeatCount = android.animation.ValueAnimator.INFINITE
-            repeatMode = android.animation.ValueAnimator.REVERSE
-        }
-
-        // Slight premium scale effect
-        val scaleX = android.animation.ObjectAnimator.ofFloat(tv, View.SCALE_X, 0.98f, 1f).apply {
-            duration = 1200
-            repeatCount = android.animation.ValueAnimator.INFINITE
-            repeatMode = android.animation.ValueAnimator.REVERSE
-        }
-
-        val scaleY = android.animation.ObjectAnimator.ofFloat(tv, View.SCALE_Y, 0.98f, 1f).apply {
-            duration = 1200
-            repeatCount = android.animation.ValueAnimator.INFINITE
-            repeatMode = android.animation.ValueAnimator.REVERSE
-        }
-
-        // Optional subtle glow (matches your green accent line)
-        val glowAnim = android.animation.ValueAnimator.ofFloat(0.3f, 1f).apply {
-            duration = 1200
-            repeatCount = android.animation.ValueAnimator.INFINITE
-            repeatMode = android.animation.ValueAnimator.REVERSE
-
-            addUpdateListener {
-                val alpha = it.animatedValue as Float
-                tv.setShadowLayer(
-                    10f * alpha,
-                    0f,
-                    0f,
-                    android.graphics.Color.parseColor("#00FF41")
-                )
-            }
-        }
-
-        android.animation.AnimatorSet().apply {
-            playTogether(alphaAnim, scaleX, scaleY, glowAnim)
-            start()
-        }
-    }
 
     private fun setupInputField(
         containerId: Int,
@@ -359,15 +266,15 @@ class MainActivity : BaseActivity() {
 
         editText.setOnFocusChangeListener { _, hasFocus ->
 
-            // 🔥 THIS IS WHAT TRIGGERS GREEN BORDER
+            // 🔥 THIS IS WHAT TRIGGERS BORDER HIGHLIGHT
             container.isActivated = hasFocus
 
             if (hasFocus) {
-                icon.setColorFilter(android.graphics.Color.parseColor("#00C853"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#00C853"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#6366F1"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#6366F1"))
             } else {
-                icon.setColorFilter(android.graphics.Color.parseColor("#8F9098"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#71717A"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
             }
         }
     }

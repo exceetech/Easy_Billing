@@ -6,10 +6,18 @@
     android:layout_height="match_parent"
     android:background="#020405">
 
-    <!-- Premium Animated Background -->
-    <com.example.easy_billing.util.PatternedBackgroundView
+    <!-- POS Illustration Background -->
+    <ImageView
+        android:id="@+id/backgroundImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:src="@drawable/pos_illustration_new"
+        android:scaleType="centerCrop"
+        android:alpha="0.6"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Top Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar

@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Open box isometric perspective -->
+    <path
+        android:strokeWidth="1.5"
+        android:strokeColor="#10B981"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M12,3L4,7V17L12,21L20,17V7L12,3Z"/>
+    <path
+        android:strokeWidth="1.5"
+        android:strokeColor="#10B981"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M4,7L12,11L20,7M12,11V21"/>
+    <!-- Top flaps -->
+    <path
+        android:strokeWidth="1.5"
+        android:strokeColor="#10B981"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M12,3L8,5M12,3L16,5M8,9L4,7M16,9L20,7"/>
+</vector>

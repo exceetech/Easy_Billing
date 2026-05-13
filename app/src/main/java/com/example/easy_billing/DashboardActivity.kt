@@ -46,6 +46,7 @@ import android.widget.EditText
 import kotlinx.coroutines.launch
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
 
@@ -70,6 +71,7 @@ class DashboardActivity : BaseActivity() {
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
     private lateinit var tvNoticeBoard: TextView
+    private var aiAnimationJob: kotlinx.coroutines.Job? = null
 
     private val noticeHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
@@ -123,6 +125,7 @@ class DashboardActivity : BaseActivity() {
 
         // ✅ Initialize views FIRST
         initViews()
+        setupGreeting()
 
         // ✨ AI insight card animations — orb pulse + live-dot fade.
         startAiCardAnimations()
@@ -1166,37 +1169,133 @@ class DashboardActivity : BaseActivity() {
                     return@launch
                 }
 
-                var text = response.ai_report
+                val rawText = response.ai_report
+                // Robust split: handle dots, newlines, and bullet points
+                val insightsList = rawText.split(Regex("[●\n*]+")).map { it.trim() }.filter { it.isNotBlank() }
 
-                text = text.replace("&lt;", "<")
-                text = text.replace("&gt;", ">")
+                if (insightsList.isEmpty()) {
+                    tvNoticeBoard.text = "Fetching intelligence..."
+                    return@launch
+                }
 
-                // Premium Ticker Highlighting: Emerald for growth, Amber for numbers (Optimized for Light Theme)
-                val styledText = text
-                    .replace(Regex("(\\d+%|\\+\\d+%|\\-\\d+%)"), "<font color='#047857'><b>$1</b></font>")
-                    .replace(Regex("(\\b\\d+\\.\\d+\\b|\\b\\d+\\b)"), "<font color='#B45309'>$1</font>")
+                aiAnimationJob?.cancel()
+                aiAnimationJob = lifecycleScope.launch {
+                    var currentIndex = 0
+                    while (isActive) {
+                        val insight = insightsList[currentIndex]
+                        
+                        var cleanText = insight.trim()
+                            .replace(Regex("</?.*?>"), "")
+                            .replace(Regex("\\{.*?:.*?\\}"), "")
+                            .replace(Regex("[\\[\\]*`]+"), "")
+                            .replace("Rs.", "₹") // Transform for premium look
+                            .replace("RS", "₹")
+                            .trim()
+                            .uppercase()
 
-                val noticeText = styledText.replace(
-                    "\n",
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ● &nbsp;&nbsp;&nbsp;&nbsp;"
-                )
+                        if (cleanText.isEmpty()) {
+                            currentIndex = (currentIndex + 1) % insightsList.size
+                            continue
+                        }
 
-                tvNoticeBoard.text = Html.fromHtml(
-                    noticeText,
-                    Html.FROM_HTML_MODE_LEGACY
-                )
+                        // ✦ PREMIUM JEWELED HIGHLIGHT PALETTE
+                        val (primaryText, accentBg, highlightText) = when {
+                            cleanText.contains("PROFIT") || cleanText.contains("INCREASE") || cleanText.contains("GROWTH") -> 
+                                Triple("#1E293B", "#ECFDF5", "#059669")
+                            cleanText.contains("ALERT") || cleanText.contains("DECREASE") || cleanText.contains("LOW") || cleanText.contains("STOCK") -> 
+                                Triple("#1E293B", "#FEF2F2", "#DC2626")
+                            cleanText.contains("TOP") || cleanText.contains("TRENDING") || cleanText.contains("PREMIUM") -> 
+                                Triple("#1E293B", "#FFFBEB", "#D97706")
+                            else -> 
+                                Triple("#1E293B", "#EEF2FF", "#4F46E5")
+                        }
 
-                tvNoticeBoard.isSelected = true
+                        val spannable = android.text.SpannableStringBuilder()
+                        
+                        // 1. Structural Anchor
+                        spannable.append("◢ ")
+                        spannable.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor(highlightText)), 0, 2, 0)
+                        
+                        // 2. The Body (Executive Serif)
+                        spannable.append(cleanText.lowercase().replaceFirstChar { it.uppercase() })
+                        spannable.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor(primaryText)), 2, spannable.length, 0)
+                        
+                        // 3. THE JEWELED CAPSULES (Supports ₹, %, and numbers)
+                        val highlightRegex = Regex("(\\d+%|₹\\s?\\d+[\\d,.]*)")
+                        highlightRegex.findAll(spannable).forEach { match ->
+                            val start = match.range.first
+                            val end = match.range.last + 1
+                            
+                            spannable.setSpan(
+                                RoundedBackgroundSpan(
+                                    android.graphics.Color.parseColor(accentBg), 
+                                    android.graphics.Color.parseColor(highlightText),
+                                    6f // Slightly rounder for 'Premium' feel
+                                ), 
+                                start, end, 0
+                            )
+                            spannable.setSpan(android.text.style.TypefaceSpan("monospace"), start, end, 0)
+                            spannable.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start, end, 0)
+                        }
 
-                cardNoticeBoard.scaleX = 0.9f
-                cardNoticeBoard.scaleY = 0.9f
-                cardNoticeBoard.alpha = 0f
+                        withContext(Dispatchers.Main) {
+                            // ✦ SUBTLE METALLIC SHIMMER
+                            val paint = tvNoticeBoard.paint
+                            val width = paint.measureText(spannable.toString())
+                            
+                            val flowAnimator = android.animation.ValueAnimator.ofFloat(0f, 1f)
+                            flowAnimator.duration = 6000 
+                            flowAnimator.repeatCount = android.animation.ValueAnimator.INFINITE
+                            flowAnimator.addUpdateListener { animator ->
+                                val progress = animator.animatedValue as Float
+                                val shader = android.graphics.LinearGradient(
+                                    0f, 0f, width * progress, 0f,
+                                    intArrayOf(
+                                        android.graphics.Color.parseColor(primaryText), 
+                                        android.graphics.Color.parseColor("#94A3B8"), // Muted Glint
+                                        android.graphics.Color.parseColor(primaryText)
+                                    ), 
+                                    floatArrayOf(0.45f, 0.5f, 0.55f),
+                                    android.graphics.Shader.TileMode.MIRROR
+                                )
+                                tvNoticeBoard.paint.shader = shader
+                                tvNoticeBoard.invalidate()
+                            }
+                            flowAnimator.start()
 
-                cardNoticeBoard.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .alpha(1f)
-                    .setDuration(400)
+                            tvNoticeBoard.text = spannable
+                            tvNoticeBoard.alpha = 0f
+                            tvNoticeBoard.translationX = 60f
+                            tvNoticeBoard.letterSpacing = 0.05f // Natural spacing for Serif
+                            
+                            tvNoticeBoard.animate()
+                                .alpha(1f)
+                                .translationX(0f)
+                                .setDuration(1200)
+                                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                                .start()
+                                
+                            lifecycleScope.launch {
+                                try {
+                                    kotlinx.coroutines.delay(6000)
+                                    flowAnimator.cancel()
+                                } catch (e: Exception) {}
+                            }
+                        }
+                        kotlinx.coroutines.delay(6500) 
+
+                        withContext(Dispatchers.Main) {
+                            tvNoticeBoard.animate()
+                                .alpha(0f)
+                                .translationX(-80f)
+                                .setDuration(500)
+                                .start()
+                        }
+                        kotlinx.coroutines.delay(600) 
+
+                        currentIndex = (currentIndex + 1) % insightsList.size
+                    }
+                }
 
             } catch (e: Exception) {
 
@@ -1361,7 +1460,7 @@ class DashboardActivity : BaseActivity() {
      * indicator heartbeat, nothing more.
      */
     private fun startAiCardAnimations() {
-        animatePulse(R.id.aiLiveStatus, 1000L, 1.0f, 1.0f, alphaTo = 0.4f)
+        // Redundant - Badges removed from layout
     }
 
     /** Reusable infinite-reverse pulse driver for the AI card. */
@@ -1482,6 +1581,69 @@ class DashboardActivity : BaseActivity() {
                 dotScaleY.repeatMode = android.animation.ValueAnimator.REVERSE
             }
             start()
+        }
+    }
+
+    private fun setupGreeting() {
+        val tvGreeting = findViewById<TextView>(R.id.tvGreeting) ?: return
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+
+        val greeting = when (hour) {
+            in 5..11 -> "Good Morning ☀️"
+            in 12..16 -> "Good Afternoon 🌤️"
+            in 17..20 -> "Good Evening 🌙"
+            else -> "Good Night 🌠"
+        }
+        tvGreeting.text = greeting
+    }
+
+    /** Custom Span for creating high-end 'Glass Capsule' backgrounds for numbers. */
+    class RoundedBackgroundSpan(
+        private val backgroundColor: Int,
+        private val textColor: Int,
+        private val cornerRadius: Float
+    ) : android.text.style.ReplacementSpan() {
+
+        override fun draw(
+            canvas: android.graphics.Canvas,
+            text: CharSequence,
+            start: Int,
+            end: Int,
+            x: Float,
+            top: Int,
+            y: Int,
+            bottom: Int,
+            paint: android.graphics.Paint
+        ) {
+            // ✦ CRITICAL FIX: Store and clear shader to avoid 'Black Box' interference
+            val originalShader = paint.shader
+            paint.shader = null 
+
+            val rect = android.graphics.RectF(
+                x, 
+                top.toFloat() + 2f, 
+                x + paint.measureText(text, start, end) + 20f, 
+                bottom.toFloat() - 2f
+            )
+            paint.color = backgroundColor
+            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+            
+            paint.color = textColor
+            paint.isFakeBoldText = true // Ensure readability in capsule
+            canvas.drawText(text, start, end, x + 10f, y.toFloat(), paint)
+
+            // Restore shader for subsequent text rendering
+            paint.shader = originalShader
+        }
+
+        override fun getSize(
+            paint: android.graphics.Paint,
+            text: CharSequence,
+            start: Int,
+            end: Int,
+            fm: android.graphics.Paint.FontMetricsInt?
+        ): Int {
+            return (paint.measureText(text, start, end) + 20f).toInt()
         }
     }
 }

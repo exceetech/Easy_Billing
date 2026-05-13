@@ -186,42 +186,83 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- ── ROW 2: Search Bar ── -->
+            <!-- ── ROW 2: Search & AI Dashboard ── -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_search_bar"
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="14dp"
-                android:layout_marginBottom="16dp"
-                android:paddingHorizontal="16dp">
+                android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ic_search"
-                    android:gravity="center"
-                    android:textSize="18sp"
-                    android:backgroundTint="#F0BD3E"
-                    android:layout_marginEnd="12dp"/>
-
-                <EditText
-                    android:id="@+id/etSearch"
+                <!-- Left Half: Search Bar -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/search_products"
-                    android:textColorHint="#C4C4C4"
-                    android:textColor="#18181B"
-                    android:textSize="15sp"
-                    android:inputType="text"
-                    android:maxLength="50"
-                    android:singleLine="true"
-                    android:imeOptions="actionSearch"
-                    android:importantForAutofill="no"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_search_bar"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginEnd="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ic_search"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:backgroundTint="#F0BD3E"
+                        android:layout_marginEnd="8dp"/>
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/search_products"
+                        android:textColorHint="#C4C4C4"
+                        android:textColor="#18181B"
+                        android:textSize="14sp"
+                        android:inputType="text"
+                        android:maxLength="50"
+                        android:singleLine="true"
+                        android:imeOptions="actionSearch"
+                        android:importantForAutofill="no"/>
+                </LinearLayout>
+
+                <!-- Right Half: AI Notice Capsule -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardNoticeBoard"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:clipChildren="false">
+
+                        <TextView
+                            android:id="@+id/tvNoticeBoard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/loading_ai_suggestions"
+                            android:textColor="#1E293B"
+                            android:textSize="15sp"
+                            android:fontFamily="serif"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            android:gravity="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
         </LinearLayout>
@@ -254,100 +295,6 @@
               Removed from the main vertical flow to maximize product tile
               space. This is now a subtle 'cyber' ticker at the bottom.
         ============================================================ -->
-        <!-- ============================================================
-              PREMIUM AI ASSISTANT BAR — Obsidian Glass Design.
-              A sophisticated, 46dp bar that anchors the bottom of the screen.
-              Features a segmented 'Assistant' identity and marquee insights.
-        ============================================================ -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardNoticeBoard"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="12dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_ai_premium_bar"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
-
-                <!-- Premium AI Identity Chip -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="28dp"
-                    android:background="@drawable/bg_ai_label_chip"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp">
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/ic_premium_ai_insights"
-                        android:contentDescription="@null"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:letterSpacing="0.10"
-                        android:text="AI ASSISTANT"
-                        android:textColor="#18181B"
-                        android:textSize="9sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-
-                <!-- Stylized Separator -->
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="18dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="#D1D1D6"
-                    android:rotation="15"/>
-
-                <!-- Intelligence Marquee -->
-                <TextView
-                    android:id="@+id/tvNoticeBoard"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="marquee"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:marqueeRepeatLimit="marquee_forever"
-                    android:singleLine="true"
-                    android:text="@string/loading_ai_suggestions"
-                    android:textColor="#27272A"
-                    android:textSize="13sp"
-                    android:letterSpacing="0.01"/>
-
-                <!-- Red LIVE Status Badge -->
-                <LinearLayout
-                    android:id="@+id/aiLiveStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="18dp"
-                    android:layout_marginStart="14dp"
-                    android:background="@drawable/bg_live_badge"
-                    android:gravity="center"
-                    android:paddingHorizontal="6dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                            android:text="LIVE"
-                        android:textColor="#FFFFFF"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.05"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 

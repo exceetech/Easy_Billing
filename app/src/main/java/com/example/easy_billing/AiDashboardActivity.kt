@@ -19,6 +19,9 @@ class AiDashboardActivity : BaseActivity() {
 
     private lateinit var tvRevenue: TextView
     private lateinit var tvAiInsights: TextView
+    private lateinit var tvPerformanceScore: TextView
+    private lateinit var tvStrategyTitle: TextView
+    private lateinit var tvStrategyContent: TextView
     private lateinit var tableProducts: TableLayout
 
     private lateinit var headerProduct: TextView
@@ -41,6 +44,9 @@ class AiDashboardActivity : BaseActivity() {
 
         tvRevenue = findViewById(R.id.tvRevenue)
         tvAiInsights = findViewById(R.id.tvAiInsights)
+        tvPerformanceScore = findViewById(R.id.tvPerformanceScore)
+        tvStrategyTitle = findViewById(R.id.tvStrategyTitle)
+        tvStrategyContent = findViewById(R.id.tvStrategyContent)
         tableProducts = findViewById(R.id.tableProducts)
 
         headerProduct = findViewById(R.id.headerProduct)
@@ -48,23 +54,37 @@ class AiDashboardActivity : BaseActivity() {
         headerRevenue = findViewById(R.id.headerRevenue)
 
         setupSorting()
+        
+        // Initial entrance animations
+        applyCascadingAnimations()
+        
+        // Start live pulse for hero indicator
+        startHeroPulse()
 
-        // 🔥 CHECK RESET FLAG FIRST
-        val isReset = getSharedPreferences("app_settings", MODE_PRIVATE)
-            .getBoolean("ai_reset", false)
+        loadAiReport()
+    }
 
-        if (isReset) {
-            forceClearUi()
+    private fun applyCascadingAnimations() {
+        val anim = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.bento_card_enter)
+        
+        findViewById<android.view.View>(R.id.bentoRow1).startAnimation(anim)
+        
+        anim.startOffset = 100
+        findViewById<android.view.View>(R.id.cardAiHero).startAnimation(anim)
+        
+        anim.startOffset = 200
+        findViewById<android.view.View>(R.id.bentoRow3).startAnimation(anim)
+        
+        anim.startOffset = 300
+        findViewById<android.view.View>(R.id.bentoRow4).startAnimation(anim)
+    }
 
-            // remove flag after use
-            getSharedPreferences("app_settings", MODE_PRIVATE)
-                .edit {
-                    putBoolean("ai_reset", false)
-                }
-
-        } else {
-            loadAiReport()
-        }
+    private fun startHeroPulse() {
+        val pulse = android.view.animation.AlphaAnimation(1.0f, 0.3f)
+        pulse.duration = 800
+        pulse.repeatMode = android.view.animation.Animation.REVERSE
+        pulse.repeatCount = android.view.animation.Animation.INFINITE
+        findViewById<android.view.View>(R.id.viewHeroPulse).startAnimation(pulse)
     }
 
     private fun loadAiReport() {
@@ -75,51 +95,68 @@ class AiDashboardActivity : BaseActivity() {
         lifecycleScope.launch {
 
             try {
-
                 val db = AppDatabase.getDatabase(this@AiDashboardActivity)
-
                 val response = RetrofitClient.api.getAiReport("Bearer $token")
 
-                // ================= BACKEND DATA =================
+                // ================= REVENUE =================
                 reportData = response.report_data.toMutableList()
-
                 val totalRevenue = reportData.sumOf { it.revenue }
                 tvRevenue.text = "₹$totalRevenue"
+                
+                // Calculate pseudo-performance score
+                val score = if (totalRevenue > 50000) 92 else if (totalRevenue > 10000) 85 else 74
+                tvPerformanceScore.text = score.toString()
 
                 renderTable(reportData)
 
-                // ================= BACKEND AI TEXT =================
-                var backendText = response.ai_report
-                backendText = backendText.replace("&lt;", "<")
-                backendText = backendText.replace("&gt;", ">")
-                backendText = backendText.replace("\n", "<br>")
+                // ================= PARSE AI REPORT INTO BENTO =================
+                val rawText = response.ai_report
+                val sections = parseAiSections(rawText)
 
-                // ================= LOCAL AI =================
+                // Strategic Hero Card
+                val strategy = sections["INVENTORY STRATEGY"] ?: sections["PROFIT STRATEGY"] ?: "Steady growth observed. Continue current operations."
+                tvStrategyContent.text = strategy.replace("&lt;", "<").replace("&gt;", ">").trim()
+
+                // Local Pulse Card (Everything else)
+                val marketing = sections["MARKETING IDEAS"] ?: ""
+                val sales = sections["SALES INSIGHTS"] ?: ""
                 val localInsights = generateLocalInsights(db)
-
-                val localText = if (localInsights.isEmpty()) {
-                    ""
-                } else {
-                    "<br><br><b>Smart Insights:</b><br>" +
-                            localInsights.joinToString("<br>") { "• $it" }
-                }
-
-                val finalText = backendText + localText
-
+                
+                val combinedPulse = "<b>Marketing:</b><br>$marketing<br><br><b>Sales Insights:</b><br>$sales<br><br><b>Store Alerts:</b><br>${localInsights.joinToString("<br>") { "• $it" }}"
+                
                 tvAiInsights.text = Html.fromHtml(
-                    finalText,
+                    combinedPulse.replace("\n", "<br>"),
                     Html.FROM_HTML_MODE_LEGACY
                 )
 
             } catch (e: Exception) {
-
-                Toast.makeText(
-                    this@AiDashboardActivity,
-                    "Failed to load AI report",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@AiDashboardActivity, "Intelligence update in progress...", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun parseAiSections(text: String): Map<String, String> {
+        val sections = mutableMapOf<String, String>()
+        val lines = text.lines()
+        var currentHeader = ""
+        var currentContent = StringBuilder()
+
+        for (line in lines) {
+            val upperLine = line.uppercase().trim()
+            if (upperLine.contains("PRODUCTS") || upperLine.contains("STRATEGY") || upperLine.contains("INSIGHTS") || upperLine.contains("IDEAS") || upperLine.contains("RECOMMENDATION")) {
+                if (currentHeader.isNotEmpty()) {
+                    sections[currentHeader] = currentContent.toString()
+                }
+                currentHeader = upperLine.replace("📦", "").replace("💰", "").replace("🚀", "").trim()
+                currentContent = StringBuilder()
+            } else {
+                currentContent.append(line).append("\n")
+            }
+        }
+        if (currentHeader.isNotEmpty()) {
+            sections[currentHeader] = currentContent.toString()
+        }
+        return sections
     }
 
 
@@ -139,7 +176,7 @@ class AiDashboardActivity : BaseActivity() {
             .maxByOrNull { it.value }
 
         bestSeller?.let {
-            insights.add("🔥 ${it.key} is your best selling product")
+            insights.add("${it.key} is your best selling product")
         }
 
         // ================= PROFIT =================
@@ -151,12 +188,12 @@ class AiDashboardActivity : BaseActivity() {
         val worstProfit = profitMap.minByOrNull { it.value }
 
         bestProfit?.let {
-            insights.add("💰 ${it.key} gives highest profit")
+            insights.add("${it.key} gives highest profit")
         }
 
         worstProfit?.let {
             if (it.value < 0) {
-                insights.add("❌ ${it.key} is causing loss")
+                insights.add("${it.key} is causing loss")
             }
         }
 
@@ -164,11 +201,11 @@ class AiDashboardActivity : BaseActivity() {
         inventory.forEach {
 
             if (it.currentStock <= 5) {
-                insights.add("📦 Low stock alert for Product ID ${it.productId}")
+                insights.add("Low stock alert for Product ID ${it.productId}")
             }
         }
 
-        return insights.take(5) // limit
+        return insights.take(5)
     }
 
     private fun setupSorting() {
