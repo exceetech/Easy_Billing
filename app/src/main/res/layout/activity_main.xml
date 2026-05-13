@@ -26,6 +26,7 @@
         android:layout_margin="32dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:strokeWidth="0dp"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -34,273 +35,33 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:background="#FFFFFF"
             android:clipChildren="false"
-            android:clipToPadding="false"
-            android:baselineAligned="false">
+            android:clipToPadding="false">
 
-            <!-- LEFT PANE: BRANDING -->
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:layout_weight="1.2">
-
-            <!-- 1. BACKGROUND IMAGE -->
-            <ImageView
-                android:id="@+id/imgIllustration"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/pos_login_bg"
-                android:scaleType="centerCrop" />
-
-            <!-- 2. SOFT CURVY WHITE BLEND AT TOP LEFT -->
-            <View
-                android:layout_width="300dp"
-                android:layout_height="300dp"
-                android:layout_marginTop="-100dp"
-                android:layout_marginStart="-100dp"
-                android:background="@drawable/bg_white_blend_circle"/>
-
-
-            <!-- 4. CONTENT OVERLAY -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <!-- Split Guideline -->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/cardGuideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:paddingTop="36dp"
-                android:paddingHorizontal="36dp"
-                android:paddingBottom="12dp">
-
-                <!-- Branding Section (Exact Match to Reference) -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="32dp">
-                    
-                    <ImageView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"/>
-                        
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginStart="14dp">
-                        
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Ex"
-                                android:textSize="42sp"
-                                android:textColor="#0F172A"
-                                android:textStyle="bold"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="POS"
-                                android:textSize="42sp"
-                                android:textColor="#6366F1"
-                                android:textStyle="bold"/>
-                        </LinearLayout>
-                        
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Retail  •  Restaurant  •  Bakery  •  Grocery"
-                            android:textSize="14sp"
-                            android:textColor="#3E607C"
-                            android:letterSpacing="0.02"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Headline with Blue POS -->
+                app:layout_constraintGuide_percent="0.55" />
 
 
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:text="Manage sales, inventory, billing\nand grow your business."
-                    android:textSize="16sp"
-                    android:textColor="#3E607C"
-                    android:lineSpacingExtra="4dp" />
-
-                <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
-
-                <!-- Bottom Features Card (Standard Elevation Version) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="0dp"
-                    app:cardBackgroundColor="@android:color/transparent">
-                    
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="14dp"
-                            android:paddingHorizontal="12dp"
-                            android:gravity="center"
-                            android:baselineAligned="false">
-                            
-                            <!-- 1. Easy Billing -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-                                <FrameLayout
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:background="@drawable/bg_soft_glow"
-                                    android:backgroundTint="#1A6366F1">
-                                    <ImageView
-                                        android:layout_width="40dp"
-                                        android:layout_height="40dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_bill_login"
-                                        app:tint="#6366F1" />
-                                </FrameLayout>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Easy\nBilling"
-                                    android:textSize="14sp"
-                                    android:textColor="#3E607C"
-                                    android:gravity="center" />
-                            </LinearLayout>
-
-                            <!-- 2. Inventory Management -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-                                <FrameLayout
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:background="@drawable/bg_soft_glow"
-                                    android:backgroundTint="#1A10B981">
-                                    <ImageView
-                                        android:layout_width="40dp"
-                                        android:layout_height="40dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_inventory_login"
-                                        app:tint="#F97316" />
-                                </FrameLayout>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Inventory\nManagement"
-                                    android:textSize="14sp"
-                                    android:textColor="#3E607C"
-                                    android:gravity="center" />
-                            </LinearLayout>
-
-                            <!-- 3. Sales Analytics -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-                                <FrameLayout
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:background="@drawable/bg_soft_glow"
-                                    android:backgroundTint="#1AF59E0B">
-                                    <ImageView
-                                        android:layout_width="40dp"
-                                        android:layout_height="40dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_graph_login"
-                                        app:tint="#10B981" />
-                                </FrameLayout>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Sales\nAnalytics"
-                                    android:textSize="14sp"
-                                    android:textColor="#3E607C"
-                                    android:gravity="center" />
-                            </LinearLayout>
-
-                            <!-- 4. Multi-Store Support -->
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:gravity="center">
-                                <FrameLayout
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:background="@drawable/bg_soft_glow"
-                                    android:backgroundTint="#1AA855F7">
-                                    <ImageView
-                                        android:layout_width="40dp"
-                                        android:layout_height="40dp"
-                                        android:layout_gravity="center"
-                                        android:src="@drawable/ic_shop_login"
-                                        app:tint="#EC4899" />
-                                </FrameLayout>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="6dp"
-                                    android:text="Multi-Store\nSupport"
-                                    android:textSize="14sp"
-                                    android:textColor="#3E607C"
-                                    android:gravity="center" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </FrameLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-            </LinearLayout>
-        </FrameLayout>
 
         <!-- RIGHT PANE: LOGIN FORM (Now inside the card) -->
-        <ScrollView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/loginContainer"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:background="#FFFFFF"
-            android:fillViewport="true"
-            android:scrollbars="none">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:paddingHorizontal="60dp"
-            android:paddingVertical="48dp">
+            android:paddingVertical="48dp"
+            app:layout_constraintStart_toEndOf="@id/cardGuideline"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <!-- Welcome Text -->
             <LinearLayout
@@ -341,6 +102,7 @@
                 app:layout_constraintBottom_toTopOf="@id/loginFooter">
 
                 <TextView
+                    android:id="@+id/lblEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Email Address"
@@ -378,6 +140,7 @@
                 </FrameLayout>
 
                 <TextView
+                    android:id="@+id/lblPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Password"
@@ -415,11 +178,15 @@
                         android:textSize="15sp" />
                     <!-- Password visibility toggle -->
                     <ImageView
+                        android:id="@+id/btnTogglePassword"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center_vertical|end"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_visibility_off"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         app:tint="#94A3B8"/>
                 </FrameLayout>
 
@@ -457,15 +224,15 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:layout_marginTop="32dp">
-                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#E2E8F0"/>
+                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#000000"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="or"
-                        android:textColor="#94A3B8"
+                        android:textColor="#000000"
                         android:textSize="14sp"
                         android:layout_marginHorizontal="16dp" />
-                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#E2E8F0"/>
+                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#000000"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -522,7 +289,266 @@
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        </ScrollView>
-        </LinearLayout>
+
+            <!-- LEFT PANE: BRANDING (Material Card for rounded corners) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/brandingPane"
+                android:transitionName="shared_branding_pane"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="25dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/cardGuideline">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                <ImageView
+                    android:id="@+id/imgIllustration"
+                    android:transitionName="shared_image_pane"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/img_login1"
+                    android:scaleType="centerCrop" />
+
+                <!-- Top Scrim for Readability: Blends the image top with the layout -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:background="@drawable/bg_top_scrim"/>
+
+                    <LinearLayout
+                        android:id="@+id/brandingContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="36dp"
+                        android:paddingTop="36dp"
+                        android:paddingBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="32dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/brandLogo"
+                                android:layout_width="52dp"
+                                android:layout_height="52dp" />
+
+                            <LinearLayout
+                                android:id="@+id/brandTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="14dp"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Ex"
+                                        android:textColor="#0F172A"
+                                        android:textSize="42sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="POS"
+                                        android:textColor="#6366F1"
+                                        android:textSize="42sp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.02"
+                                    android:text="Retail  •  Restaurant  •  Bakery  •  Grocery"
+                                    android:textColor="#3E607C"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/brandTagline"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:lineSpacingExtra="4dp"
+                            android:text="Manage sales, inventory, billing\nand grow your business."
+                            android:textColor="#3E607C"
+                            android:textSize="16sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/brandFeatures"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="24dp"
+                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardCornerRadius="24dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:baselineAligned="false"
+                                    android:gravity="center"
+                                    android:orientation="horizontal"
+                                    android:paddingHorizontal="12dp"
+                                    android:paddingVertical="14dp">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <FrameLayout
+                                            android:layout_width="60dp"
+                                            android:layout_height="60dp"
+                                            android:background="@drawable/bg_circle_primary">
+
+                                            <ImageView
+                                                android:layout_width="40dp"
+                                                android:layout_height="40dp"
+                                                android:layout_gravity="center"
+                                                android:src="@drawable/ic_bill_login"
+                                                app:tint="#FFFFFF" />
+                                        </FrameLayout>
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="6dp"
+                                            android:gravity="center"
+                                            android:text="Easy\nBilling"
+                                            android:textColor="#3E607C"
+                                            android:textSize="14sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <FrameLayout
+                                            android:layout_width="60dp"
+                                            android:layout_height="60dp"
+                                            android:background="@drawable/bg_circle_orange">
+
+                                            <ImageView
+                                                android:layout_width="40dp"
+                                                android:layout_height="40dp"
+                                                android:layout_gravity="center"
+                                                android:src="@drawable/ic_inventory_login"
+                                                app:tint="#FFFFFF" />
+                                        </FrameLayout>
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="6dp"
+                                            android:gravity="center"
+                                            android:text="Inventory\nManagement"
+                                            android:textColor="#3E607C"
+                                            android:textSize="14sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <FrameLayout
+                                            android:layout_width="60dp"
+                                            android:layout_height="60dp"
+                                            android:background="@drawable/bg_circle_green">
+
+                                            <ImageView
+                                                android:layout_width="40dp"
+                                                android:layout_height="40dp"
+                                                android:layout_gravity="center"
+                                                android:src="@drawable/ic_graph_login"
+                                                app:tint="#FFFFFF" />
+                                        </FrameLayout>
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="6dp"
+                                            android:gravity="center"
+                                            android:text="Sales\nAnalytics"
+                                            android:textColor="#3E607C"
+                                            android:textSize="14sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <FrameLayout
+                                            android:layout_width="60dp"
+                                            android:layout_height="60dp"
+                                            android:background="@drawable/bg_circle_pink">
+
+                                            <ImageView
+                                                android:layout_width="40dp"
+                                                android:layout_height="40dp"
+                                                android:layout_gravity="center"
+                                                android:src="@drawable/ic_shop_login"
+                                                app:tint="#FFFFFF" />
+                                        </FrameLayout>
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="6dp"
+                                            android:gravity="center"
+                                            android:text="Multi-Store\nSupport"
+                                            android:textColor="#3E607C"
+                                            android:textSize="14sp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </FrameLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

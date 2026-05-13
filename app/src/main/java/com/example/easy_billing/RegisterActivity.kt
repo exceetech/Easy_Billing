@@ -2,8 +2,8 @@ package com.example.easy_billing
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -17,14 +17,81 @@ import kotlinx.coroutines.launch
 
 class RegisterActivity : BaseActivity() {
 
+    private var entranceStarted = false
     private var isRegistering = false   // 🔥 FLAG TO PREVENT DOUBLE CLICK
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 🔥 Premium Shared Element Transition config
+        window.requestFeature(android.view.Window.FEATURE_ACTIVITY_TRANSITIONS)
+        window.sharedElementsUseOverlay = false
+
+        val transition = android.transition.TransitionSet().apply {
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.ChangeTransform())
+            addTransition(android.transition.ChangeImageTransform())
+            addTransition(android.transition.ChangeClipBounds())
+            duration = 850L
+            interpolator = androidx.interpolator.view.animation.FastOutSlowInInterpolator()
+        }
+        window.sharedElementEnterTransition = transition
+        window.sharedElementReturnTransition = transition
+        window.sharedElementExitTransition = transition
+        window.sharedElementReenterTransition = transition
+
+        window.allowEnterTransitionOverlap = true
+        window.allowReturnTransitionOverlap = true
+
+        window.setBackgroundDrawableResource(android.R.color.transparent)
+        window.transitionBackgroundFadeDuration = 0
+
+        postponeEnterTransition()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        setupToolbar(R.id.toolbar)
-        supportActionBar?.title = ""
+        // Cinematic Entrance choreography: Focus on branding and form headings
+        val animatedItems = listOf(
+            // Branding Side
+            R.id.brandLogo, R.id.brandTitle,
+            R.id.brandTagline, R.id.brandFeatures,
+            // Form Headings ONLY
+            R.id.lblFullName, R.id.lblEmail, R.id.lblPhone, R.id.lblShopName
+        )
+
+        // Initial State: Invisible and slightly shifted down
+        animatedItems.forEach { id ->
+            findViewById<View>(id)?.apply {
+                alpha = 0f
+                translationY = 40f
+            }
+        }
+
+        // Start transition once the layout is ready
+        val mainCard = findViewById<View>(R.id.mainContainerCard)
+        mainCard.viewTreeObserver.addOnPreDrawListener(object : android.view.ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                mainCard.viewTreeObserver.removeOnPreDrawListener(this)
+                startPostponedEnterTransition()
+
+                // Fallback: If no transition starts within 100ms, run entrance manually
+                mainCard.postDelayed({
+                    runCascadingEntrance(animatedItems)
+                }, 100)
+
+                return true
+            }
+        })
+
+        // Execute Cascading Entrance after transition finishes
+        window.sharedElementEnterTransition.addListener(object : android.transition.Transition.TransitionListener {
+            override fun onTransitionEnd(transition: android.transition.Transition) {
+                runCascadingEntrance(animatedItems)
+            }
+            override fun onTransitionStart(transition: android.transition.Transition) {}
+            override fun onTransitionCancel(transition: android.transition.Transition) {}
+            override fun onTransitionPause(transition: android.transition.Transition) {}
+            override fun onTransitionResume(transition: android.transition.Transition) {}
+        })
 
         val etFullName = findViewById<EditText>(R.id.etFullName)
         val etEmail = findViewById<EditText>(R.id.etEmail)
@@ -33,35 +100,41 @@ class RegisterActivity : BaseActivity() {
         val btnRegister = findViewById<Button>(R.id.btnRegister)
         val tvBackToLogin = findViewById<TextView>(R.id.tvBackToLogin)
 
-        val mainContent = findViewById<View>(R.id.mainContent)
-        val wordmarkAccent = findViewById<View>(R.id.wordmarkAccent)
+        val mainContainerCard = findViewById<View>(R.id.mainContainerCard)
+        val registerContainer = findViewById<View>(R.id.registerContainer)
+        val brandingPane = findViewById<View>(R.id.brandingPane)
+
+        // Ensure inputs start unfocused
+        etFullName.clearFocus()
+        etEmail.clearFocus()
+        etPhoneNumber.clearFocus()
+        etShopName.clearFocus()
 
         setupInputField(R.id.nameContainer, R.id.etFullName, R.id.iconFullName)
         setupInputField(R.id.emailContainer, R.id.etEmail, R.id.iconEmail)
         setupInputField(R.id.phoneContainer, R.id.etPhoneNumber, R.id.iconPhone)
         setupInputField(R.id.shopContainer, R.id.ShopName, R.id.iconShop)
 
-        // Trademark Elastic Green Line Animation
-        wordmarkAccent.pivotX = 0f
-        wordmarkAccent.scaleX = 0f
-        wordmarkAccent.animate()
-            .scaleX(1f)
-            .setStartDelay(400L)
-            .setDuration(1500L)
-            .setInterpolator(android.view.animation.OvershootInterpolator(5f)) // Massive elastic snap
-            .start()
-
-        runRegisterEntranceAnimations(
-            container = mainContent,
+        // Premium split-screen entrance (mirrored)
+        runEntranceAnimations(
+            rightPane = brandingPane,
+            formContainer = registerContainer,
             sequencedFields = listOf(
-                R.id.imgLogo, R.id.tvRegisterBase, R.id.tvRegisterAccent, R.id.tvTagline,
+                R.id.registerHeader,
                 R.id.nameContainer, R.id.emailContainer,
                 R.id.phoneContainer, R.id.shopContainer,
                 R.id.btnRegister, R.id.tvBackToLogin
             )
         )
 
-        startHeaderOscillation()
+        // 🔥 SLIDE-TO-LOGIN: Swipe the branding card to the left
+        setupSlideToToggle(brandingPane, isSwipeRight = false) {
+            val intent = Intent(this, MainActivity::class.java)
+            val options = androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this, brandingPane, "shared_branding_pane"
+            )
+            startActivity(intent, options.toBundle())
+        }
 
         btnRegister.applyPremiumClickAnimation()
 
@@ -117,8 +190,86 @@ class RegisterActivity : BaseActivity() {
             }
         }
 
+        // Back to Login — Mirroring the same transition logic as Login-to-Register
         tvBackToLogin.setOnClickListener {
-            finish()
+            runExitTransition {
+                val intent = Intent(this, MainActivity::class.java)
+                val options = androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    findViewById<View>(R.id.brandingPane),
+                    "shared_branding_pane"
+                )
+                startActivity(intent, options.toBundle())
+                finish() // Finish this to keep the stack clean
+            }
+        }
+    }
+
+    @Deprecated("Use onBackPressedDispatcher")
+    override fun onBackPressed() {
+        runExitTransition {
+            finishAfterTransition()
+        }
+    }
+
+    private fun runCascadingEntrance(items: List<Int>) {
+        if (entranceStarted) return
+        entranceStarted = true
+
+        items.forEachIndexed { index, id ->
+            findViewById<View>(id)?.animate()
+                ?.alpha(1f)
+                ?.translationY(0f)
+                ?.setStartDelay(index * 120L) // Slower stagger
+                ?.setDuration(1000L) // Slower reveal
+                ?.setInterpolator(android.view.animation.OvershootInterpolator(1.5f)) // More elastic
+                ?.start()
+        }
+    }
+
+    private fun setupSlideToToggle(view: View, isSwipeRight: Boolean, onAction: () -> Unit) {
+        var startX = 0f
+        val threshold = 120 // pixels (snappier)
+
+        view.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = event.rawX
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val deltaX = event.rawX - startX
+                    
+                    // Visual feedback: Drag the card slightly (Parallax)
+                    if (isSwipeRight && deltaX > 0) {
+                        v.translationX = deltaX * 0.15f // 15% resistance
+                    } else if (!isSwipeRight && deltaX < 0) {
+                        v.translationX = deltaX * 0.15f
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val endX = event.rawX
+                    val deltaX = endX - startX
+                    
+                    val triggered = if (isSwipeRight) deltaX > threshold else deltaX < -threshold
+                    
+                    if (triggered) {
+                        // Reset parallax instantly so the transition starts from a clean position
+                        v.translationX = 0f
+                        onAction()
+                    } else {
+                        // Snap back gracefully with a premium bounce
+                        v.animate()
+                            .translationX(0f)
+                            .setDuration(600)
+                            .setInterpolator(android.view.animation.OvershootInterpolator(1.2f))
+                            .start()
+                    }
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -148,105 +299,29 @@ class RegisterActivity : BaseActivity() {
     }
 
     /**
-     * Mirrors [MainActivity.runEntranceAnimations] so the visual
-     * choreography across login + register feels like one product.
+     * Premium entrance choreography (mirrored from login):
      *
-     *   1. Brand column slides in (0 ms).
-     *   2. Card lifts + scales in (160 ms).
-     *   3. Each child of [sequencedFields] cascades in 80 ms apart
-     *      starting at 360 ms.
+     *   1. Right branding pane slides in from right (0 ms).
+     *   2. Form container fades in from left (200 ms).
+     *   3. Form fields stagger-cascade up (80 ms apart).
      */
-    private fun runRegisterEntranceAnimations(
-        container: View,
+    private fun runEntranceAnimations(
+        rightPane: View,
+        formContainer: View,
         sequencedFields: List<Int>
     ) {
-        container.alpha = 0f
-        container.translationY = 60f
-        container.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setStartDelay(100L)
-            .setDuration(800L)
-            .setInterpolator(android.view.animation.DecelerateInterpolator(2.5f))
-            .start()
-
-        sequencedFields.forEachIndexed { index, viewId ->
-            val view = findViewById<View>(viewId) ?: return@forEachIndexed
-            view.alpha = 0f
-            view.translationY = 30f
-            view.scaleX = 0.95f
-            view.scaleY = 0.95f
-            view.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setStartDelay(250L + index * 50L)
-                .setDuration(700L)
-                .setInterpolator(android.view.animation.OvershootInterpolator(1.0f))
-                .start()
-        }
+        // Only the Shared Element Transition handles the branding pane.
+        // Form remains still as per user request.
     }
 
-
-    private fun startHeaderOscillation() {
-
-        val headers = listOf(
-            findViewById<TextView>(R.id.tvNewAccount)
-        ).filterNotNull()
-
-        headers.forEach { tv ->
-
-            // 🔹 smooth breathing (opacity)
-            val alphaAnim = android.animation.ObjectAnimator.ofFloat(tv, View.ALPHA, 0.6f, 1f).apply {
-                duration = 1400
-                repeatCount = android.animation.ValueAnimator.INFINITE
-                repeatMode = android.animation.ValueAnimator.REVERSE
-            }
-
-            // 🔹 subtle premium scale
-            val scaleX = android.animation.ObjectAnimator.ofFloat(tv, View.SCALE_X, 0.98f, 1f).apply {
-                duration = 1400
-                repeatCount = android.animation.ValueAnimator.INFINITE
-                repeatMode = android.animation.ValueAnimator.REVERSE
-            }
-
-            val scaleY = android.animation.ObjectAnimator.ofFloat(tv, View.SCALE_Y, 0.98f, 1f).apply {
-                duration = 1400
-                repeatCount = android.animation.ValueAnimator.INFINITE
-                repeatMode = android.animation.ValueAnimator.REVERSE
-            }
-
-            // 🔹 micro horizontal drift (VERY subtle, not cheap)
-            val translateX = android.animation.ObjectAnimator.ofFloat(tv, View.TRANSLATION_X, 0f, 4f).apply {
-                duration = 1400
-                repeatCount = android.animation.ValueAnimator.INFINITE
-                repeatMode = android.animation.ValueAnimator.REVERSE
-            }
-
-            // 🔹 soft glow (luxury feel)
-            val glowAnim = android.animation.ValueAnimator.ofFloat(0.2f, 1f).apply {
-                duration = 1400
-                repeatCount = android.animation.ValueAnimator.INFINITE
-                repeatMode = android.animation.ValueAnimator.REVERSE
-
-                addUpdateListener {
-                    val value = it.animatedValue as Float
-                    tv.setShadowLayer(
-                        8f * value,
-                        0f,
-                        0f,
-                        android.graphics.Color.parseColor("#00FF41")
-                    )
-                }
-            }
-
-            // 🔹 combine everything
-            android.animation.AnimatorSet().apply {
-                playTogether(alphaAnim, scaleX, scaleY, translateX, glowAnim)
-                start()
-            }
-        }
+    /**
+     * Premium exit choreography: stagger-fade form fields out,
+     * parallax the right pane, then invoke [onComplete].
+     */
+    private fun runExitTransition(onComplete: () -> Unit) {
+        // System handles the Shared Element and Return transitions.
+        // We just invoke onComplete to trigger finishAfterTransition().
+        onComplete()
     }
 
     private fun setupInputField(
@@ -258,23 +333,23 @@ class RegisterActivity : BaseActivity() {
         val editText = findViewById<EditText>(editTextId)
         val icon = findViewById<ImageView>(iconId)
 
+        // tap anywhere → focus
         container.setOnClickListener {
             editText.requestFocus()
         }
 
         editText.setOnFocusChangeListener { _, hasFocus ->
 
-            // 🔥 THIS LINE WAS MISSING (MAIN BUG)
+            // 🔥 THIS TRIGGERS BORDER HIGHLIGHT
             container.isActivated = hasFocus
 
             if (hasFocus) {
-                icon.setColorFilter(android.graphics.Color.parseColor("#00C853"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#00C853"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#6366F1"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#6366F1"))
             } else {
-                icon.setColorFilter(android.graphics.Color.parseColor("#8F9098"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#71717A"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
             }
         }
     }
-
 }

@@ -58,6 +58,7 @@
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
+            android:theme="@style/Theme.EasyBilling.Auth"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity" />
@@ -111,7 +112,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity" 
+            android:theme="@style/Theme.EasyBilling.Auth"/>
     </application>
 
 </manifest>

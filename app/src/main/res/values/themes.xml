@@ -43,6 +43,14 @@
 
 
     </style>
+    
+    <!-- ================= AUTH TRANSITION THEME ================= -->
+    <style name="Theme.EasyBilling.Auth" parent="Theme.EasyBilling">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
 
     <!-- ================= BUTTON STYLE ================= -->
     <style name="Widget.EasyBilling.Button" parent="Widget.Material3.Button">
