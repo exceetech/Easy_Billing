@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -26,63 +27,58 @@ class ForgotPasswordActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forgot_password)
-
-        // Setup professional toolbar with back arrow
-        setupToolbar(R.id.toolbar)
-        supportActionBar?.title = " "
-
+        // Setup View References
         val etEmail = findViewById<EditText>(R.id.etEmail)
-        val btnSubmit = findViewById<Button>(R.id.btnSubmit)
-
-        val otpLayout = findViewById<LinearLayout>(R.id.otpLayout)
         val etOtp = findViewById<EditText>(R.id.etOtp)
+        val btnSubmit = findViewById<Button>(R.id.btnSubmit)
         val btnVerifyOtp = findViewById<Button>(R.id.btnVerifyOtp)
-        val mainContent = findViewById<View>(R.id.mainContent)
-        val wordmarkAccent = findViewById<View>(R.id.wordmarkAccent)
+        val otpLayout = findViewById<LinearLayout>(R.id.otpLayout)
+        val btnBack = findViewById<View>(R.id.btnBack)
+        val monolithCard = findViewById<View>(R.id.monolithCard)
 
-        // Trademark Elastic Green Line Animation
-        wordmarkAccent.pivotX = 0f
-        wordmarkAccent.scaleX = 0f
-        wordmarkAccent.animate()
+        // 🔙 BACK BUTTON
+        btnBack.setOnClickListener { finish() }
+
+        // 🔥 MONOLITH ENTRANCE
+        monolithCard.alpha = 0f
+        monolithCard.scaleX = 0.95f
+        monolithCard.scaleY = 0.95f
+        monolithCard.animate()
+            .alpha(1f)
             .scaleX(1f)
-            .setStartDelay(400L)
-            .setDuration(1500L)
-            .setInterpolator(android.view.animation.OvershootInterpolator(5f))
+            .scaleY(1f)
+            .setDuration(900)
+            .setInterpolator(android.view.animation.OvershootInterpolator(1.2f))
             .start()
 
-        mainContent.runPremiumEntrance(
-            listOf(
-                findViewById(R.id.imgLogo),
-                findViewById(R.id.tvForgotBase),
-                findViewById(R.id.tvForgotAccent),
-                findViewById(R.id.tvTagline),
-                findViewById(R.id.emailContainer),
-                findViewById(R.id.btnSubmit)
-            )
+        // 🔥 CASCADING ENTRANCE: Recovery Form (Initially visible elements only)
+        val viewsToAnimate = listOf(
+            findViewById<View>(R.id.headerIconCard),
+            findViewById<View>(R.id.headerTitle),
+            findViewById<View>(R.id.headerSubtitle),
+            findViewById<View>(R.id.emailSection)
         )
+        
+        viewsToAnimate.forEachIndexed { index, view ->
+            view.alpha = 0f
+            view.translationX = -30f
+            view.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .setDuration(800)
+                .setStartDelay(400L + (index * 100L))
+                .setInterpolator(android.view.animation.OvershootInterpolator(1.2f))
+                .start()
+        }
 
-        listOfNotNull(
-            findViewById<TextView>(R.id.tvAccountRecovery)
-        )
-            .startPremiumHeaderOscillation()
-
-        setupPremiumInputField(
-            findViewById(R.id.emailContainer),
-            etEmail,
-            findViewById(R.id.iconEmail)
-        )
-
-        setupPremiumInputField(
-            findViewById(R.id.otpContainer),
-            findViewById(R.id.etOtp),
-            findViewById(R.id.iconOtp)
-        )
+        // ✨ INPUT FIELD SETUP
+        setupInputField(R.id.emailContainer, etEmail, findViewById(R.id.iconEmail))
+        setupInputField(R.id.otpContainer, etOtp, findViewById(R.id.iconOtp))
 
         btnSubmit.applyPremiumClickAnimation()
         btnVerifyOtp.applyPremiumClickAnimation()
 
         btnSubmit.setOnClickListener {
-
             val email = etEmail.text.toString().trim()
 
             if (email.isEmpty()) {
@@ -96,59 +92,54 @@ class ForgotPasswordActivity : BaseActivity() {
             }
 
             lifecycleScope.launch {
-
                 try {
-
                     btnSubmit.isEnabled = false
                     btnSubmit.text = "Sending..."
 
                     val request = ForgotPasswordRequest(email)
                     val response = RetrofitClient.api.forgotPassword(request)
 
-                    // Show OTP Layout
-                    otpLayout.visibility = View.VISIBLE
+                    // 🚀 CINEMATIC REVEAL: Show OTP Layout
+                    if (otpLayout.visibility == View.GONE) {
+                        otpLayout.visibility = View.VISIBLE
+                        otpLayout.alpha = 0f
+                        otpLayout.translationY = 20f
+                        otpLayout.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(600)
+                            .setInterpolator(android.view.animation.OvershootInterpolator(1.2f))
+                            .start()
+                    }
+
                     etOtp.isEnabled = true
                     btnVerifyOtp.isEnabled = true
                     etEmail.isEnabled = false
 
-                    Toast.makeText(
-                        this@ForgotPasswordActivity,
-                        response.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@ForgotPasswordActivity, response.message, Toast.LENGTH_SHORT).show()
 
                     // Start 60 second countdown
                     object : CountDownTimer(60000, 1000) {
-
                         override fun onTick(millisUntilFinished: Long) {
                             val seconds = millisUntilFinished / 1000
-                            btnSubmit.text = "Resend OTP in ${seconds} sec"
+                            btnSubmit.text = "Resend in ${seconds}s"
                             btnSubmit.isEnabled = false
                         }
-
                         override fun onFinish() {
                             btnSubmit.text = "Resend OTP"
                             btnSubmit.isEnabled = true
                         }
-
                     }.start()
 
                 } catch (e: Exception) {
-
                     btnSubmit.isEnabled = true
                     btnSubmit.text = "Submit"
-
-                    Toast.makeText(
-                        this@ForgotPasswordActivity,
-                        "Server error: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@ForgotPasswordActivity, "Server error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
         btnVerifyOtp.setOnClickListener {
-
             val otp = etOtp.text.toString().trim()
             val email = etEmail.text.toString().trim()
 
@@ -158,95 +149,54 @@ class ForgotPasswordActivity : BaseActivity() {
             }
 
             lifecycleScope.launch {
-
                 try {
-
                     btnVerifyOtp.isEnabled = false
                     btnVerifyOtp.text = "Verifying..."
 
                     val response = RetrofitClient.api.verifyOtp(email, otp)
-
                     if (response.isSuccessful) {
-
                         val body = response.body()
-
                         if (body?.otp_verified == true) {
-
                             val resetToken = body.access_token
-
-                            // Save reset token
-                            val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-                            prefs.edit()
+                            getSharedPreferences("auth", MODE_PRIVATE).edit()
                                 .putString("TOKEN", resetToken)
                                 .apply()
 
-                            Log.d("RESET_TOKEN", "Saved token: $resetToken")
-
-                            Toast.makeText(
-                                this@ForgotPasswordActivity,
-                                "OTP Verified Successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            val intent = Intent(
-                                this@ForgotPasswordActivity,
-                                ChangePasswordActivity::class.java
-                            )
-
-                            startActivity(intent)
+                            Toast.makeText(this@ForgotPasswordActivity, "OTP Verified Successfully", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this@ForgotPasswordActivity, ChangePasswordActivity::class.java))
                             finish()
                         }
-
                     } else {
-
-                        val code = response.code()
-
-                        if (response.code() == 401) {
-
-                            Toast.makeText(
-                                this@ForgotPasswordActivity,
-                                "Invalid OTP",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                        } else if (response.code() == 429) {
-
-                            Toast.makeText(
-                                this@ForgotPasswordActivity,
-                                "Too many attempts",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                        } else if (response.code() == 410) {
-
-                            Toast.makeText(
-                                this@ForgotPasswordActivity,
-                                "OTP expired",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }  else {
-
-                            Toast.makeText(
-                                this@ForgotPasswordActivity,
-                                "Server error (Code: ${response.code()})",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        when (response.code()) {
+                            401 -> Toast.makeText(this@ForgotPasswordActivity, "Invalid OTP", Toast.LENGTH_SHORT).show()
+                            429 -> Toast.makeText(this@ForgotPasswordActivity, "Too many attempts", Toast.LENGTH_SHORT).show()
+                            410 -> Toast.makeText(this@ForgotPasswordActivity, "OTP expired", Toast.LENGTH_SHORT).show()
+                            else -> Toast.makeText(this@ForgotPasswordActivity, "Server error: ${response.code()}", Toast.LENGTH_SHORT).show()
                         }
                     }
-
                 } catch (e: Exception) {
-
-                    Toast.makeText(
-                        this@ForgotPasswordActivity,
-                        "Network error: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
+                    Toast.makeText(this@ForgotPasswordActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 } finally {
-
                     btnVerifyOtp.isEnabled = true
                     btnVerifyOtp.text = "Verify OTP"
                 }
+            }
+        }
+    }
+
+    private fun setupInputField(containerId: Int, editText: EditText, icon: ImageView) {
+        val container = findViewById<View>(containerId)
+        
+        container.setOnClickListener { editText.requestFocus() }
+        
+        editText.setOnFocusChangeListener { _, hasFocus ->
+            container.isActivated = hasFocus
+            if (hasFocus) {
+                icon.setColorFilter(android.graphics.Color.parseColor("#6366F1"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#6366F1"))
+            } else {
+                icon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
             }
         }
     }
