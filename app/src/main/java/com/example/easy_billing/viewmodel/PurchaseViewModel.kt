@@ -32,6 +32,17 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
+    private val _selectedCreditAccount = MutableStateFlow<com.example.easy_billing.db.CreditAccount?>(null)
+    val selectedCreditAccount: StateFlow<com.example.easy_billing.db.CreditAccount?> = _selectedCreditAccount.asStateFlow()
+
+    fun selectCreditAccount(account: com.example.easy_billing.db.CreditAccount?) {
+        _selectedCreditAccount.value = account
+    }
+
+    fun clearCreditAccount() {
+        _selectedCreditAccount.value = null
+    }
+
     fun addLine(line: PurchaseItemDraft) {
         _lines.value = _lines.value + line
     }
@@ -91,6 +102,7 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
 
     fun clearTransient() {
         _state.value = _state.value.copy(error = null, savedPurchaseId = null, message = null)
+        _selectedCreditAccount.value = null
     }
 
     data class UiState(

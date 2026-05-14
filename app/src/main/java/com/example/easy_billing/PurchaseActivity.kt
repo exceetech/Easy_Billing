@@ -19,6 +19,7 @@ import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.repository.ProductVerificationRepository
 import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
 import com.example.easy_billing.util.HsnHelpLauncher
+import com.example.easy_billing.util.InvoiceDatePicker
 import com.example.easy_billing.viewmodel.PurchaseViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -50,6 +51,13 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var adapter: PurchaseLinesAdapter
 
     private lateinit var etInvoiceNumber: TextInputEditText
+    private lateinit var etInvoiceDate: TextInputEditText
+    /**
+     * Returns the currently-selected invoice date (epoch millis at
+     * UTC midnight) or null if the user hasn't picked one yet.
+     * Populated by [InvoiceDatePicker.bind] in onCreate.
+     */
+    private var invoiceDateProvider: () -> Long? = { null }
     private lateinit var etSupplierName: TextInputEditText
     private lateinit var etSupplierGstin: TextInputEditText
     private lateinit var etState: AutoCompleteTextView
@@ -58,6 +66,15 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var btnSave: MaterialButton
     private lateinit var tvTaxableTotal: TextView
     private lateinit var tvInvoiceTotal: TextView
+
+    // Credit Integration
+    private lateinit var rgCreditOption: android.widget.RadioGroup
+    private lateinit var rbCredit: android.widget.RadioButton
+    private lateinit var rbNotCredit: android.widget.RadioButton
+    private lateinit var cardSelectedAccount: com.google.android.material.card.MaterialCardView
+    private lateinit var tvSelectedAccountName: TextView
+    private lateinit var btnChangeAccount: MaterialButton
+    private lateinit var btnClearAccount: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,25 +97,49 @@ class PurchaseActivity : BaseActivity() {
         val sup = intent.getStringExtra("EXTRA_SUPPLIER_NAME")
         val gst = intent.getStringExtra("EXTRA_SUPPLIER_GSTIN")
         val st = intent.getStringExtra("EXTRA_STATE")
+        // Coming from the Inventory → "Add Purchased Stock" dialog —
+        // the user has already picked the invoice date there. Re-bind
+        // the picker so the field renders the chosen day and the
+        // submit-time provider returns it.
+        val invoiceDateExtra = intent
+            .getLongExtra("EXTRA_INVOICE_DATE", -1L)
+            .takeIf { it > 0L }
         val singleMode = intent.getBooleanExtra("EXTRA_SINGLE_MODE", false)
 
         if (inv != null) etInvoiceNumber.setText(inv)
         if (sup != null) etSupplierName.setText(sup)
         if (gst != null) etSupplierGstin.setText(gst)
         if (st != null) etState.setText(st, false)
+        if (invoiceDateExtra != null) {
+            invoiceDateProvider = InvoiceDatePicker.bind(
+                etInvoiceDate,
+                initialMillis = invoiceDateExtra
+            )
+        }
 
         if (singleMode) {
             btnAddLine.visibility = View.GONE
             val prodName = intent.getStringExtra("EXTRA_PRODUCT_NAME")
             val variant = intent.getStringExtra("EXTRA_PRODUCT_VARIANT")
+            val unit = intent.getStringExtra("EXTRA_PRODUCT_UNIT")
             if (prodName != null) {
-                showLineDialog(prefillName = prodName, prefillVariant = variant)
+                showLineDialog(
+                    prefillName = prodName,
+                    prefillVariant = variant,
+                    prefillUnit = unit,
+                    disableMeta = true
+                )
             }
         }
     }
 
     private fun bindViews() {
         etInvoiceNumber = findViewById(R.id.etInvoiceNumber)
+        etInvoiceDate   = findViewById(R.id.etInvoiceDate)
+        // Reusable picker — opens DatePickerDialog on tap, blocks
+        // soft keyboard, formats display as dd/MM/yyyy. The lambda
+        // it returns is how `btnSave` pulls the picked millis.
+        invoiceDateProvider = InvoiceDatePicker.bind(etInvoiceDate)
         etSupplierName  = findViewById(R.id.etSupplierName)
         etSupplierGstin = findViewById(R.id.etSupplierGstin)
         etState         = findViewById(R.id.etState)
@@ -107,6 +148,14 @@ class PurchaseActivity : BaseActivity() {
         btnSave         = findViewById(R.id.btnSavePurchase)
         tvTaxableTotal  = findViewById(R.id.tvTaxableTotal)
         tvInvoiceTotal  = findViewById(R.id.tvInvoiceTotal)
+
+        rgCreditOption = findViewById(R.id.rgCreditOption)
+        rbCredit = findViewById(R.id.rbCredit)
+        rbNotCredit = findViewById(R.id.rbNotCredit)
+        cardSelectedAccount = findViewById(R.id.cardSelectedAccount)
+        tvSelectedAccountName = findViewById(R.id.tvSelectedAccountName)
+        btnChangeAccount = findViewById(R.id.btnChangeAccount)
+        btnClearAccount = findViewById(R.id.btnClearAccount)
 
         setupStateSuggestions()
     }
@@ -150,6 +199,16 @@ class PurchaseActivity : BaseActivity() {
                 Toast.makeText(this, "Fill invoice header first", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            val pickedInvoiceDate = invoiceDateProvider()
+            if (pickedInvoiceDate == null) {
+                etInvoiceDate.error = "Pick the invoice date"
+                Toast.makeText(this, "Invoice date is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (pickedInvoiceDate > System.currentTimeMillis()) {
+                etInvoiceDate.error = "Invoice date cannot be in the future"
+                return@setOnClickListener
+            }
             val totals = computeTotals()
             val cgstPct = if (totals.taxable > 0) totals.cgstAmt / totals.taxable * 100 else 0.0
             val sgstPct = if (totals.taxable > 0) totals.sgstAmt / totals.taxable * 100 else 0.0
@@ -169,9 +228,37 @@ class PurchaseActivity : BaseActivity() {
                     cgstAmount     = totals.cgstAmt,
                     sgstAmount     = totals.sgstAmt,
                     igstAmount     = totals.igstAmt,
-                    invoiceValue   = totals.invoice
+                    invoiceValue   = totals.invoice,
+                    invoiceDate    = pickedInvoiceDate,
+                    isCredit       = rbCredit.isChecked,
+                    creditAccountId = viewModel.selectedCreditAccount.value?.id
                 )
             )
+        }
+
+        rgCreditOption.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == R.id.rbCredit) {
+                if (viewModel.selectedCreditAccount.value == null) {
+                    com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                        viewModel.selectCreditAccount(account)
+                    }
+                } else {
+                    cardSelectedAccount.visibility = View.VISIBLE
+                }
+            } else {
+                cardSelectedAccount.visibility = View.GONE
+            }
+        }
+
+        btnChangeAccount.setOnClickListener {
+            com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                viewModel.selectCreditAccount(account)
+            }
+        }
+
+        btnClearAccount.setOnClickListener {
+            viewModel.clearCreditAccount()
+            rbNotCredit.isChecked = true
         }
     }
 
@@ -206,6 +293,17 @@ class PurchaseActivity : BaseActivity() {
                         }
                     }
                 }
+                launch {
+                    viewModel.selectedCreditAccount.collect { account ->
+                        if (account != null) {
+                            tvSelectedAccountName.text = "Selected Account: ${account.name}"
+                            cardSelectedAccount.visibility = View.VISIBLE
+                            rbCredit.isChecked = true
+                        } else {
+                            cardSelectedAccount.visibility = View.GONE
+                        }
+                    }
+                }
             }
         }
     }
@@ -230,7 +328,12 @@ class PurchaseActivity : BaseActivity() {
      *  selling price + autofill from global verification)
      * ------------------------------------------------------------------ */
 
-    private fun showLineDialog(prefillName: String? = null, prefillVariant: String? = null) {
+    private fun showLineDialog(
+        prefillName: String? = null,
+        prefillVariant: String? = null,
+        prefillUnit: String? = null,
+        disableMeta: Boolean = false
+    ) {
         val view = layoutInflater.inflate(R.layout.dialog_purchase_line, null)
 
         val etProduct  = view.findViewById<AutoCompleteTextView>(R.id.etProductName)
@@ -261,15 +364,36 @@ class PurchaseActivity : BaseActivity() {
         // on a product name.
         val onProductSettled = {
             val name = etProduct.text?.toString()?.trim().orEmpty()
+            
+            // 🔥 Reset fields whenever name changes to avoid stale data
+            etHsn.setText("")
+            etSCgst.setText("")
+            etSSgst.setText("")
+            etSIgst.setText("")
+            etSelling.setText("")
+            
             if (name.isNotBlank()) {
                 tilVariant.visibility = View.VISIBLE
                 lifecycleScope.launch {
-                    val (globalVariants, history) = withContext(Dispatchers.IO) {
+                    val (globalVariants, history, globalHsn) = withContext(Dispatchers.IO) {
                         val gv = verifyRepo.variantsFor(name).getOrNull()?.variants
                             ?: productRepo.distinctVariants()
                         val hist = productRepo.autoFillFromHistory(name = name)
-                        gv to hist
+                        
+                        // Fetch global HSN if not in history
+                        var gHsn: String? = null
+                        if (hist == null || hist.hsnCode.isNullOrBlank()) {
+                            val verify = verifyRepo.verifyProductName(name).getOrNull()
+                            if (verify?.valid == true && verify.matched_global_id != null) {
+                                gHsn = runCatching {
+                                    verifyRepo.api.getHsn("Bearer ${verifyRepo.tokenProvider()}", verify.matched_global_id).hsn_code
+                                }.getOrNull()
+                            }
+                        }
+                        
+                        Triple(gv, hist, gHsn)
                     }
+                    
                     if (globalVariants.isNotEmpty()) {
                         etVariant.setAdapter(
                             ArrayAdapter(
@@ -279,16 +403,57 @@ class PurchaseActivity : BaseActivity() {
                             )
                         )
                     }
+                    
+                    // Autofill from history (preferred) or global HSN
+                    if (etHsn.text.isNullOrBlank()) {
+                        val finalHsn = history?.hsnCode ?: globalHsn
+                        if (!finalHsn.isNullOrBlank()) {
+                            etHsn.setText(finalHsn)
+                            
+                            // Derive Sales GST from HSN length if history is missing
+                            if (history == null || (history.cgstPercentage == 0.0 && history.igstPercentage == 0.0)) {
+                                val totalGst = when (finalHsn.length) {
+                                    4 -> 5.0
+                                    6 -> 12.0
+                                    else -> 18.0
+                                }
+                                val halfGst = totalGst / 2.0
+                                if (etSCgst.text.isNullOrBlank()) etSCgst.setText(halfGst.toString())
+                                if (etSSgst.text.isNullOrBlank()) etSSgst.setText(halfGst.toString())
+                                if (etSIgst.text.isNullOrBlank()) etSIgst.setText(totalGst.toString())
+                            }
+                        }
+                    }
+
                     history?.let { match ->
-                        if (etHsn.text.isNullOrBlank()) etHsn.setText(match.hsnCode.orEmpty())
-                        if (etSelling.text.isNullOrBlank() && match.price > 0)
-                            etSelling.setText(match.price.toString())
                         if (etSCgst.text.isNullOrBlank() && match.cgstPercentage > 0)
                             etSCgst.setText(match.cgstPercentage.toString())
                         if (etSSgst.text.isNullOrBlank() && match.sgstPercentage > 0)
                             etSSgst.setText(match.sgstPercentage.toString())
                         if (etSIgst.text.isNullOrBlank() && match.igstPercentage > 0)
                             etSIgst.setText(match.igstPercentage.toString())
+                    }
+                }
+            }
+        }
+
+        etVariant.setOnItemClickListener { _, _, position, _ ->
+            val vName = etVariant.adapter.getItem(position).toString()
+            val pName = etProduct.text.toString().trim()
+            lifecycleScope.launch {
+                val match = withContext(Dispatchers.IO) {
+                    productRepo.getByNameAndVariant(pName, vName)
+                }
+                if (match != null && match.isActive) {
+                    withContext(Dispatchers.Main) {
+                        if (etSelling.text.isNullOrBlank() || etSelling.text.toString() == "0.0") {
+                            etSelling.setText(match.price.toString())
+                        }
+                        // Also sync tax if history match found
+                        if (etSCgst.text.isNullOrBlank()) etSCgst.setText(match.cgstPercentage.toString())
+                        if (etSSgst.text.isNullOrBlank()) etSSgst.setText(match.sgstPercentage.toString())
+                        if (etSIgst.text.isNullOrBlank()) etSIgst.setText(match.igstPercentage.toString())
+                        if (etHsn.text.isNullOrBlank()) etHsn.setText(match.hsnCode.orEmpty())
                     }
                 }
             }
@@ -303,9 +468,37 @@ class PurchaseActivity : BaseActivity() {
 
             if (prefillName != null) {
                 etProduct.setText(prefillName)
+                if (disableMeta) {
+                    etProduct.isEnabled = false
+                    etProduct.isFocusable = false
+                    etProduct.isFocusableInTouchMode = false
+                    etProduct.setOnClickListener(null)
+                    (etProduct.parent.parent as? TextInputLayout)?.endIconMode = TextInputLayout.END_ICON_NONE
+                }
                 onProductSettled()
+                
+                // 🔥 For pre-filled flow (Inventory -> Add), fetch the specific variant's price immediately
                 if (prefillVariant != null) {
                     etVariant.setText(prefillVariant)
+                    if (disableMeta) {
+                        etVariant.isEnabled = false
+                        etVariant.isFocusable = false
+                        etVariant.isFocusableInTouchMode = false
+                        etVariant.setOnClickListener(null)
+                        view.findViewById<TextInputLayout>(R.id.tilVariant).endIconMode = TextInputLayout.END_ICON_NONE
+                    }
+                    
+                    val match = withContext(Dispatchers.IO) {
+                        productRepo.getByNameAndVariant(prefillName, prefillVariant)
+                    }
+                    if (match != null && match.isActive) {
+                        etSelling.setText(match.price.toString())
+                        if (etSCgst.text.isNullOrBlank()) etSCgst.setText(match.cgstPercentage.toString())
+                        if (etSSgst.text.isNullOrBlank()) etSSgst.setText(match.sgstPercentage.toString())
+                        if (etSIgst.text.isNullOrBlank()) etSIgst.setText(match.igstPercentage.toString())
+                        if (etHsn.text.isNullOrBlank()) etHsn.setText(match.hsnCode.orEmpty())
+                        if (etUnit.text.isNullOrBlank()) etUnit.setText(match.unit, false)
+                    }
                 }
             }
         }
@@ -351,18 +544,37 @@ class PurchaseActivity : BaseActivity() {
         // as AddProduct so the helper text / error renders identically.
         etHsn.addTextChangedListener { editable ->
             val hsn = editable?.toString()?.trim().orEmpty()
+            
+            // 🔥 Reset Sales GST when HSN changes manually
+            etSCgst.setText("")
+            etSSgst.setText("")
+            etSIgst.setText("")
+
             if (hsn.length < 4) return@addTextChangedListener
             lifecycleScope.launch {
                 val match = withContext(Dispatchers.IO) {
                     productRepo.autoFillFromHistory(hsn = hsn)
                 }
-                match ?: return@launch
-                if (etSCgst.text.isNullOrBlank() && match.cgstPercentage > 0)
-                    etSCgst.setText(match.cgstPercentage.toString())
-                if (etSSgst.text.isNullOrBlank() && match.sgstPercentage > 0)
-                    etSSgst.setText(match.sgstPercentage.toString())
-                if (etSIgst.text.isNullOrBlank() && match.igstPercentage > 0)
-                    etSIgst.setText(match.igstPercentage.toString())
+                if (match != null) {
+                    withContext(Dispatchers.Main) {
+                        if (etSCgst.text.isNullOrBlank()) etSCgst.setText(match.cgstPercentage.toString())
+                        if (etSSgst.text.isNullOrBlank()) etSSgst.setText(match.sgstPercentage.toString())
+                        if (etSIgst.text.isNullOrBlank()) etSIgst.setText(match.igstPercentage.toString())
+                    }
+                } else {
+                    // Fallback: length-based derivation
+                    withContext(Dispatchers.Main) {
+                        val totalGst = when (hsn.length) {
+                            4 -> 5.0
+                            6 -> 12.0
+                            else -> 18.0
+                        }
+                        val halfGst = totalGst / 2.0
+                        etSCgst.setText(halfGst.toString())
+                        etSSgst.setText(halfGst.toString())
+                        etSIgst.setText(totalGst.toString())
+                    }
+                }
             }
         }
 

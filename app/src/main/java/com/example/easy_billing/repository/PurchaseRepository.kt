@@ -76,6 +76,36 @@ class PurchaseRepository private constructor(
 
         val purchaseId = db.purchaseDao().insert(header).toInt()
 
+        // 1. Credit Integration
+        if (header.isCredit && header.creditAccountId != null) {
+            val shopId = context.getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
+                .getInt("SHOP_ID", 1)
+            
+            val account = db.creditAccountDao().getById(header.creditAccountId, shopId)
+            if (account != null) {
+                // Increase debt
+                val newDue = account.dueAmount + header.invoiceValue
+                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+
+                // Log transaction
+                db.creditTransactionDao().insert(
+                    com.example.easy_billing.db.CreditTransaction(
+                        accountId = account.id,
+                        shopId = shopId,
+                        amount = header.invoiceValue,
+                        type = "PURCHASE_CREDIT",
+                        referenceInvoice = header.invoiceNumber,
+                        isSynced = false
+                    )
+                )
+                
+                // Update the purchase record with the transaction id if needed
+                // (Though we've already inserted it, we could update it now if we had the tx id)
+                // Actually, the tx id is auto-generated. 
+                // We'll just leave it linked via creditAccountId for now as per schema.
+            }
+        }
+
         lines.forEach { line ->
             // 1. Upsert into shop_product using SALES tax from the
             //    line, marked as isPurchased=true so subsequent edit
@@ -152,7 +182,7 @@ class PurchaseRepository private constructor(
                     vendorGstin       = header.supplierGstin,
                     vendorName        = header.supplierName,
                     invoiceNumber     = header.invoiceNumber,
-                    invoiceDate       = header.createdAt,
+                    invoiceDate       = header.invoiceDate ?: header.createdAt,
                     totalInvoiceValue = line.invoiceValue,
                     taxableValue      = line.taxableAmount,
                     gstRate           = combinedRate,

@@ -77,6 +77,45 @@
                 android:buttonTint="@color/white"/>
         </RadioGroup>
 
+        <!-- Credit Adjustment Option (Visible only for Return) -->
+        <LinearLayout
+            android:id="@+id/layoutCreditReturn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adjust Credit Account?"
+                android:textColor="#80FFFFFF"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="8dp"/>
+
+            <CheckBox
+                android:id="@+id/cbAdjustCredit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reduce debt from account"
+                android:textColor="@color/white"
+                android:buttonTint="@color/white"/>
+
+            <TextView
+                android:id="@+id/tvReturnAccountName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No account selected"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

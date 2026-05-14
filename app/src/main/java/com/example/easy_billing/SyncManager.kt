@@ -231,6 +231,12 @@ class SyncManager(private val context: Context) {
                 sgst_amount      = p.sgstAmount,
                 igst_amount      = p.igstAmount,
                 invoice_value    = p.invoiceValue,
+                // Forward the supplier-printed invoice date so the
+                // backend's `purchases.invoice_date` column actually
+                // gets populated (was always null before this).
+                invoice_date     = p.invoiceDate,
+                is_credit        = p.isCredit,
+                credit_account_id = p.creditAccountId,
                 created_at       = p.createdAt,
                 items            = items
             )
@@ -306,6 +312,8 @@ class SyncManager(private val context: Context) {
                 state             = r.state,
                 supplier_gstin    = r.supplierGstin,
                 supplier_name     = r.supplierName,
+                is_credit         = r.isCredit,
+                credit_account_id = r.creditAccountId,
                 created_at        = r.createdAt
             )
         }
@@ -508,7 +516,8 @@ class SyncManager(private val context: Context) {
                     CreditSyncRequest(
                         account_id = account.serverId,
                         amount = txn.amount,
-                        type = txn.type
+                        type = txn.type,
+                        reference_invoice = txn.referenceInvoice
                     )
                 )
 

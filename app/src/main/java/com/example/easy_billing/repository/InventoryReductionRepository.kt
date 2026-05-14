@@ -87,7 +87,10 @@ class InventoryReductionRepository private constructor(
         reason: ClearReason,
         purchaseTaxCgst: Double = 0.0,
         purchaseTaxSgst: Double = 0.0,
-        purchaseTaxIgst: Double = 0.0
+        purchaseTaxIgst: Double = 0.0,
+        isCredit: Boolean = false,
+        creditAccountId: Int? = null,
+        shopId: Int = 1
     ): Boolean = db.withTransaction {
 
         val inventory = db.inventoryDao().getInventory(productId)
@@ -118,7 +121,9 @@ class InventoryReductionRepository private constructor(
                     igstPercentage   = purchaseTaxIgst,
                     cgstAmount       = cgstAmt,
                     sgstAmount       = sgstAmt,
-                    igstAmount       = igstAmt
+                    igstAmount       = igstAmt,
+                    isCredit         = isCredit,
+                    creditAccountId  = creditAccountId
                 )
             )
             ClearReason.SCRAP -> db.scrapDao().insert(
@@ -139,6 +144,28 @@ class InventoryReductionRepository private constructor(
                     reason         = "Manual reduction"
                 )
             )
+        }
+
+        // Credit Adjustment
+        if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null) {
+            val account = db.creditAccountDao().getById(creditAccountId, shopId)
+            if (account != null) {
+                // Reduce debt
+                val newDue = account.dueAmount - invoiceValue
+                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+
+                // Log transaction
+                db.creditTransactionDao().insert(
+                    com.example.easy_billing.db.CreditTransaction(
+                        accountId = account.id,
+                        shopId = shopId,
+                        amount = -invoiceValue, // Negative for return
+                        type = "PURCHASE_RETURN",
+                        referenceInvoice = "RETURN_$productName",
+                        isSynced = false
+                    )
+                )
+            }
         }
 
         InventoryManager.reduceStock(
@@ -164,7 +191,10 @@ class InventoryReductionRepository private constructor(
         purchaseTaxSgst: Double = 0.0,
         purchaseTaxIgst: Double = 0.0,
         supplierGstin: String? = null,
-        supplierName: String? = null
+        supplierName: String? = null,
+        isCredit: Boolean = false,
+        creditAccountId: Int? = null,
+        shopId: Int = 1
     ): ClearStockResult = db.withTransaction {
 
         val inventory = db.inventoryDao().getInventory(productId)
@@ -197,7 +227,9 @@ class InventoryReductionRepository private constructor(
                     sgstAmount       = sgstAmt,
                     igstAmount       = igstAmt,
                     supplierGstin    = supplierGstin,
-                    supplierName     = supplierName
+                    supplierName     = supplierName,
+                    isCredit         = isCredit,
+                    creditAccountId  = creditAccountId
                 )
             )
             ClearReason.SCRAP -> db.scrapDao().insert(
@@ -218,6 +250,26 @@ class InventoryReductionRepository private constructor(
                     reason         = "Stock cleared"
                 )
             )
+        }
+
+        // Credit Adjustment
+        if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null) {
+            val account = db.creditAccountDao().getById(creditAccountId, shopId)
+            if (account != null) {
+                val newDue = account.dueAmount - invoiceValue
+                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+
+                db.creditTransactionDao().insert(
+                    com.example.easy_billing.db.CreditTransaction(
+                        accountId = account.id,
+                        shopId = shopId,
+                        amount = -invoiceValue,
+                        type = "PURCHASE_RETURN",
+                        referenceInvoice = "CLEAR_$productName",
+                        isSynced = false
+                    )
+                )
+            }
         }
 
         // Inventory → 0 via the existing InventoryManager.clearStock

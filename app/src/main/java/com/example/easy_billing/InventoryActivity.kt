@@ -15,6 +15,7 @@ import com.example.easy_billing.db.LossEntry
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.GstEngine
+import com.example.easy_billing.util.InvoiceDatePicker
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
@@ -166,6 +167,10 @@ class InventoryActivity : BaseActivity() {
         val etSupplier = view.findViewById<EditText>(R.id.etSupplierName)
         val etGstin = view.findViewById<EditText>(R.id.etSupplierGstin)
         val etState = view.findViewById<AutoCompleteTextView>(R.id.etState)
+        val etInvoiceDate = view.findViewById<EditText>(R.id.etInvoiceDate)
+        // Reusable picker — opens calendar on tap, blocks keyboard,
+        // formats dd/MM/yyyy, caps at today.
+        val getInvoiceDate = InvoiceDatePicker.bind(etInvoiceDate)
         val btnContinue = view.findViewById<Button>(R.id.btnContinue)
         val btnCancel = view.findViewById<Button>(R.id.btnCancel)
 
@@ -185,6 +190,16 @@ class InventoryActivity : BaseActivity() {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            val pickedInvoiceDate = getInvoiceDate()
+            if (pickedInvoiceDate == null) {
+                etInvoiceDate.error = "Pick the invoice date"
+                Toast.makeText(this, "Invoice date is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (pickedInvoiceDate > System.currentTimeMillis()) {
+                etInvoiceDate.error = "Invoice date cannot be in the future"
+                return@setOnClickListener
+            }
 
             dialog.dismiss()
 
@@ -193,9 +208,11 @@ class InventoryActivity : BaseActivity() {
                 putExtra("EXTRA_SUPPLIER_NAME", sup)
                 putExtra("EXTRA_SUPPLIER_GSTIN", gst)
                 putExtra("EXTRA_STATE", st)
+                putExtra("EXTRA_INVOICE_DATE", pickedInvoiceDate)
                 putExtra("EXTRA_PRODUCT_ID", product.id)
                 putExtra("EXTRA_PRODUCT_NAME", product.name)
                 putExtra("EXTRA_PRODUCT_VARIANT", product.variant)
+                putExtra("EXTRA_PRODUCT_UNIT", product.unit)
                 putExtra("EXTRA_SINGLE_MODE", true)
             }
             startActivity(intent)
@@ -223,6 +240,39 @@ class InventoryActivity : BaseActivity() {
         tvCurrent.text = "Available: ${formatStock(currentStock)} ${product.unit ?: "piece"}"
         val allowDecimal = isDecimalAllowed(product.unit)
 
+        // Credit Integration
+        val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
+        val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
+        val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
+        var selectedAccountForReturn: com.example.easy_billing.db.CreditAccount? = null
+
+        rgReason.setOnCheckedChangeListener { _, checkedId ->
+            layoutCredit.visibility = if (checkedId == R.id.rbReturn) View.VISIBLE else View.GONE
+        }
+        // Initial state
+        layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
+
+        cbAdjust.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && selectedAccountForReturn == null) {
+                com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                    selectedAccountForReturn = account
+                    tvAccount.text = "Account: ${account.name}"
+                    tvAccount.visibility = View.VISIBLE
+                }
+            } else if (!isChecked) {
+                tvAccount.visibility = View.GONE
+            } else if (isChecked && selectedAccountForReturn != null) {
+                tvAccount.visibility = View.VISIBLE
+            }
+        }
+        
+        tvAccount.setOnClickListener {
+            com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                selectedAccountForReturn = account
+                tvAccount.text = "Account: ${account.name}"
+            }
+        }
+
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnConfirm.setOnClickListener {
@@ -242,10 +292,14 @@ class InventoryActivity : BaseActivity() {
             else
                 com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.SCRAP
 
+            val isCredit = view.findViewById<CheckBox>(R.id.cbAdjustCredit).isChecked
+            val creditAccountId = selectedAccountForReturn?.id
+
             dialog.dismiss()
 
             lifecycleScope.launch(Dispatchers.IO) {
                 val repo = com.example.easy_billing.repository.InventoryReductionRepository.get(this@InventoryActivity)
+                val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
                 try {
                     val success = repo.reduceStockByReason(
                         productId = product.id,
@@ -256,7 +310,10 @@ class InventoryActivity : BaseActivity() {
                         reason = reason,
                         purchaseTaxCgst = product.cgstPercentage,
                         purchaseTaxSgst = product.sgstPercentage,
-                        purchaseTaxIgst = product.igstPercentage
+                        purchaseTaxIgst = product.igstPercentage,
+                        isCredit = isCredit,
+                        creditAccountId = creditAccountId,
+                        shopId = shopId
                     )
 
                     if (success) {
@@ -290,6 +347,7 @@ class InventoryActivity : BaseActivity() {
 
         val btnCancel = view.findViewById<Button>(R.id.btnCancel)
         val btnClear  = view.findViewById<Button>(R.id.btnClear)
+        val rgReason  = view.findViewById<RadioGroup>(R.id.rgReason)
         val rbReturn  = view.findViewById<RadioButton>(R.id.rbReturn)
         val rbScrap   = view.findViewById<RadioButton>(R.id.rbScrap)
         val tvStock   = view.findViewById<TextView>(R.id.tvCurrentStock)
@@ -297,6 +355,38 @@ class InventoryActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val current = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
             withContext(Dispatchers.Main) { tvStock.text = "Remaining: ${formatStock(current)}" }
+        }
+
+        // Credit Integration
+        val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
+        val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
+        val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
+        var selectedAccountForClear: com.example.easy_billing.db.CreditAccount? = null
+
+        rgReason.setOnCheckedChangeListener { _, checkedId ->
+            layoutCredit.visibility = if (checkedId == R.id.rbReturn) View.VISIBLE else View.GONE
+        }
+        layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
+
+        cbAdjust.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && selectedAccountForClear == null) {
+                com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                    selectedAccountForClear = account
+                    tvAccount.text = "Account: ${account.name}"
+                    tvAccount.visibility = View.VISIBLE
+                }
+            } else if (!isChecked) {
+                tvAccount.visibility = View.GONE
+            } else if (isChecked && selectedAccountForClear != null) {
+                tvAccount.visibility = View.VISIBLE
+            }
+        }
+        
+        tvAccount.setOnClickListener {
+            com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                selectedAccountForClear = account
+                tvAccount.text = "Account: ${account.name}"
+            }
         }
 
         btnCancel.setOnClickListener { dialog.dismiss() }
@@ -313,12 +403,16 @@ class InventoryActivity : BaseActivity() {
                 }
             }
 
+            val isCredit = cbAdjust.isChecked
+            val creditAccountId = selectedAccountForClear?.id
+
             dialog.dismiss()
 
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     val product = db.productDao().getById(productId) ?: return@launch
                     val repo = com.example.easy_billing.repository.InventoryReductionRepository.get(this@InventoryActivity)
+                    val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
                     val result = repo.clearRemainingStock(
                         productId   = productId,
                         productName = product.name,
@@ -327,7 +421,10 @@ class InventoryActivity : BaseActivity() {
                         reason      = reason,
                         purchaseTaxCgst = product.cgstPercentage,
                         purchaseTaxSgst = product.sgstPercentage,
-                        purchaseTaxIgst = product.igstPercentage
+                        purchaseTaxIgst = product.igstPercentage,
+                        isCredit = isCredit,
+                        creditAccountId = creditAccountId,
+                        shopId = shopId
                     )
 
                     withContext(Dispatchers.Main) {

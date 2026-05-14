@@ -14,7 +14,9 @@ data class CreditTransaction(
     val shopId: Int,
 
     val amount: Double,
-    val type: String, // ADD / PAY / SETTLE
+    val type: String, // ADD / PAY / SETTLE / PURCHASE_CREDIT / PURCHASE_RETURN
+
+    val referenceInvoice: String? = null,
 
     val timestamp: Long = System.currentTimeMillis(),
 

@@ -36,7 +36,21 @@ data class Purchase(
 
     val invoiceValue: Double,
 
+    /**
+     * Date printed on the supplier's invoice — independent of
+     * [createdAt] (when the user keyed it in). Stored as epoch
+     * milliseconds at midnight UTC for the selected calendar day.
+     * Nullable so existing rows that pre-date this column stay
+     * valid after the v18→v19 migration.
+     */
+    @ColumnInfo(name = "invoice_date") val invoiceDate: Long? = null,
+
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "is_synced")  val isSynced: Boolean = false,
-    @ColumnInfo(name = "server_id")  val serverId: Int? = null
+    @ColumnInfo(name = "server_id")  val serverId: Int? = null,
+
+    // Credit Integration
+    @ColumnInfo(name = "is_credit")          val isCredit: Boolean = false,
+    @ColumnInfo(name = "credit_account_id")   val creditAccountId: Int? = null,
+    @ColumnInfo(name = "credit_transaction_id") val creditTransactionId: Int? = null
 )

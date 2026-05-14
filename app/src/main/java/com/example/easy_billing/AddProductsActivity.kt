@@ -965,42 +965,51 @@ class AddProductsActivity : BaseActivity() {
         val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
 
         lifecycleScope.launch {
-
             try {
                 val token = getSharedPreferences("auth", MODE_PRIVATE)
                     .getString("TOKEN", null) ?: return@launch
 
-                // ✅ Get catalog
-                val catalog = RetrofitClient.api.getCatalog("Bearer $token")
-                val product = catalog.find { it.name.equals(productName, true) }
-                    ?: return@launch
+                // ✅ 1. Verify product name and get global ID (Faster than full catalog)
+                val verifyResp = RetrofitClient.api.verifyProductName("Bearer $token", productName)
+                if (!verifyResp.valid || verifyResp.matched_global_id == null) return@launch
 
-                val productId = product.id
+                val productId = verifyResp.matched_global_id
 
-                // ✅ Fetch variants
-                val variants = RetrofitClient.api.getVariants(
-                    "Bearer $token",
-                    productId
-                )
+                // ✅ 2. Fetch HSN immediately
+                launch {
+                    try {
+                        val hsnResp = RetrofitClient.api.getHsn("Bearer $token", productId)
+                        withContext(Dispatchers.Main) {
+                            etHsn.setText(hsnResp.hsn_code)
+                            
+                            // Derive GST from HSN length
+                            val totalGst = when (hsnResp.hsn_code.length) {
+                                4 -> 5.0
+                                6 -> 12.0
+                                else -> 18.0
+                            }
+                            val halfGst = totalGst / 2.0
+                            dialogView.findViewById<EditText>(R.id.etCgst).setText(halfGst.toString())
+                            dialogView.findViewById<EditText>(R.id.etSgst).setText(halfGst.toString())
+                            dialogView.findViewById<EditText>(R.id.etIgst).setText(totalGst.toString())
+                            etGst.setText(totalGst.toString())
+                        }
+                    } catch (e: Exception) { e.printStackTrace() }
+                }
 
+                // ✅ 3. Fetch variants
+                val variants = RetrofitClient.api.getVariants("Bearer $token", productId)
                 val variantNames = variants.map { it.variant_name }
 
                 withContext(Dispatchers.Main) {
-
                     val adapter = ArrayAdapter(
                         this@AddProductsActivity,
                         android.R.layout.simple_list_item_1,
                         variantNames
                     )
-
                     etVariant.setAdapter(adapter)
+                    etVariant.setOnClickListener { etVariant.showDropDown() }
 
-                    // 🔥 Always show dropdown on click
-                    etVariant.setOnClickListener {
-                        etVariant.showDropDown()
-                    }
-
-                    // 🔥 USER TYPES → normalize text
                     etVariant.addTextChangedListener {
                         val normalized = it.toString()
                             .trim()
@@ -1009,7 +1018,6 @@ class AddProductsActivity : BaseActivity() {
                                 if (word.isEmpty()) word
                                 else word.replaceFirstChar { c -> c.uppercase() }
                             }
-
                         if (normalized != it.toString()) {
                             etVariant.setText(normalized)
                             etVariant.setSelection(normalized.length)
@@ -1031,16 +1039,23 @@ class AddProductsActivity : BaseActivity() {
                                 withContext(Dispatchers.Main) {
 
                                     etHsn.setText(hsnResp.hsn_code)
-
                                     etUnit.setText(selectedVariant.unit, false)
 
-                                    val gst = when (hsnResp.hsn_code.length) {
+                                    val totalGst = when (hsnResp.hsn_code.length) {
                                         4 -> 5.0
                                         6 -> 12.0
                                         else -> 18.0
                                     }
 
-                                    etGst.setText(gst.toString())
+                                    val halfGst = totalGst / 2.0
+                                    
+                                    // Autofill the split components
+                                    dialogView.findViewById<EditText>(R.id.etCgst).setText(halfGst.toString())
+                                    dialogView.findViewById<EditText>(R.id.etSgst).setText(halfGst.toString())
+                                    dialogView.findViewById<EditText>(R.id.etIgst).setText(totalGst.toString())
+                                    
+                                    // Update legacy field
+                                    etGst.setText(totalGst.toString())
                                 }
 
                             } catch (e: Exception) {

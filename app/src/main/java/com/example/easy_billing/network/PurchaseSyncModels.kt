@@ -85,6 +85,10 @@ data class PurchaseDto(
     val sgst_amount: Double,
     val igst_amount: Double,
     val invoice_value: Double,
+    /** Epoch millis of the date printed on the invoice. Nullable. */
+    val invoice_date: Long? = null,
+    val is_credit: Boolean = false,
+    val credit_account_id: Int? = null,
     val created_at: Long,
     val items: List<PurchaseItemDto>
 )
@@ -145,6 +149,8 @@ data class PurchaseReturnDto(
     val state: String,
     val supplier_gstin: String?,
     val supplier_name: String?,
+    val is_credit: Boolean = false,
+    val credit_account_id: Int? = null,
     val created_at: Long
 )
 

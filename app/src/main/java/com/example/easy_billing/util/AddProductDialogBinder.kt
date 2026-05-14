@@ -58,6 +58,7 @@ object AddProductDialogBinder {
         val etGst   = dialogView.findViewById<EditText>(R.id.etGstRate)
         val btnHelp = dialogView.findViewById<MaterialButton>(R.id.btnHsnHelp)
         val etVariant = dialogView.findViewById<AutoCompleteTextView>(R.id.etVariantName)
+        val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
 
         // 1. HSN help → browser
         btnHelp?.setOnClickListener { HsnHelpLauncher.open(it.context) }
@@ -78,22 +79,137 @@ object AddProductDialogBinder {
         etSgst.addTextChangedListener(mirror)
         etIgst.addTextChangedListener(mirror)
 
-        // 3. HSN: debounced backend verify + local autofill.
+        // 3. Name: debounced backend verify + local autofill (for "Others" flow).
+        val etCustomName = dialogView.findViewById<EditText>(R.id.etDialogCustomName)
+        var nameJob: Job? = null
+        etCustomName?.addTextChangedListener { editable ->
+            val name = editable?.toString()?.trim().orEmpty()
+            nameJob?.cancel()
+            if (name.length < 3) return@addTextChangedListener
+
+            nameJob = scope.launch {
+                delay(HSN_DEBOUNCE_MS)
+                
+                withContext(Dispatchers.Main) {
+                    // 🔥 Clear fields before new lookup
+                    etHsn.setText("")
+                    etCgst.setText("")
+                    etSgst.setText("")
+                    etIgst.setText("")
+                }
+
+                // A. Local history check
+                val localMatch = withContext(Dispatchers.IO) {
+                    productRepo.autoFillFromHistory(name = name)
+                }
+                if (localMatch != null) {
+                    withContext(Dispatchers.Main) {
+                        applyAutofill(localMatch.hsnCode, localMatch.cgstPercentage,
+                            localMatch.sgstPercentage, localMatch.igstPercentage,
+                            etHsn, etCgst, etSgst, etIgst, onAutofill)
+                    }
+                }
+
+                // B. Global registry check
+                val result = withContext(Dispatchers.IO) {
+                    verificationRepo.verifyProductName(name)
+                }
+                result.onSuccess { resp ->
+                    if (resp.valid && resp.matched_global_id != null) {
+                        val gId = resp.matched_global_id
+                        
+                        // Fetch HSN
+                        val hsnRes = withContext(Dispatchers.IO) {
+                            verificationRepo.api.getHsn("Bearer ${verificationRepo.tokenProvider()}", gId)
+                        }
+                        
+                        // Fetch Variants
+                        val varRes = withContext(Dispatchers.IO) {
+                            verificationRepo.api.getVariants("Bearer ${verificationRepo.tokenProvider()}", gId)
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            // Autofill HSN if blank
+                            if (etHsn.text.isNullOrBlank()) {
+                                etHsn.setText(hsnRes.hsn_code)
+                                
+                                // Derivation logic (standard across app)
+                                val totalGst = when (hsnRes.hsn_code.length) {
+                                    4 -> 5.0
+                                    6 -> 12.0
+                                    else -> 18.0
+                                }
+                                val halfGst = totalGst / 2.0
+                                etCgst.setText(halfGst.toString())
+                                etSgst.setText(halfGst.toString())
+                                etIgst.setText(totalGst.toString())
+                            }
+
+                            // Setup variants
+                            if (varRes.isNotEmpty()) {
+                                val vNames = varRes.map { it.variant_name.firstCapital() }
+                                etVariant.setAdapter(ArrayAdapter(etVariant.context, android.R.layout.simple_list_item_1, vNames))
+                                
+                                // 🔥 Add listener to these newly fetched variants
+                                etVariant.setOnItemClickListener { _, _, pos, _ ->
+                                    val selectedV = varRes[pos]
+                                    etUnit.setText(selectedV.unit, false)
+                                    // Update HSN/GST if variant has its own or if we want to refresh
+                                    scope.launch {
+                                        try {
+                                            val hRes = withContext(Dispatchers.IO) {
+                                                verificationRepo.api.getHsn("Bearer ${verificationRepo.tokenProvider()}", gId)
+                                            }
+                                            withContext(Dispatchers.Main) {
+                                                etHsn.setText(hRes.hsn_code)
+                                            }
+                                        } catch (e: Exception) {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. HSN: debounced backend verify + local autofill.
         val hsnTextInputLayout = etHsn.parent.parent as? TextInputLayout
         var hsnJob: Job? = null
         etHsn.addTextChangedListener { editable ->
             val hsn = editable?.toString()?.trim().orEmpty()
-            // Local autofill (offline-friendly): pull tax + variant
-            // from history when the HSN code matches a previous row.
+            
+            // 🔥 Reset GST fields when HSN changes to avoid stale data
+            etCgst.setText("")
+            etSgst.setText("")
+            etIgst.setText("")
+
+            // Local autofill (offline-friendly)
             if (hsn.length >= 4) {
                 scope.launch {
                     val match = withContext(Dispatchers.IO) {
                         productRepo.autoFillFromHistory(hsn = hsn)
                     }
-                    match ?: return@launch
-                    applyAutofill(match.hsnCode, match.cgstPercentage,
-                        match.sgstPercentage, match.igstPercentage,
-                        etHsn, etCgst, etSgst, etIgst, onAutofill)
+                    if (match != null) {
+                        withContext(Dispatchers.Main) {
+                            applyAutofill(match.hsnCode, match.cgstPercentage,
+                                match.sgstPercentage, match.igstPercentage,
+                                etHsn, etCgst, etSgst, etIgst, onAutofill)
+                        }
+                    } else {
+                        // Fallback: derive from length as a starting point
+                        withContext(Dispatchers.Main) {
+                            val totalGst = when (hsn.length) {
+                                4 -> 5.0
+                                6 -> 12.0
+                                else -> 18.0
+                            }
+                            val halfGst = totalGst / 2.0
+                            etCgst.setText(halfGst.toString())
+                            etSgst.setText(halfGst.toString())
+                            etIgst.setText(totalGst.toString())
+                        }
+                    }
                 }
             }
 
@@ -112,6 +228,21 @@ object AddProductDialogBinder {
                         hsnTextInputLayout?.error = null
                         hsnTextInputLayout?.helperText =
                             resp.description?.takeIf { it.isNotBlank() } ?: "HSN verified"
+                        
+                        // If verified, ensure we have tax (if not already set by history/derivation)
+                        withContext(Dispatchers.Main) {
+                            if (etCgst.text.isNullOrBlank()) {
+                                val totalGst = when (hsn.length) {
+                                    4 -> 5.0
+                                    6 -> 12.0
+                                    else -> 18.0
+                                }
+                                val halfGst = totalGst / 2.0
+                                etCgst.setText(halfGst.toString())
+                                etSgst.setText(halfGst.toString())
+                                etIgst.setText(totalGst.toString())
+                            }
+                        }
                     } else {
                         hsnTextInputLayout?.error =
                             resp.message ?: "HSN not found in registry"

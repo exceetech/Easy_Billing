@@ -1,158 +1,159 @@
 package com.example.easy_billing
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
+import android.view.View
+import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.ChangePasswordRequest
-import com.example.easy_billing.util.applyPremiumClickAnimation
+import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import com.example.easy_billing.util.runPremiumEntrance
-import com.example.easy_billing.util.setupPremiumInputField
-import com.example.easy_billing.util.startPremiumHeaderOscillation
 
 class ChangePasswordActivity : BaseActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(animatedInstanceState: Bundle?) {
+        super.onCreate(animatedInstanceState)
         setContentView(R.layout.activity_change_password)
 
+        // Setup View References
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
-        val btnSave = findViewById<Button>(R.id.btnSavePassword)
+        val btnChangePassword = findViewById<Button>(R.id.btnChangePassword)
+        val btnBack = findViewById<View>(R.id.btnBack)
+        val monolithCard = findViewById<View>(R.id.monolithCard)
 
-        val mainContent = findViewById<View>(R.id.mainContent)
-        val wordmarkAccent = findViewById<View>(R.id.wordmarkAccent)
+        // 🔙 BACK BUTTON
+        btnBack.setOnClickListener { finish() }
 
-        val iconNewPassword = findViewById<ImageView>(R.id.iconNewPassword)
-        val iconConfirmPassword = findViewById<ImageView>(R.id.iconConfirmPassword)
-
-        // Trademark Elastic Green Line Animation
-        wordmarkAccent.pivotX = 0f
-        wordmarkAccent.scaleX = 0f
-        wordmarkAccent.animate()
+        // 🔥 MONOLITH ENTRANCE
+        monolithCard.alpha = 0f
+        monolithCard.scaleX = 0.95f
+        monolithCard.scaleY = 0.95f
+        monolithCard.animate()
+            .alpha(1f)
             .scaleX(1f)
-            .setStartDelay(400L)
-            .setDuration(1500L)
-            .setInterpolator(android.view.animation.OvershootInterpolator(5f))
+            .scaleY(1f)
+            .setDuration(900)
+            .setInterpolator(OvershootInterpolator(1.2f))
             .start()
 
-
-        mainContent.runPremiumEntrance(
-            listOf(
-                findViewById(R.id.imgLogo),
-                findViewById(R.id.tvChangeBase),
-                findViewById(R.id.tvChangeAccent),
-                findViewById(R.id.tvTagline),
-                findViewById(R.id.newPasswordContainer),
-                findViewById(R.id.confirmPasswordContainer),
-                findViewById(R.id.btnSavePassword)
-            )
+        // 🔥 CASCADING ENTRANCE: Form Elements
+        val viewsToAnimate = listOf(
+            findViewById<View>(R.id.headerIconCard),
+            findViewById<View>(R.id.headerTitle),
+            findViewById<View>(R.id.headerSubtitle),
+            findViewById<View>(R.id.passwordSection)
         )
+        
+        viewsToAnimate.forEachIndexed { index, view ->
+            view.alpha = 0f
+            view.translationX = -30f
+            view.animate()
+                .alpha(1f)
+                .translationX(0f)
+                .setDuration(800)
+                .setStartDelay(400L + (index * 100L))
+                .setInterpolator(OvershootInterpolator(1.2f))
+                .start()
+        }
 
-        setupPremiumInputField(
-            findViewById(R.id.newPasswordContainer),
-            etNewPassword,
-            iconNewPassword
-        )
+        // ✨ INPUT FIELD SETUP
+        setupInputField(R.id.passwordContainer, etNewPassword, findViewById(R.id.iconPassword))
+        setupInputField(R.id.confirmPasswordContainer, etConfirmPassword, findViewById(R.id.iconConfirmPassword))
 
-        setupPremiumInputField(
-            findViewById(R.id.confirmPasswordContainer),
-            etConfirmPassword,
-            iconConfirmPassword
-        )
+        btnChangePassword.applyPremiumClickAnimation()
 
-        listOfNotNull(
-            findViewById<TextView>(R.id.tvSecurityUpdate)
-        )
-            .startPremiumHeaderOscillation()
-
-        btnSave.applyPremiumClickAnimation()
-
-        btnSave.setOnClickListener {
-
+        btnChangePassword.setOnClickListener {
             val newPass = etNewPassword.text.toString().trim()
             val confirmPass = etConfirmPassword.text.toString().trim()
 
-            if (newPass.length < 4) {
-                etNewPassword.error = "Password must be at least 4 characters"
+            if (newPass.isEmpty() || confirmPass.isEmpty()) {
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (newPass != confirmPass) {
-                etConfirmPassword.error = "Passwords do not match"
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-
-            // reset token saved after OTP verification
-            val token = prefs.getString("TOKEN", null)
-
-            Log.d("RESET_TOKEN", "Token = $token")
-
-            if (token.isNullOrEmpty()) {
-
-                Toast.makeText(
-                    this,
-                    "Reset session expired. Please request OTP again.",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                startActivity(Intent(this, ForgotPasswordActivity::class.java))
-                finish()
+            if (newPass.length < 6) {
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
-
                 try {
+                    btnChangePassword.isEnabled = false
+                    btnChangePassword.text = "Updating..."
 
-                    val response = RetrofitClient.api.resetPassword(
-                        "Bearer $token",
-                        ChangePasswordRequest(newPass)
-                    )
+                    // Retrieve reset token from SharedPreferences
+                    val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+                    val token = prefs.getString("TOKEN", "") ?: ""
 
-                    Toast.makeText(
-                        this@ChangePasswordActivity,
-                        "Password changed successfully",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    if (token.isEmpty()) {
+                        Toast.makeText(this@ChangePasswordActivity, "Session expired. Please try again.", Toast.LENGTH_LONG).show()
+                        finish()
+                        return@launch
+                    }
 
-                    // clear reset token
-                    prefs.edit { remove("TOKEN") }
-
-                    val intent = Intent(
-                        this@ChangePasswordActivity,
-                        MainActivity::class.java
-                    )
-
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
-                    startActivity(intent)
-                    finish()
+                    val response = RetrofitClient.api.resetPassword("Bearer $token", ChangePasswordRequest(newPass))
+                    
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@ChangePasswordActivity, "Password updated successfully!", Toast.LENGTH_LONG).show()
+                        
+                        // Navigate to Login Activity
+                        val intent = Intent(this@ChangePasswordActivity, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this@ChangePasswordActivity, "Failed to update password", Toast.LENGTH_SHORT).show()
+                    }
 
                 } catch (e: Exception) {
-
-                    Log.e("RESET_PASSWORD_ERROR", e.message ?: "Unknown")
-
-                    Toast.makeText(
-                        this@ChangePasswordActivity,
-                        "Unable to reset password",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@ChangePasswordActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    btnChangePassword.isEnabled = true
+                    btnChangePassword.text = "Change Password"
                 }
             }
+        }
+    }
+
+    private fun setupInputField(containerId: Int, editText: EditText, icon: ImageView) {
+        val container = findViewById<View>(containerId)
+        container.setOnClickListener { editText.requestFocus() }
+        
+        editText.setOnFocusChangeListener { _, hasFocus ->
+            container.isActivated = hasFocus
+            if (hasFocus) {
+                icon.setColorFilter(Color.parseColor("#6366F1"))
+                editText.setHintTextColor(Color.parseColor("#6366F1"))
+            } else {
+                icon.setColorFilter(Color.parseColor("#94A3B8"))
+                editText.setHintTextColor(Color.parseColor("#94A3B8"))
+            }
+        }
+    }
+
+    private fun View.applyPremiumClickAnimation() {
+        this.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(100).start()
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                }
+            }
+            false
         }
     }
 }

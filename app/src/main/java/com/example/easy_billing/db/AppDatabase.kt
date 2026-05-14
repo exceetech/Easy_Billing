@@ -41,7 +41,7 @@ import com.example.easy_billing.DefaultProductDao
         PurchaseReturn::class,
         ScrapEntry::class
     ],
-    version = 18
+    version = 20
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -483,6 +483,46 @@ abstract class AppDatabase : RoomDatabase() {
          * pair instead of replacing them — bill-history, reports and
          * inventory deduction continue to work unchanged.
          */
+
+        /**
+         * v18 → v19
+         *
+         * Adds `invoice_date` to `purchase_table` so purchase invoices
+         * remember the date the supplier printed on the bill — distinct
+         * from `created_at` (when the user keyed it in). Stored as
+         * epoch millis. Nullable so the column back-fills cleanly for
+         * pre-existing rows.
+         */
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `invoice_date` INTEGER")
+            }
+        }
+
+        /**
+         * v19 → v20
+         *
+         *   • purchase_table: add is_credit, credit_account_id, credit_transaction_id.
+         *   • purchase_return_table: add is_credit, credit_account_id, credit_transaction_id.
+         *   • credit_transactions: add referenceInvoice.
+         */
+        val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // purchase_table
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `is_credit` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `credit_account_id` INTEGER")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `credit_transaction_id` INTEGER")
+
+                // purchase_return_table
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `is_credit` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `credit_account_id` INTEGER")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `credit_transaction_id` INTEGER")
+
+                // credit_transactions
+                db.execSQL("ALTER TABLE `credit_transactions` ADD COLUMN `referenceInvoice` TEXT")
+            }
+        }
+
         val MIGRATION_17_18 = object : Migration(17, 18) {
             override fun migrate(db: SupportSQLiteDatabase) {
 
@@ -557,7 +597,9 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_14_15,
                         MIGRATION_15_16,
                         MIGRATION_16_17,
-                        MIGRATION_17_18
+                        MIGRATION_17_18,
+                        MIGRATION_18_19,
+                        MIGRATION_19_20
                     )
                     .fallbackToDestructiveMigration()
                     .build()

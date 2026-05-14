@@ -51,5 +51,10 @@ data class PurchaseReturn(
     val supplierName: String? = null,
 
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "is_synced")  val isSynced: Boolean = false
+    @ColumnInfo(name = "is_synced")  val isSynced: Boolean = false,
+
+    // Credit Integration
+    @ColumnInfo(name = "is_credit")          val isCredit: Boolean = false,
+    @ColumnInfo(name = "credit_account_id")   val creditAccountId: Int? = null,
+    @ColumnInfo(name = "credit_transaction_id") val creditTransactionId: Int? = null
 )

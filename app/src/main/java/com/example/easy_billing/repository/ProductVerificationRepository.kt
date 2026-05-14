@@ -19,8 +19,8 @@ import com.example.easy_billing.network.VariantListResponse
  * "valid / invalid / no internet" without throwing.
  */
 class ProductVerificationRepository private constructor(
-    private val api: ApiService,
-    private val tokenProvider: () -> String?
+    val api: ApiService,
+    val tokenProvider: () -> String?
 ) {
 
     suspend fun verifyHsn(hsn: String): Result<HsnVerificationResponse> = runCatching {
