@@ -70,7 +70,7 @@ class NetworkReceiver(private val context: Context) {
                 .getString("TOKEN", null) ?: return false
 
             withTimeout(3000) {
-                RetrofitClient.api.getSubscription("Bearer $token")
+                RetrofitClient.api.getSubscription(token)
             }
 
             true

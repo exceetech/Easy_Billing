@@ -209,7 +209,7 @@ class ReportsActivity : BaseActivity() {
             try {
 
                 val response = RetrofitClient.api.sendEmailReport(
-                    token = "Bearer $token",
+                    token = token,
                     type = type,
                     startDate = startDate,
                     endDate = endDate

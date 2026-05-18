@@ -39,9 +39,15 @@ import com.example.easy_billing.DefaultProductDao
         Purchase::class,
         PurchaseItem::class,
         PurchaseReturn::class,
-        ScrapEntry::class
+        ScrapEntry::class,
+
+        // Hybrid inventory architecture (v21) — purchase batches
+        // back the FIFO ledger so supplier returns can be valued at
+        // their original batch cost while sales / scrap stay on the
+        // weighted average. See [PurchaseBatch].
+        PurchaseBatch::class
     ],
-    version = 20
+    version = 22
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -82,6 +88,9 @@ abstract class AppDatabase : RoomDatabase() {
     // GST-aware billing (v18)
     abstract fun gstSalesInvoiceDao(): GstSalesInvoiceDao
     abstract fun gstSalesInvoiceItemDao(): GstSalesInvoiceItemDao
+
+    // Hybrid inventory architecture (v21) — purchase batches.
+    abstract fun purchaseBatchDao(): PurchaseBatchDao
 
     companion object {
 
@@ -523,6 +532,91 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v20 → v21
+         *
+         * Introduces the `purchase_batches` table that underpins the
+         * hybrid valuation model:
+         *   • weighted average for valuation / sales / dashboards
+         *   • batch-cost for supplier returns
+         *   • FIFO internal consumption
+         *
+         * One synthetic batch is back-filled per existing inventory
+         * row so SUM(quantityRemaining) immediately equals the
+         * current stock — without this, products that existed before
+         * the hybrid rollout would be invisible to the batch ledger.
+         * The synthetic row carries the current average cost and a
+         * created_at of 0 so any FIFO walk drains it first.
+         */
+        val MIGRATION_20_21 = object : Migration(20, 21) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `purchase_batches` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `productId` INTEGER NOT NULL,
+                        `purchaseInvoiceId` INTEGER,
+                        `supplierName` TEXT,
+                        `supplierGstin` TEXT,
+                        `invoiceNumber` TEXT,
+                        `batchCode` TEXT,
+                        `quantityPurchased` REAL NOT NULL,
+                        `quantityRemaining` REAL NOT NULL,
+                        `unit_cost_excluding_tax` REAL NOT NULL,
+                        `gst_percent` REAL NOT NULL DEFAULT 0.0,
+                        `cgst_percent` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_percent` REAL NOT NULL DEFAULT 0.0,
+                        `igst_percent` REAL NOT NULL DEFAULT 0.0,
+                        `invoiceValue` REAL NOT NULL DEFAULT 0.0,
+                        `taxableValue` REAL NOT NULL DEFAULT 0.0,
+                        `created_at` INTEGER NOT NULL,
+                        `is_synced` INTEGER NOT NULL DEFAULT 0
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_purchase_batches_productId` " +
+                        "ON `purchase_batches`(`productId`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_purchase_batches_purchaseInvoiceId` " +
+                        "ON `purchase_batches`(`purchaseInvoiceId`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_purchase_batches_is_synced` " +
+                        "ON `purchase_batches`(`is_synced`)"
+                )
+
+                // Back-fill synthetic migration batches so legacy
+                // inventory rows are immediately visible to the FIFO
+                // walker. createdAt = 0 → these get consumed first.
+                db.execSQL(
+                    """
+                    INSERT INTO `purchase_batches` (
+                        productId, purchaseInvoiceId, supplierName, supplierGstin,
+                        invoiceNumber, batchCode,
+                        quantityPurchased, quantityRemaining,
+                        unit_cost_excluding_tax,
+                        gst_percent, cgst_percent, sgst_percent, igst_percent,
+                        invoiceValue, taxableValue,
+                        created_at, is_synced
+                    )
+                    SELECT
+                        productId, NULL, NULL, NULL,
+                        NULL, 'MIGRATION',
+                        currentStock, currentStock,
+                        averageCost,
+                        0.0, 0.0, 0.0, 0.0,
+                        currentStock * averageCost, currentStock * averageCost,
+                        0, 1
+                    FROM `inventory`
+                    WHERE currentStock > 0
+                    """.trimIndent()
+                )
+            }
+        }
+
         val MIGRATION_17_18 = object : Migration(17, 18) {
             override fun migrate(db: SupportSQLiteDatabase) {
 
@@ -582,6 +676,31 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+//        fun getDatabase(context: Context): AppDatabase {
+//            return INSTANCE ?: synchronized(this) {
+//                INSTANCE ?: Room.databaseBuilder(
+//                    context.applicationContext,
+//                    AppDatabase::class.java,
+//                    "easy_billing_db"
+//                )
+//                    .addMigrations(
+//                        MIGRATION_10_11,
+//                        MIGRATION_11_12,
+//                        MIGRATION_12_13,
+//                        MIGRATION_13_14,
+//                        MIGRATION_14_15,
+//                        MIGRATION_15_16,
+//                        MIGRATION_16_17,
+//                        MIGRATION_17_18,
+//                        MIGRATION_18_19,
+//                        MIGRATION_19_20
+//                    )
+//                    .fallbackToDestructiveMigration()
+//                    .build()
+//                    .also { INSTANCE = it }
+//            }
+//        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -589,18 +708,6 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "easy_billing_db"
                 )
-                    .addMigrations(
-                        MIGRATION_10_11,
-                        MIGRATION_11_12,
-                        MIGRATION_12_13,
-                        MIGRATION_13_14,
-                        MIGRATION_14_15,
-                        MIGRATION_15_16,
-                        MIGRATION_16_17,
-                        MIGRATION_17_18,
-                        MIGRATION_18_19,
-                        MIGRATION_19_20
-                    )
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }

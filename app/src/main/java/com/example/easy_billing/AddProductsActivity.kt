@@ -16,6 +16,7 @@ import com.example.easy_billing.util.AddProductDialogBinder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.easy_billing.sync.SyncManager
 
 class AddProductsActivity : BaseActivity() {
 
@@ -46,9 +47,11 @@ class AddProductsActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                val catalog = RetrofitClient.api.getCatalog("Bearer $token")
-                catalogList = catalog.map { it.name }
-                updateList(catalogList)
+                if (!token.isNullOrEmpty()) {
+                    val catalog = RetrofitClient.api.getCatalog(token)
+                    catalogList = catalog.map { it.name }
+                    updateList(catalogList)
+                }
             } catch (e: Exception) {
                 Toast.makeText(this@AddProductsActivity,
                     "Failed to load products", Toast.LENGTH_SHORT).show()
@@ -318,36 +321,38 @@ class AddProductsActivity : BaseActivity() {
                     val productId = product.id
 
                     // 🔥 CALL API (ONLY PRODUCT UPDATE)
-                    val response = RetrofitClient.api.addProductToShop(
-                        "Bearer $token",
-                        AddProductRequest(
-                            name = product.name,
-                            variant_name = product.variant,
-                            unit = normalizeUnit(product.unit),
-                            price = newPrice,
-                            track_inventory = trackInventory,
-                            initial_stock = null,
-                            cost_price = null,
-                            hsn_code = hsnCode.ifBlank { null },
-                            default_gst_rate = gstRate
+                    var serverId: Int? = null
+                    if (!token.isNullOrEmpty()) {
+                        val response = RetrofitClient.api.addProductToShop(
+                            token,
+                            AddProductRequest(
+                                name = product.name,
+                                variant_name = product.variant,
+                                unit = normalizeUnit(product.unit),
+                                price = newPrice,
+                                track_inventory = trackInventory,
+                                initial_stock = null,
+                                cost_price = null,
+                                hsn_code = hsnCode.ifBlank { null },
+                                default_gst_rate = gstRate
+                            )
                         )
-                    )
-                    // 🆕 Mirror to global catalogue (best-effort).
-                    registerProductGlobally(
-                        token = token ?: "",
-                        name = product.name,
-                        variant = product.variant,
-                        hsn = hsnCode
-                    )
-
-                    val serverId = response.product_id
+                        // 🆕 Mirror to global catalogue (best-effort).
+                        registerProductGlobally(
+                            token = token,
+                            name = product.name,
+                            variant = product.variant,
+                            hsn = hsnCode
+                        )
+                        serverId = response.product_id
+                    }
 
                     // 🔥 UPDATE LOCAL PRODUCT
                     db.productDao().update(
                         product.copy(
                             price = newPrice,
                             trackInventory = trackInventory,
-                            serverId = serverId,
+                            serverId = serverId ?: product.serverId,
                             isActive = true,
                             hsnCode = hsnCode.ifBlank { null },
                             defaultGstRate = gstRate,
@@ -586,29 +591,31 @@ class AddProductsActivity : BaseActivity() {
                     // ================= NEW PRODUCT =================
                     if (localExisting == null) {
 
-                        val response = RetrofitClient.api.addProductToShop(
-                            "Bearer $token",
-                            AddProductRequest(
-                                name = name,
-                                variant_name = variantName,
-                                unit = unit,
-                                price = price,
-                                track_inventory = trackInventory,
-                                initial_stock = if (trackInventory) stockQty else null,
-                                cost_price = if (trackInventory) costPrice else null,
-                                hsn_code = hsnCode.ifBlank { null },
-                                default_gst_rate = gstRate
+                        var serverId: Int? = null
+                        if (!token.isNullOrEmpty()) {
+                            val response = RetrofitClient.api.addProductToShop(
+                                token,
+                                AddProductRequest(
+                                    name = name,
+                                    variant_name = variantName,
+                                    unit = unit,
+                                    price = price,
+                                    track_inventory = trackInventory,
+                                    initial_stock = if (trackInventory) stockQty else null,
+                                    cost_price = if (trackInventory) costPrice else null,
+                                    hsn_code = hsnCode.ifBlank { null },
+                                    default_gst_rate = gstRate
+                                )
                             )
-                        )
-                        // 🆕 Mirror to global catalogue (best-effort).
-                        registerProductGlobally(
-                            token = token ?: "",
-                            name = name,
-                            variant = variantName,
-                            hsn = hsnCode
-                        )
-
-                        val serverId = response.product_id
+                            // 🆕 Mirror to global catalogue (best-effort).
+                            registerProductGlobally(
+                                token = token,
+                                name = name,
+                                variant = variantName,
+                                hsn = hsnCode
+                            )
+                            serverId = response.product_id
+                        }
 
                         val newId = db.productDao().insert(
                             Product(
@@ -631,6 +638,10 @@ class AddProductsActivity : BaseActivity() {
 
                         if (trackInventory) {
                             InventoryManager.addStock(db, newId, stockQty, costPrice)
+                            // 🔥 Immediately push inventory logs to backend
+                            try {
+                                SyncManager(this@AddProductsActivity).syncInventory()
+                            } catch (_: Exception) { /* best-effort — DashboardActivity will retry */ }
                         }
 
                         toast("Product added")
@@ -692,36 +703,39 @@ class AddProductsActivity : BaseActivity() {
 
                             lifecycleScope.launch {
 
-                                val response = RetrofitClient.api.addProductToShop(
-                                    "Bearer $token",
-                                    AddProductRequest(
-                                        name = name,
-                                        variant_name = variantName,
-                                        unit = unit,
-                                        price = price,
-                                        track_inventory = trackInventory,
-                                        initial_stock = if (trackInventory) stockQty else null,
-                                        cost_price = if (trackInventory) costPrice else null,
-                                        hsn_code = hsnCode.ifBlank { null },
-                                        default_gst_rate = gstRate
+                                var serverId: Int? = null
+                                if (!token.isNullOrEmpty()) {
+                                    val response = RetrofitClient.api.addProductToShop(
+                                        token,
+                                        AddProductRequest(
+                                            name = name,
+                                            variant_name = variantName,
+                                            unit = unit,
+                                            price = price,
+                                            track_inventory = trackInventory,
+                                            initial_stock = if (trackInventory) stockQty else null,
+                                            cost_price = if (trackInventory) costPrice else null,
+                                            hsn_code = hsnCode.ifBlank { null },
+                                            default_gst_rate = gstRate
+                                        )
                                     )
-                                )
-                                // 🆕 Mirror to global catalogue (best-effort).
-                                registerProductGlobally(
-                                    token = token ?: "",
-                                    name = name,
-                                    variant = variantName,
-                                    hsn = hsnCode
-                                )
+                                    // 🆕 Mirror to global catalogue (best-effort).
+                                    registerProductGlobally(
+                                        token = token,
+                                        name = name,
+                                        variant = variantName,
+                                        hsn = hsnCode
+                                    )
+                                    serverId = response.product_id
+                                }
 
-                                val serverId = response.product_id
                                 val productId = localExisting.id
 
                                 db.productDao().update(
                                     localExisting.copy(
                                         price = price,
                                         trackInventory = trackInventory,
-                                        serverId = serverId,
+                                        serverId = serverId ?: localExisting.serverId,
                                         isActive = true,
                                         hsnCode = hsnCode.ifBlank { null },
                                         defaultGstRate = gstRate,
@@ -759,6 +773,11 @@ class AddProductsActivity : BaseActivity() {
                                     InventoryManager.addStock(db, productId, stockQty, costPrice)
                                 }
 
+                                // 🔥 Immediately push inventory logs to backend
+                                try {
+                                    SyncManager(this@AddProductsActivity).syncInventory()
+                                } catch (_: Exception) { /* best-effort */ }
+
                                 toast("Product updated")
                                 customDialog.dismiss()
                                 dialog.dismiss()
@@ -780,29 +799,31 @@ class AddProductsActivity : BaseActivity() {
                                     db.inventoryDao().update(it.copy(isActive = false))
                                 }
 
-                                val response = RetrofitClient.api.addProductToShop(
-                                    "Bearer $token",
-                                    AddProductRequest(
-                                        name = name,
-                                        variant_name = variantName,
-                                        unit = unit,
-                                        price = price,
-                                        track_inventory = trackInventory,
-                                        initial_stock = if (trackInventory) stockQty else null,
-                                        cost_price = if (trackInventory) costPrice else null,
-                                        hsn_code = hsnCode.ifBlank { null },
-                                        default_gst_rate = gstRate
+                                var serverId: Int? = null
+                                if (!token.isNullOrEmpty()) {
+                                    val response = RetrofitClient.api.addProductToShop(
+                                        token,
+                                        AddProductRequest(
+                                            name = name,
+                                            variant_name = variantName,
+                                            unit = unit,
+                                            price = price,
+                                            track_inventory = trackInventory,
+                                            initial_stock = if (trackInventory) stockQty else null,
+                                            cost_price = if (trackInventory) costPrice else null,
+                                            hsn_code = hsnCode.ifBlank { null },
+                                            default_gst_rate = gstRate
+                                        )
                                     )
-                                )
-                                // 🆕 Mirror to global catalogue (best-effort).
-                                registerProductGlobally(
-                                    token = token ?: "",
-                                    name = name,
-                                    variant = variantName,
-                                    hsn = hsnCode
-                                )
-
-                                val serverId = response.product_id
+                                    // 🆕 Mirror to global catalogue (best-effort).
+                                    registerProductGlobally(
+                                        token = token,
+                                        name = name,
+                                        variant = variantName,
+                                        hsn = hsnCode
+                                    )
+                                    serverId = response.product_id
+                                }
 
                                 val newId = db.productDao().insert(
                                     Product(
@@ -825,6 +846,10 @@ class AddProductsActivity : BaseActivity() {
 
                                 if (trackInventory) {
                                     InventoryManager.addStock(db, newId, stockQty, costPrice)
+                                    // 🔥 Immediately push inventory logs to backend
+                                    try {
+                                        SyncManager(this@AddProductsActivity).syncInventory()
+                                    } catch (_: Exception) { /* best-effort */ }
                                 } else {
                                     val inv = db.inventoryDao().getInventoryIncludingInactive(newId)
                                     inv?.let {
@@ -916,7 +941,7 @@ class AddProductsActivity : BaseActivity() {
     ) {
         runCatching {
             RetrofitClient.api.registerGlobalProduct(
-                "Bearer $token",
+                token,
                 com.example.easy_billing.network.GlobalProductRegisterRequest(
                     name = name,
                     variant = variant,
@@ -970,7 +995,7 @@ class AddProductsActivity : BaseActivity() {
                     .getString("TOKEN", null) ?: return@launch
 
                 // ✅ 1. Verify product name and get global ID (Faster than full catalog)
-                val verifyResp = RetrofitClient.api.verifyProductName("Bearer $token", productName)
+                val verifyResp = RetrofitClient.api.verifyProductName(token, productName)
                 if (!verifyResp.valid || verifyResp.matched_global_id == null) return@launch
 
                 val productId = verifyResp.matched_global_id
@@ -978,7 +1003,7 @@ class AddProductsActivity : BaseActivity() {
                 // ✅ 2. Fetch HSN immediately
                 launch {
                     try {
-                        val hsnResp = RetrofitClient.api.getHsn("Bearer $token", productId)
+                        val hsnResp = RetrofitClient.api.getHsn(token, productId)
                         withContext(Dispatchers.Main) {
                             etHsn.setText(hsnResp.hsn_code)
                             
@@ -998,7 +1023,7 @@ class AddProductsActivity : BaseActivity() {
                 }
 
                 // ✅ 3. Fetch variants
-                val variants = RetrofitClient.api.getVariants("Bearer $token", productId)
+                val variants = RetrofitClient.api.getVariants(token, productId)
                 val variantNames = variants.map { it.variant_name }
 
                 withContext(Dispatchers.Main) {
@@ -1032,7 +1057,7 @@ class AddProductsActivity : BaseActivity() {
                             try {
 
                                 val hsnResp = RetrofitClient.api.getHsn(
-                                    "Bearer $token",
+                                    token,
                                     productId
                                 )
 

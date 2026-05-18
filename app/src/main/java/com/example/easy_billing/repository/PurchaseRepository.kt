@@ -159,11 +159,34 @@ class PurchaseRepository private constructor(
             )
 
             // 3. Inventory adjustment.
+            //
+            // Pass full batch metadata so the v21 purchase_batches
+            // ledger carries the supplier / GST split. unitCostExcludingTax
+            // is taxableAmount / quantity (NEVER invoiceValue / quantity)
+            // — see the spec note in InventoryManager.StockBatchMeta.
+            val unitCostNet = if (line.quantity > 0.0) line.taxableAmount / line.quantity
+                              else line.costPrice
+            val combinedGst = (line.purchaseCgst + line.purchaseSgst)
+                .takeIf { it > 0 } ?: line.purchaseIgst
             InventoryManager.addStock(
                 db = db,
                 productId = productId,
                 quantity = line.quantity,
-                costPrice = line.costPrice
+                costPrice = unitCostNet,
+                batchMeta = InventoryManager.StockBatchMeta(
+                    purchaseInvoiceId = purchaseId,
+                    supplierName = header.supplierName,
+                    supplierGstin = header.supplierGstin,
+                    invoiceNumber = header.invoiceNumber,
+                    batchCode = null,
+                    unitCostExcludingTax = unitCostNet,
+                    gstPercent = combinedGst,
+                    cgstPercent = line.purchaseCgst,
+                    sgstPercent = line.purchaseSgst,
+                    igstPercent = line.purchaseIgst,
+                    invoiceValue = line.invoiceValue,
+                    taxableValue = line.taxableAmount
+                )
             )
 
             // 4. GST register row (gst_purchase_records). One per

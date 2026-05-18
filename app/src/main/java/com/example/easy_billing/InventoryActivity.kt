@@ -9,10 +9,13 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.adapter.BatchPickerAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.InventoryItemUI
 import com.example.easy_billing.db.LossEntry
 import com.example.easy_billing.db.Product
+import com.example.easy_billing.db.PurchaseBatch
+import com.example.easy_billing.repository.InventoryReductionRepository
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.util.InvoiceDatePicker
@@ -58,7 +61,12 @@ class InventoryActivity : BaseActivity() {
         rvInventory.adapter = adapter
 
         setupSearch()
+    }
+
+    override fun onResume() {
+        super.onResume()
         loadInventory()
+        com.example.easy_billing.sync.SyncCoordinator.get(this).requestSync()
     }
 
     // ================= LOAD INVENTORY =================
@@ -223,35 +231,70 @@ class InventoryActivity : BaseActivity() {
 
     // ================= REDUCE STOCK =================
 
+    /**
+     * Single-screen reduce-stock flow. Reason toggle swaps the input
+     * region inline:
+     *   • Return → batch list with per-batch qty
+     *   • Scrap  → plain qty input
+     *
+     * No second dialog. Total quantity for Return is summed from the
+     * adapter; for Scrap it comes from the qty field. Credit-adjust
+     * checkbox is wired live and only meaningful for Return.
+     */
     private fun showReduceStockDialog(product: Product, currentStock: Double) {
 
         val view = layoutInflater.inflate(R.layout.dialog_reduce_stock, null)
         val dialog = AlertDialog.Builder(this).setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        // Let the keyboard push the dialog up so the per-batch field
+        // never sits behind the IME.
+        dialog.window?.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        )
 
         val tvCurrent     = view.findViewById<TextView>(R.id.tvCurrentStockLabel)
         val rgReason      = view.findViewById<RadioGroup>(R.id.rgReason)
         val rbReturn      = view.findViewById<RadioButton>(R.id.rbReturn)
         val rbScrap       = view.findViewById<RadioButton>(R.id.rbScrap)
+
+        // Scrap section
+        val scrapSection  = view.findViewById<LinearLayout>(R.id.scrapSection)
         val etQty         = view.findViewById<EditText>(R.id.etReduceQty)
-        val btnCancel     = view.findViewById<Button>(R.id.btnReduceCancel)
-        val btnConfirm    = view.findViewById<Button>(R.id.btnReduceConfirm)
+
+        // Return section
+        val returnSection = view.findViewById<LinearLayout>(R.id.returnSection)
+        val rvBatches     = view.findViewById<RecyclerView>(R.id.rvBatches)
+        val tvBatchesEmpty = view.findViewById<TextView>(R.id.tvBatchesEmpty)
+        val tvBatchRunning = view.findViewById<TextView>(R.id.tvBatchRunning)
+
+        // Credit
+        val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
+        val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
+        val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
+
+        val btnCancel    = view.findViewById<Button>(R.id.btnReduceCancel)
+        val btnConfirm   = view.findViewById<Button>(R.id.btnReduceConfirm)
 
         tvCurrent.text = "Available: ${formatStock(currentStock)} ${product.unit ?: "piece"}"
         val allowDecimal = isDecimalAllowed(product.unit)
 
-        // Credit Integration
-        val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
-        val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
-        val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
         var selectedAccountForReturn: com.example.easy_billing.db.CreditAccount? = null
+        var batchAdapter: BatchPickerAdapter? = null
 
-        rgReason.setOnCheckedChangeListener { _, checkedId ->
-            layoutCredit.visibility = if (checkedId == R.id.rbReturn) View.VISIBLE else View.GONE
+        // Reason swap: show the right section + credit panel.
+        fun applyReason() {
+            val isReturn = rbReturn.isChecked
+            scrapSection.visibility = View.GONE
+            returnSection.visibility = View.VISIBLE
+            layoutCredit.visibility = if (isReturn) View.VISIBLE else View.GONE
+
+            val tvTotalLabel = view.findViewById<TextView>(R.id.tvTotalLabel)
+            tvTotalLabel?.text = if (isReturn) "Total to return" else "Total to scrap"
         }
-        // Initial state
-        layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
+        rgReason.setOnCheckedChangeListener { _, _ -> applyReason() }
+        applyReason()
 
+        // Credit-adjust picker is identical to the prior dialog.
         cbAdjust.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked && selectedAccountForReturn == null) {
                 com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
@@ -261,11 +304,10 @@ class InventoryActivity : BaseActivity() {
                 }
             } else if (!isChecked) {
                 tvAccount.visibility = View.GONE
-            } else if (isChecked && selectedAccountForReturn != null) {
+            } else if (selectedAccountForReturn != null) {
                 tvAccount.visibility = View.VISIBLE
             }
         }
-        
         tvAccount.setOnClickListener {
             com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
                 selectedAccountForReturn = account
@@ -275,64 +317,210 @@ class InventoryActivity : BaseActivity() {
 
         btnCancel.setOnClickListener { dialog.dismiss() }
 
+        // Load batches in the background and bind the adapter once
+        // they arrive. The dialog is already on screen so the user
+        // sees the empty state ("No purchase batches available") for
+        // a brief moment if the read is slow — fine for the rare DB
+        // hit, and prevents holding up the UI thread.
+        rvBatches.layoutManager = LinearLayoutManager(this)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val repo = InventoryReductionRepository.get(this@InventoryActivity)
+            val batches = repo.getRemainingBatchesForProduct(product.id)
+            withContext(Dispatchers.Main) {
+                if (batches.isEmpty()) {
+                    tvBatchesEmpty.visibility = View.VISIBLE
+                    rvBatches.visibility = View.GONE
+                } else {
+                    val adapter = BatchPickerAdapter(batches)
+                    adapter.onSelectionChanged = { running ->
+                        tvBatchRunning.text = formatStock(running)
+                    }
+                    rvBatches.adapter = adapter
+                    batchAdapter = adapter
+                }
+            }
+        }
+
         btnConfirm.setOnClickListener {
-            val qtyText = etQty.text?.toString()?.trim().orEmpty()
-            if (qtyText.isEmpty()) { etQty.error = "Enter quantity"; return@setOnClickListener }
-            if (!allowDecimal && qtyText.contains(".")) {
-                etQty.error = "Decimal not allowed"; return@setOnClickListener
-            }
-            val qty = qtyText.toDoubleOrNull() ?: 0.0
-            if (qty <= 0) { etQty.error = "Invalid quantity"; return@setOnClickListener }
-            if (qty > currentStock) {
-                etQty.error = "Exceeds available stock"; return@setOnClickListener
-            }
-
-            val reason = if (rbReturn.isChecked)
-                com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.PURCHASE_RETURN
-            else
-                com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.SCRAP
-
-            val isCredit = view.findViewById<CheckBox>(R.id.cbAdjustCredit).isChecked
+            val isReturn = rbReturn.isChecked
+            val isCredit = cbAdjust.isChecked
             val creditAccountId = selectedAccountForReturn?.id
 
-            dialog.dismiss()
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                val repo = com.example.easy_billing.repository.InventoryReductionRepository.get(this@InventoryActivity)
-                val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
-                try {
-                    val success = repo.reduceStockByReason(
-                        productId = product.id,
-                        productName = product.name,
-                        variantName = product.variant,
-                        hsnCode = product.hsnCode,
-                        quantity = qty,
-                        reason = reason,
-                        purchaseTaxCgst = product.cgstPercentage,
-                        purchaseTaxSgst = product.sgstPercentage,
-                        purchaseTaxIgst = product.igstPercentage,
-                        isCredit = isCredit,
-                        creditAccountId = creditAccountId,
-                        shopId = shopId
-                    )
-
-                    if (success) {
-                        withContext(Dispatchers.Main) {
-                            loadInventory()
-                            Toast.makeText(this@InventoryActivity, "Stock reduced", Toast.LENGTH_SHORT).show()
-                        }
-                        SyncManager(this@InventoryActivity).syncInventory()
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@InventoryActivity, e.message ?: "Error", Toast.LENGTH_SHORT).show()
-                    }
+            if (isReturn) {
+                // Return — use the batch adapter's selection
+                val adapter = batchAdapter
+                if (adapter == null) {
+                    Toast.makeText(this, "Batches not loaded yet", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
+                val lines = adapter.selectedLines()
+                if (lines.isEmpty()) {
+                    Toast.makeText(this, "Enter quantity for at least one batch", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val total = adapter.totalSelected()
+                if (total <= 0.0) {
+                    Toast.makeText(this, "Total return quantity must be > 0", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                if (total > currentStock + 0.0001) {
+                    Toast.makeText(this, "Return total exceeds available stock", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                dialog.dismiss()
+                runReturnByBatches(
+                    product = product,
+                    lines = lines,
+                    isCredit = isCredit,
+                    creditAccountId = creditAccountId
+                )
+                return@setOnClickListener
+            }
+
+            if (!isReturn) {
+                // Scrap path — use the batch adapter's selection
+                val adapter = batchAdapter
+                if (adapter == null) {
+                    Toast.makeText(this, "Batches not loaded yet", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val selectedLines = adapter.selectedLines()
+                if (selectedLines.isEmpty()) {
+                    Toast.makeText(this, "Enter quantity for at least one batch", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val total = adapter.totalSelected()
+                if (total <= 0.0) {
+                    Toast.makeText(this, "Total scrap quantity must be > 0", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                if (total > currentStock + 0.0001) {
+                    Toast.makeText(this, "Scrap total exceeds available stock", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // Map to BatchScrapLine
+                val scrapLines = selectedLines.map { line ->
+                    InventoryReductionRepository.BatchScrapLine(
+                        batchId = line.batchId,
+                        quantity = line.quantity
+                    )
+                }
+
+                dialog.dismiss()
+                runScrapByBatches(
+                    product = product,
+                    lines = scrapLines
+                )
+                return@setOnClickListener
             }
         }
 
         dialog.show()
     }
+
+    /** Async tail of the Return-to-Supplier flow. */
+    private fun runReturnByBatches(
+        product: Product,
+        lines: List<InventoryReductionRepository.BatchReturnLine>,
+        isCredit: Boolean,
+        creditAccountId: Int?
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val repo = InventoryReductionRepository.get(this@InventoryActivity)
+            val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+            try {
+                val result = repo.returnToSupplierByBatches(
+                    productId       = product.id,
+                    productName     = product.name,
+                    variantName     = product.variant,
+                    hsnCode         = product.hsnCode,
+                    lines           = lines,
+                    supplierGstin   = null,
+                    supplierName    = null,
+                    isCredit        = isCredit,
+                    creditAccountId = creditAccountId,
+                    shopId          = shopId
+                )
+                withContext(Dispatchers.Main) {
+                    loadInventory()
+                    val msg = if (result != null) {
+                        "Returned ${formatStock(result.totalQuantity)} units to supplier"
+                    } else {
+                        "Could not return — check selected batches"
+                    }
+                    Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
+                }
+                if (result != null) SyncManager(this@InventoryActivity).syncInventory()
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@InventoryActivity,
+                        e.message ?: "Failed to return batches",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun runScrapByBatches(
+        product: Product,
+        lines: List<InventoryReductionRepository.BatchScrapLine>
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val repo = InventoryReductionRepository.get(this@InventoryActivity)
+            val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+            try {
+                val result = repo.scrapByBatches(
+                    productId       = product.id,
+                    productName     = product.name,
+                    variantName     = product.variant,
+                    hsnCode         = product.hsnCode,
+                    lines           = lines,
+                    shopId          = shopId
+                )
+                withContext(Dispatchers.Main) {
+                    loadInventory()
+                    val msg = if (result != null) {
+                        "Scrapped ${formatStock(result.totalQuantity)} units"
+                    } else {
+                        "Could not scrap — check selected batches"
+                    }
+                    Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
+                }
+                if (result != null) SyncManager(this@InventoryActivity).syncInventory()
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@InventoryActivity,
+                        e.message ?: "Failed to scrap batches",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    // ================= BATCH PICKER (Supplier Return) =================
+
+    /**
+     * Opens the batch-selection dialog for a supplier return.
+     *
+     * The user picks how many units of each remaining purchase batch
+     * they're sending back. Confirm only enables when the per-batch
+     * total equals [targetQty]; per-batch entries are already clamped
+     * to the batch's remaining qty by [BatchPickerAdapter].
+     *
+     * On confirm, [InventoryReductionRepository.returnToSupplierByBatches]
+     * does the heavy lifting — it values each batch at its own cost
+     * (not the weighted average), debits those specific batches,
+     * inserts the purchase_return row with GST split, and reduces the
+     * inventory row through [InventoryManager.reduceStock] with
+     * `skipBatchConsume = true`.
+     */
+
 
     private fun formatStock(value: Double): String =
         if (value % 1.0 == 0.0) value.toInt().toString() else "%.2f".format(value)
@@ -340,7 +528,6 @@ class InventoryActivity : BaseActivity() {
     // ================= CLEAR STOCK =================
 
     private fun showClearStockDialog(productId: Int) {
-
         val view = layoutInflater.inflate(R.layout.dialog_clear_stock, null)
         val dialog = AlertDialog.Builder(this).setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -352,16 +539,76 @@ class InventoryActivity : BaseActivity() {
         val rbScrap   = view.findViewById<RadioButton>(R.id.rbScrap)
         val tvStock   = view.findViewById<TextView>(R.id.tvCurrentStock)
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            val current = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
-            withContext(Dispatchers.Main) { tvStock.text = "Remaining: ${formatStock(current)}" }
-        }
+        // Batches section
+        val batchesSection = view.findViewById<LinearLayout>(R.id.batchesSection)
+        val cbSelectAll    = view.findViewById<CheckBox>(R.id.cbSelectAll)
+        val rvBatches      = view.findViewById<RecyclerView>(R.id.rvBatches)
+        val tvBatchesEmpty = view.findViewById<TextView>(R.id.tvBatchesEmpty)
+        val tvBatchRunning = view.findViewById<TextView>(R.id.tvBatchRunning)
 
         // Credit Integration
         val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
         val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
         val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
         var selectedAccountForClear: com.example.easy_billing.db.CreditAccount? = null
+
+        var batchAdapter: com.example.easy_billing.adapter.BatchClearAdapter? = null
+        var isPurchasedProduct = false
+        var currentProduct: Product? = null
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val product = db.productDao().getById(productId)
+            val current = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
+            
+            withContext(Dispatchers.Main) {
+                currentProduct = product
+                tvStock.text = "Remaining: ${formatStock(current)}"
+                
+                if (product != null && product.isPurchased) {
+                    isPurchasedProduct = true
+                    batchesSection.visibility = View.VISIBLE
+                    
+                    // Setup recycler view
+                    rvBatches.layoutManager = LinearLayoutManager(this@InventoryActivity)
+                    
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val repo = InventoryReductionRepository.get(this@InventoryActivity)
+                        val batches = repo.getRemainingBatchesForProduct(productId)
+                        
+                        withContext(Dispatchers.Main) {
+                            if (batches.isEmpty()) {
+                                tvBatchesEmpty.visibility = View.VISIBLE
+                                rvBatches.visibility = View.GONE
+                                cbSelectAll.isEnabled = false
+                                tvBatchRunning.text = "0"
+                            } else {
+                                val adapter = com.example.easy_billing.adapter.BatchClearAdapter(batches)
+                                adapter.onSelectionChanged = { running ->
+                                    tvBatchRunning.text = formatStock(running)
+                                    // Sync Select All checkbox if all/none are checked
+                                    val selectedSize = adapter.selectedBatches().size
+                                    cbSelectAll.setOnCheckedChangeListener(null)
+                                    cbSelectAll.isChecked = selectedSize == batches.size
+                                    cbSelectAll.setOnCheckedChangeListener { _, isChecked ->
+                                        adapter.selectAll(isChecked)
+                                    }
+                                }
+                                rvBatches.adapter = adapter
+                                batchAdapter = adapter
+                                tvBatchRunning.text = formatStock(adapter.totalSelected())
+                                
+                                cbSelectAll.isChecked = true
+                                cbSelectAll.setOnCheckedChangeListener { _, isChecked ->
+                                    adapter.selectAll(isChecked)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    batchesSection.visibility = View.GONE
+                }
+            }
+        }
 
         rgReason.setOnCheckedChangeListener { _, checkedId ->
             layoutCredit.visibility = if (checkedId == R.id.rbReturn) View.VISIBLE else View.GONE
@@ -377,7 +624,7 @@ class InventoryActivity : BaseActivity() {
                 }
             } else if (!isChecked) {
                 tvAccount.visibility = View.GONE
-            } else if (isChecked && selectedAccountForClear != null) {
+            } else if (selectedAccountForClear != null) {
                 tvAccount.visibility = View.VISIBLE
             }
         }
@@ -392,54 +639,97 @@ class InventoryActivity : BaseActivity() {
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnClear.setOnClickListener {
-            val reason = when {
-                rbReturn.isChecked ->
-                    com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.PURCHASE_RETURN
-                rbScrap.isChecked  ->
-                    com.example.easy_billing.repository.InventoryReductionRepository.ClearReason.SCRAP
-                else -> {
-                    Toast.makeText(this, "Select reason", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
+            val product = currentProduct
+            if (product == null) {
+                Toast.makeText(this, "Product details not loaded", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val isReturn = rbReturn.isChecked
+            val isScrap  = rbScrap.isChecked
+            if (!isReturn && !isScrap) {
+                Toast.makeText(this, "Select reason", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
             val isCredit = cbAdjust.isChecked
             val creditAccountId = selectedAccountForClear?.id
 
-            dialog.dismiss()
+            if (isPurchasedProduct) {
+                val adapter = batchAdapter
+                if (adapter == null) {
+                    Toast.makeText(this, "Batches not loaded yet", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val product = db.productDao().getById(productId) ?: return@launch
-                    val repo = com.example.easy_billing.repository.InventoryReductionRepository.get(this@InventoryActivity)
-                    val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
-                    val result = repo.clearRemainingStock(
-                        productId   = productId,
-                        productName = product.name,
-                        variantName = product.variant,
-                        hsnCode     = product.hsnCode,
-                        reason      = reason,
-                        purchaseTaxCgst = product.cgstPercentage,
-                        purchaseTaxSgst = product.sgstPercentage,
-                        purchaseTaxIgst = product.igstPercentage,
-                        isCredit = isCredit,
-                        creditAccountId = creditAccountId,
-                        shopId = shopId
-                    )
+                val selectedBatches = adapter.selectedBatches()
+                if (selectedBatches.isEmpty()) {
+                    Toast.makeText(this, "Select at least one batch to clear", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
-                    withContext(Dispatchers.Main) {
-                        loadInventory()
-                        val msg = when (result) {
-                            is com.example.easy_billing.repository.InventoryReductionRepository.ClearStockResult.Cleared ->
-                                "Cleared ${formatStock(result.quantity)} units"
-                            else -> "No stock to clear"
-                        }
-                        Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+
+                if (isReturn) {
+                    val lines = selectedBatches.map {
+                        InventoryReductionRepository.BatchReturnLine(
+                            batchId = it.id,
+                            quantity = it.quantityRemaining
+                        )
                     }
-                    SyncManager(this@InventoryActivity).syncInventory()
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@InventoryActivity, "Error", Toast.LENGTH_SHORT).show()
+                    runReturnByBatches(
+                        product = product,
+                        lines = lines,
+                        isCredit = isCredit,
+                        creditAccountId = creditAccountId
+                    )
+                } else {
+                    val lines = selectedBatches.map {
+                        InventoryReductionRepository.BatchScrapLine(
+                            batchId = it.id,
+                            quantity = it.quantityRemaining
+                        )
+                    }
+                    runScrapByBatches(
+                        product = product,
+                        lines = lines
+                    )
+                }
+            } else {
+                // Non-purchased (manual) product - clear all stock using the standard weighted average reduction
+                dialog.dismiss()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val repo = InventoryReductionRepository.get(this@InventoryActivity)
+                        val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+                        val result = repo.clearRemainingStock(
+                            productId   = productId,
+                            productName = product.name,
+                            variantName = product.variant,
+                            hsnCode     = product.hsnCode,
+                            reason      = if (isReturn) InventoryReductionRepository.ClearReason.PURCHASE_RETURN else InventoryReductionRepository.ClearReason.SCRAP,
+                            purchaseTaxCgst = product.cgstPercentage,
+                            purchaseTaxSgst = product.sgstPercentage,
+                            purchaseTaxIgst = product.igstPercentage,
+                            isCredit = isCredit,
+                            creditAccountId = creditAccountId,
+                            shopId = shopId
+                        )
+
+                        withContext(Dispatchers.Main) {
+                            loadInventory()
+                            val msg = when (result) {
+                                is InventoryReductionRepository.ClearStockResult.Cleared ->
+                                    "Cleared ${formatStock(result.quantity)} units"
+                                else -> "No stock to clear"
+                            }
+                            Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
+                        }
+                        SyncManager(this@InventoryActivity).syncInventory()
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@InventoryActivity, "Error clearing stock", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

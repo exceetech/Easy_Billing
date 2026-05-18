@@ -96,38 +96,51 @@ class AiDashboardActivity : BaseActivity() {
 
             try {
                 val db = AppDatabase.getDatabase(this@AiDashboardActivity)
-                val response = RetrofitClient.api.getAiReport("Bearer $token")
-
-                // ================= REVENUE =================
-                reportData = response.report_data.toMutableList()
-                val totalRevenue = reportData.sumOf { it.revenue }
-                tvRevenue.text = "₹$totalRevenue"
                 
-                // Calculate pseudo-performance score
-                val score = if (totalRevenue > 50000) 92 else if (totalRevenue > 10000) 85 else 74
-                tvPerformanceScore.text = score.toString()
+                if (!token.isNullOrEmpty()) {
+                    val response = RetrofitClient.api.getAiReport(token)
 
-                renderTable(reportData)
+                    // ================= REVENUE =================
+                    reportData = response.report_data.toMutableList()
+                    val totalRevenue = reportData.sumOf { it.revenue }
+                    tvRevenue.text = "₹$totalRevenue"
+                    
+                    // Calculate pseudo-performance score
+                    val score = if (totalRevenue > 50000) 92 else if (totalRevenue > 10000) 85 else 74
+                    tvPerformanceScore.text = score.toString()
 
-                // ================= PARSE AI REPORT INTO BENTO =================
-                val rawText = response.ai_report
-                val sections = parseAiSections(rawText)
+                    renderTable(reportData)
 
-                // Strategic Hero Card
-                val strategy = sections["INVENTORY STRATEGY"] ?: sections["PROFIT STRATEGY"] ?: "Steady growth observed. Continue current operations."
-                tvStrategyContent.text = strategy.replace("&lt;", "<").replace("&gt;", ">").trim()
+                    // ================= PARSE AI REPORT INTO BENTO =================
+                    val rawText = response.ai_report
+                    val sections = parseAiSections(rawText)
 
-                // Local Pulse Card (Everything else)
-                val marketing = sections["MARKETING IDEAS"] ?: ""
-                val sales = sections["SALES INSIGHTS"] ?: ""
-                val localInsights = generateLocalInsights(db)
-                
-                val combinedPulse = "<b>Marketing:</b><br>$marketing<br><br><b>Sales Insights:</b><br>$sales<br><br><b>Store Alerts:</b><br>${localInsights.joinToString("<br>") { "• $it" }}"
-                
-                tvAiInsights.text = Html.fromHtml(
-                    combinedPulse.replace("\n", "<br>"),
-                    Html.FROM_HTML_MODE_LEGACY
-                )
+                    // Strategic Hero Card
+                    val strategy = sections["INVENTORY STRATEGY"] ?: sections["PROFIT STRATEGY"] ?: "Steady growth observed. Continue current operations."
+                    tvStrategyContent.text = strategy.replace("&lt;", "<").replace("&gt;", ">").trim()
+
+                    // Local Pulse Card (Everything else)
+                    val marketing = sections["MARKETING IDEAS"] ?: ""
+                    val sales = sections["SALES INSIGHTS"] ?: ""
+                    val localInsights = generateLocalInsights(db)
+                    
+                    val combinedPulse = "<b>Marketing:</b><br>$marketing<br><br><b>Sales Insights:</b><br>$sales<br><br><b>Store Alerts:</b><br>${localInsights.joinToString("<br>") { "• $it" }}"
+                    
+                    tvAiInsights.text = Html.fromHtml(
+                        combinedPulse.replace("\n", "<br>"),
+                        Html.FROM_HTML_MODE_LEGACY
+                    )
+                } else {
+                    // Fallback for no token
+                    val localInsights = generateLocalInsights(db)
+                    tvAiInsights.text = Html.fromHtml(
+                        "<b>Store Alerts:</b><br>${localInsights.joinToString("<br>") { "• $it" }}".replace("\n", "<br>"),
+                        Html.FROM_HTML_MODE_LEGACY
+                    )
+                    tvRevenue.text = "₹0"
+                    tvPerformanceScore.text = "--"
+                    tvStrategyContent.text = "Offline mode. AI insights require an active connection."
+                }
 
             } catch (e: Exception) {
                 Toast.makeText(this@AiDashboardActivity, "Intelligence update in progress...", Toast.LENGTH_SHORT).show()

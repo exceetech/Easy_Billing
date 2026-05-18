@@ -132,7 +132,7 @@ class BillingSettingsActivity : BaseActivity() {
             try {
 
                 // ✅ FETCH GST PROFILE FROM BACKEND
-                val gstResp = RetrofitClient.api.getGstProfile("Bearer $token")
+                val gstResp = RetrofitClient.api.getGstProfile(token)
 
                 val updatedGst = GstProfile(
                     gstin = gstResp.gstin ?: "",
@@ -148,7 +148,7 @@ class BillingSettingsActivity : BaseActivity() {
 
                 db.gstProfileDao().insert(updatedGst)
 
-                val billingResp = RetrofitClient.api.getBillingSettings("Bearer $token")
+                val billingResp = RetrofitClient.api.getBillingSettings(token)
 
                 val updatedBilling = (billing ?: BillingSettings(
                     defaultGst = 0f,
@@ -304,7 +304,7 @@ class BillingSettingsActivity : BaseActivity() {
                 // ---- GST PROFILE ----
                 runCatching {
                     RetrofitClient.api.upsertGstProfile(
-                        "Bearer $token",
+                        token,
                         GstProfileRequest(
                             gstin = updatedGst.gstin,
                             legal_name = updatedGst.legalName,
@@ -321,7 +321,7 @@ class BillingSettingsActivity : BaseActivity() {
                 // ---- PRINTER SETTINGS ----
                 runCatching {
                     RetrofitClient.api.updateBillingSettings(
-                        "Bearer $token",
+                        token,
                         BillingSettingsUpdateRequest(
                             default_gst = 0f,
                             printer_layout = printer

@@ -386,7 +386,10 @@ class PurchaseActivity : BaseActivity() {
                             val verify = verifyRepo.verifyProductName(name).getOrNull()
                             if (verify?.valid == true && verify.matched_global_id != null) {
                                 gHsn = runCatching {
-                                    verifyRepo.api.getHsn("Bearer ${verifyRepo.tokenProvider()}", verify.matched_global_id).hsn_code
+                                    val token = verifyRepo.tokenProvider()
+                                    if (!token.isNullOrEmpty()) {
+                                        verifyRepo.api.getHsn(token, verify.matched_global_id).hsn_code
+                                    } else null
                                 }.getOrNull()
                             }
                         }
@@ -517,7 +520,7 @@ class PurchaseActivity : BaseActivity() {
                 val backendUnits = withContext(Dispatchers.IO) {
                     runCatching {
                         com.example.easy_billing.network.RetrofitClient.api
-                            .getUnits("Bearer $token").units
+                            .getUnits(token).units
                     }.getOrNull()
                 }
                 val merged = ((backendUnits ?: emptyList()) + defaultUnits).distinct()

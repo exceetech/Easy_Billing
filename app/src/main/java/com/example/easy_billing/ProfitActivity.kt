@@ -245,43 +245,45 @@ class ProfitActivity : AppCompatActivity() {
                 val token = getSharedPreferences("auth", MODE_PRIVATE)
                     .getString("TOKEN", null)
 
-                val response: ProfitResponse =
-                    RetrofitClient.api.getProfit(
-                        "Bearer $token",
-                        filter,
-                        start,
-                        end
-                    )
+                if (!token.isNullOrEmpty()) {
+                    val response: ProfitResponse =
+                        RetrofitClient.api.getProfit(
+                            token,
+                            filter,
+                            start,
+                            end
+                        )
 
-                val summary = response.summary
+                    val summary = response.summary
 
-                findViewById<TextView>(R.id.tvRevenue).text = "₹${"%.2f".format(summary.revenue)}"
-                findViewById<TextView>(R.id.tvCost).text = "₹${"%.2f".format(summary.cost)}"
-                findViewById<TextView>(R.id.tvNetProfit).text = "₹${"%.2f".format(summary.profit)}"
-                findViewById<TextView>(R.id.tvLoss).text = "₹${"%.2f".format(summary.loss)}"
-                findViewById<TextView>(R.id.tvExpense).text = "₹${"%.2f".format(summary.expense)}"
+                    findViewById<TextView>(R.id.tvRevenue).text = "₹${"%.2f".format(summary.revenue)}"
+                    findViewById<TextView>(R.id.tvCost).text = "₹${"%.2f".format(summary.cost)}"
+                    findViewById<TextView>(R.id.tvNetProfit).text = "₹${"%.2f".format(summary.profit)}"
+                    findViewById<TextView>(R.id.tvLoss).text = "₹${"%.2f".format(summary.loss)}"
+                    findViewById<TextView>(R.id.tvExpense).text = "₹${"%.2f".format(summary.expense)}"
 
-                val mapped = response.products.map {
+                    val mapped = response.products.map {
 
-                    ProductProfitRaw(
-                        productName = it.product_name,
-                        variant = it.variant,
-                        unit = it.unit,
-                        totalQty = it.qty,
-                        revenue = it.revenue,
-                        cost = it.cost,
-                        profit = it.profit,
-                        added = it.added,
-                        sold = it.sold,
-                        remaining = it.remaining,
-                        lossQty = it.lossQty,
-                        lossAmount = it.lossAmount
-                    )
+                        ProductProfitRaw(
+                            productName = it.product_name,
+                            variant = it.variant,
+                            unit = it.unit,
+                            totalQty = it.qty,
+                            revenue = it.revenue,
+                            cost = it.cost,
+                            profit = it.profit,
+                            added = it.added,
+                            sold = it.sold,
+                            remaining = it.remaining,
+                            lossQty = it.lossQty,
+                            lossAmount = it.lossAmount
+                        )
+                    }
+
+                    latestProfitList = mapped
+                    fullList = mapped
+                    profitAdapter.submitList(mapped)
                 }
-
-                latestProfitList = mapped
-                fullList = mapped
-                profitAdapter.submitList(mapped)
 
             } catch (e: Exception) {
                 e.printStackTrace()

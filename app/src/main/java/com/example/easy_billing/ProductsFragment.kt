@@ -171,7 +171,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
                 }
 
                 val products = RetrofitClient.api.getTopProducts(
-                    "Bearer $token",
+                    token,
                     type,
                     start,
                     end,

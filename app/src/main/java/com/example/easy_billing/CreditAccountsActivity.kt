@@ -271,7 +271,7 @@ class CreditAccountsActivity : BaseActivity() {
 
                 try {
                     val response = api.createCreditAccount(
-                        "Bearer $token",
+                        token,
                         CreateCreditAccountRequest(name, phone)
                     )
 
@@ -680,7 +680,7 @@ class CreditAccountsActivity : BaseActivity() {
 
                     try {
                         if (token != null && account.serverId != -1) {
-                            api.deactivateCreditAccount("Bearer $token", account.serverId!!)
+                            api.deactivateCreditAccount(token, account.serverId!!)
                         }
 
                         db.creditAccountDao().deactivate(account.id, shopId)

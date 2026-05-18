@@ -117,7 +117,7 @@ class DataSecurityActivity : BaseActivity() {
 
             try {
 
-                RetrofitClient.api.clearBills("Bearer $token")
+                RetrofitClient.api.clearBills(token)
 
                 val db = AppDatabase.getDatabase(this@DataSecurityActivity)
                 db.billDao().deleteAllItems()
@@ -151,11 +151,11 @@ class DataSecurityActivity : BaseActivity() {
 
                 // ✅ STEP 1: BACKEND RESET (MANDATORY)
                 if (token != null) {
-                    RetrofitClient.api.factoryReset("Bearer $token")
+                    RetrofitClient.api.factoryReset(token)
                 }
 
                 if (token != null) {
-                    val response = RetrofitClient.api.resetCredit("Bearer $token")
+                    val response = RetrofitClient.api.resetCredit(token)
 
                     if (!response.isSuccessful) {
                         throw Exception("Backend reset failed")
@@ -257,7 +257,7 @@ class DataSecurityActivity : BaseActivity() {
                 try {
 
                     RetrofitClient.api.changePassword(
-                        "Bearer $token",
+                        token,
                         ChangePasswordRequest(newPin)
                     )
 

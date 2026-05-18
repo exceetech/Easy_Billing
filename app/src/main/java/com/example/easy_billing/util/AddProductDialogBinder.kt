@@ -118,14 +118,17 @@ object AddProductDialogBinder {
                     if (resp.valid && resp.matched_global_id != null) {
                         val gId = resp.matched_global_id
                         
+                        val token = verificationRepo.tokenProvider()
+                        if (token.isNullOrEmpty()) return@onSuccess
+                        
                         // Fetch HSN
                         val hsnRes = withContext(Dispatchers.IO) {
-                            verificationRepo.api.getHsn("Bearer ${verificationRepo.tokenProvider()}", gId)
+                            verificationRepo.api.getHsn(token, gId)
                         }
                         
                         // Fetch Variants
                         val varRes = withContext(Dispatchers.IO) {
-                            verificationRepo.api.getVariants("Bearer ${verificationRepo.tokenProvider()}", gId)
+                            verificationRepo.api.getVariants(token, gId)
                         }
 
                         withContext(Dispatchers.Main) {
@@ -157,8 +160,10 @@ object AddProductDialogBinder {
                                     // Update HSN/GST if variant has its own or if we want to refresh
                                     scope.launch {
                                         try {
+                                            val t = verificationRepo.tokenProvider()
+                                            if (t.isNullOrEmpty()) return@launch
                                             val hRes = withContext(Dispatchers.IO) {
-                                                verificationRepo.api.getHsn("Bearer ${verificationRepo.tokenProvider()}", gId)
+                                                verificationRepo.api.getHsn(t, gId)
                                             }
                                             withContext(Dispatchers.Main) {
                                                 etHsn.setText(hRes.hsn_code)

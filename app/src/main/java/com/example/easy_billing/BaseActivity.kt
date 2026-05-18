@@ -115,7 +115,7 @@ open class BaseActivity : AppCompatActivity() {
 
             try {
                 val response = RetrofitClient.api.verifyPassword(
-                    "Bearer $token",
+                    token,
                     VerifyPasswordRequest(password)
                 )
 

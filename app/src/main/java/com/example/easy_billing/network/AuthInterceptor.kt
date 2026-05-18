@@ -18,11 +18,11 @@ class AuthInterceptor(private val context: Context) : Interceptor {
 
         // 🔥 Add token
         token?.let {
-            requestBuilder.addHeader("Authorization", "Bearer $it")
+            requestBuilder.header("Authorization", "Bearer $it")
         }
 
         // 🔥 Add device id
-        requestBuilder.addHeader("device_id", deviceId)
+        requestBuilder.header("device_id", deviceId)
 
         val request = requestBuilder.build()
 

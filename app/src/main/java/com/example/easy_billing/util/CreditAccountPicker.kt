@@ -142,7 +142,7 @@ object CreditAccountPicker {
                     try {
                         val response = withContext(Dispatchers.IO) {
                             RetrofitClient.api.createCreditAccount(
-                                "Bearer $token", CreateCreditAccountRequest(name, phone)
+                                token, CreateCreditAccountRequest(name, phone)
                             )
                         }
                         newAccount = CreditAccount(

@@ -29,7 +29,7 @@ class SplashActivity : BaseActivity() {
 
             val isValid = withContext(Dispatchers.IO) {
                 try {
-                    RetrofitClient.api.getProfile("Bearer $token")
+                    RetrofitClient.api.getProfile(token)
                     true
                 } catch (e: HttpException) {
                     e.code() != 401   // ❌ only logout if 401

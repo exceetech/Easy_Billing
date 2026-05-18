@@ -3,6 +3,7 @@ package com.example.easy_billing.sync
 import android.content.Context
 import androidx.room.withTransaction
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.InventoryValuation
 import com.example.easy_billing.db.BillingSettings
 import com.example.easy_billing.db.CreditAccount
 import com.example.easy_billing.db.Inventory
@@ -84,7 +85,7 @@ class SyncManager(private val context: Context) {
         for (product in pending) {
             try {
                 val response = api.addProductToShop(
-                    "Bearer $token",
+                    token,
                     AddProductRequest(
                         name             = product.name,
                         variant_name     = product.variant,
@@ -105,7 +106,7 @@ class SyncManager(private val context: Context) {
                 // Always also register globally — best-effort.
                 runCatching {
                     api.registerGlobalProduct(
-                        "Bearer $token",
+                        token,
                         GlobalProductRegisterRequest(
                             name      = product.name,
                             variant   = product.variant,
@@ -162,6 +163,16 @@ class SyncManager(private val context: Context) {
             Log.w(SYNC_TAG, "pushPurchaseImmediately: shop product pre-sync failed: ${it.message}")
         }
 
+        // 🔥 ALSO SYNC CREDIT ACCOUNTS BEFORE PURCHASES
+        // If the user created a new account for this purchase, it MUST
+        // land on the server first to get its `serverId`.
+        runCatching { syncAccounts() }.onFailure {
+            Log.w(SYNC_TAG, "pushPurchaseImmediately: account pre-sync failed: ${it.message}")
+        }
+        runCatching { syncCredit() }.onFailure {
+            Log.w(SYNC_TAG, "pushPurchaseImmediately: transaction pre-sync failed: ${it.message}")
+        }
+
         val purchase = db.purchaseDao().getById(purchaseId)
             ?: return SyncResult.Skipped("local purchase not found")
         if (purchase.isSynced) return SyncResult.NothingToDo
@@ -175,6 +186,11 @@ class SyncManager(private val context: Context) {
         // the next sync pass.
         runCatching { syncGstPurchases() }.onFailure {
             Log.w(SYNC_TAG, "pushPurchaseImmediately: gst records flush failed: ${it.message}")
+        }
+
+        // Also push the inventory logs created by this purchase immediately.
+        runCatching { syncInventory() }.onFailure {
+            Log.w(SYNC_TAG, "pushPurchaseImmediately: inventory logs sync failed: ${it.message}")
         }
 
         return mainResult
@@ -217,6 +233,12 @@ class SyncManager(private val context: Context) {
                     sales_igst_percentage    = item.salesIgstPercentage
                 )
             }
+            val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                .getInt("SHOP_ID", 1)
+            val serverCreditAccountId = p.creditAccountId?.let { localId ->
+                db.creditAccountDao().getById(localId, shopId)?.serverId
+            }
+
             PurchaseDto(
                 local_id         = p.id,
                 invoice_number   = p.invoiceNumber,
@@ -231,12 +253,9 @@ class SyncManager(private val context: Context) {
                 sgst_amount      = p.sgstAmount,
                 igst_amount      = p.igstAmount,
                 invoice_value    = p.invoiceValue,
-                // Forward the supplier-printed invoice date so the
-                // backend's `purchases.invoice_date` column actually
-                // gets populated (was always null before this).
                 invoice_date     = p.invoiceDate,
                 is_credit        = p.isCredit,
-                credit_account_id = p.creditAccountId,
+                credit_account_id = serverCreditAccountId,
                 created_at       = p.createdAt,
                 items            = items
             )
@@ -245,7 +264,7 @@ class SyncManager(private val context: Context) {
         return try {
             Log.d(SYNC_TAG, "pushPurchases: POST /purchases/sync with ${dtoBatch.size} purchase(s)")
             val response = api.syncPurchases(
-                "Bearer $token", PurchaseSyncRequest(dtoBatch)
+                token, PurchaseSyncRequest(dtoBatch)
             )
             Log.d(SYNC_TAG, "pushPurchases: server replied success_count=${response.success_count}, " +
                 "purchase_id_map=${response.purchase_id_map}")
@@ -293,6 +312,12 @@ class SyncManager(private val context: Context) {
         val productDao = db.productDao()
         val dtos = pending.map { r ->
             val serverProductId = r.productId?.let { productDao.getById(it)?.serverId }
+            val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                .getInt("SHOP_ID", 1)
+            val serverCreditAccountId = r.creditAccountId?.let { localId ->
+                db.creditAccountDao().getById(localId, shopId)?.serverId
+            }
+
             PurchaseReturnDto(
                 local_id          = r.id,
                 shop_id           = r.shopId,
@@ -313,13 +338,13 @@ class SyncManager(private val context: Context) {
                 supplier_gstin    = r.supplierGstin,
                 supplier_name     = r.supplierName,
                 is_credit         = r.isCredit,
-                credit_account_id = r.creditAccountId,
+                credit_account_id = serverCreditAccountId,
                 created_at        = r.createdAt
             )
         }
 
         try {
-            api.syncPurchaseReturns("Bearer $token", PurchaseReturnSyncRequest(dtos))
+            api.syncPurchaseReturns(token, PurchaseReturnSyncRequest(dtos))
             pending.forEach { db.purchaseReturnDao().markSynced(it.id) }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -361,7 +386,7 @@ class SyncManager(private val context: Context) {
         }
 
         try {
-            api.syncScrap("Bearer $token", ScrapSyncRequest(dtos))
+            api.syncScrap(token, ScrapSyncRequest(dtos))
             pending.forEach { db.scrapDao().markSynced(it.id) }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -416,7 +441,7 @@ class SyncManager(private val context: Context) {
                     total_amount = bill.total
                 )
 
-                val response = api.createBill("Bearer $token", request)
+                val response = api.createBill(token, request)
 
                 if (response.bill_number.isNotEmpty()) {
                     db.billDao().updateBillNumber(bill.id, response.bill_number)
@@ -443,7 +468,7 @@ class SyncManager(private val context: Context) {
         try {
 
             // ✅ ALWAYS FETCH FROM BACKEND
-            val response = api.getStoreSettings("Bearer $token")
+            val response = api.getStoreSettings(token)
 
             if (!response.shop_name.isNullOrBlank()) {
 
@@ -473,7 +498,7 @@ class SyncManager(private val context: Context) {
 
         try {
 
-            val response = api.getBillingSettings("Bearer $token")
+            val response = api.getBillingSettings(token)
 
             val settings = BillingSettings(
                 defaultGst = response.default_gst,
@@ -512,7 +537,7 @@ class SyncManager(private val context: Context) {
                 }
 
                 val res = api.syncCredit(
-                    "Bearer $token",
+                    token,
                     CreditSyncRequest(
                         account_id = account.serverId,
                         amount = txn.amount,
@@ -552,7 +577,7 @@ class SyncManager(private val context: Context) {
         for (acc in accounts) {
             try {
                 val res = api.createCreditAccount(
-                    "Bearer $token",
+                    token,
                     CreateCreditAccountRequest(acc.name, acc.phone)
                 )
 
@@ -581,7 +606,7 @@ class SyncManager(private val context: Context) {
 
         try {
 
-            val accounts = api.getCreditAccounts("Bearer $token")
+            val accounts = api.getCreditAccounts(token)
 
             for (acc in accounts) {
 
@@ -662,7 +687,7 @@ class SyncManager(private val context: Context) {
         try {
 
             val response = api.syncInventory(
-                "Bearer $token",
+                token,
                 validRequests
             )
 
@@ -700,7 +725,7 @@ class SyncManager(private val context: Context) {
 
         try {
 
-            val serverInventory = api.getInventory("Bearer $token")
+            val serverInventory = api.getInventory(token)
 
             println("📦 SERVER INVENTORY SIZE = ${serverInventory.size}")
 
@@ -738,14 +763,24 @@ class SyncManager(private val context: Context) {
                             continue
                         }
 
+                        // For purchased products, the local batch ledger is the ground truth for average cost.
+                        // Overwriting it with the server's avg_cost (which is not batch-aware and doesn't
+                        // update on scrap/sales) causes it to revert to outdated values.
+                        val resolvedAvgCost = if (product.isPurchased) {
+                            existing.averageCost
+                        } else {
+                            0.0
+                        }
+
                         inventoryDao.update(
                             existing.copy(
                                 currentStock = item.stock,
-                                averageCost = item.avg_cost,
+                                averageCost = resolvedAvgCost,
                                 isActive = item.is_active,
                                 isSynced = true
                             )
                         )
+                        InventoryValuation.ensureSyntheticBatch(db, product.id)
                         println("✅ Updated inventory for productId=${product.id}")
                     } else {
 
@@ -758,6 +793,7 @@ class SyncManager(private val context: Context) {
                                 isSynced = true
                             )
                         )
+                        InventoryValuation.ensureSyntheticBatch(db, product.id)
 
                         println("✅ Inserted inventory for productId=${product.id}")
                     }
@@ -772,7 +808,7 @@ class SyncManager(private val context: Context) {
                 try {
 
                     val backendProducts =
-                        RetrofitClient.api.getMyProducts("Bearer $token")
+                        RetrofitClient.api.getMyProducts(token)
 
                     backendProducts.forEach {
 
@@ -828,7 +864,7 @@ class SyncManager(private val context: Context) {
             )
             
             // Re-lookup or direct upsert
-            val response = api.upsertGstProfile("Bearer $token", request)
+            val response = api.upsertGstProfile(token, request)
             
             db.gstProfileDao().insert(profile.copy(
                 legalName = response.legal_name,
@@ -873,7 +909,7 @@ class SyncManager(private val context: Context) {
         }
 
         try {
-            val response = api.syncGstSales("Bearer $token", GstSalesSyncRequest(recordsDto))
+            val response = api.syncGstSales(token, GstSalesSyncRequest(recordsDto))
             if (response.success_count > 0) {
                 // For simplicity, mark all as synced. In a robust system, check response.failed_records
                 db.gstSalesRecordDao().markAsSynced(unsynced.map { it.id })
@@ -917,7 +953,7 @@ class SyncManager(private val context: Context) {
 
         try {
             Log.d(SYNC_TAG, "syncGstPurchases: POST /gst/purchases/sync with ${recordsDto.size} record(s)")
-            val response = api.syncGstPurchases("Bearer $token", GstPurchaseSyncRequest(recordsDto))
+            val response = api.syncGstPurchases(token, GstPurchaseSyncRequest(recordsDto))
             Log.d(SYNC_TAG, "syncGstPurchases: server replied success_count=${response.success_count}, message=${response.message}")
             // We only get here if the HTTP call returned 2xx. Mark
             // every row synced — even if `success_count` is 0 the
@@ -1003,7 +1039,7 @@ class SyncManager(private val context: Context) {
         try {
             Log.d(SYNC_TAG, "syncGstInvoices: POST /gst-sales/sync with ${dtoBatch.size} invoice(s)")
             val response = api.syncGstSalesInvoices(
-                "Bearer $token",
+                token,
                 GstSalesSyncBatchRequest(dtoBatch)
             )
             Log.d(SYNC_TAG, "syncGstInvoices: server replied success=${response.success_count}, failed=${response.failed_count}")

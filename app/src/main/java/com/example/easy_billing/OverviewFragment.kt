@@ -138,7 +138,7 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
                 }
 
                 val avg = RetrofitClient.api.getAverageBill(
-                    "Bearer $token",
+                    token,
                     type,
                     start,
                     end

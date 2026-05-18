@@ -77,7 +77,7 @@ class BillDetailsActivity : AppCompatActivity() {
             try {
 
                 val response = RetrofitClient.api.getBillDetails(
-                    "Bearer $token",
+                    token,
                     billId
                 )
 
@@ -139,7 +139,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 val db = AppDatabase.getDatabase(this@BillDetailsActivity)
 
                 val response = RetrofitClient.api.getBillDetails(
-                    "Bearer $token",
+                    token,
                     billId
                 )
 

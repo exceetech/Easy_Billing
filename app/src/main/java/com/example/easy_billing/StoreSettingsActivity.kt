@@ -137,7 +137,7 @@ class StoreSettingsActivity : BaseActivity() {
                 .getString("TOKEN", null) ?: return@launch
 
             try {
-                val response = RetrofitClient.api.getStoreSettings("Bearer $token")
+                val response = RetrofitClient.api.getStoreSettings(token)
 
                 if (!response.shop_name.isNullOrBlank()) {
                     val type = response.type?.takeIf { it.isNotBlank() } ?: "general"
@@ -241,7 +241,7 @@ class StoreSettingsActivity : BaseActivity() {
             if (token != null) {
                 try {
                     RetrofitClient.api.updateStoreSettings(
-                        "Bearer $token",
+                        token,
                         ShopSettingsUpdateRequest(name, address, phone, gstin, type)
                     )
                     db.storeInfoDao().insert(updated.copy(isSynced = true))

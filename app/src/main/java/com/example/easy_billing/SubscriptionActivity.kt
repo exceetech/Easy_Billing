@@ -71,7 +71,7 @@ class SubscriptionActivity : BaseActivity() {
             }
 
             try {
-                val res = RetrofitClient.api.getSubscription("Bearer $token")
+                val res = RetrofitClient.api.getSubscription(token)
 
                 tvPlan.text = "Plan: ${res.plan ?: "None"}"
 

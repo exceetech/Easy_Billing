@@ -25,17 +25,17 @@ class ProductVerificationRepository private constructor(
 
     suspend fun verifyHsn(hsn: String): Result<HsnVerificationResponse> = runCatching {
         val token = tokenProvider() ?: error("Not signed in")
-        api.verifyHsn("Bearer $token", hsn.trim())
+        api.verifyHsn(token, hsn.trim())
     }
 
     suspend fun variantsFor(productName: String): Result<VariantListResponse> = runCatching {
         val token = tokenProvider() ?: error("Not signed in")
-        api.getProductVariants("Bearer $token", productName.trim())
+        api.getProductVariants(token, productName.trim())
     }
 
     suspend fun verifyProductName(name: String): Result<ProductNameVerifyResponse> = runCatching {
         val token = tokenProvider() ?: error("Not signed in")
-        api.verifyProductName("Bearer $token", name.trim())
+        api.verifyProductName(token, name.trim())
     }
 
     companion object {

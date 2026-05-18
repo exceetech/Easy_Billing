@@ -65,7 +65,7 @@ class GstProfileRepository private constructor(
      */
     suspend fun refreshFromServer(token: String): Result<GstProfile?> {
         return runCatching {
-            val remote: GstProfileResponse = api.getGstProfile("Bearer $token")
+            val remote: GstProfileResponse = api.getGstProfile(token)
             val local = dao.get()
             val now = System.currentTimeMillis()
 
@@ -100,7 +100,7 @@ class GstProfileRepository private constructor(
     private suspend fun pushToServer(token: String, profile: GstProfile): Boolean {
         return runCatching {
             api.upsertGstProfile(
-                "Bearer $token",
+                token,
                 GstProfileRequest(
                     gstin = profile.gstin,
                     legal_name = profile.legalName,

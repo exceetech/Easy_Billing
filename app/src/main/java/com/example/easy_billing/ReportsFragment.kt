@@ -128,10 +128,10 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
 
                 // 🔥 SAME APIs (UNCHANGED)
                 val daily =
-                    RetrofitClient.api.getDailyReport("Bearer $token")
+                    RetrofitClient.api.getDailyReport(token)
 
                 val monthly =
-                    RetrofitClient.api.getMonthlyReport("Bearer $token")
+                    RetrofitClient.api.getMonthlyReport(token)
 
                 rvDaily.adapter = DailyReportAdapter(daily)
                 rvMonthly.adapter = MonthlyReportAdapter(monthly)

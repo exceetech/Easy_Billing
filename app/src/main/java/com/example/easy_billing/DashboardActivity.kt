@@ -237,7 +237,7 @@ class DashboardActivity : BaseActivity() {
                     try {
 
                         val response = RetrofitClient.api.saveFcmToken(
-                            "Bearer $authToken",
+                            authToken,
                             SaveTokenRequest(fcmToken)
                         )
 
@@ -419,7 +419,7 @@ class DashboardActivity : BaseActivity() {
 
             try {
 
-                val profile = RetrofitClient.api.getProfile("Bearer $token")
+                val profile = RetrofitClient.api.getProfile(token)
 
                 val shopName = profile.shop_name
                 val ownerName = profile.owner_name ?: "Store Owner"
@@ -681,44 +681,45 @@ class DashboardActivity : BaseActivity() {
         val currentShopId = productRepo.currentShopId()
 
         try {
-            val backendProducts =
-                RetrofitClient.api.getMyProducts("Bearer $token")
+            if (!token.isNullOrEmpty()) {
+                val backendProducts =
+                    RetrofitClient.api.getMyProducts(token)
 
-            val existingProducts = db.productDao().getAllWithInactive()
-            val existingMap = existingProducts.associateBy { it.id }
+                val existingProducts = db.productDao().getAllWithInactive()
+                val existingMap = existingProducts.associateBy { it.id }
 
-            backendProducts.forEach {
+                backendProducts.forEach {
 
-                val existing = existingMap[it.id]
+                    val existing = existingMap[it.id]
 
-                // Preserve all locally-tracked fields when merging
-                // backend changes — otherwise hsnCode / cgst / sgst /
-                // igst / isPurchased / shopId all get clobbered to
-                // defaults on every dashboard refresh.
-                val merged = (existing ?: Product(
-                    id = it.id,
-                    serverId = it.id,
-                    name = it.name,
-                    variant = it.variant ?: "",
-                    unit = it.unit,
-                    price = it.price,
-                    trackInventory = true,
-                    isCustom = false,
-                    shopId = currentShopId
-                )).copy(
-                    id = it.id,
-                    serverId = it.id,
-                    name = it.name,
-                    variant = it.variant ?: existing?.variant.orEmpty(),
-                    unit = it.unit ?: existing?.unit,
-                    price = it.price,
-                    isActive = true,
-                    shopId = existing?.shopId?.takeIf { sid -> sid.isNotBlank() }
-                        ?: currentShopId
-                )
-                db.productDao().insert(merged)
+                    // Preserve all locally-tracked fields when merging
+                    // backend changes — otherwise hsnCode / cgst / sgst /
+                    // igst / isPurchased / shopId all get clobbered to
+                    // defaults on every dashboard refresh.
+                    val merged = (existing ?: Product(
+                        id = it.id,
+                        serverId = it.id,
+                        name = it.name,
+                        variant = it.variant ?: "",
+                        unit = it.unit,
+                        price = it.price,
+                        trackInventory = true,
+                        isCustom = false,
+                        shopId = currentShopId
+                    )).copy(
+                        id = it.id,
+                        serverId = it.id,
+                        name = it.name,
+                        variant = it.variant ?: existing?.variant.orEmpty(),
+                        unit = it.unit ?: existing?.unit,
+                        price = it.price,
+                        isActive = true,
+                        shopId = existing?.shopId?.takeIf { sid -> sid.isNotBlank() }
+                            ?: currentShopId
+                    )
+                    db.productDao().insert(merged)
+                }
             }
-
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
@@ -1093,10 +1094,12 @@ class DashboardActivity : BaseActivity() {
 
                             // 🔥 BACKEND
                             product.serverId?.let { sid ->
-                                RetrofitClient.api.deactivateProduct(
-                                    "Bearer $token",
-                                    sid
-                                )
+                                if (!token.isNullOrEmpty()) {
+                                    RetrofitClient.api.deactivateProduct(
+                                        token,
+                                        sid
+                                    )
+                                }
                             }
 
                             // 🔥 LOCAL SOFT DELETE
@@ -1161,7 +1164,7 @@ class DashboardActivity : BaseActivity() {
                     return@launch
                 }
 
-                val response = RetrofitClient.api.getAiReport("Bearer $token")
+                val response = RetrofitClient.api.getAiReport(token)
 
                 // 🔥 STEP 2: EMPTY DATA CHECK
                 if (response.report_data.isEmpty()) {
@@ -1341,7 +1344,7 @@ class DashboardActivity : BaseActivity() {
 
             try {
 
-                val res = RetrofitClient.api.getSubscription("Bearer $token")
+                val res = RetrofitClient.api.getSubscription(token)
 
                 // 🔴 If not active → block user
                 if (res.status != "active") {

@@ -62,25 +62,25 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
 
                     ReportFilter.TODAY -> {
                         val hourly =
-                            RetrofitClient.api.getTodayHourlySales("Bearer $token")
+                            RetrofitClient.api.getTodayHourlySales(token)
                         drawHourlyChart(hourly)
                     }
 
                     ReportFilter.WEEK -> {
                         val daily =
-                            RetrofitClient.api.getDailyReport("Bearer $token")
+                            RetrofitClient.api.getDailyReport(token)
                         drawWeeklyChart(daily)
                     }
 
                     ReportFilter.MONTH -> {
                         val daily =
-                            RetrofitClient.api.getDailyReport("Bearer $token")
+                            RetrofitClient.api.getDailyReport(token)
                         drawMonthChart(daily)
                     }
 
                     ReportFilter.YEAR -> {
                         val monthly =
-                            RetrofitClient.api.getMonthlyReport("Bearer $token")
+                            RetrofitClient.api.getMonthlyReport(token)
                         drawYearChart(monthly)
                     }
 
@@ -91,7 +91,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
                         }
 
                         val daily =
-                            RetrofitClient.api.getDailyReport("Bearer $token")
+                            RetrofitClient.api.getDailyReport(token)
 
                         val filtered = filterCustomDates(daily)
                         drawCustomChart(filtered)

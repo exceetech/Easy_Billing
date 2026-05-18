@@ -707,7 +707,7 @@ class InvoiceActivity : AppCompatActivity() {
                             )
                         }
                         RetrofitClient.api.createSale(
-                            "Bearer $token",
+                            token,
                             CreateSaleRequest(saleItems)
                         )
                     }
@@ -734,27 +734,29 @@ class InvoiceActivity : AppCompatActivity() {
                 try {
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
-                    val request = CreateBillRequest(
-                        bill_number    = "",
-                        items          = items.map {
-                            if (it.product.serverId == null)
-                                throw Exception("Product not synced: ${it.product.name}")
-                            BillItemRequest(
-                                it.product.serverId,
-                                it.quantity,
-                                it.product.variant
-                            )
-                        },
-                        payment_method = getPaymentMethod(),
-                        discount       = discount,
-                        gst            = breakdown.totalTax,
-                        total_amount   = total
-                    )
-                    val response = RetrofitClient.api.createBill("Bearer $token", request)
-                    if (response.bill_number.isNotEmpty()) {
-                        db.billDao().updateBillNumber(savedBillId, response.bill_number)
-                        db.billDao().markBillSynced(savedBillId)
-                        db.billItemDao().markItemsSynced(savedBillId)
+                    if (!token.isNullOrEmpty()) {
+                        val request = CreateBillRequest(
+                            bill_number    = "",
+                            items          = items.map {
+                                if (it.product.serverId == null)
+                                    throw Exception("Product not synced: ${it.product.name}")
+                                BillItemRequest(
+                                    it.product.serverId,
+                                    it.quantity,
+                                    it.product.variant
+                                )
+                            },
+                            payment_method = getPaymentMethod(),
+                            discount       = discount,
+                            gst            = breakdown.totalTax,
+                            total_amount   = total
+                        )
+                        val response = RetrofitClient.api.createBill(token, request)
+                        if (response.bill_number.isNotEmpty()) {
+                            db.billDao().updateBillNumber(savedBillId, response.bill_number)
+                            db.billDao().markBillSynced(savedBillId)
+                            db.billItemDao().markItemsSynced(savedBillId)
+                        }
                     }
                 } catch (_: Exception) {
                     // offline safe
@@ -826,7 +828,7 @@ class InvoiceActivity : AppCompatActivity() {
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
             try {
-                val response = RetrofitClient.api.getStoreSettings("Bearer $token")
+                val response = RetrofitClient.api.getStoreSettings(token)
                 val updated = StoreInfo(
                     name     = response.shop_name ?: "",
                     address  = response.store_address ?: "",
@@ -892,7 +894,7 @@ class InvoiceActivity : AppCompatActivity() {
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
             try {
-                val response = RetrofitClient.api.getBillingSettings("Bearer $token")
+                val response = RetrofitClient.api.getBillingSettings(token)
                 val updated = BillingSettings(
                     defaultGst    = response.default_gst,
                     printerLayout = response.printer_layout
@@ -1039,7 +1041,7 @@ class InvoiceActivity : AppCompatActivity() {
                 }
                 try {
                     val response = api.createCreditAccount(
-                        "Bearer $token", CreateCreditAccountRequest(name, phone)
+                        token, CreateCreditAccountRequest(name, phone)
                     )
                     db.creditAccountDao().insert(
                         CreditAccount(

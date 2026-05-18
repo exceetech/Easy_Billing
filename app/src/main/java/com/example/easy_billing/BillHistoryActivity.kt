@@ -99,7 +99,7 @@ class BillHistoryActivity : BaseActivity() {
             }
 
             try {
-                val bills = RetrofitClient.api.getBills("Bearer $token")
+                val bills = RetrofitClient.api.getBills(token)
 
                 // ✅ Sort latest first
                 val sorted = bills.sortedByDescending { it.created_at }

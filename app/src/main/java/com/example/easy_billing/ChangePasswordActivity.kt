@@ -103,7 +103,7 @@ class ChangePasswordActivity : BaseActivity() {
                         return@launch
                     }
 
-                    val response = RetrofitClient.api.resetPassword("Bearer $token", ChangePasswordRequest(newPass))
+                    val response = RetrofitClient.api.resetPassword(token, ChangePasswordRequest(newPass))
                     
                     if (response.isSuccessful) {
                         Toast.makeText(this@ChangePasswordActivity, "Password updated successfully!", Toast.LENGTH_LONG).show()

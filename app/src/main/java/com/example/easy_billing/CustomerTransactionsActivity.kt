@@ -117,7 +117,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         try {
             val api = RetrofitClient.api
 
-            val response = api.getTransactions("Bearer $token", accountId)
+            val response = api.getTransactions(token, accountId)
 
             originalList.clear()
 

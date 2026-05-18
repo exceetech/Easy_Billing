@@ -129,7 +129,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                 }
 
                 val peak = RetrofitClient.api.getPeakHours(
-                    "Bearer $token",
+                    token,
                     type,
                     start,
                     end
