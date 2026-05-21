@@ -93,5 +93,55 @@ data class GstSalesInvoice(
     val syncStatus: String = "pending",       // pending / synced / failed
 
     @ColumnInfo(name = "server_id")
-    val serverId: Int? = null
+    val serverId: Int? = null,
+
+    // ── GSTR-1 fields (v23) ──────────────────────────────────────────
+
+    /** Human-readable bill number (e.g. "INV-0042"). */
+    @ColumnInfo(name = "invoice_number")
+    val invoiceNumber: String = "",
+
+    /** Epoch millis of the invoice date / bill date. */
+    @ColumnInfo(name = "invoice_date")
+    val invoiceDate: Long = 0L,
+
+    /**
+     * Reverse Charge Applicable?
+     *   "Y" = Yes   "N" = No (default)
+     * Source: InvoiceActivity GST Options section.
+     */
+    @ColumnInfo(name = "reverse_charge")
+    val reverseCharge: String = "N",
+
+    /**
+     * GSTR-1 invoice type.
+     * Allowed: "Regular" | "SEZ supplies with payment" |
+     *          "SEZ supplies without payment" | "Deemed Exp"
+     * Source: InvoiceActivity GST Options dropdown.
+     */
+    @ColumnInfo(name = "gstr_invoice_type")
+    val gstrInvoiceType: String = "Regular",
+
+    /**
+     * 2-digit GST state code for GSTR-1 Place of Supply.
+     * B2B: required.  B2C: falls back to shop state code.
+     */
+    @ColumnInfo(name = "customer_state_code")
+    val customerStateCode: String? = null,
+
+    /** E-Commerce Operator GSTIN (only when sale is via e-commerce). */
+    @ColumnInfo(name = "ecommerce_gstin")
+    val ecommerceGstin: String? = null,
+
+    /** E-Commerce Operator Name (only when sale is via e-commerce). */
+    @ColumnInfo(name = "ecommerce_operator_name")
+    val ecommerceOperatorName: String? = null,
+
+    /** Whether this invoice has been cancelled for GST reporting. */
+    @ColumnInfo(name = "is_cancelled")
+    val isCancelled: Boolean = false,
+
+    /** Epoch millis when cancellation was recorded. */
+    @ColumnInfo(name = "cancelled_at")
+    val cancelledAt: Long? = null
 )

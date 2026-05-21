@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.util.UqcMapper
 
 class AddProductsActivity : BaseActivity() {
 
@@ -193,6 +194,17 @@ class AddProductsActivity : BaseActivity() {
             nameSource = { product.name }
         )
 
+        // ── GSTR-1 product master fields (v23) ──
+        val spinnerUqcUpdate = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
+        val etHsnDescUpdate  = dialogView.findViewById<EditText>(R.id.etHsnDescription)
+        val etCessRateUpdate = dialogView.findViewById<EditText>(R.id.etCessRate)
+        spinnerUqcUpdate.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            UqcMapper.ALL_UQC_DISPLAY))
+        // Prefill from existing product
+        spinnerUqcUpdate.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
+        etHsnDescUpdate.setText(product.hsnDescription ?: "")
+        if (product.cessRate > 0) etCessRateUpdate.setText(product.cessRate.toString())
+
         // 🔥 Prefill inventory state
         switchInventory.isChecked = product.trackInventory
         layoutInventory.visibility = if (product.trackInventory) View.VISIBLE else View.GONE
@@ -261,6 +273,10 @@ class AddProductsActivity : BaseActivity() {
             val cgstPct = etCgst.text.toString().toDoubleOrNull() ?: 0.0
             val sgstPct = etSgst.text.toString().toDoubleOrNull() ?: 0.0
             val igstPct = etIgst.text.toString().toDoubleOrNull() ?: 0.0
+            // GSTR-1 product master (v23)
+            val officialUqcUpd  = UqcMapper.displayToCode(spinnerUqcUpdate.text.toString())
+            val hsnDescUpd      = etHsnDescUpdate.text.toString().trim().ifBlank { null }
+            val cessRateUpd     = etCessRateUpdate.text.toString().toDoubleOrNull() ?: 0.0
 
             lifecycleScope.launch {
                 val storeInfo = db.storeInfoDao().get()
@@ -334,7 +350,13 @@ class AddProductsActivity : BaseActivity() {
                                 initial_stock = null,
                                 cost_price = null,
                                 hsn_code = hsnCode.ifBlank { null },
-                                default_gst_rate = gstRate
+                                default_gst_rate = gstRate,
+                                cgst_percentage = cgstPct,
+                                sgst_percentage = sgstPct,
+                                igst_percentage = igstPct,
+                                official_uqc = officialUqcUpd,
+                                hsn_description = hsnDescUpd,
+                                cess_rate = cessRateUpd
                             )
                         )
                         // 🆕 Mirror to global catalogue (best-effort).
@@ -358,7 +380,10 @@ class AddProductsActivity : BaseActivity() {
                             defaultGstRate = gstRate,
                             cgstPercentage = cgstPct,
                             sgstPercentage = sgstPct,
-                            igstPercentage = igstPct
+                            igstPercentage = igstPct,
+                            officialUqc = officialUqcUpd,
+                            hsnDescription = hsnDescUpd,
+                            cessRate = cessRateUpd
                         )
                     )
 
@@ -481,6 +506,13 @@ class AddProductsActivity : BaseActivity() {
         etUnit.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, units))
         etUnit.setText("piece", false)
 
+        // ── GSTR-1 product master fields (v23) ──
+        val spinnerUqc  = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
+        val etHsnDesc   = dialogView.findViewById<EditText>(R.id.etHsnDescription)
+        val etCessRate  = dialogView.findViewById<EditText>(R.id.etCessRate)
+        spinnerUqc.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            UqcMapper.ALL_UQC_DISPLAY))
+
         switchInventory.setOnCheckedChangeListener { _, isChecked ->
             layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
         }
@@ -567,6 +599,11 @@ class AddProductsActivity : BaseActivity() {
             val igstPct = dialogView.findViewById<EditText>(R.id.etIgst)
                 .text.toString().toDoubleOrNull() ?: 0.0
 
+            // ── GSTR-1 product master (v23) ──
+            val officialUqcVal   = UqcMapper.displayToCode(spinnerUqc.text.toString())
+            val hsnDescVal       = etHsnDesc.text.toString().trim().ifBlank { null }
+            val cessRateVal      = etCessRate.text.toString().toDoubleOrNull() ?: 0.0
+
             lifecycleScope.launch {
                 val storeInfo = db.storeInfoDao().get()
                 val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
@@ -585,8 +622,9 @@ class AddProductsActivity : BaseActivity() {
                         .getString("TOKEN", null)
 
                     // 🔥 LOCAL CHECK FIRST (FAST + IMPORTANT)
+                    val validShopIds = com.example.easy_billing.repository.ProductRepository.get(this@AddProductsActivity).getValidShopIds()
                     val localExisting = db.productDao()
-                        .getByNameAndVariant(name, variantName)
+                        .getByNameAndVariant(name, variantName, validShopIds)
 
                     // ================= NEW PRODUCT =================
                     if (localExisting == null) {
@@ -604,7 +642,13 @@ class AddProductsActivity : BaseActivity() {
                                     initial_stock = if (trackInventory) stockQty else null,
                                     cost_price = if (trackInventory) costPrice else null,
                                     hsn_code = hsnCode.ifBlank { null },
-                                    default_gst_rate = gstRate
+                                    default_gst_rate = gstRate,
+                                    cgst_percentage = cgstPct,
+                                    sgst_percentage = sgstPct,
+                                    igst_percentage = igstPct,
+                                    official_uqc = officialUqcVal,
+                                    hsn_description = hsnDescVal,
+                                    cess_rate = cessRateVal
                                 )
                             )
                             // 🆕 Mirror to global catalogue (best-effort).
@@ -632,6 +676,9 @@ class AddProductsActivity : BaseActivity() {
                                 cgstPercentage = cgstPct,
                                 sgstPercentage = sgstPct,
                                 igstPercentage = igstPct,
+                                officialUqc = officialUqcVal,
+                                hsnDescription = hsnDescVal,
+                                cessRate = cessRateVal,
                                 shopId = shopIdSync(db)
                             )
                         ).toInt()
@@ -678,13 +725,15 @@ class AddProductsActivity : BaseActivity() {
 
                             val detailsText = buildString {
                                 append("Selling Price: ₹${localExisting.price}\n")
-
-                                if (!localExisting.variant.isNullOrEmpty()) {
-                                    append("Variant: ${localExisting.variant}\n")
-                                }
-
+                                if (!localExisting.hsnCode.isNullOrEmpty()) append("HSN: ${localExisting.hsnCode}\n")
+                                if (!localExisting.variant.isNullOrEmpty()) append("Variant: ${localExisting.variant}\n")
                                 append("Unit: ${localExisting.unit}\n")
-
+                                if (localExisting.cgstPercentage > 0 || localExisting.sgstPercentage > 0) {
+                                    append("CGST: ${localExisting.cgstPercentage}%  SGST: ${localExisting.sgstPercentage}%\n")
+                                }
+                                if (localExisting.igstPercentage > 0) {
+                                    append("IGST: ${localExisting.igstPercentage}%\n")
+                                }
                                 if (localExisting.trackInventory) {
                                     append("Stock: $stock")
                                 } else {
@@ -693,117 +742,50 @@ class AddProductsActivity : BaseActivity() {
                             }
 
                             runOnUiThread {
-                                tvMessage.text = "${localExisting.name} (${localExisting.variant}) already exists.\nDo you want to restore it?"
+                                if (localExisting.isActive) {
+                                    // CASE 2: Active Exists
+                                    tvMessage.text = "${localExisting.name} (${localExisting.variant ?: ""}) already exists.\nYou must edit the existing product from the catalog."
+                                    btnUpdate.text = "OK"
+                                    btnReplace.visibility = View.GONE
+                                } else {
+                                    if (!localExisting.isPurchased) {
+                                        // CASE 3: Inactive & Same Type (Manual)
+                                        tvMessage.text = "${localExisting.name} (${localExisting.variant ?: ""}) was deactivated.\nDo you want to restore it?"
+                                        btnUpdate.text = "Restore with New Values"
+                                        btnReplace.text = "Restore Existing"
+                                        btnReplace.visibility = View.VISIBLE
+                                    } else {
+                                        // CASE 4: Inactive & Different Type (Purchased)
+                                        tvMessage.text = "${localExisting.name} (${localExisting.variant ?: ""}) was previously a PURCHASED product.\nDo you want to convert it to a MANUAL product?"
+                                        btnUpdate.text = "Convert to Manual"
+                                        btnReplace.visibility = View.GONE
+                                    }
+                                }
                                 tvDetails.text = detailsText
                             }
                         }
 
-                        // ================= UPDATE =================
+                        // ================= BUTTON LOGIC =================
                         btnUpdate.setOnClickListener {
+                            if (localExisting.isActive) {
+                                customDialog.dismiss()
+                                return@setOnClickListener
+                            }
 
+                            // CASE 3 (Restore with New Values) or CASE 4 (Convert to Manual)
                             lifecycleScope.launch {
-
-                                var serverId: Int? = null
-                                if (!token.isNullOrEmpty()) {
-                                    val response = RetrofitClient.api.addProductToShop(
-                                        token,
-                                        AddProductRequest(
-                                            name = name,
-                                            variant_name = variantName,
-                                            unit = unit,
-                                            price = price,
-                                            track_inventory = trackInventory,
-                                            initial_stock = if (trackInventory) stockQty else null,
-                                            cost_price = if (trackInventory) costPrice else null,
-                                            hsn_code = hsnCode.ifBlank { null },
-                                            default_gst_rate = gstRate
-                                        )
-                                    )
-                                    // 🆕 Mirror to global catalogue (best-effort).
-                                    registerProductGlobally(
-                                        token = token,
-                                        name = name,
-                                        variant = variantName,
-                                        hsn = hsnCode
-                                    )
-                                    serverId = response.product_id
-                                }
-
-                                val productId = localExisting.id
-
-                                db.productDao().update(
-                                    localExisting.copy(
-                                        price = price,
-                                        trackInventory = trackInventory,
-                                        serverId = serverId ?: localExisting.serverId,
-                                        isActive = true,
-                                        hsnCode = hsnCode.ifBlank { null },
-                                        defaultGstRate = gstRate,
-                                        cgstPercentage = cgstPct,
-                                        sgstPercentage = sgstPct,
-                                        igstPercentage = igstPct
-                                    )
-                                )
-
-                                val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
-
-                                // 🔥 ON → OFF
-                                if (localExisting.trackInventory && !trackInventory) {
-                                    if ((inventory?.currentStock ?: 0.0) > 0) {
+                                try {
+                                    val productId = localExisting.id
+                                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+                                    
+                                    if (!trackInventory && (inventory?.currentStock ?: 0.0) > 0) {
                                         toast("Cannot disable inventory (stock exists)")
                                         return@launch
                                     }
-                                    inventory?.let {
-                                        db.inventoryDao().update(it.copy(isActive = false))
-                                    }
-                                }
 
-                                // 🔥 OFF → ON
-                                if (!localExisting.trackInventory && trackInventory) {
-                                    if (inventory != null) {
-                                        db.inventoryDao().update(inventory.copy(isActive = true))
-                                    }
-                                    if (stockQty > 0) {
-                                        InventoryManager.addStock(db, productId, stockQty, costPrice)
-                                    }
-                                }
-
-                                // 🔥 ON → ON
-                                if (localExisting.trackInventory && trackInventory && stockQty > 0) {
-                                    InventoryManager.addStock(db, productId, stockQty, costPrice)
-                                }
-
-                                // 🔥 Immediately push inventory logs to backend
-                                try {
-                                    SyncManager(this@AddProductsActivity).syncInventory()
-                                } catch (_: Exception) { /* best-effort */ }
-
-                                toast("Product updated")
-                                customDialog.dismiss()
-                                dialog.dismiss()
-                                finish()
-                            }
-                        }
-
-                        // ================= REPLACE =================
-                        btnReplace.setOnClickListener {
-
-                            lifecycleScope.launch {
-
-                                db.productDao().deactivate(localExisting.id)
-
-                                val oldInventory = db.inventoryDao()
-                                    .getInventoryIncludingInactive(localExisting.id)
-
-                                oldInventory?.let {
-                                    db.inventoryDao().update(it.copy(isActive = false))
-                                }
-
-                                var serverId: Int? = null
-                                if (!token.isNullOrEmpty()) {
-                                    val response = RetrofitClient.api.addProductToShop(
-                                        token,
-                                        AddProductRequest(
+                                    var serverId: Int? = localExisting.serverId
+                                    if (!token.isNullOrEmpty()) {
+                                        val req = AddProductRequest(
                                             name = name,
                                             variant_name = variantName,
                                             unit = unit,
@@ -812,55 +794,124 @@ class AddProductsActivity : BaseActivity() {
                                             initial_stock = if (trackInventory) stockQty else null,
                                             cost_price = if (trackInventory) costPrice else null,
                                             hsn_code = hsnCode.ifBlank { null },
-                                            default_gst_rate = gstRate
+                                            default_gst_rate = gstRate,
+                                            cgst_percentage = cgstPct,
+                                            sgst_percentage = sgstPct,
+                                            igst_percentage = igstPct,
+                                            official_uqc = officialUqcVal,
+                                            hsn_description = hsnDescVal,
+                                            cess_rate = cessRateVal,
+                                            is_purchased = false // Convert or Restore as Manual
+                                        )
+                                        val sId = serverId
+                                        if (sId != null) {
+                                            RetrofitClient.api.updateShopProduct(token, sId, req)
+                                        } else {
+                                            val response = RetrofitClient.api.addProductToShop(token, req)
+                                            serverId = response.product_id
+                                        }
+                                        registerProductGlobally(token, name, variantName, hsnCode)
+                                    }
+
+                                    // Restore/update ALL fields with NEW values
+                                    db.productDao().update(
+                                        localExisting.copy(
+                                            price = price,
+                                            trackInventory = trackInventory,
+                                            serverId = serverId ?: localExisting.serverId,
+                                            isActive = true,
+                                            isPurchased = false, // Always false when adding manually
+                                            hsnCode = hsnCode.ifBlank { null },
+                                            defaultGstRate = gstRate,
+                                            cgstPercentage = cgstPct,
+                                            sgstPercentage = sgstPct,
+                                            igstPercentage = igstPct,
+                                            officialUqc = officialUqcVal,
+                                            hsnDescription = hsnDescVal,
+                                            cessRate = cessRateVal
                                         )
                                     )
-                                    // 🆕 Mirror to global catalogue (best-effort).
-                                    registerProductGlobally(
-                                        token = token,
-                                        name = name,
-                                        variant = variantName,
-                                        hsn = hsnCode
-                                    )
-                                    serverId = response.product_id
-                                }
 
-                                val newId = db.productDao().insert(
-                                    Product(
-                                        name = capitalizeFirst(name),
-                                        variant = variantName?.let { capitalizeFirst(it) },
-                                        unit = unit,
-                                        price = price,
-                                        trackInventory = trackInventory,
-                                        serverId = serverId,
-                                        isActive = true,
-                                        isCustom = (selectedItem == "Others"),
-                                        hsnCode = hsnCode.ifBlank { null },
-                                        defaultGstRate = gstRate,
-                                        cgstPercentage = cgstPct,
-                                        sgstPercentage = sgstPct,
-                                        igstPercentage = igstPct,
-                                        shopId = shopIdSync(db)
-                                    )
-                                ).toInt()
+                                    // Inventory logic
+                                    if (trackInventory) {
+                                        if (inventory != null && !inventory.isActive) {
+                                            db.inventoryDao().update(inventory.copy(isActive = true))
+                                        }
+                                        // Overwrite stock when restoring/converting
+                                        InventoryManager.resetStock(db, productId, stockQty, costPrice)
+                                    } else {
+                                        inventory?.let {
+                                            db.inventoryDao().update(it.copy(isActive = false))
+                                        }
+                                    }
 
-                                if (trackInventory) {
-                                    InventoryManager.addStock(db, newId, stockQty, costPrice)
-                                    // 🔥 Immediately push inventory logs to backend
                                     try {
                                         SyncManager(this@AddProductsActivity).syncInventory()
-                                    } catch (_: Exception) { /* best-effort */ }
-                                } else {
-                                    val inv = db.inventoryDao().getInventoryIncludingInactive(newId)
-                                    inv?.let {
-                                        db.inventoryDao().update(it.copy(isActive = false))
-                                    }
-                                }
+                                    } catch (_: Exception) { }
 
-                                toast("Product replaced")
-                                customDialog.dismiss()
-                                dialog.dismiss()
-                                finish()
+                                    toast("Product restored/converted successfully")
+                                    customDialog.dismiss()
+                                    finish()
+                                } catch (e: Exception) {
+                                    toast("Error: ${e.message}")
+                                }
+                            }
+                        }
+
+                        // CASE 3: Restore Existing (Keep old values, just reactivate)
+                        btnReplace.setOnClickListener {
+                            lifecycleScope.launch {
+                                try {
+                                    val productId = localExisting.id
+                                    
+                                    var serverId: Int? = localExisting.serverId
+                                    if (!token.isNullOrEmpty()) {
+                                        val req = AddProductRequest(
+                                            name = localExisting.name,
+                                            variant_name = localExisting.variant,
+                                            unit = localExisting.unit ?: "piece",
+                                            price = localExisting.price,
+                                            track_inventory = localExisting.trackInventory,
+                                            initial_stock = null,
+                                            cost_price = null,
+                                            hsn_code = localExisting.hsnCode,
+                                            default_gst_rate = localExisting.defaultGstRate,
+                                            cgst_percentage = localExisting.cgstPercentage,
+                                            sgst_percentage = localExisting.sgstPercentage,
+                                            igst_percentage = localExisting.igstPercentage,
+                                            official_uqc = localExisting.officialUqc,
+                                            hsn_description = localExisting.hsnDescription,
+                                            cess_rate = localExisting.cessRate,
+                                            is_purchased = false
+                                        )
+                                        val sId = serverId
+                                        if (sId != null) {
+                                            RetrofitClient.api.updateShopProduct(token, sId, req)
+                                        } else {
+                                            val response = RetrofitClient.api.addProductToShop(token, req)
+                                            serverId = response.product_id
+                                        }
+                                    }
+                                    
+                                    db.productDao().update(
+                                        localExisting.copy(
+                                            isActive = true,
+                                            serverId = serverId ?: localExisting.serverId
+                                        )
+                                    )
+                                    
+                                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+                                    if (localExisting.trackInventory && inventory != null && !inventory.isActive) {
+                                        db.inventoryDao().update(inventory.copy(isActive = true))
+                                    }
+                                    
+                                    toast("Product restored successfully")
+                                    customDialog.dismiss()
+                                    dialog.dismiss()
+                                    finish()
+                                } catch (e: Exception) {
+                                    toast("Error: ${e.message}")
+                                }
                             }
                         }
 
@@ -952,14 +1003,17 @@ class AddProductsActivity : BaseActivity() {
     }
 
     /**
-     * Best-effort current shop id — the GSTIN on `store_info` if
-     * present, otherwise the SHOP_ID stored in auth prefs. Used
-     * when inserting brand-new product rows so the dashboard tile
-     * grid (which now filters by shop_id) doesn't lose them.
+     * Current shop id used when inserting product rows.
+     *
+     * We deliberately use the numeric SHOP_ID from auth prefs (not
+     * the GSTIN) so that the shopId column is always in the same
+     * format as [ProductRepository.currentShopId] uses when it
+     * falls back to the numeric id — i.e. the two are consistent.
+     * [ProductRepository.getAllForCurrentShop] accepts BOTH the
+     * numeric id AND the GSTIN, so older rows stored with the
+     * GSTIN will still surface even after this change.
      */
     private suspend fun shopIdSync(db: AppDatabase): String {
-        val gstin = db.storeInfoDao().get()?.gstin?.takeIf { it.isNotBlank() }
-        if (gstin != null) return gstin
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         return try {
             prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()

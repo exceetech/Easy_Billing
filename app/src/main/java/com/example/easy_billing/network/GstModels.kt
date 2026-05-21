@@ -64,7 +64,21 @@ data class GstSaleRecordDto(
     val cess_amount: Double,
     val hsn_code: String,
     val gst_rate: Double,
-    val device_id: String
+    val device_id: String,
+    // ── GSTR-1 enrichment (v23) ──
+    val customer_name: String? = null,
+    val business_name: String? = null,
+    val customer_phone: String? = null,
+    val customer_state: String? = null,
+    val customer_state_code: String? = null,
+    val reverse_charge: String = "N",
+    val gstr_invoice_type: String = "Regular",
+    val ecommerce_gstin: String? = null,
+    val ecommerce_operator_name: String? = null,
+    val cess_rate: Double = 0.0,
+    val uqc: String? = null,
+    val hsn_description: String? = null,
+    val is_cancelled: Boolean = false
 )
 
 data class GstPurchaseRecordDto(

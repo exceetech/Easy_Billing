@@ -33,7 +33,11 @@ data class ShopProductDto(
     val cgst_percentage: Double,
     val sgst_percentage: Double,
     val igst_percentage: Double,
-    val default_gst_rate: Double
+    val default_gst_rate: Double,
+    // ── GSTR-1 product master fields (v23) ──
+    val official_uqc: String? = null,
+    val hsn_description: String? = null,
+    val cess_rate: Double = 0.0
 )
 
 data class ShopProductSyncResponse(

@@ -25,5 +25,14 @@ data class Bill(
     val igstAmount: Double = 0.0,
 
     @ColumnInfo(name = "is_synced")
-    var isSynced: Boolean = false
+    var isSynced: Boolean = false,
+
+    // ── Cancellation (v23) ────────────────────────────────────────────
+    /** True when the bill has been cancelled for GST reporting. */
+    @ColumnInfo(name = "is_cancelled")
+    val isCancelled: Boolean = false,
+
+    /** Epoch millis when cancellation was confirmed. */
+    @ColumnInfo(name = "cancelled_at")
+    val cancelledAt: Long? = null
 )

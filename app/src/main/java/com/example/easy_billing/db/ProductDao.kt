@@ -64,7 +64,10 @@ interface ProductDao {
                sgst_percentage  = :sgst,
                igst_percentage  = :igst,
                defaultGstRate   = :defaultGst,
-               hsnCode          = :hsnCode
+               hsnCode          = :hsnCode,
+               official_uqc     = :officialUqc,
+               hsn_description  = :hsnDescription,
+               cess_rate        = :cessRate
          WHERE id = :id
         """
     )
@@ -75,7 +78,10 @@ interface ProductDao {
         sgst: Double,
         igst: Double,
         defaultGst: Double,
-        hsnCode: String?
+        hsnCode: String?,
+        officialUqc: String? = null,
+        hsnDescription: String? = null,
+        cessRate: Double = 0.0
     )
 
     @Query(
@@ -83,10 +89,11 @@ interface ProductDao {
         SELECT * FROM products
          WHERE name = :name
            AND ((variant IS NULL AND :variant IS NULL) OR variant = :variant)
+           AND shop_id IN (:shopIds)
          LIMIT 1
         """
     )
-    suspend fun getByNameAndVariant(name: String, variant: String?): Product?
+    suspend fun getByNameAndVariant(name: String, variant: String?, shopIds: List<String>): Product?
 
     /* ------------ Soft delete ------------ */
 
@@ -95,6 +102,23 @@ interface ProductDao {
 
     @Query("UPDATE products SET isActive = 1 WHERE id = :productId")
     suspend fun activate(productId: Int)
+
+    /**
+     * Find a deactivated product by exact name + variant. Used by the
+     * Add-Product and Purchase flows to detect previously removed items
+     * and offer the user a "Restore" option before creating a duplicate.
+     */
+    @Query(
+        """
+        SELECT * FROM products
+         WHERE name = :name
+           AND ((variant IS NULL AND :variant IS NULL) OR variant = :variant)
+           AND shop_id IN (:shopIds)
+           AND isActive = 0
+         LIMIT 1
+        """
+    )
+    suspend fun getInactiveByNameAndVariant(name: String, variant: String?, shopIds: List<String>): Product?
 
     /* ------------ Auto-fill helpers ------------
      * These power the "type a product name or HSN, get its tax
@@ -106,19 +130,21 @@ interface ProductDao {
         """
         SELECT * FROM products
          WHERE LOWER(name) = LOWER(:name) AND isActive = 1
+           AND shop_id IN (:shopIds)
          ORDER BY id DESC LIMIT 1
         """
     )
-    suspend fun findByName(name: String): Product?
+    suspend fun findByName(name: String, shopIds: List<String>): Product?
 
     @Query(
         """
         SELECT * FROM products
          WHERE hsnCode = :hsn AND isActive = 1
+           AND shop_id IN (:shopIds)
          ORDER BY id DESC LIMIT 1
         """
     )
-    suspend fun findByHsn(hsn: String): Product?
+    suspend fun findByHsn(hsn: String, shopIds: List<String>): Product?
 
     /** Distinct names for autocomplete dropdowns. */
     @Query("SELECT DISTINCT name FROM products WHERE isActive = 1 ORDER BY name ASC")

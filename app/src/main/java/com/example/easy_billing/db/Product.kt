@@ -39,7 +39,8 @@ import java.io.Serializable
     indices = [
         Index(value = ["name"]),
         Index(value = ["hsnCode"]),
-        Index(value = ["shop_id"])
+        Index(value = ["shop_id"]),
+        Index(value = ["shop_id", "name", "variant"], unique = true)
     ]
 )
 data class Product(
@@ -75,6 +76,30 @@ data class Product(
     val sgstPercentage: Double = 0.0,
 
     @ColumnInfo(name = "igst_percentage")
-    val igstPercentage: Double = 0.0
+    val igstPercentage: Double = 0.0,
+
+    // ── GSTR-1 product master fields (v23) ───────────────────────────
+
+    /**
+     * Official GST Unit Quantity Code (e.g. "NOS", "KGS", "LTR").
+     * User-supplied via AddProduct / EditProduct UI.
+     * Falls back to UqcMapper.fromUnit(unit) if blank.
+     */
+    @ColumnInfo(name = "official_uqc")
+    val officialUqc: String? = null,
+
+    /**
+     * Human-readable HSN description for GSTR-1 HSN summary.
+     * Optional; falls back to product name if blank.
+     */
+    @ColumnInfo(name = "hsn_description")
+    val hsnDescription: String? = null,
+
+    /**
+     * Cess rate (%) applicable on this product.
+     * Default 0.  Must be >= 0.
+     */
+    @ColumnInfo(name = "cess_rate")
+    val cessRate: Double = 0.0
 
 ) : Serializable

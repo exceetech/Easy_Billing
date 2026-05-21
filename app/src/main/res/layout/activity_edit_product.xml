@@ -175,6 +175,61 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
+            <!-- ── GSTR-1 product master fields ── -->
+
+            <!-- Official UQC (GST Unit Quantity Code) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilOfficialUqc"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Official UQC (GST Unit Code)"
+                app:helperText="Leave blank to auto-map from unit"
+                app:helperTextEnabled="true">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerOfficialUqc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Official UQC (GST Unit Code)"
+                    android:inputType="none"
+                    android:completionThreshold="1"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- HSN Description -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilHsnDescription"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="HSN Description (optional)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHsnDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Cess % -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCessRate"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Cess % (default 0)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCessRate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- ============ Inventory section ============ -->
             <TextView
                 android:layout_width="wrap_content"

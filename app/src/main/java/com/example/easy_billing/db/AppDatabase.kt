@@ -47,7 +47,7 @@ import com.example.easy_billing.DefaultProductDao
         // weighted average. See [PurchaseBatch].
         PurchaseBatch::class
     ],
-    version = 22
+    version = 24
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -617,6 +617,80 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v22 → v23
+         *
+         * Adds GSTR-1 support fields across four tables and a new
+         * cancellation flag on bills.
+         *
+         *  gst_sales_invoice_table  – invoice_number, invoice_date,
+         *    reverse_charge, gstr_invoice_type, customer_state_code,
+         *    ecommerce_gstin, ecommerce_operator_name,
+         *    is_cancelled, cancelled_at
+         *
+         *  gst_sales_items_table    – cess_rate, cess_amount, uqc,
+         *    hsn_description
+         *
+         *  gst_sales_records        – customer_name, business_name,
+         *    customer_phone, customer_state, customer_state_code,
+         *    reverse_charge, gstr_invoice_type, ecommerce_gstin,
+         *    ecommerce_operator_name, cess_rate, cess_amount, uqc,
+         *    hsn_description, is_cancelled
+         *
+         *  products                 – official_uqc, hsn_description,
+         *    cess_rate
+         *
+         *  bills                    – is_cancelled, cancelled_at
+         *
+         * All adds use safe defaults — existing rows are untouched.
+         */
+        val MIGRATION_22_23 = object : Migration(22, 23) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                // ── gst_sales_invoice_table ───────────────────────────
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `invoice_number` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `invoice_date` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `reverse_charge` TEXT NOT NULL DEFAULT 'N'")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `gstr_invoice_type` TEXT NOT NULL DEFAULT 'Regular'")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `customer_state_code` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `ecommerce_gstin` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `ecommerce_operator_name` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `is_cancelled` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `cancelled_at` INTEGER")
+
+                // ── gst_sales_items_table ─────────────────────────────
+                db.execSQL("ALTER TABLE `gst_sales_items_table` ADD COLUMN `cess_rate` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `gst_sales_items_table` ADD COLUMN `cess_amount` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `gst_sales_items_table` ADD COLUMN `uqc` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_items_table` ADD COLUMN `hsn_description` TEXT")
+
+                // ── gst_sales_records ─────────────────────────────────
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `customerName` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `businessName` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `customerPhone` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `customerState` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `customerStateCode` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `reverseCharge` TEXT NOT NULL DEFAULT 'N'")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `gstrInvoiceType` TEXT NOT NULL DEFAULT 'Regular'")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `ecommerceGstin` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `ecommerceOperatorName` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `cessRate` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `cessAmount` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `uqc` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `hsnDescription` TEXT")
+                db.execSQL("ALTER TABLE `gst_sales_records` ADD COLUMN `is_cancelled` INTEGER NOT NULL DEFAULT 0")
+
+                // ── products ──────────────────────────────────────────
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `official_uqc` TEXT")
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `hsn_description` TEXT")
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `cess_rate` REAL NOT NULL DEFAULT 0.0")
+
+                // ── bills ─────────────────────────────────────────────
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `is_cancelled` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `cancelled_at` INTEGER")
+            }
+        }
+
         val MIGRATION_17_18 = object : Migration(17, 18) {
             override fun migrate(db: SupportSQLiteDatabase) {
 
@@ -701,6 +775,23 @@ abstract class AppDatabase : RoomDatabase() {
 //            }
 //        }
 
+        val MIGRATION_23_24 = object : Migration(23, 24) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 1. Delete duplicate products, keeping the most recent one (max ID)
+                db.execSQL("""
+                    DELETE FROM products 
+                    WHERE id NOT IN (
+                        SELECT MAX(id) 
+                        FROM products 
+                        GROUP BY shop_id, name, IFNULL(variant, '')
+                    )
+                """.trimIndent())
+                
+                // 2. Create the new unique index
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_products_shop_id_name_variant` ON `products`(`shop_id`, `name`, `variant`)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -708,6 +799,22 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "easy_billing_db"
                 )
+                    .addMigrations(
+                        MIGRATION_10_11,
+                        MIGRATION_11_12,
+                        MIGRATION_12_13,
+                        MIGRATION_13_14,
+                        MIGRATION_14_15,
+                        MIGRATION_15_16,
+                        MIGRATION_16_17,
+                        MIGRATION_17_18,
+                        MIGRATION_18_19,
+                        MIGRATION_19_20,
+                        MIGRATION_20_21,
+                        // 21→22: no migration defined — fallback handles it
+                        MIGRATION_22_23,
+                        MIGRATION_23_24
+                    )
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }

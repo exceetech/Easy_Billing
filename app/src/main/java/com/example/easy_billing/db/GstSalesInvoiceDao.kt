@@ -42,4 +42,16 @@ interface GstSalesInvoiceDao {
 
     @Query("UPDATE gst_sales_invoice_table SET sync_status = 'failed' WHERE id = :id")
     suspend fun markFailed(id: Int)
+
+    // ===== Cancellation (v23) =====
+
+    @Query("""
+        UPDATE gst_sales_invoice_table
+        SET is_cancelled = 1, cancelled_at = :cancelledAt, sync_status = 'pending'
+        WHERE id = :id
+    """)
+    suspend fun markCancelled(id: Int, cancelledAt: Long)
+
+    @Query("SELECT is_cancelled FROM gst_sales_invoice_table WHERE id = :id LIMIT 1")
+    suspend fun isCancelled(id: Int): Boolean?
 }

@@ -686,38 +686,82 @@ class DashboardActivity : BaseActivity() {
                     RetrofitClient.api.getMyProducts(token)
 
                 val existingProducts = db.productDao().getAllWithInactive()
-                val existingMap = existingProducts.associateBy { it.id }
 
-                backendProducts.forEach {
+                // Key by serverId — Room local `id` and backend `serverId`
+                // are independent numbers. The old code keyed by `id` but
+                // looked up by server id, so existing was always null and
+                // new rows were inserted with id = server_id (corrupting
+                // Room's auto-increment and the shopId filter).
+                val existingByServerId = existingProducts
+                    .filter { it.serverId != null }
+                    .associateBy { it.serverId!! }
 
-                    val existing = existingMap[it.id]
+                backendProducts.forEach { bp ->
 
-                    // Preserve all locally-tracked fields when merging
-                    // backend changes — otherwise hsnCode / cgst / sgst /
-                    // igst / isPurchased / shopId all get clobbered to
-                    // defaults on every dashboard refresh.
-                    val merged = (existing ?: Product(
-                        id = it.id,
-                        serverId = it.id,
-                        name = it.name,
-                        variant = it.variant ?: "",
-                        unit = it.unit,
-                        price = it.price,
-                        trackInventory = true,
-                        isCustom = false,
-                        shopId = currentShopId
-                    )).copy(
-                        id = it.id,
-                        serverId = it.id,
-                        name = it.name,
-                        variant = it.variant ?: existing?.variant.orEmpty(),
-                        unit = it.unit ?: existing?.unit,
-                        price = it.price,
-                        isActive = true,
-                        shopId = existing?.shopId?.takeIf { sid -> sid.isNotBlank() }
-                            ?: currentShopId
-                    )
-                    db.productDao().insert(merged)
+                    var existing = existingByServerId[bp.id]
+                    
+                    if (existing == null) {
+                        // Fallback check by name and variant to prevent breaking UNIQUE constraint
+                        // if the product was created locally but sync failed
+                        val validShopIds = listOf(currentShopId, "")
+                        existing = existingProducts.firstOrNull { 
+                            it.name.equals(bp.name, ignoreCase = true) && 
+                            (it.variant ?: "") == (bp.variant ?: "") &&
+                            validShopIds.contains(it.shopId)
+                        }
+                    }
+
+                    if (existing != null) {
+                        // Update existing — preserve Room local id, merge all
+                        // backend fields including every GSTR-1 column.
+                        // Always write currentShopId so the row is found by
+                        // getAllForCurrentShop() regardless of what format
+                        // the shopId was stored in previously.
+                        db.productDao().update(
+                            existing.copy(
+                                serverId       = bp.id,
+                                name           = bp.name,
+                                variant        = bp.variant ?: existing.variant.orEmpty(),
+                                unit           = bp.unit ?: existing.unit,
+                                price          = bp.price,
+                                isActive       = true,
+                                shopId         = currentShopId,
+                                hsnCode        = bp.hsn_code ?: existing.hsnCode,
+                                defaultGstRate = bp.default_gst_rate ?: existing.defaultGstRate,
+                                cgstPercentage = bp.cgst_percentage,
+                                sgstPercentage = bp.sgst_percentage,
+                                igstPercentage = bp.igst_percentage,
+                                officialUqc    = bp.official_uqc ?: existing.officialUqc,
+                                hsnDescription = bp.hsn_description ?: existing.hsnDescription,
+                                cessRate       = bp.cess_rate
+                            )
+                        )
+                    } else {
+                        // New product from backend — id = 0 so Room
+                        // auto-generates the local primary key.
+                        db.productDao().upsert(
+                            Product(
+                                id             = 0,
+                                serverId       = bp.id,
+                                name           = bp.name,
+                                variant        = bp.variant ?: "",
+                                unit           = bp.unit,
+                                price          = bp.price,
+                                trackInventory = true,
+                                isCustom       = false,
+                                isActive       = true,
+                                shopId         = currentShopId,
+                                hsnCode        = bp.hsn_code,
+                                defaultGstRate = bp.default_gst_rate ?: 0.0,
+                                cgstPercentage = bp.cgst_percentage,
+                                sgstPercentage = bp.sgst_percentage,
+                                igstPercentage = bp.igst_percentage,
+                                officialUqc    = bp.official_uqc,
+                                hsnDescription = bp.hsn_description,
+                                cessRate       = bp.cess_rate
+                            )
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {

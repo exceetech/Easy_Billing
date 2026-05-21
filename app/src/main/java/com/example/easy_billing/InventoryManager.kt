@@ -33,6 +33,72 @@ object InventoryManager {
         val taxableValue: Double = 0.0
     )
 
+    // ================= RESET STOCK =================
+    suspend fun resetStock(
+        db: AppDatabase,
+        productId: Int,
+        quantity: Double,
+        costPrice: Double
+    ) {
+        require(productId > 0) { "Invalid productId" }
+        require(quantity >= 0) { "Invalid quantity" }
+        require(costPrice >= 0) { "Cost price cannot be negative" }
+
+        val inventoryDao = db.inventoryDao()
+        val transactionDao = db.inventoryTransactionDao()
+        val productDao = db.productDao()
+
+        val product = productDao.getById(productId)
+        val isPurchased = product?.isPurchased ?: true
+
+        val existing = inventoryDao.getInventoryIncludingInactive(productId)
+
+        if (existing == null) {
+            inventoryDao.insert(
+                Inventory(
+                    productId = productId,
+                    currentStock = quantity,
+                    averageCost = if (isPurchased) costPrice else 0.0,
+                    isActive = true,
+                    isSynced = false
+                )
+            )
+        } else {
+            inventoryDao.update(
+                existing.copy(
+                    currentStock = quantity,
+                    averageCost = if (isPurchased) costPrice else 0.0,
+                    isActive = true,
+                    isSynced = false
+                )
+            )
+        }
+
+        // Add transaction log
+        transactionDao.insert(
+            InventoryTransaction(
+                productId = productId,
+                type = "SET",
+                quantity = quantity,
+                costPrice = costPrice,
+                totalCost = costPrice * quantity,
+                isSynced = false
+            )
+        )
+        
+        // Log to inventory_logs
+        db.inventoryLogDao().insert(
+            InventoryLog(
+                productId = productId,
+                type = "ADJUST",
+                quantity = quantity,
+                price = costPrice,
+                date = System.currentTimeMillis(),
+                isSynced = false
+            )
+        )
+    }
+
     // ================= ADD STOCK =================
     suspend fun addStock(
         db: AppDatabase,

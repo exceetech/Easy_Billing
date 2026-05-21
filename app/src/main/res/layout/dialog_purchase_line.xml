@@ -44,7 +44,7 @@
                     android:inputType="textCapWords"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 2. Variant (revealed only after product is picked).
+            <!-- 2. Variant — always visible so the user can type freely.
                  Dropdown is fed from globally-verified variants for
                  the chosen product (PurchaseActivity hooks this up). -->
             <com.google.android.material.textfield.TextInputLayout
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="@string/purchase_field_variant"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:endIconMode="dropdown_menu">
 
                 <AutoCompleteTextView
@@ -116,6 +116,53 @@
                     android:textAllCaps="false"
                     android:textSize="12sp"/>
             </LinearLayout>
+
+            <!-- 3b. GSTR-1 product master: UQC, HSN Description, Cess % -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilOfficialUqcPurchase"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Official UQC (GST Unit)"
+                app:endIconMode="dropdown_menu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerOfficialUqcPurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="HSN Description (optional)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHsnDescriptionPurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Cess % (if applicable)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCessRatePurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 4. Selling price (NEW) — what we'll charge customers -->
             <com.google.android.material.textfield.TextInputLayout

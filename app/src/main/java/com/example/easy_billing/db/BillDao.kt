@@ -22,6 +22,9 @@ interface BillDao {
     @Query("SELECT * FROM bills WHERE id = :billId")
     suspend fun getBillById(billId: Int): Bill
 
+    @Query("SELECT * FROM bills WHERE billNumber = :billNumber LIMIT 1")
+    suspend fun getByBillNumber(billNumber: String): Bill?
+
     @Query("DELETE FROM bills")
     suspend fun deleteAllBills()
 
@@ -36,4 +39,16 @@ interface BillDao {
 
     @Query("UPDATE bills SET is_synced = 1 WHERE id = :id")
     suspend fun markBillSynced(id: Int)
+
+    // ===== Cancellation (v23) =====
+
+    @Query("""
+        UPDATE bills
+        SET is_cancelled = 1, cancelled_at = :cancelledAt
+        WHERE id = :billId
+    """)
+    suspend fun markBillCancelled(billId: Int, cancelledAt: Long)
+
+    @Query("SELECT is_cancelled FROM bills WHERE id = :billId LIMIT 1")
+    suspend fun isCancelled(billId: Int): Boolean?
 }

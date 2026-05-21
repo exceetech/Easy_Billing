@@ -55,6 +55,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
+            <!-- Cancelled badge — hidden until the bill is cancelled -->
+            <TextView
+                android:id="@+id/tvCancelledBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_badge_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="5dp"
+                android:text="CANCELLED"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:visibility="gone"/>
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -222,6 +239,24 @@
                     app:iconGravity="textStart"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
             </LinearLayout>
+
+            <!-- Cancel Bill button — hidden once bill is already cancelled -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelBill"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="Cancel / Void Invoice"
+                android:textColor="#EF4444"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_close"
+                app:iconTint="#EF4444"
+                app:iconPadding="6dp"
+                app:iconGravity="textStart"
+                app:strokeColor="#EF4444"
+                app:strokeWidth="1dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

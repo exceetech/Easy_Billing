@@ -51,7 +51,10 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
     fun savePurchased(
         price: Double,
         hsn: String?,
-        cgst: Double, sgst: Double, igst: Double
+        cgst: Double, sgst: Double, igst: Double,
+        officialUqc: String? = null,
+        hsnDescription: String? = null,
+        cessRate: Double = 0.0
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -61,7 +64,10 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     productId = current.id,
                     price = price,
                     cgst = cgst, sgst = sgst, igst = igst,
-                    hsn = hsn
+                    hsn = hsn,
+                    officialUqc = officialUqc,
+                    hsnDescription = hsnDescription,
+                    cessRate = cessRate
                 )
                 SyncCoordinator.get(getApplication()).requestSync()
             }.onSuccess {
@@ -81,7 +87,10 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         hsn: String?,
         cgst: Double, sgst: Double, igst: Double,
         trackInventory: Boolean,
-        addStockQuantity: Double
+        addStockQuantity: Double,
+        officialUqc: String? = null,
+        hsnDescription: String? = null,
+        cessRate: Double = 0.0
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -95,9 +104,31 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     sgstPercentage = sgst,
                     igstPercentage = igst,
                     defaultGstRate = combined,
-                    trackInventory = trackInventory
+                    trackInventory = trackInventory,
+                    officialUqc = officialUqc,
+                    hsnDescription = hsnDescription,
+                    cessRate = cessRate
                 )
                 productRepo.upsert(updated)
+
+                // If this product is already on the server, push the
+                // updated price / tax / HSN fields immediately.
+                // updateSalesFieldsOnly handles the inline PUT call so
+                // the backend shop_products row reflects what the user
+                // just saved — without waiting for the next full sync.
+                if (current.serverId != null) {
+                    productRepo.updateSalesFieldsOnly(
+                        productId      = current.id,
+                        price          = price,
+                        cgst           = cgst,
+                        sgst           = sgst,
+                        igst           = igst,
+                        hsn            = hsn,
+                        officialUqc    = officialUqc,
+                        hsnDescription = hsnDescription,
+                        cessRate       = cessRate
+                    )
+                }
 
                 if (trackInventory && addStockQuantity > 0) {
                     // Manual products carry no cost basis (per spec).

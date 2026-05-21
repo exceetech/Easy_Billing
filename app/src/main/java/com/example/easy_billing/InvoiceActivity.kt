@@ -29,6 +29,8 @@ import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GstBillingCalculator
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.util.InvoicePdfGenerator
+import com.example.easy_billing.util.UqcMapper
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
@@ -122,6 +124,17 @@ class InvoiceActivity : AppCompatActivity() {
 
     private var invoiceType: String = "B2C"
 
+    // ---- GST Options section (collapsible) ----
+    private lateinit var rowGstOptionsHeader: View
+    private lateinit var tvGstOptionsToggle: TextView
+    private lateinit var layoutGstOptionsBody: View
+    private lateinit var switchReverseCharge: SwitchMaterial
+    private lateinit var spinnerGstrInvoiceType: AutoCompleteTextView
+    private lateinit var switchEcommerce: SwitchMaterial
+    private lateinit var layoutEcommerceFields: View
+    private lateinit var etEcommerceGstin: EditText
+    private lateinit var etEcommerceOperatorName: EditText
+
     // Re-used after each calculate() — drives both the persistence
     // step and the bill-summary widgets at the bottom of the screen.
     @Volatile
@@ -166,6 +179,7 @@ class InvoiceActivity : AppCompatActivity() {
         attachPressFeedback(chipB2B,    scaleTo = 0.95f)
 
         wireInvoiceTypeSelector()
+        wireGstOptionsSection()
         applyInvoiceTypeUi("B2C")
 
         etDiscount.addTextChangedListener(object : TextWatcher {
@@ -251,6 +265,17 @@ class InvoiceActivity : AppCompatActivity() {
         btnClose       = findViewById(R.id.btnClose)
 
         setupStateDropdown()
+
+        // ---- GST Options section ----
+        rowGstOptionsHeader    = findViewById(R.id.rowGstOptionsHeader)
+        tvGstOptionsToggle     = findViewById(R.id.tvGstOptionsToggle)
+        layoutGstOptionsBody   = findViewById(R.id.layoutGstOptionsBody)
+        switchReverseCharge    = findViewById(R.id.switchReverseCharge)
+        spinnerGstrInvoiceType = findViewById(R.id.spinnerGstrInvoiceType)
+        switchEcommerce        = findViewById(R.id.switchEcommerce)
+        layoutEcommerceFields  = findViewById(R.id.layoutEcommerceFields)
+        etEcommerceGstin       = findViewById(R.id.etEcommerceGstin)
+        etEcommerceOperatorName= findViewById(R.id.etEcommerceOperatorName)
     }
 
     /**
@@ -265,6 +290,56 @@ class InvoiceActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, states)
         etCustomerState.setAdapter(adapter)
         etCustomerState.setOnClickListener { etCustomerState.showDropDown() }
+    }
+
+    /**
+     * Wires the collapsible "GST Options" section and the inner
+     * e-commerce fields toggle.
+     *
+     *   • Tapping the header row expands / collapses the body with
+     *     an animated transition.
+     *   • The GSTR invoice-type dropdown is populated from the four
+     *     valid GSTR-1 values.
+     *   • Toggling the e-commerce switch reveals the GSTIN and
+     *     operator-name fields.
+     */
+    private fun wireGstOptionsSection() {
+        // Populate the GSTR invoice-type dropdown.
+        val invoiceTypes = listOf(
+            "Regular",
+            "SEZ supplies with payment",
+            "SEZ supplies without payment",
+            "Deemed Exp"
+        )
+        val typeAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, invoiceTypes
+        )
+        spinnerGstrInvoiceType.setAdapter(typeAdapter)
+        spinnerGstrInvoiceType.setText("Regular", false)
+
+        // Collapse/expand toggle.
+        rowGstOptionsHeader.setOnClickListener {
+            val expanding = layoutGstOptionsBody.visibility != View.VISIBLE
+            (layoutGstOptionsBody.parent as? ViewGroup)?.let { parent ->
+                TransitionManager.beginDelayedTransition(
+                    parent,
+                    AutoTransition().setDuration(220L)
+                )
+            }
+            layoutGstOptionsBody.visibility = if (expanding) View.VISIBLE else View.GONE
+            tvGstOptionsToggle.text         = if (expanding) "▲" else "▼"
+        }
+
+        // E-commerce toggle → show/hide fields.
+        switchEcommerce.setOnCheckedChangeListener { _, isChecked ->
+            (layoutEcommerceFields.parent as? ViewGroup)?.let { parent ->
+                TransitionManager.beginDelayedTransition(
+                    parent,
+                    AutoTransition().setDuration(200L)
+                )
+            }
+            layoutEcommerceFields.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
     }
 
     private fun wireInvoiceTypeSelector() {
@@ -532,6 +607,16 @@ class InvoiceActivity : AppCompatActivity() {
             Toast.makeText(this, "GSTIN must be 15 characters", Toast.LENGTH_LONG).show()
             return false
         }
+
+        // E-commerce GSTIN format check (when toggle is on).
+        if (switchEcommerce.isChecked) {
+            val ecoGstin = etEcommerceGstin.text.toString().trim()
+            if (ecoGstin.isNotEmpty() && ecoGstin.length != 15) {
+                Toast.makeText(this, "E-Commerce GSTIN must be 15 characters", Toast.LENGTH_LONG).show()
+                return false
+            }
+        }
+
         return true
     }
 
@@ -587,6 +672,30 @@ class InvoiceActivity : AppCompatActivity() {
                 val customerPhone    = etCustomerPhone.text.toString().trim().ifBlank { null }
                 val customerGstin    = etCustomerGst.text.toString().trim().ifBlank { null }
                 val customerStateRaw = etCustomerState.text.toString().trim().ifBlank { null }
+
+                // ── Read new GSTR-1 invoice-level fields (v23) ──
+                val reverseCharge        = if (switchReverseCharge.isChecked) "Y" else "N"
+                val gstrInvoiceType      = spinnerGstrInvoiceType.text.toString()
+                    .ifBlank { "Regular" }
+                val ecommerceEnabled     = switchEcommerce.isChecked
+                val ecommerceGstin       = if (ecommerceEnabled)
+                    etEcommerceGstin.text.toString().trim().ifBlank { null } else null
+                val ecommerceOperatorName= if (ecommerceEnabled)
+                    etEcommerceOperatorName.text.toString().trim().ifBlank { null } else null
+
+                // ── Build per-item GSTR-1 enrichments from product master ──
+                val enrichments = items.map { ci ->
+                    val p = ci.product
+                    val cessAmt = if (p.cessRate > 0)
+                        GstBillingCalculator.round2Pub(ci.quantity * p.price * p.cessRate / 100.0)
+                    else 0.0
+                    GstEngine.SalesRecordEnrichment(
+                        cessRate       = p.cessRate,
+                        cessAmount     = cessAmt,
+                        uqc            = UqcMapper.resolve(p.unit, p.officialUqc),
+                        hsnDescription = p.hsnDescription
+                    )
+                }
 
                 // 3. Build legacy bill items (preserves bill_items shape).
                 val billItemsTmp = mutableListOf<BillItem>()
@@ -650,26 +759,35 @@ class InvoiceActivity : AppCompatActivity() {
                 val shopId = getSharedPreferences("auth", MODE_PRIVATE)
                     .getInt("SHOP_ID", 1).toString()
 
+                val nowMillis = System.currentTimeMillis()
                 val gstInvoice = GstSalesInvoice(
-                    billId         = billId,
-                    shopId         = shopId,
-                    invoiceType    = invoiceType,
-                    gstScheme      = breakdown.gstScheme,
-                    customerName   = customerName,
-                    businessName   = businessName,
-                    customerPhone  = customerPhone,
-                    customerGst    = customerGstin,
-                    customerState  = customerStateRaw,
-                    subtotal       = breakdown.subtotal,
-                    totalCgst      = breakdown.totalCgst,
-                    totalSgst      = breakdown.totalSgst,
-                    totalIgst      = breakdown.totalIgst,
-                    totalTax       = breakdown.totalTax,
-                    grandTotal     = breakdown.grandTotal,
-                    syncStatus     = "pending"
+                    billId                = billId,
+                    shopId                = shopId,
+                    invoiceType           = invoiceType,
+                    gstScheme             = breakdown.gstScheme,
+                    customerName          = customerName,
+                    businessName          = businessName,
+                    customerPhone         = customerPhone,
+                    customerGst           = customerGstin,
+                    customerState         = customerStateRaw,
+                    subtotal              = breakdown.subtotal,
+                    totalCgst             = breakdown.totalCgst,
+                    totalSgst             = breakdown.totalSgst,
+                    totalIgst             = breakdown.totalIgst,
+                    totalTax              = breakdown.totalTax,
+                    grandTotal            = breakdown.grandTotal,
+                    syncStatus            = "pending",
+                    // ── GSTR-1 v23 fields ──
+                    invoiceNumber         = billNumber,
+                    invoiceDate           = nowMillis,
+                    reverseCharge         = reverseCharge,
+                    gstrInvoiceType       = gstrInvoiceType,
+                    customerStateCode     = customerStateCode.ifBlank { sellerStateCode }.ifBlank { null },
+                    ecommerceGstin        = ecommerceGstin,
+                    ecommerceOperatorName = ecommerceOperatorName
                 )
                 val gstInvoiceId = db.gstSalesInvoiceDao().insert(gstInvoice).toInt()
-                val gstItems = GstBillingCalculator.toInvoiceItems(gstInvoiceId, breakdown)
+                val gstItems = GstBillingCalculator.toInvoiceItems(gstInvoiceId, breakdown, enrichments)
                 db.gstSalesInvoiceItemDao().insertAll(gstItems)
 
                 // 6. Existing GstSalesRecord (per-line) — keep intact for legacy reports.
@@ -677,10 +795,21 @@ class InvoiceActivity : AppCompatActivity() {
                     val deviceId = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("DEVICE_ID", UUID.randomUUID().toString()) ?: ""
                     val gstRecords = GstEngine.buildSalesRecords(
-                        bill      = finalBill.copy(id = billId),
-                        items     = finalBillItems,
-                        storeInfo = storeInfo,
-                        deviceId  = deviceId
+                        bill                  = finalBill.copy(id = billId),
+                        items                 = finalBillItems,
+                        storeInfo             = storeInfo,
+                        deviceId              = deviceId,
+                        // ── GSTR-1 v23 enrichment ──
+                        customerName          = customerName,
+                        businessName          = businessName,
+                        customerPhone         = customerPhone,
+                        customerState         = customerStateRaw,
+                        customerStateCode     = customerStateCode.ifBlank { sellerStateCode }.ifBlank { null },
+                        reverseCharge         = reverseCharge,
+                        gstrInvoiceType       = gstrInvoiceType,
+                        ecommerceGstin        = ecommerceGstin,
+                        ecommerceOperatorName = ecommerceOperatorName,
+                        enrichments           = enrichments
                     )
                     db.gstSalesRecordDao().insertAll(gstRecords)
                 }

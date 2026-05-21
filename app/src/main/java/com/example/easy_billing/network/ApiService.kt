@@ -70,6 +70,14 @@ interface ApiService {
         @Body request: AddProductRequest
     ): AddProductResponse
 
+    /** Push updated fields for a product that is already on the server. */
+    @PUT("products/{server_id}")
+    suspend fun updateShopProduct(
+        @Header("Authorization") token: String,
+        @Path("server_id") serverId: Int,
+        @Body request: AddProductRequest
+    ): AddProductResponse
+
     @PUT("products/deactivate/{id}")
     suspend fun deactivateProduct(
         @Header("Authorization") token: String,
@@ -509,6 +517,13 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("shop_id") shopId: Int
     ): List<GstSalesInvoiceResponse>
+
+    /** Cancel a GST invoice (sets is_cancelled + cancelled_at). */
+    @POST("gst-sales/cancel")
+    suspend fun cancelGstSalesInvoice(
+        @Header("Authorization") token: String,
+        @Body body: GstSalesCancelRequest
+    ): GstSalesCancelResponse
 
 
     @GET("global-catalog/products/{product_id}/variants")

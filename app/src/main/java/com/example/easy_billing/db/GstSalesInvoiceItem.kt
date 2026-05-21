@@ -76,5 +76,29 @@ data class GstSalesInvoiceItem(
     val igstAmount: Double = 0.0,
 
     @ColumnInfo(name = "net_value")
-    val netValue: Double = 0.0
+    val netValue: Double = 0.0,
+
+    // ── GSTR-1 item fields (v23) ──────────────────────────────────────
+
+    /** Cess rate (%) applicable on this item. Default 0. */
+    @ColumnInfo(name = "cess_rate")
+    val cessRate: Double = 0.0,
+
+    /** Cess amount = taxableAmount * cessRate / 100. */
+    @ColumnInfo(name = "cess_amount")
+    val cessAmount: Double = 0.0,
+
+    /**
+     * GST Unit Quantity Code (e.g. "NOS", "KGS", "LTR").
+     * Source: product.officialUqc or mapped from product.unit.
+     */
+    @ColumnInfo(name = "uqc")
+    val uqc: String? = null,
+
+    /**
+     * HSN description for GSTR-1.
+     * Source: product.hsnDescription, falls back to product name.
+     */
+    @ColumnInfo(name = "hsn_description")
+    val hsnDescription: String? = null
 )

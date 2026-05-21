@@ -27,6 +27,15 @@ interface GstSalesRecordDao {
     @Query("UPDATE gst_sales_records SET sync_status = 'failed' WHERE id IN (:ids)")
     suspend fun markFailed(ids: List<String>)
 
+    // ===== Cancellation (v23) =====
+
+    @Query("""
+        UPDATE gst_sales_records
+        SET is_cancelled = 1, sync_status = 'pending', updatedAt = :updatedAt
+        WHERE invoiceNumber = :invoiceNumber
+    """)
+    suspend fun markCancelledByInvoiceNumber(invoiceNumber: String, updatedAt: Long)
+
     // ===== Reports — by date range (epoch millis) =====
     @Query("SELECT * FROM gst_sales_records WHERE invoiceDate >= :start AND invoiceDate <= :end ORDER BY invoiceDate ASC")
     suspend fun getByDateRange(start: Long, end: Long): List<GstSalesRecord>

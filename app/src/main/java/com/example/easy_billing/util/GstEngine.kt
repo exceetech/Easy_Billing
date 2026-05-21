@@ -97,36 +97,75 @@ object GstEngine {
         )
     }
 
+    /**
+     * Per-item GSTR-1 enrichment pulled from the invoice context.
+     * Passed as a parallel list alongside [items] in [buildSalesRecords].
+     */
+    data class SalesRecordEnrichment(
+        val cessRate: Double = 0.0,
+        val cessAmount: Double = 0.0,
+        val uqc: String? = null,
+        val hsnDescription: String? = null
+    )
+
     fun buildSalesRecords(
         bill: Bill,
         items: List<BillItem>,
         storeInfo: StoreInfo,
-        deviceId: String
+        deviceId: String,
+        // ── GSTR-1 invoice-level extras (v23) ──
+        customerName: String? = null,
+        businessName: String? = null,
+        customerPhone: String? = null,
+        customerState: String? = null,
+        customerStateCode: String? = null,
+        reverseCharge: String = "N",
+        gstrInvoiceType: String = "Regular",
+        ecommerceGstin: String? = null,
+        ecommerceOperatorName: String? = null,
+        // ── GSTR-1 per-item enrichments (v23) ──
+        enrichments: List<SalesRecordEnrichment> = emptyList()
     ): List<GstSalesRecord> {
         val records = mutableListOf<GstSalesRecord>()
-        
-        for (item in items) {
+        val invoiceDate = System.currentTimeMillis()
+
+        for ((idx, item) in items.withIndex()) {
+            val en = enrichments.getOrNull(idx) ?: SalesRecordEnrichment()
             records.add(
                 GstSalesRecord(
-                    id = UUID.randomUUID().toString(),
-                    invoiceNumber = bill.billNumber,
-                    invoiceDate = System.currentTimeMillis(), // We can parse from bill.date if needed
-                    customerType = bill.customerType,
-                    customerGstin = bill.customerGstin,
-                    placeOfSupply = bill.placeOfSupply.ifBlank { storeInfo.stateCode },
-                    supplyType = bill.supplyType,
-                    hsnCode = item.hsnCode,
-                    productName = item.productName,
-                    quantity = item.quantity,
-                    unit = item.unit,
-                    taxableValue = item.taxableValue,
-                    gstRate = item.gstRate,
-                    cgstAmount = item.cgstAmount,
-                    sgstAmount = item.sgstAmount,
-                    igstAmount = item.igstAmount,
-                    totalAmount = item.subTotal,
-                    syncStatus = "pending",
-                    deviceId = deviceId
+                    id                   = UUID.randomUUID().toString(),
+                    invoiceNumber        = bill.billNumber,
+                    invoiceDate          = invoiceDate,
+                    customerType         = bill.customerType,
+                    customerGstin        = bill.customerGstin,
+                    placeOfSupply        = bill.placeOfSupply.ifBlank { storeInfo.stateCode },
+                    supplyType           = bill.supplyType,
+                    hsnCode              = item.hsnCode,
+                    productName          = item.productName,
+                    quantity             = item.quantity,
+                    unit                 = item.unit,
+                    taxableValue         = item.taxableValue,
+                    gstRate              = item.gstRate,
+                    cgstAmount           = item.cgstAmount,
+                    sgstAmount           = item.sgstAmount,
+                    igstAmount           = item.igstAmount,
+                    totalAmount          = item.subTotal,
+                    syncStatus           = "pending",
+                    deviceId             = deviceId,
+                    // GSTR-1 enrichment
+                    customerName         = customerName,
+                    businessName         = businessName,
+                    customerPhone        = customerPhone,
+                    customerState        = customerState,
+                    customerStateCode    = customerStateCode,
+                    reverseCharge        = reverseCharge,
+                    gstrInvoiceType      = gstrInvoiceType,
+                    ecommerceGstin       = ecommerceGstin,
+                    ecommerceOperatorName = ecommerceOperatorName,
+                    cessRate             = en.cessRate,
+                    cessAmount           = en.cessAmount,
+                    uqc                  = en.uqc,
+                    hsnDescription       = en.hsnDescription
                 )
             )
         }

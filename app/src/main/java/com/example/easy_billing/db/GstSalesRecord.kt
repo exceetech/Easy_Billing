@@ -48,5 +48,50 @@ data class GstSalesRecord(
 
     val deviceId: String = "",
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+
+    // ── GSTR-1 enrichment fields (v23) ───────────────────────────────
+
+    /** Customer display name (for report readability). */
+    val customerName: String? = null,
+
+    /** Business / trading name for B2B customers. */
+    val businessName: String? = null,
+
+    /** Customer phone number. */
+    val customerPhone: String? = null,
+
+    /** Human-readable state label (e.g. "Kerala"). */
+    val customerState: String? = null,
+
+    /** 2-digit GST state code for Place of Supply (e.g. "32"). */
+    val customerStateCode: String? = null,
+
+    /** Reverse Charge: "Y" or "N". */
+    val reverseCharge: String = "N",
+
+    /** GSTR invoice type (Regular / SEZ / Deemed Exp). */
+    val gstrInvoiceType: String = "Regular",
+
+    /** E-Commerce Operator GSTIN (nullable). */
+    val ecommerceGstin: String? = null,
+
+    /** E-Commerce Operator Name (nullable). */
+    val ecommerceOperatorName: String? = null,
+
+    /** Cess rate (%) for this line item. */
+    val cessRate: Double = 0.0,
+
+    /** Cess amount for this line item. */
+    val cessAmount: Double = 0.0,
+
+    /** GST Unit Quantity Code (NOS, KGS, LTR, …). */
+    val uqc: String? = null,
+
+    /** HSN description for GSTR-1 HSN summary. */
+    val hsnDescription: String? = null,
+
+    /** True when the parent invoice was cancelled. */
+    @ColumnInfo(name = "is_cancelled")
+    val isCancelled: Boolean = false
 )

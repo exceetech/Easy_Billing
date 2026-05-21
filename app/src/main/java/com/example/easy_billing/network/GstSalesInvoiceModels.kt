@@ -27,7 +27,12 @@ data class CreateGstSalesItemDto(
     val cgst_amount: Double = 0.0,
     val sgst_amount: Double = 0.0,
     val igst_amount: Double = 0.0,
-    val net_value: Double = 0.0
+    val net_value: Double = 0.0,
+    // ── GSTR-1 item fields (v23) ──
+    val cess_rate: Double = 0.0,
+    val cess_amount: Double = 0.0,
+    val uqc: String? = null,
+    val hsn_description: String? = null
 )
 
 data class CreateGstSalesInvoiceDto(
@@ -47,7 +52,30 @@ data class CreateGstSalesInvoiceDto(
     val total_tax: Double,
     val grand_total: Double,
     val created_at: Long,
-    val items: List<CreateGstSalesItemDto>
+    val items: List<CreateGstSalesItemDto>,
+    // ── GSTR-1 invoice fields (v23) ──
+    val invoice_number: String = "",
+    val invoice_date: Long = 0L,
+    val reverse_charge: String = "N",
+    val gstr_invoice_type: String = "Regular",
+    val customer_state_code: String? = null,
+    val ecommerce_gstin: String? = null,
+    val ecommerce_operator_name: String? = null,
+    val is_cancelled: Boolean = false,
+    val cancelled_at: Long? = null
+)
+
+/** Request body for cancelling a GST invoice. */
+data class GstSalesCancelRequest(
+    val invoice_number: String? = null,
+    val local_id: Int? = null,
+    val server_id: Int? = null,
+    val cancelled_at: Long = System.currentTimeMillis()
+)
+
+data class GstSalesCancelResponse(
+    val success: Boolean = true,
+    val message: String? = null
 )
 
 data class GstSalesSyncBatchRequest(
@@ -76,7 +104,11 @@ data class GstSalesInvoiceItemResponse(
     val cgst_amount: Double = 0.0,
     val sgst_amount: Double = 0.0,
     val igst_amount: Double = 0.0,
-    val net_value: Double = 0.0
+    val net_value: Double = 0.0,
+    val cess_rate: Double = 0.0,
+    val cess_amount: Double = 0.0,
+    val uqc: String? = null,
+    val hsn_description: String? = null
 )
 
 data class GstSalesInvoiceResponse(
@@ -97,5 +129,14 @@ data class GstSalesInvoiceResponse(
     val total_tax: Double,
     val grand_total: Double,
     val created_at: String? = null,
-    val items: List<GstSalesInvoiceItemResponse> = emptyList()
+    val items: List<GstSalesInvoiceItemResponse> = emptyList(),
+    val invoice_number: String = "",
+    val invoice_date: Long = 0L,
+    val reverse_charge: String = "N",
+    val gstr_invoice_type: String = "Regular",
+    val customer_state_code: String? = null,
+    val ecommerce_gstin: String? = null,
+    val ecommerce_operator_name: String? = null,
+    val is_cancelled: Boolean = false,
+    val cancelled_at: Long? = null
 )

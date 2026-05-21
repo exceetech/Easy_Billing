@@ -7,6 +7,8 @@ import com.example.easy_billing.db.GstPurchaseRecord
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
+import com.example.easy_billing.network.AddProductRequest
+import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.DeviceUtils
 import androidx.room.withTransaction
@@ -67,10 +69,25 @@ class PurchaseRepository private constructor(
         return SaveResult(purchaseId, outcome)
     }
 
+    /**
+     * Holds a product that already has a server_id and needs its
+     * sales-tax / GSTR-1 fields pushed to the backend after the
+     * local Room transaction commits.  Network I/O must NOT run
+     * inside withTransaction.
+     */
+    private data class PendingProductUpdate(
+        val serverId: Int,
+        val line: PurchaseItemDraft
+    )
+
     private suspend fun doSave(
         header: Purchase,
         lines: List<PurchaseItemDraft>
-    ): Int = db.withTransaction {
+    ): Int {
+        // Collect products that need a backend field-update (already synced).
+        val pendingUpdates = mutableListOf<PendingProductUpdate>()
+
+        val purchaseId = db.withTransaction {
 
         require(lines.isNotEmpty()) { "Purchase must have at least one line" }
 
@@ -107,29 +124,46 @@ class PurchaseRepository private constructor(
         }
 
         lines.forEach { line ->
-            // 1. Upsert into shop_product using SALES tax from the
-            //    line, marked as isPurchased=true so subsequent edit
-            //    flows lock down stock-mutating fields. The selling
-            //    price (user input) becomes the product price; if
-            //    the user didn't set one we fall back to the cost
-            //    price as a sensible default.
-            val productId = productRepo.upsert(
-                Product(
-                    name           = line.productName,
-                    variant        = line.variant,
-                    unit           = line.unit,
-                    price          = line.sellingPrice ?: line.costPrice,
-                    trackInventory = true,
-                    isActive       = true,
-                    isPurchased    = true,
-                    hsnCode        = line.hsnCode,
-                    defaultGstRate = (line.salesCgst + line.salesSgst)
-                        .takeIf { it > 0 } ?: line.salesIgst,
-                    cgstPercentage = line.salesCgst,
-                    sgstPercentage = line.salesSgst,
-                    igstPercentage = line.salesIgst
-                )
+            // 1. Upsert (or force-insert) into shop_product using SALES tax
+            //    from the line, marked as isPurchased=true so subsequent edit
+            //    flows lock down stock-mutating fields. The selling price
+            //    (user input) becomes the product price; if the user didn't
+            //    set one we fall back to the cost price as a sensible default.
+            //
+            //    forceCreate=true skips the name+variant lookup so that a
+            //    brand-new row is inserted even when an inactive product with
+            //    the same key already exists (user chose "Create New" in the
+            //    restore dialog).
+            val newProductData = Product(
+                name            = line.productName,
+                variant         = line.variant,
+                unit            = line.unit,
+                price           = line.sellingPrice ?: line.costPrice,
+                trackInventory  = true,
+                isActive        = true,
+                isPurchased     = true,
+                hsnCode         = line.hsnCode,
+                defaultGstRate  = (line.salesCgst + line.salesSgst)
+                    .takeIf { it > 0 } ?: line.salesIgst,
+                cgstPercentage  = line.salesCgst,
+                sgstPercentage  = line.salesSgst,
+                igstPercentage  = line.salesIgst,
+                officialUqc     = line.officialUqc,
+                hsnDescription  = line.hsnDescription,
+                cessRate        = line.cessRate
             )
+            val productId = if (line.forceCreate) {
+                db.productDao().insert(newProductData).toInt()
+            } else {
+                productRepo.upsert(newProductData)
+            }
+
+            // If this product already has a server_id, schedule a backend
+            // field-update to run AFTER the transaction commits (network I/O
+            // must not run inside withTransaction).
+            db.productDao().getById(productId)?.serverId?.let { sid ->
+                pendingUpdates.add(PendingProductUpdate(sid, line))
+            }
 
             // 2. Insert into purchase_items_table with both tax sets.
             db.purchaseItemDao().insert(
@@ -229,6 +263,44 @@ class PurchaseRepository private constructor(
         }
 
         purchaseId
+        } // end withTransaction
+
+        // ── Post-transaction: push updated fields for already-synced products ──
+        val token = context
+            .getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
+            .getString("TOKEN", null)
+        if (token != null && pendingUpdates.isNotEmpty()) {
+            for (upd in pendingUpdates) {
+                val l = upd.line
+                val combined = (l.salesCgst + l.salesSgst).takeIf { it > 0 } ?: l.salesIgst
+                runCatching {
+                    RetrofitClient.api.updateShopProduct(
+                        token    = "Bearer $token",
+                        serverId = upd.serverId,
+                        request  = AddProductRequest(
+                            name             = l.productName,
+                            variant_name     = l.variant?.ifBlank { null },
+                            unit             = l.unit ?: "piece",
+                            price            = l.sellingPrice ?: l.costPrice,
+                            track_inventory  = true,
+                            initial_stock    = null,
+                            cost_price       = null,
+                            hsn_code         = l.hsnCode,
+                            default_gst_rate = combined,
+                            cgst_percentage  = l.salesCgst,
+                            sgst_percentage  = l.salesSgst,
+                            igst_percentage  = l.salesIgst,
+                            official_uqc     = l.officialUqc,
+                            hsn_description  = l.hsnDescription,
+                            cess_rate        = l.cessRate,
+                            is_purchased     = true
+                        )
+                    )
+                } // fire-and-forget
+            }
+        }
+
+        return purchaseId
     }
 
     suspend fun getRecent(limit: Int = 50) = db.purchaseDao().getRecent(limit)
@@ -257,7 +329,19 @@ class PurchaseRepository private constructor(
         // Sales tax (what we will charge customers)
         val salesCgst: Double = 0.0,
         val salesSgst: Double = 0.0,
-        val salesIgst: Double = 0.0
+        val salesIgst: Double = 0.0,
+
+        // GSTR-1 product master fields
+        val officialUqc: String? = null,
+        val hsnDescription: String? = null,
+        val cessRate: Double = 0.0,
+
+        /**
+         * When true, bypass the name+variant upsert lookup and force-insert
+         * a brand-new product row. Used when the user chooses "Create New"
+         * on the purchase restore dialog (inactive product found).
+         */
+        val forceCreate: Boolean = false
     )
 
     companion object {

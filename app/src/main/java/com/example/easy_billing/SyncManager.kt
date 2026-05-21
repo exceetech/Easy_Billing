@@ -24,6 +24,7 @@ import com.example.easy_billing.network.CreateGstSalesItemDto
 import com.example.easy_billing.network.GstSalesSyncBatchRequest
 import com.example.easy_billing.network.AddProductRequest
 import com.example.easy_billing.network.GlobalProductRegisterRequest
+import com.example.easy_billing.network.GstSalesCancelRequest
 import com.example.easy_billing.network.PurchaseDto
 import com.example.easy_billing.network.PurchaseItemDto
 import com.example.easy_billing.network.PurchaseReturnDto
@@ -53,6 +54,7 @@ class SyncManager(private val context: Context) {
         syncGstSales()
         syncGstPurchases()
         syncGstInvoices()        // 🆕 push GST-aware invoice batch
+        syncGstCancellations()   // 🆕 push pending GST invoice cancellations
         syncStoreInfo()          // pull latest
         syncBillingSettings()    // pull settings
     }
@@ -95,7 +97,14 @@ class SyncManager(private val context: Context) {
                         initial_stock    = null,
                         cost_price       = null,
                         hsn_code         = product.hsnCode,
-                        default_gst_rate = product.defaultGstRate
+                        default_gst_rate = product.defaultGstRate,
+                        cgst_percentage  = product.cgstPercentage,
+                        sgst_percentage  = product.sgstPercentage,
+                        igst_percentage  = product.igstPercentage,
+                        official_uqc     = product.officialUqc,
+                        hsn_description  = product.hsnDescription,
+                        cess_rate        = product.cessRate,
+                        is_purchased     = product.isPurchased
                     )
                 )
                 if (response.product_id > 0) {
@@ -810,24 +819,83 @@ class SyncManager(private val context: Context) {
                     val backendProducts =
                         RetrofitClient.api.getMyProducts(token)
 
-                    backendProducts.forEach {
+                    // Resolve the shopId to use for missing product rows.
+                    // Always use the numeric SHOP_ID (consistent with
+                    // ProductRepository.currentShopId).
+                    val missingShopId = try {
+                        val p = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                        p.getString("SHOP_ID", null) ?: p.getInt("SHOP_ID", 0).toString()
+                    } catch (e: ClassCastException) {
+                        context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                            .getInt("SHOP_ID", 0).toString()
+                    }
 
-                        if (missingProductIds.contains(it.id)) {
+                    backendProducts.forEach { bp ->
 
-                            productDao.insert(
-                                com.example.easy_billing.db.Product(
-                                    id = it.id,
-                                    serverId = it.id,
-                                    name = it.name,
-                                    variant = it.variant ?: "",
-                                    unit = it.unit,
-                                    price = it.price,
-                                    trackInventory = true,
-                                    isCustom = false
+                        if (missingProductIds.contains(bp.id)) {
+
+                            // Check if the product already exists (e.g. from a
+                            // previous partial sync run) so we update rather than
+                            // insert a duplicate row.
+                            var alreadyLocal = productDao.getByServerId(bp.id)
+                            
+                            if (alreadyLocal == null) {
+                                // Try fallback check by name and variant to prevent breaking UNIQUE constraint
+                                val validShopIds = listOf(missingShopId, "")
+                                alreadyLocal = productDao.getByNameAndVariant(bp.name, bp.variant ?: "", validShopIds)
+                            }
+
+                            if (alreadyLocal != null) {
+                                // Exists — update fields, preserve Room local id.
+                                productDao.update(
+                                    alreadyLocal.copy(
+                                        name           = bp.name,
+                                        variant        = bp.variant ?: alreadyLocal.variant.orEmpty(),
+                                        unit           = bp.unit ?: alreadyLocal.unit,
+                                        price          = bp.price,
+                                        serverId       = bp.id,
+                                        isActive       = true,
+                                        shopId         = missingShopId,
+                                        hsnCode        = bp.hsn_code ?: alreadyLocal.hsnCode,
+                                        defaultGstRate = bp.default_gst_rate ?: alreadyLocal.defaultGstRate,
+                                        cgstPercentage = bp.cgst_percentage,
+                                        sgstPercentage = bp.sgst_percentage,
+                                        igstPercentage = bp.igst_percentage,
+                                        officialUqc    = bp.official_uqc ?: alreadyLocal.officialUqc,
+                                        hsnDescription = bp.hsn_description ?: alreadyLocal.hsnDescription,
+                                        cessRate       = bp.cess_rate
+                                    )
                                 )
-                            )
+                            } else {
+                                // Truly missing — insert with id = 0 so Room
+                                // auto-generates the local primary key. Never
+                                // set id = server_id; that conflates two
+                                // independent id spaces and breaks upsert logic.
+                                productDao.upsert(
+                                    com.example.easy_billing.db.Product(
+                                        id             = 0,
+                                        serverId       = bp.id,
+                                        name           = bp.name,
+                                        variant        = bp.variant ?: "",
+                                        unit           = bp.unit,
+                                        price          = bp.price,
+                                        trackInventory = true,
+                                        isCustom       = false,
+                                        isActive       = true,
+                                        shopId         = missingShopId,
+                                        hsnCode        = bp.hsn_code,
+                                        defaultGstRate = bp.default_gst_rate ?: 0.0,
+                                        cgstPercentage = bp.cgst_percentage,
+                                        sgstPercentage = bp.sgst_percentage,
+                                        igstPercentage = bp.igst_percentage,
+                                        officialUqc    = bp.official_uqc,
+                                        hsnDescription = bp.hsn_description,
+                                        cessRate       = bp.cess_rate
+                                    )
+                                )
+                            }
 
-                            println("✅ Inserted missing product ${it.id}")
+                            println("✅ Recovered missing product ${bp.id}")
                         }
                     }
 
@@ -889,22 +957,35 @@ class SyncManager(private val context: Context) {
 
         val recordsDto = unsynced.map { record ->
             GstSaleRecordDto(
-                record_id = record.id,
-                invoice_number = record.invoiceNumber,
-                invoice_date = record.invoiceDate,
-                customer_type = record.customerType,
-                customer_gstin = record.customerGstin,
-                place_of_supply = record.placeOfSupply,
-                supply_type = record.supplyType,
-                total_invoice_value = record.totalAmount,
-                taxable_value = record.taxableValue,
-                cgst_amount = record.cgstAmount,
-                sgst_amount = record.sgstAmount,
-                igst_amount = record.igstAmount,
-                cess_amount = 0.0,
-                hsn_code = record.hsnCode,
-                gst_rate = record.gstRate,
-                device_id = record.deviceId
+                record_id              = record.id,
+                invoice_number         = record.invoiceNumber,
+                invoice_date           = record.invoiceDate,
+                customer_type          = record.customerType,
+                customer_gstin         = record.customerGstin,
+                place_of_supply        = record.placeOfSupply,
+                supply_type            = record.supplyType,
+                total_invoice_value    = record.totalAmount,
+                taxable_value          = record.taxableValue,
+                cgst_amount            = record.cgstAmount,
+                sgst_amount            = record.sgstAmount,
+                igst_amount            = record.igstAmount,
+                cess_amount            = record.cessAmount,
+                hsn_code               = record.hsnCode,
+                gst_rate               = record.gstRate,
+                device_id              = record.deviceId,
+                customer_name          = record.customerName,
+                business_name          = record.businessName,
+                customer_phone         = record.customerPhone,
+                customer_state         = record.customerState,
+                customer_state_code    = record.customerStateCode,
+                reverse_charge         = record.reverseCharge,
+                gstr_invoice_type      = record.gstrInvoiceType,
+                ecommerce_gstin        = record.ecommerceGstin,
+                ecommerce_operator_name = record.ecommerceOperatorName,
+                cess_rate              = record.cessRate,
+                uqc                    = record.uqc,
+                hsn_description        = record.hsnDescription,
+                is_cancelled           = record.isCancelled
             )
         }
 
@@ -1012,27 +1093,40 @@ class SyncManager(private val context: Context) {
                     cgst_amount           = item.cgstAmount,
                     sgst_amount           = item.sgstAmount,
                     igst_amount           = item.igstAmount,
-                    net_value             = item.netValue
+                    net_value             = item.netValue,
+                    cess_rate             = item.cessRate,
+                    cess_amount           = item.cessAmount,
+                    uqc                   = item.uqc,
+                    hsn_description       = item.hsnDescription
                 )
             }
             CreateGstSalesInvoiceDto(
-                local_id       = inv.id,
-                bill_id        = inv.billId,
-                invoice_type   = inv.invoiceType,
-                gst_scheme     = inv.gstScheme,
-                customer_name  = inv.customerName,
-                business_name  = inv.businessName,
-                customer_phone = inv.customerPhone,
-                customer_gst   = inv.customerGst,
-                customer_state = inv.customerState,
-                subtotal       = inv.subtotal,
-                total_cgst     = inv.totalCgst,
-                total_sgst     = inv.totalSgst,
-                total_igst     = inv.totalIgst,
-                total_tax      = inv.totalTax,
-                grand_total    = inv.grandTotal,
-                created_at     = inv.createdAt,
-                items          = items
+                local_id                = inv.id,
+                bill_id                 = inv.billId,
+                invoice_type            = inv.invoiceType,
+                gst_scheme              = inv.gstScheme,
+                customer_name           = inv.customerName,
+                business_name           = inv.businessName,
+                customer_phone          = inv.customerPhone,
+                customer_gst            = inv.customerGst,
+                customer_state          = inv.customerState,
+                subtotal                = inv.subtotal,
+                total_cgst              = inv.totalCgst,
+                total_sgst              = inv.totalSgst,
+                total_igst              = inv.totalIgst,
+                total_tax               = inv.totalTax,
+                grand_total             = inv.grandTotal,
+                created_at              = inv.createdAt,
+                items                   = items,
+                invoice_number          = inv.invoiceNumber,
+                invoice_date            = inv.invoiceDate,
+                reverse_charge          = inv.reverseCharge,
+                gstr_invoice_type       = inv.gstrInvoiceType,
+                customer_state_code     = inv.customerStateCode,
+                ecommerce_gstin         = inv.ecommerceGstin,
+                ecommerce_operator_name = inv.ecommerceOperatorName,
+                is_cancelled            = inv.isCancelled,
+                cancelled_at            = inv.cancelledAt
             )
         }
 
@@ -1057,6 +1151,53 @@ class SyncManager(private val context: Context) {
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncGstInvoices: POST /gst-sales/sync FAILED", e)
             pending.forEach { db.gstSalesInvoiceDao().markFailed(it.id) }
+        }
+    }
+
+    /**
+     * Pushes cancellation state for any GST invoice that was
+     * locally cancelled but not yet synced.
+     *
+     * The sync batch (`syncGstInvoices`) already carries
+     * `is_cancelled` and `cancelled_at` in every DTO, so this
+     * dedicated method is used only for invoices that were
+     * *already* synced before they were cancelled — they won't
+     * re-appear in the `pending` queue but still need a backend
+     * update.
+     */
+    suspend fun syncGstCancellations() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncGstCancellations skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        // Find invoices that are cancelled + synced (they have a serverId).
+        // These are the rows that the standard syncGstInvoices won't pick up
+        // because their sync_status is already 'synced'.
+        // We detect them by: is_cancelled=1, sync_status='pending', serverId != null
+        val cancelledSynced = db.gstSalesInvoiceDao().getUnsynced()
+            .filter { it.isCancelled }
+
+        for (inv in cancelledSynced) {
+            try {
+                api.cancelGstSalesInvoice(
+                    token,
+                    GstSalesCancelRequest(
+                        invoice_number = inv.invoiceNumber.ifBlank { null },
+                        local_id       = inv.id,
+                        server_id      = inv.serverId,
+                        cancelled_at   = inv.cancelledAt ?: System.currentTimeMillis()
+                    )
+                )
+                Log.d(SYNC_TAG, "syncGstCancellations: cancelled invoice ${inv.id} synced")
+                db.gstSalesInvoiceDao().markSynced(inv.id, inv.serverId)
+            } catch (e: Exception) {
+                Log.e(SYNC_TAG, "syncGstCancellations: failed for invoice ${inv.id}", e)
+                // Leave as pending for next retry
+            }
         }
     }
 }

@@ -15,6 +15,9 @@ import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.repository.ProductVerificationRepository
 import com.example.easy_billing.util.HsnHelpLauncher
 import com.example.easy_billing.viewmodel.EditProductViewModel
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import com.example.easy_billing.util.UqcMapper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -63,6 +66,11 @@ class EditProductActivity : BaseActivity() {
     private lateinit var etIgst: TextInputEditText
     private lateinit var btnHsnHelp: MaterialButton
 
+    // GSTR-1 product master fields (v23)
+    private lateinit var spinnerOfficialUqc: AutoCompleteTextView
+    private lateinit var etHsnDescription: TextInputEditText
+    private lateinit var etCessRate: TextInputEditText
+
     // Inventory section
     private lateinit var cardLockedStock: MaterialCardView
     private lateinit var tvCurrentStock: TextView
@@ -109,6 +117,13 @@ class EditProductActivity : BaseActivity() {
         etSgst    = findViewById(R.id.etSgst)
         etIgst    = findViewById(R.id.etIgst)
         btnHsnHelp = findViewById(R.id.btnHsnHelp)
+
+        spinnerOfficialUqc = findViewById(R.id.spinnerOfficialUqc)
+        etHsnDescription   = findViewById(R.id.etHsnDescription)
+        etCessRate         = findViewById(R.id.etCessRate)
+        spinnerOfficialUqc.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, UqcMapper.ALL_UQC_DISPLAY)
+        )
 
         cardLockedStock        = findViewById(R.id.cardLockedStock)
         tvCurrentStock         = findViewById(R.id.tvCurrentStock)
@@ -235,12 +250,17 @@ class EditProductActivity : BaseActivity() {
             badge.setBackgroundResource(R.drawable.bg_badge_chip)
         }
 
-        // Pre-fill editable fields
+        // Pre-fill editable fields — always populate every field so the
+        // user sees the current value and can edit it directly.
         etPrice.setText(product.price.toString())
         etHsn.setText(product.hsnCode.orEmpty())
-        if (product.cgstPercentage > 0) etCgst.setText(product.cgstPercentage.toString())
-        if (product.sgstPercentage > 0) etSgst.setText(product.sgstPercentage.toString())
-        if (product.igstPercentage > 0) etIgst.setText(product.igstPercentage.toString())
+        etCgst.setText(formatRate(product.cgstPercentage))
+        etSgst.setText(formatRate(product.sgstPercentage))
+        etIgst.setText(formatRate(product.igstPercentage))
+        // GSTR-1 product master (v23)
+        spinnerOfficialUqc.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
+        etHsnDescription.setText(product.hsnDescription ?: "")
+        etCessRate.setText(formatRate(product.cessRate))
 
         // Inventory section toggles by isPurchased.
         if (product.isPurchased) {
@@ -279,13 +299,20 @@ class EditProductActivity : BaseActivity() {
         val cgst = etCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
         val sgst = etSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
         val igst = etIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+        // GSTR-1 product master (v23)
+        val officialUqcVal  = UqcMapper.displayToCode(spinnerOfficialUqc.text?.toString())
+        val hsnDescVal      = etHsnDescription.text?.toString()?.trim()?.ifBlank { null }
+        val cessRateVal     = etCessRate.text?.toString()?.toDoubleOrNull() ?: 0.0
 
         if (product.isPurchased) {
             // Restricted save — sales fields only.
             viewModel.savePurchased(
                 price = newPrice,
                 hsn = hsn.takeIf { it.isNotBlank() },
-                cgst = cgst, sgst = sgst, igst = igst
+                cgst = cgst, sgst = sgst, igst = igst,
+                officialUqc = officialUqcVal,
+                hsnDescription = hsnDescVal,
+                cessRate = cessRateVal
             )
             return
         }
@@ -305,7 +332,10 @@ class EditProductActivity : BaseActivity() {
             hsn = hsn.takeIf { it.isNotBlank() },
             cgst = cgst, sgst = sgst, igst = igst,
             trackInventory = track,
-            addStockQuantity = addStock
+            addStockQuantity = addStock,
+            officialUqc = officialUqcVal,
+            hsnDescription = hsnDescVal,
+            cessRate = cessRateVal
         )
     }
 
@@ -313,6 +343,20 @@ class EditProductActivity : BaseActivity() {
 
     private fun formatStock(value: Double): String =
         if (value % 1.0 == 0.0) value.toInt().toString() else "%.2f".format(value)
+
+    /* ---------------- Helpers ---------------- */
+
+    /**
+     * Format a tax/rate Double for display in an EditText:
+     *   0.0  → ""    (empty so hint text is visible — no rate set)
+     *   5.0  → "5"   (strip unnecessary decimal)
+     *   2.5  → "2.5" (keep decimal when meaningful)
+     */
+    private fun formatRate(value: Double): String = when {
+        value <= 0.0                  -> ""
+        value % 1.0 == 0.0           -> value.toInt().toString()
+        else                          -> value.toString()
+    }
 
     companion object {
         const val EXTRA_PRODUCT_ID = "extra_product_id"

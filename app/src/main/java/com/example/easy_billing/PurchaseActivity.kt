@@ -20,10 +20,13 @@ import com.example.easy_billing.repository.ProductVerificationRepository
 import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
 import com.example.easy_billing.util.HsnHelpLauncher
 import com.example.easy_billing.util.InvoiceDatePicker
+import com.example.easy_billing.util.UqcMapper
 import com.example.easy_billing.viewmodel.PurchaseViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import android.widget.Button
+import com.example.easy_billing.db.Product
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -357,8 +360,69 @@ class PurchaseActivity : BaseActivity() {
         val btnAdd    = view.findViewById<MaterialButton>(R.id.btnLineAdd)
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnLineCancel)
 
+        // ── GSTR-1 product master fields ──
+        val spinnerUqcPurchase = view.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqcPurchase)
+        val etHsnDescPurchase  = view.findViewById<TextInputEditText>(R.id.etHsnDescriptionPurchase)
+        val etCessRatePurchase = view.findViewById<TextInputEditText>(R.id.etCessRatePurchase)
+        spinnerUqcPurchase.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, UqcMapper.ALL_UQC_DISPLAY)
+        )
+
         val productRepo = ProductRepository.get(this)
         val verifyRepo  = ProductVerificationRepository.get(this)
+
+        val setProductMasterFieldsEnabled: (Boolean) -> Unit = { enabled ->
+            val fields = listOf(
+                etSelling, etSCgst, etSSgst, etSIgst, etHsn, etUnit, 
+                spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase
+            )
+            fields.forEach { 
+                it.isEnabled = enabled 
+                it.isFocusable = enabled
+                it.isFocusableInTouchMode = enabled
+                it.alpha = if (enabled) 1.0f else 0.5f
+            }
+            if (!enabled) {
+                view.findViewById<TextInputLayout>(R.id.tilUnit)?.endIconMode = TextInputLayout.END_ICON_NONE
+                view.findViewById<TextInputLayout>(R.id.tilOfficialUqcPurchase)?.endIconMode = TextInputLayout.END_ICON_NONE
+            } else {
+                view.findViewById<TextInputLayout>(R.id.tilUnit)?.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+                view.findViewById<TextInputLayout>(R.id.tilOfficialUqcPurchase)?.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+            }
+        }
+
+        val onVariantSettled = {
+            val vName = etVariant.text.toString().trim()
+            val pName = etProduct.text.toString().trim()
+            if (pName.isNotBlank()) {
+                lifecycleScope.launch {
+                    val match = withContext(Dispatchers.IO) {
+                        productRepo.getByNameAndVariant(pName, vName)
+                    }
+                    if (match != null && match.isActive) {
+                        withContext(Dispatchers.Main) {
+                            etSelling.setText(match.price.toString())
+                            etSCgst.setText(match.cgstPercentage.toString())
+                            etSSgst.setText(match.sgstPercentage.toString())
+                            etSIgst.setText(match.igstPercentage.toString())
+                            etHsn.setText(match.hsnCode.orEmpty())
+                            etUnit.setText(match.unit, false)
+                            spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
+                            etHsnDescPurchase.setText(match.hsnDescription ?: "")
+                            etCessRatePurchase.setText(match.cessRate.toString())
+                            
+                            setProductMasterFieldsEnabled(false)
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            setProductMasterFieldsEnabled(true)
+                        }
+                    }
+                }
+            } else {
+                setProductMasterFieldsEnabled(true)
+            }
+        }
 
         // Reveal variant + autofill when the user picks / settles
         // on a product name.
@@ -371,6 +435,7 @@ class PurchaseActivity : BaseActivity() {
             etSSgst.setText("")
             etSIgst.setText("")
             etSelling.setText("")
+            setProductMasterFieldsEnabled(true)
             
             if (name.isNotBlank()) {
                 tilVariant.visibility = View.VISIBLE
@@ -440,26 +505,9 @@ class PurchaseActivity : BaseActivity() {
             }
         }
 
-        etVariant.setOnItemClickListener { _, _, position, _ ->
-            val vName = etVariant.adapter.getItem(position).toString()
-            val pName = etProduct.text.toString().trim()
-            lifecycleScope.launch {
-                val match = withContext(Dispatchers.IO) {
-                    productRepo.getByNameAndVariant(pName, vName)
-                }
-                if (match != null && match.isActive) {
-                    withContext(Dispatchers.Main) {
-                        if (etSelling.text.isNullOrBlank() || etSelling.text.toString() == "0.0") {
-                            etSelling.setText(match.price.toString())
-                        }
-                        // Also sync tax if history match found
-                        if (etSCgst.text.isNullOrBlank()) etSCgst.setText(match.cgstPercentage.toString())
-                        if (etSSgst.text.isNullOrBlank()) etSSgst.setText(match.sgstPercentage.toString())
-                        if (etSIgst.text.isNullOrBlank()) etSIgst.setText(match.igstPercentage.toString())
-                        if (etHsn.text.isNullOrBlank()) etHsn.setText(match.hsnCode.orEmpty())
-                    }
-                }
-            }
+        etVariant.setOnItemClickListener { _, _, _, _ -> onVariantSettled() }
+        etVariant.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) onVariantSettled()
         }
 
         // Product autocomplete from existing local catalogue.
@@ -490,18 +538,7 @@ class PurchaseActivity : BaseActivity() {
                         etVariant.setOnClickListener(null)
                         view.findViewById<TextInputLayout>(R.id.tilVariant).endIconMode = TextInputLayout.END_ICON_NONE
                     }
-                    
-                    val match = withContext(Dispatchers.IO) {
-                        productRepo.getByNameAndVariant(prefillName, prefillVariant)
-                    }
-                    if (match != null && match.isActive) {
-                        etSelling.setText(match.price.toString())
-                        if (etSCgst.text.isNullOrBlank()) etSCgst.setText(match.cgstPercentage.toString())
-                        if (etSSgst.text.isNullOrBlank()) etSSgst.setText(match.sgstPercentage.toString())
-                        if (etSIgst.text.isNullOrBlank()) etSIgst.setText(match.igstPercentage.toString())
-                        if (etHsn.text.isNullOrBlank()) etHsn.setText(match.hsnCode.orEmpty())
-                        if (etUnit.text.isNullOrBlank()) etUnit.setText(match.unit, false)
-                    }
+                    onVariantSettled()
                 }
             }
         }
@@ -680,29 +717,157 @@ class PurchaseActivity : BaseActivity() {
 
             val variant = etVariant.text?.toString()?.trim()?.takeIf { it.isNotBlank() }
 
-            viewModel.addLine(
-                PurchaseItemDraft(
-                    productName    = name.firstCapital(),
-                    variant        = variant?.firstCapital(),
-                    hsnCode        = etHsn.text?.toString()?.trim()?.takeIf { it.isNotBlank() },
-                    unit           = etUnit.text?.toString()?.trim()?.ifBlank { null },
-                    quantity       = qty,
-                    taxableAmount  = taxable,
-                    invoiceValue   = invoice,
-                    costPrice      = if (qty > 0) invoice / qty else 0.0,
-                    sellingPrice   = selling,
-                    purchaseCgst   = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
-                    purchaseSgst   = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
-                    purchaseIgst   = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
-                    salesCgst      = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
-                    salesSgst      = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
-                    salesIgst      = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
-                )
+            val draft = PurchaseItemDraft(
+                productName    = name.firstCapital(),
+                variant        = variant?.firstCapital(),
+                hsnCode        = etHsn.text?.toString()?.trim()?.takeIf { it.isNotBlank() },
+                unit           = etUnit.text?.toString()?.trim()?.ifBlank { null },
+                quantity       = qty,
+                taxableAmount  = taxable,
+                invoiceValue   = invoice,
+                costPrice      = if (qty > 0) invoice / qty else 0.0,
+                sellingPrice   = selling,
+                purchaseCgst   = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                purchaseSgst   = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                purchaseIgst   = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                salesCgst      = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                salesSgst      = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                salesIgst      = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                officialUqc    = UqcMapper.displayToCode(spinnerUqcPurchase.text?.toString()),
+                hsnDescription = etHsnDescPurchase.text?.toString()?.trim()?.ifBlank { null },
+                cessRate       = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
             )
-            dialog.dismiss()
+
+            // Check for existing products with the same name+variant
+            // BEFORE adding the line.
+            lifecycleScope.launch {
+                val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@PurchaseActivity)
+                val productRepo = com.example.easy_billing.repository.ProductRepository.get(this@PurchaseActivity)
+                val validShopIds = productRepo.getValidShopIds()
+
+                val existingMatch = withContext(Dispatchers.IO) {
+                    db.productDao().getByNameAndVariant(
+                        draft.productName,
+                        draft.variant,
+                        validShopIds
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (existingMatch != null) {
+                        if (existingMatch.isActive) {
+                            if (!existingMatch.isPurchased) {
+                                // BLOCK: Active Manual Product
+                                Toast.makeText(
+                                    this@PurchaseActivity,
+                                    "${existingMatch.name} is a MANUAL product. Deactivate it first before purchasing.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                // ALLOW: Active Purchased Product
+                                viewModel.addLine(draft)
+                                dialog.dismiss()
+                            }
+                        } else {
+                            // SHOW DIALOG: Inactive product (either Manual or Purchased)
+                            showPurchaseRestoreDialog(
+                                inactive  = existingMatch,
+                                qty       = qty,
+                                draft     = draft,
+                                lineDlg   = dialog
+                            )
+                        }
+                    } else {
+                        // Brand new product
+                        viewModel.addLine(draft)
+                        dialog.dismiss()
+                    }
+                }
+            }
         }
 
         dialog.show()
+    }
+
+    /* ------------------------------------------------------------------
+     *  Purchase restore dialog
+     *  Shown when the user adds a line whose product name+variant
+     *  matches a previously deactivated shop_product row.
+     * ------------------------------------------------------------------ */
+
+    private fun showPurchaseRestoreDialog(
+        inactive: Product,
+        qty: Double,
+        draft: com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft,
+        lineDlg: AlertDialog
+    ) {
+        val customView = layoutInflater.inflate(R.layout.dialog_product_exists, null)
+        val restoreDialog = AlertDialog.Builder(this)
+            .setView(customView)
+            .create()
+        restoreDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvMessage = customView.findViewById<TextView>(R.id.tvMessage)
+        val tvDetails = customView.findViewById<TextView>(R.id.tvDetails)
+        val btnCancel  = customView.findViewById<Button>(R.id.btnCancel)
+        val btnRestore = customView.findViewById<Button>(R.id.btnUpdate)   // blue = Restore
+        val btnNew     = customView.findViewById<Button>(R.id.btnReplace)  // red  = Create New
+        
+        if (inactive.isPurchased) {
+            btnNew.visibility = View.VISIBLE
+            btnNew.text = "Restore Old"
+            btnRestore.text = "Restore with New Values"
+        } else {
+            btnNew.visibility = View.GONE
+            btnRestore.text = "Restore"
+        }
+
+        val productLabel = inactive.name +
+            (inactive.variant?.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: "")
+
+        tvMessage.text = "$productLabel was previously deactivated.\n" +
+            "Restore it to proceed with the purchase?"
+
+        val detailsText = buildString {
+            append("Last price: ₹${inactive.price}\n")
+            if (!inactive.hsnCode.isNullOrBlank()) append("HSN: ${inactive.hsnCode}\n")
+            if (inactive.cgstPercentage > 0 || inactive.sgstPercentage > 0)
+                append("CGST: ${inactive.cgstPercentage}%  SGST: ${inactive.sgstPercentage}%\n")
+            if (inactive.igstPercentage > 0)
+                append("IGST: ${inactive.igstPercentage}%\n")
+            append("Unit: ${inactive.unit ?: "piece"}")
+        }
+        tvDetails.text = detailsText
+
+        // ── btnRestore: Restore with New Values (or just Restore if manual) ──
+        btnRestore.setOnClickListener {
+            viewModel.addLine(draft)   // forceCreate=false → PurchaseRepository.upsert reactivates
+            restoreDialog.dismiss()
+            lineDlg.dismiss()
+        }
+
+        // ── btnNew: Restore Old (only visible when isPurchased = true) ──
+        btnNew.setOnClickListener {
+            val oldValuesDraft = draft.copy(
+                sellingPrice   = inactive.price,
+                hsnCode        = inactive.hsnCode,
+                salesCgst      = inactive.cgstPercentage,
+                salesSgst      = inactive.sgstPercentage,
+                salesIgst      = inactive.igstPercentage,
+                officialUqc    = inactive.officialUqc,
+                hsnDescription = inactive.hsnDescription,
+                cessRate       = inactive.cessRate
+            )
+            viewModel.addLine(oldValuesDraft)
+            restoreDialog.dismiss()
+            lineDlg.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            restoreDialog.dismiss()
+        }
+
+        restoreDialog.show()
     }
 
     /* ------------------------------------------------------------------

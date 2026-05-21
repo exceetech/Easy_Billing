@@ -748,6 +748,202 @@
             android:background="#EDE8E0"/>
 
         <!-- ════════════════════════════════════════════════════════
+             ⑦ GST OPTIONS (collapsed by default — reverse charge,
+                GSTR invoice type, e-commerce)
+        ════════════════════════════════════════════════════════ -->
+        <LinearLayout
+            android:id="@+id/cardGstOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="22dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
+
+            <!-- Collapsible header row -->
+            <LinearLayout
+                android:id="@+id/rowGstOptionsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <View
+                    android:layout_width="18dp"
+                    android:layout_height="1dp"
+                    android:background="#D4A574"/>
+
+                <TextView
+                    android:text="GST OPTIONS"
+                    android:textColor="#71717A"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.12"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:background="#EDE8E0"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tvGstOptionsToggle"
+                    android:text="▼ Expand"
+                    android:textColor="#D4A574"
+                    android:textSize="11sp"
+                    android:layout_marginStart="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <!-- Expandable body (GONE by default) -->
+            <LinearLayout
+                android:id="@+id/layoutGstOptionsBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginTop="12dp">
+
+                <!-- Reverse Charge -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:text="Reverse Charge Applicable?"
+                        android:textSize="13sp"
+                        android:textColor="#3F3F46"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchReverseCharge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"/>
+                </LinearLayout>
+
+                <!-- GSTR Invoice Type -->
+                <TextView
+                    android:text="GSTR Invoice Type"
+                    android:textSize="12sp"
+                    android:textColor="#71717A"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilGstrInvoiceType"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerGstrInvoiceType"
+                        android:inputType="none"
+                        android:text="Regular"
+                        android:textSize="13sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- E-Commerce Toggle -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:text="Sale via E-Commerce Operator?"
+                        android:textSize="13sp"
+                        android:textColor="#3F3F46"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchEcommerce"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"/>
+                </LinearLayout>
+
+                <!-- E-Commerce fields (hidden unless toggle ON) -->
+                <LinearLayout
+                    android:id="@+id/layoutEcommerceFields"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEcommerceGstin"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:hint="E-Commerce Operator GSTIN *"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEcommerceGstin"
+                            android:inputType="textCapCharacters"
+                            android:maxLength="15"
+                            android:textSize="13sp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEcommerceOperator"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:hint="E-Commerce Operator Name (optional)"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEcommerceOperatorName"
+                            android:inputType="textCapWords"
+                            android:textSize="13sp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EDE8E0"/>
+
+        <!-- ════════════════════════════════════════════════════════
              ⑥ BILL SUMMARY · PAYMENT · ACTIONS
         ════════════════════════════════════════════════════════ -->
         <LinearLayout

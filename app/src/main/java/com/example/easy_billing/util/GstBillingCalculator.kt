@@ -192,11 +192,17 @@ object GstBillingCalculator {
      * Convert the calculator's per-line view into Room rows ready
      * to be inserted via [com.example.easy_billing.db.GstSalesInvoiceItemDao].
      * Caller fills in `gstInvoiceId` after the parent insert.
+     *
+     * Pass [enrichments] (parallel to breakdown.lines) to populate
+     * the GSTR-1 product master fields: cessRate, cessAmount, uqc,
+     * hsnDescription. Defaults to all-zero / null when omitted.
      */
     fun toInvoiceItems(
         gstInvoiceId: Int,
-        breakdown: BillBreakdown
-    ): List<GstSalesInvoiceItem> = breakdown.lines.map { l ->
+        breakdown: BillBreakdown,
+        enrichments: List<GstEngine.SalesRecordEnrichment> = emptyList()
+    ): List<GstSalesInvoiceItem> = breakdown.lines.mapIndexed { idx, l ->
+        val en = enrichments.getOrNull(idx) ?: GstEngine.SalesRecordEnrichment()
         GstSalesInvoiceItem(
             gstInvoiceId         = gstInvoiceId,
             productId            = l.productId,
@@ -212,9 +218,16 @@ object GstBillingCalculator {
             cgstAmount           = l.cgstAmount,
             sgstAmount           = l.sgstAmount,
             igstAmount           = l.igstAmount,
-            netValue             = l.netValue
+            netValue             = l.netValue,
+            cessRate             = en.cessRate,
+            cessAmount           = en.cessAmount,
+            uqc                  = en.uqc,
+            hsnDescription       = en.hsnDescription
         )
     }
 
     private fun round2(value: Double): Double = round(value * 100.0) / 100.0
+
+    /** Public version for callers outside this class (e.g. InvoiceActivity). */
+    fun round2Pub(value: Double): Double = round2(value)
 }
