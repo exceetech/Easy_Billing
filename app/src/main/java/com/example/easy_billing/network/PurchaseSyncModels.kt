@@ -151,7 +151,17 @@ data class PurchaseReturnDto(
     val supplier_name: String?,
     val is_credit: Boolean = false,
     val credit_account_id: Int? = null,
-    val created_at: Long
+    val created_at: Long,
+    // ── Debit Note fields (v25) ───────────────────────────────────────────────
+    val note_number: String? = null,
+    val note_date: Long? = null,
+    val note_type: String? = null,              // "D"
+    val original_invoice_id: Int? = null,
+    val original_invoice_number: String? = null,
+    val original_invoice_date: Long? = null,
+    val place_of_supply: String = "",
+    val supply_type: String = "intrastate",
+    val cess_amount: Double = 0.0
 )
 
 /* ---------- Scrap ---------- */

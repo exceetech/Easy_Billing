@@ -371,6 +371,9 @@ class PurchaseActivity : BaseActivity() {
         val productRepo = ProductRepository.get(this)
         val verifyRepo  = ProductVerificationRepository.get(this)
 
+        var lastProductName = ""
+        var lastVariantName = ""
+
         val setProductMasterFieldsEnabled: (Boolean) -> Unit = { enabled ->
             val fields = listOf(
                 etSelling, etSCgst, etSSgst, etSIgst, etHsn, etUnit, 
@@ -381,6 +384,15 @@ class PurchaseActivity : BaseActivity() {
                 it.isFocusable = enabled
                 it.isFocusableInTouchMode = enabled
                 it.alpha = if (enabled) 1.0f else 0.5f
+                
+                var parent = it.parent
+                while (parent != null) {
+                    if (parent is TextInputLayout) {
+                        parent.isEnabled = enabled
+                        break
+                    }
+                    parent = parent.parent
+                }
             }
             if (!enabled) {
                 view.findViewById<TextInputLayout>(R.id.tilUnit)?.endIconMode = TextInputLayout.END_ICON_NONE
@@ -394,33 +406,39 @@ class PurchaseActivity : BaseActivity() {
         val onVariantSettled = {
             val vName = etVariant.text.toString().trim()
             val pName = etProduct.text.toString().trim()
-            if (pName.isNotBlank()) {
-                lifecycleScope.launch {
-                    val match = withContext(Dispatchers.IO) {
-                        productRepo.getByNameAndVariant(pName, vName)
-                    }
-                    if (match != null && match.isActive) {
-                        withContext(Dispatchers.Main) {
-                            etSelling.setText(match.price.toString())
-                            etSCgst.setText(match.cgstPercentage.toString())
-                            etSSgst.setText(match.sgstPercentage.toString())
-                            etSIgst.setText(match.igstPercentage.toString())
-                            etHsn.setText(match.hsnCode.orEmpty())
-                            etUnit.setText(match.unit, false)
-                            spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
-                            etHsnDescPurchase.setText(match.hsnDescription ?: "")
-                            etCessRatePurchase.setText(match.cessRate.toString())
-                            
-                            setProductMasterFieldsEnabled(false)
+            
+            if (vName != lastVariantName || pName != lastProductName) {
+                lastVariantName = vName
+                lastProductName = pName
+                
+                if (pName.isNotBlank()) {
+                    lifecycleScope.launch {
+                        val match = withContext(Dispatchers.IO) {
+                            productRepo.getByNameAndVariant(pName, vName)
                         }
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            setProductMasterFieldsEnabled(true)
+                        if (match != null && match.isActive) {
+                            withContext(Dispatchers.Main) {
+                                etSelling.setText(match.price.toString())
+                                etSCgst.setText(match.cgstPercentage.toString())
+                                etSSgst.setText(match.sgstPercentage.toString())
+                                etSIgst.setText(match.igstPercentage.toString())
+                                etHsn.setText(match.hsnCode.orEmpty())
+                                etUnit.setText(match.unit, false)
+                                spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
+                                etHsnDescPurchase.setText(match.hsnDescription ?: "")
+                                etCessRatePurchase.setText(match.cessRate.toString())
+                                
+                                setProductMasterFieldsEnabled(false)
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                setProductMasterFieldsEnabled(true)
+                            }
                         }
                     }
+                } else {
+                    setProductMasterFieldsEnabled(true)
                 }
-            } else {
-                setProductMasterFieldsEnabled(true)
             }
         }
 
@@ -429,13 +447,19 @@ class PurchaseActivity : BaseActivity() {
         val onProductSettled = {
             val name = etProduct.text?.toString()?.trim().orEmpty()
             
-            // 🔥 Reset fields whenever name changes to avoid stale data
-            etHsn.setText("")
-            etSCgst.setText("")
-            etSSgst.setText("")
-            etSIgst.setText("")
-            etSelling.setText("")
-            setProductMasterFieldsEnabled(true)
+            if (name != lastProductName) {
+                lastProductName = name
+                lastVariantName = ""
+                etVariant.setText("")
+                
+                // 🔥 Reset fields whenever name changes to avoid stale data
+                etHsn.setText("")
+                etSCgst.setText("")
+                etSSgst.setText("")
+                etSIgst.setText("")
+                etSelling.setText("")
+                setProductMasterFieldsEnabled(true)
+            }
             
             if (name.isNotBlank()) {
                 tilVariant.visibility = View.VISIBLE

@@ -169,6 +169,8 @@ object InventoryManager {
             val newAvg = when {
                 !isPurchased -> 0.0
                 costPrice <= 0.0 -> oldAvg
+                oldStock <= 0.0 -> costPrice
+                newStock <= 0.0 -> costPrice
                 else -> ((oldStock * oldAvg) + (quantity * costPrice)) / newStock
             }
 

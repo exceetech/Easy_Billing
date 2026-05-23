@@ -883,6 +883,7 @@ class InvoiceActivity : AppCompatActivity() {
                         val response = RetrofitClient.api.createBill(token, request)
                         if (response.bill_number.isNotEmpty()) {
                             db.billDao().updateBillNumber(savedBillId, response.bill_number)
+                            db.gstSalesInvoiceDao().updateInvoiceNumberByBillId(savedBillId, response.bill_number)
                             db.billDao().markBillSynced(savedBillId)
                             db.billItemDao().markItemsSynced(savedBillId)
                         }

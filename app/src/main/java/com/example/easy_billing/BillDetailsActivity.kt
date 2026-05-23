@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -37,9 +38,13 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var btnPrint: Button
     private lateinit var btnClose: Button
     private lateinit var btnCancelBill: MaterialButton
+    private lateinit var btnCreditNote: MaterialButton
 
     /** The server-side bill id (used for API calls). */
     private var billId: Int = -1
+
+    /** The local Room bills.id — resolved from the bill number after load. */
+    private var localBillId: Int = -1
 
     /**
      * The bill_number resolved after [loadBillDetails] — used as the
@@ -62,6 +67,7 @@ class BillDetailsActivity : AppCompatActivity() {
         btnPrint         = findViewById(R.id.btnPrint)
         btnClose         = findViewById(R.id.btnClose)
         btnCancelBill    = findViewById(R.id.btnCancelBill)
+        btnCreditNote    = findViewById(R.id.btnCreditNote)
 
         billId = intent.getIntExtra("BILL_ID", -1)
 
@@ -76,10 +82,9 @@ class BillDetailsActivity : AppCompatActivity() {
         loadBillDetails()
 
         btnPrint.setOnClickListener { generatePdfAndPrint() }
-
         btnClose.setOnClickListener { finish() }
-
         btnCancelBill.setOnClickListener { confirmCancellation() }
+        btnCreditNote.setOnClickListener { openSalesReturn() }
     }
 
     private fun loadBillDetails() {
@@ -136,6 +141,7 @@ class BillDetailsActivity : AppCompatActivity() {
                     db.billDao().getByBillNumber(bill.bill_number)
                 }
                 val alreadyCancelled = localBill?.isCancelled == true
+                localBillId = localBill?.id ?: -1
                 applyBillCancellationState(alreadyCancelled)
 
             } catch (e: Exception) {
@@ -238,6 +244,18 @@ class BillDetailsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun openSalesReturn() {
+        if (localBillId == -1) {
+            Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val intent = Intent(this, SalesReturnActivity::class.java).apply {
+            putExtra("BILL_ID", localBillId)
+            putExtra("BILL_NUMBER", resolvedBillNumber)
+        }
+        startActivity(intent)
     }
 
     private fun generatePdfAndPrint() {

@@ -539,4 +539,19 @@ interface ApiService {
         @Path("product_id") productId: Int
     ): HsnResponse
 
+    // ── Sales Return (Credit Notes) ──────────────────────────────────────────
+
+    /** Push a batch of credit notes with their line items. */
+    @POST("credit-notes/sync")
+    suspend fun syncCreditNotes(
+        @Header("Authorization") token: String,
+        @Body body: CreditNoteSyncRequest
+    ): CreditNoteSyncResponse
+
+    /** Fetch all credit notes for this shop (pull). */
+    @GET("credit-notes")
+    suspend fun getCreditNotes(
+        @Header("Authorization") token: String
+    ): List<CreditNoteDto>
+
 }

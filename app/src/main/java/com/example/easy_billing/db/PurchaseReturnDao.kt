@@ -22,4 +22,35 @@ interface PurchaseReturnDao {
 
     @Query("UPDATE purchase_return_table SET is_synced = 1 WHERE id = :id")
     suspend fun markSynced(id: Int)
+
+    // ── Debit Note support (v25) ─────────────────────────────────────
+
+    /** All returns that originated from a specific purchase invoice. */
+    @Query("SELECT * FROM purchase_return_table WHERE original_invoice_id = :purchaseId ORDER BY created_at DESC")
+    suspend fun getByOriginalInvoice(purchaseId: Int): List<PurchaseReturn>
+
+    /**
+     * Total quantity already returned for a specific product on a
+     * specific purchase invoice. Used to enforce the constraint that
+     * totalReturned ≤ quantityPurchased before saving a debit note.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(quantityReturned), 0.0)
+        FROM purchase_return_table
+        WHERE original_invoice_id = :purchaseId AND productId = :productId
+    """)
+    suspend fun getTotalReturnedForInvoiceProduct(purchaseId: Int, productId: Int): Double
+
+    /**
+     * Returns the highest debit note sequence number.
+     * The noteNumber format is "DN-XXXXX" — we extract the integer
+     * suffix with CAST(SUBSTR(note_number, 4) AS INTEGER).
+     * Returns 0 if no debit note exists yet.
+     */
+    @Query("""
+        SELECT COALESCE(MAX(CAST(SUBSTR(note_number, 4) AS INTEGER)), 0)
+        FROM purchase_return_table
+        WHERE note_number IS NOT NULL
+    """)
+    suspend fun getMaxDebitNoteSequence(): Int
 }

@@ -32,6 +32,9 @@ import com.example.easy_billing.network.PurchaseReturnSyncRequest
 import com.example.easy_billing.network.PurchaseSyncRequest
 import com.example.easy_billing.network.ScrapDto
 import com.example.easy_billing.network.ScrapSyncRequest
+import com.example.easy_billing.network.CreditNoteDto
+import com.example.easy_billing.network.CreditNoteItemDto
+import com.example.easy_billing.network.CreditNoteSyncRequest
 import android.util.Log
 
 class SyncManager(private val context: Context) {
@@ -44,17 +47,18 @@ class SyncManager(private val context: Context) {
 
         syncAccounts()           // account first
         syncCredit()             // then transactions
-        syncShopProducts()       // 🆕 push unsynced shop_product (and global)
-        syncInventory()          // 🔥 inventory BEFORE bills
+        syncShopProducts()       // push unsynced shop_product (and global)
+        syncInventory()          // inventory BEFORE bills
         syncBills()              // then bills
-        syncPurchases()          // 🆕 push purchase invoices + items
-        syncPurchaseReturns()    // 🆕 push returns
-        syncScrapEntries()       // 🆕 push scrap
+        syncPurchases()          // push purchase invoices + items
+        syncPurchaseReturns()    // push purchase returns (debit notes)
+        syncCreditNotes()        // push sales returns (credit notes)
+        syncScrapEntries()       // push scrap
         syncGstProfile()
         syncGstSales()
         syncGstPurchases()
-        syncGstInvoices()        // 🆕 push GST-aware invoice batch
-        syncGstCancellations()   // 🆕 push pending GST invoice cancellations
+        syncGstInvoices()        // push GST-aware invoice batch
+        syncGstCancellations()   // push pending GST invoice cancellations
         syncStoreInfo()          // pull latest
         syncBillingSettings()    // pull settings
     }
@@ -328,27 +332,37 @@ class SyncManager(private val context: Context) {
             }
 
             PurchaseReturnDto(
-                local_id          = r.id,
-                shop_id           = r.shopId,
-                shop_product_id   = serverProductId,
-                product_name      = r.productName,
-                variant_name      = r.variantName,
-                hsn_code          = r.hsnCode,
-                quantity_returned = r.quantityReturned,
-                taxable_amount    = r.taxableAmount,
-                invoice_value     = r.invoiceValue,
-                cgst_percentage   = r.cgstPercentage,
-                sgst_percentage   = r.sgstPercentage,
-                igst_percentage   = r.igstPercentage,
-                cgst_amount       = r.cgstAmount,
-                sgst_amount       = r.sgstAmount,
-                igst_amount       = r.igstAmount,
-                state             = r.state,
-                supplier_gstin    = r.supplierGstin,
-                supplier_name     = r.supplierName,
-                is_credit         = r.isCredit,
-                credit_account_id = serverCreditAccountId,
-                created_at        = r.createdAt
+                local_id                = r.id,
+                shop_id                 = r.shopId,
+                shop_product_id         = serverProductId,
+                product_name            = r.productName,
+                variant_name            = r.variantName,
+                hsn_code                = r.hsnCode,
+                quantity_returned       = r.quantityReturned,
+                taxable_amount          = r.taxableAmount,
+                invoice_value           = r.invoiceValue,
+                cgst_percentage         = r.cgstPercentage,
+                sgst_percentage         = r.sgstPercentage,
+                igst_percentage         = r.igstPercentage,
+                cgst_amount             = r.cgstAmount,
+                sgst_amount             = r.sgstAmount,
+                igst_amount             = r.igstAmount,
+                state                   = r.state,
+                supplier_gstin          = r.supplierGstin,
+                supplier_name           = r.supplierName,
+                is_credit               = r.isCredit,
+                credit_account_id       = serverCreditAccountId,
+                created_at              = r.createdAt,
+                // Debit Note fields (v25) — null-safe for legacy rows
+                note_number             = r.noteNumber,
+                note_date               = r.noteDate,
+                note_type               = r.noteType,
+                original_invoice_id     = r.originalInvoiceId,
+                original_invoice_number = r.originalInvoiceNumber,
+                original_invoice_date   = r.originalInvoiceDate,
+                place_of_supply         = r.placeOfSupply,
+                supply_type             = r.supplyType,
+                cess_amount             = r.cessAmount
             )
         }
 
@@ -356,7 +370,103 @@ class SyncManager(private val context: Context) {
             api.syncPurchaseReturns(token, PurchaseReturnSyncRequest(dtos))
             pending.forEach { db.purchaseReturnDao().markSynced(it.id) }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(SYNC_TAG, "syncPurchaseReturns: failed", e)
+        }
+    }
+
+    /**
+     * Pushes locally-created Credit Notes (sales returns) to the backend.
+     *
+     * Offline-safe: rows with syncStatus != "synced" are collected and
+     * sent in one batch. On success the server echoes a local_id → server_id
+     * map; rows are marked "synced". On any failure rows remain "pending"
+     * and will be retried on the next syncAll() pass.
+     *
+     * Idempotent: the backend is expected to de-duplicate on note_number.
+     */
+    suspend fun syncCreditNotes() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncCreditNotes skipped — no auth token")
+                return
+            }
+        val db  = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.creditNoteDao().getUnsynced()
+        Log.d(SYNC_TAG, "syncCreditNotes: ${pending.size} unsynced credit note(s)")
+        if (pending.isEmpty()) return
+
+        val itemDao    = db.creditNoteItemDao()
+        val productDao = db.productDao()
+
+        val dtoBatch = pending.map { note ->
+            val items = itemDao.getByNote(note.id).map { item ->
+                val serverPid = productDao.getById(item.productId)?.serverId
+                CreditNoteItemDto(
+                    product_id           = serverPid ?: item.productId,
+                    product_name         = item.productName,
+                    variant              = item.variant,
+                    hsn_code             = item.hsnCode,
+                    unit                 = item.unit,
+                    quantity_sold        = item.quantitySold,
+                    quantity_returned    = item.quantityReturned,
+                    rate                 = item.rate,
+                    cost_price_used      = item.costPriceUsed,
+                    taxable_value        = item.taxableValue,
+                    gst_rate             = item.gstRate,
+                    cgst_amount          = item.cgstAmount,
+                    sgst_amount          = item.sgstAmount,
+                    igst_amount          = item.igstAmount,
+                    cess_amount          = item.cessAmount,
+                    tax_amount           = item.taxAmount,
+                    total_amount         = item.totalAmount,
+                    original_bill_item_id = item.originalBillItemId
+                )
+            }
+            CreditNoteDto(
+                local_id                = note.id,
+                note_number             = note.noteNumber,
+                note_date               = note.noteDate,
+                note_type               = note.noteType,
+                original_invoice_id     = note.originalInvoiceId,
+                original_invoice_number = note.originalInvoiceNumber,
+                original_invoice_date   = note.originalInvoiceDate,
+                customer_name           = note.customerName,
+                customer_gstin          = note.customerGstin,
+                place_of_supply         = note.placeOfSupply,
+                reverse_charge          = note.reverseCharge,
+                supply_type             = note.supplyType,
+                ur_type                 = note.urType,
+                taxable_value           = note.taxableValue,
+                tax_amount              = note.taxAmount,
+                cess_amount             = note.cessAmount,
+                total_amount            = note.totalAmount,
+                cgst_amount             = note.cgstAmount,
+                sgst_amount             = note.sgstAmount,
+                igst_amount             = note.igstAmount,
+                created_at              = note.createdAt,
+                items                   = items
+            )
+        }
+
+        try {
+            Log.d(SYNC_TAG, "syncCreditNotes: POST /credit-notes/sync with ${dtoBatch.size} note(s)")
+            val response = api.syncCreditNotes(token, CreditNoteSyncRequest(dtoBatch))
+            Log.d(SYNC_TAG, "syncCreditNotes: server replied success=${response.success_count}")
+
+            // Mark synced via server's echo map
+            response.note_id_map.forEach { (localIdStr, _) ->
+                val localId = localIdStr.toIntOrNull() ?: return@forEach
+                db.creditNoteDao().markSynced(localId)
+            }
+            // Fallback — server didn't echo map but accepted the request (2xx)
+            if (response.note_id_map.isEmpty()) {
+                pending.forEach { db.creditNoteDao().markSynced(it.id) }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncCreditNotes: POST /credit-notes/sync FAILED", e)
+            pending.forEach { db.creditNoteDao().markFailed(it.id) }
         }
     }
 
@@ -454,6 +564,7 @@ class SyncManager(private val context: Context) {
 
                 if (response.bill_number.isNotEmpty()) {
                     db.billDao().updateBillNumber(bill.id, response.bill_number)
+                    db.gstSalesInvoiceDao().updateInvoiceNumberByBillId(bill.id, response.bill_number)
                 }
 
                 db.billDao().markBillSynced(bill.id)

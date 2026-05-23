@@ -195,10 +195,9 @@ class PurchaseRepository private constructor(
             // 3. Inventory adjustment.
             //
             // Pass full batch metadata so the v21 purchase_batches
-            // ledger carries the supplier / GST split. unitCostExcludingTax
-            // is taxableAmount / quantity (NEVER invoiceValue / quantity)
-            // — see the spec note in InventoryManager.StockBatchMeta.
-            val unitCostNet = if (line.quantity > 0.0) line.taxableAmount / line.quantity
+            // ledger carries the supplier / GST split. The user requested
+            // to include GST in the unit cost for stock addition.
+            val unitCostGross = if (line.quantity > 0.0) line.invoiceValue / line.quantity
                               else line.costPrice
             val combinedGst = (line.purchaseCgst + line.purchaseSgst)
                 .takeIf { it > 0 } ?: line.purchaseIgst
@@ -206,14 +205,14 @@ class PurchaseRepository private constructor(
                 db = db,
                 productId = productId,
                 quantity = line.quantity,
-                costPrice = unitCostNet,
+                costPrice = unitCostGross,
                 batchMeta = InventoryManager.StockBatchMeta(
                     purchaseInvoiceId = purchaseId,
                     supplierName = header.supplierName,
                     supplierGstin = header.supplierGstin,
                     invoiceNumber = header.invoiceNumber,
                     batchCode = null,
-                    unitCostExcludingTax = unitCostNet,
+                    unitCostExcludingTax = unitCostGross,
                     gstPercent = combinedGst,
                     cgstPercent = line.purchaseCgst,
                     sgstPercent = line.purchaseSgst,

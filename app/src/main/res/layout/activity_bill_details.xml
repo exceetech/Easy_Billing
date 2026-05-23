@@ -240,12 +240,27 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
             </LinearLayout>
 
+            <!-- Partial Return / Credit Note button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCreditNote"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:text="Partial Return / Credit Note"
+                android:textColor="#059669"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="#059669"
+                app:strokeWidth="1dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
             <!-- Cancel Bill button — hidden once bill is already cancelled -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelBill"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:text="Cancel / Void Invoice"
                 android:textColor="#EF4444"
                 android:textAllCaps="false"

@@ -112,8 +112,24 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity" 
+        <activity android:name=".MainActivity"
             android:theme="@style/Theme.EasyBilling.Auth"/>
+
+        <!-- ── Return Management (v25) ───────────────────────────────────── -->
+        <activity
+            android:name=".SalesReturnActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".PurchaseHistoryActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".PurchaseDetailsActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".PurchaseReturnActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 
 </manifest>

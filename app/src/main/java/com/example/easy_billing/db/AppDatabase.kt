@@ -45,9 +45,15 @@ import com.example.easy_billing.DefaultProductDao
         // back the FIFO ledger so supplier returns can be valued at
         // their original batch cost while sales / scrap stay on the
         // weighted average. See [PurchaseBatch].
-        PurchaseBatch::class
+        PurchaseBatch::class,
+
+        // Return management (v25) — Sales Return (Credit Note) entities.
+        // Purchase Return (Debit Note) extends the existing PurchaseReturn
+        // entity with new columns — see MIGRATION_24_25.
+        CreditNote::class,
+        CreditNoteItem::class
     ],
-    version = 24
+    version = 25
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -91,6 +97,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Hybrid inventory architecture (v21) — purchase batches.
     abstract fun purchaseBatchDao(): PurchaseBatchDao
+
+    // Return management (v25) — Credit Notes (Sales Returns).
+    abstract fun creditNoteDao(): CreditNoteDao
+    abstract fun creditNoteItemDao(): CreditNoteItemDao
 
     companion object {
 
@@ -775,6 +785,96 @@ abstract class AppDatabase : RoomDatabase() {
 //            }
 //        }
 
+        /**
+         * v24 → v25  — Return Management System
+         *
+         *  1. `credit_notes`       — Sales Return (Credit Note) header.
+         *  2. `credit_note_items`  — Sales Return line items.
+         *  3. `purchase_return_table` — Extended with Debit Note fields:
+         *       note_number, note_date, note_type, original_invoice_id,
+         *       original_invoice_number, original_invoice_date,
+         *       place_of_supply, supply_type, cess_amount.
+         *
+         * All new columns use safe defaults so existing rows are unaffected.
+         */
+        val MIGRATION_24_25 = object : Migration(24, 25) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                // ── 1. credit_notes ──────────────────────────────────────
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `credit_notes` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `noteNumber` TEXT NOT NULL,
+                        `noteDate` INTEGER NOT NULL,
+                        `noteType` TEXT NOT NULL DEFAULT 'C',
+                        `originalInvoiceId` INTEGER NOT NULL,
+                        `originalInvoiceNumber` TEXT NOT NULL,
+                        `originalInvoiceDate` INTEGER NOT NULL,
+                        `customerName` TEXT NOT NULL DEFAULT '',
+                        `customerGstin` TEXT,
+                        `placeOfSupply` TEXT NOT NULL DEFAULT '',
+                        `reverseCharge` TEXT NOT NULL DEFAULT 'N',
+                        `supplyType` TEXT NOT NULL DEFAULT 'intrastate',
+                        `urType` TEXT NOT NULL DEFAULT 'B2CS',
+                        `taxableValue` REAL NOT NULL DEFAULT 0.0,
+                        `taxAmount` REAL NOT NULL DEFAULT 0.0,
+                        `cessAmount` REAL NOT NULL DEFAULT 0.0,
+                        `totalAmount` REAL NOT NULL DEFAULT 0.0,
+                        `cgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `igst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `syncStatus` TEXT NOT NULL DEFAULT 'pending',
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_credit_notes_noteNumber` ON `credit_notes`(`noteNumber`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_credit_notes_originalInvoiceId` ON `credit_notes`(`originalInvoiceId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_credit_notes_syncStatus` ON `credit_notes`(`syncStatus`)")
+
+                // ── 2. credit_note_items ──────────────────────────────────
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `credit_note_items` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `noteId` INTEGER NOT NULL,
+                        `productId` INTEGER NOT NULL,
+                        `productName` TEXT NOT NULL,
+                        `variant` TEXT,
+                        `hsnCode` TEXT NOT NULL DEFAULT '',
+                        `unit` TEXT NOT NULL DEFAULT '',
+                        `quantitySold` REAL NOT NULL,
+                        `quantityReturned` REAL NOT NULL,
+                        `rate` REAL NOT NULL,
+                        `costPriceUsed` REAL NOT NULL DEFAULT 0.0,
+                        `taxableValue` REAL NOT NULL,
+                        `gst_rate` REAL NOT NULL DEFAULT 0.0,
+                        `cgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `igst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `cessAmount` REAL NOT NULL DEFAULT 0.0,
+                        `taxAmount` REAL NOT NULL DEFAULT 0.0,
+                        `totalAmount` REAL NOT NULL DEFAULT 0.0,
+                        `originalBillItemId` INTEGER
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_credit_note_items_noteId` ON `credit_note_items`(`noteId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_credit_note_items_productId` ON `credit_note_items`(`productId`)")
+
+                // ── 3. Extend purchase_return_table with Debit Note fields ──
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `note_number` TEXT")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `note_date` INTEGER")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `note_type` TEXT")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `original_invoice_id` INTEGER")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `original_invoice_number` TEXT")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `original_invoice_date` INTEGER")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `place_of_supply` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `supply_type` TEXT NOT NULL DEFAULT 'intrastate'")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `cess_amount` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_note_number` ON `purchase_return_table`(`note_number`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_original_invoice_id` ON `purchase_return_table`(`original_invoice_id`)")
+            }
+        }
+
         val MIGRATION_23_24 = object : Migration(23, 24) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // 1. Delete duplicate products, keeping the most recent one (max ID)
@@ -813,7 +913,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_20_21,
                         // 21→22: no migration defined — fallback handles it
                         MIGRATION_22_23,
-                        MIGRATION_23_24
+                        MIGRATION_23_24,
+                        MIGRATION_24_25
                     )
                     .fallbackToDestructiveMigration()
                     .build()

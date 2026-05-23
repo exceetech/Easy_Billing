@@ -54,4 +54,7 @@ interface GstSalesInvoiceDao {
 
     @Query("SELECT is_cancelled FROM gst_sales_invoice_table WHERE id = :id LIMIT 1")
     suspend fun isCancelled(id: Int): Boolean?
+
+    @Query("UPDATE gst_sales_invoice_table SET invoice_number = :invoiceNumber WHERE bill_id = :billId")
+    suspend fun updateInvoiceNumberByBillId(billId: Int, invoiceNumber: String)
 }
