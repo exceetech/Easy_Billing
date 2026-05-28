@@ -55,6 +55,7 @@ interface CreditNoteDao {
         FROM credit_note_items cni
         INNER JOIN credit_notes cn ON cni.noteId = cn.id
         WHERE cn.originalInvoiceId = :billId
+          AND cn.noteType = 'C'
           AND cni.productId = :productId
     """)
     suspend fun getTotalReturnedQty(billId: Int, productId: Int): Double

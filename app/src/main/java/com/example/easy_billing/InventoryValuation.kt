@@ -53,8 +53,6 @@ object InventoryValuation {
         require(productId > 0) { "Invalid productId" }
 
         return db.withTransaction {
-            ensureSyntheticBatch(db, productId)
-
             val batches = db.purchaseBatchDao().getRemainingBatches(productId)
             var remaining = quantity
             var consumed = 0.0

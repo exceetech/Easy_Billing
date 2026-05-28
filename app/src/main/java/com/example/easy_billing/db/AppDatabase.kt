@@ -53,7 +53,7 @@ import com.example.easy_billing.DefaultProductDao
         CreditNote::class,
         CreditNoteItem::class
     ],
-    version = 25
+    version = 29
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -892,6 +892,51 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_25_26 = object : Migration(25, 26) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                val tables = listOf("gst_sales_invoice_table", "gst_sales_records")
+                for (table in tables) {
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_nature_of_supply` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_document_type` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_supplier_gstin` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_supplier_name` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_recipient_gstin` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_recipient_name` TEXT")
+                    db.execSQL("ALTER TABLE `$table` ADD COLUMN `eco_role` TEXT")
+                }
+            }
+        }
+
+        val MIGRATION_26_27 = object : Migration(26, 27) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add noteSupplyType to credit_notes
+                db.execSQL("ALTER TABLE `credit_notes` ADD COLUMN `noteSupplyType` TEXT NOT NULL DEFAULT 'Regular'")
+            }
+        }
+
+        val MIGRATION_27_28 = object : Migration(27, 28) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 1. Add DOCS fields to gst_sales_invoice_table
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `document_type` TEXT NOT NULL DEFAULT 'Invoice'")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `document_nature` TEXT NOT NULL DEFAULT 'Invoices for outward supply'")
+                db.execSQL("ALTER TABLE `gst_sales_invoice_table` ADD COLUMN `document_series` TEXT NOT NULL DEFAULT 'INV'")
+
+                // 2. Add EXEMP field to gst_sales_items_table
+                db.execSQL("ALTER TABLE `gst_sales_items_table` ADD COLUMN `supply_classification` TEXT NOT NULL DEFAULT 'TAXABLE'")
+
+                // 3. Add EXEMP field to products
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `supply_classification` TEXT NOT NULL DEFAULT 'TAXABLE'")
+            }
+        }
+
+        val MIGRATION_28_29 = object : Migration(28, 29) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `credit_notes` ADD COLUMN `document_type` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `credit_notes` ADD COLUMN `document_nature` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `credit_notes` ADD COLUMN `document_series` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -914,7 +959,11 @@ abstract class AppDatabase : RoomDatabase() {
                         // 21→22: no migration defined — fallback handles it
                         MIGRATION_22_23,
                         MIGRATION_23_24,
-                        MIGRATION_24_25
+                        MIGRATION_24_25,
+                        MIGRATION_25_26,
+                        MIGRATION_26_27,
+                        MIGRATION_27_28,
+                        MIGRATION_28_29
                     )
                     .fallbackToDestructiveMigration()
                     .build()

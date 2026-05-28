@@ -48,9 +48,10 @@ class BatchClearAdapter(
         val b = batches[position]
 
         holder.tvInvoice.text = b.invoiceNumber?.takeIf { it.isNotBlank() }
+            ?: b.batchCode?.takeIf { it.isNotBlank() }
             ?: "Stock entry #${b.id}"
         holder.tvSupplier.text = b.supplierName?.takeIf { it.isNotBlank() }
-            ?: "Direct add-stock"
+            ?: if (b.batchCode?.startsWith("SALES_RETURN") == true) "Returned by Customer" else "Direct add-stock"
         holder.tvMeta.text = buildString {
             append(dateFmt.format(Date(b.createdAt)))
             append("  ·  ₹")

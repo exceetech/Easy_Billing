@@ -18,7 +18,8 @@ data class CreditNoteDto(
     val local_id: Int,
     val note_number: String,
     val note_date: Long,
-    val note_type: String,                  // "C"
+    val note_type: String,                  // "C" or "D"
+    val note_supply_type: String,
     val original_invoice_id: Int,
     val original_invoice_number: String,
     val original_invoice_date: Long,
@@ -28,6 +29,9 @@ data class CreditNoteDto(
     val reverse_charge: String,
     val supply_type: String,
     val ur_type: String,
+    val document_type: String?,
+    val document_nature: String?,
+    val document_series: String?,
     val taxable_value: Double,
     val tax_amount: Double,
     val cess_amount: Double,

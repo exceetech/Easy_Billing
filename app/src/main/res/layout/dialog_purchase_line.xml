@@ -44,7 +44,7 @@
                     android:inputType="textCapWords"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 2. Variant — always visible so the user can type freely.
+            <!-- 2. Variant (revealed only after product is picked).
                  Dropdown is fed from globally-verified variants for
                  the chosen product (PurchaseActivity hooks this up). -->
             <com.google.android.material.textfield.TextInputLayout
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="@string/purchase_field_variant"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:endIconMode="dropdown_menu">
 
                 <AutoCompleteTextView
@@ -150,6 +150,21 @@
                     android:inputType="textCapSentences"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- 4. Selling price (NEW) — what we'll charge customers -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="@string/selling_price">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSellingPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -164,19 +179,24 @@
                     android:inputType="numberDecimal"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 4. Selling price (NEW) — what we'll charge customers -->
+            <!-- GSTR-1 supply classification -->
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:id="@+id/tilSupplyClassificationPurchase"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:hint="@string/selling_price">
+                android:hint="Supply Classification"
+                app:endIconMode="dropdown_menu">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSellingPrice"
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerSupplyClassificationPurchase"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"/>
+                    android:inputType="none"
+                    android:text="TAXABLE"
+                    android:focusable="false"
+                    android:clickable="true"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 5. Quantity -->

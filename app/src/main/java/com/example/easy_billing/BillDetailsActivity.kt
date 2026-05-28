@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
+import com.example.easy_billing.InventoryManager
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.InvoicePdfGenerator
 import com.google.android.material.button.MaterialButton
@@ -39,6 +40,7 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var btnClose: Button
     private lateinit var btnCancelBill: MaterialButton
     private lateinit var btnCreditNote: MaterialButton
+    private lateinit var btnDebitNote: MaterialButton
 
     /** The server-side bill id (used for API calls). */
     private var billId: Int = -1
@@ -68,6 +70,7 @@ class BillDetailsActivity : AppCompatActivity() {
         btnClose         = findViewById(R.id.btnClose)
         btnCancelBill    = findViewById(R.id.btnCancelBill)
         btnCreditNote    = findViewById(R.id.btnCreditNote)
+        btnDebitNote     = findViewById(R.id.btnDebitNote)
 
         billId = intent.getIntExtra("BILL_ID", -1)
 
@@ -85,6 +88,7 @@ class BillDetailsActivity : AppCompatActivity() {
         btnClose.setOnClickListener { finish() }
         btnCancelBill.setOnClickListener { confirmCancellation() }
         btnCreditNote.setOnClickListener { openSalesReturn() }
+        btnDebitNote.setOnClickListener { openDebitNote() }
     }
 
     private fun loadBillDetails() {
@@ -167,6 +171,8 @@ class BillDetailsActivity : AppCompatActivity() {
     private fun applyBillCancellationState(cancelled: Boolean) {
         tvCancelledBadge.visibility = if (cancelled) View.VISIBLE else View.GONE
         btnCancelBill.visibility    = if (cancelled) View.GONE   else View.VISIBLE
+        btnCreditNote.isEnabled     = !cancelled
+        btnDebitNote.isEnabled      = !cancelled
     }
 
     /**
@@ -174,15 +180,34 @@ class BillDetailsActivity : AppCompatActivity() {
      * [performCancellation] on "Yes".
      */
     private fun confirmCancellation() {
-        AlertDialog.Builder(this)
-            .setTitle("Cancel / Void Invoice")
-            .setMessage("Mark this invoice as cancelled for GST reporting? This cannot be undone.")
-            .setPositiveButton("Yes, Cancel") { d, _ ->
-                d.dismiss()
-                performCancellation()
+        if (localBillId == -1) {
+            Toast.makeText(this, "Bill not loaded yet", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+            val creditNotes = db.creditNoteDao().getByOriginalInvoice(localBillId)
+            val hasPartialReturns = creditNotes.isNotEmpty()
+
+            withContext(Dispatchers.Main) {
+                val message = if (hasPartialReturns) {
+                    "This invoice has partial returns. Cancelling it will mark the invoice as void and restore ONLY the remaining (non-returned) items to inventory. This cannot be undone."
+                } else {
+                    "Mark this invoice as cancelled for GST reporting? This will also restore all billed items to your inventory. This cannot be undone."
+                }
+
+                AlertDialog.Builder(this@BillDetailsActivity)
+                    .setTitle("Cancel / Void Invoice")
+                    .setMessage(message)
+                    .setPositiveButton("Yes, Cancel") { d, _ ->
+                        d.dismiss()
+                        performCancellation()
+                    }
+                    .setNegativeButton("No") { d, _ -> d.dismiss() }
+                    .show()
             }
-            .setNegativeButton("No") { d, _ -> d.dismiss() }
-            .show()
+        }
     }
 
     /**
@@ -216,6 +241,44 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 // 3. Mark gst_sales_records by invoice_number.
                 db.gstSalesRecordDao().markCancelledByInvoiceNumber(resolvedBillNumber, now)
+
+                // 3.5. Restore inventory stock for cancelled items
+                if (localBill != null) {
+                    val items = db.billItemDao().getItemsForBill(localBill.id)
+                    for (bi in items) {
+                        val product = db.productDao().getById(bi.productId) ?: continue
+                        if (!product.trackInventory) continue
+
+                        val returnedQty = db.creditNoteDao().getTotalReturnedQty(localBill.id, bi.productId)
+                        val debitedQty = db.creditNoteItemDao().getTotalDebitedForBillProduct(localBill.id, bi.productId)
+                        val qtyToRestore = bi.quantity + debitedQty - returnedQty
+
+                        if (qtyToRestore > 0.0) {
+                            val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+
+                            InventoryManager.addStock(
+                                db        = db,
+                                productId = bi.productId,
+                                quantity  = qtyToRestore,
+                                costPrice = unitCost,
+                                batchMeta = InventoryManager.StockBatchMeta(
+                                    purchaseInvoiceId    = null,
+                                    supplierName         = null,
+                                    supplierGstin        = null,
+                                    invoiceNumber        = null,
+                                    batchCode            = "CANCELLED_INVOICE-${localBill.id}",
+                                    unitCostExcludingTax = unitCost,
+                                    gstPercent           = 0.0,
+                                    cgstPercent          = 0.0,
+                                    sgstPercent          = 0.0,
+                                    igstPercent          = 0.0,
+                                    invoiceValue         = unitCost * qtyToRestore,
+                                    taxableValue         = unitCost * qtyToRestore
+                                )
+                            )
+                        }
+                    }
+                }
 
                 // 4. Best-effort sync of cancellations to backend.
                 try {
@@ -251,11 +314,43 @@ class BillDetailsActivity : AppCompatActivity() {
             Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
             return
         }
-        val intent = Intent(this, SalesReturnActivity::class.java).apply {
-            putExtra("BILL_ID", localBillId)
-            putExtra("BILL_NUMBER", resolvedBillNumber)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+            val bill = db.billDao().getBillById(localBillId)
+            withContext(Dispatchers.Main) {
+                if (bill.isCancelled) {
+                    Toast.makeText(this@BillDetailsActivity, "Cannot issue a credit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    return@withContext
+                }
+                val intent = Intent(this@BillDetailsActivity, SalesReturnActivity::class.java).apply {
+                    putExtra("BILL_ID", localBillId)
+                    putExtra("BILL_NUMBER", resolvedBillNumber)
+                }
+                startActivity(intent)
+            }
         }
-        startActivity(intent)
+    }
+
+    private fun openDebitNote() {
+        if (localBillId == -1) {
+            Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+            val bill = db.billDao().getBillById(localBillId)
+            withContext(Dispatchers.Main) {
+                if (bill.isCancelled) {
+                    Toast.makeText(this@BillDetailsActivity, "Cannot issue a debit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    return@withContext
+                }
+                val intent = Intent(this@BillDetailsActivity, DebitNoteActivity::class.java).apply {
+                    putExtra("BILL_ID", localBillId)
+                    putExtra("BILL_NUMBER", resolvedBillNumber)
+                }
+                startActivity(intent)
+            }
+        }
     }
 
     private fun generatePdfAndPrint() {

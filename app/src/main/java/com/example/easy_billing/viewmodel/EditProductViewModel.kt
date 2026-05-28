@@ -54,7 +54,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         cgst: Double, sgst: Double, igst: Double,
         officialUqc: String? = null,
         hsnDescription: String? = null,
-        cessRate: Double = 0.0
+        cessRate: Double = 0.0,
+        supplyClassification: String = "TAXABLE"
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -67,7 +68,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     hsn = hsn,
                     officialUqc = officialUqc,
                     hsnDescription = hsnDescription,
-                    cessRate = cessRate
+                    cessRate = cessRate,
+                    supplyClassification = supplyClassification
                 )
                 SyncCoordinator.get(getApplication()).requestSync()
             }.onSuccess {
@@ -90,7 +92,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         addStockQuantity: Double,
         officialUqc: String? = null,
         hsnDescription: String? = null,
-        cessRate: Double = 0.0
+        cessRate: Double = 0.0,
+        supplyClassification: String = "TAXABLE"
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -107,7 +110,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     trackInventory = trackInventory,
                     officialUqc = officialUqc,
                     hsnDescription = hsnDescription,
-                    cessRate = cessRate
+                    cessRate = cessRate,
+                    supplyClassification = supplyClassification
                 )
                 productRepo.upsert(updated)
 
@@ -126,7 +130,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                         hsn            = hsn,
                         officialUqc    = officialUqc,
                         hsnDescription = hsnDescription,
-                        cessRate       = cessRate
+                        cessRate       = cessRate,
+                        supplyClassification = supplyClassification
                     )
                 }
 

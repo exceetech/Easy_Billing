@@ -100,6 +100,14 @@ data class Product(
      * Default 0.  Must be >= 0.
      */
     @ColumnInfo(name = "cess_rate")
-    val cessRate: Double = 0.0
+    val cessRate: Double = 0.0,
+
+    /**
+     * Supply Classification for GSTR-1.
+     * Allowed: TAXABLE, NIL_RATED, EXEMPT, NON_GST
+     * Default: TAXABLE
+     */
+    @ColumnInfo(name = "supply_classification")
+    val supplyClassification: String = "TAXABLE"
 
 ) : Serializable

@@ -118,6 +118,13 @@
         <!-- ── Return Management (v25) ───────────────────────────────────── -->
         <activity
             android:name=".SalesReturnActivity"
+            android:label="Issue Credit Note"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
+            android:name=".DebitNoteActivity"
+            android:label="Issue Debit Note"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
         <activity

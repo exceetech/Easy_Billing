@@ -132,7 +132,7 @@ class GstReportsActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getDatabase(this@GstReportsActivity)
             val storeInfo = db.storeInfoDao().get()
-            val sellerStateCode = storeInfo?.stateCode ?: ""
+            val sellerStateCode = GstEngine.getStateCode(storeInfo?.stateCode)
             
             // Querying the DB for records
             val allSales = db.gstSalesRecordDao().getAll()

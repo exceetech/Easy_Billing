@@ -255,6 +255,21 @@
                 app:strokeWidth="1dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
+            <!-- Debit Note button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDebitNote"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="Additional Charge / Debit Note"
+                android:textColor="#2563EB"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="#2563EB"
+                app:strokeWidth="1dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
             <!-- Cancel Bill button — hidden once bill is already cancelled -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelBill"

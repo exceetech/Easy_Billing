@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="5dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <!-- Product name + already-returned badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvProductName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#111827"
+                android:text="Product Name"/>
+
+            <TextView
+                android:id="@+id/tvAlreadyReturned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:background="@drawable/bg_chip_neutral"
+                android:textSize="11sp"
+                android:textColor="#6B7280"
+                android:visibility="gone"
+                android:text="Returned: 0"/>
+
+        </LinearLayout>
+
+        <!-- HSN + variant -->
+        <TextView
+            android:id="@+id/tvHsnVariant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:textColor="#9CA3AF"
+            android:text="HSN: —"/>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="10dp"
+            android:background="#F3F4F6"/>
+
+        <!-- Sold qty | Price | Tax row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="QTY SOLD"
+                    android:textSize="10sp"
+                    android:textColor="#9CA3AF"
+                    android:letterSpacing="0.08"/>
+                <TextView
+                    android:id="@+id/tvQtySold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:text="0"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UNIT PRICE"
+                    android:textSize="10sp"
+                    android:textColor="#9CA3AF"
+                    android:letterSpacing="0.08"/>
+                <TextView
+                    android:id="@+id/tvUnitPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:text="₹0.00"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GST %"
+                    android:textSize="10sp"
+                    android:textColor="#9CA3AF"
+                    android:letterSpacing="0.08"/>
+                <TextView
+                    android:id="@+id/tvGstRate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"
+                    android:text="0%"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MAX RETURN"
+                    android:textSize="10sp"
+                    android:textColor="#9CA3AF"
+                    android:letterSpacing="0.08"/>
+                <TextView
+                    android:id="@+id/tvMaxReturn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#059669"
+                    android:text="0"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Additional Value input -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="13sp"
+                android:textColor="#374151"
+                android:text="Additional Qty"/>
+
+            <!-- Decrement -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDecrement"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="−"
+                android:textSize="18sp"
+                android:textColor="#374151"
+                android:padding="0dp"
+                app:cornerRadius="8dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="1dp"/>
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAdditionalTaxable"
+                android:layout_width="64dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="6dp"
+                android:gravity="center"
+                android:inputType="numberDecimal"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#111827"
+                android:background="@drawable/bg_batch_qty_input"
+                android:padding="6dp"
+                android:hint="0"
+                android:textColorHint="#D1D5DB"/>
+
+            <!-- Increment -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnIncrement"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="+"
+                android:textSize="18sp"
+                android:textColor="#2563EB"
+                android:padding="0dp"
+                app:cornerRadius="8dp"
+                app:strokeColor="#2563EB"
+                app:strokeWidth="1dp"/>
+
+        </LinearLayout>
+
+        <!-- Additional amount preview -->
+        <TextView
+            android:id="@+id/tvAdditionalTax"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="end"
+            android:textSize="13sp"
+            android:textColor="#2563EB"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:text="Additional Tax: ₹0.00"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

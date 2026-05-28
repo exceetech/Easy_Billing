@@ -134,6 +134,13 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var layoutEcommerceFields: View
     private lateinit var etEcommerceGstin: EditText
     private lateinit var etEcommerceOperatorName: EditText
+    private lateinit var spinnerEcoNatureOfSupply: AutoCompleteTextView
+    private lateinit var spinnerEcoDocumentType: AutoCompleteTextView
+    private lateinit var spinnerEcoRole: AutoCompleteTextView
+    private lateinit var etEcoSupplierGstin: EditText
+    private lateinit var etEcoSupplierName: EditText
+    private lateinit var etEcoRecipientGstin: EditText
+    private lateinit var etEcoRecipientName: EditText
 
     // Re-used after each calculate() — drives both the persistence
     // step and the bill-summary widgets at the bottom of the screen.
@@ -276,6 +283,13 @@ class InvoiceActivity : AppCompatActivity() {
         layoutEcommerceFields  = findViewById(R.id.layoutEcommerceFields)
         etEcommerceGstin       = findViewById(R.id.etEcommerceGstin)
         etEcommerceOperatorName= findViewById(R.id.etEcommerceOperatorName)
+        spinnerEcoNatureOfSupply = findViewById(R.id.spinnerEcoNatureOfSupply)
+        spinnerEcoDocumentType   = findViewById(R.id.spinnerEcoDocumentType)
+        spinnerEcoRole           = findViewById(R.id.spinnerEcoRole)
+        etEcoSupplierGstin       = findViewById(R.id.etEcoSupplierGstin)
+        etEcoSupplierName        = findViewById(R.id.etEcoSupplierName)
+        etEcoRecipientGstin      = findViewById(R.id.etEcoRecipientGstin)
+        etEcoRecipientName       = findViewById(R.id.etEcoRecipientName)
     }
 
     /**
@@ -316,6 +330,24 @@ class InvoiceActivity : AppCompatActivity() {
         )
         spinnerGstrInvoiceType.setAdapter(typeAdapter)
         spinnerGstrInvoiceType.setText("Regular", false)
+
+        val natureAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, listOf("B2B", "B2C", "URP2B")
+        )
+        spinnerEcoNatureOfSupply.setAdapter(natureAdapter)
+        spinnerEcoNatureOfSupply.setText("B2C", false)
+
+        val docAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, listOf("Invoice", "Credit Note", "Debit Note")
+        )
+        spinnerEcoDocumentType.setAdapter(docAdapter)
+        spinnerEcoDocumentType.setText("Invoice", false)
+
+        val roleAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, listOf("Supplier", "E-Commerce Operator")
+        )
+        spinnerEcoRole.setAdapter(roleAdapter)
+        spinnerEcoRole.setText("Supplier", false)
 
         // Collapse/expand toggle.
         rowGstOptionsHeader.setOnClickListener {
@@ -683,6 +715,14 @@ class InvoiceActivity : AppCompatActivity() {
                 val ecommerceOperatorName= if (ecommerceEnabled)
                     etEcommerceOperatorName.text.toString().trim().ifBlank { null } else null
 
+                val ecoNatureOfSupply = if (ecommerceEnabled) spinnerEcoNatureOfSupply.text.toString().ifBlank { "B2C" } else null
+                val ecoDocumentType   = if (ecommerceEnabled) spinnerEcoDocumentType.text.toString().ifBlank { "Invoice" } else null
+                val ecoSupplierGstin  = if (ecommerceEnabled) etEcoSupplierGstin.text.toString().trim().ifBlank { null } else null
+                val ecoSupplierName   = if (ecommerceEnabled) etEcoSupplierName.text.toString().trim().ifBlank { null } else null
+                val ecoRecipientGstin = if (ecommerceEnabled) etEcoRecipientGstin.text.toString().trim().ifBlank { null } else null
+                val ecoRecipientName  = if (ecommerceEnabled) etEcoRecipientName.text.toString().trim().ifBlank { null } else null
+                val ecoRole           = if (ecommerceEnabled) spinnerEcoRole.text.toString().ifBlank { "Supplier" } else null
+
                 // ── Build per-item GSTR-1 enrichments from product master ──
                 val enrichments = items.map { ci ->
                     val p = ci.product
@@ -693,7 +733,8 @@ class InvoiceActivity : AppCompatActivity() {
                         cessRate       = p.cessRate,
                         cessAmount     = cessAmt,
                         uqc            = UqcMapper.resolve(p.unit, p.officialUqc),
-                        hsnDescription = p.hsnDescription
+                        hsnDescription = p.hsnDescription,
+                        supplyClassification = p.supplyClassification
                     )
                 }
 
@@ -784,7 +825,15 @@ class InvoiceActivity : AppCompatActivity() {
                     gstrInvoiceType       = gstrInvoiceType,
                     customerStateCode     = customerStateCode.ifBlank { sellerStateCode }.ifBlank { null },
                     ecommerceGstin        = ecommerceGstin,
-                    ecommerceOperatorName = ecommerceOperatorName
+                    ecommerceOperatorName = ecommerceOperatorName,
+                    // ── New ECO fields (Table 14/15) ──
+                    ecoNatureOfSupply     = ecoNatureOfSupply,
+                    ecoDocumentType       = ecoDocumentType,
+                    ecoSupplierGstin      = ecoSupplierGstin,
+                    ecoSupplierName       = ecoSupplierName,
+                    ecoRecipientGstin     = ecoRecipientGstin,
+                    ecoRecipientName      = ecoRecipientName,
+                    ecoRole               = ecoRole
                 )
                 val gstInvoiceId = db.gstSalesInvoiceDao().insert(gstInvoice).toInt()
                 val gstItems = GstBillingCalculator.toInvoiceItems(gstInvoiceId, breakdown, enrichments)

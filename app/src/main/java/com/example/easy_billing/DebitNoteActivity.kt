@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.repository.CreditNoteRepository
 import com.example.easy_billing.util.CurrencyHelper
-import com.example.easy_billing.viewmodel.SalesReturnViewModel
+import com.example.easy_billing.viewmodel.DebitNoteViewModel
 import com.google.android.material.button.MaterialButton
 import com.example.easy_billing.sync.SyncManager
 import kotlinx.coroutines.Dispatchers
@@ -23,38 +23,24 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * SalesReturnActivity — Partial Return / Credit Note
- *
- * Receives:
- *   • BILL_ID (Int)   — local Room bills.id
- *   • BILL_NUMBER (String) — invoice number for display
- *
- * Lets the user choose how many units of each sold product to return,
- * then calls [SalesReturnViewModel.submitReturn] which routes through
- * [CreditNoteRepository] → Room → InventoryManager.
- *
- * Offline-first: all writes land in Room immediately; SyncManager pushes
- * credit notes to the backend during the next sync cycle.
- */
-class SalesReturnActivity : AppCompatActivity() {
+class DebitNoteActivity : AppCompatActivity() {
 
-    private val viewModel: SalesReturnViewModel by viewModels()
+    private val viewModel: DebitNoteViewModel by viewModels()
 
     private lateinit var tvInvoiceNumber: TextView
     private lateinit var tvInvoiceDate: TextView
-    private lateinit var rvReturnItems: RecyclerView
-    private lateinit var tvTotalReturnValue: TextView
-    private lateinit var tvGstReversal: TextView
-    private lateinit var btnConfirmReturn: MaterialButton
-    private lateinit var btnCancelReturn: MaterialButton
+    private lateinit var rvDebitItems: RecyclerView
+    private lateinit var tvTotalDebitValue: TextView
+    private lateinit var tvAdditionalGst: TextView
+    private lateinit var btnConfirmDebit: MaterialButton
+    private lateinit var btnCancelDebit: MaterialButton
 
     private var billId: Int = -1
     private var billNumber: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sales_return)
+        setContentView(R.layout.activity_debit_note)
 
         billId     = intent.getIntExtra("BILL_ID", -1)
         billNumber = intent.getStringExtra("BILL_NUMBER") ?: ""
@@ -67,24 +53,22 @@ class SalesReturnActivity : AppCompatActivity() {
 
         tvInvoiceNumber  = findViewById(R.id.tvInvoiceNumber)
         tvInvoiceDate    = findViewById(R.id.tvInvoiceDate)
-        rvReturnItems    = findViewById(R.id.rvReturnItems)
-        tvTotalReturnValue = findViewById(R.id.tvTotalReturnValue)
-        tvGstReversal    = findViewById(R.id.tvGstReversal)
-        btnConfirmReturn = findViewById(R.id.btnConfirmReturn)
-        btnCancelReturn  = findViewById(R.id.btnCancelReturn)
+        rvDebitItems    = findViewById(R.id.rvDebitItems)
+        tvTotalDebitValue = findViewById(R.id.tvTotalDebitValue)
+        tvAdditionalGst    = findViewById(R.id.tvAdditionalGst)
+        btnConfirmDebit = findViewById(R.id.btnConfirmDebit)
+        btnCancelDebit  = findViewById(R.id.btnCancelDebit)
 
         tvInvoiceNumber.text = "Invoice #$billNumber"
 
-        rvReturnItems.layoutManager = LinearLayoutManager(this)
+        rvDebitItems.layoutManager = LinearLayoutManager(this)
 
-        btnCancelReturn.setOnClickListener { finish() }
-        btnConfirmReturn.setOnClickListener { confirmAndSubmit() }
+        btnCancelDebit.setOnClickListener { finish() }
+        btnConfirmDebit.setOnClickListener { confirmAndSubmit() }
 
         observeViewModel()
         viewModel.loadBill(billId)
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
 
     private fun observeViewModel() {
 
@@ -92,7 +76,7 @@ class SalesReturnActivity : AppCompatActivity() {
             viewModel.bill.collectLatest { bill ->
                 bill ?: return@collectLatest
                 if (bill.isCancelled) {
-                    Toast.makeText(this@SalesReturnActivity, "Cannot issue a credit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DebitNoteActivity, "Cannot issue a debit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
                     finish()
                     return@collectLatest
                 }
@@ -103,27 +87,26 @@ class SalesReturnActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.billItems.collectLatest { items ->
                 if (items.isEmpty()) return@collectLatest
-                val adapter = SalesReturnItemAdapter(
+                val bill = viewModel.bill.value ?: return@collectLatest
+                val adapter = DebitNoteItemAdapter(
                     items            = items,
-                    maxReturnableQty = { productId, soldQty ->
-                        viewModel.maxReturnableQty(productId, soldQty)
-                    },
+                    supplyType       = bill.supplyType,
                     onTotalChanged   = { total, tax ->
-                        tvTotalReturnValue.text = CurrencyHelper.format(this@SalesReturnActivity, total)
-                        tvGstReversal.text      = CurrencyHelper.format(this@SalesReturnActivity, tax)
+                        tvTotalDebitValue.text = CurrencyHelper.format(this@DebitNoteActivity, total)
+                        tvAdditionalGst.text      = CurrencyHelper.format(this@DebitNoteActivity, tax)
                     }
                 )
-                rvReturnItems.adapter = adapter
+                rvDebitItems.adapter = adapter
             }
         }
 
         lifecycleScope.launch {
             viewModel.isLoading.collectLatest { loading ->
-                btnConfirmReturn.isEnabled = !loading
-                btnConfirmReturn.text = if (loading)
+                btnConfirmDebit.isEnabled = !loading
+                btnConfirmDebit.text = if (loading)
                     "Processing…"
                 else
-                    "Confirm Return & Issue Credit Note"
+                    "Confirm & Issue Debit Note"
             }
         }
 
@@ -133,25 +116,23 @@ class SalesReturnActivity : AppCompatActivity() {
                 when (result) {
                     is CreditNoteRepository.Result.Success -> {
                         Toast.makeText(
-                            this@SalesReturnActivity,
-                            "Credit Note ${result.creditNote.noteNumber} issued successfully.",
+                            this@DebitNoteActivity,
+                            "Debit Note ${result.creditNote.noteNumber} issued successfully.",
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
                         // Push to backend immediately — don't wait for the next background sync cycle.
                         lifecycleScope.launch(Dispatchers.IO) {
                             try {
-                                SyncManager(this@SalesReturnActivity).syncCreditNotes()
+                                SyncManager(this@DebitNoteActivity).syncCreditNotes()
                             } catch (_: Exception) {
-                                // Sync failed silently; SyncManager marks the row "failed"
-                                // and the next background syncAll() will retry.
                             }
                         }
                         finish()
                     }
                     is CreditNoteRepository.Result.ValidationError -> {
                         Toast.makeText(
-                            this@SalesReturnActivity,
+                            this@DebitNoteActivity,
                             result.message,
                             Toast.LENGTH_LONG
                         ).show()
@@ -159,7 +140,7 @@ class SalesReturnActivity : AppCompatActivity() {
                     }
                     is CreditNoteRepository.Result.SaveError -> {
                         Toast.makeText(
-                            this@SalesReturnActivity,
+                            this@DebitNoteActivity,
                             "Failed to save: ${result.cause.message}",
                             Toast.LENGTH_LONG
                         ).show()
@@ -169,8 +150,6 @@ class SalesReturnActivity : AppCompatActivity() {
             }
         }
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
 
     private fun bindBillHeader(bill: Bill) {
         tvInvoiceNumber.text = "Invoice #${bill.billNumber}"
@@ -185,14 +164,12 @@ class SalesReturnActivity : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-
     private fun confirmAndSubmit() {
-        val adapter = rvReturnItems.adapter as? SalesReturnItemAdapter ?: return
-        val lines   = adapter.getReturnLines()
+        val adapter = rvDebitItems.adapter as? DebitNoteItemAdapter ?: return
+        val lines   = adapter.getDebitLines()
 
         if (lines.isEmpty()) {
-            Toast.makeText(this, "Please select at least one item to return.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter additional quantity for at least one item.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -203,21 +180,20 @@ class SalesReturnActivity : AppCompatActivity() {
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Issue Credit Note?")
+            .setTitle("Issue Debit Note?")
             .setMessage(
-                "You are returning ${lines.sumOf { it.second }.let { "%.2f".format(it) }} unit(s)" +
-                " from Invoice #${bill.billNumber}.\n\nThis will adjust inventory and " +
-                "generate a GST credit note. Continue?"
+                "You are issuing a Debit Note for additional value on " +
+                "Invoice #${bill.billNumber}.\n\nThis will generate a GST debit note. Continue?"
             )
-            .setPositiveButton("Yes, Issue CN") { d, _ ->
+            .setPositiveButton("Yes, Issue DN") { d, _ ->
                 d.dismiss()
-                submitReturn(bill, lines)
+                submitDebitNote(bill, lines)
             }
             .setNegativeButton("Review") { d, _ -> d.dismiss() }
             .show()
     }
 
-    private fun submitReturn(
+    private fun submitDebitNote(
         bill: Bill,
         lines: List<Pair<com.example.easy_billing.db.BillItem, Double>>
     ) {
@@ -229,11 +205,11 @@ class SalesReturnActivity : AppCompatActivity() {
             System.currentTimeMillis()
         }
 
-        val returnLines = lines.map { (item, qty) ->
-            CreditNoteRepository.ReturnLine(billItem = item, returnQty = qty)
+        val debitLines = lines.map { (item, value) ->
+            CreditNoteRepository.DebitLine(billItem = item, additionalQty = value)
         }
 
-        viewModel.submitReturn(
+        viewModel.submitDebitNote(
             billId         = bill.id,
             billNumber     = bill.billNumber,
             billDateMillis = billDateMillis,
@@ -242,8 +218,9 @@ class SalesReturnActivity : AppCompatActivity() {
             placeOfSupply  = bill.placeOfSupply,
             reverseCharge  = "N",
             supplyType     = bill.supplyType,
+            noteSupplyType = "Regular",
             urType         = if (bill.customerGstin.isNullOrBlank()) "B2CS" else "B2B",
-            lines          = returnLines
+            lines          = debitLines
         )
     }
 }

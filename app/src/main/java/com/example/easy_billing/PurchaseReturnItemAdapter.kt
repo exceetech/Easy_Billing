@@ -29,6 +29,7 @@ class PurchaseReturnItemAdapter(
     private val items: List<PurchaseItem>,
     private val shopStateCode: String,
     private val supplierGstin: String?,
+    private val supplierStateName: String?,
     private val maxReturnableQty: (productId: Int?, purchasedQty: Double) -> Double,
     private val onTotalChanged: (totalDebitValue: Double, totalGstReclaim: Double) -> Unit
 ) : RecyclerView.Adapter<PurchaseReturnItemAdapter.ViewHolder>() {
@@ -95,7 +96,8 @@ class PurchaseReturnItemAdapter(
         val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
         holder.tvCostPrice.text  = CurrencyHelper.format(ctx, unitTaxable)
 
-        val supplierState = com.example.easy_billing.util.GstEngine.getStateCode(supplierGstin)
+        val supplierState = com.example.easy_billing.util.GstEngine.getStateCodeFromName(supplierStateName)
+            ?: com.example.easy_billing.util.GstEngine.getStateCode(supplierGstin)
         val sameState = if (shopStateCode.isNotBlank() && supplierState.isNotBlank()) {
             shopStateCode == supplierState
         } else {
@@ -187,7 +189,8 @@ class PurchaseReturnItemAdapter(
             val unitTaxable = if (item.quantity > 0) item.taxableAmount / item.quantity else 0.0
             val taxable  = qty * unitTaxable
 
-            val supplierState = com.example.easy_billing.util.GstEngine.getStateCode(supplierGstin)
+            val supplierState = com.example.easy_billing.util.GstEngine.getStateCodeFromName(supplierStateName)
+                ?: com.example.easy_billing.util.GstEngine.getStateCode(supplierGstin)
             val sameState = if (shopStateCode.isNotBlank() && supplierState.isNotBlank()) {
                 shopStateCode == supplierState
             } else {
@@ -213,7 +216,8 @@ class PurchaseReturnItemAdapter(
         var total = 0.0
         var gst   = 0.0
 
-        val supplierState = com.example.easy_billing.util.GstEngine.getStateCode(supplierGstin)
+        val supplierState = com.example.easy_billing.util.GstEngine.getStateCodeFromName(supplierStateName)
+            ?: com.example.easy_billing.util.GstEngine.getStateCode(supplierGstin)
 
         for (item in items) {
             val qty = returnQtyMap[item.id] ?: 0.0

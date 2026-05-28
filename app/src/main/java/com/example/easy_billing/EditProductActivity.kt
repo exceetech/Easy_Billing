@@ -70,6 +70,7 @@ class EditProductActivity : BaseActivity() {
     private lateinit var spinnerOfficialUqc: AutoCompleteTextView
     private lateinit var etHsnDescription: TextInputEditText
     private lateinit var etCessRate: TextInputEditText
+    private lateinit var spinnerSupplyClassification: AutoCompleteTextView
 
     // Inventory section
     private lateinit var cardLockedStock: MaterialCardView
@@ -121,8 +122,13 @@ class EditProductActivity : BaseActivity() {
         spinnerOfficialUqc = findViewById(R.id.spinnerOfficialUqc)
         etHsnDescription   = findViewById(R.id.etHsnDescription)
         etCessRate         = findViewById(R.id.etCessRate)
+        spinnerSupplyClassification = findViewById(R.id.spinnerSupplyClassification)
+        
         spinnerOfficialUqc.setAdapter(
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, UqcMapper.ALL_UQC_DISPLAY)
+        )
+        spinnerSupplyClassification.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST"))
         )
 
         cardLockedStock        = findViewById(R.id.cardLockedStock)
@@ -261,6 +267,7 @@ class EditProductActivity : BaseActivity() {
         spinnerOfficialUqc.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
         etHsnDescription.setText(product.hsnDescription ?: "")
         etCessRate.setText(formatRate(product.cessRate))
+        spinnerSupplyClassification.setText(product.supplyClassification, false)
 
         // Inventory section toggles by isPurchased.
         if (product.isPurchased) {
@@ -303,6 +310,7 @@ class EditProductActivity : BaseActivity() {
         val officialUqcVal  = UqcMapper.displayToCode(spinnerOfficialUqc.text?.toString())
         val hsnDescVal      = etHsnDescription.text?.toString()?.trim()?.ifBlank { null }
         val cessRateVal     = etCessRate.text?.toString()?.toDoubleOrNull() ?: 0.0
+        val supplyClassVal  = spinnerSupplyClassification.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
 
         if (product.isPurchased) {
             // Restricted save — sales fields only.
@@ -312,7 +320,8 @@ class EditProductActivity : BaseActivity() {
                 cgst = cgst, sgst = sgst, igst = igst,
                 officialUqc = officialUqcVal,
                 hsnDescription = hsnDescVal,
-                cessRate = cessRateVal
+                cessRate = cessRateVal,
+                supplyClassification = supplyClassVal
             )
             return
         }
@@ -335,7 +344,8 @@ class EditProductActivity : BaseActivity() {
             addStockQuantity = addStock,
             officialUqc = officialUqcVal,
             hsnDescription = hsnDescVal,
-            cessRate = cessRateVal
+            cessRate = cessRateVal,
+            supplyClassification = supplyClassVal
         )
     }
 

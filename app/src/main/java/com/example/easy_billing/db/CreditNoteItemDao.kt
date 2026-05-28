@@ -29,9 +29,23 @@ interface CreditNoteItemDao {
         SELECT COALESCE(SUM(quantityReturned), 0.0)
         FROM credit_note_items
         WHERE noteId IN (
-            SELECT id FROM credit_notes WHERE originalInvoiceId = :billId
+            SELECT id FROM credit_notes WHERE originalInvoiceId = :billId AND noteType = 'C'
         )
         AND productId = :productId
     """)
     suspend fun getTotalReturnedForBillProduct(billId: Int, productId: Int): Double
+
+    /**
+     * Total debited quantity for a product across all debit notes
+     * referencing a particular original bill. Used for cancellation logic.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(quantityReturned), 0.0)
+        FROM credit_note_items
+        WHERE noteId IN (
+            SELECT id FROM credit_notes WHERE originalInvoiceId = :billId AND noteType = 'D'
+        )
+        AND productId = :productId
+    """)
+    suspend fun getTotalDebitedForBillProduct(billId: Int, productId: Int): Double
 }

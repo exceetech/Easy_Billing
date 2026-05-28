@@ -198,11 +198,18 @@ class AddProductsActivity : BaseActivity() {
         val spinnerUqcUpdate = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
         val etHsnDescUpdate  = dialogView.findViewById<EditText>(R.id.etHsnDescription)
         val etCessRateUpdate = dialogView.findViewById<EditText>(R.id.etCessRate)
+        val spinnerSupplyClassUpdate = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerSupplyClassification)
+        
         spinnerUqcUpdate.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
             UqcMapper.ALL_UQC_DISPLAY))
+            
+        spinnerSupplyClassUpdate.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")))
+            
         // Prefill from existing product
         spinnerUqcUpdate.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
         etHsnDescUpdate.setText(product.hsnDescription ?: "")
+        spinnerSupplyClassUpdate.setText(product.supplyClassification, false)
         if (product.cessRate > 0) etCessRateUpdate.setText(product.cessRate.toString())
 
         // 🔥 Prefill inventory state
@@ -277,6 +284,7 @@ class AddProductsActivity : BaseActivity() {
             val officialUqcUpd  = UqcMapper.displayToCode(spinnerUqcUpdate.text.toString())
             val hsnDescUpd      = etHsnDescUpdate.text.toString().trim().ifBlank { null }
             val cessRateUpd     = etCessRateUpdate.text.toString().toDoubleOrNull() ?: 0.0
+            val supplyClassVal  = spinnerSupplyClassUpdate.text.toString().trim().ifBlank { "TAXABLE" }
 
             lifecycleScope.launch {
                 val storeInfo = db.storeInfoDao().get()
@@ -318,7 +326,11 @@ class AddProductsActivity : BaseActivity() {
                         cgst      = cgstPct,
                         sgst      = sgstPct,
                         igst      = igstPct,
-                        hsn       = hsnCode.ifBlank { null }
+                        hsn       = hsnCode.ifBlank { null },
+                        officialUqc = officialUqcUpd,
+                        hsnDescription = hsnDescUpd,
+                        cessRate = cessRateUpd,
+                        supplyClassification = supplyClassVal
                     )
                     com.example.easy_billing.sync.SyncCoordinator
                         .get(this@AddProductsActivity).requestSync()
@@ -356,7 +368,8 @@ class AddProductsActivity : BaseActivity() {
                                 igst_percentage = igstPct,
                                 official_uqc = officialUqcUpd,
                                 hsn_description = hsnDescUpd,
-                                cess_rate = cessRateUpd
+                                cess_rate = cessRateUpd,
+                                supply_classification = supplyClassVal
                             )
                         )
                         // 🆕 Mirror to global catalogue (best-effort).
@@ -383,7 +396,8 @@ class AddProductsActivity : BaseActivity() {
                             igstPercentage = igstPct,
                             officialUqc = officialUqcUpd,
                             hsnDescription = hsnDescUpd,
-                            cessRate = cessRateUpd
+                            cessRate = cessRateUpd,
+                            supplyClassification = supplyClassVal
                         )
                     )
 
@@ -510,8 +524,14 @@ class AddProductsActivity : BaseActivity() {
         val spinnerUqc  = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
         val etHsnDesc   = dialogView.findViewById<EditText>(R.id.etHsnDescription)
         val etCessRate  = dialogView.findViewById<EditText>(R.id.etCessRate)
+        val spinnerSupplyClass = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerSupplyClassification)
+        
         spinnerUqc.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
             UqcMapper.ALL_UQC_DISPLAY))
+            
+        spinnerSupplyClass.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")))
+        spinnerSupplyClass.setText("TAXABLE", false)
 
         switchInventory.setOnCheckedChangeListener { _, isChecked ->
             layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
@@ -603,6 +623,7 @@ class AddProductsActivity : BaseActivity() {
             val officialUqcVal   = UqcMapper.displayToCode(spinnerUqc.text.toString())
             val hsnDescVal       = etHsnDesc.text.toString().trim().ifBlank { null }
             val cessRateVal      = etCessRate.text.toString().toDoubleOrNull() ?: 0.0
+            val supplyClassVal   = spinnerSupplyClass.text.toString().trim().ifBlank { "TAXABLE" }
 
             lifecycleScope.launch {
                 val storeInfo = db.storeInfoDao().get()
@@ -679,6 +700,7 @@ class AddProductsActivity : BaseActivity() {
                                 officialUqc = officialUqcVal,
                                 hsnDescription = hsnDescVal,
                                 cessRate = cessRateVal,
+                                supplyClassification = supplyClassVal,
                                 shopId = shopIdSync(db)
                             )
                         ).toInt()
@@ -828,7 +850,8 @@ class AddProductsActivity : BaseActivity() {
                                             igstPercentage = igstPct,
                                             officialUqc = officialUqcVal,
                                             hsnDescription = hsnDescVal,
-                                            cessRate = cessRateVal
+                                            cessRate = cessRateVal,
+                                            supplyClassification = supplyClassVal
                                         )
                                     )
 

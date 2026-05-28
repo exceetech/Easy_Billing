@@ -32,7 +32,8 @@ data class CreateGstSalesItemDto(
     val cess_rate: Double = 0.0,
     val cess_amount: Double = 0.0,
     val uqc: String? = null,
-    val hsn_description: String? = null
+    val hsn_description: String? = null,
+    val supply_classification: String = "TAXABLE"
 )
 
 data class CreateGstSalesInvoiceDto(
@@ -62,7 +63,19 @@ data class CreateGstSalesInvoiceDto(
     val ecommerce_gstin: String? = null,
     val ecommerce_operator_name: String? = null,
     val is_cancelled: Boolean = false,
-    val cancelled_at: Long? = null
+    val cancelled_at: Long? = null,
+    // ── ECO GSTR-1 Fields (Table 14/15) ──
+    val eco_nature_of_supply: String? = null,
+    val eco_document_type: String? = null,
+    val eco_supplier_gstin: String? = null,
+    val eco_supplier_name: String? = null,
+    val eco_recipient_gstin: String? = null,
+    val eco_recipient_name: String? = null,
+    val eco_role: String? = null,
+    // ── GSTR-1 DOCS Fields ──
+    val document_type: String? = null,
+    val document_nature: String? = null,
+    val document_series: String? = null
 )
 
 /** Request body for cancelling a GST invoice. */
@@ -108,7 +121,8 @@ data class GstSalesInvoiceItemResponse(
     val cess_rate: Double = 0.0,
     val cess_amount: Double = 0.0,
     val uqc: String? = null,
-    val hsn_description: String? = null
+    val hsn_description: String? = null,
+    val supply_classification: String = "TAXABLE"
 )
 
 data class GstSalesInvoiceResponse(
@@ -138,5 +152,15 @@ data class GstSalesInvoiceResponse(
     val ecommerce_gstin: String? = null,
     val ecommerce_operator_name: String? = null,
     val is_cancelled: Boolean = false,
-    val cancelled_at: Long? = null
+    val cancelled_at: Long? = null,
+    val eco_nature_of_supply: String? = null,
+    val eco_document_type: String? = null,
+    val eco_supplier_gstin: String? = null,
+    val eco_supplier_name: String? = null,
+    val eco_recipient_gstin: String? = null,
+    val eco_recipient_name: String? = null,
+    val eco_role: String? = null,
+    val document_type: String? = null,
+    val document_nature: String? = null,
+    val document_series: String? = null
 )

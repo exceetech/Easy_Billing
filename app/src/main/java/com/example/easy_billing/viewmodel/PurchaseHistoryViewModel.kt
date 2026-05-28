@@ -23,6 +23,9 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _shopStateCode = MutableStateFlow("")
+    val shopStateCode: StateFlow<String> = _shopStateCode.asStateFlow()
+
     // ── Selected purchase detail ──────────────────────────────────────────────
     private val _selectedPurchase = MutableStateFlow<Purchase?>(null)
     val selectedPurchase: StateFlow<Purchase?> = _selectedPurchase.asStateFlow()
@@ -35,7 +38,16 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
 
     // ─────────────────────────────────────────────────────────────────────────
 
-    init { loadPurchases() }
+    init { 
+        loadPurchases()
+        viewModelScope.launch {
+            val store = db.storeInfoDao().get()
+            val gstProfile = db.gstProfileDao().get()
+            val code = gstProfile?.stateCode?.takeIf { it.isNotBlank() }
+                ?: com.example.easy_billing.util.GstEngine.getStateCode(store?.gstin)
+            _shopStateCode.value = code
+        }
+    }
 
     fun loadPurchases(limit: Int = 200) {
         viewModelScope.launch {

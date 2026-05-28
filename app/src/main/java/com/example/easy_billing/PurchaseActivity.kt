@@ -364,8 +364,12 @@ class PurchaseActivity : BaseActivity() {
         val spinnerUqcPurchase = view.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqcPurchase)
         val etHsnDescPurchase  = view.findViewById<TextInputEditText>(R.id.etHsnDescriptionPurchase)
         val etCessRatePurchase = view.findViewById<TextInputEditText>(R.id.etCessRatePurchase)
+        val spinnerSupplyClassPurchase = view.findViewById<AutoCompleteTextView>(R.id.spinnerSupplyClassificationPurchase)
         spinnerUqcPurchase.setAdapter(
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, UqcMapper.ALL_UQC_DISPLAY)
+        )
+        spinnerSupplyClassPurchase.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST"))
         )
 
         val productRepo = ProductRepository.get(this)
@@ -377,7 +381,8 @@ class PurchaseActivity : BaseActivity() {
         val setProductMasterFieldsEnabled: (Boolean) -> Unit = { enabled ->
             val fields = listOf(
                 etSelling, etSCgst, etSSgst, etSIgst, etHsn, etUnit, 
-                spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase
+                spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase,
+                spinnerSupplyClassPurchase
             )
             fields.forEach { 
                 it.isEnabled = enabled 
@@ -397,9 +402,11 @@ class PurchaseActivity : BaseActivity() {
             if (!enabled) {
                 view.findViewById<TextInputLayout>(R.id.tilUnit)?.endIconMode = TextInputLayout.END_ICON_NONE
                 view.findViewById<TextInputLayout>(R.id.tilOfficialUqcPurchase)?.endIconMode = TextInputLayout.END_ICON_NONE
+                view.findViewById<TextInputLayout>(R.id.tilSupplyClassificationPurchase)?.endIconMode = TextInputLayout.END_ICON_NONE
             } else {
                 view.findViewById<TextInputLayout>(R.id.tilUnit)?.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
                 view.findViewById<TextInputLayout>(R.id.tilOfficialUqcPurchase)?.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
+                view.findViewById<TextInputLayout>(R.id.tilSupplyClassificationPurchase)?.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
             }
         }
 
@@ -427,11 +434,13 @@ class PurchaseActivity : BaseActivity() {
                                 spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
                                 etHsnDescPurchase.setText(match.hsnDescription ?: "")
                                 etCessRatePurchase.setText(match.cessRate.toString())
+                                spinnerSupplyClassPurchase.setText(match.supplyClassification, false)
                                 
                                 setProductMasterFieldsEnabled(false)
                             }
                         } else {
                             withContext(Dispatchers.Main) {
+                                spinnerSupplyClassPurchase.setText("TAXABLE", false)
                                 setProductMasterFieldsEnabled(true)
                             }
                         }
@@ -759,7 +768,8 @@ class PurchaseActivity : BaseActivity() {
                 salesIgst      = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 officialUqc    = UqcMapper.displayToCode(spinnerUqcPurchase.text?.toString()),
                 hsnDescription = etHsnDescPurchase.text?.toString()?.trim()?.ifBlank { null },
-                cessRate       = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+                cessRate       = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                supplyClassification = spinnerSupplyClassPurchase.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
             )
 
             // Check for existing products with the same name+variant
@@ -880,7 +890,8 @@ class PurchaseActivity : BaseActivity() {
                 salesIgst      = inactive.igstPercentage,
                 officialUqc    = inactive.officialUqc,
                 hsnDescription = inactive.hsnDescription,
-                cessRate       = inactive.cessRate
+                cessRate       = inactive.cessRate,
+                supplyClassification = inactive.supplyClassification
             )
             viewModel.addLine(oldValuesDraft)
             restoreDialog.dismiss()

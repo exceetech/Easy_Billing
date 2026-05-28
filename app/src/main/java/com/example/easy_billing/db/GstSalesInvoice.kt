@@ -143,5 +143,39 @@ data class GstSalesInvoice(
 
     /** Epoch millis when cancellation was recorded. */
     @ColumnInfo(name = "cancelled_at")
-    val cancelledAt: Long? = null
+    val cancelledAt: Long? = null,
+
+    // ── ECO GSTR-1 Fields (Table 14/15) ──────────────────────────────
+
+    @ColumnInfo(name = "eco_nature_of_supply")
+    val ecoNatureOfSupply: String? = null,
+
+    @ColumnInfo(name = "eco_document_type")
+    val ecoDocumentType: String? = null,
+
+    @ColumnInfo(name = "eco_supplier_gstin")
+    val ecoSupplierGstin: String? = null,
+
+    @ColumnInfo(name = "eco_supplier_name")
+    val ecoSupplierName: String? = null,
+
+    @ColumnInfo(name = "eco_recipient_gstin")
+    val ecoRecipientGstin: String? = null,
+
+    @ColumnInfo(name = "eco_recipient_name")
+    val ecoRecipientName: String? = null,
+
+    @ColumnInfo(name = "eco_role")
+    val ecoRole: String? = null,
+
+    // ── DOCS Fields (Table 13) ───────────────────────────────────────
+
+    @ColumnInfo(name = "document_type")
+    val documentType: String = "Invoice",
+
+    @ColumnInfo(name = "document_nature")
+    val documentNature: String = "Invoices for outward supply",
+
+    @ColumnInfo(name = "document_series")
+    val documentSeries: String = "INV"
 )

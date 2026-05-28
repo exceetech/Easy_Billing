@@ -222,7 +222,8 @@ object GstBillingCalculator {
             cessRate             = en.cessRate,
             cessAmount           = en.cessAmount,
             uqc                  = en.uqc,
-            hsnDescription       = en.hsnDescription
+            hsnDescription       = en.hsnDescription,
+            supplyClassification = en.supplyClassification
         )
     }
 

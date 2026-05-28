@@ -83,6 +83,10 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
     ): Result {
 
         // ── 1. Validate inputs ───────────────────────────────────────────────
+        val originalBill = db.billDao().getBillById(billId)
+        if (originalBill.isCancelled) {
+            return Result.ValidationError("Cannot create a credit note for a cancelled invoice.")
+        }
         if (lines.isEmpty()) return Result.ValidationError("No items selected for return.")
 
         for (line in lines) {
@@ -137,7 +141,7 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     totalCgst    += cgst
                     totalSgst    += sgst
                     totalIgst    += igst
-                    totalCess    += cess
+                    val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
 
                     CreditNoteItem(
                         noteId             = 0,          // back-filled after header insert
@@ -149,7 +153,7 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                         quantitySold       = bi.quantity,
                         quantityReturned   = line.returnQty,
                         rate               = bi.price,
-                        costPriceUsed      = bi.costPriceUsed,
+                        costPriceUsed      = round2(unitCost * line.returnQty),
                         taxableValue       = round2(taxable),
                         gstRate            = bi.gstRate,
                         cgstAmount         = round2(cgst),
@@ -179,6 +183,9 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     reverseCharge         = reverseCharge,
                     supplyType            = supplyType,
                     urType                = urType,
+                    documentType          = "Credit Note",
+                    documentNature        = "Credit Note",
+                    documentSeries        = if (noteNumber.contains("-")) noteNumber.split("-").firstOrNull() ?: "CN" else "CN",
                     taxableValue          = round2(totalTaxable),
                     taxAmount             = totalTax,
                     cessAmount            = round2(totalCess),
@@ -205,25 +212,190 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     val product = db.productDao().getById(bi.productId) ?: continue
                     if (!product.trackInventory) continue
 
+                    val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+
                     InventoryManager.addStock(
                         db        = db,
                         productId = bi.productId,
                         quantity  = line.returnQty,
-                        costPrice = bi.costPriceUsed,
+                        costPrice = unitCost,
                         batchMeta = InventoryManager.StockBatchMeta(
                             purchaseInvoiceId    = null,   // NOT a purchase
                             supplierName         = null,
                             supplierGstin        = null,
                             invoiceNumber        = null,
                             batchCode            = "SALES_RETURN-$noteId",
-                            unitCostExcludingTax = bi.costPriceUsed,
+                            unitCostExcludingTax = unitCost,
                             gstPercent           = 0.0,
                             cgstPercent          = 0.0,
                             sgstPercent          = 0.0,
                             igstPercent          = 0.0,
-                            invoiceValue         = bi.costPriceUsed * line.returnQty,
-                            taxableValue         = bi.costPriceUsed * line.returnQty
+                            invoiceValue         = unitCost * line.returnQty,
+                            taxableValue         = unitCost * line.returnQty
                         )
+                    )
+                }
+
+                Result.Success(header.copy(id = noteId))
+            }
+        } catch (e: Exception) {
+            Result.SaveError(e)
+        }
+    }
+
+    /**
+     * A single line for adding value via Debit Note.
+     *
+     * @param billItem          The original [BillItem] from the invoice.
+     * @param additionalQty     Additional quantity being charged.
+     */
+    data class DebitLine(
+        val billItem: BillItem,
+        val additionalQty: Double
+    )
+
+    /**
+     * Creates a Sales Debit Note ("D").
+     * Does NOT restore or move inventory.
+     * Quantity returned is explicitly 0.0.
+     */
+    suspend fun createDebitNote(
+        billId: Int,
+        billNumber: String,
+        billDateMillis: Long,
+        customerName: String,
+        customerGstin: String?,
+        placeOfSupply: String,
+        reverseCharge: String,
+        supplyType: String,
+        noteSupplyType: String,
+        urType: String,
+        lines: List<DebitLine>
+    ): Result {
+        val originalBill = db.billDao().getBillById(billId)
+        if (originalBill.isCancelled) {
+            return Result.ValidationError("Cannot create a debit note for a cancelled invoice.")
+        }
+        if (lines.isEmpty()) return Result.ValidationError("No items selected for debit note.")
+
+        for (line in lines) {
+            if (line.additionalQty <= 0.0) {
+                return Result.ValidationError(
+                    "Additional quantity for '${line.billItem.productName}' must be greater than zero."
+                )
+            }
+        }
+
+        return try {
+            db.withTransaction {
+                val nextSeq = db.creditNoteDao().getMaxSequence() + 1
+                val noteNumber = "DN-%05d".format(nextSeq)
+                val now = System.currentTimeMillis()
+
+                var totalTaxable = 0.0
+                var totalCgst    = 0.0
+                var totalSgst    = 0.0
+                var totalIgst    = 0.0
+                var totalCess    = 0.0
+
+                val noteItems = lines.map { line ->
+                    val bi       = line.billItem
+                    val unitTaxable = if (bi.quantity > 0.0) bi.taxableValue / bi.quantity else 0.0
+                    val taxable  = line.additionalQty * unitTaxable
+                    val taxRate  = bi.gstRate
+                    
+                    var cgst = 0.0
+                    var sgst = 0.0
+                    var igst = 0.0
+                    
+                    if (supplyType.equals("interstate", ignoreCase = true)) {
+                        igst = taxable * (taxRate / 100.0)
+                    } else {
+                        cgst = taxable * ((taxRate / 2) / 100.0)
+                        sgst = taxable * ((taxRate / 2) / 100.0)
+                    }
+
+                    val cess = 0.0
+                    val tax = cgst + sgst + igst + cess
+                    val total = taxable + tax
+
+                    totalTaxable += taxable
+                    totalCgst    += cgst
+                    totalSgst    += sgst
+                    totalIgst    += igst
+
+                    val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+
+                    CreditNoteItem(
+                        noteId             = 0,          
+                        productId          = bi.productId,
+                        productName        = bi.productName,
+                        variant            = bi.variant,
+                        hsnCode            = bi.hsnCode,
+                        unit               = bi.unit,
+                        quantitySold       = bi.quantity,
+                        quantityReturned   = line.additionalQty, // Store debited qty here
+                        rate               = bi.price,
+                        costPriceUsed      = round2(unitCost * line.additionalQty),
+                        taxableValue       = round2(taxable),
+                        gstRate            = bi.gstRate,
+                        cgstAmount         = round2(cgst),
+                        sgstAmount         = round2(sgst),
+                        igstAmount         = round2(igst),
+                        cessAmount         = round2(cess),
+                        taxAmount          = round2(tax),
+                        totalAmount        = round2(total),
+                        originalBillItemId = bi.id
+                    )
+                }
+
+                val totalTax   = round2(totalCgst + totalSgst + totalIgst + totalCess)
+                val grandTotal = round2(round2(totalTaxable) + totalTax)
+
+                val header = CreditNote(
+                    noteNumber            = noteNumber,
+                    noteDate              = now,
+                    noteType              = "D",
+                    noteSupplyType        = noteSupplyType,
+                    originalInvoiceId     = billId,
+                    originalInvoiceNumber = billNumber,
+                    originalInvoiceDate   = billDateMillis,
+                    customerName          = customerName,
+                    customerGstin         = customerGstin,
+                    placeOfSupply         = placeOfSupply,
+                    reverseCharge         = reverseCharge,
+                    supplyType            = supplyType,
+                    urType                = urType,
+                    documentType          = "Debit Note",
+                    documentNature        = "Debit Note",
+                    documentSeries        = if (noteNumber.contains("-")) noteNumber.split("-").firstOrNull() ?: "DN" else "DN",
+                    taxableValue          = round2(totalTaxable),
+                    taxAmount             = totalTax,
+                    cessAmount            = round2(totalCess),
+                    totalAmount           = grandTotal,
+                    cgstAmount            = round2(totalCgst),
+                    sgstAmount            = round2(totalSgst),
+                    igstAmount            = round2(totalIgst),
+                    syncStatus            = "pending",
+                    createdAt             = now,
+                    updatedAt             = now
+                )
+                val noteId = db.creditNoteDao().insert(header).toInt()
+
+                val itemsWithNoteId = noteItems.map { it.copy(noteId = noteId) }
+                db.creditNoteItemDao().insertAll(itemsWithNoteId)
+
+                // ── Deduct inventory for Debit Note (like a SALE) ───────────
+                for (line in lines) {
+                    val bi = line.billItem
+                    val product = db.productDao().getById(bi.productId) ?: continue
+                    if (!product.trackInventory) continue
+
+                    InventoryManager.reduceStock(
+                        db = db,
+                        productId = bi.productId,
+                        quantity = line.additionalQty,
+                        type = "SALE"
                     )
                 }
 

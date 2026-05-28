@@ -67,8 +67,9 @@ class InventoryReductionRepository private constructor(
         val gst   = db.gstProfileDao().get()
         val shopId = gst?.shopId?.takeIf { it.isNotBlank() }
             ?: store?.gstin.orEmpty()
-        val stateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-            ?: GstEngine.getStateCode(store?.gstin)
+        val rawStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
+            ?: store?.gstin
+        val stateCode = GstEngine.getStateCode(rawStateCode)
         val stateName = GstEngine.INDIA_STATES[stateCode] ?: stateCode
         return shopId to stateName
     }
@@ -105,8 +106,9 @@ class InventoryReductionRepository private constructor(
 
         val store = db.storeInfoDao().get()
         val gst   = db.gstProfileDao().get()
-        val shopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-            ?: GstEngine.getStateCode(store?.gstin)
+        val rawShopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
+            ?: store?.gstin
+        val shopStateCode = GstEngine.getStateCode(rawShopStateCode)
 
         val sameState = if (shopStateCode.isNotBlank()) {
             purchaseTaxIgst <= 0.0
@@ -231,8 +233,9 @@ class InventoryReductionRepository private constructor(
 
         val store = db.storeInfoDao().get()
         val gst   = db.gstProfileDao().get()
-        val shopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-            ?: GstEngine.getStateCode(store?.gstin)
+        val rawShopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
+            ?: store?.gstin
+        val shopStateCode = GstEngine.getStateCode(rawShopStateCode)
 
         val supplierStateCode = GstEngine.getStateCode(supplierGstin)
         val sameState = if (shopStateCode.isNotBlank() && supplierStateCode.isNotBlank()) {
@@ -423,8 +426,9 @@ class InventoryReductionRepository private constructor(
 
         val store = db.storeInfoDao().get()
         val gst   = db.gstProfileDao().get()
-        val shopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-            ?: GstEngine.getStateCode(store?.gstin)
+        val rawShopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
+            ?: store?.gstin
+        val shopStateCode = GstEngine.getStateCode(rawShopStateCode)
         val (shopIdStr, shopStateName) = currentShopAndState()
         val product = db.productDao().getById(productId)
 
@@ -613,8 +617,9 @@ class InventoryReductionRepository private constructor(
 
         val store = db.storeInfoDao().get()
         val gst   = db.gstProfileDao().get()
-        val shopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-            ?: GstEngine.getStateCode(store?.gstin)
+        val rawShopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
+            ?: store?.gstin
+        val shopStateCode = GstEngine.getStateCode(rawShopStateCode)
         val (shopIdStr, shopStateName) = currentShopAndState()
         val product = db.productDao().getById(productId)
 

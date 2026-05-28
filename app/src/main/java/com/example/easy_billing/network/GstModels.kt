@@ -78,7 +78,14 @@ data class GstSaleRecordDto(
     val cess_rate: Double = 0.0,
     val uqc: String? = null,
     val hsn_description: String? = null,
-    val is_cancelled: Boolean = false
+    val is_cancelled: Boolean = false,
+    val eco_nature_of_supply: String? = null,
+    val eco_document_type: String? = null,
+    val eco_supplier_gstin: String? = null,
+    val eco_supplier_name: String? = null,
+    val eco_recipient_gstin: String? = null,
+    val eco_recipient_name: String? = null,
+    val eco_role: String? = null
 )
 
 data class GstPurchaseRecordDto(

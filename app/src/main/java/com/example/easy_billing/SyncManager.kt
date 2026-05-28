@@ -108,6 +108,7 @@ class SyncManager(private val context: Context) {
                         official_uqc     = product.officialUqc,
                         hsn_description  = product.hsnDescription,
                         cess_rate        = product.cessRate,
+                        supply_classification = product.supplyClassification,
                         is_purchased     = product.isPurchased
                     )
                 )
@@ -362,7 +363,9 @@ class SyncManager(private val context: Context) {
                 original_invoice_date   = r.originalInvoiceDate,
                 place_of_supply         = r.placeOfSupply,
                 supply_type             = r.supplyType,
-                cess_amount             = r.cessAmount
+                cess_amount             = r.cessAmount,
+                tax_amount              = r.cgstAmount + r.sgstAmount + r.igstAmount + r.cessAmount,
+                total_amount            = r.invoiceValue
             )
         }
 
@@ -429,6 +432,7 @@ class SyncManager(private val context: Context) {
                 note_number             = note.noteNumber,
                 note_date               = note.noteDate,
                 note_type               = note.noteType,
+                note_supply_type        = note.noteSupplyType,
                 original_invoice_id     = note.originalInvoiceId,
                 original_invoice_number = note.originalInvoiceNumber,
                 original_invoice_date   = note.originalInvoiceDate,
@@ -438,6 +442,14 @@ class SyncManager(private val context: Context) {
                 reverse_charge          = note.reverseCharge,
                 supply_type             = note.supplyType,
                 ur_type                 = note.urType,
+                document_type           = note.documentType,
+                document_nature         = note.documentNature,
+                document_series         = if (note.documentSeries.isNullOrBlank()) {
+                    val prefix = note.noteNumber.split("-").firstOrNull() ?: note.noteNumber.split("_").firstOrNull()
+                    if (!prefix.isNullOrBlank()) prefix else (if (note.noteType == "C") "CN" else "DN")
+                } else {
+                    note.documentSeries
+                },
                 taxable_value           = note.taxableValue,
                 tax_amount              = note.taxAmount,
                 cess_amount             = note.cessAmount,
@@ -1096,7 +1108,14 @@ class SyncManager(private val context: Context) {
                 cess_rate              = record.cessRate,
                 uqc                    = record.uqc,
                 hsn_description        = record.hsnDescription,
-                is_cancelled           = record.isCancelled
+                is_cancelled           = record.isCancelled,
+                eco_nature_of_supply   = record.ecoNatureOfSupply,
+                eco_document_type      = record.ecoDocumentType,
+                eco_supplier_gstin     = record.ecoSupplierGstin,
+                eco_supplier_name      = record.ecoSupplierName,
+                eco_recipient_gstin    = record.ecoRecipientGstin,
+                eco_recipient_name     = record.ecoRecipientName,
+                eco_role               = record.ecoRole
             )
         }
 
@@ -1208,7 +1227,8 @@ class SyncManager(private val context: Context) {
                     cess_rate             = item.cessRate,
                     cess_amount           = item.cessAmount,
                     uqc                   = item.uqc,
-                    hsn_description       = item.hsnDescription
+                    hsn_description       = item.hsnDescription,
+                    supply_classification = item.supplyClassification
                 )
             }
             CreateGstSalesInvoiceDto(
@@ -1237,7 +1257,17 @@ class SyncManager(private val context: Context) {
                 ecommerce_gstin         = inv.ecommerceGstin,
                 ecommerce_operator_name = inv.ecommerceOperatorName,
                 is_cancelled            = inv.isCancelled,
-                cancelled_at            = inv.cancelledAt
+                cancelled_at            = inv.cancelledAt,
+                eco_nature_of_supply    = inv.ecoNatureOfSupply,
+                eco_document_type       = inv.ecoDocumentType,
+                eco_supplier_gstin      = inv.ecoSupplierGstin,
+                eco_supplier_name       = inv.ecoSupplierName,
+                eco_recipient_gstin     = inv.ecoRecipientGstin,
+                eco_recipient_name      = inv.ecoRecipientName,
+                eco_role                = inv.ecoRole,
+                document_type           = inv.documentType,
+                document_nature         = inv.documentNature,
+                document_series         = inv.invoiceNumber.split("_").firstOrNull() ?: inv.documentSeries
             )
         }
 

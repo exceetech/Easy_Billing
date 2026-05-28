@@ -93,5 +93,28 @@ data class GstSalesRecord(
 
     /** True when the parent invoice was cancelled. */
     @ColumnInfo(name = "is_cancelled")
-    val isCancelled: Boolean = false
+    val isCancelled: Boolean = false,
+
+    // ── ECO GSTR-1 Fields (Table 14/15) ──────────────────────────────
+
+    @ColumnInfo(name = "eco_nature_of_supply")
+    val ecoNatureOfSupply: String? = null,
+
+    @ColumnInfo(name = "eco_document_type")
+    val ecoDocumentType: String? = null,
+
+    @ColumnInfo(name = "eco_supplier_gstin")
+    val ecoSupplierGstin: String? = null,
+
+    @ColumnInfo(name = "eco_supplier_name")
+    val ecoSupplierName: String? = null,
+
+    @ColumnInfo(name = "eco_recipient_gstin")
+    val ecoRecipientGstin: String? = null,
+
+    @ColumnInfo(name = "eco_recipient_name")
+    val ecoRecipientName: String? = null,
+
+    @ColumnInfo(name = "eco_role")
+    val ecoRole: String? = null
 )

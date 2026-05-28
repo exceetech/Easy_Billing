@@ -292,6 +292,28 @@
                 android:inputType="numberDecimal"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Supply Classification -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilSupplyClassification"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Supply Classification"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/spinnerSupplyClassification"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:inputType="none"
+                android:text="TAXABLE"
+                android:completionThreshold="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- 🔥 Track Inventory Toggle -->
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switchTrackInventory"

@@ -150,7 +150,8 @@ class PurchaseRepository private constructor(
                 igstPercentage  = line.salesIgst,
                 officialUqc     = line.officialUqc,
                 hsnDescription  = line.hsnDescription,
-                cessRate        = line.cessRate
+                cessRate        = line.cessRate,
+                supplyClassification = line.supplyClassification
             )
             val productId = if (line.forceCreate) {
                 db.productDao().insert(newProductData).toInt()
@@ -212,7 +213,7 @@ class PurchaseRepository private constructor(
                     supplierGstin = header.supplierGstin,
                     invoiceNumber = header.invoiceNumber,
                     batchCode = null,
-                    unitCostExcludingTax = unitCostGross,
+                    unitCostExcludingTax = line.costPrice,
                     gstPercent = combinedGst,
                     cgstPercent = line.purchaseCgst,
                     sgstPercent = line.purchaseSgst,
@@ -292,6 +293,7 @@ class PurchaseRepository private constructor(
                             official_uqc     = l.officialUqc,
                             hsn_description  = l.hsnDescription,
                             cess_rate        = l.cessRate,
+                            supply_classification = l.supplyClassification,
                             is_purchased     = true
                         )
                     )
@@ -334,6 +336,7 @@ class PurchaseRepository private constructor(
         val officialUqc: String? = null,
         val hsnDescription: String? = null,
         val cessRate: Double = 0.0,
+        val supplyClassification: String = "TAXABLE",
 
         /**
          * When true, bypass the name+variant upsert lookup and force-insert

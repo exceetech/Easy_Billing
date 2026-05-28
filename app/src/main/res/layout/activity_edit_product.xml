@@ -230,6 +230,24 @@
                     android:inputType="numberDecimal"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Supply Classification -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSupplyClassification"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Supply Classification">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerSupplyClassification"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:text="TAXABLE"
+                    android:completionThreshold="1"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- ============ Inventory section ============ -->
             <TextView
                 android:layout_width="wrap_content"

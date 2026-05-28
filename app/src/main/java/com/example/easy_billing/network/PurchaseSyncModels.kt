@@ -161,7 +161,9 @@ data class PurchaseReturnDto(
     val original_invoice_date: Long? = null,
     val place_of_supply: String = "",
     val supply_type: String = "intrastate",
-    val cess_amount: Double = 0.0
+    val cess_amount: Double = 0.0,
+    val tax_amount: Double = 0.0,
+    val total_amount: Double = 0.0
 )
 
 /* ---------- Scrap ---------- */

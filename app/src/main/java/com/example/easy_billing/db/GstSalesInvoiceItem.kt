@@ -100,5 +100,15 @@ data class GstSalesInvoiceItem(
      * Source: product.hsnDescription, falls back to product name.
      */
     @ColumnInfo(name = "hsn_description")
-    val hsnDescription: String? = null
+    val hsnDescription: String? = null,
+
+    // ── EXEMP Fields (Table 8) ───────────────────────────────────────
+
+    /**
+     * Supply Classification for GSTR-1.
+     * Allowed: TAXABLE, NIL_RATED, EXEMPT, NON_GST
+     * Default: TAXABLE
+     */
+    @ColumnInfo(name = "supply_classification")
+    val supplyClassification: String = "TAXABLE"
 )

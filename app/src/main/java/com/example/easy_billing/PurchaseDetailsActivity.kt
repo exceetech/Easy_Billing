@@ -123,6 +123,11 @@ class PurchaseDetailsActivity : AppCompatActivity() {
     }
 
     private fun buildItemsList(items: List<PurchaseItem>) {
+        val p = viewModel.selectedPurchase.value ?: return
+        val shopStateCode = viewModel.shopStateCode.value
+        val supplierState = com.example.easy_billing.util.GstEngine.getStateCodeFromName(p.state)
+            ?: com.example.easy_billing.util.GstEngine.getStateCode(p.supplierGstin)
+
         llPurchaseItems.removeAllViews()
         for (item in items) {
             val row = LayoutInflater.from(this)
@@ -137,12 +142,18 @@ class PurchaseDetailsActivity : AppCompatActivity() {
                 append("Qty: ${formatQty(item.quantity)} ${item.unit ?: ""}")
             }
             val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
-            val gstStr = if (item.purchaseIgstPercentage > 0) {
-                "IGST ${item.purchaseIgstPercentage.toInt()}%"
-            } else if (item.purchaseCgstPercentage > 0 || item.purchaseSgstPercentage > 0) {
-                "CGST ${item.purchaseCgstPercentage.toInt()}% + SGST ${item.purchaseSgstPercentage.toInt()}%"
+            
+            val sameState = if (shopStateCode.isNotBlank() && supplierState.isNotBlank()) {
+                shopStateCode == supplierState
             } else {
-                "0%"
+                item.purchaseIgstPercentage <= 0.0
+            }
+
+            val gstStr = if (sameState) {
+                val totalSgstCgst = item.purchaseCgstPercentage + item.purchaseSgstPercentage
+                if (totalSgstCgst > 0) "CGST ${item.purchaseCgstPercentage.toInt()}% + SGST ${item.purchaseSgstPercentage.toInt()}%" else "0%"
+            } else {
+                if (item.purchaseIgstPercentage > 0) "IGST ${item.purchaseIgstPercentage.toInt()}%" else "0%"
             }
             row.findViewById<TextView>(R.id.tvCostAndGst).text =
                 "Base Cost: ${CurrencyHelper.format(this, unitTaxable)}  GST: $gstStr"

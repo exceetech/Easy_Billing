@@ -92,10 +92,11 @@ class PurchaseReturnActivity : AppCompatActivity() {
             viewModel.purchaseItems.collectLatest { items ->
                 if (items.isEmpty()) return@collectLatest
                 val adapter = PurchaseReturnItemAdapter(
-                    items            = items,
-                    shopStateCode    = viewModel.shopStateCode.value,
-                    supplierGstin    = viewModel.purchase.value?.supplierGstin,
-                    maxReturnableQty = { productId, purchasedQty ->
+                    items             = items,
+                    shopStateCode     = viewModel.shopStateCode.value,
+                    supplierGstin     = viewModel.purchase.value?.supplierGstin,
+                    supplierStateName = viewModel.purchase.value?.state,
+                    maxReturnableQty  = { productId, purchasedQty ->
                         viewModel.maxReturnableQty(productId, purchasedQty)
                     },
                     onTotalChanged   = { totalDebit, gst ->

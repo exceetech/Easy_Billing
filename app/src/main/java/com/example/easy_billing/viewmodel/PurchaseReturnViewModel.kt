@@ -142,7 +142,8 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val productId = item.productId ?: continue
 
                         // Determine intra/interstate
-                        val supplierState = GstEngine.getStateCode(p.supplierGstin)
+                        val supplierState = GstEngine.getStateCodeFromName(p.state)
+                            ?: GstEngine.getStateCode(p.supplierGstin)
                         val sameState     = if (stateCode.isNotBlank() && supplierState.isNotBlank())
                             stateCode == supplierState
                         else
@@ -204,7 +205,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 cgstAmount            = round(cgstAmt),
                                 sgstAmount            = round(sgstAmt),
                                 igstAmount            = round(igstAmt),
-                                state                 = stateName,
+                                state                 = p.state.ifBlank { stateName },
                                 supplierGstin         = p.supplierGstin,
                                 supplierName          = p.supplierName,
                                 isSynced              = false,

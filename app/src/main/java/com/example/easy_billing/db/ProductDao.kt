@@ -67,7 +67,8 @@ interface ProductDao {
                hsnCode          = :hsnCode,
                official_uqc     = :officialUqc,
                hsn_description  = :hsnDescription,
-               cess_rate        = :cessRate
+               cess_rate        = :cessRate,
+               supply_classification = :supplyClassification
          WHERE id = :id
         """
     )
@@ -81,7 +82,8 @@ interface ProductDao {
         hsnCode: String?,
         officialUqc: String? = null,
         hsnDescription: String? = null,
-        cessRate: Double = 0.0
+        cessRate: Double = 0.0,
+        supplyClassification: String = "TAXABLE"
     )
 
     @Query(

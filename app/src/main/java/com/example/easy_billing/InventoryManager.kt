@@ -271,6 +271,12 @@ object InventoryManager {
             throw Exception("Insufficient stock")
         }
 
+        // ── Hybrid batch-based inventory (v21) ──
+        // Ensure batches are in sync before we mutate the inventory row!
+        if (inventory.currentStock > 0.0) {
+            InventoryValuation.ensureSyntheticBatch(db, productId)
+        }
+
         val newStock = inventory.currentStock - quantity
         val avgCost = inventory.averageCost
 
@@ -349,6 +355,12 @@ object InventoryManager {
         val avgCost = inventory.averageCost
 
         if (oldStock <= 0) return
+
+        // ── Hybrid batch-based inventory (v21) ──
+        // Ensure batches are in sync before we mutate the inventory row!
+        if (oldStock > 0.0) {
+            InventoryValuation.ensureSyntheticBatch(db, productId)
+        }
 
         inventoryDao.update(
             inventory.copy(

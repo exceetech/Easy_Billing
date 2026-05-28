@@ -105,7 +105,8 @@ object GstEngine {
         val cessRate: Double = 0.0,
         val cessAmount: Double = 0.0,
         val uqc: String? = null,
-        val hsnDescription: String? = null
+        val hsnDescription: String? = null,
+        val supplyClassification: String = "TAXABLE"
     )
 
     fun buildSalesRecords(
@@ -123,6 +124,14 @@ object GstEngine {
         gstrInvoiceType: String = "Regular",
         ecommerceGstin: String? = null,
         ecommerceOperatorName: String? = null,
+        // ── New ECO fields (Table 14/15) ──
+        ecoNatureOfSupply: String? = null,
+        ecoDocumentType: String? = null,
+        ecoSupplierGstin: String? = null,
+        ecoSupplierName: String? = null,
+        ecoRecipientGstin: String? = null,
+        ecoRecipientName: String? = null,
+        ecoRole: String? = null,
         // ── GSTR-1 per-item enrichments (v23) ──
         enrichments: List<SalesRecordEnrichment> = emptyList()
     ): List<GstSalesRecord> {
@@ -160,12 +169,20 @@ object GstEngine {
                     customerStateCode    = customerStateCode,
                     reverseCharge        = reverseCharge,
                     gstrInvoiceType      = gstrInvoiceType,
-                    ecommerceGstin       = ecommerceGstin,
+                    ecommerceGstin        = ecommerceGstin,
                     ecommerceOperatorName = ecommerceOperatorName,
                     cessRate             = en.cessRate,
                     cessAmount           = en.cessAmount,
                     uqc                  = en.uqc,
-                    hsnDescription       = en.hsnDescription
+                    hsnDescription       = en.hsnDescription,
+                    // ── New ECO fields ──
+                    ecoNatureOfSupply    = ecoNatureOfSupply,
+                    ecoDocumentType      = ecoDocumentType,
+                    ecoSupplierGstin     = ecoSupplierGstin,
+                    ecoSupplierName      = ecoSupplierName,
+                    ecoRecipientGstin    = ecoRecipientGstin,
+                    ecoRecipientName     = ecoRecipientName,
+                    ecoRole              = ecoRole
                 )
             )
         }

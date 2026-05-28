@@ -148,7 +148,8 @@ class ProductRepository private constructor(
         hsn: String?,
         officialUqc: String? = null,
         hsnDescription: String? = null,
-        cessRate: Double = 0.0
+        cessRate: Double = 0.0,
+        supplyClassification: String = "TAXABLE"
     ) {
         val combined = (cgst + sgst).takeIf { it > 0 } ?: igst
         productDao.updateSalesFields(
@@ -161,7 +162,8 @@ class ProductRepository private constructor(
             hsnCode = hsn?.takeIf { it.isNotBlank() },
             officialUqc = officialUqc,
             hsnDescription = hsnDescription,
-            cessRate = cessRate
+            cessRate = cessRate,
+            supplyClassification = supplyClassification
         )
 
         // ── Inline backend push ──────────────────────────────────────
@@ -192,6 +194,7 @@ class ProductRepository private constructor(
                     official_uqc     = officialUqc,
                     hsn_description  = hsnDescription,
                     cess_rate        = cessRate,
+                    supply_classification = supplyClassification,
                     is_purchased     = product.isPurchased
                 )
             )

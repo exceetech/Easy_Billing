@@ -29,6 +29,7 @@ data class AddProductRequest(
     val official_uqc: String? = null,
     val hsn_description: String? = null,
     val cess_rate: Double = 0.0,
+    val supply_classification: String = "TAXABLE",
     
     val is_purchased: Boolean = false
 

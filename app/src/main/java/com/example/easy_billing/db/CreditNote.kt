@@ -34,8 +34,11 @@ data class CreditNote(
     /** Epoch millis when this credit note was created. */
     val noteDate: Long = System.currentTimeMillis(),
 
-    /** Always "C" for Credit Note. */
+    /** Always "C" for Credit Note or "D" for Debit Note. */
     val noteType: String = "C",
+
+    /** "Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp" */
+    val noteSupplyType: String = "Regular",
 
     // ── Original invoice reference ──────────────────────────────────
     /** Local Room `bills.id` of the original sales invoice. */
@@ -70,6 +73,11 @@ data class CreditNote(
     @ColumnInfo(name = "cgst_amount") val cgstAmount: Double = 0.0,
     @ColumnInfo(name = "sgst_amount") val sgstAmount: Double = 0.0,
     @ColumnInfo(name = "igst_amount") val igstAmount: Double = 0.0,
+
+    // ── GSTR-1 DOCS Fields ────────────────────────────────────────────
+    @ColumnInfo(name = "document_type") val documentType: String = "",
+    @ColumnInfo(name = "document_nature") val documentNature: String = "",
+    @ColumnInfo(name = "document_series") val documentSeries: String = "",
 
     // ── Sync ─────────────────────────────────────────────────────────
     /** "pending" | "synced" | "failed" */
