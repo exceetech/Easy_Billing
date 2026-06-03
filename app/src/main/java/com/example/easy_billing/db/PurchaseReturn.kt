@@ -90,5 +90,21 @@ data class PurchaseReturn(
     @ColumnInfo(name = "supply_type")          val supplyType: String = "intrastate",
 
     /** CESS amount applicable on this return, if any. */
-    @ColumnInfo(name = "cess_amount")          val cessAmount: Double = 0.0
+    @ColumnInfo(name = "cess_amount")          val cessAmount: Double = 0.0,
+
+    @ColumnInfo(name = "document_type")        val documentType: String = "Debit Note",
+    @ColumnInfo(name = "document_nature")      val documentNature: String? = null,
+    @ColumnInfo(name = "document_series")      val documentSeries: String? = null,
+
+    @ColumnInfo(name = "pre_gst")              val preGst: String = "N",
+    @ColumnInfo(name = "reason_for_issuing_document") val reasonForIssuingDocument: String = "Purchase return",
+    @ColumnInfo(name = "note_refund_voucher_value") val noteRefundVoucherValue: Double = 0.0,
+    val rate: Double = 0.0,
+    @ColumnInfo(name = "eligibility_for_itc")  val eligibilityForItc: String = "Inputs",
+    @ColumnInfo(name = "availed_itc_integrated_tax") val availedItcIntegratedTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_central_tax") val availedItcCentralTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_state_tax") val availedItcStateTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_cess")     val availedItcCess: Double = 0.0,
+    @ColumnInfo(name = "invoice_type")         val invoiceType: String = "Regular",
+    @ColumnInfo(name = "place_of_supply_code") val placeOfSupplyCode: String = ""
 )

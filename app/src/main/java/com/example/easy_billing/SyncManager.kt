@@ -244,7 +244,16 @@ class SyncManager(private val context: Context) {
                     purchase_igst_amount     = item.purchaseIgstAmount,
                     sales_cgst_percentage    = item.salesCgstPercentage,
                     sales_sgst_percentage    = item.salesSgstPercentage,
-                    sales_igst_percentage    = item.salesIgstPercentage
+                    sales_igst_percentage    = item.salesIgstPercentage,
+                    cess_percentage          = item.cessPercentage,
+                    cess_amount              = item.cessAmount,
+                    eligibility_for_itc      = item.eligibilityForItc,
+                    availed_itc_igst         = item.availedItcIgst,
+                    availed_itc_cgst         = item.availedItcCgst,
+                    availed_itc_sgst         = item.availedItcSgst,
+                    availed_itc_cess         = item.availedItcCess,
+                    hsn_description          = item.hsnDescription,
+                    official_uqc             = item.officialUqc
                 )
             }
             val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -271,6 +280,16 @@ class SyncManager(private val context: Context) {
                 is_credit        = p.isCredit,
                 credit_account_id = serverCreditAccountId,
                 created_at       = p.createdAt,
+                place_of_supply_code = p.placeOfSupplyCode,
+                reverse_charge   = p.reverseCharge,
+                invoice_type     = p.invoiceType,
+                supply_type      = p.supplyType,
+                cess_paid        = p.cessPaid,
+                eligibility_for_itc = p.eligibilityForItc,
+                availed_itc_integrated_tax = p.availedItcIntegratedTax,
+                availed_itc_central_tax = p.availedItcCentralTax,
+                availed_itc_state_tax = p.availedItcStateTax,
+                availed_itc_cess = p.availedItcCess,
                 items            = items
             )
         }
@@ -365,7 +384,21 @@ class SyncManager(private val context: Context) {
                 supply_type             = r.supplyType,
                 cess_amount             = r.cessAmount,
                 tax_amount              = r.cgstAmount + r.sgstAmount + r.igstAmount + r.cessAmount,
-                total_amount            = r.invoiceValue
+                total_amount            = r.invoiceValue,
+                document_type           = r.documentType,
+                document_nature         = r.documentNature,
+                document_series         = r.documentSeries,
+                pre_gst                 = r.preGst,
+                reason_for_issuing_document = r.reasonForIssuingDocument,
+                note_refund_voucher_value = r.noteRefundVoucherValue,
+                rate                    = r.rate,
+                eligibility_for_itc     = r.eligibilityForItc,
+                availed_itc_integrated_tax = r.availedItcIntegratedTax,
+                availed_itc_central_tax  = r.availedItcCentralTax,
+                availed_itc_state_tax    = r.availedItcStateTax,
+                availed_itc_cess         = r.availedItcCess,
+                invoice_type            = r.invoiceType,
+                place_of_supply_code    = r.placeOfSupplyCode
             )
         }
 

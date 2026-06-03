@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.easy_billing"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -34,6 +34,12 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/NOTICE"
             excludes += "META-INF/LICENSE"
+            // Apache POI requires these exclusions on Android
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/*.SF"
+            excludes += "META-INF/*.DSA"
+            excludes += "META-INF/*.RSA"
+            excludes += "META-INF/versions/9/module-info.class"
         }
     }
 }
@@ -80,4 +86,14 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // ===== Apache POI — GSTR-1 Excel export =====
+    // poi-ooxml covers xlsx; stax is the streaming XML parser it needs on Android.
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("org.apache.xmlbeans:xmlbeans:5.1.1")
+    implementation("com.fasterxml.woodstox:woodstox-core:6.5.1")
+
+    // Gson for GSTR-1 draft serialisation (converter-gson already pulls it in,
+    // but make it explicit so ProGuard rules apply correctly).
+    implementation("com.google.code.gson:gson:2.10.1")
 }

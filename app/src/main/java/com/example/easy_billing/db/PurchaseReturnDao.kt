@@ -35,7 +35,12 @@ interface PurchaseReturnDao {
      * totalReturned ≤ quantityPurchased before saving a debit note.
      */
     @Query("""
-        SELECT COALESCE(SUM(quantityReturned), 0.0)
+        SELECT COALESCE(SUM(
+            CASE WHEN note_type = 'D' THEN quantityReturned
+                 WHEN note_type = 'C' THEN -quantityReturned
+                 ELSE 0.0 
+            END
+        ), 0.0)
         FROM purchase_return_table
         WHERE original_invoice_id = :purchaseId AND productId = :productId
     """)
@@ -50,7 +55,20 @@ interface PurchaseReturnDao {
     @Query("""
         SELECT COALESCE(MAX(CAST(SUBSTR(note_number, 4) AS INTEGER)), 0)
         FROM purchase_return_table
-        WHERE note_number IS NOT NULL
+        WHERE note_number IS NOT NULL AND note_number LIKE 'DN-%'
     """)
     suspend fun getMaxDebitNoteSequence(): Int
+
+    /**
+     * Returns the highest credit note sequence number.
+     * The noteNumber format is "CN-XXXXX" — we extract the integer
+     * suffix with CAST(SUBSTR(note_number, 4) AS INTEGER).
+     * Returns 0 if no credit note exists yet.
+     */
+    @Query("""
+        SELECT COALESCE(MAX(CAST(SUBSTR(note_number, 4) AS INTEGER)), 0)
+        FROM purchase_return_table
+        WHERE note_number IS NOT NULL AND note_number LIKE 'CN-%'
+    """)
+    suspend fun getMaxCreditNoteSequence(): Int
 }

@@ -77,5 +77,15 @@ data class PurchaseItem(
     @ColumnInfo(name = "sales_sgst_percentage") val salesSgstPercentage: Double = 0.0,
     @ColumnInfo(name = "sales_igst_percentage") val salesIgstPercentage: Double = 0.0,
 
+    @ColumnInfo(name = "cess_percentage") val cessPercentage: Double = 0.0,
+    @ColumnInfo(name = "cess_amount") val cessAmount: Double = 0.0,
+    @ColumnInfo(name = "eligibility_for_itc") val eligibilityForItc: String = "Inputs",
+    @ColumnInfo(name = "availed_itc_igst") val availedItcIgst: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_cgst") val availedItcCgst: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_sgst") val availedItcSgst: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_cess") val availedItcCess: Double = 0.0,
+    @ColumnInfo(name = "hsn_description") val hsnDescription: String = "",
+    @ColumnInfo(name = "official_uqc") val officialUqc: String = "",
+
     @ColumnInfo(name = "is_synced") val isSynced: Boolean = false
 )

@@ -30,6 +30,7 @@ class PurchaseReturnItemAdapter(
     private val shopStateCode: String,
     private val supplierGstin: String?,
     private val supplierStateName: String?,
+    private val noteType: String = "D",
     private val maxReturnableQty: (productId: Int?, purchasedQty: Double) -> Double,
     private val onTotalChanged: (totalDebitValue: Double, totalGstReclaim: Double) -> Unit
 ) : RecyclerView.Adapter<PurchaseReturnItemAdapter.ViewHolder>() {
@@ -51,6 +52,8 @@ class PurchaseReturnItemAdapter(
         val btnIncrement:      MaterialButton    = view.findViewById(R.id.btnIncrement)
         val etReturnQty:       TextInputEditText = view.findViewById(R.id.etReturnQty)
         val tvDebitAmount:     TextView          = view.findViewById(R.id.tvDebitAmount)
+        val llMaxReturnContainer: View           = view.findViewById(R.id.llMaxReturnContainer)
+        val tvQtyInputLabel:   TextView          = view.findViewById(R.id.tvQtyInputLabel)
 
         var watcher: TextWatcher? = null
     }
@@ -68,7 +71,7 @@ class PurchaseReturnItemAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val ctx  = holder.itemView.context
         val item = items[position]
-        val max  = maxReturnableQty(item.productId, item.quantity)
+        val max  = if (noteType == "C") Double.MAX_VALUE else maxReturnableQty(item.productId, item.quantity)
 
         // Remove stale watcher
         holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
@@ -79,8 +82,8 @@ class PurchaseReturnItemAdapter(
             if (!item.variant.isNullOrBlank()) append("  ·  ${item.variant}")
         }
 
-        val alreadyReturned = item.quantity - max
-        if (alreadyReturned > 0.0) {
+        val alreadyReturned = item.quantity - (if (noteType == "C") maxReturnableQty(item.productId, item.quantity) else max)
+        if (noteType != "C" && alreadyReturned > 0.0) {
             holder.tvAlreadyReturned.visibility = View.VISIBLE
             holder.tvAlreadyReturned.text =
                 "Returned: ${formatQty(alreadyReturned)} ${item.unit ?: ""}"
@@ -111,7 +114,21 @@ class PurchaseReturnItemAdapter(
             if (item.purchaseIgstPercentage > 0) "IGST ${item.purchaseIgstPercentage.toInt()}%" else "0%"
         }
         holder.tvGstRate.text    = gstStr
-        holder.tvMaxReturn.text  = formatQty(max)
+        holder.tvMaxReturn.text  = if (noteType == "C") "N/A" else formatQty(max)
+
+        if (noteType == "C") {
+            holder.llMaxReturnContainer.visibility = View.GONE
+            holder.tvQtyInputLabel.text = "Receive Quantity"
+            val blueColor = android.graphics.Color.parseColor("#2563EB")
+            holder.btnIncrement.setTextColor(blueColor)
+            holder.btnIncrement.strokeColor = android.content.res.ColorStateList.valueOf(blueColor)
+        } else {
+            holder.llMaxReturnContainer.visibility = View.VISIBLE
+            holder.tvQtyInputLabel.text = "Return Quantity"
+            val redColor = android.graphics.Color.parseColor("#DC2626")
+            holder.btnIncrement.setTextColor(redColor)
+            holder.btnIncrement.strokeColor = android.content.res.ColorStateList.valueOf(redColor)
+        }
 
         // ── Current qty ──────────────────────────────────────────────────────
         val currentQty = returnQtyMap[item.id] ?: 0.0
@@ -120,7 +137,7 @@ class PurchaseReturnItemAdapter(
         updateDebitAmountView(holder, item, currentQty, ctx)
 
         // ── Disable row when nothing is returnable ───────────────────────────
-        val rowEnabled = max > 0.0
+        val rowEnabled = noteType == "C" || max > 0.0
         holder.btnDecrement.isEnabled = rowEnabled
         holder.btnIncrement.isEnabled = rowEnabled
         holder.etReturnQty.isEnabled  = rowEnabled
@@ -128,9 +145,9 @@ class PurchaseReturnItemAdapter(
         // ── Increment ────────────────────────────────────────────────────────
         holder.btnIncrement.setOnClickListener {
             val cur  = returnQtyMap[item.id] ?: 0.0
-            if (cur < max) {
+            if (noteType == "C" || cur < max) {
                 val step = if (item.unit?.lowercase() in listOf("kg", "g", "l", "ml")) 0.5 else 1.0
-                val next = (cur + step).coerceAtMost(max)
+                val next = if (noteType == "C") cur + step else (cur + step).coerceAtMost(max)
                 setQty(holder, item, next, ctx)
             }
         }
@@ -151,7 +168,7 @@ class PurchaseReturnItemAdapter(
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
                 val typed   = s?.toString()?.toDoubleOrNull() ?: 0.0
-                val clamped = typed.coerceIn(0.0, max)
+                val clamped = if (noteType == "C") typed else typed.coerceIn(0.0, max)
                 returnQtyMap[item.id] = clamped
                 updateDebitAmountView(holder, item, clamped, ctx)
                 notifyGrandTotal()
@@ -205,8 +222,13 @@ class PurchaseReturnItemAdapter(
 
             val total = taxable + gst
             holder.tvDebitAmount.visibility = View.VISIBLE
-            holder.tvDebitAmount.text =
-                "Debit value: ${CurrencyHelper.format(ctx, total)}"
+            if (noteType == "C") {
+                holder.tvDebitAmount.setTextColor(android.graphics.Color.parseColor("#2563EB"))
+                holder.tvDebitAmount.text = "Credit value: ${CurrencyHelper.format(ctx, total)}"
+            } else {
+                holder.tvDebitAmount.setTextColor(android.graphics.Color.parseColor("#DC2626"))
+                holder.tvDebitAmount.text = "Debit value: ${CurrencyHelper.format(ctx, total)}"
+            }
         } else {
             holder.tvDebitAmount.visibility = View.GONE
         }

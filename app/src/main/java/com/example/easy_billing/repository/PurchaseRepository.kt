@@ -189,7 +189,17 @@ class PurchaseRepository private constructor(
 
                     salesCgstPercentage = line.salesCgst,
                     salesSgstPercentage = line.salesSgst,
-                    salesIgstPercentage = line.salesIgst
+                    salesIgstPercentage = line.salesIgst,
+
+                    cessPercentage = line.cessPercentage,
+                    cessAmount = line.cessAmount,
+                    eligibilityForItc = line.eligibilityForItc,
+                    availedItcIgst = line.availedItcIgst,
+                    availedItcCgst = line.availedItcCgst,
+                    availedItcSgst = line.availedItcSgst,
+                    availedItcCess = line.availedItcCess,
+                    hsnDescription = line.hsnDescription ?: "",
+                    officialUqc = line.officialUqc ?: ""
                 )
             )
 
@@ -337,6 +347,15 @@ class PurchaseRepository private constructor(
         val hsnDescription: String? = null,
         val cessRate: Double = 0.0,
         val supplyClassification: String = "TAXABLE",
+
+        // GSTR-2 support fields
+        val cessPercentage: Double = 0.0,
+        val cessAmount: Double = 0.0,
+        val eligibilityForItc: String = "Inputs",
+        val availedItcIgst: Double = 0.0,
+        val availedItcCgst: Double = 0.0,
+        val availedItcSgst: Double = 0.0,
+        val availedItcCess: Double = 0.0,
 
         /**
          * When true, bypass the name+variant upsert lookup and force-insert

@@ -1,194 +1,385 @@
 package com.example.easy_billing
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.widget.ViewPager2
-import com.example.easy_billing.adapter.GstReportItem
-import com.example.easy_billing.adapter.GstReportsPagerAdapter
-import com.example.easy_billing.db.AppDatabase
-import com.example.easy_billing.util.GstEngine
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.gstr1.Gstr1DraftEntity
+import com.example.easy_billing.gstr1.Gstr1Report
+import com.example.easy_billing.gstr1.Gstr1SheetTabAdapter
+import com.example.easy_billing.gstr1.Gstr1Validator
+import com.example.easy_billing.viewmodel.Gstr1ViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.Dispatchers
+import androidx.viewpager2.widget.ViewPager2
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
-class GstReportsActivity : BaseActivity() {
+/**
+ * GstReportsActivity — Full GSTR-1 Preparation & Export Screen
+ *
+ * Layout: activity_gst_reports.xml
+ *
+ * Sections:
+ *  1. Header bar — FY, Period, Return-type selectors + Generate button
+ *  2. Summary card — invoice count, taxable value, tax, credit notes
+ *  3. Validation banner — errors / warnings count
+ *  4. Tab strip + ViewPager — one tab per GSTR-1 section (13 sections)
+ *  5. Action buttons — Validate, Save Draft, Export CSV, Export Excel
+ *  6. Drafts section — list of previously saved drafts
+ */
+class GstReportsActivity : AppCompatActivity() {
 
+    private val viewModel: Gstr1ViewModel by viewModels()
+
+    // ── Header selectors ──────────────────────────────────────────────────────
+    private lateinit var spinnerFY: Spinner
+    private lateinit var spinnerPeriod: Spinner
+    private lateinit var chipGroupReturnType: ChipGroup
+    private lateinit var chipMonthly: Chip
+    private lateinit var chipQuarterly: Chip
+    private lateinit var btnGenerate: MaterialButton
+    private lateinit var progressGenerate: CircularProgressIndicator
+
+    // ── GSTIN display ─────────────────────────────────────────────────────────
+    private lateinit var tvGstin: TextView
+
+    // ── Summary card ──────────────────────────────────────────────────────────
+    private lateinit var cardSummary: View
+    private lateinit var tvSummaryInvoices: TextView
+    private lateinit var tvSummaryTaxable: TextView
+    private lateinit var tvSummaryTax: TextView
+    private lateinit var tvSummaryCreditNotes: TextView
+
+    // ── Validation banner ─────────────────────────────────────────────────────
+    private lateinit var llValidationBanner: LinearLayout
+    private lateinit var tvValidationStatus: TextView
+
+    // ── Sheet tabs ────────────────────────────────────────────────────────────
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-    private lateinit var tvStartDate: TextView
-    private lateinit var tvEndDate: TextView
+    private lateinit var tabAdapter: Gstr1SheetTabAdapter
+
+    // ── Action buttons ────────────────────────────────────────────────────────
+    private lateinit var btnValidate: MaterialButton
+    private lateinit var btnSaveDraft: MaterialButton
+    private lateinit var btnExportCsv: MaterialButton
     private lateinit var btnExportExcel: MaterialButton
 
-    private lateinit var pagerAdapter: GstReportsPagerAdapter
+    // ── Drafts ────────────────────────────────────────────────────────────────
+    private lateinit var llDraftsSection: LinearLayout
+    private lateinit var rvDrafts: RecyclerView
 
-    private var startDate: Long = 0L
-    private var endDate: Long = 0L
+    // ─────────────────────────────────────────────────────────────────────────
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gst_reports)
 
-        setupToolbar(R.id.toolbar)
-        supportActionBar?.title = "GST Reports"
+        bindViews()
+        setSupportActionBar(findViewById(R.id.toolbar))
+        supportActionBar?.title = "GSTR-1 Report"
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupSelectors()
+        setupTabs()
+        setupButtons()
+        observeViewModel()
+    }
 
-        tabLayout = findViewById(R.id.tabLayout)
-        viewPager = findViewById(R.id.viewPager)
-        tvStartDate = findViewById(R.id.tvStartDate)
-        tvEndDate = findViewById(R.id.tvEndDate)
-        btnExportExcel = findViewById(R.id.btnExportExcel)
+    override fun onSupportNavigateUp(): Boolean { finish(); return true }
 
-        pagerAdapter = GstReportsPagerAdapter(this)
-        viewPager.adapter = pagerAdapter
+    // ─────────────────────────────────────────────────────────────────────────
+    //  View binding
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun bindViews() {
+        spinnerFY               = findViewById(R.id.spinnerFY)
+        spinnerPeriod           = findViewById(R.id.spinnerPeriod)
+        chipGroupReturnType     = findViewById(R.id.chipGroupReturnType)
+        chipMonthly             = findViewById(R.id.chipMonthly)
+        chipQuarterly           = findViewById(R.id.chipQuarterly)
+        btnGenerate             = findViewById(R.id.btnGenerate)
+        progressGenerate        = findViewById(R.id.progressGenerate)
+        tvGstin                 = findViewById(R.id.tvGstin)
+        cardSummary             = findViewById(R.id.cardSummary)
+        tvSummaryInvoices       = findViewById(R.id.tvSummaryInvoices)
+        tvSummaryTaxable        = findViewById(R.id.tvSummaryTaxable)
+        tvSummaryTax            = findViewById(R.id.tvSummaryTax)
+        tvSummaryCreditNotes    = findViewById(R.id.tvSummaryCreditNotes)
+        llValidationBanner      = findViewById(R.id.llValidationBanner)
+        tvValidationStatus      = findViewById(R.id.tvValidationStatus)
+        tabLayout               = findViewById(R.id.tabLayout)
+        viewPager               = findViewById(R.id.viewPager)
+        btnValidate             = findViewById(R.id.btnValidate)
+        btnSaveDraft            = findViewById(R.id.btnSaveDraft)
+        btnExportCsv            = findViewById(R.id.btnExportCsv)
+        btnExportExcel          = findViewById(R.id.btnExportExcel)
+        llDraftsSection         = findViewById(R.id.llDraftsSection)
+        rvDrafts                = findViewById(R.id.rvDrafts)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Selectors setup
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun setupSelectors() {
+        // FY spinner
+        val fyAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, viewModel.availableFYs)
+        fyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerFY.adapter = fyAdapter
+        spinnerFY.setSelection(0)
+        spinnerFY.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                viewModel.setFinancialYear(viewModel.availableFYs[pos])
+            }
+            override fun onNothingSelected(p: AdapterView<*>?) {}
+        }
+
+        // Period spinner
+        refreshPeriodSpinner()
+
+        // Return type chips
+        chipGroupReturnType.setOnCheckedStateChangeListener { _, _ ->
+            val isMonthly = chipMonthly.isChecked
+            viewModel.setReturnType(if (isMonthly) "Monthly" else "Quarterly")
+            refreshPeriodSpinner()
+        }
+    }
+
+    private fun refreshPeriodSpinner() {
+        val periods = viewModel.availablePeriods
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, periods)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerPeriod.adapter = adapter
+        spinnerPeriod.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                viewModel.setPeriod(periods[pos])
+            }
+            override fun onNothingSelected(p: AdapterView<*>?) {}
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Tabs
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun setupTabs() {
+        tabAdapter = Gstr1SheetTabAdapter(this)
+        viewPager.adapter = tabAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "GSTR-1 (Sales)"
-                1 -> "GSTR-2 (Purchases)"
-                else -> ""
-            }
+            tab.text = Gstr1SheetTabAdapter.TAB_LABELS[position]
         }.attach()
 
-        setupDateFilters()
-        
-        btnExportExcel.setOnClickListener {
-            exportToExcel()
+        // Hide tabs/pager until report is generated
+        tabLayout.visibility = View.GONE
+        viewPager.visibility = View.GONE
+        cardSummary.visibility = View.GONE
+        llValidationBanner.visibility = View.GONE
+        setActionButtonsEnabled(false)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Buttons
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun setupButtons() {
+        btnGenerate.setOnClickListener { viewModel.generateReport() }
+        btnValidate.setOnClickListener { viewModel.validateReport() }
+        btnSaveDraft.setOnClickListener { viewModel.saveDraft() }
+        btnExportCsv.setOnClickListener { viewModel.exportCsv() }
+        btnExportExcel.setOnClickListener { viewModel.exportExcel() }
+    }
+
+    private fun setActionButtonsEnabled(enabled: Boolean) {
+        btnValidate.isEnabled = enabled
+        btnSaveDraft.isEnabled = enabled
+        btnExportCsv.isEnabled = enabled
+        btnExportExcel.isEnabled = enabled
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  ViewModel observation
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun observeViewModel() {
+
+        lifecycleScope.launch {
+            viewModel.gstin.collectLatest { gstin ->
+                tvGstin.text = if (gstin.isNotBlank()) "GSTIN: $gstin" else "GST Profile not configured"
+            }
         }
-    }
 
-    private fun setupDateFilters() {
-        val calendar = Calendar.getInstance()
-        
-        // Default to current month
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        startDate = calendar.timeInMillis
-        
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
-        endDate = calendar.timeInMillis
-        
-        updateDateText()
-        
-        tvStartDate.setOnClickListener {
-            showDatePicker(true)
+        lifecycleScope.launch {
+            viewModel.isLoading.collectLatest { loading ->
+                progressGenerate.visibility = if (loading) View.VISIBLE else View.GONE
+                btnGenerate.isEnabled = !loading
+                btnGenerate.text = if (loading) "Generating…" else "Generate GSTR-1"
+            }
         }
-        
-        tvEndDate.setOnClickListener {
-            showDatePicker(false)
+
+        lifecycleScope.launch {
+            viewModel.report.collectLatest { report ->
+                report ?: return@collectLatest
+                bindReport(report)
+            }
         }
-    }
 
-    private fun updateDateText() {
-        val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        tvStartDate.text = format.format(Date(startDate))
-        tvEndDate.text = format.format(Date(endDate))
-        
-        loadReports()
-    }
+        lifecycleScope.launch {
+            viewModel.validationResult.collectLatest { result ->
+                result ?: return@collectLatest
+                bindValidation(result)
+            }
+        }
 
-    private fun showDatePicker(isStart: Boolean) {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = if (isStart) startDate else endDate
-        
-        val dpd = android.app.DatePickerDialog(
-            this,
-            { _, year, monthOfYear, dayOfMonth ->
-                val selected = Calendar.getInstance()
-                selected.set(year, monthOfYear, dayOfMonth)
-                
-                if (isStart) {
-                    selected.set(Calendar.HOUR_OF_DAY, 0)
-                    selected.set(Calendar.MINUTE, 0)
-                    startDate = selected.timeInMillis
-                } else {
-                    selected.set(Calendar.HOUR_OF_DAY, 23)
-                    selected.set(Calendar.MINUTE, 59)
-                    endDate = selected.timeInMillis
-                }
-                
-                updateDateText()
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        dpd.show()
-    }
+        lifecycleScope.launch {
+            viewModel.error.collectLatest { error ->
+                error ?: return@collectLatest
+                Toast.makeText(this@GstReportsActivity, error, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
 
-    private fun loadReports() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@GstReportsActivity)
-            val storeInfo = db.storeInfoDao().get()
-            val sellerStateCode = GstEngine.getStateCode(storeInfo?.stateCode)
-            
-            // Querying the DB for records
-            val allSales = db.gstSalesRecordDao().getAll()
-            val allPurchases = db.gstPurchaseRecordDao().getAll()
-            
-            val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            
-            val salesItems = allSales.mapNotNull { record ->
-                if (record.invoiceDate in startDate..endDate) {
-                    val isInterstate = !GstEngine.isIntrastate(sellerStateCode, GstEngine.getStateCode(record.customerGstin))
-                    GstReportItem(
-                        invoiceNumber = record.invoiceNumber,
-                        date = format.format(Date(record.invoiceDate)),
-                        gstin = record.customerGstin ?: "B2C",
-                        taxableValue = record.taxableValue,
-                        totalTax = record.cgstAmount + record.sgstAmount + record.igstAmount,
-                        isInterstate = isInterstate
-                    )
-                } else null
-            }.sortedByDescending { it.date }
+        lifecycleScope.launch {
+            viewModel.exportEvent.collectLatest { event ->
+                event ?: return@collectLatest
+                handleExportEvent(event)
+                viewModel.clearExportEvent()
+            }
+        }
 
-            val purchaseItems = allPurchases.mapNotNull { record ->
-                if (record.invoiceDate in startDate..endDate) {
-                    val isInterstate = !GstEngine.isIntrastate(sellerStateCode, GstEngine.getStateCode(record.vendorGstin))
-                    GstReportItem(
-                        invoiceNumber = record.invoiceNumber,
-                        date = format.format(Date(record.invoiceDate)),
-                        gstin = record.vendorGstin ?: "Unregistered",
-                        taxableValue = record.taxableValue,
-                        totalTax = record.cgstAmount + record.sgstAmount + record.igstAmount,
-                        isInterstate = isInterstate
-                    )
-                } else null
-            }.sortedByDescending { it.date }
-
-            withContext(Dispatchers.Main) {
-                // Wait for ViewPager fragments to be ready
-                viewPager.post {
-                    try {
-                        pagerAdapter.getFragment(0).updateData(salesItems)
-                        pagerAdapter.getFragment(1).updateData(purchaseItems)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+        lifecycleScope.launch {
+            viewModel.drafts.collectLatest { drafts ->
+                bindDrafts(drafts)
             }
         }
     }
 
-    private fun exportToExcel() {
-        Toast.makeText(this, "Exporting to Excel...", Toast.LENGTH_SHORT).show()
-        // Here you would use Apache POI to write the data to an .xlsx file.
-        // For the scope of this implementation, we simulate the action.
-        lifecycleScope.launch(Dispatchers.Main) {
-            kotlinx.coroutines.delay(1000)
-            Toast.makeText(this@GstReportsActivity, "GSTR Reports Exported Successfully", Toast.LENGTH_LONG).show()
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Report binding
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun bindReport(report: Gstr1Report) {
+        // Summary card
+        cardSummary.visibility = View.VISIBLE
+        tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
+        tvSummaryTaxable.text     = "₹%,.2f".format(report.totalTaxable)
+        tvSummaryTax.text         = "₹%,.2f".format(report.totalTax)
+        tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
+
+        // Tabs
+        tabLayout.visibility = View.VISIBLE
+        viewPager.visibility = View.VISIBLE
+        tabAdapter.updateReport(report)
+
+        setActionButtonsEnabled(true)
+    }
+
+    private fun bindValidation(result: Gstr1Validator.ValidationResult) {
+        llValidationBanner.visibility = View.VISIBLE
+
+        when {
+            result.hasErrors -> {
+                tvValidationStatus.text =
+                    "⚠ ${result.errorCount} error(s), ${result.warningCount} warning(s) — Fix errors before filing"
+                llValidationBanner.setBackgroundColor(getColor(R.color.error_banner_bg))
+            }
+            result.hasWarnings -> {
+                tvValidationStatus.text =
+                    "⚡ ${result.warningCount} warning(s) — Review before filing"
+                llValidationBanner.setBackgroundColor(getColor(R.color.warning_banner_bg))
+            }
+            else -> {
+                tvValidationStatus.text = "✓ All checks passed — Ready to export"
+                llValidationBanner.setBackgroundColor(getColor(R.color.success_banner_bg))
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Drafts
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun bindDrafts(drafts: List<Gstr1DraftEntity>) {
+        llDraftsSection.visibility = if (drafts.isEmpty()) View.GONE else View.VISIBLE
+        rvDrafts.layoutManager = LinearLayoutManager(this)
+        rvDrafts.adapter = Gstr1DraftsAdapter(drafts,
+            onOpen   = { viewModel.loadDraftById(it.id) },
+            onDelete = { confirmDeleteDraft(it) }
+        )
+    }
+
+    private fun confirmDeleteDraft(draft: Gstr1DraftEntity) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Draft?")
+            .setMessage("Delete GSTR-1 draft for ${draft.period} ${draft.financialYear}?")
+            .setPositiveButton("Delete") { _, _ -> viewModel.deleteDraft(draft.id) }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Export events
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun handleExportEvent(event: Gstr1ViewModel.ExportEvent) {
+        when (event) {
+            is Gstr1ViewModel.ExportEvent.DraftSaved -> {
+                Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
+            }
+            is Gstr1ViewModel.ExportEvent.CsvExported -> {
+                AlertDialog.Builder(this)
+                    .setTitle("CSV Export Complete")
+                    .setMessage(
+                        "${event.files.size} CSV file(s) written to:\n${event.directory}\n\n" +
+                        "Sections: ${event.files.keys.joinToString(", ")}"
+                    )
+                    .setPositiveButton("Share All") { _, _ ->
+                        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                            type = "text/csv"
+                            val uriList = ArrayList(event.files.values)
+                            putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(intent, "Share GSTR-1 CSVs"))
+                    }
+                    .setNegativeButton("OK", null)
+                    .show()
+            }
+            is Gstr1ViewModel.ExportEvent.ExcelExported -> {
+                AlertDialog.Builder(this)
+                    .setTitle("Excel Export Complete")
+                    .setMessage("Workbook saved to:\n${event.path}")
+                    .setPositiveButton("Open") { _, _ ->
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(event.uri,
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        try {
+                            startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(this, "No app found to open .xlsx files.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .setNegativeButton("OK", null)
+                    .show()
+            }
         }
     }
 }

@@ -79,11 +79,23 @@ class BatchPickerAdapter(
     override fun onBindViewHolder(holder: BatchVH, position: Int) {
         val b = batches[position]
 
-        holder.tvInvoice.text = b.invoiceNumber?.takeIf { it.isNotBlank() }
+        val invoiceText = b.invoiceNumber?.takeIf { it.isNotBlank() }
             ?: b.batchCode?.takeIf { it.isNotBlank() }
             ?: "Stock entry #${b.id}"
-        holder.tvSupplier.text = b.supplierName?.takeIf { it.isNotBlank() }
-            ?: if (b.batchCode?.startsWith("SALES_RETURN") == true) "Returned by Customer" else "Direct add-stock"
+            
+        holder.tvInvoice.text = when {
+            invoiceText == "MIGRATION" -> "Initial Stock"
+            b.batchCode?.startsWith("CN-") == true && b.invoiceNumber?.isNotBlank() == true -> "$invoiceText (Credited)"
+            else -> invoiceText
+        }
+
+        val supplierText = b.supplierName?.takeIf { it.isNotBlank() }
+            ?: if (b.batchCode?.startsWith("SALES_RETURN") == true) "Returned by Customer"
+            else if (b.batchCode?.startsWith("CN-") == true || b.batchCode?.startsWith("DN-") == true) "Supplier Adjustment"
+            else if (b.batchCode == "MIGRATION") "System Migration"
+            else "Direct add-stock"
+            
+        holder.tvSupplier.text = supplierText
         holder.tvMeta.text = buildString {
             append(dateFmt.format(Date(b.createdAt)))
             append("  ·  ₹")
@@ -121,6 +133,14 @@ class BatchPickerAdapter(
                     holder.etQty.setText(formatted)
                     holder.etQty.setSelection(formatted.length)
                     holder.etQty.addTextChangedListener(this)
+
+                    if (v > b.quantityRemaining) {
+                        android.widget.Toast.makeText(
+                            holder.itemView.context,
+                            "Only ${formatNum(b.quantityRemaining)} available in this batch. Debit the rest from the next batch.",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
 
                 if (clamped > 0.0) selected[position] = clamped

@@ -26,6 +26,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ImageView
 import com.example.easy_billing.db.Product
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,6 +81,23 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var btnChangeAccount: MaterialButton
     private lateinit var btnClearAccount: MaterialButton
 
+    // GSTR-2 ITC Details
+    private lateinit var etPlaceOfSupplyCode: AutoCompleteTextView
+    private lateinit var switchReverseCharge: com.google.android.material.materialswitch.MaterialSwitch
+    private lateinit var etInvoiceType: AutoCompleteTextView
+    private lateinit var etSupplyType: AutoCompleteTextView
+    private lateinit var etCessPaid: TextInputEditText
+    private lateinit var etEligibilityForItc: AutoCompleteTextView
+    private lateinit var etAvailedItcIntegrated: TextInputEditText
+    private lateinit var etAvailedItcCentral: TextInputEditText
+    private lateinit var etAvailedItcState: TextInputEditText
+    private lateinit var etAvailedItcCess: TextInputEditText
+    private lateinit var tilAvailedItcIntegrated: TextInputLayout
+    private lateinit var tilAvailedItcCentral: TextInputLayout
+    private lateinit var tilAvailedItcState: TextInputLayout
+    private lateinit var tilAvailedItcCess: TextInputLayout
+    private var shopStateCode: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase)
@@ -92,6 +111,7 @@ class PurchaseActivity : BaseActivity() {
         observe()
         recomputeHeaderValid()
 
+        fetchShopStateCode()
         handlePrefill()
     }
 
@@ -160,7 +180,26 @@ class PurchaseActivity : BaseActivity() {
         btnChangeAccount = findViewById(R.id.btnChangeAccount)
         btnClearAccount = findViewById(R.id.btnClearAccount)
 
+        // Bind GSTR-2 Views
+        etPlaceOfSupplyCode = findViewById(R.id.etPlaceOfSupplyCode)
+        switchReverseCharge = findViewById(R.id.switchReverseCharge)
+        etInvoiceType = findViewById(R.id.etInvoiceType)
+        etSupplyType = findViewById(R.id.etSupplyType)
+        etCessPaid = findViewById(R.id.etCessPaid)
+        etEligibilityForItc = findViewById(R.id.etEligibilityForItc)
+        etAvailedItcIntegrated = findViewById(R.id.etAvailedItcIntegrated)
+        etAvailedItcCentral = findViewById(R.id.etAvailedItcCentral)
+        etAvailedItcState = findViewById(R.id.etAvailedItcState)
+        etAvailedItcCess = findViewById(R.id.etAvailedItcCess)
+        tilAvailedItcIntegrated = findViewById(R.id.tilAvailedItcIntegrated)
+        tilAvailedItcCentral = findViewById(R.id.tilAvailedItcCentral)
+        tilAvailedItcState = findViewById(R.id.tilAvailedItcState)
+        tilAvailedItcCess = findViewById(R.id.tilAvailedItcCess)
+
+        etCessPaid.setText("0.0")
+
         setupStateSuggestions()
+        setupGstr2Dropdowns()
     }
 
     private fun setupStateSuggestions() {
@@ -172,6 +211,98 @@ class PurchaseActivity : BaseActivity() {
         etState.setOnClickListener { etState.showDropDown() }
     }
 
+    private fun setupGstr2Dropdowns() {
+        // Place of Supply Code: "code - state name"
+        val stateCodesList = com.example.easy_billing.util.GstEngine.INDIA_STATES.map { "${it.key} - ${it.value}" }
+        val posAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, stateCodesList)
+        etPlaceOfSupplyCode.setAdapter(posAdapter)
+        etPlaceOfSupplyCode.setOnClickListener { etPlaceOfSupplyCode.showDropDown() }
+
+        // Invoice Type
+        val invoiceTypes = listOf("Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp")
+        val invTypeAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, invoiceTypes)
+        etInvoiceType.setAdapter(invTypeAdapter)
+        etInvoiceType.setText("Regular", false)
+        etInvoiceType.setOnClickListener { etInvoiceType.showDropDown() }
+
+        // Supply Type
+        val supplyTypes = listOf("intrastate", "interstate")
+        val supplyTypeAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, supplyTypes)
+        etSupplyType.setAdapter(supplyTypeAdapter)
+        etSupplyType.setText("intrastate", false)
+        etSupplyType.setOnClickListener { etSupplyType.showDropDown() }
+
+        // Eligibility For ITC
+        val eligibilityTypes = listOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
+        val eligibilityAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, eligibilityTypes)
+        etEligibilityForItc.setAdapter(eligibilityAdapter)
+        etEligibilityForItc.setText("Inputs", false)
+        etEligibilityForItc.setOnClickListener { etEligibilityForItc.showDropDown() }
+    }
+
+    private fun fetchShopStateCode() {
+        lifecycleScope.launch {
+            val code = withContext(Dispatchers.IO) {
+                val db = com.example.easy_billing.db.AppDatabase
+                    .getDatabase(this@PurchaseActivity)
+                val gst = db.gstProfileDao().get()
+                val store = db.storeInfoDao().get()
+                gst?.stateCode?.takeIf { it.isNotBlank() }
+                    ?: com.example.easy_billing.util.GstEngine
+                        .getStateCode(store?.gstin)
+            }
+            shopStateCode = code
+            detectSupplyType()
+        }
+    }
+
+    private fun detectSupplyType() {
+        if (shopStateCode.isBlank()) return
+        val supplierState = etState.text?.toString()?.trim().orEmpty()
+        val supplierStateCode = com.example.easy_billing.util.GstEngine
+            .getStateCodeFromName(supplierState) ?: ""
+
+        val placeOfSupplyCodeText = etPlaceOfSupplyCode.text?.toString()?.trim().orEmpty()
+        val placeOfSupplyCode = placeOfSupplyCodeText.split(" - ").firstOrNull()?.trim() ?: ""
+
+        val codeToCompare = if (placeOfSupplyCode.isNotBlank()) placeOfSupplyCode else supplierStateCode
+
+        if (codeToCompare.isNotBlank()) {
+            val sameState = shopStateCode == codeToCompare
+            val detectedType = if (sameState) "intrastate" else "interstate"
+            etSupplyType.setText(detectedType, false)
+        }
+    }
+
+    private fun updateAvailedItcValues() {
+        val eligibility = etEligibilityForItc.text.toString().trim()
+        val totals = computeTotals()
+        val cess = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
+
+        if (eligibility == "Ineligible" || eligibility == "None") {
+            etAvailedItcIntegrated.setText("0.0")
+            etAvailedItcCentral.setText("0.0")
+            etAvailedItcState.setText("0.0")
+            etAvailedItcCess.setText("0.0")
+
+            etAvailedItcIntegrated.isEnabled = false
+            etAvailedItcCentral.isEnabled = false
+            etAvailedItcState.isEnabled = false
+            etAvailedItcCess.isEnabled = false
+        } else {
+            etAvailedItcIntegrated.isEnabled = true
+            etAvailedItcCentral.isEnabled = true
+            etAvailedItcState.isEnabled = true
+            etAvailedItcCess.isEnabled = true
+
+            // Default to paid tax amounts
+            etAvailedItcIntegrated.setText(totals.igstAmt.toString())
+            etAvailedItcCentral.setText(totals.cgstAmt.toString())
+            etAvailedItcState.setText(totals.sgstAmt.toString())
+            etAvailedItcCess.setText(cess.toString())
+        }
+    }
+
     private fun setupRecycler() {
         rv.layoutManager = LinearLayoutManager(this)
         adapter = PurchaseLinesAdapter(emptyList()) { idx -> viewModel.removeLine(idx) }
@@ -179,8 +310,35 @@ class PurchaseActivity : BaseActivity() {
     }
 
     private fun wireActions() {
-        listOf(etInvoiceNumber, etSupplierName, etState).forEach { input ->
+        listOf(etInvoiceNumber, etSupplierName).forEach { input ->
             input.addTextChangedListener { recomputeHeaderValid() }
+        }
+
+        etState.addTextChangedListener {
+            val supplierState = etState.text?.toString()?.trim().orEmpty()
+            val code = com.example.easy_billing.util.GstEngine.getStateCodeFromName(supplierState)
+            if (code != null) {
+                val name = com.example.easy_billing.util.GstEngine.INDIA_STATES[code]
+                if (name != null) {
+                    etPlaceOfSupplyCode.setText("$code - $name", false)
+                }
+            }
+            detectSupplyType()
+            recomputeHeaderValid()
+        }
+
+        etPlaceOfSupplyCode.addTextChangedListener {
+            detectSupplyType()
+        }
+
+        etCessPaid.addTextChangedListener {
+            val totals = computeTotals()
+            tvInvoiceTotal.text = "%.2f".format(totals.invoice)
+            updateAvailedItcValues()
+        }
+
+        etEligibilityForItc.addTextChangedListener {
+            updateAvailedItcValues()
         }
 
         btnAddLine.setOnClickListener {
@@ -212,7 +370,75 @@ class PurchaseActivity : BaseActivity() {
                 etInvoiceDate.error = "Invoice date cannot be in the future"
                 return@setOnClickListener
             }
+
+            // GSTR-2 validation
+            val placeOfSupplyCodeText = etPlaceOfSupplyCode.text?.toString()?.trim().orEmpty()
+            val placeOfSupplyCode = placeOfSupplyCodeText.split(" - ").firstOrNull()?.trim() ?: ""
+            if (placeOfSupplyCode.isEmpty()) {
+                Toast.makeText(this, "Place of Supply Code is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val reverseCharge = if (switchReverseCharge.isChecked) "Y" else "N"
+            val invoiceType = etInvoiceType.text?.toString()?.trim().orEmpty()
+            if (invoiceType.isEmpty()) {
+                Toast.makeText(this, "Invoice Type is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val supplyType = etSupplyType.text?.toString()?.trim().orEmpty()
+            if (supplyType != "intrastate" && supplyType != "interstate") {
+                Toast.makeText(this, "Supply Type must be intrastate or interstate", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val cessPaid = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
+            if (cessPaid < 0.0) {
+                Toast.makeText(this, "Cess Paid must be >= 0", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val eligibility = etEligibilityForItc.text?.toString()?.trim().orEmpty()
+            if (eligibility.isEmpty()) {
+                Toast.makeText(this, "Eligibility For ITC is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val availedItcIntegrated = etAvailedItcIntegrated.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedItcCentral = etAvailedItcCentral.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedItcState = etAvailedItcState.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedItcCess = etAvailedItcCess.text?.toString()?.toDoubleOrNull() ?: 0.0
+
+            if (availedItcIntegrated < 0.0 || availedItcCentral < 0.0 || availedItcState < 0.0 || availedItcCess < 0.0) {
+                Toast.makeText(this, "Availed ITC fields must be >= 0", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val totals = computeTotals()
+            if (availedItcIntegrated > totals.igstAmt) {
+                Toast.makeText(this, "Availed ITC Integrated Tax cannot exceed IGST amount (${totals.igstAmt})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (availedItcCentral > totals.cgstAmt) {
+                Toast.makeText(this, "Availed ITC Central Tax cannot exceed CGST amount (${totals.cgstAmt})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (availedItcState > totals.sgstAmt) {
+                Toast.makeText(this, "Availed ITC State Tax cannot exceed SGST amount (${totals.sgstAmt})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (availedItcCess > cessPaid) {
+                Toast.makeText(this, "Availed ITC Cess cannot exceed Cess Paid ($cessPaid)", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (eligibility == "Ineligible" || eligibility == "None") {
+                if (availedItcIntegrated != 0.0 || availedItcCentral != 0.0 || availedItcState != 0.0 || availedItcCess != 0.0) {
+                    Toast.makeText(this, "Availed ITC fields must be 0 when ineligible/None", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+            }
+
             val cgstPct = if (totals.taxable > 0) totals.cgstAmt / totals.taxable * 100 else 0.0
             val sgstPct = if (totals.taxable > 0) totals.sgstAmt / totals.taxable * 100 else 0.0
             val igstPct = if (totals.taxable > 0) totals.igstAmt / totals.taxable * 100 else 0.0
@@ -234,7 +460,17 @@ class PurchaseActivity : BaseActivity() {
                     invoiceValue   = totals.invoice,
                     invoiceDate    = pickedInvoiceDate,
                     isCredit       = rbCredit.isChecked,
-                    creditAccountId = viewModel.selectedCreditAccount.value?.id
+                    creditAccountId = viewModel.selectedCreditAccount.value?.id,
+                    placeOfSupplyCode = placeOfSupplyCode,
+                    reverseCharge  = reverseCharge,
+                    invoiceType    = invoiceType,
+                    supplyType     = supplyType,
+                    cessPaid       = cessPaid,
+                    eligibilityForItc = eligibility,
+                    availedItcIntegratedTax = availedItcIntegrated,
+                    availedItcCentralTax = availedItcCentral,
+                    availedItcStateTax = availedItcState,
+                    availedItcCess = availedItcCess
                 )
             )
         }
@@ -259,6 +495,12 @@ class PurchaseActivity : BaseActivity() {
             }
         }
 
+        btnChangeAccount.setOnClickListener {
+            com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
+                viewModel.selectCreditAccount(account)
+            }
+        }
+
         btnClearAccount.setOnClickListener {
             viewModel.clearCreditAccount()
             rbNotCredit.isChecked = true
@@ -274,6 +516,7 @@ class PurchaseActivity : BaseActivity() {
                         val totals = computeTotals()
                         tvTaxableTotal.text = "%.2f".format(totals.taxable)
                         tvInvoiceTotal.text = "%.2f".format(totals.invoice)
+                        updateAvailedItcValues()
                         recomputeHeaderValid()
                     }
                 }
@@ -371,6 +614,121 @@ class PurchaseActivity : BaseActivity() {
         spinnerSupplyClassPurchase.setAdapter(
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST"))
         )
+
+        // ── GSTR-2 product master / transaction fields ──
+        val llGstr2HeaderToggle = view.findViewById<LinearLayout>(R.id.llGstr2HeaderToggle)
+        val ivGstr2ToggleArrow  = view.findViewById<ImageView>(R.id.ivGstr2ToggleArrow)
+        val llGstr2ItemDetails  = view.findViewById<LinearLayout>(R.id.llGstr2ItemDetails)
+
+        llGstr2HeaderToggle.setOnClickListener {
+            if (llGstr2ItemDetails.visibility == View.VISIBLE) {
+                llGstr2ItemDetails.visibility = View.GONE
+                ivGstr2ToggleArrow.rotation = 0f
+            } else {
+                llGstr2ItemDetails.visibility = View.VISIBLE
+                ivGstr2ToggleArrow.rotation = 180f
+            }
+        }
+
+        val etCessAmountPurchase = view.findViewById<TextInputEditText>(R.id.etCessAmountPurchase)
+        val spinnerEligibilityItemPurchase = view.findViewById<AutoCompleteTextView>(R.id.spinnerEligibilityItemPurchase)
+        val etAvailedItcIgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcIgstPurchase)
+        val etAvailedItcCgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcCgstPurchase)
+        val etAvailedItcSgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcSgstPurchase)
+        val etAvailedItcCessPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcCessPurchase)
+
+        val eligibilityOptions = listOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
+        spinnerEligibilityItemPurchase.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, eligibilityOptions)
+        )
+        spinnerEligibilityItemPurchase.setText("Inputs", false)
+
+        var userOverroteCess = false
+        etCessAmountPurchase.addTextChangedListener {
+            if (etCessAmountPurchase.isFocused) userOverroteCess = true
+        }
+
+        var userOverroteAvailedIgst = false
+        var userOverroteAvailedCgst = false
+        var userOverroteAvailedSgst = false
+        var userOverroteAvailedCess = false
+
+        etAvailedItcIgstPurchase.addTextChangedListener { if (etAvailedItcIgstPurchase.isFocused) userOverroteAvailedIgst = true }
+        etAvailedItcCgstPurchase.addTextChangedListener { if (etAvailedItcCgstPurchase.isFocused) userOverroteAvailedCgst = true }
+        etAvailedItcSgstPurchase.addTextChangedListener { if (etAvailedItcSgstPurchase.isFocused) userOverroteAvailedSgst = true }
+        etAvailedItcCessPurchase.addTextChangedListener { if (etAvailedItcCessPurchase.isFocused) userOverroteAvailedCess = true }
+
+        val recomputeCessAndItc = recomputeCessAndItc@{
+            val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val cessPercent = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+
+            val computedCessAmount = if (taxable > 0) taxable * cessPercent / 100.0 else 0.0
+
+            if (!userOverroteCess) {
+                val roundedCess = "%.2f".format(computedCessAmount)
+                if (etCessAmountPurchase.text?.toString() != roundedCess) {
+                    etCessAmountPurchase.setText(roundedCess)
+                }
+            }
+
+            val eligibility = spinnerEligibilityItemPurchase.text.toString().trim()
+            val cessAmountVal = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: computedCessAmount
+
+            val cgstPercent = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val sgstPercent = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val igstPercent = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+
+            val cgstAmt = taxable * cgstPercent / 100.0
+            val sgstAmt = taxable * sgstPercent / 100.0
+            val igstAmt = taxable * igstPercent / 100.0
+
+            if (eligibility in listOf("Ineligible", "None")) {
+                etAvailedItcIgstPurchase.setText("0.0")
+                etAvailedItcCgstPurchase.setText("0.0")
+                etAvailedItcSgstPurchase.setText("0.0")
+                etAvailedItcCessPurchase.setText("0.0")
+
+                // Disable fields visually
+                listOf(etAvailedItcIgstPurchase, etAvailedItcCgstPurchase, etAvailedItcSgstPurchase, etAvailedItcCessPurchase).forEach {
+                    it.isEnabled = false
+                    it.alpha = 0.5f
+                    (it.parent.parent as? TextInputLayout)?.isEnabled = false
+                }
+            } else {
+                // Enable fields
+                listOf(etAvailedItcIgstPurchase, etAvailedItcCgstPurchase, etAvailedItcSgstPurchase, etAvailedItcCessPurchase).forEach {
+                    it.isEnabled = true
+                    it.alpha = 1.0f
+                    (it.parent.parent as? TextInputLayout)?.isEnabled = true
+                }
+
+                if (!userOverroteAvailedIgst) {
+                    etAvailedItcIgstPurchase.setText("%.2f".format(igstAmt))
+                }
+                if (!userOverroteAvailedCgst) {
+                    etAvailedItcCgstPurchase.setText("%.2f".format(cgstAmt))
+                }
+                if (!userOverroteAvailedSgst) {
+                    etAvailedItcSgstPurchase.setText("%.2f".format(sgstAmt))
+                }
+                if (!userOverroteAvailedCess) {
+                    etAvailedItcCessPurchase.setText("%.2f".format(cessAmountVal))
+                }
+            }
+        }
+
+        listOf(etTax, etCessRatePurchase, etPCgst, etPSgst, etPIgst).forEach {
+            it.addTextChangedListener { recomputeCessAndItc() }
+        }
+        spinnerEligibilityItemPurchase.addTextChangedListener { recomputeCessAndItc() }
+
+        etCessAmountPurchase.addTextChangedListener {
+            val eligibility = spinnerEligibilityItemPurchase.text.toString().trim()
+            if (eligibility !in listOf("Ineligible", "None") && !userOverroteAvailedCess) {
+                val cessVal = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+                etAvailedItcCessPurchase.setText("%.2f".format(cessVal))
+            }
+        }
 
         val productRepo = ProductRepository.get(this)
         val verifyRepo  = ProductVerificationRepository.get(this)
@@ -748,6 +1106,59 @@ class PurchaseActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
+            val cessPercent = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val cessAmt = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val eligibility = spinnerEligibilityItemPurchase.text?.toString()?.trim().orEmpty()
+            val availedIgst = etAvailedItcIgstPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedCgst = etAvailedItcCgstPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedSgst = etAvailedItcSgstPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedCess = etAvailedItcCessPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val officialUqc = UqcMapper.displayToCode(spinnerUqcPurchase.text?.toString())
+
+            // Purchase tax amounts
+            val purchaseCgstAmt = taxable * (etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0) / 100.0
+            val purchaseSgstAmt = taxable * (etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0) / 100.0
+            val purchaseIgstAmt = taxable * (etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0) / 100.0
+
+            if (cessPercent < 0 || cessAmt < 0 || availedIgst < 0 || availedCgst < 0 || availedSgst < 0 || availedCess < 0) {
+                Toast.makeText(this, "Negative GSTR-2 values are not allowed", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (eligibility.isEmpty()) {
+                Toast.makeText(this, "Eligibility for ITC is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (officialUqc.isNullOrBlank()) {
+                Toast.makeText(this, "Official UQC (GST Unit) is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val eps = 0.011
+            if (availedIgst > purchaseIgstAmt + eps) {
+                Toast.makeText(this, "Availed ITC IGST cannot exceed purchase IGST amount (${"%.2f".format(purchaseIgstAmt)})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (availedCgst > purchaseCgstAmt + eps) {
+                Toast.makeText(this, "Availed ITC CGST cannot exceed purchase CGST amount (${"%.2f".format(purchaseCgstAmt)})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (availedSgst > purchaseSgstAmt + eps) {
+                Toast.makeText(this, "Availed ITC SGST cannot exceed purchase SGST amount (${"%.2f".format(purchaseSgstAmt)})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (availedCess > cessAmt + eps) {
+                Toast.makeText(this, "Availed ITC Cess cannot exceed cess amount (${"%.2f".format(cessAmt)})", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (eligibility in listOf("Ineligible", "None")) {
+                if (availedIgst > 0.01 || availedCgst > 0.01 || availedSgst > 0.01 || availedCess > 0.01) {
+                    Toast.makeText(this, "Availed ITC must be 0 when Ineligible or None", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+            }
+
+            val finalHsnDesc = etHsnDescPurchase.text?.toString()?.trim().orEmpty().ifBlank { name }
             val variant = etVariant.text?.toString()?.trim()?.takeIf { it.isNotBlank() }
 
             val draft = PurchaseItemDraft(
@@ -766,9 +1177,16 @@ class PurchaseActivity : BaseActivity() {
                 salesCgst      = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 salesSgst      = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 salesIgst      = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
-                officialUqc    = UqcMapper.displayToCode(spinnerUqcPurchase.text?.toString()),
-                hsnDescription = etHsnDescPurchase.text?.toString()?.trim()?.ifBlank { null },
-                cessRate       = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                officialUqc    = officialUqc,
+                hsnDescription = finalHsnDesc,
+                cessRate       = cessPercent,
+                cessPercentage = cessPercent,
+                cessAmount     = cessAmt,
+                eligibilityForItc = eligibility,
+                availedItcIgst = availedIgst,
+                availedItcCgst = availedCgst,
+                availedItcSgst = availedSgst,
+                availedItcCess = availedCess,
                 supplyClassification = spinnerSupplyClassPurchase.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
             )
 
@@ -922,7 +1340,8 @@ class PurchaseActivity : BaseActivity() {
             sgstAmt += line.taxableAmount * line.purchaseSgst / 100.0
             igstAmt += line.taxableAmount * line.purchaseIgst / 100.0
         }
-        return Totals(taxable, invoice, cgstAmt, sgstAmt, igstAmt)
+        val cess = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
+        return Totals(taxable, invoice + cess, cgstAmt, sgstAmt, igstAmt)
     }
 
     private data class Totals(

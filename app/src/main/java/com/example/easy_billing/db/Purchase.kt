@@ -52,5 +52,16 @@ data class Purchase(
     // Credit Integration
     @ColumnInfo(name = "is_credit")          val isCredit: Boolean = false,
     @ColumnInfo(name = "credit_account_id")   val creditAccountId: Int? = null,
-    @ColumnInfo(name = "credit_transaction_id") val creditTransactionId: Int? = null
+    @ColumnInfo(name = "credit_transaction_id") val creditTransactionId: Int? = null,
+
+    @ColumnInfo(name = "place_of_supply_code") val placeOfSupplyCode: String = "",
+    @ColumnInfo(name = "reverse_charge") val reverseCharge: String = "N",
+    @ColumnInfo(name = "invoice_type") val invoiceType: String = "Regular",
+    @ColumnInfo(name = "supply_type") val supplyType: String = "intrastate",
+    @ColumnInfo(name = "cess_paid") val cessPaid: Double = 0.0,
+    @ColumnInfo(name = "eligibility_for_itc") val eligibilityForItc: String = "Inputs",
+    @ColumnInfo(name = "availed_itc_integrated_tax") val availedItcIntegratedTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_central_tax") val availedItcCentralTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_state_tax") val availedItcStateTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_cess") val availedItcCess: Double = 0.0
 )

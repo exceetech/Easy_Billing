@@ -42,4 +42,14 @@
     <color name="gray">#6B7280</color>
     <color name="light_gray">#E5E7EB</color>
 
+    <!-- Aliases used by GSTR-1 UI -->
+    <color name="colorPrimary">#2563AB</color>
+    <color name="colorAccent">#059669</color>
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#4B5563</color>
+    <color name="surface_background">#F9FAFB</color>
+    <color name="error_banner_bg">#DC2626</color>
+    <color name="warning_banner_bg">#F59E0B</color>
+    <color name="success_banner_bg">#10B981</color>
+
 </resources>

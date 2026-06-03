@@ -90,6 +90,16 @@ data class PurchaseDto(
     val is_credit: Boolean = false,
     val credit_account_id: Int? = null,
     val created_at: Long,
+    val place_of_supply_code: String = "",
+    val reverse_charge: String = "N",
+    val invoice_type: String = "Regular",
+    val supply_type: String = "intrastate",
+    val cess_paid: Double = 0.0,
+    val eligibility_for_itc: String = "Inputs",
+    val availed_itc_integrated_tax: Double = 0.0,
+    val availed_itc_central_tax: Double = 0.0,
+    val availed_itc_state_tax: Double = 0.0,
+    val availed_itc_cess: Double = 0.0,
     val items: List<PurchaseItemDto>
 )
 
@@ -114,7 +124,17 @@ data class PurchaseItemDto(
 
     val sales_cgst_percentage: Double,
     val sales_sgst_percentage: Double,
-    val sales_igst_percentage: Double
+    val sales_igst_percentage: Double,
+
+    val cess_percentage: Double = 0.0,
+    val cess_amount: Double = 0.0,
+    val eligibility_for_itc: String = "Inputs",
+    val availed_itc_igst: Double = 0.0,
+    val availed_itc_cgst: Double = 0.0,
+    val availed_itc_sgst: Double = 0.0,
+    val availed_itc_cess: Double = 0.0,
+    val hsn_description: String = "",
+    val official_uqc: String = ""
 )
 
 data class PurchaseSyncResponse(
@@ -163,7 +183,21 @@ data class PurchaseReturnDto(
     val supply_type: String = "intrastate",
     val cess_amount: Double = 0.0,
     val tax_amount: Double = 0.0,
-    val total_amount: Double = 0.0
+    val total_amount: Double = 0.0,
+    val document_type: String = "Debit Note",
+    val document_nature: String? = null,
+    val document_series: String? = null,
+    val pre_gst: String = "N",
+    val reason_for_issuing_document: String = "Purchase return",
+    val note_refund_voucher_value: Double = 0.0,
+    val rate: Double = 0.0,
+    val eligibility_for_itc: String = "Inputs",
+    val availed_itc_integrated_tax: Double = 0.0,
+    val availed_itc_central_tax: Double = 0.0,
+    val availed_itc_state_tax: Double = 0.0,
+    val availed_itc_cess: Double = 0.0,
+    val invoice_type: String = "Regular",
+    val place_of_supply_code: String = ""
 )
 
 /* ---------- Scrap ---------- */

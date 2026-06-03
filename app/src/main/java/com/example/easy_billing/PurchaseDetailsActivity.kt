@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
@@ -198,10 +199,20 @@ class PurchaseDetailsActivity : AppCompatActivity() {
             Toast.makeText(this, "Purchase not loaded yet.", Toast.LENGTH_SHORT).show()
             return
         }
-        val intent = Intent(this, PurchaseReturnActivity::class.java).apply {
-            putExtra("PURCHASE_ID", p.id)
-        }
-        startActivity(intent)
+        val options = arrayOf("Raise Debit Note (Return Goods)", "Receive Credit Note (Additional Stock/Value)")
+        AlertDialog.Builder(this)
+            .setTitle("Select Transaction Type")
+            .setItems(options) { dialog, which ->
+                val noteType = if (which == 0) "D" else "C"
+                val intent = Intent(this, PurchaseReturnActivity::class.java).apply {
+                    putExtra("PURCHASE_ID", p.id)
+                    putExtra("NOTE_TYPE", noteType)
+                }
+                startActivity(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun formatQty(q: Double) =

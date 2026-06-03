@@ -540,6 +540,16 @@ class InventoryReductionRepository private constructor(
             grandTotalIgst += roundedIgst
         }
 
+        // Inventory row + log + transaction. skipBatchConsume = true
+        // because we will do the per-batch debit below.
+        InventoryManager.reduceStock(
+            db = db,
+            productId = productId,
+            quantity = grandTotalQuantity,
+            type = "RETURN",
+            skipBatchConsume = true
+        )
+
         // Debit the specific batches the user picked. This walks each
         // line via PurchaseBatchDao.reduceBatchQuantity which refuses
         // to drive a batch negative.
@@ -549,16 +559,6 @@ class InventoryReductionRepository private constructor(
             lines = resolved.map { (b, qty) ->
                 InventoryValuation.BatchReduction(batchId = b.id, quantity = qty)
             }
-        )
-
-        // Inventory row + log + transaction. skipBatchConsume = true
-        // because we just did the per-batch debit above.
-        InventoryManager.reduceStock(
-            db = db,
-            productId = productId,
-            quantity = grandTotalQuantity,
-            type = "RETURN",
-            skipBatchConsume = true
         )
 
         // Optional credit adjustment.
@@ -725,6 +725,16 @@ class InventoryReductionRepository private constructor(
             grandTotalIgst += roundedIgst
         }
 
+        // Inventory row + log + transaction. skipBatchConsume = true
+        // because we will do the per-batch debit below.
+        InventoryManager.reduceStock(
+            db = db,
+            productId = productId,
+            quantity = grandTotalQuantity,
+            type = "LOSS",
+            skipBatchConsume = true
+        )
+
         // Debit the specific batches the user picked.
         InventoryValuation.reduceBatches(
             db = db,
@@ -732,16 +742,6 @@ class InventoryReductionRepository private constructor(
             lines = resolved.map { (b, qty) ->
                 InventoryValuation.BatchReduction(batchId = b.id, quantity = qty)
             }
-        )
-
-        // Inventory row + log + transaction. skipBatchConsume = true
-        // because we just did the per-batch debit above.
-        InventoryManager.reduceStock(
-            db = db,
-            productId = productId,
-            quantity = grandTotalQuantity,
-            type = "LOSS",
-            skipBatchConsume = true
         )
 
         BatchScrapResult(

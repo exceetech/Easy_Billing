@@ -92,13 +92,31 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
      *
      * @param lines  Map of PurchaseItem → returnQty.
      */
-    fun submitReturn(lines: Map<PurchaseItem, Double>) {
+
+
+    fun submitReturn(
+        lines: Map<PurchaseItem, Double>,
+        noteType: String = "D",
+        preGst: String = "N",
+        documentType: String = "Debit Note",
+        reasonForIssuingDocument: String = "Purchase return",
+        noteRefundVoucherValue: Double = 0.0,
+        rate: Double = 0.0,
+        eligibilityForItc: String = "Inputs",
+        availedItcIntegratedTax: Double = 0.0,
+        availedItcCentralTax: Double = 0.0,
+        availedItcStateTax: Double = 0.0,
+        availedItcCess: Double = 0.0,
+        invoiceType: String = "Regular",
+        placeOfSupplyCode: String = ""
+    ) {
         viewModelScope.launch {
             val p = _purchase.value ?: return@launch
 
             // ── Validate ──────────────────────────────────────────────────────
+            val actionLabel = if (noteType == "D") "return" else "additional"
             if (lines.isEmpty() || lines.values.all { it <= 0.0 }) {
-                _result.value = Result.ValidationError("Enter at least one return quantity.")
+                _result.value = Result.ValidationError("Enter at least one $actionLabel quantity.")
                 return@launch
             }
             for ((item, qty) in lines) {
@@ -109,13 +127,116 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                     return@launch
                 }
                 if (qty == 0.0) continue
-                val max = maxReturnableQty(item.productId, item.quantity)
-                if (qty > max) {
-                    _result.value = Result.ValidationError(
-                        "'${item.productName}': max returnable is %.2f.".format(max)
-                    )
+                if (noteType == "D") {
+                    val max = maxReturnableQty(item.productId, item.quantity)
+                    if (qty > max) {
+                        _result.value = Result.ValidationError(
+                            "'${item.productName}': max returnable is %.2f.".format(max)
+                        )
+                        return@launch
+                    }
+                }
+            }
+
+            val store = db.storeInfoDao().get()
+            val gst   = db.gstProfileDao().get()
+            val stateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
+                ?: GstEngine.getStateCode(store?.gstin)
+
+            // Calculate actual totals to validate against
+            var cgstTotal = 0.0
+            var sgstTotal = 0.0
+            var igstTotal = 0.0
+            var cessTotal = 0.0
+            var taxableTotal = 0.0
+
+            for ((item, qty) in lines) {
+                if (qty <= 0.0) continue
+                val supplierState = GstEngine.getStateCodeFromName(p.state) ?: GstEngine.getStateCode(p.supplierGstin)
+                val sameState = if (stateCode.isNotBlank() && supplierState.isNotBlank()) stateCode == supplierState else item.purchaseIgstPercentage <= 0.0
+                val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
+                val taxable = qty * unitTaxable
+                val cgstAmt = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
+                val sgstAmt = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
+                val igstAmt = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
+                val cessAmt = if (item.quantity > 0.0) (qty / item.quantity) * item.cessAmount else 0.0
+
+                cgstTotal += cgstAmt
+                sgstTotal += sgstAmt
+                igstTotal += igstAmt
+                cessTotal += cessAmt
+                taxableTotal += taxable
+            }
+
+            val round = { v: Double -> Math.round(v * 100.0) / 100.0 }
+            val rCgst = round(cgstTotal)
+            val rSgst = round(sgstTotal)
+            val rIgst = round(igstTotal)
+            val rCess = round(cessTotal)
+            val rTaxable = round(taxableTotal)
+
+            // Perform GSTR-2 validations
+            if (preGst != "Y" && preGst != "N") {
+                _result.value = Result.ValidationError("Pre GST must be Y or N.")
+                return@launch
+            }
+            if (documentType.isBlank()) {
+                _result.value = Result.ValidationError("Document Type is required.")
+                return@launch
+            }
+            if (reasonForIssuingDocument.isBlank()) {
+                _result.value = Result.ValidationError("Reason for Issuing Document is required.")
+                return@launch
+            }
+            if (noteRefundVoucherValue <= 0) {
+                _result.value = Result.ValidationError("Note/Refund Voucher Value must be > 0.")
+                return@launch
+            }
+            if (noteRefundVoucherValue < rTaxable) {
+                _result.value = Result.ValidationError("Note/Refund Voucher Value must stay >= taxable value (₹%.2f).".format(rTaxable))
+                return@launch
+            }
+            if (rate < 0) {
+                _result.value = Result.ValidationError("Rate must be >= 0.")
+                return@launch
+            }
+            if (eligibilityForItc.isBlank()) {
+                _result.value = Result.ValidationError("Eligibility for ITC is required.")
+                return@launch
+            }
+            if (availedItcIntegratedTax < 0 || availedItcCentralTax < 0 || availedItcStateTax < 0 || availedItcCess < 0) {
+                _result.value = Result.ValidationError("Availed ITC fields must be >= 0.")
+                return@launch
+            }
+            if (eligibilityForItc in listOf("Ineligible", "None")) {
+                if (availedItcIntegratedTax != 0.0 || availedItcCentralTax != 0.0 || availedItcStateTax != 0.0 || availedItcCess != 0.0) {
+                    _result.value = Result.ValidationError("If eligibility for ITC is Ineligible/None, availed ITC values must be 0.")
                     return@launch
                 }
+            }
+            if (availedItcIntegratedTax > rIgst) {
+                _result.value = Result.ValidationError("Availed ITC Integrated Tax (₹%.2f) cannot exceed IGST (₹%.2f).".format(availedItcIntegratedTax, rIgst))
+                return@launch
+            }
+            if (availedItcCentralTax > rCgst) {
+                _result.value = Result.ValidationError("Availed ITC Central Tax (₹%.2f) cannot exceed CGST (₹%.2f).".format(availedItcCentralTax, rCgst))
+                return@launch
+            }
+            if (availedItcStateTax > rSgst) {
+                _result.value = Result.ValidationError("Availed ITC State/UT Tax (₹%.2f) cannot exceed SGST (₹%.2f).".format(availedItcStateTax, rSgst))
+                return@launch
+            }
+            if (availedItcCess > rCess) {
+                _result.value = Result.ValidationError("Availed ITC Cess (₹%.2f) cannot exceed Cess (₹%.2f).".format(availedItcCess, rCess))
+                return@launch
+            }
+            if (invoiceType.isBlank()) {
+                _result.value = Result.ValidationError("Invoice Type is required.")
+                return@launch
+            }
+            if (placeOfSupplyCode.isBlank()) {
+                _result.value = Result.ValidationError("Place of Supply Code is required.")
+                return@launch
             }
 
             _isLoading.value = true
@@ -123,23 +244,26 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 db.withTransaction {
 
-                    // ── Generate DN number ────────────────────────────────────
-                    val nextSeq    = db.purchaseReturnDao().getMaxDebitNoteSequence() + 1
-                    val noteNumber = "DN-%05d".format(nextSeq)
+                    // ── Generate note number ────────────────────────────────────
+                    val nextSeq = if (noteType == "D") {
+                        db.purchaseReturnDao().getMaxDebitNoteSequence() + 1
+                    } else {
+                        db.purchaseReturnDao().getMaxCreditNoteSequence() + 1
+                    }
+                    val prefix = if (noteType == "D") "DN" else "CN"
+                    val noteNumber = "$prefix-%05d".format(nextSeq)
                     val now        = System.currentTimeMillis()
 
-                    val store = db.storeInfoDao().get()
-                    val gst   = db.gstProfileDao().get()
                     val shopIdStr = gst?.shopId?.takeIf { it.isNotBlank() }
                         ?: store?.gstin.orEmpty()
-                    val stateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-                        ?: GstEngine.getStateCode(store?.gstin)
                     val stateName = GstEngine.INDIA_STATES[stateCode] ?: stateCode
+
+                    var totalNoteInvoiceValue = 0.0
+                    val itemsToSave = mutableListOf<Triple<PurchaseItem, Double, Double>>()
 
                     for ((item, qty) in lines) {
                         if (qty <= 0.0) continue
-
-                        val productId = item.productId ?: continue
+                        if (item.productId == null) continue
 
                         // Determine intra/interstate
                         val supplierState = GstEngine.getStateCodeFromName(p.state)
@@ -155,38 +279,132 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val sgstAmt  = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
                         val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
                         val invoice  = taxable + cgstAmt + sgstAmt + igstAmt
-                        val round    = { v: Double -> Math.round(v * 100.0) / 100.0 }
 
-                        // ── Debit from exact purchase batch ───────────────────
-                        val batches = db.purchaseBatchDao()
-                            .getRemainingBatches(productId)
-                            .filter { it.purchaseInvoiceId == p.id && it.quantityRemaining > 0.0 }
+                        totalNoteInvoiceValue += round(invoice)
+                        itemsToSave.add(Triple(item, qty, invoice))
+                    }
 
-                        var qtyToDebit = qty
-                        val reductions = mutableListOf<InventoryValuation.BatchReduction>()
-                        for (b in batches) {
-                            if (qtyToDebit <= 0.0) break
-                            val take = minOf(b.quantityRemaining, qtyToDebit)
-                            reductions.add(InventoryValuation.BatchReduction(b.id, take))
-                            qtyToDebit -= take
+                    // ── Optional Credit/Debit Account Adjustment ───────────────
+                    var creditTxId: Int? = null
+                    if (p.isCredit && p.creditAccountId != null) {
+                        val shopIdInt = getApplication<android.app.Application>()
+                            .getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
+                            .getInt("SHOP_ID", 1)
+                        val account = db.creditAccountDao().getById(p.creditAccountId, shopIdInt)
+                        if (account != null) {
+                            val adjustAmount = if (noteType == "D") -totalNoteInvoiceValue else totalNoteInvoiceValue
+                            val newDue = account.dueAmount + adjustAmount
+                            db.creditAccountDao().updateDue(account.id, newDue, shopIdInt)
+
+                            db.creditTransactionDao().insert(
+                                com.example.easy_billing.db.CreditTransaction(
+                                    accountId = account.id,
+                                    shopId = shopIdInt,
+                                    amount = adjustAmount,
+                                    type = if (noteType == "D") "PURCHASE_RETURN" else "PURCHASE_CREDIT",
+                                    referenceInvoice = noteNumber,
+                                    isSynced = false
+                                )
+                            )
                         }
+                    }
 
-                        if (reductions.isNotEmpty()) {
-                            InventoryValuation.reduceBatches(db, productId, reductions)
-                        }
+                    // Now process the inventory updates and insert the records
+                    for ((item, qty, invoice) in itemsToSave) {
+                        val productId = item.productId ?: continue
+                        val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
+                        val taxable  = qty * unitTaxable
 
-                        // If the invoice's batch is already exhausted fall back
-                        // to FIFO for the remainder (shouldn't normally happen).
-                        if (qtyToDebit > 0.0) {
-                            InventoryManager.reduceStock(
-                                db, productId, qtyToDebit, "RETURN", skipBatchConsume = false
+                        val supplierState = GstEngine.getStateCodeFromName(p.state)
+                            ?: GstEngine.getStateCode(p.supplierGstin)
+                        val sameState     = if (stateCode.isNotBlank() && supplierState.isNotBlank())
+                            stateCode == supplierState
+                        else
+                            item.purchaseIgstPercentage <= 0.0
+
+                        val cgstAmt  = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
+                        val sgstAmt  = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
+                        val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
+                        val cessAmt  = if (item.quantity > 0.0) (qty / item.quantity) * item.cessAmount else 0.0
+
+                        if (noteType == "D") {
+                            // ── Debit Note: reduce stock and batch ───────────────────
+                            val batches = db.purchaseBatchDao()
+                                .getRemainingBatches(productId)
+                                .filter { it.purchaseInvoiceId == p.id && it.quantityRemaining > 0.0 }
+
+                            var qtyToDebit = qty
+                            val reductions = mutableListOf<InventoryValuation.BatchReduction>()
+                            for (b in batches) {
+                                if (qtyToDebit <= 0.0) break
+                                val take = minOf(b.quantityRemaining, qtyToDebit)
+                                reductions.add(InventoryValuation.BatchReduction(b.id, take))
+                                qtyToDebit -= take
+                            }
+
+                            // Reduce the inventory row (no second batch pass).
+                            val qtyToReduceRow = qty - qtyToDebit
+                            if (qtyToReduceRow > 0.0) {
+                                InventoryManager.reduceStock(
+                                    db, productId, qtyToReduceRow, "RETURN", skipBatchConsume = true
+                                )
+                            }
+
+                            if (reductions.isNotEmpty()) {
+                                InventoryValuation.reduceBatches(db, productId, reductions)
+                            }
+
+                            // If the invoice's batch is already exhausted fall back
+                            // to FIFO for the remainder (shouldn't normally happen).
+                            if (qtyToDebit > 0.0) {
+                                InventoryManager.reduceStock(
+                                    db, productId, qtyToDebit, "RETURN", skipBatchConsume = false
+                                )
+                            }
+                        } else {
+                            // ── Credit Note: increase stock and batch ────────────────
+                            val unitCostGross = if (item.quantity > 0.0) item.invoiceValue / item.quantity else 0.0
+                            InventoryManager.addStock(
+                                db = db,
+                                productId = productId,
+                                quantity = qty,
+                                costPrice = unitCostGross,
+                                batchMeta = InventoryManager.StockBatchMeta(
+                                    purchaseInvoiceId = p.id,
+                                    supplierName = p.supplierName,
+                                    supplierGstin = p.supplierGstin,
+                                    invoiceNumber = p.invoiceNumber,
+                                    batchCode = noteNumber,
+                                    unitCostExcludingTax = unitCostGross,
+                                    gstPercent = item.purchaseCgstPercentage + item.purchaseSgstPercentage + item.purchaseIgstPercentage,
+                                    cgstPercent = item.purchaseCgstPercentage,
+                                    sgstPercent = item.purchaseSgstPercentage,
+                                    igstPercent = item.purchaseIgstPercentage,
+                                    invoiceValue = invoice,
+                                    taxableValue = taxable
+                                )
                             )
                         }
 
-                        // Reduce the inventory row (no second batch pass).
-                        InventoryManager.reduceStock(
-                            db, productId, qty - qtyToDebit, "RETURN", skipBatchConsume = true
-                        )
+                        // Distribute availed ITC and note refund voucher values proportionally
+                        val rowAvailedIgst = if (rIgst > 0.0) availedItcIntegratedTax * (round(igstAmt) / rIgst) else 0.0
+                        val rowAvailedCgst = if (rCgst > 0.0) availedItcCentralTax * (round(cgstAmt) / rCgst) else 0.0
+                        val rowAvailedSgst = if (rSgst > 0.0) availedItcStateTax * (round(sgstAmt) / rSgst) else 0.0
+                        val rowAvailedCess = if (rCess > 0.0) availedItcCess * (round(cessAmt) / rCess) else 0.0
+
+                        val rowAvailedIgstClamped = minOf(round(igstAmt), round(rowAvailedIgst))
+                        val rowAvailedCgstClamped = minOf(round(cgstAmt), round(rowAvailedCgst))
+                        val rowAvailedSgstClamped = minOf(round(sgstAmt), round(rowAvailedSgst))
+                        val rowAvailedCessClamped = minOf(round(cessAmt), round(rowAvailedCess))
+
+                        var rowVoucherVal = if (totalNoteInvoiceValue > 0.0) {
+                            noteRefundVoucherValue * (round(invoice) / totalNoteInvoiceValue)
+                        } else {
+                            round(invoice)
+                        }
+                        if (rowVoucherVal < round(taxable)) {
+                            rowVoucherVal = round(taxable)
+                        }
 
                         // ── Insert PurchaseReturn row ─────────────────────────
                         db.purchaseReturnDao().insert(
@@ -211,17 +429,35 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 isSynced              = false,
                                 noteNumber            = noteNumber,
                                 noteDate              = now,
-                                noteType              = "D",
+                                noteType              = noteType,
                                 originalInvoiceId     = p.id,
                                 originalInvoiceNumber = p.invoiceNumber,
                                 originalInvoiceDate   = p.invoiceDate,
                                 placeOfSupply         = stateName,
                                 supplyType            = if (sameState) "intrastate" else "interstate",
-                                cessAmount            = 0.0
+                                cessAmount            = round(cessAmt),
+                                documentType          = if (noteType == "D") documentType else "Credit Note",
+                                documentNature        = if (noteType == "D") "Debit Note" else "Credit Note",
+                                documentSeries        = prefix,
+                                isCredit              = p.isCredit,
+                                creditAccountId       = p.creditAccountId,
+                                creditTransactionId   = creditTxId,
+
+                                // GSTR-2 columns
+                                preGst                = preGst,
+                                reasonForIssuingDocument = reasonForIssuingDocument,
+                                noteRefundVoucherValue = round(rowVoucherVal),
+                                rate                  = rate,
+                                eligibilityForItc     = eligibilityForItc,
+                                availedItcIntegratedTax = rowAvailedIgstClamped,
+                                availedItcCentralTax  = rowAvailedCgstClamped,
+                                availedItcStateTax    = rowAvailedSgstClamped,
+                                availedItcCess        = rowAvailedCessClamped,
+                                invoiceType           = invoiceType,
+                                placeOfSupplyCode     = placeOfSupplyCode
                             )
                         )
                     }
-
                     _result.value = Result.Success(noteNumber)
                 }
             } catch (e: Exception) {

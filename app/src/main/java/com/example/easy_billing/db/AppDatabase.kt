@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.DefaultProduct
 import com.example.easy_billing.DefaultProductDao
+import com.example.easy_billing.gstr1.Gstr1DraftEntity
 
 @Database(
     entities = [
@@ -51,9 +52,12 @@ import com.example.easy_billing.DefaultProductDao
         // Purchase Return (Debit Note) extends the existing PurchaseReturn
         // entity with new columns — see MIGRATION_24_25.
         CreditNote::class,
-        CreditNoteItem::class
+        CreditNoteItem::class,
+
+        // GSTR-1 drafts (v30)
+        Gstr1DraftEntity::class
     ],
-    version = 29
+    version = 34
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -101,6 +105,9 @@ abstract class AppDatabase : RoomDatabase() {
     // Return management (v25) — Credit Notes (Sales Returns).
     abstract fun creditNoteDao(): CreditNoteDao
     abstract fun creditNoteItemDao(): CreditNoteItemDao
+
+    // GSTR-1 drafts (v30)
+    abstract fun gstr1DraftDao(): com.example.easy_billing.gstr1.Gstr1DraftDao
 
     companion object {
 
@@ -937,6 +944,169 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v29 → v30  — GSTR-1 Drafts
+         *
+         * Adds `gstr1_drafts` table for persisting generated GSTR-1
+         * reports between sessions. The report is stored as a JSON blob
+         * so no schema changes are needed when sheet models evolve.
+         */
+        val MIGRATION_29_30 = object : Migration(29, 30) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `gstr1_drafts` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `gstin` TEXT NOT NULL,
+                        `financial_year` TEXT NOT NULL,
+                        `period` TEXT NOT NULL,
+                        `return_type` TEXT NOT NULL,
+                        `report_json` TEXT NOT NULL,
+                        `generated_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
+        val MIGRATION_30_31 = object : Migration(30, 31) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `place_of_supply_code` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `reverse_charge` TEXT NOT NULL DEFAULT 'N'")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `invoice_type` TEXT NOT NULL DEFAULT 'Regular'")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `supply_type` TEXT NOT NULL DEFAULT 'intrastate'")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `cess_paid` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `eligibility_for_itc` TEXT NOT NULL DEFAULT 'Inputs'")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `availed_itc_integrated_tax` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `availed_itc_central_tax` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `availed_itc_state_tax` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `availed_itc_cess` REAL NOT NULL DEFAULT 0.0")
+            }
+        }
+
+        val MIGRATION_31_32 = object : Migration(31, 32) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `cess_percentage` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `cess_amount` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `eligibility_for_itc` TEXT NOT NULL DEFAULT 'Inputs'")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `availed_itc_igst` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `availed_itc_cgst` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `availed_itc_sgst` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `availed_itc_cess` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `hsn_description` TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `official_uqc` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        val MIGRATION_32_33 = object : Migration(32, 33) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `document_type` TEXT")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `document_nature` TEXT")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `document_series` TEXT")
+            }
+        }
+
+        val MIGRATION_33_34 = object : Migration(33, 34) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 1. Create temporary table with version 34 schema
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `purchase_return_table_temp` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `shop_id` TEXT NOT NULL,
+                        `productId` INTEGER,
+                        `productName` TEXT NOT NULL,
+                        `variantName` TEXT,
+                        `hsnCode` TEXT,
+                        `quantityReturned` REAL NOT NULL,
+                        `taxableAmount` REAL NOT NULL,
+                        `invoiceValue` REAL NOT NULL,
+                        `cgst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `igst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `cgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `igst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `state` TEXT NOT NULL,
+                        `supplierGstin` TEXT,
+                        `supplierName` TEXT,
+                        `created_at` INTEGER NOT NULL,
+                        `is_synced` INTEGER NOT NULL DEFAULT 0,
+                        `is_credit` INTEGER NOT NULL DEFAULT 0,
+                        `credit_account_id` INTEGER,
+                        `credit_transaction_id` INTEGER,
+                        `note_number` TEXT,
+                        `note_date` INTEGER,
+                        `note_type` TEXT,
+                        `original_invoice_id` INTEGER,
+                        `original_invoice_number` TEXT,
+                        `original_invoice_date` INTEGER,
+                        `place_of_supply` TEXT NOT NULL DEFAULT '',
+                        `supply_type` TEXT NOT NULL DEFAULT 'intrastate',
+                        `cess_amount` REAL NOT NULL DEFAULT 0.0,
+                        `document_type` TEXT NOT NULL DEFAULT 'Debit Note',
+                        `document_nature` TEXT,
+                        `document_series` TEXT,
+                        `pre_gst` TEXT NOT NULL DEFAULT 'N',
+                        `reason_for_issuing_document` TEXT NOT NULL DEFAULT 'Purchase return',
+                        `note_refund_voucher_value` REAL NOT NULL DEFAULT 0.0,
+                        `rate` REAL NOT NULL DEFAULT 0.0,
+                        `eligibility_for_itc` TEXT NOT NULL DEFAULT 'Inputs',
+                        `availed_itc_integrated_tax` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_central_tax` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_state_tax` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_cess` REAL NOT NULL DEFAULT 0.0,
+                        `invoice_type` TEXT NOT NULL DEFAULT 'Regular',
+                        `place_of_supply_code` TEXT NOT NULL DEFAULT ''
+                    )
+                """.trimIndent())
+
+                // 2. Copy existing data into the temp table
+                db.execSQL("""
+                    INSERT INTO `purchase_return_table_temp` (
+                        id, shop_id, productId, productName, variantName, hsnCode,
+                        quantityReturned, taxableAmount, invoiceValue,
+                        cgst_percentage, sgst_percentage, igst_percentage,
+                        cgst_amount, sgst_amount, igst_amount, state,
+                        supplierGstin, supplierName, created_at, is_synced,
+                        is_credit, credit_account_id, credit_transaction_id,
+                        note_number, note_date, note_type, original_invoice_id,
+                        original_invoice_number, original_invoice_date,
+                        place_of_supply, supply_type, cess_amount,
+                        document_type, document_nature, document_series,
+                        pre_gst, reason_for_issuing_document, note_refund_voucher_value,
+                        rate, eligibility_for_itc, availed_itc_integrated_tax,
+                        availed_itc_central_tax, availed_itc_state_tax, availed_itc_cess,
+                        invoice_type, place_of_supply_code
+                    )
+                    SELECT
+                        id, shop_id, productId, productName, variantName, hsnCode,
+                        quantityReturned, taxableAmount, invoiceValue,
+                        cgst_percentage, sgst_percentage, igst_percentage,
+                        cgst_amount, sgst_amount, igst_amount, state,
+                        supplierGstin, supplierName, created_at, is_synced,
+                        is_credit, credit_account_id, credit_transaction_id,
+                        note_number, note_date, note_type, original_invoice_id,
+                        original_invoice_number, original_invoice_date,
+                        place_of_supply, supply_type, cess_amount,
+                        COALESCE(document_type, 'Debit Note'), document_nature, document_series,
+                        'N', 'Purchase return', 0.0, 0.0, 'Inputs', 0.0, 0.0, 0.0, 0.0, 'Regular', ''
+                    FROM `purchase_return_table`
+                """.trimIndent())
+
+                // 3. Drop the old table
+                db.execSQL("DROP TABLE IF EXISTS `purchase_return_table`")
+
+                // 4. Rename temp table to standard table name
+                db.execSQL("ALTER TABLE `purchase_return_table_temp` RENAME TO `purchase_return_table`")
+
+                // 5. Recreate indexes
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_productId` ON `purchase_return_table`(`productId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_hsnCode` ON `purchase_return_table`(`hsnCode`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_shop_id` ON `purchase_return_table`(`shop_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_note_number` ON `purchase_return_table`(`note_number`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_return_table_original_invoice_id` ON `purchase_return_table`(`original_invoice_id`)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -963,7 +1133,12 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_25_26,
                         MIGRATION_26_27,
                         MIGRATION_27_28,
-                        MIGRATION_28_29
+                        MIGRATION_28_29,
+                        MIGRATION_29_30,
+                        MIGRATION_30_31,
+                        MIGRATION_31_32,
+                        MIGRATION_32_33,
+                        MIGRATION_33_34
                     )
                     .fallbackToDestructiveMigration()
                     .build()

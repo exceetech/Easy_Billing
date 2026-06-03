@@ -137,6 +137,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/llMaxReturnContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -169,6 +170,7 @@
             android:layout_marginTop="12dp">
 
             <TextView
+                android:id="@+id/tvQtyInputLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
