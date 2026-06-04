@@ -100,6 +100,7 @@ data class PurchaseDto(
     val availed_itc_central_tax: Double = 0.0,
     val availed_itc_state_tax: Double = 0.0,
     val availed_itc_cess: Double = 0.0,
+    val purchase_source: String = "DOMESTIC",
     val items: List<PurchaseItemDto>
 )
 
@@ -134,7 +135,8 @@ data class PurchaseItemDto(
     val availed_itc_sgst: Double = 0.0,
     val availed_itc_cess: Double = 0.0,
     val hsn_description: String = "",
-    val official_uqc: String = ""
+    val official_uqc: String = "",
+    val supply_classification: String = "TAXABLE"
 )
 
 data class PurchaseSyncResponse(

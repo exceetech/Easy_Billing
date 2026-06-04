@@ -28,16 +28,6 @@ class Gstr1SheetTabAdapter(activity: FragmentActivity) : FragmentStateAdapter(ac
     override fun getItemCount() = TAB_LABELS.size
 
     override fun createFragment(position: Int): Fragment {
-        val fragment = Gstr1SectionFragment.newInstance(position, report)
-        if (fragments.size <= position) {
-            repeat(position - fragments.size + 1) { fragments.add(Gstr1SectionFragment()) }
-        }
-        fragments[position] = fragment
-        return fragment
-    }
-
-    fun updateReport(report: Gstr1Report) {
-        this.report = report
-        notifyDataSetChanged()
+        return Gstr1SectionFragment.newInstance(position)
     }
 }

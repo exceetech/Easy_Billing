@@ -63,5 +63,7 @@ data class Purchase(
     @ColumnInfo(name = "availed_itc_integrated_tax") val availedItcIntegratedTax: Double = 0.0,
     @ColumnInfo(name = "availed_itc_central_tax") val availedItcCentralTax: Double = 0.0,
     @ColumnInfo(name = "availed_itc_state_tax") val availedItcStateTax: Double = 0.0,
-    @ColumnInfo(name = "availed_itc_cess") val availedItcCess: Double = 0.0
+    @ColumnInfo(name = "availed_itc_cess") val availedItcCess: Double = 0.0,
+
+    @ColumnInfo(name = "purchase_source") val purchaseSource: String = "DOMESTIC"
 )

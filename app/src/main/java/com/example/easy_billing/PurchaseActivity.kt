@@ -98,6 +98,17 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var tilAvailedItcCess: TextInputLayout
     private var shopStateCode: String = ""
 
+    // Imported Goods
+    private lateinit var switchImportedGoods: com.google.android.material.materialswitch.MaterialSwitch
+    private lateinit var layoutImportedGoods: LinearLayout
+    private lateinit var etPortCode: TextInputEditText
+    private lateinit var etBillOfEntryNumber: TextInputEditText
+    private lateinit var etBillOfEntryDate: TextInputEditText
+    private lateinit var etBillOfEntryValue: TextInputEditText
+    private lateinit var tilSezSupplierGstin: TextInputLayout
+    private lateinit var etSezSupplierGstin: TextInputEditText
+    private var boeDateProvider: () -> Long? = { null }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase)
@@ -196,6 +207,18 @@ class PurchaseActivity : BaseActivity() {
         tilAvailedItcState = findViewById(R.id.tilAvailedItcState)
         tilAvailedItcCess = findViewById(R.id.tilAvailedItcCess)
 
+        // Bind Imported Goods Views
+        switchImportedGoods = findViewById(R.id.switchImportedGoods)
+        layoutImportedGoods = findViewById(R.id.layoutImportedGoods)
+        etPortCode = findViewById(R.id.etPortCode)
+        etBillOfEntryNumber = findViewById(R.id.etBillOfEntryNumber)
+        etBillOfEntryDate = findViewById(R.id.etBillOfEntryDate)
+        etBillOfEntryValue = findViewById(R.id.etBillOfEntryValue)
+        tilSezSupplierGstin = findViewById(R.id.tilSezSupplierGstin)
+        etSezSupplierGstin = findViewById(R.id.etSezSupplierGstin)
+
+        boeDateProvider = InvoiceDatePicker.bind(etBillOfEntryDate)
+
         etCessPaid.setText("0.0")
 
         setupStateSuggestions()
@@ -219,7 +242,7 @@ class PurchaseActivity : BaseActivity() {
         etPlaceOfSupplyCode.setOnClickListener { etPlaceOfSupplyCode.showDropDown() }
 
         // Invoice Type
-        val invoiceTypes = listOf("Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp")
+        val invoiceTypes = listOf("Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp", "From Composition Taxable Person")
         val invTypeAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, invoiceTypes)
         etInvoiceType.setAdapter(invTypeAdapter)
         etInvoiceType.setText("Regular", false)
@@ -341,6 +364,33 @@ class PurchaseActivity : BaseActivity() {
             updateAvailedItcValues()
         }
 
+        switchImportedGoods.setOnClickListener { 
+            if (viewModel.lines.value.isNotEmpty()) {
+                switchImportedGoods.isChecked = !switchImportedGoods.isChecked
+                Toast.makeText(this, "Imported Goods toggle can only be changed before adding items", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val isChecked = switchImportedGoods.isChecked
+            if (isChecked) {
+                layoutImportedGoods.visibility = View.VISIBLE
+                viewModel.setIsImportedGoods(true)
+            } else {
+                layoutImportedGoods.visibility = View.GONE
+                viewModel.setIsImportedGoods(false)
+            }
+            recomputeHeaderValid()
+        }
+
+        etInvoiceType.addTextChangedListener {
+            val type = etInvoiceType.text?.toString() ?: ""
+            if (type.startsWith("SEZ")) {
+                tilSezSupplierGstin.visibility = View.VISIBLE
+            } else {
+                tilSezSupplierGstin.visibility = View.GONE
+            }
+        }
+
         btnAddLine.setOnClickListener {
             if (!isHeaderValid()) {
                 Toast.makeText(
@@ -377,6 +427,44 @@ class PurchaseActivity : BaseActivity() {
             if (placeOfSupplyCode.isEmpty()) {
                 Toast.makeText(this, "Place of Supply Code is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
+            }
+
+            if (switchImportedGoods.isChecked) {
+                val portCode = etPortCode.text?.toString()?.trim()
+                if (portCode.isNullOrEmpty()) {
+                    Toast.makeText(this, "Port Code is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val boeNumber = etBillOfEntryNumber.text?.toString()?.trim()
+                if (boeNumber.isNullOrEmpty()) {
+                    Toast.makeText(this, "Bill of Entry Number is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val pickedBoeDate = boeDateProvider()
+                if (pickedBoeDate == null) {
+                    Toast.makeText(this, "Bill of Entry Date is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val boeValue = etBillOfEntryValue.text?.toString()?.toDoubleOrNull()
+                if (boeValue == null) {
+                    Toast.makeText(this, "Bill of Entry Value is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val type = etInvoiceType.text?.toString() ?: ""
+                val sezGstin = if (type.startsWith("SEZ")) etSezSupplierGstin.text?.toString()?.trim() else null
+
+                viewModel.setImportDetails(
+                    com.example.easy_billing.repository.PurchaseRepository.PurchaseImportDetailsDraft(
+                        portCode = portCode,
+                        billOfEntryNumber = boeNumber,
+                        billOfEntryDate = pickedBoeDate,
+                        billOfEntryValue = boeValue,
+                        documentType = "Bill of Entry",
+                        sezSupplierGstin = sezGstin
+                    )
+                )
+            } else {
+                viewModel.setImportDetails(null)
             }
 
             val reverseCharge = if (switchReverseCharge.isChecked) "Y" else "N"
@@ -470,7 +558,8 @@ class PurchaseActivity : BaseActivity() {
                     availedItcIntegratedTax = availedItcIntegrated,
                     availedItcCentralTax = availedItcCentral,
                     availedItcStateTax = availedItcState,
-                    availedItcCess = availedItcCess
+                    availedItcCess = availedItcCess,
+                    purchaseSource = if (viewModel.isImportedGoods.value) "IMPORT" else "DOMESTIC"
                 )
             )
         }
@@ -598,6 +687,13 @@ class PurchaseActivity : BaseActivity() {
         val etSCgst = view.findViewById<TextInputEditText>(R.id.etSalesCgst)
         val etSSgst = view.findViewById<TextInputEditText>(R.id.etSalesSgst)
         val etSIgst = view.findViewById<TextInputEditText>(R.id.etSalesIgst)
+
+        if (viewModel.isImportedGoods.value) {
+            etPCgst.setText("0.0")
+            etPCgst.isEnabled = false
+            etPSgst.setText("0.0")
+            etPSgst.isEnabled = false
+        }
 
         val btnHelp   = view.findViewById<MaterialButton>(R.id.btnHsnHelp)
         val btnAdd    = view.findViewById<MaterialButton>(R.id.btnLineAdd)

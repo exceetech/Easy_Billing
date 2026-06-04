@@ -35,6 +35,8 @@ import com.example.easy_billing.network.ScrapSyncRequest
 import com.example.easy_billing.network.CreditNoteDto
 import com.example.easy_billing.network.CreditNoteItemDto
 import com.example.easy_billing.network.CreditNoteSyncRequest
+import com.example.easy_billing.api.PurchaseImportDetailsSyncRequest
+import com.example.easy_billing.api.PurchaseImportDetailsDto
 import android.util.Log
 
 class SyncManager(private val context: Context) {
@@ -51,6 +53,8 @@ class SyncManager(private val context: Context) {
         syncInventory()          // inventory BEFORE bills
         syncBills()              // then bills
         syncPurchases()          // push purchase invoices + items
+        syncPurchaseImportDetails() // push imported goods details
+        syncImportServices()     // push import services
         syncPurchaseReturns()    // push purchase returns (debit notes)
         syncCreditNotes()        // push sales returns (credit notes)
         syncScrapEntries()       // push scrap
@@ -253,7 +257,8 @@ class SyncManager(private val context: Context) {
                     availed_itc_sgst         = item.availedItcSgst,
                     availed_itc_cess         = item.availedItcCess,
                     hsn_description          = item.hsnDescription,
-                    official_uqc             = item.officialUqc
+                    official_uqc             = item.officialUqc,
+                    supply_classification    = item.supplyClassification
                 )
             }
             val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -290,6 +295,7 @@ class SyncManager(private val context: Context) {
                 availed_itc_central_tax = p.availedItcCentralTax,
                 availed_itc_state_tax = p.availedItcStateTax,
                 availed_itc_cess = p.availedItcCess,
+                purchase_source = p.purchaseSource,
                 items            = items
             )
         }
@@ -331,6 +337,104 @@ class SyncManager(private val context: Context) {
 
     private companion object {
         const val SYNC_TAG = "PurchaseSync"
+    }
+
+    suspend fun syncPurchaseImportDetails() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.purchaseImportDetailsDao().getUnsynced()
+        if (pending.isEmpty()) return
+
+        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getInt("SHOP_ID", 1)
+
+        val dtos = pending.map { d ->
+            val purchase = db.purchaseDao().getById(d.purchaseId)
+            val serverId = purchase?.serverId
+
+            PurchaseImportDetailsDto(
+                local_id = d.id,
+                purchase_id = serverId,
+                local_purchase_id = d.localPurchaseId,
+                port_code = d.portCode,
+                bill_of_entry_number = d.billOfEntryNumber,
+                bill_of_entry_date = d.billOfEntryDate,
+                bill_of_entry_value = d.billOfEntryValue,
+                document_type = d.documentType,
+                sez_supplier_gstin = d.sezSupplierGstin,
+                sync_status = d.syncStatus,
+                device_id = d.deviceId,
+                created_at = d.createdAt,
+                updated_at = d.updatedAt
+            )
+        }
+
+        try {
+            val response = api.syncPurchaseImportDetails(
+                token,
+                PurchaseImportDetailsSyncRequest(dtos)
+            )
+            response.record_id_map.forEach { (localIdStr, _) ->
+                val localId = localIdStr.toIntOrNull() ?: return@forEach
+                db.purchaseImportDetailsDao().markSynced(localId)
+            }
+            if (response.record_id_map.isEmpty()) {
+                pending.forEach {
+                    db.purchaseImportDetailsDao().markSynced(it.id)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncPurchaseImportDetails: FAILED", e)
+        }
+    }
+
+    suspend fun syncImportServices() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.importServiceDao().getPendingSyncImportServices()
+        if (pending.isEmpty()) return
+
+        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getInt("SHOP_ID", 1)
+
+        val deviceId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("DEVICE_ID", java.util.UUID.randomUUID().toString())
+
+        val dtos = pending.map { d ->
+            com.example.easy_billing.network.ImportServiceDto(
+                local_id = d.id,
+                invoice_number = d.invoiceNumber,
+                invoice_date = d.invoiceDate,
+                invoice_value = d.invoiceValue,
+                place_of_supply = d.placeOfSupply,
+                rate = d.rate,
+                taxable_value = d.taxableValue,
+                igst_paid = d.igstPaid,
+                cess_paid = d.cessPaid,
+                eligibility_for_itc = d.eligibilityForItc,
+                availed_itc_igst = d.availedItcIgst,
+                availed_itc_cess = d.availedItcCess,
+                sync_status = d.syncStatus,
+                device_id = deviceId
+            )
+        }
+
+        try {
+            val response = api.syncImportServices(token, shopId, dtos)
+            if (response.isSuccessful) {
+                pending.forEach {
+                    db.importServiceDao().markAsSynced(it.id)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncImportServices: FAILED", e)
+        }
     }
 
     suspend fun syncPurchaseReturns() {

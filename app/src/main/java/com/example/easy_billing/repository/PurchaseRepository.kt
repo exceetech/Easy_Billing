@@ -55,9 +55,10 @@ class PurchaseRepository private constructor(
      */
     suspend fun savePurchase(
         header: Purchase,
-        lines: List<PurchaseItemDraft>
+        lines: List<PurchaseItemDraft>,
+        importDetails: PurchaseImportDetailsDraft? = null
     ): SaveResult {
-        val purchaseId = doSave(header, lines)
+        val purchaseId = doSave(header, lines, importDetails)
 
         // Inline push so the user gets immediate feedback. The
         // SyncCoordinator is also kicked from PurchaseViewModel for
@@ -82,7 +83,8 @@ class PurchaseRepository private constructor(
 
     private suspend fun doSave(
         header: Purchase,
-        lines: List<PurchaseItemDraft>
+        lines: List<PurchaseItemDraft>,
+        importDetails: PurchaseImportDetailsDraft?
     ): Int {
         // Collect products that need a backend field-update (already synced).
         val pendingUpdates = mutableListOf<PendingProductUpdate>()
@@ -92,6 +94,22 @@ class PurchaseRepository private constructor(
         require(lines.isNotEmpty()) { "Purchase must have at least one line" }
 
         val purchaseId = db.purchaseDao().insert(header).toInt()
+
+        if (importDetails != null) {
+            val importDetailsEntity = com.example.easy_billing.db.PurchaseImportDetails(
+                purchaseId = purchaseId, // Will be replaced with serverId when synced if online
+                localPurchaseId = purchaseId,
+                portCode = importDetails.portCode,
+                billOfEntryNumber = importDetails.billOfEntryNumber,
+                billOfEntryDate = importDetails.billOfEntryDate,
+                billOfEntryValue = importDetails.billOfEntryValue,
+                documentType = importDetails.documentType,
+                sezSupplierGstin = importDetails.sezSupplierGstin,
+                syncStatus = "pending",
+                deviceId = DeviceUtils.getDeviceId(context.applicationContext)
+            )
+            db.purchaseImportDetailsDao().insert(importDetailsEntity)
+        }
 
         // 1. Credit Integration
         if (header.isCredit && header.creditAccountId != null) {
@@ -199,7 +217,8 @@ class PurchaseRepository private constructor(
                     availedItcSgst = line.availedItcSgst,
                     availedItcCess = line.availedItcCess,
                     hsnDescription = line.hsnDescription ?: "",
-                    officialUqc = line.officialUqc ?: ""
+                    officialUqc = line.officialUqc ?: "",
+                    supplyClassification = line.supplyClassification
                 )
             )
 
@@ -363,6 +382,15 @@ class PurchaseRepository private constructor(
          * on the purchase restore dialog (inactive product found).
          */
         val forceCreate: Boolean = false
+    )
+
+    data class PurchaseImportDetailsDraft(
+        val portCode: String,
+        val billOfEntryNumber: String,
+        val billOfEntryDate: Long,
+        val billOfEntryValue: Double,
+        val documentType: String,
+        val sezSupplierGstin: String? = null
     )
 
     companion object {

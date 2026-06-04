@@ -1,5 +1,6 @@
 package com.example.easy_billing.network
 
+import com.example.easy_billing.api.*
 import com.example.easy_billing.db.CreditTransaction
 import retrofit2.Response
 import retrofit2.http.*
@@ -446,6 +447,18 @@ interface ApiService {
         @Body body: PurchaseReturnSyncRequest
     ): PurchaseSyncResponse
 
+    @POST("purchase-import-details/sync")
+    suspend fun syncPurchaseImportDetails(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseImportDetailsSyncRequest
+    ): PurchaseImportDetailsSyncResponse
+
+    @GET("purchase-import-details/{shop_id}")
+    suspend fun getPurchaseImportDetails(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<PurchaseImportDetailsDto>
+
     @POST("scrap/sync")
     suspend fun syncScrap(
         @Header("Authorization") token: String,
@@ -554,4 +567,18 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<CreditNoteDto>
 
+    // ── Import Services ──────────────────────────────────────────
+
+    @POST("import_services/sync/{shop_id}")
+    suspend fun syncImportServices(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int,
+        @Body records: List<ImportServiceDto>
+    ): Response<MessageResponse>
+
+    @GET("import_services/{shop_id}")
+    suspend fun getImportServices(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<ImportServiceResponseDto>
 }

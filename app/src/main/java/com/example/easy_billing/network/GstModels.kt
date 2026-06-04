@@ -161,29 +161,160 @@ data class Gstr1Response(
     val total_igst: Double
 )
 
-data class Gstr2Item(
-    val supplier_gstin: String?,
+
+
+
+data class Gstr2B2bItem(
+    val supplier_gstin: String,
     val invoice_number: String,
     val invoice_date: String,
-    val expense_type: String,
-    val hsn_sac_code: String,
-    val description: String,
+    val invoice_value: Double,
+    val place_of_supply: String,
+    val reverse_charge: String,
+    val invoice_type: String,
+    val rate: Double,
     val taxable_value: Double,
-    val gst_rate: Double,
+    val igst: Double,
     val cgst: Double,
     val sgst: Double,
+    val cess: Double,
+    val itc_eligibility: String,
+    val availed_itc_igst: Double,
+    val availed_itc_cgst: Double,
+    val availed_itc_sgst: Double,
+    val availed_itc_cess: Double
+)
+
+data class Gstr2B2burItem(
+    val supplier_name: String,
+    val invoice_number: String,
+    val invoice_date: String,
+    val invoice_value: Double,
+    val place_of_supply: String,
+    val supply_type: String,
+    val rate: Double,
+    val taxable_value: Double,
     val igst: Double,
-    val total: Double
+    val cgst: Double,
+    val sgst: Double,
+    val cess: Double,
+    val itc_eligibility: String,
+    val availed_itc_igst: Double,
+    val availed_itc_cgst: Double,
+    val availed_itc_sgst: Double,
+    val availed_itc_cess: Double
+)
+
+data class Gstr2ImpsItem(
+    val invoice_number: String,
+    val invoice_date: String,
+    val invoice_value: Double,
+    val place_of_supply: String,
+    val rate: Double,
+    val taxable_value: Double,
+    val igst: Double,
+    val cess: Double,
+    val itc_eligibility: String,
+    val availed_itc_igst: Double,
+    val availed_itc_cess: Double
+)
+
+data class Gstr2ImpgItem(
+    val port_code: String,
+    val bill_of_entry_number: String,
+    val bill_of_entry_date: String,
+    val bill_of_entry_value: Double,
+    val document_type: String,
+    val sez_supplier_gstin: String,
+    val rate: Double,
+    val taxable_value: Double,
+    val igst: Double,
+    val cess: Double,
+    val itc_eligibility: String,
+    val availed_itc_igst: Double,
+    val availed_itc_cess: Double
+)
+
+data class Gstr2CdnrItem(
+    val supplier_gstin: String,
+    val note_number: String,
+    val note_date: String,
+    val invoice_number: String,
+    val invoice_date: String,
+    val pre_gst: String,
+    val document_type: String,
+    val reason: String,
+    val supply_type: String,
+    val note_value: Double,
+    val rate: Double,
+    val taxable_value: Double,
+    val igst: Double,
+    val cgst: Double,
+    val sgst: Double,
+    val cess: Double,
+    val itc_eligibility: String,
+    val availed_itc_igst: Double,
+    val availed_itc_cgst: Double,
+    val availed_itc_sgst: Double,
+    val availed_itc_cess: Double
+)
+
+data class Gstr2CdnurItem(
+    val note_number: String,
+    val note_date: String,
+    val invoice_number: String,
+    val invoice_date: String,
+    val pre_gst: String,
+    val document_type: String,
+    val reason: String,
+    val supply_type: String,
+    val invoice_type: String,
+    val note_value: Double,
+    val rate: Double,
+    val taxable_value: Double,
+    val igst: Double,
+    val cgst: Double,
+    val sgst: Double,
+    val cess: Double,
+    val itc_eligibility: String,
+    val availed_itc_igst: Double,
+    val availed_itc_cgst: Double,
+    val availed_itc_sgst: Double,
+    val availed_itc_cess: Double
+)
+
+data class Gstr2ExempItem(
+    val description: String,
+    val composition: Double,
+    val nil_rated: Double,
+    val exempted: Double,
+    val non_gst: Double
+)
+
+data class Gstr2HsnsumItem(
+    val hsn: String,
+    val description: String,
+    val uqc: String,
+    val total_quantity: Double,
+    val total_value: Double,
+    val taxable_value: Double,
+    val igst: Double,
+    val cgst: Double,
+    val sgst: Double,
+    val cess: Double
 )
 
 data class Gstr2Response(
     val period_start: String,
     val period_end: String,
-    val records: List<Gstr2Item>,
-    val total_taxable_value: Double,
-    val total_itc_cgst: Double,
-    val total_itc_sgst: Double,
-    val total_itc_igst: Double
+    val b2b: List<Gstr2B2bItem>,
+    val b2bur: List<Gstr2B2burItem>,
+    val imps: List<Gstr2ImpsItem>,
+    val impg: List<Gstr2ImpgItem>,
+    val cdnr: List<Gstr2CdnrItem>,
+    val cdnur: List<Gstr2CdnurItem>,
+    val exemp: List<Gstr2ExempItem>,
+    val hsnsum: List<Gstr2HsnsumItem>
 )
 
 data class Gstr3BSupplyDetail(

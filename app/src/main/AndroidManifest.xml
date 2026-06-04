@@ -140,7 +140,18 @@
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".PurchaseHistoryActivity"
-            android:exported="false"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.EasyBilling" />
+            
+        <activity
+            android:name=".ui.ImportServicesActivity"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.EasyBilling" />
+            
+        <activity
+            android:name=".ui.AddImportServiceActivity"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.EasyBilling" />
         <activity
             android:name=".PurchaseDetailsActivity"
             android:exported="false"/>

@@ -16,20 +16,24 @@ import com.example.easy_billing.R
  * Receives the current [Gstr1Report] via arguments (position-indexed)
  * and renders the matching section's rows in a RecyclerView.
  *
- * The adapter [Gstr1RowAdapter] maps each row type to a simple
  * two-line card using the generic [item_gstr1_row.xml] layout.
  */
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
 class Gstr1SectionFragment : Fragment() {
+
+    private val viewModel: com.example.easy_billing.viewmodel.Gstr1ViewModel by activityViewModels()
 
     companion object {
         private const val ARG_POSITION = "position"
-        private const val ARG_REPORT_JSON = "report_json"
 
-        fun newInstance(position: Int, report: Gstr1Report?): Gstr1SectionFragment {
+        fun newInstance(position: Int, report: Gstr1Report? = null): Gstr1SectionFragment {
             return Gstr1SectionFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_POSITION, position)
-                    if (report != null) putString(ARG_REPORT_JSON, report.toJson())
                 }
             }
         }
@@ -47,22 +51,25 @@ class Gstr1SectionFragment : Fragment() {
         val tvEmpty   = view.findViewById<TextView>(R.id.tvEmpty)
         val tvRowCount = view.findViewById<TextView>(R.id.tvRowCount)
 
-        val position    = arguments?.getInt(ARG_POSITION) ?: 0
-        val reportJson  = arguments?.getString(ARG_REPORT_JSON)
-        val report      = reportJson?.let { Gstr1Report.fromJson(it) }
+        val position = arguments?.getInt(ARG_POSITION) ?: 0
 
-        val rows: List<Pair<String, String>> = report?.let { buildRows(it, position) } ?: emptyList()
+        rvRows.layoutManager = LinearLayoutManager(requireContext())
 
-        if (rows.isEmpty()) {
-            tvEmpty.visibility = View.VISIBLE
-            rvRows.visibility  = View.GONE
-            tvRowCount.text    = "0 rows"
-        } else {
-            tvEmpty.visibility = View.GONE
-            rvRows.visibility  = View.VISIBLE
-            tvRowCount.text    = "${rows.size} row(s)"
-            rvRows.layoutManager = LinearLayoutManager(requireContext())
-            rvRows.adapter = Gstr1RowAdapter(rows)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.report.collectLatest { report ->
+                val rows: List<Pair<String, String>> = report?.let { buildRows(it, position) } ?: emptyList()
+
+                if (rows.isEmpty()) {
+                    tvEmpty.visibility = View.VISIBLE
+                    rvRows.visibility  = View.GONE
+                    tvRowCount.text    = "0 rows"
+                } else {
+                    tvEmpty.visibility = View.GONE
+                    rvRows.visibility  = View.VISIBLE
+                    tvRowCount.text    = "${rows.size} row(s)"
+                    rvRows.adapter = Gstr1RowAdapter(rows)
+                }
+            }
         }
     }
 

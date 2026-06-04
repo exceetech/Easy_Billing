@@ -20,6 +20,15 @@ import com.example.easy_billing.gstr1.Gstr1Report
 import com.example.easy_billing.gstr1.Gstr1SheetTabAdapter
 import com.example.easy_billing.gstr1.Gstr1Validator
 import com.example.easy_billing.viewmodel.Gstr1ViewModel
+
+import com.example.easy_billing.gstr2.Gstr2DraftEntity
+import com.example.easy_billing.gstr2.Gstr2Report
+import com.example.easy_billing.gstr2.Gstr2SheetTabAdapter
+import com.example.easy_billing.gstr2.Gstr2Validator
+import com.example.easy_billing.gstr2.Gstr2DraftsAdapter
+import com.example.easy_billing.viewmodel.Gstr2ViewModel
+import com.google.android.material.button.MaterialButtonToggleGroup
+
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -45,7 +54,13 @@ import kotlinx.coroutines.launch
  */
 class GstReportsActivity : AppCompatActivity() {
 
-    private val viewModel: Gstr1ViewModel by viewModels()
+    
+    private val viewModel1: Gstr1ViewModel by viewModels()
+    private val viewModel2: Gstr2ViewModel by viewModels()
+    private var isGstr1 = true
+    private lateinit var toggleReportType: MaterialButtonToggleGroup
+    private lateinit var tabAdapter2: Gstr2SheetTabAdapter
+
 
     // ── Header selectors ──────────────────────────────────────────────────────
     private lateinit var spinnerFY: Spinner
@@ -96,6 +111,23 @@ class GstReportsActivity : AppCompatActivity() {
         supportActionBar?.title = "GSTR-1 Report"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupSelectors()
+
+        toggleReportType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                isGstr1 = checkedId == R.id.btnGstr1
+                supportActionBar?.title = if (isGstr1) "GSTR-1 Report" else "GSTR-2 Report"
+                setupTabs() // recreate tabs
+                refreshPeriodSpinner()
+                // Reset UI
+                cardSummary.visibility = View.GONE
+                llValidationBanner.visibility = View.GONE
+                tabLayout.visibility = View.GONE
+                viewPager.visibility = View.GONE
+                llDraftsSection.visibility = View.GONE
+                setActionButtonsEnabled(false)
+            }
+        }
+
         setupTabs()
         setupButtons()
         observeViewModel()
@@ -108,6 +140,9 @@ class GstReportsActivity : AppCompatActivity() {
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun bindViews() {
+        
+        toggleReportType        = findViewById(R.id.toggleReportType)
+
         spinnerFY               = findViewById(R.id.spinnerFY)
         spinnerPeriod           = findViewById(R.id.spinnerPeriod)
         chipGroupReturnType     = findViewById(R.id.chipGroupReturnType)
@@ -137,17 +172,44 @@ class GstReportsActivity : AppCompatActivity() {
     //  Selectors setup
     // ─────────────────────────────────────────────────────────────────────────
 
+
     private fun setupSelectors() {
-        // FY spinner
-        val fyAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, viewModel.availableFYs)
+        toggleReportType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                isGstr1 = checkedId == R.id.btnGstr1
+                supportActionBar?.title = if (isGstr1) "GSTR-1 Report" else "GSTR-2 Report"
+                setupTabs() // recreate tabs
+                refreshPeriodSpinner()
+                
+                // Re-bind FY spinner adapter
+                val fys = if(isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
+                val fyAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, fys)
+                fyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerFY.adapter = fyAdapter
+                spinnerFY.setSelection(0)
+
+                // Reset UI
+                cardSummary.visibility = android.view.View.GONE
+                llValidationBanner.visibility = android.view.View.GONE
+                tabLayout.visibility = android.view.View.GONE
+                viewPager.visibility = android.view.View.GONE
+                llDraftsSection.visibility = android.view.View.GONE
+                setActionButtonsEnabled(false)
+            }
+        }
+
+        // FY spinner (initial)
+        val initialFys = if(isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
+        val fyAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, initialFys)
         fyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerFY.adapter = fyAdapter
         spinnerFY.setSelection(0)
-        spinnerFY.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
-                viewModel.setFinancialYear(viewModel.availableFYs[pos])
+        spinnerFY.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: android.widget.AdapterView<*>?, v: android.view.View?, pos: Int, id: Long) {
+                val fys = if(isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
+                if (isGstr1) viewModel1.setFinancialYear(fys[pos]) else viewModel2.setFinancialYear(fys[pos])
             }
-            override fun onNothingSelected(p: AdapterView<*>?) {}
+            override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
         }
 
         // Period spinner
@@ -156,55 +218,62 @@ class GstReportsActivity : AppCompatActivity() {
         // Return type chips
         chipGroupReturnType.setOnCheckedStateChangeListener { _, _ ->
             val isMonthly = chipMonthly.isChecked
-            viewModel.setReturnType(if (isMonthly) "Monthly" else "Quarterly")
+            if (isGstr1) viewModel1.setReturnType(if (isMonthly) "Monthly" else "Quarterly") 
+            else viewModel2.setReturnType(if (isMonthly) "Monthly" else "Quarterly")
             refreshPeriodSpinner()
         }
     }
 
     private fun refreshPeriodSpinner() {
-        val periods = viewModel.availablePeriods
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, periods)
+        val periods = if(isGstr1) viewModel1.availablePeriods else viewModel2.availablePeriods
+        val adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, periods)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerPeriod.adapter = adapter
-        spinnerPeriod.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
-                viewModel.setPeriod(periods[pos])
+        spinnerPeriod.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: android.widget.AdapterView<*>?, v: android.view.View?, pos: Int, id: Long) {
+                val pds = if(isGstr1) viewModel1.availablePeriods else viewModel2.availablePeriods
+                if (isGstr1) viewModel1.setPeriod(pds[pos]) else viewModel2.setPeriod(pds[pos])
             }
-            override fun onNothingSelected(p: AdapterView<*>?) {}
+            override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
         }
     }
+
 
     // ─────────────────────────────────────────────────────────────────────────
     //  Tabs
     // ─────────────────────────────────────────────────────────────────────────
 
+    
     private fun setupTabs() {
-        tabAdapter = Gstr1SheetTabAdapter(this)
-        viewPager.adapter = tabAdapter
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = Gstr1SheetTabAdapter.TAB_LABELS[position]
-        }.attach()
-
-        // Hide tabs/pager until report is generated
-        tabLayout.visibility = View.GONE
-        viewPager.visibility = View.GONE
-        cardSummary.visibility = View.GONE
-        llValidationBanner.visibility = View.GONE
-        setActionButtonsEnabled(false)
+        if (isGstr1) {
+            tabAdapter = Gstr1SheetTabAdapter(this)
+            viewPager.adapter = tabAdapter
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.text = Gstr1SheetTabAdapter.TAB_LABELS[position]
+            }.attach()
+        } else {
+            tabAdapter2 = Gstr2SheetTabAdapter(this)
+            viewPager.adapter = tabAdapter2
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.text = Gstr2SheetTabAdapter.TAB_LABELS[position]
+            }.attach()
+        }
     }
+
 
     // ─────────────────────────────────────────────────────────────────────────
     //  Buttons
     // ─────────────────────────────────────────────────────────────────────────
 
+    
     private fun setupButtons() {
-        btnGenerate.setOnClickListener { viewModel.generateReport() }
-        btnValidate.setOnClickListener { viewModel.validateReport() }
-        btnSaveDraft.setOnClickListener { viewModel.saveDraft() }
-        btnExportCsv.setOnClickListener { viewModel.exportCsv() }
-        btnExportExcel.setOnClickListener { viewModel.exportExcel() }
+        btnGenerate.setOnClickListener { if (isGstr1) viewModel1.generateReport() else viewModel2.generateReport() }
+        btnValidate.setOnClickListener { if (isGstr1) viewModel1.validateReport() else Unit } // No manual validate for GSTR-2 yet
+        btnSaveDraft.setOnClickListener { if (isGstr1) viewModel1.saveDraft() else viewModel2.saveDraft() }
+        btnExportCsv.setOnClickListener { if (isGstr1) viewModel1.exportCsv() else viewModel2.exportCsv() }
+        btnExportExcel.setOnClickListener { if (isGstr1) viewModel1.exportExcel() else viewModel2.exportExcel() }
     }
+
 
     private fun setActionButtonsEnabled(enabled: Boolean) {
         btnValidate.isEnabled = enabled
@@ -217,64 +286,54 @@ class GstReportsActivity : AppCompatActivity() {
     //  ViewModel observation
     // ─────────────────────────────────────────────────────────────────────────
 
+    
     private fun observeViewModel() {
-
+        // GSTR-1
         lifecycleScope.launch {
-            viewModel.gstin.collectLatest { gstin ->
-                tvGstin.text = if (gstin.isNotBlank()) "GSTIN: $gstin" else "GST Profile not configured"
+            viewModel1.gstin.collectLatest { gstin ->
+                if (isGstr1) tvGstin.text = if (gstin.isNotBlank()) "GSTIN: $gstin" else "GST Profile not configured"
             }
         }
-
         lifecycleScope.launch {
-            viewModel.isLoading.collectLatest { loading ->
-                progressGenerate.visibility = if (loading) View.VISIBLE else View.GONE
-                btnGenerate.isEnabled = !loading
-                btnGenerate.text = if (loading) "Generating…" else "Generate GSTR-1"
+            viewModel1.isLoading.collectLatest { loading ->
+                if (isGstr1) handleLoading(loading)
             }
         }
+        lifecycleScope.launch { viewModel1.report.collectLatest { if (isGstr1 && it != null) bindReport1(it) } }
+        lifecycleScope.launch { viewModel1.validationResult.collectLatest { if (isGstr1 && it != null) bindValidation1(it) } }
+        lifecycleScope.launch { viewModel1.error.collectLatest { if (isGstr1 && it != null) { Toast.makeText(this@GstReportsActivity, it, Toast.LENGTH_LONG).show(); viewModel1.clearError() } } }
+        lifecycleScope.launch { viewModel1.exportEvent.collectLatest { if (isGstr1 && it != null) { handleExportEvent1(it); viewModel1.clearExportEvent() } } }
+        lifecycleScope.launch { viewModel1.drafts.collectLatest { if (isGstr1) bindDrafts1(it) } }
 
+        // GSTR-2
         lifecycleScope.launch {
-            viewModel.report.collectLatest { report ->
-                report ?: return@collectLatest
-                bindReport(report)
+            viewModel2.gstin.collectLatest { gstin ->
+                if (!isGstr1) tvGstin.text = if (gstin.isNotBlank()) "GSTIN: $gstin" else "GST Profile not configured"
             }
         }
-
         lifecycleScope.launch {
-            viewModel.validationResult.collectLatest { result ->
-                result ?: return@collectLatest
-                bindValidation(result)
+            viewModel2.isLoading.collectLatest { loading ->
+                if (!isGstr1) handleLoading(loading)
             }
         }
-
-        lifecycleScope.launch {
-            viewModel.error.collectLatest { error ->
-                error ?: return@collectLatest
-                Toast.makeText(this@GstReportsActivity, error, Toast.LENGTH_LONG).show()
-                viewModel.clearError()
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.exportEvent.collectLatest { event ->
-                event ?: return@collectLatest
-                handleExportEvent(event)
-                viewModel.clearExportEvent()
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.drafts.collectLatest { drafts ->
-                bindDrafts(drafts)
-            }
-        }
+        lifecycleScope.launch { viewModel2.report.collectLatest { if (!isGstr1 && it != null) bindReport2(it) } }
+        lifecycleScope.launch { viewModel2.error.collectLatest { if (!isGstr1 && it != null) { Toast.makeText(this@GstReportsActivity, it, Toast.LENGTH_LONG).show(); viewModel2.clearError() } } }
+        lifecycleScope.launch { viewModel2.exportEvent.collectLatest { if (!isGstr1 && it != null) { handleExportEvent2(it); viewModel2.clearExportEvent() } } }
+        lifecycleScope.launch { viewModel2.drafts.collectLatest { if (!isGstr1) bindDrafts2(it) } }
     }
+
+    private fun handleLoading(loading: Boolean) {
+        progressGenerate.visibility = if (loading) View.VISIBLE else View.GONE
+        btnGenerate.isEnabled = !loading
+        btnGenerate.text = if (loading) "Generating…" else "Generate"
+    }
+
 
     // ─────────────────────────────────────────────────────────────────────────
     //  Report binding
     // ─────────────────────────────────────────────────────────────────────────
 
-    private fun bindReport(report: Gstr1Report) {
+    private fun bindReport1(report: Gstr1Report) {
         // Summary card
         cardSummary.visibility = View.VISIBLE
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
@@ -285,12 +344,11 @@ class GstReportsActivity : AppCompatActivity() {
         // Tabs
         tabLayout.visibility = View.VISIBLE
         viewPager.visibility = View.VISIBLE
-        tabAdapter.updateReport(report)
 
         setActionButtonsEnabled(true)
     }
 
-    private fun bindValidation(result: Gstr1Validator.ValidationResult) {
+    private fun bindValidation1(result: Gstr1Validator.ValidationResult) {
         llValidationBanner.visibility = View.VISIBLE
 
         when {
@@ -315,11 +373,11 @@ class GstReportsActivity : AppCompatActivity() {
     //  Drafts
     // ─────────────────────────────────────────────────────────────────────────
 
-    private fun bindDrafts(drafts: List<Gstr1DraftEntity>) {
+    private fun bindDrafts1(drafts: List<Gstr1DraftEntity>) {
         llDraftsSection.visibility = if (drafts.isEmpty()) View.GONE else View.VISIBLE
         rvDrafts.layoutManager = LinearLayoutManager(this)
         rvDrafts.adapter = Gstr1DraftsAdapter(drafts,
-            onOpen   = { viewModel.loadDraftById(it.id) },
+            onOpen   = { viewModel1.loadDraftById(it.id) },
             onDelete = { confirmDeleteDraft(it) }
         )
     }
@@ -328,7 +386,7 @@ class GstReportsActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Delete Draft?")
             .setMessage("Delete GSTR-1 draft for ${draft.period} ${draft.financialYear}?")
-            .setPositiveButton("Delete") { _, _ -> viewModel.deleteDraft(draft.id) }
+            .setPositiveButton("Delete") { _, _ -> viewModel1.deleteDraft(draft.id) }
             .setNegativeButton("Cancel", null)
             .show()
     }
@@ -337,7 +395,7 @@ class GstReportsActivity : AppCompatActivity() {
     //  Export events
     // ─────────────────────────────────────────────────────────────────────────
 
-    private fun handleExportEvent(event: Gstr1ViewModel.ExportEvent) {
+    private fun handleExportEvent1(event: Gstr1ViewModel.ExportEvent) {
         when (event) {
             is Gstr1ViewModel.ExportEvent.DraftSaved -> {
                 Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
@@ -379,6 +437,69 @@ class GstReportsActivity : AppCompatActivity() {
                     }
                     .setNegativeButton("OK", null)
                     .show()
+            }
+        }
+    }
+
+
+    private fun bindReport2(report: Gstr2Report) {
+        cardSummary.visibility = View.VISIBLE
+        tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
+        tvSummaryTaxable.text     = "₹%,.2f".format(report.totalTaxable)
+        tvSummaryTax.text         = "N/A"
+        tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
+
+        tabLayout.visibility = View.VISIBLE
+        viewPager.visibility = View.VISIBLE
+
+        setActionButtonsEnabled(true)
+    }
+
+    private fun bindDrafts2(drafts: List<Gstr2DraftEntity>) {
+        llDraftsSection.visibility = if (drafts.isEmpty()) View.GONE else View.VISIBLE
+        rvDrafts.layoutManager = LinearLayoutManager(this)
+        rvDrafts.adapter = Gstr2DraftsAdapter(drafts,
+            onOpen   = { /* viewModel2.loadDraftById(it.id) */ },
+            onDelete = {
+                AlertDialog.Builder(this)
+                    .setTitle("Delete Draft?")
+                    .setMessage("Delete GSTR-2 draft?")
+                    .setPositiveButton("Delete") { _, _ -> viewModel2.deleteDraft(it) }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        )
+    }
+
+    private fun handleExportEvent2(event: Gstr2ViewModel.ExportEvent) {
+        when (event) {
+            is Gstr2ViewModel.ExportEvent.DraftSaved -> Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
+            is Gstr2ViewModel.ExportEvent.CsvExported -> {
+                AlertDialog.Builder(this)
+                    .setTitle("CSV Export Complete")
+                    .setMessage("${event.files.size} CSV file(s) written to:\n${event.directory}")
+                    .setPositiveButton("Share All") { _, _ ->
+                        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                            type = "text/csv"
+                            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(event.files.values))
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(intent, "Share GSTR-2 CSVs"))
+                    }
+                    .setNegativeButton("OK", null).show()
+            }
+            is Gstr2ViewModel.ExportEvent.ExcelExported -> {
+                AlertDialog.Builder(this)
+                    .setTitle("Excel Export Complete")
+                    .setMessage("Workbook saved to:\n${event.path}")
+                    .setPositiveButton("Open") { _, _ ->
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(event.uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        try { startActivity(intent) } catch (e: Exception) { Toast.makeText(this, "No app found.", Toast.LENGTH_SHORT).show() }
+                    }
+                    .setNegativeButton("OK", null).show()
             }
         }
     }

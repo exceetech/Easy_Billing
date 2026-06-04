@@ -86,6 +86,7 @@ data class PurchaseItem(
     @ColumnInfo(name = "availed_itc_cess") val availedItcCess: Double = 0.0,
     @ColumnInfo(name = "hsn_description") val hsnDescription: String = "",
     @ColumnInfo(name = "official_uqc") val officialUqc: String = "",
+    @ColumnInfo(name = "supply_classification") val supplyClassification: String = "TAXABLE",
 
     @ColumnInfo(name = "is_synced") val isSynced: Boolean = false
 )

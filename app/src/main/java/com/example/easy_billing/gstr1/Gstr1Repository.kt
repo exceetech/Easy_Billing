@@ -44,6 +44,7 @@ class Gstr1Repository(private val context: Context) {
         val months: List<Int> = monthsForPeriod(period, startYear)
 
         val start = Calendar.getInstance().apply {
+            clear()
             set(Calendar.YEAR, months.first().let { if (it >= 4) startYear else startYear + 1 })
             set(Calendar.MONTH, months.first() - 1)       // Calendar.MONTH is 0-based
             set(Calendar.DAY_OF_MONTH, 1)
@@ -56,8 +57,10 @@ class Gstr1Repository(private val context: Context) {
         val lastMonth = months.last()
         val lastYear  = if (lastMonth >= 4) startYear else startYear + 1
         val end = Calendar.getInstance().apply {
+            clear()
             set(Calendar.YEAR, lastYear)
             set(Calendar.MONTH, lastMonth - 1)
+            set(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
             set(Calendar.HOUR_OF_DAY, 23)
             set(Calendar.MINUTE, 59)

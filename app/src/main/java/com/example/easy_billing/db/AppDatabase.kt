@@ -10,6 +10,7 @@ import com.example.easy_billing.db.Product
 import com.example.easy_billing.DefaultProduct
 import com.example.easy_billing.DefaultProductDao
 import com.example.easy_billing.gstr1.Gstr1DraftEntity
+import com.example.easy_billing.gstr2.Gstr2DraftEntity
 
 @Database(
     entities = [
@@ -55,9 +56,13 @@ import com.example.easy_billing.gstr1.Gstr1DraftEntity
         CreditNoteItem::class,
 
         // GSTR-1 drafts (v30)
-        Gstr1DraftEntity::class
+        Gstr1DraftEntity::class,
+        Gstr2DraftEntity::class,
+
+        PurchaseImportDetails::class,
+        ImportService::class
     ],
-    version = 34
+    version = 39
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -93,6 +98,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun purchaseDao(): PurchaseDao
     abstract fun purchaseItemDao(): PurchaseItemDao
     abstract fun purchaseReturnDao(): PurchaseReturnDao
+    abstract fun purchaseImportDetailsDao(): PurchaseImportDetailsDao
     abstract fun scrapDao(): ScrapDao
 
     // GST-aware billing (v18)
@@ -108,6 +114,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     // GSTR-1 drafts (v30)
     abstract fun gstr1DraftDao(): com.example.easy_billing.gstr1.Gstr1DraftDao
+    abstract fun gstr2DraftDao(): com.example.easy_billing.gstr2.Gstr2DraftDao
+
+    // Import Services (v38)
+    abstract fun importServiceDao(): ImportServiceDao
 
     companion object {
 
@@ -1107,6 +1117,100 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_34_35 = object : Migration(34, 35) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add purchase_source to purchase_table
+                db.execSQL("ALTER TABLE `purchase_table` ADD COLUMN `purchase_source` TEXT NOT NULL DEFAULT 'DOMESTIC'")
+
+                // Create purchase_import_details table
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `purchase_import_details` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `purchase_id` INTEGER NOT NULL,
+                        `shop_id` TEXT NOT NULL DEFAULT '',
+                        `local_purchase_id` INTEGER NOT NULL,
+                        `port_code` TEXT NOT NULL,
+                        `bill_of_entry_number` TEXT NOT NULL,
+                        `bill_of_entry_date` INTEGER NOT NULL,
+                        `bill_of_entry_value` REAL NOT NULL DEFAULT 0.0,
+                        `document_type` TEXT NOT NULL DEFAULT 'Bill of Entry',
+                        `sez_supplier_gstin` TEXT,
+                        `sync_status` TEXT NOT NULL DEFAULT 'pending',
+                        `device_id` TEXT NOT NULL DEFAULT '',
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_import_details_purchase_id` ON `purchase_import_details`(`purchase_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_import_details_local_purchase_id` ON `purchase_import_details`(`local_purchase_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_import_details_sync_status` ON `purchase_import_details`(`sync_status`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_purchase_import_details_bill_of_entry_number` ON `purchase_import_details`(`bill_of_entry_number`)")
+            }
+        }
+
+        val MIGRATION_35_36 = object : Migration(35, 36) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                try {
+                    db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `supply_classification` TEXT NOT NULL DEFAULT 'TAXABLE'")
+                } catch (e: Exception) {
+                    // Ignore if already added
+                }
+            }
+        }
+
+        val MIGRATION_36_37 = object : Migration(36, 37) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                try {
+                    db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `supply_classification` TEXT NOT NULL DEFAULT 'TAXABLE'")
+                } catch (e: Exception) {
+                    // Ignore if already added
+                }
+            }
+        }
+
+        
+        val MIGRATION_38_39 = object : Migration(38, 39) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `gstr2_drafts` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `gstin` TEXT NOT NULL,
+                        `financial_year` TEXT NOT NULL,
+                        `period` TEXT NOT NULL,
+                        `return_type` TEXT NOT NULL,
+                        `report_json` TEXT NOT NULL,
+                        `generated_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
+        val MIGRATION_37_38 = object : Migration(37, 38) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `import_services` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `invoice_number` TEXT NOT NULL,
+                        `invoice_date` INTEGER NOT NULL,
+                        `invoice_value` REAL NOT NULL,
+                        `place_of_supply` TEXT NOT NULL,
+                        `rate` REAL NOT NULL,
+                        `taxable_value` REAL NOT NULL,
+                        `igst_paid` REAL NOT NULL,
+                        `cess_paid` REAL NOT NULL,
+                        `eligibility_for_itc` TEXT NOT NULL,
+                        `availed_itc_igst` REAL NOT NULL,
+                        `availed_itc_cess` REAL NOT NULL,
+                        `sync_status` TEXT NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1138,7 +1242,11 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_30_31,
                         MIGRATION_31_32,
                         MIGRATION_32_33,
-                        MIGRATION_33_34
+                        MIGRATION_33_34,
+                        MIGRATION_34_35,
+                        MIGRATION_35_36,
+                        MIGRATION_36_37,
+                        MIGRATION_37_38, MIGRATION_38_39
                     )
                     .fallbackToDestructiveMigration()
                     .build()

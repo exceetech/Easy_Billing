@@ -35,6 +35,20 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
     private val _selectedCreditAccount = MutableStateFlow<com.example.easy_billing.db.CreditAccount?>(null)
     val selectedCreditAccount: StateFlow<com.example.easy_billing.db.CreditAccount?> = _selectedCreditAccount.asStateFlow()
 
+    private val _isImportedGoods = MutableStateFlow(false)
+    val isImportedGoods: StateFlow<Boolean> = _isImportedGoods.asStateFlow()
+
+    private val _importDetails = MutableStateFlow<PurchaseRepository.PurchaseImportDetailsDraft?>(null)
+    val importDetails: StateFlow<PurchaseRepository.PurchaseImportDetailsDraft?> = _importDetails.asStateFlow()
+
+    fun setIsImportedGoods(isImported: Boolean) {
+        _isImportedGoods.value = isImported
+    }
+
+    fun setImportDetails(details: PurchaseRepository.PurchaseImportDetailsDraft?) {
+        _importDetails.value = details
+    }
+
     fun selectCreditAccount(account: com.example.easy_billing.db.CreditAccount?) {
         _selectedCreditAccount.value = account
     }
@@ -70,8 +84,17 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
                 _state.value = _state.value.copy(error = "Add at least one product")
                 return@launch
             }
+
+            if (_isImportedGoods.value && _importDetails.value == null) {
+                _state.value = _state.value.copy(error = "Import details required for imported goods")
+                return@launch
+            }
+
             _state.value = _state.value.copy(loading = true, error = null)
-            runCatching { purchaseRepo.savePurchase(header, current) }
+            runCatching { 
+                val detailsToSave = if (_isImportedGoods.value) _importDetails.value else null
+                purchaseRepo.savePurchase(header, current, detailsToSave) 
+            }
                 .onSuccess { result ->
                     val syncMessage = when (val outcome = result.syncOutcome) {
                         is SyncManager.SyncResult.Pushed       -> "Saved and synced"
@@ -103,6 +126,8 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
     fun clearTransient() {
         _state.value = _state.value.copy(error = null, savedPurchaseId = null, message = null)
         _selectedCreditAccount.value = null
+        _isImportedGoods.value = false
+        _importDetails.value = null
     }
 
     data class UiState(
