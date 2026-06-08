@@ -34,7 +34,7 @@
     <string name="store_information">Store Information</string>
     <string name="billing_settings">Billing Settings</string>
     <string name="invoice_design">Invoice Design</string>
-    <string name="localization_settings">Language, Region and Currency</string>
+    <string name="localization_settings">Language and Currency</string>
     <string name="data_security_management">Data and Security Management</string>
 
     <!-- Localization -->

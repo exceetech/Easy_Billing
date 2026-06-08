@@ -16,7 +16,6 @@ import androidx.core.content.edit
 class LocalizationSettingsActivity : BaseActivity() {
 
     private lateinit var spLanguage: AutoCompleteTextView
-    private lateinit var spRegion: AutoCompleteTextView
     private lateinit var spCurrency: AutoCompleteTextView
     private lateinit var btnSave: Button
 
@@ -30,7 +29,6 @@ class LocalizationSettingsActivity : BaseActivity() {
         "en","hi","ta","ml","te","kn"
     )
 
-    private val regions = listOf("India","USA","Europe")
     private val currencies = listOf("₹ INR","$ USD","€ EUR")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,11 +76,9 @@ class LocalizationSettingsActivity : BaseActivity() {
     private fun setEditMode(enabled: Boolean) {
 
         spLanguage.isEnabled = enabled
-        spRegion.isEnabled = enabled
         spCurrency.isEnabled = enabled
 
         spLanguage.isClickable = enabled
-        spRegion.isClickable = enabled
         spCurrency.isClickable = enabled
 
         btnSave.visibility = if (enabled) View.VISIBLE else View.GONE
@@ -91,7 +87,6 @@ class LocalizationSettingsActivity : BaseActivity() {
     private fun bindViews() {
 
         spLanguage = findViewById(R.id.spLanguage)
-        spRegion = findViewById(R.id.spRegion)
         spCurrency = findViewById(R.id.spCurrency)
 
         btnSave = findViewById(R.id.btnSaveLocalization)
@@ -107,12 +102,6 @@ class LocalizationSettingsActivity : BaseActivity() {
             languages
         )
 
-        val regionAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            regions
-        )
-
         val currencyAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line,
@@ -120,21 +109,15 @@ class LocalizationSettingsActivity : BaseActivity() {
         )
 
         spLanguage.setAdapter(langAdapter)
-        spRegion.setAdapter(regionAdapter)
         spCurrency.setAdapter(currencyAdapter)
 
         // Disable keyboard
         spLanguage.keyListener = null
-        spRegion.keyListener = null
         spCurrency.keyListener = null
 
         // Open dropdown only when edit mode is active
         spLanguage.setOnClickListener {
             if (isEditMode) spLanguage.showDropDown()
-        }
-
-        spRegion.setOnClickListener {
-            if (isEditMode) spRegion.showDropDown()
         }
 
         spCurrency.setOnClickListener {
@@ -149,7 +132,6 @@ class LocalizationSettingsActivity : BaseActivity() {
         val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
 
         spLanguage.setText(prefs.getString("app_language_name","English"), false)
-        spRegion.setText(prefs.getString("app_region","India"), false)
         val savedSymbol = prefs.getString("app_currency", "₹") ?: "₹"
 
         val displayCurrency = currencies.find { it.startsWith(savedSymbol) } ?: "₹ INR"
@@ -184,7 +166,6 @@ class LocalizationSettingsActivity : BaseActivity() {
         prefs.edit {
             putString("app_language", codes[languageIndex])
                 .putString("app_language_name", languageName)
-                .putString("app_region", spRegion.text.toString())
                 .putString("app_currency", currencySymbol)
         }
 

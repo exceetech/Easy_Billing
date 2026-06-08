@@ -21,6 +21,9 @@ interface PurchaseDao {
     @Query("SELECT * FROM purchase_table WHERE id = :id LIMIT 1")
     suspend fun getById(id: Int): Purchase?
 
+    @Query("SELECT * FROM purchase_table WHERE server_id = :serverId LIMIT 1")
+    suspend fun getByServerId(serverId: Int): Purchase?
+
     @Query("SELECT * FROM purchase_table WHERE is_synced = 0")
     suspend fun getUnsynced(): List<Purchase>
 

@@ -18,7 +18,9 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = ["productId"]),
         Index(value = ["hsnCode"]),
-        Index(value = ["shop_id"])
+        Index(value = ["shop_id"]),
+        Index(value = ["note_number"]),
+        Index(value = ["original_invoice_id"])
     ]
 )
 data class PurchaseReturn(
@@ -38,12 +40,12 @@ data class PurchaseReturn(
     val taxableAmount: Double,
     val invoiceValue: Double,
 
-    @ColumnInfo(name = "cgst_percentage") val cgstPercentage: Double = 0.0,
-    @ColumnInfo(name = "sgst_percentage") val sgstPercentage: Double = 0.0,
-    @ColumnInfo(name = "igst_percentage") val igstPercentage: Double = 0.0,
-    @ColumnInfo(name = "cgst_amount")     val cgstAmount: Double = 0.0,
-    @ColumnInfo(name = "sgst_amount")     val sgstAmount: Double = 0.0,
-    @ColumnInfo(name = "igst_amount")     val igstAmount: Double = 0.0,
+    @ColumnInfo(name = "cgst_percentage", defaultValue = "0.0") val cgstPercentage: Double = 0.0,
+    @ColumnInfo(name = "sgst_percentage", defaultValue = "0.0") val sgstPercentage: Double = 0.0,
+    @ColumnInfo(name = "igst_percentage", defaultValue = "0.0") val igstPercentage: Double = 0.0,
+    @ColumnInfo(name = "cgst_amount", defaultValue = "0.0")     val cgstAmount: Double = 0.0,
+    @ColumnInfo(name = "sgst_amount", defaultValue = "0.0")     val sgstAmount: Double = 0.0,
+    @ColumnInfo(name = "igst_amount", defaultValue = "0.0")     val igstAmount: Double = 0.0,
 
     val state: String = "",
 
@@ -51,10 +53,10 @@ data class PurchaseReturn(
     val supplierName: String? = null,
 
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "is_synced")  val isSynced: Boolean = false,
+    @ColumnInfo(name = "is_synced", defaultValue = "0")  val isSynced: Boolean = false,
 
     // Credit Integration
-    @ColumnInfo(name = "is_credit")          val isCredit: Boolean = false,
+    @ColumnInfo(name = "is_credit", defaultValue = "0")          val isCredit: Boolean = false,
     @ColumnInfo(name = "credit_account_id")   val creditAccountId: Int? = null,
     @ColumnInfo(name = "credit_transaction_id") val creditTransactionId: Int? = null,
 
@@ -84,27 +86,27 @@ data class PurchaseReturn(
     @ColumnInfo(name = "original_invoice_date") val originalInvoiceDate: Long? = null,
 
     /** Place of supply (state name). */
-    @ColumnInfo(name = "place_of_supply")      val placeOfSupply: String = "",
+    @ColumnInfo(name = "place_of_supply", defaultValue = "''")      val placeOfSupply: String = "",
 
     /** "intrastate" or "interstate". */
-    @ColumnInfo(name = "supply_type")          val supplyType: String = "intrastate",
+    @ColumnInfo(name = "supply_type", defaultValue = "'intrastate'")          val supplyType: String = "intrastate",
 
     /** CESS amount applicable on this return, if any. */
-    @ColumnInfo(name = "cess_amount")          val cessAmount: Double = 0.0,
+    @ColumnInfo(name = "cess_amount", defaultValue = "0.0")          val cessAmount: Double = 0.0,
 
-    @ColumnInfo(name = "document_type")        val documentType: String = "Debit Note",
+    @ColumnInfo(name = "document_type", defaultValue = "'Debit Note'")        val documentType: String = "Debit Note",
     @ColumnInfo(name = "document_nature")      val documentNature: String? = null,
     @ColumnInfo(name = "document_series")      val documentSeries: String? = null,
 
-    @ColumnInfo(name = "pre_gst")              val preGst: String = "N",
-    @ColumnInfo(name = "reason_for_issuing_document") val reasonForIssuingDocument: String = "Purchase return",
-    @ColumnInfo(name = "note_refund_voucher_value") val noteRefundVoucherValue: Double = 0.0,
-    val rate: Double = 0.0,
-    @ColumnInfo(name = "eligibility_for_itc")  val eligibilityForItc: String = "Inputs",
-    @ColumnInfo(name = "availed_itc_integrated_tax") val availedItcIntegratedTax: Double = 0.0,
-    @ColumnInfo(name = "availed_itc_central_tax") val availedItcCentralTax: Double = 0.0,
-    @ColumnInfo(name = "availed_itc_state_tax") val availedItcStateTax: Double = 0.0,
-    @ColumnInfo(name = "availed_itc_cess")     val availedItcCess: Double = 0.0,
-    @ColumnInfo(name = "invoice_type")         val invoiceType: String = "Regular",
-    @ColumnInfo(name = "place_of_supply_code") val placeOfSupplyCode: String = ""
+    @ColumnInfo(name = "pre_gst", defaultValue = "'N'")              val preGst: String = "N",
+    @ColumnInfo(name = "reason_for_issuing_document", defaultValue = "'Purchase return'") val reasonForIssuingDocument: String = "Purchase return",
+    @ColumnInfo(name = "note_refund_voucher_value", defaultValue = "0.0") val noteRefundVoucherValue: Double = 0.0,
+    @ColumnInfo(defaultValue = "0.0") val rate: Double = 0.0,
+    @ColumnInfo(name = "eligibility_for_itc", defaultValue = "'Inputs'")  val eligibilityForItc: String = "Inputs",
+    @ColumnInfo(name = "availed_itc_integrated_tax", defaultValue = "0.0") val availedItcIntegratedTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_central_tax", defaultValue = "0.0") val availedItcCentralTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_state_tax", defaultValue = "0.0") val availedItcStateTax: Double = 0.0,
+    @ColumnInfo(name = "availed_itc_cess", defaultValue = "0.0")     val availedItcCess: Double = 0.0,
+    @ColumnInfo(name = "invoice_type", defaultValue = "'Regular'")         val invoiceType: String = "Regular",
+    @ColumnInfo(name = "place_of_supply_code", defaultValue = "''") val placeOfSupplyCode: String = ""
 )

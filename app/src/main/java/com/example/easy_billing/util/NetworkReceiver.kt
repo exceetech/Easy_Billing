@@ -46,10 +46,20 @@ class NetworkReceiver(private val context: Context) {
                             // ✅ BACKEND OK → SYNC
                             val syncManager = SyncManager(context)
                             syncManager.syncAll()
-                            syncManager.pullInventory()
+                            
+                syncManager.pullPurchaseBatches()
+                syncManager.pullPurchaseReturns()
+                syncManager.pullCreditNotes()
+                syncManager.pullInventory()
+                            syncManager.pullImportServices()
 
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            // If it's a 409 WORKSPACE_CHANGED, WorkspaceInterceptor already launched
+                            // WorkspaceChangedActivity. Do not call forceLogout to avoid a race condition.
+                            if (e is retrofit2.HttpException && e.code() == 409) {
+                                return@launch
+                            }
                             forceLogout("Server error")
                         } finally {
                             isSyncing = false
@@ -63,21 +73,14 @@ class NetworkReceiver(private val context: Context) {
     // ================= BACKEND CHECK =================
 
     private suspend fun checkBackend(): Boolean {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return false
 
-        return try {
-
-            val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return false
-
-            withTimeout(3000) {
-                RetrofitClient.api.getSubscription(token)
-            }
-
-            true
-
-        } catch (e: Exception) {
-            false
+        withTimeout(3000) {
+            RetrofitClient.api.getSubscription(token)
         }
+
+        return true
     }
 
     // ================= FORCE LOGOUT =================

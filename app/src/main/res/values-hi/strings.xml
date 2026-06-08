@@ -29,7 +29,7 @@
     <string name="store_information">दुकान जानकारी</string>
     <string name="billing_settings">बिलिंग सेटिंग्स</string>
     <string name="invoice_design">इनवॉइस डिज़ाइन</string>
-    <string name="localization_settings">भाषा, क्षेत्र और मुद्रा</string>
+    <string name="localization_settings">भाषा और मुद्रा</string>
     <string name="data_security_management">डेटा और सुरक्षा प्रबंधन</string>
 
     <string name="language">भाषा</string>

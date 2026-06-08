@@ -144,75 +144,74 @@ class DataSecurityActivity : BaseActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
 
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null)
+            val authPrefs = getSharedPreferences("auth", MODE_PRIVATE)
+            val token     = authPrefs.getString("TOKEN", null)
+
+            if (token == null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@DataSecurityActivity, "Not logged in.", Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
 
             try {
+                // ── STEP 1: Cancel in-flight sync ──────────────────────────────
+                // Prevents a concurrent sync from writing rows back after we wipe.
+                try {
+                    com.example.easy_billing.sync.SyncCoordinator
+                        .get(applicationContext).cancelSync()
+                } catch (_: Exception) {}
 
-                // ✅ STEP 1: BACKEND RESET (MANDATORY)
-                if (token != null) {
-                    RetrofitClient.api.factoryReset(token)
-                }
+                // ── STEP 2: Workspace Rotation on the backend ──────────────────
+                // Archives the current Shop and provisions a clean new Shop.
+                // Migrates the active Subscription. Returns a fresh JWT.
+                // Business tables (bills, purchases, inventory, credit notes, etc.)
+                // are NEVER touched — they remain linked to the archived shop.
+                val resetResponse = RetrofitClient.api.factoryReset(token)
+                val newToken      = resetResponse.access_token
+                val newShopId     = resetResponse.new_shop_id
 
-                if (token != null) {
-                    val response = RetrofitClient.api.resetCredit(token)
-
-                    if (!response.isSuccessful) {
-                        throw Exception("Backend reset failed")
-                    }
-                }
-
-                // ✅ STEP 2: DESTROY ROOM INSTANCE
+                // ── STEP 3: Clear local Room tables ────────────────────────────
+                // clearAllTables() removes every row in every table but keeps
+                // the schema intact — migration history is preserved.
+                AppDatabase.getDatabase(applicationContext).clearAllTables()
                 AppDatabase.destroyInstance()
 
-                // ✅ STEP 3: DELETE DATABASE FILE
-                applicationContext.deleteDatabase("easy_billing_db")
-
-                // ✅ STEP 4: CLEAR PREFS
-                val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-                prefs.edit().clear().apply()
-
-                // 🔥 STEP 5: RESET LOCALIZATION DEFAULTS
-                prefs.edit {
-                    putString("app_language", "en")
-                        .putString("app_language_name", "English")
-                        .putString("app_region", "India")
-                        .putString("app_currency", "₹")
+                // ── STEP 4: Write new workspace identity to SharedPrefs ─────────
+                authPrefs.edit {
+                    putString("TOKEN",   newToken)
+                    putInt("SHOP_ID",    newShopId)
                 }
 
-                // 🔥 CLEAR AI CACHE FLAG
-                prefs.edit {
-                    putBoolean("ai_reset", true)
-                    .apply()
+                // ── STEP 5: Reset app-level settings ───────────────────────────
+                getSharedPreferences("app_settings", MODE_PRIVATE).edit {
+                    clear()
+                    putString("app_language",      "en")
+                    putString("app_language_name", "English")
+                    putString("app_currency",      "₹")
+                    putBoolean("ai_reset",         true)
                 }
 
-                // ✅ STEP 6: CLEAR AUTH (LOGOUT)
-                getSharedPreferences("auth", MODE_PRIVATE)
-                    .edit {
-                        clear()
-                    }
-
+                // ── STEP 6: Restart into fresh workspace ────────────────────────
+                // SplashActivity validates the new token, then routes to Dashboard.
                 withContext(Dispatchers.Main) {
-
                     Toast.makeText(
                         this@DataSecurityActivity,
-                        "Factory Reset Completed",
+                        "Factory reset complete. Starting fresh workspace.",
                         Toast.LENGTH_LONG
                     ).show()
 
-                    // ✅ STEP 7: RESTART APP (CLEAR UI CACHE)
-                    val intent = Intent(this@DataSecurityActivity, MainActivity::class.java)
+                    val intent = Intent(this@DataSecurityActivity, SplashActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                 }
 
             } catch (e: Exception) {
-
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@DataSecurityActivity,
-                        "Reset failed: Check internet",
-                        Toast.LENGTH_SHORT
+                        "Reset failed: ${e.message ?: "Check internet connection"}",
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }

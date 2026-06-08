@@ -35,9 +35,17 @@ import com.example.easy_billing.network.ScrapSyncRequest
 import com.example.easy_billing.network.CreditNoteDto
 import com.example.easy_billing.network.CreditNoteItemDto
 import com.example.easy_billing.network.CreditNoteSyncRequest
+import com.example.easy_billing.network.InventoryLogResponse
+import com.example.easy_billing.network.PurchaseResponse
 import com.example.easy_billing.api.PurchaseImportDetailsSyncRequest
 import com.example.easy_billing.api.PurchaseImportDetailsDto
 import android.util.Log
+
+import com.example.easy_billing.network.PurchaseBatchDto
+import com.example.easy_billing.network.PurchaseBatchSyncRequest
+import com.example.easy_billing.network.CreditNoteResponseDto
+import com.example.easy_billing.network.PurchaseReturnResponseDto
+import com.example.easy_billing.network.PurchaseBatchResponseDto
 
 class SyncManager(private val context: Context) {
 
@@ -52,8 +60,10 @@ class SyncManager(private val context: Context) {
         syncShopProducts()       // push unsynced shop_product (and global)
         syncInventory()          // inventory BEFORE bills
         syncBills()              // then bills
-        syncPurchases()          // push purchase invoices + items
-        syncPurchaseImportDetails() // push imported goods details
+        syncPurchases()
+        syncPurchaseBatches()
+        syncPurchaseImportDetails()
+        syncPurchaseBatches()
         syncImportServices()     // push import services
         syncPurchaseReturns()    // push purchase returns (debit notes)
         syncCreditNotes()        // push sales returns (credit notes)
@@ -436,6 +446,68 @@ class SyncManager(private val context: Context) {
             Log.e(SYNC_TAG, "syncImportServices: FAILED", e)
         }
     }
+
+    suspend fun pullImportServices() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getInt("SHOP_ID", -1)
+        if (shopId == -1) return
+
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        try {
+            val serverRecords = api.getImportServices(token, shopId)
+            val dao = db.importServiceDao()
+
+            db.withTransaction {
+                for (record in serverRecords) {
+                    val localIdToUse = record.local_id ?: record.id
+                    val existing = dao.getById(localIdToUse)
+                    if (existing != null) {
+                        dao.update(
+                            existing.apply {
+                                invoiceNumber = record.invoice_number
+                                invoiceDate = record.invoice_date
+                                invoiceValue = record.invoice_value
+                                placeOfSupply = record.place_of_supply
+                                rate = record.rate
+                                taxableValue = record.taxable_value
+                                igstPaid = record.igst_paid
+                                cessPaid = record.cess_paid
+                                eligibilityForItc = record.eligibility_for_itc
+                                availedItcIgst = record.availed_itc_igst
+                                availedItcCess = record.availed_itc_cess
+                                syncStatus = "synced"
+                            }
+                        )
+                    } else {
+                        dao.insert(
+                            com.example.easy_billing.db.ImportService(
+                                id = localIdToUse,
+                                invoiceNumber = record.invoice_number,
+                                invoiceDate = record.invoice_date,
+                                invoiceValue = record.invoice_value,
+                                placeOfSupply = record.place_of_supply,
+                                rate = record.rate,
+                                taxableValue = record.taxable_value,
+                                igstPaid = record.igst_paid,
+                                cessPaid = record.cess_paid,
+                                eligibilityForItc = record.eligibility_for_itc,
+                                availedItcIgst = record.availed_itc_igst,
+                                availedItcCess = record.availed_itc_cess,
+                                syncStatus = "synced"
+                            )
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pullImportServices: FAILED", e)
+        }
+    }
+
 
     suspend fun syncPurchaseReturns() {
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -1023,7 +1095,7 @@ class SyncManager(private val context: Context) {
                         continue
                     }
 
-                    val existing = inventoryDao.getInventory(product.id)
+                    val existing = inventoryDao.getInventoryIncludingInactive(product.id)
 
                     if (existing != null) {
                         // 🔥 PROTECT LOCAL CHANGES
@@ -1114,7 +1186,8 @@ class SyncManager(private val context: Context) {
                                         unit           = bp.unit ?: alreadyLocal.unit,
                                         price          = bp.price,
                                         serverId       = bp.id,
-                                        isActive       = true,
+                                        isActive       = bp.is_active,
+                                        isPurchased    = bp.is_purchased,
                                         shopId         = missingShopId,
                                         hsnCode        = bp.hsn_code ?: alreadyLocal.hsnCode,
                                         defaultGstRate = bp.default_gst_rate ?: alreadyLocal.defaultGstRate,
@@ -1141,7 +1214,8 @@ class SyncManager(private val context: Context) {
                                         price          = bp.price,
                                         trackInventory = true,
                                         isCustom       = false,
-                                        isActive       = true,
+                                        isActive       = bp.is_active,
+                                        isPurchased    = bp.is_purchased,
                                         shopId         = missingShopId,
                                         hsnCode        = bp.hsn_code,
                                         defaultGstRate = bp.default_gst_rate ?: 0.0,
@@ -1168,6 +1242,166 @@ class SyncManager(private val context: Context) {
                 }
             }
 
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun pullPurchases() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+
+        try {
+            val serverPurchases = api.getPurchases(token)
+            println("📦 SERVER PURCHASES SIZE = ${serverPurchases.size}")
+
+            val productDao = db.productDao()
+            val purchaseDao = db.purchaseDao()
+            val purchaseItemDao = db.purchaseItemDao()
+
+            val products = productDao.getAll()
+            val productMap = products.associateBy { it.serverId }
+
+            db.withTransaction {
+                for (p in serverPurchases) {
+                    // Check if purchase already exists locally by server ID
+                    val existing = purchaseDao.getByServerId(p.id)
+                    if (existing != null) {
+                        println("⏳ Skipping pull for purchase serverId=${p.id} → already exists")
+                        continue
+                    }
+
+                    // Insert purchase header
+                    val newPurchaseId = purchaseDao.insert(
+                        com.example.easy_billing.db.Purchase(
+                            id = 0,
+                            invoiceNumber = p.invoice_number,
+                            supplierGstin = p.supplier_gstin,
+                            supplierName = p.supplier_name,
+                            state = p.state,
+                            taxableAmount = p.taxable_amount,
+                            cgstPercentage = p.cgst_percentage,
+                            sgstPercentage = p.sgst_percentage,
+                            igstPercentage = p.igst_percentage,
+                            cgstAmount = p.cgst_amount,
+                            sgstAmount = p.sgst_amount,
+                            igstAmount = p.igst_amount,
+                            invoiceValue = p.invoice_value,
+                            invoiceDate = p.invoice_date,
+                            createdAt = p.created_at,
+                            isSynced = true,
+                            serverId = p.id,
+                            isCredit = p.is_credit,
+                            creditAccountId = p.credit_account_id,
+                            creditTransactionId = null,
+                            placeOfSupplyCode = p.place_of_supply_code,
+                            reverseCharge = p.reverse_charge,
+                            invoiceType = p.invoice_type,
+                            supplyType = p.supply_type,
+                            cessPaid = p.cess_paid,
+                            eligibilityForItc = p.eligibility_for_itc,
+                            availedItcIntegratedTax = p.availed_itc_integrated_tax,
+                            availedItcCentralTax = p.availed_itc_central_tax,
+                            availedItcStateTax = p.availed_itc_state_tax,
+                            availedItcCess = p.availed_itc_cess,
+                            purchaseSource = p.purchase_source
+                        )
+                    ).toInt()
+
+                    // Insert purchase items
+                    for (item in p.items) {
+                        val product = item.shop_product_id?.let {
+                            productMap[it] ?: productDao.getByServerId(it)
+                        }
+
+                        purchaseItemDao.insert(
+                            com.example.easy_billing.db.PurchaseItem(
+                                id = 0,
+                                purchaseId = newPurchaseId,
+                                productId = product?.id,
+                                productName = item.product_name,
+                                variant = item.variant,
+                                hsnCode = item.hsn_code,
+                                quantity = item.quantity,
+                                unit = item.unit,
+                                taxableAmount = item.taxable_amount,
+                                invoiceValue = item.invoice_value,
+                                costPrice = item.cost_price,
+                                purchaseCgstPercentage = item.purchase_cgst_percentage,
+                                purchaseSgstPercentage = item.purchase_sgst_percentage,
+                                purchaseIgstPercentage = item.purchase_igst_percentage,
+                                purchaseCgstAmount = item.purchase_cgst_amount,
+                                purchaseSgstAmount = item.purchase_sgst_amount,
+                                purchaseIgstAmount = item.purchase_igst_amount,
+                                salesCgstPercentage = item.sales_cgst_percentage,
+                                salesSgstPercentage = item.sales_sgst_percentage,
+                                salesIgstPercentage = item.sales_igst_percentage,
+                                cessPercentage = item.cess_percentage,
+                                cessAmount = item.cess_amount,
+                                eligibilityForItc = item.eligibility_for_itc,
+                                availedItcIgst = item.availed_itc_igst,
+                                availedItcCgst = item.availed_itc_cgst,
+                                availedItcSgst = item.availed_itc_sgst,
+                                availedItcCess = item.availed_itc_cess,
+                                hsnDescription = item.hsn_description,
+                                officialUqc = item.official_uqc,
+                                supplyClassification = item.supply_classification,
+                                isSynced = true
+                            )
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun pullInventoryLogs() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+
+        try {
+            val serverLogs = api.getInventoryLogs(token)
+            println("📦 SERVER INVENTORY LOGS SIZE = ${serverLogs.size}")
+
+            val productDao = db.productDao()
+            val inventoryLogDao = db.inventoryLogDao()
+
+            val products = productDao.getAll()
+            val productMap = products.associateBy { it.serverId }
+
+            db.withTransaction {
+                for (item in serverLogs) {
+                    val product = productMap[item.product_id] ?: productDao.getByServerId(item.product_id)
+                    if (product == null) continue
+
+                    // Check if similar log exists locally to prevent duplicates
+                    val existingLogs = inventoryLogDao.getLogs(product.id)
+                    val isDuplicate = existingLogs.any {
+                        it.type == item.type &&
+                        Math.abs(it.quantity - item.quantity) < 0.001 &&
+                        Math.abs(it.price - item.price) < 0.001 &&
+                        Math.abs(it.date - (item.date ?: 0L)) < 1000 // 1s tolerance
+                    }
+
+                    if (!isDuplicate) {
+                        inventoryLogDao.insert(
+                            com.example.easy_billing.db.InventoryLog(
+                                id = 0,
+                                productId = product.id,
+                                type = item.type,
+                                quantity = item.quantity,
+                                price = item.price,
+                                date = item.date ?: System.currentTimeMillis(),
+                                isSynced = true
+                            )
+                        )
+                    }
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -1478,4 +1712,274 @@ class SyncManager(private val context: Context) {
             }
         }
     }
+
+    // ==========================================
+    //  PURCHASE BATCHES, RETURNS & CREDIT NOTES PULL
+    // ==========================================
+
+    private fun parseIsoDate(isoString: String?): Long? {
+        if (isoString.isNullOrEmpty()) return null
+        return try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                java.time.Instant.parse(isoString.replace("Z", "") + "Z").toEpochMilli()
+            } else {
+                val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US)
+                format.timeZone = java.util.TimeZone.getTimeZone("UTC")
+                format.parse(isoString)?.time
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun syncPurchaseBatches() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+        val token = prefs.getString("TOKEN", null)
+        if (token == null) {
+            Log.w(SYNC_TAG, "syncPurchaseBatches skipped — no auth token")
+            return
+        }
+
+        val pending = db.purchaseBatchDao().getUnsynced()
+        if (pending.isEmpty()) return
+
+        Log.d(SYNC_TAG, "syncPurchaseBatches: ${pending.size} unsynced batch(es)")
+
+        val dtoBatch = pending.map { b: com.example.easy_billing.db.PurchaseBatch ->
+            PurchaseBatchDto(
+                local_id = b.id,
+                product_id = b.productId,
+                purchase_invoice_id = b.purchaseInvoiceId,
+                supplier_name = b.supplierName,
+                supplier_gstin = b.supplierGstin,
+                invoice_number = b.invoiceNumber,
+                batch_code = b.batchCode,
+                quantity_purchased = b.quantityPurchased,
+                quantity_remaining = b.quantityRemaining,
+                unit_cost_excluding_tax = b.unitCostExcludingTax,
+                gst_percent = b.gstPercent,
+                cgst_percent = b.cgstPercent,
+                sgst_percent = b.sgstPercent,
+                igst_percent = b.igstPercent,
+                invoice_value = b.invoiceValue,
+                taxable_value = b.taxableValue,
+                invoice_date = null,
+                created_at = b.createdAt
+            )
+        }
+
+        try {
+            val response = api.syncPurchaseBatches(token, PurchaseBatchSyncRequest(dtoBatch))
+            Log.d(SYNC_TAG, "syncPurchaseBatches: server replied success=${response.success_count}")
+
+            db.withTransaction {
+                for (dto in dtoBatch) {
+                    val serverId = response.batch_id_map[dto.local_id.toString()]
+                    if (serverId != null) {
+                        db.purchaseBatchDao().markAsSynced(listOf(dto.local_id))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncPurchaseBatches: POST FAILED", e)
+        }
+    }
+
+    suspend fun pullPurchaseBatches() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", -1)
+        if (shopId == -1) return
+
+        try {
+            val batches = api.getPurchaseBatches(token, shopId)
+            db.withTransaction {
+                for (b in batches) {
+                    val existing = db.purchaseBatchDao().getBatchById(b.local_id)
+                    if (existing == null) {
+                        db.purchaseBatchDao().insertBatch(
+                            com.example.easy_billing.db.PurchaseBatch(
+                                id = b.local_id,
+                                productId = b.product_id,
+                                purchaseInvoiceId = b.purchase_invoice_id,
+                                supplierName = b.supplier_name,
+                                supplierGstin = b.supplier_gstin,
+                                invoiceNumber = b.invoice_number,
+                                batchCode = b.batch_code,
+                                quantityPurchased = b.quantity_purchased,
+                                quantityRemaining = b.quantity_remaining,
+                                unitCostExcludingTax = b.unit_cost_excluding_tax,
+                                gstPercent = b.gst_percent,
+                                cgstPercent = b.cgst_percent,
+                                sgstPercent = b.sgst_percent,
+                                igstPercent = b.igst_percent,
+                                invoiceValue = b.invoice_value,
+                                taxableValue = b.taxable_value,
+                                
+                                createdAt = parseIsoDate(b.created_at) ?: System.currentTimeMillis(),
+                                isSynced = true
+                            )
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pullPurchaseBatches: FAILED", e)
+        }
+    }
+
+    suspend fun pullCreditNotes() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+
+        try {
+            val notes = api.getCreditNotes(token)
+            db.withTransaction {
+                for (noteDto in notes) {
+                    // Try to match by serverId if local_id is missing, or local_id
+                    val existing = if (noteDto.local_id != null && noteDto.local_id > 0) {
+                        db.creditNoteDao().getById(noteDto.local_id)
+                    } else null
+                    
+                    if (existing == null) {
+                        val newId = db.creditNoteDao().insert(
+                            com.example.easy_billing.db.CreditNote(
+                                id = noteDto.local_id ?: 0,
+                                noteNumber = noteDto.note_number,
+                                noteDate = parseIsoDate(noteDto.note_date) ?: System.currentTimeMillis(),
+                                noteType = noteDto.note_type,
+                                noteSupplyType = noteDto.note_supply_type ?: "Regular",
+                                originalInvoiceId = noteDto.original_invoice_id ?: 0,
+                                originalInvoiceNumber = noteDto.original_invoice_number ?: "",
+                                originalInvoiceDate = parseIsoDate(noteDto.original_invoice_date) ?: 0L,
+                                customerName = noteDto.customer_name ?: "",
+                                customerGstin = noteDto.customer_gstin,
+                                placeOfSupply = noteDto.place_of_supply ?: "",
+                                reverseCharge = noteDto.reverse_charge,
+                                supplyType = noteDto.supply_type,
+                                urType = noteDto.ur_type ?: "B2CS",
+                                documentType = noteDto.document_type ?: "",
+                                documentNature = noteDto.document_nature ?: "",
+                                documentSeries = noteDto.document_series ?: "",
+                                taxableValue = noteDto.taxable_value,
+                                cgstAmount = noteDto.cgst_amount,
+                                sgstAmount = noteDto.sgst_amount,
+                                igstAmount = noteDto.igst_amount,
+                                cessAmount = noteDto.cess_amount,
+                                taxAmount = noteDto.tax_amount,
+                                totalAmount = noteDto.total_amount,
+                                syncStatus = "synced",
+                                createdAt = parseIsoDate(noteDto.created_at) ?: System.currentTimeMillis(),
+                                updatedAt = parseIsoDate(noteDto.updated_at) ?: System.currentTimeMillis()
+                            )
+                        )
+                        for (itemDto in noteDto.items) {
+                            db.creditNoteItemDao().insert(
+                                com.example.easy_billing.db.CreditNoteItem(
+                                    id = 0,
+                                    noteId = newId.toInt(),
+                                    productId = itemDto.product_id ?: 0,
+                                    productName = itemDto.product_name,
+                                    variant = itemDto.variant,
+                                    hsnCode = itemDto.hsn_code ?: "",
+                                    unit = itemDto.unit ?: "",
+                                    quantitySold = itemDto.quantity_sold,
+                                    quantityReturned = itemDto.quantity_returned,
+                                    rate = itemDto.rate,
+                                    costPriceUsed = itemDto.cost_price_used,
+                                    taxableValue = itemDto.taxable_value,
+                                    gstRate = itemDto.gst_rate,
+                                    cgstAmount = itemDto.cgst_amount,
+                                    sgstAmount = itemDto.sgst_amount,
+                                    igstAmount = itemDto.igst_amount,
+                                    cessAmount = itemDto.cess_amount,
+                                    taxAmount = itemDto.tax_amount,
+                                    totalAmount = itemDto.total_amount,
+                                    originalBillItemId = itemDto.original_bill_item_id
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pullCreditNotes: FAILED", e)
+        }
+    }
+
+    suspend fun pullPurchaseReturns() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", -1)
+        if (shopId == -1) return
+
+        try {
+            val returns = api.getPurchaseReturns(token, shopId)
+            db.withTransaction {
+                for (r in returns) {
+                    val existingRows = db.purchaseReturnDao().getRecent(10000)
+                    val isDuplicate = existingRows.any { it.createdAt == (parseIsoDate(r.created_at) ?: 0L) && it.productId == r.shop_product_id }
+                    if (!isDuplicate) {
+                        db.purchaseReturnDao().insert(
+                            com.example.easy_billing.db.PurchaseReturn(
+                                id = 0, // Auto-generate local ID
+                                productId = r.shop_product_id,
+                                productName = r.product_name,
+                                variantName = r.variant_name,
+                                hsnCode = r.hsn_code,
+                                quantityReturned = r.quantity_returned,
+                                taxableAmount = r.taxable_amount,
+                                invoiceValue = r.invoice_value,
+                                cgstPercentage = r.cgst_percentage,
+                                sgstPercentage = r.sgst_percentage,
+                                igstPercentage = r.igst_percentage,
+                                cgstAmount = r.cgst_amount,
+                                sgstAmount = r.sgst_amount,
+                                igstAmount = r.igst_amount,
+                                state = r.state,
+                                supplierGstin = r.supplier_gstin,
+                                supplierName = r.supplier_name,
+                                isCredit = r.is_credit,
+                                creditAccountId = r.credit_account_id,
+                                creditTransactionId = null,
+                                createdAt = parseIsoDate(r.created_at) ?: System.currentTimeMillis(),
+                                isSynced = true,
+                                noteNumber = r.note_number,
+                                noteDate = parseIsoDate(r.note_date) ?: 0L,
+                                noteType = r.note_type,
+                                originalInvoiceId = r.original_invoice_id,
+                                originalInvoiceNumber = r.original_invoice_number,
+                                originalInvoiceDate = parseIsoDate(r.original_invoice_date) ?: 0L,
+                                placeOfSupply = r.place_of_supply ?: "",
+                                supplyType = r.supply_type ?: "intrastate",
+                                cessAmount = r.cess_amount ?: 0.0,
+                                documentType = r.document_type ?: "Debit Note",
+                                documentNature = r.document_nature,
+                                documentSeries = r.document_series,
+                                preGst = r.pre_gst ?: "N",
+                                reasonForIssuingDocument = r.reason_for_issuing_document ?: "Purchase return",
+                                noteRefundVoucherValue = r.note_refund_voucher_value ?: 0.0,
+                                rate = r.rate ?: 0.0,
+                                eligibilityForItc = r.eligibility_for_itc ?: "Inputs",
+                                availedItcIntegratedTax = r.availed_itc_integrated_tax ?: 0.0,
+                                availedItcCentralTax = r.availed_itc_central_tax ?: 0.0,
+                                availedItcStateTax = r.availed_itc_state_tax ?: 0.0,
+                                availedItcCess = r.availed_itc_cess ?: 0.0,
+                                invoiceType = r.invoice_type ?: "Regular",
+                                placeOfSupplyCode = r.place_of_supply_code ?: ""
+                            )
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pullPurchaseReturns: FAILED", e)
+        }
+    }
+
 }

@@ -14,7 +14,6 @@ class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_splash)
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
@@ -27,29 +26,46 @@ class SplashActivity : BaseActivity() {
                 return@launch
             }
 
-            val isValid = withContext(Dispatchers.IO) {
+            val result = withContext(Dispatchers.IO) {
                 try {
                     RetrofitClient.api.getProfile(token)
-                    true
+                    SplashResult.VALID
                 } catch (e: HttpException) {
-                    e.code() != 401   // ❌ only logout if 401
+                    when (e.code()) {
+                        401  -> SplashResult.INVALID_TOKEN
+                        409  -> SplashResult.WORKSPACE_CHANGED
+                        else -> SplashResult.VALID   // network/server hiccup → let through
+                    }
                 } catch (e: Exception) {
-                    true  // 🔥 network issue → allow user
+                    SplashResult.VALID   // offline → let user into cached Dashboard
                 }
             }
 
-            if (isValid) {
-                startActivity(Intent(this@SplashActivity, DashboardActivity::class.java))
-            } else {
-                prefs.edit { remove("TOKEN") }
-                goToLogin()
+            when (result) {
+                SplashResult.VALID -> {
+                    startActivity(Intent(this@SplashActivity, DashboardActivity::class.java))
+                    finish()
+                }
+                SplashResult.INVALID_TOKEN -> {
+                    prefs.edit { remove("TOKEN") }
+                    goToLogin()
+                    finish()
+                }
+                SplashResult.WORKSPACE_CHANGED -> {
+                    // WorkspaceInterceptor also handles this at the OkHttp level,
+                    // but if it fires here during splash we redirect explicitly.
+                    val intent = Intent(this@SplashActivity, WorkspaceChangedActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
             }
-
-            finish()
         }
     }
 
     private fun goToLogin() {
         startActivity(Intent(this, MainActivity::class.java))
     }
+
+    private enum class SplashResult { VALID, INVALID_TOKEN, WORKSPACE_CHANGED }
 }

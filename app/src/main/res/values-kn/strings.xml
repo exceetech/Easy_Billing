@@ -28,7 +28,7 @@
     <string name="store_information">ಅಂಗಡಿ ಮಾಹಿತಿ</string>
     <string name="billing_settings">ಬಿಲ್ಲಿಂಗ್ ಸೆಟ್ಟಿಂಗ್ಸ್</string>
     <string name="invoice_design">ಇನ್ವಾಯ್ಸ್ ವಿನ್ಯಾಸ</string>
-    <string name="localization_settings">ಭಾಷೆ, ಪ್ರದೇಶ ಮತ್ತು ಕರೆನ್ಸಿ</string>
+    <string name="localization_settings">ಭಾಷೆ ಮತ್ತು ಕರೆನ್ಸಿ</string>
     <string name="data_security_management">ಡೇಟಾ ಮತ್ತು ಭದ್ರತಾ ನಿರ್ವಹಣೆ</string>
 
     <string name="language">ಭಾಷೆ</string>

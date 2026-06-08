@@ -416,10 +416,7 @@ class PurchaseActivity : BaseActivity() {
                 Toast.makeText(this, "Invoice date is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (pickedInvoiceDate > System.currentTimeMillis()) {
-                etInvoiceDate.error = "Invoice date cannot be in the future"
-                return@setOnClickListener
-            }
+
 
             // GSTR-2 validation
             val placeOfSupplyCodeText = etPlaceOfSupplyCode.text?.toString()?.trim().orEmpty()

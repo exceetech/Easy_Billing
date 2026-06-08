@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  * Tapping an invoice opens [PurchaseDetailsActivity] where the user
  * can review line items and raise a debit note (purchase return).
  */
-class PurchaseHistoryActivity : AppCompatActivity() {
+class PurchaseHistoryActivity : BaseActivity() {
 
     private val viewModel: PurchaseHistoryViewModel by viewModels()
 

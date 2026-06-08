@@ -34,7 +34,7 @@
     <string name="store_information">കട വിവരങ്ങൾ</string>
     <string name="billing_settings">ബില്ലിംഗ് ക്രമീകരണങ്ങൾ</string>
     <string name="invoice_design">ഇൻവോയ്സ് ഡിസൈൻ</string>
-    <string name="localization_settings">ഭാഷ, പ്രദേശം, നാണയം</string>
+    <string name="localization_settings">ഭാഷ, നാണയം</string>
     <string name="data_security_management">ഡാറ്റയും സുരക്ഷയും നിയന്ത്രണം</string>
 
     <!-- Localization -->

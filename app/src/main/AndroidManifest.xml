@@ -115,6 +115,13 @@
         <activity android:name=".MainActivity"
             android:theme="@style/Theme.EasyBilling.Auth"/>
 
+        <!-- ── Workspace Rotation ────────────────────────────────────────── -->
+        <activity
+            android:name=".WorkspaceChangedActivity"
+            android:exported="false"
+            android:label="Workspace Updated"
+            android:windowSoftInputMode="stateHidden"/>
+
         <!-- ── FileProvider for sharing exported GSTR-1 files ───────────── -->
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -140,7 +147,7 @@
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".PurchaseHistoryActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.EasyBilling" />
             
         <activity
@@ -154,9 +161,11 @@
             android:theme="@style/Theme.EasyBilling" />
         <activity
             android:name=".PurchaseDetailsActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false"/>
         <activity
             android:name=".PurchaseReturnActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
     </application>

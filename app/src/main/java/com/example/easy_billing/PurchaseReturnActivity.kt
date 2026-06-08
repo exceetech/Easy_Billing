@@ -41,7 +41,7 @@ import java.util.Locale
  *   • Debit note number is generated atomically inside a Room transaction.
  *   • All writes land in Room first; SyncManager handles backend push.
  */
-class PurchaseReturnActivity : AppCompatActivity() {
+class PurchaseReturnActivity : BaseActivity() {
 
     private val viewModel: PurchaseReturnViewModel by viewModels()
 

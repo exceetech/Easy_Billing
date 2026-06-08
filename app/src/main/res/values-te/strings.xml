@@ -28,7 +28,7 @@
     <string name="store_information">దుకాణ సమాచారం</string>
     <string name="billing_settings">బిల్లింగ్ సెట్టింగ్స్</string>
     <string name="invoice_design">ఇన్వాయిస్ డిజైన్</string>
-    <string name="localization_settings">భాష, ప్రాంతం మరియు కరెన్సీ</string>
+    <string name="localization_settings">భాష మరియు కరెన్సీ</string>
     <string name="data_security_management">డేటా మరియు భద్రత నిర్వహణ</string>
 
     <string name="language">భాష</string>

@@ -228,3 +228,69 @@ data class ScrapDto(
     val reason: String,
     val created_at: Long
 )
+
+data class PurchaseResponse(
+    val id: Int,
+    val invoice_number: String,
+    val supplier_gstin: String?,
+    val supplier_name: String,
+    val state: String,
+    val taxable_amount: Double,
+    val cgst_percentage: Double,
+    val sgst_percentage: Double,
+    val igst_percentage: Double,
+    val cgst_amount: Double,
+    val sgst_amount: Double,
+    val igst_amount: Double,
+    val invoice_value: Double,
+    val invoice_date: Long? = null,
+    val is_credit: Boolean = false,
+    val credit_account_id: Int? = null,
+    val created_at: Long,
+    val place_of_supply_code: String = "",
+    val reverse_charge: String = "N",
+    val invoice_type: String = "Regular",
+    val supply_type: String = "intrastate",
+    val cess_paid: Double = 0.0,
+    val eligibility_for_itc: String = "Inputs",
+    val availed_itc_integrated_tax: Double = 0.0,
+    val availed_itc_central_tax: Double = 0.0,
+    val availed_itc_state_tax: Double = 0.0,
+    val availed_itc_cess: Double = 0.0,
+    val purchase_source: String = "DOMESTIC",
+    val items: List<PurchaseItemResponse>
+)
+
+data class PurchaseItemResponse(
+    val shop_product_id: Int?,
+    val product_name: String,
+    val variant: String?,
+    val hsn_code: String?,
+    val quantity: Double,
+    val unit: String?,
+    val taxable_amount: Double,
+    val invoice_value: Double,
+    val cost_price: Double,
+
+    val purchase_cgst_percentage: Double,
+    val purchase_sgst_percentage: Double,
+    val purchase_igst_percentage: Double,
+    val purchase_cgst_amount: Double,
+    val purchase_sgst_amount: Double,
+    val purchase_igst_amount: Double,
+
+    val sales_cgst_percentage: Double,
+    val sales_sgst_percentage: Double,
+    val sales_igst_percentage: Double,
+
+    val cess_percentage: Double = 0.0,
+    val cess_amount: Double = 0.0,
+    val eligibility_for_itc: String = "Inputs",
+    val availed_itc_igst: Double = 0.0,
+    val availed_itc_cgst: Double = 0.0,
+    val availed_itc_sgst: Double = 0.0,
+    val availed_itc_cess: Double = 0.0,
+    val hsn_description: String = "",
+    val official_uqc: String = "",
+    val supply_classification: String = "TAXABLE"
+)

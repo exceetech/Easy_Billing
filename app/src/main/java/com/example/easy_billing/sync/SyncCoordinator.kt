@@ -98,11 +98,24 @@ class SyncCoordinator private constructor(
                     // read-mostly tables.
                     sm.syncAll()
                     runCatching { sm.pullInventory() }
+                    runCatching { sm.pullPurchases() }
+                    runCatching { sm.pullInventoryLogs() }
+                    runCatching { sm.pullImportServices() }
                 }
             }
         }
         inFlight = job
         return job
+    }
+
+    /**
+     * Cancels any in-flight sync operation immediately.
+     * Use this before wiping the database or returning to login
+     * to prevent race conditions.
+     */
+    fun cancelSync() {
+        inFlight?.cancel()
+        inFlight = null
     }
 
     /* ------------------------------------------------------------------

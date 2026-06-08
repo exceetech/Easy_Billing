@@ -25,7 +25,8 @@ object RetrofitClient {
         }
 
         OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(appContext)) // safe now
+            .addInterceptor(AuthInterceptor(appContext))
+            .addInterceptor(WorkspaceInterceptor(appContext)) // 409 → WorkspaceChangedActivity
             .build()
     }
 

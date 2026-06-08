@@ -12,6 +12,12 @@ data class LoginResponse(
     val shop_id: Int
 )
 
+data class FactoryResetResponse(
+    val message: String,
+    val access_token: String,
+    val new_shop_id: Int
+)
+
 interface ApiService {
 
     // ================= AUTH =================
@@ -251,7 +257,7 @@ interface ApiService {
     @PUT("security/factory-reset")
     suspend fun factoryReset(
         @Header("Authorization") token: String
-    )
+    ): FactoryResetResponse
 
     @PUT("security/change-password")
     suspend fun changePassword(
@@ -354,6 +360,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<InventoryResponse>
 
+    @GET("inventory/logs")
+    suspend fun getInventoryLogs(
+        @Header("Authorization") token: String
+    ): List<InventoryLogResponse>
+
 
     @POST("sales/create")
     suspend fun createSale(
@@ -441,6 +452,11 @@ interface ApiService {
         @Body body: PurchaseSyncRequest
     ): PurchaseSyncResponse
 
+    @GET("purchases/my")
+    suspend fun getPurchases(
+        @Header("Authorization") token: String
+    ): List<PurchaseResponse>
+
     @POST("purchase-returns/sync")
     suspend fun syncPurchaseReturns(
         @Header("Authorization") token: String,
@@ -452,6 +468,26 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body body: PurchaseImportDetailsSyncRequest
     ): PurchaseImportDetailsSyncResponse
+
+    @GET("purchase-batches/{shop_id}")
+    suspend fun getPurchaseBatches(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<PurchaseBatchResponseDto>
+
+    @POST("purchase-batches/sync")
+    suspend fun syncPurchaseBatches(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseBatchSyncRequest
+    ): PurchaseBatchSyncResponse
+
+
+
+    @GET("purchase-return/{shop_id}")
+    suspend fun getPurchaseReturns(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<PurchaseReturnResponseDto>
 
     @GET("purchase-import-details/{shop_id}")
     suspend fun getPurchaseImportDetails(
@@ -565,7 +601,7 @@ interface ApiService {
     @GET("credit-notes")
     suspend fun getCreditNotes(
         @Header("Authorization") token: String
-    ): List<CreditNoteDto>
+    ): List<CreditNoteResponseDto>
 
     // ── Import Services ──────────────────────────────────────────
 

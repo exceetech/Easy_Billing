@@ -89,7 +89,7 @@ class AddProductsActivity : BaseActivity() {
 
         lifecycleScope.launch {
 
-            val products = db.productDao().getAll()
+            val products = com.example.easy_billing.repository.ProductRepository.get(this@AddProductsActivity).getAllForCurrentShop()
 
             val variants = products.filter { it.name == productName }
 

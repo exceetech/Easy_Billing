@@ -266,13 +266,6 @@ class DashboardActivity : BaseActivity() {
         NetworkReceiver(this).startListening()
         checkSubscription()
 
-        // Conflict-safe sync: pushes any locally-pending writes
-        // first (so user edits win), then pulls fresh server state
-        // for the read-mostly tables. No-op if offline.
-        com.example.easy_billing.sync.SyncCoordinator
-            .get(this)
-            .flushPending()
-
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
 
@@ -294,10 +287,17 @@ class DashboardActivity : BaseActivity() {
                 syncManager.syncAccounts()
                 syncManager.pullAccountsFromServer()
 
-                // ================= STEP 4: INVENTORY =================
-                println("🔄 Syncing inventory (push logs -> pull master)")
+                // ================= STEP 4: INVENTORY & PURCHASES =================
+                println("🔄 Syncing inventory, purchases, and logs")
                 syncManager.syncInventory()
+                
+                syncManager.pullPurchaseBatches()
+                syncManager.pullPurchaseReturns()
+                syncManager.pullCreditNotes()
                 syncManager.pullInventory()
+                syncManager.pullPurchases()
+                syncManager.pullInventoryLogs()
+                syncManager.pullImportServices()
 
                 // ================= STEP 5: BILLS =================
                 syncManager.syncBills()
@@ -734,7 +734,8 @@ class DashboardActivity : BaseActivity() {
                                 variant        = bp.variant ?: existing.variant.orEmpty(),
                                 unit           = bp.unit ?: existing.unit,
                                 price          = bp.price,
-                                isActive       = true,
+                                isActive       = bp.is_active,
+                                isPurchased    = bp.is_purchased,
                                 shopId         = currentShopId,
                                 hsnCode        = bp.hsn_code ?: existing.hsnCode,
                                 defaultGstRate = bp.default_gst_rate ?: existing.defaultGstRate,
@@ -759,7 +760,8 @@ class DashboardActivity : BaseActivity() {
                                 price          = bp.price,
                                 trackInventory = true,
                                 isCustom       = false,
-                                isActive       = true,
+                                isActive       = bp.is_active,
+                                isPurchased    = bp.is_purchased,
                                 shopId         = currentShopId,
                                 hsnCode        = bp.hsn_code,
                                 defaultGstRate = bp.default_gst_rate ?: 0.0,

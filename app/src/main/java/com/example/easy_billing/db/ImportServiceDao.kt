@@ -24,6 +24,9 @@ interface ImportServiceDao {
     @Query("SELECT * FROM import_services ORDER BY invoice_date DESC")
     suspend fun getAllImportServices(): List<ImportService>
 
+    @Query("SELECT * FROM import_services WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): ImportService?
+
     @Query("SELECT * FROM import_services WHERE sync_status = 'pending'")
     suspend fun getPendingSyncImportServices(): List<ImportService>
 

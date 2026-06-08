@@ -28,7 +28,7 @@
     <string name="store_information">கடை தகவல்</string>
     <string name="billing_settings">பில்லிங் அமைப்புகள்</string>
     <string name="invoice_design">இன்வாய்ஸ் வடிவமைப்பு</string>
-    <string name="localization_settings">மொழி, பகுதி மற்றும் நாணயம்</string>
+    <string name="localization_settings">மொழி மற்றும் நாணயம்</string>
     <string name="data_security_management">தரவு மற்றும் பாதுகாப்பு மேலாண்மை</string>
 
     <string name="language">மொழி</string>

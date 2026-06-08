@@ -245,9 +245,23 @@ class MainActivity : BaseActivity() {
                         return@launch
                     }
 
-                    // ✅ SAVE TOKEN
+                    // ✅ CHECK SHOP_ID CHANGES
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+                    val oldShopId = prefs.getInt("SHOP_ID", -1)
 
+                    if (oldShopId != -1 && oldShopId != response.shop_id) {
+                        // User logged into a different workspace (or a restored one).
+                        // Must wipe the database to prevent cross-workspace data merging.
+                        withContext(Dispatchers.IO) {
+                            try {
+                                AppDatabase.getDatabase(applicationContext).clearAllTables()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+
+                    // ✅ SAVE TOKEN
                     prefs.edit {
                         putString("TOKEN", response.access_token)
                         putString("DEVICE_ID", deviceId)

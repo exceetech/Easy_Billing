@@ -78,7 +78,7 @@ class InventoryActivity : BaseActivity() {
             try {
 
                 val inventoryList = db.inventoryDao().getAll()
-                val products = db.productDao().getAll()
+                val products = com.example.easy_billing.repository.ProductRepository.get(this@InventoryActivity).getAllForCurrentShop()
 
                 val inventoryMap = inventoryList.associateBy { it.productId }
                 val newProductMap = products.associateBy { it.id }
@@ -204,10 +204,7 @@ class InventoryActivity : BaseActivity() {
                 Toast.makeText(this, "Invoice date is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (pickedInvoiceDate > System.currentTimeMillis()) {
-                etInvoiceDate.error = "Invoice date cannot be in the future"
-                return@setOnClickListener
-            }
+
 
             dialog.dismiss()
 

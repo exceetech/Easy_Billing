@@ -177,8 +177,11 @@ class AiDashboardActivity : BaseActivity() {
 
         val insights = mutableListOf<String>()
 
-        val billItems = db.billItemDao().getAllItems()
-        val inventory = db.inventoryDao().getAll()
+        val products = com.example.easy_billing.repository.ProductRepository.get(this@AiDashboardActivity).getAllForCurrentShop()
+        val validProductIds = products.map { it.id }.toSet()
+
+        val billItems = db.billItemDao().getAllItems().filter { validProductIds.contains(it.productId) }
+        val inventory = db.inventoryDao().getAll().filter { validProductIds.contains(it.productId) }
 
         if (billItems.isEmpty()) return emptyList()
 

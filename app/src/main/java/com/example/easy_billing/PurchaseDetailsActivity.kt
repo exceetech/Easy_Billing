@@ -34,7 +34,7 @@ import java.util.Locale
  *
  * Receives: PURCHASE_ID (Int) — local purchase_table.id
  */
-class PurchaseDetailsActivity : AppCompatActivity() {
+class PurchaseDetailsActivity : BaseActivity() {
 
     private val viewModel: com.example.easy_billing.viewmodel.PurchaseHistoryViewModel by viewModels()
 
