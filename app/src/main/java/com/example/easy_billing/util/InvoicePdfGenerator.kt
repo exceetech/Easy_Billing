@@ -14,6 +14,7 @@ import com.example.easy_billing.ShopManager
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
+import com.example.easy_billing.db.GstSalesInvoice
 import com.example.easy_billing.db.StoreInfo
 import java.io.File
 import java.io.FileOutputStream
@@ -23,12 +24,42 @@ import kotlin.math.round
 
 object InvoicePdfGenerator {
 
+    /**
+     * Single print engine for both GST modes.
+     *
+     * [gstScheme] is the GST mode **saved with the invoice** (from
+     * [com.example.easy_billing.db.GstSalesInvoice.gstScheme]) — NOT the
+     * current shop setting. This guarantees historical accuracy: an old
+     * Regular-GST bill always reprints as Regular even if the shop has
+     * since switched to Composition, and vice-versa.
+     *
+     * No GST is recalculated here. Regular bills render the per-line tax
+     * breakdown and CGST/SGST/IGST totals already persisted on [bill] /
+     * [billItems]; Composition bills render a plain amount-only layout
+     * with no tax columns or tax summary anywhere.
+     */
     fun generatePdfFromBill(
         context: Context,
         bill: Bill,
         billItems: List<BillItem>,
-        storeInfo: StoreInfo?
+        storeInfo: StoreInfo?,
+        gstScheme: String? = null,
+        gstInvoice: GstSalesInvoice? = null
     ) {
+
+        // ── Resolve GST mode from the value saved with the invoice ──
+        // Fall back (only when scheme is genuinely missing) to the
+        // amounts already stored on the bill — never to product or
+        // current-shop inference.
+        val isComposition = when {
+            !gstScheme.isNullOrBlank() ->
+                gstScheme.contains("compos", ignoreCase = true)
+            else ->
+                bill.gst <= 0.0 &&
+                    bill.cgstAmount <= 0.0 &&
+                    bill.sgstAmount <= 0.0 &&
+                    bill.igstAmount <= 0.0
+        }
 
         // ✅ UI SETTINGS ONLY (allowed)
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -57,8 +88,10 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.MONOSPACE
         paint.textSize = 14f
 
-        // ✅ SAFE HEIGHT
-        val pageHeight = 1200 + billItems.size * 30
+        // ✅ SAFE HEIGHT — Regular bills print extra per-line tax rows,
+        // so they need more vertical space per item than Composition.
+        val perItemHeight = if (isComposition) 90 else 150
+        val pageHeight = 1500 + billItems.size * perItemHeight
 
         val pageInfo = PdfDocument.PageInfo.Builder(
             pageWidth.toInt(),
@@ -89,9 +122,29 @@ object InvoicePdfGenerator {
             y += size.toInt() + 6
         }
 
+        // Right-aligned text at current baseline (does not advance y).
+        fun rightText(text: String, size: Float = 14f, bold: Boolean = false) {
+            paint.textSize = size
+            paint.typeface =
+                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+                else Typeface.MONOSPACE
+            canvas.drawText(text, rightMargin - paint.measureText(text), y.toFloat(), paint)
+        }
+
+        fun leftText(text: String, size: Float = 14f, bold: Boolean = false) {
+            paint.textSize = size
+            paint.typeface =
+                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+                else Typeface.MONOSPACE
+            canvas.drawText(text, leftMargin, y.toFloat(), paint)
+        }
+
         // ================= HEADER =================
 
         centerText(storeName, 22f, true)
+
+        // Document title reflects the saved GST mode.
+        if (!isComposition) centerText("Tax Invoice", 14f, true)
 
         if (storeAddress.isNotEmpty()) centerText(storeAddress, 14f)
         if (showPhone && storePhone.isNotEmpty()) centerText("Phone : $storePhone", 14f)
@@ -103,29 +156,51 @@ object InvoicePdfGenerator {
 
         centerText("Invoice : ${bill.billNumber}", 14f)
         centerText("Date : ${bill.date}", 14f)
+        centerText("GST Type : ${if (isComposition) "COMPOSITION" else "REGULAR"}", 14f)
 
         dashedLine()
+
+        // ================= CUSTOMER DETAILS =================
+        // Printed exactly as captured during invoice creation (B2B / B2C).
+        // Falls back gracefully to the legacy Bill fields when the GST
+        // invoice row is unavailable. Only non-blank fields are shown.
+        run {
+            val isB2B = (gstInvoice?.invoiceType ?: bill.customerType)
+                .equals("B2B", ignoreCase = true)
+
+            centerText("Customer Type : ${if (isB2B) "B2B" else "B2C"}", 14f)
+
+            // Helper to emit a "Label : value" line only when value exists.
+            fun detail(label: String, value: String?) {
+                if (!value.isNullOrBlank()) centerText("$label : $value", 13f)
+            }
+
+            if (isB2B) {
+                detail("Business", gstInvoice?.businessName)
+                detail("Name", gstInvoice?.customerName)
+                detail("Phone", gstInvoice?.customerPhone)
+                detail("GSTIN", gstInvoice?.customerGst ?: bill.customerGstin)
+                detail("State", gstInvoice?.customerState)
+            } else {
+                detail("Name", gstInvoice?.customerName)
+                detail("Phone", gstInvoice?.customerPhone)
+                detail("State", gstInvoice?.customerState)
+            }
+
+            dashedLine()
+        }
 
         // ================= TABLE HEADER =================
 
         val colItem = leftMargin
-        val colQty = 115f
-        val colRate = 165f
         val colAmount = rightMargin
 
-        val itemColumnWidth = (colQty - colItem - 10).toInt()
-
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        paint.textSize = 14f
 
-        //val rateHeader = "Rate($currencySymbol)"
         val amtHeader = "Amt($currencySymbol)"
-
         canvas.drawText("Item Description", colItem, y.toFloat(), paint)
-        //canvas.drawText("Qty", colQty, y.toFloat(), paint)
-        //canvas.drawText(rateHeader, colRate, y.toFloat(), paint)
-
-        val amtWidth = paint.measureText(amtHeader)
-        canvas.drawText(amtHeader, colAmount - amtWidth, y.toFloat(), paint)
+        canvas.drawText(amtHeader, colAmount - paint.measureText(amtHeader), y.toFloat(), paint)
 
         y += 20
         dashedLine()
@@ -133,6 +208,8 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.MONOSPACE
 
         // ================= ITEMS =================
+        // Composition → name + (qty × rate) + amount    (NO tax columns)
+        // Regular     → name + taxable + GST % + GST amount + line total
 
         billItems.forEach {
 
@@ -161,36 +238,48 @@ object InvoicePdfGenerator {
             }
 
             val rateText = "$currencySymbol%.2f/$unit".format(it.price)
-            val amountText = "$currencySymbol%.2f".format(it.subTotal)
 
             // ================= LINE 1 (NAME) =================
             paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
             paint.textSize = 14f
-
             canvas.drawText(displayName, colItem, y.toFloat(), paint)
-
             y += 20
 
-            // ================= LINE 2 (DETAILS) =================
             paint.typeface = Typeface.MONOSPACE
             paint.textSize = 13f
 
-            val leftText = "$qtyText × $rateText"
+            if (isComposition) {
+                // ── Composition: plain amount-only, no GST anywhere ──
+                leftText("$qtyText × $rateText", 13f)
+                rightText("$currencySymbol%.2f".format(it.subTotal), 13f)
+                y += 24
+            } else {
+                // ── Regular GST: taxable + GST % + GST amount + total ──
+                // Values come straight from what was saved with the bill;
+                // nothing is recalculated here.
+                val gstAmt    = it.cgstAmount + it.sgstAmount + it.igstAmount
+                val lineTotal = it.taxableValue + gstAmt
+                val gstPctText =
+                    if (it.gstRate % 1 == 0.0) "${it.gstRate.toInt()}%"
+                    else String.format("%.2f%%", it.gstRate)
 
-            canvas.drawText(leftText, colItem, y.toFloat(), paint)
+                leftText("$qtyText × $rateText", 13f)
+                rightText("Taxable $currencySymbol%.2f".format(it.taxableValue), 13f)
+                y += 18
 
-            val amountWidth = paint.measureText(amountText)
-            canvas.drawText(amountText, colAmount - amountWidth, y.toFloat(), paint)
+                leftText("GST $gstPctText", 13f)
+                rightText("$currencySymbol%.2f".format(gstAmt), 13f)
+                y += 18
 
-            y += 24
+                rightText("Total $currencySymbol%.2f".format(lineTotal), 13f, bold = true)
+                y += 22
+            }
 
             // ================= SEPARATOR =================
             val linePaint = Paint()
             linePaint.color = Color.LTGRAY
             linePaint.strokeWidth = 1f
-
             canvas.drawLine(colItem, y.toFloat(), colAmount, y.toFloat(), linePaint)
-
             y += 16
         }
 
@@ -198,22 +287,37 @@ object InvoicePdfGenerator {
 
         // ================= SUMMARY =================
 
+        paint.typeface = Typeface.MONOSPACE
+        paint.textSize = 14f
+
         val subTotal = billItems.sumOf { it.subTotal }
 
-        canvas.drawText("SubTotal", colItem, y.toFloat(), paint)
-        val sub = "$currencySymbol%.2f".format(subTotal)
-        canvas.drawText(sub, colAmount - paint.measureText(sub), y.toFloat(), paint)
+        // For Composition this is the simple Sub Total; for Regular it is
+        // the Taxable Amount that the GST sits on top of.
+        leftText(if (isComposition) "Sub Total" else "Taxable Amount", 14f)
+        rightText("$currencySymbol%.2f".format(subTotal), 14f)
         y += 22
 
-        canvas.drawText("GST", colItem, y.toFloat(), paint)
-        val gst = "$currencySymbol%.2f".format(bill.gst)
-        canvas.drawText(gst, colAmount - paint.measureText(gst), y.toFloat(), paint)
-        y += 22
+        if (!isComposition) {
+            // Intra-state → CGST + SGST.  Inter-state → IGST only.
+            // Selected purely by the amounts saved on the bill.
+            if (bill.igstAmount > 0.0) {
+                leftText("IGST", 14f)
+                rightText("$currencySymbol%.2f".format(bill.igstAmount), 14f)
+                y += 22
+            } else {
+                leftText("CGST", 14f)
+                rightText("$currencySymbol%.2f".format(bill.cgstAmount), 14f)
+                y += 22
+                leftText("SGST", 14f)
+                rightText("$currencySymbol%.2f".format(bill.sgstAmount), 14f)
+                y += 22
+            }
+        }
 
         if (showDiscount) {
-            canvas.drawText("Discount", colItem, y.toFloat(), paint)
-            val disc = "$currencySymbol%.2f".format(bill.discount)
-            canvas.drawText(disc, colAmount - paint.measureText(disc), y.toFloat(), paint)
+            leftText("Discount", 14f)
+            rightText("$currencySymbol%.2f".format(bill.discount), 14f)
             y += 22
         }
 
@@ -232,6 +336,25 @@ object InvoicePdfGenerator {
 
         y += 40
         dashedLine()
+
+        // Payment method (Cash / Card / UPI …) — just before the footer.
+        if (bill.paymentMethod.isNotBlank()) {
+            centerText("Paid Through : ${bill.paymentMethod}", 14f, true)
+            y += 4
+        }
+
+        // Mandatory composition declaration (only on composition bills).
+        if (isComposition) {
+            centerText(
+                "Composition Taxable Person, Not Eligible",
+                11f
+            )
+            centerText(
+                "To Collect Tax On Supplies",
+                11f
+            )
+            y += 6
+        }
 
         centerText(footerMessage ?: "Thank You! Visit Again", 14f)
 

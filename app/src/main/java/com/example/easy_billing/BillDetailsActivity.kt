@@ -407,11 +407,30 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 val storeInfo = db.storeInfoDao().get()
 
+                // ── Historical accuracy ──────────────────────────────
+                // Reprint must use the GST mode + tax breakdown that were
+                // saved when THIS invoice was created, never the current
+                // shop settings. The local DB holds the full per-line GST
+                // data and the per-invoice scheme; the server response is
+                // a sparse fallback only. Prefer local when present.
+                val localBill = if (localBillId != -1)
+                    db.billDao().getBillById(localBillId) else null
+                val localItems = if (localBillId != -1)
+                    db.billItemDao().getItemsForBill(localBillId) else emptyList()
+                val savedInvoice = if (localBillId != -1)
+                    db.gstSalesInvoiceDao().getByBillId(localBillId) else null
+
+                val printBill = if (localBill != null) localBill else bill
+                val printItems = if (localBill != null && localItems.isNotEmpty())
+                    localItems else billItems
+
                 InvoicePdfGenerator.generatePdfFromBill(
                     context = this@BillDetailsActivity,
-                    bill = bill,
-                    billItems = billItems,
-                    storeInfo = storeInfo
+                    bill = printBill,
+                    billItems = printItems,
+                    storeInfo = storeInfo,
+                    gstScheme = savedInvoice?.gstScheme,
+                    gstInvoice = savedInvoice
                 )
 
             } catch (e: Exception) {

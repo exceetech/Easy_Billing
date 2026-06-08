@@ -980,8 +980,14 @@ class InvoiceActivity : AppCompatActivity() {
             val bill = db.billDao().getBillById(savedBillId)
             val billItems = db.billDao().getItemsForBill(savedBillId)
             val storeInfo = db.storeInfoDao().get()
+            // GST invoice saved with THIS bill — drives the print layout
+            // (GST mode) and supplies the captured B2B/B2C customer details.
+            val savedInvoice = db.gstSalesInvoiceDao().getByBillId(savedBillId)
             withContext(Dispatchers.Main) {
-                InvoicePdfGenerator.generatePdfFromBill(this@InvoiceActivity, bill, billItems, storeInfo)
+                InvoicePdfGenerator.generatePdfFromBill(
+                    this@InvoiceActivity, bill, billItems, storeInfo,
+                    savedInvoice?.gstScheme, savedInvoice
+                )
             }
         }
     }
