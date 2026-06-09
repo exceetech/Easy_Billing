@@ -207,6 +207,18 @@ class InvoiceActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
+        // Phone-first customer lookup: a complete mobile number fetches the
+        // saved customer (local-first, then server) and auto-fills details.
+        // Works for both B2B and B2C.
+        etCustomerPhone.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val phone = s?.toString()?.trim().orEmpty()
+                if (phone.length == 10) lookupCustomerByPhone(phone)
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
         loadStoreInfo()
         loadBillingSettings()
         recalculate()
@@ -379,6 +391,13 @@ class InvoiceActivity : AppCompatActivity() {
             invoiceType = if (checkedIds.contains(R.id.chipB2B)) "B2B" else "B2C"
             applyInvoiceTypeUi(invoiceType)
             recalculate()
+            // Switching to B2B with a phone already entered should pull the
+            // customer's full B2B details (the earlier B2C lookup only
+            // fetched the name).
+            if (invoiceType.equals("B2B", true)) {
+                val phone = etCustomerPhone.text?.toString()?.trim().orEmpty()
+                if (phone.length == 10) lookupCustomerByPhone(phone)
+            }
         }
     }
 
@@ -839,6 +858,20 @@ class InvoiceActivity : AppCompatActivity() {
                 val gstItems = GstBillingCalculator.toInvoiceItems(gstInvoiceId, breakdown, enrichments)
                 db.gstSalesInvoiceItemDao().insertAll(gstItems)
 
+                // 5b. Upsert the customer master (phone-keyed). The invoice
+                // keeps its own snapshot above; this only powers future
+                // lookups/auto-fill. Skipped for anonymous B2C (no phone).
+                upsertCustomerMaster(
+                    db           = db,
+                    phone        = customerPhone,
+                    name         = customerName,
+                    businessName = businessName,
+                    gstin        = customerGstin,
+                    state        = customerStateRaw,
+                    stateCode    = customerStateCode.ifBlank { null },
+                    type         = invoiceType
+                )
+
                 // 6. Existing GstSalesRecord (per-line) — keep intact for legacy reports.
                 if (storeInfo != null && storeInfo.gstin.isNotBlank()) {
                     val deviceId = getSharedPreferences("auth", MODE_PRIVATE)
@@ -964,6 +997,131 @@ class InvoiceActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                 }
+            }
+        }
+    }
+
+    // ================= CUSTOMER LOOKUP (phone-first) =================
+
+    private fun shopIdInt(): Int =
+        getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+
+    /**
+     * Looks a customer up by phone AND the currently selected invoice type
+     * — local DB first, then the server if online — and auto-fills the
+     * form. B2C and B2B are kept as SEPARATE records, so a B2C lookup only
+     * ever returns the B2C row (name only) and a B2B lookup returns the
+     * B2B row (full details). Never blocks the cashier.
+     */
+    private fun lookupCustomerByPhone(phone: String) {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(this@InvoiceActivity)
+            val shopId = shopIdInt()
+            val type = invoiceType
+
+            var found = withContext(Dispatchers.IO) {
+                db.customerDao().getByPhoneAndType(phone, type, shopId)
+            }
+
+            if (found == null) {
+                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("TOKEN", null)
+                if (!token.isNullOrEmpty()) {
+                    runCatching {
+                        val resp = withContext(Dispatchers.IO) {
+                            RetrofitClient.api.getCustomerByPhone("Bearer $token", phone, type)
+                        }
+                        resp.customer?.let { r ->
+                            val local = com.example.easy_billing.db.Customer(
+                                serverId      = r.id,
+                                shopId        = shopId,
+                                phone         = r.phone,
+                                name          = r.name.orEmpty(),
+                                customerType  = r.customer_type ?: type,
+                                businessName  = r.business_name,
+                                gstin         = r.gstin,
+                                state         = r.state,
+                                stateCode     = r.state_code,
+                                updatedAt     = if (r.updated_at > 0) r.updated_at else System.currentTimeMillis()
+                            )
+                            withContext(Dispatchers.IO) { db.customerDao().insert(local) }
+                            found = local
+                        }
+                    }
+                }
+            }
+
+            val c = found ?: return@launch
+            withContext(Dispatchers.Main) {
+                // Type already matches the selection; B2C rows carry only a
+                // name, B2B rows carry the full details.
+                if (c.name.isNotBlank()) etCustomerName.setText(c.name)
+                if (type.equals("B2B", true)) {
+                    c.businessName?.takeIf { it.isNotBlank() }?.let { etBusinessName.setText(it) }
+                    c.gstin?.takeIf { it.isNotBlank() }?.let { etCustomerGst.setText(it) }
+                    c.state?.takeIf { it.isNotBlank() }?.let { etCustomerState.setText(it) }
+                }
+            }
+        }
+    }
+
+    /**
+     * Upserts the customer master from the form on bill save, keyed by
+     * (shopId, phone, type). B2C and B2B are SEPARATE records — saving a
+     * B2C bill never touches the B2B record for the same number, and vice
+     * versa. A blank phone (quick anonymous B2C) creates no record.
+     */
+    private suspend fun upsertCustomerMaster(
+        db: AppDatabase,
+        phone: String?,
+        name: String?,
+        businessName: String?,
+        gstin: String?,
+        state: String?,
+        stateCode: String?,
+        type: String
+    ) {
+        val ph = phone?.trim().orEmpty()
+        if (ph.isEmpty()) return
+        val shopId = shopIdInt()
+        val now = System.currentTimeMillis()
+
+        val newName       = name?.trim().orEmpty()
+        val newBusiness   = businessName?.trim()?.ifBlank { null }
+        val newGstin      = gstin?.trim()?.ifBlank { null }
+        val newState      = state?.trim()?.ifBlank { null }
+        val newStateCode  = stateCode?.trim()?.ifBlank { null }
+
+        val existing = db.customerDao().getByPhoneAndType(ph, type, shopId)
+        if (existing == null) {
+            db.customerDao().insert(
+                com.example.easy_billing.db.Customer(
+                    shopId       = shopId,
+                    phone        = ph,
+                    name         = newName,
+                    customerType = type,
+                    businessName = newBusiness,
+                    gstin        = newGstin,
+                    state        = newState,
+                    stateCode    = newStateCode,
+                    createdAt    = now,
+                    updatedAt    = now
+                )
+            )
+        } else {
+            // Update only this (phone, type) record. Blank fields don't
+            // overwrite saved values.
+            val merged = existing.copy(
+                name         = newName.ifBlank { existing.name },
+                businessName = newBusiness ?: existing.businessName,
+                gstin        = newGstin ?: existing.gstin,
+                state        = newState ?: existing.state,
+                stateCode    = newStateCode ?: existing.stateCode,
+                updatedAt    = now,
+                serverId     = null   // re-flag for sync so the edit propagates
+            )
+            if (merged.copy(updatedAt = existing.updatedAt, serverId = existing.serverId) != existing) {
+                db.customerDao().update(merged)
             }
         }
     }

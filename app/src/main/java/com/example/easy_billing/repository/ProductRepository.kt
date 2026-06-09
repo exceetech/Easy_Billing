@@ -149,7 +149,8 @@ class ProductRepository private constructor(
         officialUqc: String? = null,
         hsnDescription: String? = null,
         cessRate: Double = 0.0,
-        supplyClassification: String = "TAXABLE"
+        supplyClassification: String = "TAXABLE",
+        category: String? = null
     ) {
         val combined = (cgst + sgst).takeIf { it > 0 } ?: igst
         productDao.updateSalesFields(
@@ -165,6 +166,15 @@ class ProductRepository private constructor(
             cessRate = cessRate,
             supplyClassification = supplyClassification
         )
+
+        // Persist an edited category locally (kept separate from
+        // updateSalesFields so its query stays untouched). Null = leave
+        // the existing value unchanged.
+        if (category != null) {
+            productDao.getById(productId)?.let { p ->
+                if (p.category != category) productDao.update(p.copy(category = category))
+            }
+        }
 
         // ── Inline backend push ──────────────────────────────────────
         // If this product is already on the server, push the updated
@@ -195,6 +205,7 @@ class ProductRepository private constructor(
                     hsn_description  = hsnDescription,
                     cess_rate        = cessRate,
                     supply_classification = supplyClassification,
+                    category         = product.category,
                     is_purchased     = product.isPurchased
                 )
             )

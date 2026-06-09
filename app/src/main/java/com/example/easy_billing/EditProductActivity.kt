@@ -71,6 +71,7 @@ class EditProductActivity : BaseActivity() {
     private lateinit var etHsnDescription: TextInputEditText
     private lateinit var etCessRate: TextInputEditText
     private lateinit var spinnerSupplyClassification: AutoCompleteTextView
+    private lateinit var etCategory: AutoCompleteTextView
 
     // Inventory section
     private lateinit var cardLockedStock: MaterialCardView
@@ -130,6 +131,21 @@ class EditProductActivity : BaseActivity() {
         spinnerSupplyClassification.setAdapter(
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST"))
         )
+
+        etCategory = findViewById(R.id.etCategory)
+        lifecycleScope.launch {
+            val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+            val shopIdStr = try {
+                prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
+            } catch (e: ClassCastException) { prefs.getInt("SHOP_ID", 0).toString() }
+            val cats = com.example.easy_billing.util.ProductCategories.dropdownFor(
+                this@EditProductActivity, shopIdStr
+            )
+            etCategory.setAdapter(
+                ArrayAdapter(this@EditProductActivity, android.R.layout.simple_list_item_1, cats)
+            )
+        }
+        etCategory.setOnClickListener { etCategory.showDropDown() }
 
         cardLockedStock        = findViewById(R.id.cardLockedStock)
         tvCurrentStock         = findViewById(R.id.tvCurrentStock)
@@ -268,6 +284,7 @@ class EditProductActivity : BaseActivity() {
         etHsnDescription.setText(product.hsnDescription ?: "")
         etCessRate.setText(formatRate(product.cessRate))
         spinnerSupplyClassification.setText(product.supplyClassification, false)
+        etCategory.setText(product.category, false)
 
         // Inventory section toggles by isPurchased.
         if (product.isPurchased) {
@@ -321,7 +338,8 @@ class EditProductActivity : BaseActivity() {
                 officialUqc = officialUqcVal,
                 hsnDescription = hsnDescVal,
                 cessRate = cessRateVal,
-                supplyClassification = supplyClassVal
+                supplyClassification = supplyClassVal,
+                category = etCategory.text?.toString()?.trim().orEmpty()
             )
             return
         }
@@ -345,7 +363,8 @@ class EditProductActivity : BaseActivity() {
             officialUqc = officialUqcVal,
             hsnDescription = hsnDescVal,
             cessRate = cessRateVal,
-            supplyClassification = supplyClassVal
+            supplyClassification = supplyClassVal,
+            category = etCategory.text?.toString()?.trim().orEmpty()
         )
     }
 

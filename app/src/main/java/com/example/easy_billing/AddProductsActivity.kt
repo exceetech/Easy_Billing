@@ -520,6 +520,25 @@ class AddProductsActivity : BaseActivity() {
         etUnit.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, units))
         etUnit.setText("piece", false)
 
+        // ── Category dropdown (predefined ∪ shop custom) ──
+        val etCategory = dialogView.findViewById<AutoCompleteTextView>(R.id.etCategory)
+        lifecycleScope.launch {
+            val shopIdStr = shopIdSync(db)
+            val cats = com.example.easy_billing.util.ProductCategories.dropdownFor(
+                this@AddProductsActivity, shopIdStr
+            )
+            withContext(Dispatchers.Main) {
+                etCategory.setAdapter(
+                    ArrayAdapter(
+                        this@AddProductsActivity,
+                        android.R.layout.simple_list_item_1,
+                        cats
+                    )
+                )
+            }
+        }
+        etCategory.setOnClickListener { etCategory.showDropDown() }
+
         // ── GSTR-1 product master fields (v23) ──
         val spinnerUqc  = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
         val etHsnDesc   = dialogView.findViewById<EditText>(R.id.etHsnDescription)
@@ -625,6 +644,9 @@ class AddProductsActivity : BaseActivity() {
             val cessRateVal      = etCessRate.text.toString().toDoubleOrNull() ?: 0.0
             val supplyClassVal   = spinnerSupplyClass.text.toString().trim().ifBlank { "TAXABLE" }
 
+            // ── Category (v40) ──
+            val categoryVal      = etCategory.text.toString().trim()
+
             lifecycleScope.launch {
                 val storeInfo = db.storeInfoDao().get()
                 val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
@@ -669,7 +691,10 @@ class AddProductsActivity : BaseActivity() {
                                     igst_percentage = igstPct,
                                     official_uqc = officialUqcVal,
                                     hsn_description = hsnDescVal,
-                                    cess_rate = cessRateVal
+                                    cess_rate = cessRateVal,
+                                    supply_classification = supplyClassVal,
+                                    category = categoryVal,
+                                    is_purchased = false
                                 )
                             )
                             // 🆕 Mirror to global catalogue (best-effort).
@@ -701,9 +726,13 @@ class AddProductsActivity : BaseActivity() {
                                 hsnDescription = hsnDescVal,
                                 cessRate = cessRateVal,
                                 supplyClassification = supplyClassVal,
+                                category = categoryVal,
                                 shopId = shopIdSync(db)
                             )
                         ).toInt()
+
+                        // Remember a brand-new custom category for future dropdowns.
+                        rememberCategoryIfNew(db, categoryVal, shopIdSync(db))
 
                         if (trackInventory) {
                             InventoryManager.addStock(db, newId, stockQty, costPrice)
@@ -1042,6 +1071,25 @@ class AddProductsActivity : BaseActivity() {
             prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
         } catch (e: ClassCastException) {
             prefs.getInt("SHOP_ID", 0).toString()
+        }
+    }
+
+    /**
+     * Persists a user-typed category if it isn't already known (neither
+     * predefined nor previously saved). Stored as a [com.example.easy_billing.db.ProductCategory]
+     * so it appears in future dropdowns and syncs to the backend.
+     */
+    private suspend fun rememberCategoryIfNew(db: AppDatabase, category: String, shopId: String) {
+        val name = category.trim()
+        if (name.isEmpty()) return
+        if (com.example.easy_billing.util.ProductCategories.PREDEFINED.any {
+                it.equals(name, ignoreCase = true)
+            }) return
+        if (name.equals(com.example.easy_billing.util.ProductCategories.UNCATEGORIZED, true)) return
+        if (db.productCategoryDao().getByName(name, shopId) == null) {
+            db.productCategoryDao().insertIgnore(
+                com.example.easy_billing.db.ProductCategory(shopId = shopId, name = name)
+            )
         }
     }
 

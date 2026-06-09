@@ -62,6 +62,13 @@ data class Product(
     @ColumnInfo(name = "is_purchased")
     val isPurchased: Boolean = false,
 
+    /**
+     * Product category (e.g. "Grocery & Staples"). Stored as a plain
+     * string so it always travels with the product through sync — no
+     * foreign-key/ordering dependency. Empty = "Uncategorized".
+     */
+    val category: String = "",
+
     @ColumnInfo(name = "shop_id")
     val shopId: String = "",
 

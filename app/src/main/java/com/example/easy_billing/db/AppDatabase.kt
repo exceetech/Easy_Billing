@@ -60,9 +60,13 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         Gstr2DraftEntity::class,
 
         PurchaseImportDetails::class,
-        ImportService::class
+        ImportService::class,
+
+        // Categories + Customer master (v40)
+        ProductCategory::class,
+        Customer::class
     ],
-    version = 39
+    version = 41
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -118,6 +122,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Import Services (v38)
     abstract fun importServiceDao(): ImportServiceDao
+
+    // Categories + Customer master (v40)
+    abstract fun productCategoryDao(): ProductCategoryDao
+    abstract fun customerDao(): CustomerDao
 
     companion object {
 
@@ -1211,6 +1219,71 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v39 → v40 — Product categories + Customer master.
+         * Purely additive: one new column on `products` and two new
+         * tables. Safe for existing installs (no drops/renames).
+         */
+        val MIGRATION_39_40 = object : Migration(39, 40) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `category` TEXT NOT NULL DEFAULT ''")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `product_categories` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `serverId` INTEGER,
+                        `shop_id` TEXT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `isCustom` INTEGER NOT NULL DEFAULT 1,
+                        `isActive` INTEGER NOT NULL DEFAULT 1,
+                        `created_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS `index_product_categories_shop_id_name`
+                    ON `product_categories` (`shop_id`, `name`)
+                """.trimIndent())
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `customers` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `serverId` INTEGER,
+                        `shop_id` INTEGER NOT NULL,
+                        `phone` TEXT NOT NULL,
+                        `name` TEXT NOT NULL DEFAULT '',
+                        `customer_type` TEXT NOT NULL DEFAULT 'B2C',
+                        `business_name` TEXT,
+                        `gstin` TEXT,
+                        `state` TEXT,
+                        `state_code` TEXT,
+                        `credit_account_id` INTEGER,
+                        `isActive` INTEGER NOT NULL DEFAULT 1,
+                        `created_at` INTEGER NOT NULL,
+                        `updated_at` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS `index_customers_shop_id_phone`
+                    ON `customers` (`shop_id`, `phone`)
+                """.trimIndent())
+            }
+        }
+
+        /**
+         * v40 → v41 — Allow a customer to have separate B2C and B2B
+         * records under the same phone. The uniqueness key moves from
+         * (shop_id, phone) to (shop_id, phone, customer_type).
+         */
+        val MIGRATION_40_41 = object : Migration(40, 41) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP INDEX IF EXISTS `index_customers_shop_id_phone`")
+                db.execSQL("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS `index_customers_shop_id_phone_customer_type`
+                    ON `customers` (`shop_id`, `phone`, `customer_type`)
+                """.trimIndent())
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1246,7 +1319,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_34_35,
                         MIGRATION_35_36,
                         MIGRATION_36_37,
-                        MIGRATION_37_38, MIGRATION_38_39
+                        MIGRATION_37_38, MIGRATION_38_39,
+                        MIGRATION_39_40, MIGRATION_40_41
                     )
                     .fallbackToDestructiveMigration()
                     .build()

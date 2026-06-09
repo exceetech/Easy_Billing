@@ -19,5 +19,6 @@ data class ShopProductResponse(
     val official_uqc: String? = null,
     val hsn_description: String? = null,
     val cess_rate: Double = 0.0,
+    val category: String = "",
     val is_purchased: Boolean = false
 )

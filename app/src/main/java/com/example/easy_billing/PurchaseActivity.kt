@@ -708,6 +708,22 @@ class PurchaseActivity : BaseActivity() {
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST"))
         )
 
+        // ── Category dropdown (predefined ∪ shop custom) ──
+        val etCategoryPurchase = view.findViewById<AutoCompleteTextView>(R.id.etCategoryPurchase)
+        lifecycleScope.launch {
+            val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+            val shopIdStr = try {
+                prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
+            } catch (e: ClassCastException) { prefs.getInt("SHOP_ID", 0).toString() }
+            val cats = com.example.easy_billing.util.ProductCategories.dropdownFor(
+                this@PurchaseActivity, shopIdStr
+            )
+            etCategoryPurchase.setAdapter(
+                ArrayAdapter(this@PurchaseActivity, android.R.layout.simple_list_item_1, cats)
+            )
+        }
+        etCategoryPurchase.setOnClickListener { etCategoryPurchase.showDropDown() }
+
         // ── GSTR-2 product master / transaction fields ──
         val llGstr2HeaderToggle = view.findViewById<LinearLayout>(R.id.llGstr2HeaderToggle)
         val ivGstr2ToggleArrow  = view.findViewById<ImageView>(R.id.ivGstr2ToggleArrow)
@@ -886,7 +902,8 @@ class PurchaseActivity : BaseActivity() {
                                 etHsnDescPurchase.setText(match.hsnDescription ?: "")
                                 etCessRatePurchase.setText(match.cessRate.toString())
                                 spinnerSupplyClassPurchase.setText(match.supplyClassification, false)
-                                
+                                etCategoryPurchase.setText(match.category, false)
+
                                 setProductMasterFieldsEnabled(false)
                             }
                         } else {
@@ -1280,8 +1297,31 @@ class PurchaseActivity : BaseActivity() {
                 availedItcCgst = availedCgst,
                 availedItcSgst = availedSgst,
                 availedItcCess = availedCess,
-                supplyClassification = spinnerSupplyClassPurchase.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
+                supplyClassification = spinnerSupplyClassPurchase.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE",
+                category = etCategoryPurchase.text?.toString()?.trim().orEmpty()
             )
+
+            // Remember a brand-new custom category for future dropdowns.
+            run {
+                val catName = etCategoryPurchase.text?.toString()?.trim().orEmpty()
+                if (catName.isNotEmpty() &&
+                    com.example.easy_billing.util.ProductCategories.PREDEFINED.none { it.equals(catName, true) } &&
+                    !catName.equals(com.example.easy_billing.util.ProductCategories.UNCATEGORIZED, true)
+                ) {
+                    lifecycleScope.launch {
+                        val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@PurchaseActivity)
+                        val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+                        val shopIdStr = try {
+                            prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
+                        } catch (e: ClassCastException) { prefs.getInt("SHOP_ID", 0).toString() }
+                        if (db.productCategoryDao().getByName(catName, shopIdStr) == null) {
+                            db.productCategoryDao().insertIgnore(
+                                com.example.easy_billing.db.ProductCategory(shopId = shopIdStr, name = catName)
+                            )
+                        }
+                    }
+                }
+            }
 
             // Check for existing products with the same name+variant
             // BEFORE adding the line.
@@ -1402,7 +1442,8 @@ class PurchaseActivity : BaseActivity() {
                 officialUqc    = inactive.officialUqc,
                 hsnDescription = inactive.hsnDescription,
                 cessRate       = inactive.cessRate,
-                supplyClassification = inactive.supplyClassification
+                supplyClassification = inactive.supplyClassification,
+                category       = inactive.category
             )
             viewModel.addLine(oldValuesDraft)
             restoreDialog.dismiss()

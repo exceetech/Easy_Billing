@@ -248,6 +248,23 @@
                     android:completionThreshold="1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Category (predefined dropdown + free-type custom) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategory"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Category">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- ============ Inventory section ============ -->
             <TextView
                 android:layout_width="wrap_content"

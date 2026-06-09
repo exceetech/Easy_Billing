@@ -169,7 +169,8 @@ class PurchaseRepository private constructor(
                 officialUqc     = line.officialUqc,
                 hsnDescription  = line.hsnDescription,
                 cessRate        = line.cessRate,
-                supplyClassification = line.supplyClassification
+                supplyClassification = line.supplyClassification,
+                category        = line.category
             )
             val productId = if (line.forceCreate) {
                 db.productDao().insert(newProductData).toInt()
@@ -323,6 +324,7 @@ class PurchaseRepository private constructor(
                             hsn_description  = l.hsnDescription,
                             cess_rate        = l.cessRate,
                             supply_classification = l.supplyClassification,
+                            category         = l.category,
                             is_purchased     = true
                         )
                     )
@@ -366,6 +368,9 @@ class PurchaseRepository private constructor(
         val hsnDescription: String? = null,
         val cessRate: Double = 0.0,
         val supplyClassification: String = "TAXABLE",
+
+        // Category (v40)
+        val category: String = "",
 
         // GSTR-2 support fields
         val cessPercentage: Double = 0.0,

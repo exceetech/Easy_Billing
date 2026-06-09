@@ -101,6 +101,27 @@
                 android:inputType="none"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Category (predefined dropdown + free-type custom) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:startIconTint="?attr/colorPrimary"
+            app:endIconMode="dropdown_menu"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/etCategory"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Category"
+                android:inputType="textCapWords"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Price -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

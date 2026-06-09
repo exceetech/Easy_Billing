@@ -38,6 +38,10 @@ class ManageProductsAdapter(
         holder.tvName.text = item.name
         holder.tvSubtitle.text = buildString {
             item.variant?.takeIf { it.isNotBlank() }?.let { append("Variant: $it") }
+            item.category.takeIf { it.isNotBlank() }?.let {
+                if (isNotEmpty()) append("  •  ")
+                append(it)
+            }
             item.hsnCode?.takeIf { it.isNotBlank() }?.let {
                 if (isNotEmpty()) append("  •  ")
                 append("HSN $it")

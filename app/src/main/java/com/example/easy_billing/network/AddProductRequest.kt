@@ -30,7 +30,9 @@ data class AddProductRequest(
     val hsn_description: String? = null,
     val cess_rate: Double = 0.0,
     val supply_classification: String = "TAXABLE",
-    
+
+    val category: String = "",
+
     val is_purchased: Boolean = false
 
 )

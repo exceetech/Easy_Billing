@@ -55,7 +55,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         officialUqc: String? = null,
         hsnDescription: String? = null,
         cessRate: Double = 0.0,
-        supplyClassification: String = "TAXABLE"
+        supplyClassification: String = "TAXABLE",
+        category: String? = null
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -69,7 +70,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     officialUqc = officialUqc,
                     hsnDescription = hsnDescription,
                     cessRate = cessRate,
-                    supplyClassification = supplyClassification
+                    supplyClassification = supplyClassification,
+                    category = category
                 )
                 SyncCoordinator.get(getApplication()).requestSync()
             }.onSuccess {
@@ -93,7 +95,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         officialUqc: String? = null,
         hsnDescription: String? = null,
         cessRate: Double = 0.0,
-        supplyClassification: String = "TAXABLE"
+        supplyClassification: String = "TAXABLE",
+        category: String? = null
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -111,7 +114,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     officialUqc = officialUqc,
                     hsnDescription = hsnDescription,
                     cessRate = cessRate,
-                    supplyClassification = supplyClassification
+                    supplyClassification = supplyClassification,
+                    category = category?.ifBlank { current.category } ?: current.category
                 )
                 productRepo.upsert(updated)
 

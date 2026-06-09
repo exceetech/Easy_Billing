@@ -445,6 +445,45 @@ interface ApiService {
         @Body body: GlobalProductRegisterRequest
     ): GlobalProductRegisterResponse
 
+    /* ================= Categories (v40) ================= */
+
+    @POST("categories/sync")
+    suspend fun syncCategories(
+        @Header("Authorization") token: String,
+        @Body body: CategorySyncRequest
+    ): CategorySyncResponse
+
+    @GET("categories")
+    suspend fun getCategories(
+        @Header("Authorization") token: String
+    ): CategoryListResponse
+
+    /* ================= Customers (v40) ================= */
+
+    @GET("customers/by-phone")
+    suspend fun getCustomerByPhone(
+        @Header("Authorization") token: String,
+        @Query("phone") phone: String,
+        @Query("type") type: String? = null
+    ): CustomerLookupResponse
+
+    @GET("customers")
+    suspend fun getCustomers(
+        @Header("Authorization") token: String
+    ): CustomerListResponse
+
+    @POST("customers/sync")
+    suspend fun syncCustomers(
+        @Header("Authorization") token: String,
+        @Body body: CustomerSyncRequest
+    ): CustomerSyncResponse
+
+    @POST("customers/account")
+    suspend fun upsertCustomerAccount(
+        @Header("Authorization") token: String,
+        @Body body: CustomerAccountRequest
+    ): CustomerRemote
+
     /** Push a batch of purchase invoices + their line items. */
     @POST("purchases/sync")
     suspend fun syncPurchases(

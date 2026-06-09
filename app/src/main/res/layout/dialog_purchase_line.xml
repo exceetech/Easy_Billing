@@ -350,6 +350,23 @@
                     android:clickable="true"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Category (predefined dropdown + free-type custom) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategoryPurchase"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="Category"
+                app:endIconMode="dropdown_menu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etCategoryPurchase"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- 5. Quantity -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

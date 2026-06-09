@@ -37,7 +37,9 @@ data class ShopProductDto(
     // ── GSTR-1 product master fields (v23) ──
     val official_uqc: String? = null,
     val hsn_description: String? = null,
-    val cess_rate: Double = 0.0
+    val cess_rate: Double = 0.0,
+    // ── Category (v40) ──
+    val category: String = ""
 )
 
 data class ShopProductSyncResponse(

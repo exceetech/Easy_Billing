@@ -744,7 +744,8 @@ class DashboardActivity : BaseActivity() {
                                 igstPercentage = bp.igst_percentage,
                                 officialUqc    = bp.official_uqc ?: existing.officialUqc,
                                 hsnDescription = bp.hsn_description ?: existing.hsnDescription,
-                                cessRate       = bp.cess_rate
+                                cessRate       = bp.cess_rate,
+                                category       = bp.category.ifBlank { existing.category }
                             )
                         )
                     } else {
@@ -770,7 +771,8 @@ class DashboardActivity : BaseActivity() {
                                 igstPercentage = bp.igst_percentage,
                                 officialUqc    = bp.official_uqc,
                                 hsnDescription = bp.hsn_description,
-                                cessRate       = bp.cess_rate
+                                cessRate       = bp.cess_rate,
+                                category       = bp.category
                             )
                         )
                     }

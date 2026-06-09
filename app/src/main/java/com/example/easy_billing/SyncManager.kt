@@ -46,6 +46,10 @@ import com.example.easy_billing.network.PurchaseBatchSyncRequest
 import com.example.easy_billing.network.CreditNoteResponseDto
 import com.example.easy_billing.network.PurchaseReturnResponseDto
 import com.example.easy_billing.network.PurchaseBatchResponseDto
+import com.example.easy_billing.network.CategoryDto
+import com.example.easy_billing.network.CategorySyncRequest
+import com.example.easy_billing.network.CustomerDto
+import com.example.easy_billing.network.CustomerSyncRequest
 
 class SyncManager(private val context: Context) {
 
@@ -57,7 +61,9 @@ class SyncManager(private val context: Context) {
 
         syncAccounts()           // account first
         syncCredit()             // then transactions
+        syncCategories()         // custom categories (string-on-product, no FK)
         syncShopProducts()       // push unsynced shop_product (and global)
+        syncCustomers()          // customer master (after products, before invoices)
         syncInventory()          // inventory BEFORE bills
         syncBills()              // then bills
         syncPurchases()
@@ -123,6 +129,7 @@ class SyncManager(private val context: Context) {
                         hsn_description  = product.hsnDescription,
                         cess_rate        = product.cessRate,
                         supply_classification = product.supplyClassification,
+                        category         = product.category,
                         is_purchased     = product.isPurchased
                     )
                 )
@@ -148,6 +155,110 @@ class SyncManager(private val context: Context) {
                 Log.e(SYNC_TAG, "syncShopProducts: '${product.name}' push failed", e)
                 // Leave the row unsynced; next pass retries it.
             }
+        }
+    }
+
+    /**
+     * Pushes locally-created custom categories (serverId == null), then
+     * pulls the shop's categories so custom entries created on other
+     * devices appear in this device's dropdown. Best-effort: categories
+     * are also stored as plain strings on products, so failure never
+     * blocks product/invoice sync.
+     */
+    suspend fun syncCategories() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncCategories skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        // Push
+        val pending = db.productCategoryDao().getUnsynced()
+        if (pending.isNotEmpty()) {
+            Log.d(SYNC_TAG, "syncCategories: ${pending.size} unsynced category(ies)")
+            try {
+                val dtos = pending.map { CategoryDto(local_id = it.id, name = it.name) }
+                val response = api.syncCategories(token, CategorySyncRequest(dtos))
+                response.category_id_map.forEach { (localIdStr, serverId) ->
+                    localIdStr.toIntOrNull()?.let { db.productCategoryDao().setServerId(it, serverId) }
+                }
+            } catch (e: Exception) {
+                Log.e(SYNC_TAG, "syncCategories push failed", e)
+            }
+        }
+
+        // Pull (seed dropdown memory from other devices)
+        try {
+            val shopId = getShopIdString()
+            val remote = api.getCategories(token).categories
+            for (item in remote) {
+                if (db.productCategoryDao().getByName(item.name, shopId) == null) {
+                    db.productCategoryDao().insertIgnore(
+                        com.example.easy_billing.db.ProductCategory(
+                            serverId = item.id,
+                            shopId = shopId,
+                            name = item.name
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(SYNC_TAG, "syncCategories pull skipped: ${e.message}")
+        }
+    }
+
+    /**
+     * Pushes locally-created/edited customers (serverId == null). The
+     * server upserts by (shop_id, phone) and returns local_id →
+     * server_id, so two devices that created the same phone offline
+     * converge to one server id. No FK dependency: invoices carry their
+     * own snapshot, so ordering is for cleanliness only.
+     */
+    suspend fun syncCustomers() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncCustomers skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.customerDao().getUnsynced()
+        if (pending.isEmpty()) return
+        Log.d(SYNC_TAG, "syncCustomers: ${pending.size} unsynced customer(s)")
+
+        try {
+            val dtos = pending.map {
+                CustomerDto(
+                    local_id      = it.id,
+                    phone         = it.phone,
+                    name          = it.name,
+                    customer_type = it.customerType,
+                    business_name = it.businessName,
+                    gstin         = it.gstin,
+                    state         = it.state,
+                    state_code    = it.stateCode,
+                    updated_at    = it.updatedAt
+                )
+            }
+            val response = api.syncCustomers(token, CustomerSyncRequest(dtos))
+            response.customer_id_map.forEach { (localIdStr, serverId) ->
+                localIdStr.toIntOrNull()?.let { db.customerDao().setServerId(it, serverId) }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncCustomers push failed", e)
+        }
+    }
+
+    /** Shop id as the string form products/categories use locally. */
+    private fun getShopIdString(): String {
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+        return try {
+            prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
+        } catch (e: ClassCastException) {
+            prefs.getInt("SHOP_ID", 0).toString()
         }
     }
 
@@ -1196,7 +1307,8 @@ class SyncManager(private val context: Context) {
                                         igstPercentage = bp.igst_percentage,
                                         officialUqc    = bp.official_uqc ?: alreadyLocal.officialUqc,
                                         hsnDescription = bp.hsn_description ?: alreadyLocal.hsnDescription,
-                                        cessRate       = bp.cess_rate
+                                        cessRate       = bp.cess_rate,
+                                        category       = bp.category.ifBlank { alreadyLocal.category }
                                     )
                                 )
                             } else {
@@ -1224,7 +1336,8 @@ class SyncManager(private val context: Context) {
                                         igstPercentage = bp.igst_percentage,
                                         officialUqc    = bp.official_uqc,
                                         hsnDescription = bp.hsn_description,
-                                        cessRate       = bp.cess_rate
+                                        cessRate       = bp.cess_rate,
+                                        category       = bp.category
                                     )
                                 )
                             }
