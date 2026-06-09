@@ -195,16 +195,14 @@
                 android:layout_marginTop="14dp"
                 android:layout_marginBottom="16dp">
 
-                <!-- Left Half: Search Bar -->
+                <!-- Search Bar (Now Full Width) -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:background="@drawable/bg_search_bar"
-                    android:paddingHorizontal="12dp"
-                    android:layout_marginEnd="8dp">
+                    android:paddingHorizontal="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -231,41 +229,20 @@
                         android:imeOptions="actionSearch"
                         android:importantForAutofill="no"/>
                 </LinearLayout>
-
-                <!-- Right Half: AI Notice Capsule -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardNoticeBoard"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="0dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp"
-                        android:clipChildren="false">
-
-                        <TextView
-                            android:id="@+id/tvNoticeBoard"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/loading_ai_suggestions"
-                            android:textColor="#1E293B"
-                            android:textSize="15sp"
-                            android:fontFamily="serif"
-                            android:maxLines="2"
-                            android:ellipsize="end"
-                            android:gravity="center"/>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
         </LinearLayout>
+
+        <!-- ================= AI INSIGHTS (RULE OF 3) ================= -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpAiInsights"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
 
         <!-- ================= PRODUCTS ================= -->
         <androidx.recyclerview.widget.RecyclerView
@@ -297,6 +274,48 @@
         ============================================================ -->
 
         </LinearLayout>
+        
+        <!-- ================= MINIMIZED AI DASHBOARD RESTORE ================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/fabAiInsights"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="160dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="#0F172A"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🤖"
+                    android:textSize="18sp"/>
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Insights"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

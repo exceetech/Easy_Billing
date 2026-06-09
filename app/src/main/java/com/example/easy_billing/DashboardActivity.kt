@@ -60,9 +60,11 @@ class DashboardActivity : BaseActivity() {
     private lateinit var tvCartBadge: TextView
     private lateinit var etSearch: EditText
     private lateinit var tvWelcome: TextView
-
     private lateinit var tvDrawerNameBase: TextView
-    private lateinit var cardNoticeBoard: MaterialCardView
+
+    private lateinit var vpAiInsights: androidx.viewpager2.widget.ViewPager2
+    private lateinit var fabAiInsights: View
+    private lateinit var aiInsightsAdapter: AiInsightsAdapter
 
     private var searchRunnable: Runnable? = null
     private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -70,7 +72,6 @@ class DashboardActivity : BaseActivity() {
     // ================= Adapters =================
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
-    private lateinit var tvNoticeBoard: TextView
     private var aiAnimationJob: kotlinx.coroutines.Job? = null
 
     private val noticeHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -327,8 +328,15 @@ class DashboardActivity : BaseActivity() {
         tvCartBadge = findViewById(R.id.tvCartBadge)
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
-        tvNoticeBoard = findViewById(R.id.tvNoticeBoard)
-        cardNoticeBoard = findViewById(R.id.cardNoticeBoard)
+        tvDrawerNameBase = findViewById(R.id.tvDrawerNameBase)
+
+        vpAiInsights = findViewById(R.id.vpAiInsights)
+        fabAiInsights = findViewById(R.id.fabAiInsights)
+        
+        fabAiInsights.setOnClickListener {
+            fabAiInsights.visibility = View.GONE
+            vpAiInsights.visibility = View.VISIBLE
+        }
 
         switchTranslate = findViewById(R.id.switchTranslate)
         tvDrawerNameBase = findViewById(R.id.tvDrawerNameBase)
@@ -1199,14 +1207,10 @@ class DashboardActivity : BaseActivity() {
     }
 
     private fun loadAiNoticeBoard() {
-
         val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-
-        // 🔥 STEP 1: CHECK RESET FLAG
         val isReset = prefs.getBoolean("ai_reset", false)
-
         if (isReset) {
-            tvNoticeBoard.text = "Your AI insights will appear after your first sale 🚀"
+            vpAiInsights.visibility = View.GONE
             return
         }
 
@@ -1214,153 +1218,48 @@ class DashboardActivity : BaseActivity() {
             .getString("TOKEN", null)
 
         lifecycleScope.launch {
-
             try {
-
                 if (token.isNullOrEmpty()) {
-                    tvNoticeBoard.text = "Session expired"
+                    vpAiInsights.visibility = View.GONE
                     return@launch
                 }
 
                 val response = RetrofitClient.api.getAiReport(token)
+                
+                val activeInsights = response.insights
 
-                // 🔥 STEP 2: EMPTY DATA CHECK
-                if (response.report_data.isEmpty()) {
-                    tvNoticeBoard.text = "Start selling to see insights 📊"
+                if (activeInsights.isEmpty()) {
+                    vpAiInsights.visibility = View.GONE
+                    fabAiInsights.visibility = View.GONE
                     return@launch
                 }
 
-                val rawText = response.ai_report
-                // Robust split: handle dots, newlines, and bullet points
-                val insightsList = rawText.split(Regex("[●\n*]+")).map { it.trim() }.filter { it.isNotBlank() }
-
-                if (insightsList.isEmpty()) {
-                    tvNoticeBoard.text = "Fetching intelligence..."
-                    return@launch
+                // Show by default if we have insights and not manually minimized
+                if (fabAiInsights.visibility != View.VISIBLE) {
+                    vpAiInsights.visibility = View.VISIBLE
                 }
+                
+                aiInsightsAdapter = AiInsightsAdapter(this@DashboardActivity, activeInsights) {
+                    // Handle Minimize
+                    vpAiInsights.visibility = View.GONE
+                    fabAiInsights.visibility = View.VISIBLE
+                }
+                vpAiInsights.adapter = aiInsightsAdapter
 
+                // Auto-scroll logic
                 aiAnimationJob?.cancel()
-                aiAnimationJob = lifecycleScope.launch {
-                    var currentIndex = 0
-                    while (isActive) {
-                        val insight = insightsList[currentIndex]
-                        
-                        var cleanText = insight.trim()
-                            .replace(Regex("</?.*?>"), "")
-                            .replace(Regex("\\{.*?:.*?\\}"), "")
-                            .replace(Regex("[\\[\\]*`]+"), "")
-                            .replace("Rs.", "₹") // Transform for premium look
-                            .replace("RS", "₹")
-                            .trim()
-                            .uppercase()
-
-                        if (cleanText.isEmpty()) {
-                            currentIndex = (currentIndex + 1) % insightsList.size
-                            continue
+                if (activeInsights.size > 1) {
+                    aiAnimationJob = lifecycleScope.launch {
+                        while (isActive) {
+                            kotlinx.coroutines.delay(5000)
+                            val nextItem = (vpAiInsights.currentItem + 1) % activeInsights.size
+                            vpAiInsights.setCurrentItem(nextItem, true)
                         }
-
-                        // ✦ PREMIUM JEWELED HIGHLIGHT PALETTE
-                        val (primaryText, accentBg, highlightText) = when {
-                            cleanText.contains("PROFIT") || cleanText.contains("INCREASE") || cleanText.contains("GROWTH") -> 
-                                Triple("#1E293B", "#ECFDF5", "#059669")
-                            cleanText.contains("ALERT") || cleanText.contains("DECREASE") || cleanText.contains("LOW") || cleanText.contains("STOCK") -> 
-                                Triple("#1E293B", "#FEF2F2", "#DC2626")
-                            cleanText.contains("TOP") || cleanText.contains("TRENDING") || cleanText.contains("PREMIUM") -> 
-                                Triple("#1E293B", "#FFFBEB", "#D97706")
-                            else -> 
-                                Triple("#1E293B", "#EEF2FF", "#4F46E5")
-                        }
-
-                        val spannable = android.text.SpannableStringBuilder()
-                        
-                        // 1. Structural Anchor
-                        spannable.append("◢ ")
-                        spannable.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor(highlightText)), 0, 2, 0)
-                        
-                        // 2. The Body (Executive Serif)
-                        spannable.append(cleanText.lowercase().replaceFirstChar { it.uppercase() })
-                        spannable.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor(primaryText)), 2, spannable.length, 0)
-                        
-                        // 3. THE JEWELED CAPSULES (Supports ₹, %, and numbers)
-                        val highlightRegex = Regex("(\\d+%|₹\\s?\\d+[\\d,.]*)")
-                        highlightRegex.findAll(spannable).forEach { match ->
-                            val start = match.range.first
-                            val end = match.range.last + 1
-                            
-                            spannable.setSpan(
-                                RoundedBackgroundSpan(
-                                    android.graphics.Color.parseColor(accentBg), 
-                                    android.graphics.Color.parseColor(highlightText),
-                                    6f // Slightly rounder for 'Premium' feel
-                                ), 
-                                start, end, 0
-                            )
-                            spannable.setSpan(android.text.style.TypefaceSpan("monospace"), start, end, 0)
-                            spannable.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start, end, 0)
-                        }
-
-                        withContext(Dispatchers.Main) {
-                            // ✦ SUBTLE METALLIC SHIMMER
-                            val paint = tvNoticeBoard.paint
-                            val width = paint.measureText(spannable.toString())
-                            
-                            val flowAnimator = android.animation.ValueAnimator.ofFloat(0f, 1f)
-                            flowAnimator.duration = 6000 
-                            flowAnimator.repeatCount = android.animation.ValueAnimator.INFINITE
-                            flowAnimator.addUpdateListener { animator ->
-                                val progress = animator.animatedValue as Float
-                                val shader = android.graphics.LinearGradient(
-                                    0f, 0f, width * progress, 0f,
-                                    intArrayOf(
-                                        android.graphics.Color.parseColor(primaryText), 
-                                        android.graphics.Color.parseColor("#94A3B8"), // Muted Glint
-                                        android.graphics.Color.parseColor(primaryText)
-                                    ), 
-                                    floatArrayOf(0.45f, 0.5f, 0.55f),
-                                    android.graphics.Shader.TileMode.MIRROR
-                                )
-                                tvNoticeBoard.paint.shader = shader
-                                tvNoticeBoard.invalidate()
-                            }
-                            flowAnimator.start()
-
-                            tvNoticeBoard.text = spannable
-                            tvNoticeBoard.alpha = 0f
-                            tvNoticeBoard.translationX = 60f
-                            tvNoticeBoard.letterSpacing = 0.05f // Natural spacing for Serif
-                            
-                            tvNoticeBoard.animate()
-                                .alpha(1f)
-                                .translationX(0f)
-                                .setDuration(1200)
-                                .setInterpolator(android.view.animation.DecelerateInterpolator())
-                                .start()
-                                
-                            lifecycleScope.launch {
-                                try {
-                                    kotlinx.coroutines.delay(6000)
-                                    flowAnimator.cancel()
-                                } catch (e: Exception) {}
-                            }
-                        }
-                        kotlinx.coroutines.delay(6500) 
-
-                        withContext(Dispatchers.Main) {
-                            tvNoticeBoard.animate()
-                                .alpha(0f)
-                                .translationX(-80f)
-                                .setDuration(500)
-                                .start()
-                        }
-                        kotlinx.coroutines.delay(600) 
-
-                        currentIndex = (currentIndex + 1) % insightsList.size
                     }
                 }
 
             } catch (e: Exception) {
-
-                tvNoticeBoard.text = "AI insights unavailable"
+                vpAiInsights.visibility = View.GONE
             }
         }
     }
