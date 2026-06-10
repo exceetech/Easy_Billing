@@ -43,6 +43,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import android.widget.EditText
+import com.example.easy_billing.util.ProductCategories
 import kotlinx.coroutines.launch
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,34 @@ class DashboardActivity : BaseActivity() {
     private var currentLanguage = "en"
 
     private var currentSort = SortType.A_TO_Z
+
+    // ── Sort state: canonical product list + precomputed sort keys ──
+    // All maps are built ONCE per data load so a sort tap is a pure
+    // in-memory reorder (no DB / network work), keeping it instant.
+    private var allProducts: List<Product> = emptyList()
+    private var stockMap: Map<Int, Double> = emptyMap()
+    private var avgCostMap: Map<Int, Double> = emptyMap()
+    private var soldQtyMap: Map<Int, Double> = emptyMap()
+    private var revenueMap: Map<Int, Double> = emptyMap()
+    private var profitMap: Map<Int, Double> = emptyMap()
+
+    // ── Filter state (combinable; AND across groups, OR within a group) ──
+    private var filterCategories: Set<String> = emptySet()
+    private var filterStock: Set<StockStatus> = emptySet()
+    private var filterPurchased: Boolean = false
+    private var filterManual: Boolean = false
+    private var filterPriceMin: Double? = null
+    private var filterPriceMax: Double? = null
+
+    private val lowStockThreshold = 5.0
+
+    enum class StockStatus { IN_STOCK, LOW, OUT }
+
+    // ── View mode (Grid tiles / List / Categorized) ──
+    enum class ViewMode { GRID, LIST, CATEGORIZED }
+    private var viewMode = ViewMode.GRID
+    private val GRID_SPAN = 5
+    private lateinit var productGridManager: GridLayoutManager
 
     private lateinit var switchTranslate: SwitchMaterial
 
@@ -379,28 +408,71 @@ class DashboardActivity : BaseActivity() {
 
             popup.setOnMenuItemClickListener { item ->
 
-                when (item.itemId) {
-
-                    R.id.sort_az -> {
-                        sortProducts("AZ")
-                        true
-                    }
-
-                    R.id.sort_za -> {
-                        sortProducts("ZA")
-                        true
-                    }
-
-                    else -> false
+                val newSort = when (item.itemId) {
+                    R.id.sort_az            -> SortType.A_TO_Z
+                    R.id.sort_za            -> SortType.Z_TO_A
+                    R.id.sort_price_low     -> SortType.PRICE_LOW_HIGH
+                    R.id.sort_price_high    -> SortType.PRICE_HIGH_LOW
+                    R.id.sort_stock_low     -> SortType.STOCK_LOW_HIGH
+                    R.id.sort_stock_high    -> SortType.STOCK_HIGH_LOW
+                    R.id.sort_stock_value   -> SortType.STOCK_VALUE_HIGH_LOW
+                    R.id.sort_category      -> SortType.CATEGORY
+                    R.id.sort_best_selling  -> SortType.BEST_SELLING
+                    R.id.sort_top_revenue   -> SortType.TOP_REVENUE
+                    R.id.sort_top_profit    -> SortType.TOP_PROFIT
+                    else                    -> null
                 }
+                if (newSort != null) {
+                    currentSort = newSort
+                    applySort()   // instant in-memory reorder
+                    true
+                } else false
             }
 
+            popup.show()
+        }
+
+        findViewById<LinearLayout>(R.id.btnFilterContainer).setOnClickListener {
+            showFilterSheet()
+        }
+
+        val btnView = findViewById<LinearLayout>(R.id.btnViewContainer)
+        btnView.setOnClickListener {
+            val popup = PopupMenu(this, btnView, Gravity.END)
+            popup.menu.add(0, 1, 0, "Grid (tiles)")
+            popup.menu.add(0, 2, 1, "List")
+            popup.menu.add(0, 3, 2, "Categorized")
+            popup.setOnMenuItemClickListener { item ->
+                val newMode = when (item.itemId) {
+                    1 -> ViewMode.GRID
+                    2 -> ViewMode.LIST
+                    3 -> ViewMode.CATEGORIZED
+                    else -> viewMode
+                }
+                if (newMode != viewMode) {
+                    viewMode = newMode
+                    updateViewModeIcon()
+                    applySort()   // re-render in the new mode (instant)
+                }
+                true
+            }
             popup.show()
         }
 
         btnCart.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.END)
         }
+    }
+
+    private fun updateViewModeIcon() {
+        val iv = findViewById<android.widget.ImageView>(R.id.ivViewMode)
+        iv.setImageResource(
+            when (viewMode) {
+                ViewMode.GRID -> R.drawable.ic_view_grid
+                ViewMode.LIST -> R.drawable.ic_view_list
+                ViewMode.CATEGORIZED -> R.drawable.ic_view_categorized
+            }
+        )
     }
 
     fun typeWriter(textView: TextView, message: String, delay: Long = 40) {
@@ -459,7 +531,8 @@ class DashboardActivity : BaseActivity() {
 
     private fun setupRecyclerViews() {
 
-        rvProducts.layoutManager = GridLayoutManager(this, 5)
+        val gridManager = GridLayoutManager(this, GRID_SPAN)
+        productGridManager = gridManager
         rvCart.layoutManager = LinearLayoutManager(this)
 
         val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
@@ -475,6 +548,13 @@ class DashboardActivity : BaseActivity() {
             onItemLongClick = { showDeleteDialog(it) }
         )
 
+        // Category headers span the full row; product tiles take 1 cell.
+        gridManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int =
+                if (productAdapter.isHeader(position)) gridManager.spanCount else 1
+        }
+
+        rvProducts.layoutManager = gridManager
         rvProducts.adapter = productAdapter
 
         cartAdapter = CartAdapter(
@@ -802,21 +882,30 @@ class DashboardActivity : BaseActivity() {
         val localProducts = productRepo.getAllForCurrentShop()
         val inventoryList = db.inventoryDao().getAll()
 
-        val inventoryMap = inventoryList
-            .filter { it.isActive }
-            .associate {
-                it.productId to it.currentStock
-            }
+        val activeInv = inventoryList.filter { it.isActive }
+        val inventoryMap = activeInv.associate { it.productId to it.currentStock }
+        val costMap       = activeInv.associate { it.productId to it.averageCost }
 
-        val sortedList = when (currentSort) {
-            SortType.A_TO_Z -> localProducts.sortedBy { it.name.lowercase() }
-            SortType.Z_TO_A -> localProducts.sortedByDescending { it.name.lowercase() }
-        }
+        // Precompute sales aggregates in ONE GROUP BY query so the sales
+        // sorts (best-selling / revenue / profit) are instant on tap.
+        val agg = db.billItemDao().getSalesAggByProduct()
+        val soldQty  = agg.associate { it.productId to it.qty }
+        val revenue  = agg.associate { it.productId to it.revenue }
+        val profit   = agg.associate { it.productId to it.profit }
+
+        // Cache everything for the in-memory sorter.
+        allProducts = localProducts
+        stockMap    = inventoryMap
+        avgCostMap  = costMap
+        soldQtyMap  = soldQty
+        revenueMap  = revenue
+        profitMap   = profit
 
         withContext(Dispatchers.Main) {
-            productAdapter.updateData(sortedList)
             productAdapter.setInventoryMap(inventoryMap)
         }
+        // Apply the current sort (uses the freshly cached maps).
+        applySort()
     }
 
     // ==================================================
@@ -1183,9 +1272,10 @@ class DashboardActivity : BaseActivity() {
                                 .ProductRepository.get(this@DashboardActivity)
                                 .getAllForCurrentShop()
 
-                            withContext(Dispatchers.Main) {
-                                productAdapter.updateData(updatedList)
-                            }
+                            // Refresh the canonical list and re-render through
+                            // the active sort / filter / view-mode pipeline.
+                            allProducts = updatedList
+                            applySort()
 
                         } catch (e: Exception) {
                             Toast.makeText(
@@ -1391,27 +1481,203 @@ class DashboardActivity : BaseActivity() {
     enum class SortType {
         A_TO_Z,
         Z_TO_A,
+        PRICE_LOW_HIGH,
+        PRICE_HIGH_LOW,
+        STOCK_LOW_HIGH,
+        STOCK_HIGH_LOW,
+        STOCK_VALUE_HIGH_LOW,
+        CATEGORY,
+        BEST_SELLING,
+        TOP_REVENUE,
+        TOP_PROFIT
     }
 
-    private fun sortProducts(type: String) {
-
+    /**
+     * Pure in-memory reorder of [allProducts] using the precomputed sort
+     * keys. No DB/network — runs on Default just to keep the main thread
+     * free for very large catalogues, then submits via DiffUtil so the
+     * grid animates smoothly. Safe to call from any sort tap.
+     */
+    private fun applySort() {
+        val source = allProducts
+        if (source.isEmpty()) return
         lifecycleScope.launch(Dispatchers.Default) {
+            fun stock(p: Product) = stockMap[p.id] ?: 0.0
+            fun value(p: Product) = stock(p) * (avgCostMap[p.id] ?: 0.0)
+            fun sold(p: Product) = soldQtyMap[p.id] ?: 0.0
+            fun revenue(p: Product) = revenueMap[p.id] ?: 0.0
+            fun profit(p: Product) = profitMap[p.id] ?: 0.0
 
-            val list = productAdapter.getCurrentList().toMutableList()
-
-            val sorted = when (type) {
-
-                "AZ" -> list.sortedBy { it.name.lowercase() }
-
-                "ZA" -> list.sortedByDescending { it.name.lowercase() }
-
-                else -> list
+            // ── Filter first (AND across groups, OR within a group) ──
+            val filtered = source.filter { p ->
+                // Category
+                if (filterCategories.isNotEmpty()) {
+                    val cat = p.category.ifBlank { ProductCategories.UNCATEGORIZED }
+                    if (cat !in filterCategories) return@filter false
+                }
+                // Stock status
+                if (filterStock.isNotEmpty()) {
+                    val s = stock(p)
+                    val status = when {
+                        s <= 0.0 -> StockStatus.OUT
+                        s <= lowStockThreshold -> StockStatus.LOW
+                        else -> StockStatus.IN_STOCK
+                    }
+                    if (status !in filterStock) return@filter false
+                }
+                // Product type (OR within the group; if neither chosen, no constraint)
+                if (filterPurchased || filterManual) {
+                    val matches = (filterPurchased && p.isPurchased) ||
+                        (filterManual && !p.isPurchased)
+                    if (!matches) return@filter false
+                }
+                // Price range
+                filterPriceMin?.let { if (p.price < it) return@filter false }
+                filterPriceMax?.let { if (p.price > it) return@filter false }
+                true
             }
 
+            val sorted = when (currentSort) {
+                SortType.A_TO_Z -> filtered.sortedBy { it.name.lowercase() }
+                SortType.Z_TO_A -> filtered.sortedByDescending { it.name.lowercase() }
+                SortType.PRICE_LOW_HIGH -> filtered.sortedBy { it.price }
+                SortType.PRICE_HIGH_LOW -> filtered.sortedByDescending { it.price }
+                // Out-of-stock first is the useful "low" ordering for restock.
+                SortType.STOCK_LOW_HIGH -> filtered.sortedBy { stock(it) }
+                SortType.STOCK_HIGH_LOW -> filtered.sortedByDescending { stock(it) }
+                SortType.STOCK_VALUE_HIGH_LOW -> filtered.sortedByDescending { value(it) }
+                // Group by category; blank categories sink to the bottom,
+                // names break ties for a stable, readable order.
+                SortType.CATEGORY -> filtered.sortedWith(
+                    compareBy(
+                        { it.category.ifBlank { "￿" }.lowercase() },
+                        { it.name.lowercase() }
+                    )
+                )
+                SortType.BEST_SELLING -> filtered.sortedWith(
+                    compareByDescending<Product> { sold(it) }.thenBy { it.name.lowercase() }
+                )
+                SortType.TOP_REVENUE -> filtered.sortedWith(
+                    compareByDescending<Product> { revenue(it) }.thenBy { it.name.lowercase() }
+                )
+                SortType.TOP_PROFIT -> filtered.sortedWith(
+                    compareByDescending<Product> { profit(it) }.thenBy { it.name.lowercase() }
+                )
+            }
             withContext(Dispatchers.Main) {
-                productAdapter.submitList(sorted)
+                // Apply the current view mode: list = 1 column, grid &
+                // categorized = full span (categorized adds section headers).
+                productGridManager.spanCount = if (viewMode == ViewMode.LIST) 1 else GRID_SPAN
+                productGridManager.spanSizeLookup.invalidateSpanIndexCache()
+                // Column header only makes sense in List view.
+                findViewById<LinearLayout>(R.id.llListHeader).visibility =
+                    if (viewMode == ViewMode.LIST) View.VISIBLE else View.GONE
+                productAdapter.setProducts(
+                    sorted,
+                    grouped = viewMode == ViewMode.CATEGORIZED,
+                    asList = viewMode == ViewMode.LIST
+                )
             }
         }
+    }
+
+    /** Number of active filter groups — drives the badge on the button. */
+    private fun activeFilterCount(): Int {
+        var n = 0
+        if (filterCategories.isNotEmpty()) n++
+        if (filterStock.isNotEmpty()) n++
+        if (filterPurchased || filterManual) n++
+        if (filterPriceMin != null || filterPriceMax != null) n++
+        return n
+    }
+
+    private fun updateFilterBadge() {
+        val badge = findViewById<TextView>(R.id.tvFilterBadge)
+        val count = activeFilterCount()
+        if (count > 0) {
+            badge.text = count.toString()
+            badge.visibility = View.VISIBLE
+        } else {
+            badge.visibility = View.GONE
+        }
+    }
+
+    /**
+     * Combinable filter sheet. Selections are applied to [allProducts]
+     * via [applySort] — the same instant in-memory pipeline as sorting —
+     * so filter → sort → search compose cleanly.
+     */
+    private fun showFilterSheet() {
+        val view = layoutInflater.inflate(R.layout.dialog_product_filter, null)
+        val sheet = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        sheet.setContentView(view)
+
+        val chipGroupCategory = view.findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipGroupCategory)
+        val chipInStock   = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipInStock)
+        val chipLowStock  = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipLowStock)
+        val chipOutStock  = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipOutOfStock)
+        val chipPurchased = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipPurchased)
+        val chipManual    = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipManual)
+        val etPriceMin    = view.findViewById<EditText>(R.id.etPriceMin)
+        val etPriceMax    = view.findViewById<EditText>(R.id.etPriceMax)
+        val btnClear      = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnClearFilters)
+        val btnApply      = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnApplyFilters)
+
+        // Build category chips from the categories actually in use, plus a
+        // bucket for uncategorized products when any exist.
+        val categoriesInUse = allProducts
+            .map { it.category.ifBlank { ProductCategories.UNCATEGORIZED } }
+            .distinct()
+            .sortedBy { it.lowercase() }
+        val categoryChips = HashMap<String, com.google.android.material.chip.Chip>()
+        for (cat in categoriesInUse) {
+            val chip = com.google.android.material.chip.Chip(this).apply {
+                text = cat
+                isCheckable = true
+                isChecked = cat in filterCategories
+            }
+            categoryChips[cat] = chip
+            chipGroupCategory.addView(chip)
+        }
+
+        // Restore current selections.
+        chipInStock.isChecked  = StockStatus.IN_STOCK in filterStock
+        chipLowStock.isChecked = StockStatus.LOW in filterStock
+        chipOutStock.isChecked = StockStatus.OUT in filterStock
+        chipPurchased.isChecked = filterPurchased
+        chipManual.isChecked    = filterManual
+        filterPriceMin?.let { etPriceMin.setText(if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()) }
+        filterPriceMax?.let { etPriceMax.setText(if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()) }
+
+        btnClear.setOnClickListener {
+            categoryChips.values.forEach { it.isChecked = false }
+            chipInStock.isChecked = false
+            chipLowStock.isChecked = false
+            chipOutStock.isChecked = false
+            chipPurchased.isChecked = false
+            chipManual.isChecked = false
+            etPriceMin.text?.clear()
+            etPriceMax.text?.clear()
+        }
+
+        btnApply.setOnClickListener {
+            filterCategories = categoryChips.filterValues { it.isChecked }.keys.toSet()
+            filterStock = mutableSetOf<StockStatus>().apply {
+                if (chipInStock.isChecked) add(StockStatus.IN_STOCK)
+                if (chipLowStock.isChecked) add(StockStatus.LOW)
+                if (chipOutStock.isChecked) add(StockStatus.OUT)
+            }
+            filterPurchased = chipPurchased.isChecked
+            filterManual = chipManual.isChecked
+            filterPriceMin = etPriceMin.text?.toString()?.trim()?.toDoubleOrNull()
+            filterPriceMax = etPriceMax.text?.toString()?.trim()?.toDoubleOrNull()
+
+            updateFilterBadge()
+            applySort()
+            sheet.dismiss()
+        }
+
+        sheet.show()
     }
 
     /**

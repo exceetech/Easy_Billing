@@ -56,4 +56,18 @@ GROUP BY bi.productId, bi.variant, b.date
 
     @Query("SELECT * FROM bill_items")
     suspend fun getAllItems(): List<BillItem>
+
+    /**
+     * One row per product with lifetime units sold, revenue and profit.
+     * Single GROUP BY so the Dashboard can precompute sort keys cheaply.
+     */
+    @Query("""
+        SELECT productId AS productId,
+               COALESCE(SUM(quantity), 0)  AS qty,
+               COALESCE(SUM(subTotal), 0)  AS revenue,
+               COALESCE(SUM(profit), 0)    AS profit
+        FROM bill_items
+        GROUP BY productId
+    """)
+    suspend fun getSalesAggByProduct(): List<ProductSalesAgg>
 }
