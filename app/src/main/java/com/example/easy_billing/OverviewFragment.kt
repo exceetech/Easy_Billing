@@ -37,7 +37,8 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
     private var customStartDate: String? = null
     private var customEndDate: String? = null
 
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    // 🔥 H5 FIX: Locale.US guarantees ASCII digits for API dates
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,6 +55,7 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         chartBillsMini = view.findViewById(R.id.chartBillsMini)
         chartAvgMini = view.findViewById(R.id.chartAvgMini)
 
+        syncFilterFromActivity()
         loadKPI()
     }
 
@@ -66,6 +68,16 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         customStartDate = startDate
         customEndDate = endDate
         loadKPI()
+    }
+
+    // 🔥 H4 FIX: ViewPager2 creates this fragment lazily — pick up the
+    // filter that was selected before this tab existed.
+    private fun syncFilterFromActivity() {
+        (activity as? com.example.easy_billing.ReportsActivity)?.let {
+            currentFilter = it.currentFilter
+            customStartDate = it.customStart
+            customEndDate = it.customEnd
+        }
     }
 
     private fun loadKPI() {
@@ -91,10 +103,16 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
                     }
 
                     ReportFilter.WEEK -> {
-                        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+                        // 🔥 H5 FIX: locale-independent week start (Sunday).
+                        // set(DAY_OF_WEEK, SUNDAY) can jump FORWARD on
+                        // Monday-first locales.
+                        calendar.add(
+                            Calendar.DAY_OF_MONTH,
+                            -(calendar.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY)
+                        )
                         start = sdf.format(calendar.time)
 
-                        calendar.add(Calendar.DAY_OF_WEEK, 6)
+                        calendar.add(Calendar.DAY_OF_MONTH, 6)
                         end = sdf.format(calendar.time)
 
                         type = "custom"
@@ -190,8 +208,22 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
 
     private fun setGrowth(view: TextView, current: Double, previous: Double) {
 
+        // I5 FIX: previous period empty — "0%" was misleading when current
+        // revenue exists, and the early return left stale colors from a
+        // previous bind. Show "New" instead, and always reset styling.
         if (previous == 0.0) {
-            view.text = "0%"
+
+            if (current > 0.0) {
+                view.text = "New"
+                view.setTextColor(requireContext().getColor(R.color.green))
+                view.setBackgroundResource(R.drawable.bg_growth_positive)
+            } else {
+                view.text = "0%"
+                view.setTextColor(requireContext().getColor(R.color.gray))
+                view.setBackgroundResource(R.drawable.bg_chip_neutral)
+            }
+
+            view.setPadding(12, 4, 12, 4)
             return
         }
 

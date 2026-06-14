@@ -1,6 +1,7 @@
 package com.example.easy_billing
 
 import android.graphics.Color
+import android.graphics.Paint
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
@@ -66,8 +67,22 @@ class BillHistoryAdapter(
         // Amount
         holder.tvBillAmount.text = CurrencyHelper.format(context, bill.total_amount)
 
-        // Payment method with search highlight
-        holder.tvPaymentMethod.text = highlightText(bill.payment_method)
+        // N1: cancelled (voided) bills stay visible, clearly marked.
+        // Both branches fully reset state — views are recycled.
+        if (bill.is_cancelled) {
+            holder.tvPaymentMethod.text = "CANCELLED"
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#EF4444"))
+            holder.tvBillAmount.paintFlags =
+                holder.tvBillAmount.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.itemView.alpha = 0.6f
+        } else {
+            // Payment method with search highlight
+            holder.tvPaymentMethod.text = highlightText(bill.payment_method)
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#94A3B8"))
+            holder.tvBillAmount.paintFlags =
+                holder.tvBillAmount.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.itemView.alpha = 1f
+        }
 
         // Click
         holder.itemView.setOnClickListener {

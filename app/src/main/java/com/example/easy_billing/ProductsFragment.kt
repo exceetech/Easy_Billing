@@ -32,7 +32,8 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
     private var sortBy = "quantity"   // default
 
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    // 🔥 H5 FIX: Locale.US guarantees ASCII digits for API dates
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -45,6 +46,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
         setupSpinner()   // 🔥 ADD THIS
 
+        syncFilterFromActivity()
         loadProducts()
     }
 
@@ -100,6 +102,16 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
         loadProducts()
     }
 
+    // 🔥 H4 FIX: ViewPager2 creates this fragment lazily — pick up the
+    // filter that was selected before this tab existed.
+    private fun syncFilterFromActivity() {
+        (activity as? com.example.easy_billing.ReportsActivity)?.let {
+            currentFilter = it.currentFilter
+            customStartDate = it.customStart
+            customEndDate = it.customEnd
+        }
+    }
+
     // ================= API =================
 
     private fun loadProducts() {
@@ -125,10 +137,14 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
                     }
 
                     ReportFilter.WEEK -> {
-                        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+                        // 🔥 H5 FIX: locale-independent week start (Sunday)
+                        calendar.add(
+                            Calendar.DAY_OF_MONTH,
+                            -(calendar.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY)
+                        )
                         start = sdf.format(calendar.time)
 
-                        calendar.add(Calendar.DAY_OF_WEEK, 6)
+                        calendar.add(Calendar.DAY_OF_MONTH, 6)
                         end = sdf.format(calendar.time)
 
                         type = "custom"

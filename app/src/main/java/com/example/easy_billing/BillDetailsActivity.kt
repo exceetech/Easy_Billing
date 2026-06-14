@@ -144,7 +144,10 @@ class BillDetailsActivity : AppCompatActivity() {
                 val localBill = withContext(Dispatchers.IO) {
                     db.billDao().getByBillNumber(bill.bill_number)
                 }
-                val alreadyCancelled = localBill?.isCancelled == true
+                // N1: server flag too — covers bills voided from another
+                // device or after a reinstall, where Room has no record.
+                val alreadyCancelled =
+                    bill.is_cancelled || localBill?.isCancelled == true
                 localBillId = localBill?.id ?: -1
                 applyBillCancellationState(alreadyCancelled)
 
@@ -282,7 +285,11 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 // 4. Best-effort sync of cancellations to backend.
                 try {
-                    SyncManager(this@BillDetailsActivity).syncGstCancellations()
+                    val sync = SyncManager(this@BillDetailsActivity)
+                    sync.syncGstCancellations()
+                    // Also void the analytics bills row so reports
+                    // exclude this invoice (covers non-GST bills too).
+                    sync.syncBillCancellations()
                 } catch (e: Exception) {
                     e.printStackTrace() // will retry on next sync cycle
                 }
@@ -377,7 +384,12 @@ class BillDetailsActivity : AppCompatActivity() {
                     gst = response.bill.gst,
                     discount = response.bill.discount,
                     total = response.bill.total_amount,
-                    paymentMethod = response.bill.payment_method
+                    paymentMethod = response.bill.payment_method,
+                    // Carry the saved invoice type so a reprint of a B2B
+                    // bill never silently falls back to the "B2C" default.
+                    customerType = response.bill.invoice_type ?: "B2C",
+                    placeOfSupply = response.bill.customer_state_code ?: "",
+                    supplyType = response.bill.supply_type ?: "intrastate"
                 )
 
                 val billItems = response.items.map {

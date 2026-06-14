@@ -18,8 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.InvoiceAdapter
 import com.example.easy_billing.db.*
 import com.example.easy_billing.model.CartItem
-import com.example.easy_billing.network.BillItemRequest
-import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.network.CreateSaleRequest
 import com.example.easy_billing.network.RetrofitClient
@@ -724,6 +722,17 @@ class InvoiceActivity : AppCompatActivity() {
                 val customerGstin    = etCustomerGst.text.toString().trim().ifBlank { null }
                 val customerStateRaw = etCustomerState.text.toString().trim().ifBlank { null }
 
+                // ── Final state name + code, always a consistent pair ──
+                // Code: buyer's resolved code, else the shop's own state
+                //       (B2C local sale with no state entered).
+                // Name: as typed by the user, else looked up from the
+                //       final code so name and code never disagree.
+                val finalStateCode = customerStateCode
+                    .ifBlank { sellerStateCode }
+                    .ifBlank { null }
+                val finalStateName = customerStateRaw
+                    ?: finalStateCode?.let { GstEngine.INDIA_STATES[it] }
+
                 // ── Read new GSTR-1 invoice-level fields (v23) ──
                 val reverseCharge        = if (switchReverseCharge.isChecked) "Y" else "N"
                 val gstrInvoiceType      = spinnerGstrInvoiceType.text.toString()
@@ -829,7 +838,7 @@ class InvoiceActivity : AppCompatActivity() {
                     businessName          = businessName,
                     customerPhone         = customerPhone,
                     customerGst           = customerGstin,
-                    customerState         = customerStateRaw,
+                    customerState         = finalStateName,
                     subtotal              = breakdown.subtotal,
                     totalCgst             = breakdown.totalCgst,
                     totalSgst             = breakdown.totalSgst,
@@ -842,7 +851,7 @@ class InvoiceActivity : AppCompatActivity() {
                     invoiceDate           = nowMillis,
                     reverseCharge         = reverseCharge,
                     gstrInvoiceType       = gstrInvoiceType,
-                    customerStateCode     = customerStateCode.ifBlank { sellerStateCode }.ifBlank { null },
+                    customerStateCode     = finalStateCode,
                     ecommerceGstin        = ecommerceGstin,
                     ecommerceOperatorName = ecommerceOperatorName,
                     // ── New ECO fields (Table 14/15) ──
@@ -885,8 +894,8 @@ class InvoiceActivity : AppCompatActivity() {
                         customerName          = customerName,
                         businessName          = businessName,
                         customerPhone         = customerPhone,
-                        customerState         = customerStateRaw,
-                        customerStateCode     = customerStateCode.ifBlank { sellerStateCode }.ifBlank { null },
+                        customerState         = finalStateName,
+                        customerStateCode     = finalStateCode,
                         reverseCharge         = reverseCharge,
                         gstrInvoiceType       = gstrInvoiceType,
                         ecommerceGstin        = ecommerceGstin,
@@ -941,37 +950,25 @@ class InvoiceActivity : AppCompatActivity() {
                     }
                 }
 
-                // 9. Backend bill creation — preserve existing flow.
+                // 9. Backend bill creation — single code path.
+                //
+                // Previously this block posted the bill to /bills/create
+                // itself, while SyncManager.syncBills() (Dashboard /
+                // periodic sync) could post the SAME still-unsynced bill
+                // again → two backend rows per sale. It also hardcoded
+                // invoice_type = "B2C" and customer_state = null,
+                // clobbering B2B/state data on the backend.
+                //
+                // Now there is exactly ONE writer: SyncManager.syncBills(),
+                // which posts every unsynced bill with the full GST
+                // snapshot (invoice type, state, scheme) and marks it
+                // synced. It is internally mutex-guarded, so a concurrent
+                // Dashboard sync can never double-post.
                 try {
-                    val token = getSharedPreferences("auth", MODE_PRIVATE)
-                        .getString("TOKEN", null)
-                    if (!token.isNullOrEmpty()) {
-                        val request = CreateBillRequest(
-                            bill_number    = "",
-                            items          = items.map {
-                                if (it.product.serverId == null)
-                                    throw Exception("Product not synced: ${it.product.name}")
-                                BillItemRequest(
-                                    it.product.serverId,
-                                    it.quantity,
-                                    it.product.variant
-                                )
-                            },
-                            payment_method = getPaymentMethod(),
-                            discount       = discount,
-                            gst            = breakdown.totalTax,
-                            total_amount   = total
-                        )
-                        val response = RetrofitClient.api.createBill(token, request)
-                        if (response.bill_number.isNotEmpty()) {
-                            db.billDao().updateBillNumber(savedBillId, response.bill_number)
-                            db.gstSalesInvoiceDao().updateInvoiceNumberByBillId(savedBillId, response.bill_number)
-                            db.billDao().markBillSynced(savedBillId)
-                            db.billItemDao().markItemsSynced(savedBillId)
-                        }
-                    }
+                    SyncManager(this@InvoiceActivity).syncBills()
                 } catch (_: Exception) {
-                    // offline safe
+                    // offline safe — bill stays flagged unsynced and the
+                    // next sync cycle will push it exactly once.
                 }
 
                 // 10. Push the new GST invoice batch — best effort.

@@ -87,7 +87,7 @@ class DebitNoteItemAdapter(
         // ── Increment ────────────────────────────────────────────────────────
         holder.btnIncrement.setOnClickListener {
             val cur = additionalQtyMap[item.id] ?: 0.0
-            val step = if (item.unit.lowercase() in listOf("kg", "g", "l", "ml")) 0.5 else 1.0
+            val step = if (item.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
             val next = cur + step
             setQty(holder, item, next, ctx)
         }
@@ -96,7 +96,7 @@ class DebitNoteItemAdapter(
         holder.btnDecrement.setOnClickListener {
             val cur = additionalQtyMap[item.id] ?: 0.0
             if (cur > 0.0) {
-                val step = if (item.unit.lowercase() in listOf("kg", "g", "l", "ml")) 0.5 else 1.0
+                val step = if (item.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = (cur - step).coerceAtLeast(0.0)
                 setQty(holder, item, next, ctx)
             }

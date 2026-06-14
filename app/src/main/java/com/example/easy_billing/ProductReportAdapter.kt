@@ -55,7 +55,14 @@ class ProductReportAdapter(
         holder.tvProduct.text = productText
 
         // 🧾 Quantity
-        holder.tvQuantity.text = "${item.quantity} ${item.unit} sold • ${item.frequency} orders"
+        // I2 FIX: show whole numbers without ".0", fractions with up to 2 decimals
+        val qtyText = if (item.quantity % 1.0 == 0.0)
+            item.quantity.toInt().toString()
+        else
+            String.format(java.util.Locale.US, "%.2f", item.quantity)
+                .trimEnd('0').trimEnd('.')
+
+        holder.tvQuantity.text = "$qtyText ${item.unit} sold • ${item.frequency} orders"
 
         // 🏆 Rank
         holder.tvRank.text = "#${position + 1}"

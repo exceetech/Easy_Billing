@@ -39,7 +39,7 @@ data class TopProductResponse(
     val product: String,
     val variant: String?,
     val unit: String,
-    val quantity: Int,
+    val quantity: Double,   // I2 FIX: was Int — truncated fractional units (kg, L)
     val frequency: Int,
     val revenue: Double
 )

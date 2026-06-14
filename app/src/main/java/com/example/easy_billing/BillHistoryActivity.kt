@@ -235,8 +235,10 @@ class BillHistoryActivity : BaseActivity() {
 
         val today = SimpleDateFormat("yyyy-MM-dd").format(Date())
 
+        // N1: cancelled bills are visible in the list but must not count
+        // in the summary — keeps it consistent with the Reports screen.
         val todayBills = bills.filter {
-            it.created_at.startsWith(today)
+            !it.is_cancelled && it.created_at.startsWith(today)
         }
 
         val totalToday = todayBills.sumOf { it.total_amount }

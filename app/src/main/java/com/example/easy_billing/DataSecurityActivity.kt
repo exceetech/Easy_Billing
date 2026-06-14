@@ -171,11 +171,15 @@ class DataSecurityActivity : BaseActivity() {
                 val newToken      = resetResponse.access_token
                 val newShopId     = resetResponse.new_shop_id
 
-                // ── STEP 3: Clear local Room tables ────────────────────────────
-                // clearAllTables() removes every row in every table but keeps
-                // the schema intact — migration history is preserved.
-                AppDatabase.getDatabase(applicationContext).clearAllTables()
+                // ── STEP 3: Delete local Room database file ────────────────────
+                // destroyInstance() first (closes the connection and nulls the
+                // singleton), then deleteDatabase() removes the main .db file
+                // AND the WAL/SHM side-files atomically. Using clearAllTables()
+                // instead left stale WAL files on disk; when the new instance
+                // opened the same file after routing to SplashActivity it could
+                // not acquire a write lock → "database locked" on first write.
                 AppDatabase.destroyInstance()
+                applicationContext.deleteDatabase("easy_billing_db")
 
                 // ── STEP 4: Write new workspace identity to SharedPrefs ─────────
                 authPrefs.edit {

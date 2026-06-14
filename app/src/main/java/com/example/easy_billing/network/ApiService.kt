@@ -100,6 +100,12 @@ interface ApiService {
         @Body request: CreateBillRequest
     ): CreateBillResponse
 
+    @PUT("bills/cancel")
+    suspend fun cancelBill(
+        @Header("Authorization") token: String,
+        @Body request: CancelBillRequest
+    ): MessageResponse
+
     @GET("bills/{id}")
     suspend fun getBillDetails(
         @Header("Authorization") token: String,
@@ -220,7 +226,10 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("type") type: String,
         @Query("start_date") startDate: String? = null,
-        @Query("end_date") endDate: String? = null
+        @Query("end_date") endDate: String? = null,
+        // I7 FIX: currency lives client-side only — send it so the PDF
+        // matches what the app displays instead of always showing ₹
+        @Query("currency") currency: String? = null
     ): MessageResponse
 
     // ================= SHOP SETTINGS =================

@@ -22,8 +22,18 @@ interface BillDao {
     @Query("SELECT * FROM bills WHERE id = :billId")
     suspend fun getBillById(billId: Int): Bill
 
-    @Query("SELECT * FROM bills WHERE billNumber = :billNumber LIMIT 1")
+    // ORDER BY id DESC so the most-recently synced bill wins when
+    // Room DB has stale duplicates from a previous server session
+    // that happened to reuse the same bill number after a DB wipe.
+    @Query("SELECT * FROM bills WHERE billNumber = :billNumber ORDER BY id DESC LIMIT 1")
     suspend fun getByBillNumber(billNumber: String): Bill?
+
+    // Clears a stale bill number from any Room DB bill OTHER than the
+    // canonical one (exceptId). Called after syncBills() assigns a fresh
+    // bill_number so old bills from previous server sessions stop matching
+    // the getByBillNumber lookup and polluting SalesReturn/DebitNote.
+    @Query("UPDATE bills SET billNumber = '' WHERE billNumber = :billNumber AND id != :exceptId")
+    suspend fun clearDuplicateBillNumbers(billNumber: String, exceptId: Int)
 
     @Query("DELETE FROM bills")
     suspend fun deleteAllBills()
@@ -51,4 +61,12 @@ interface BillDao {
 
     @Query("SELECT is_cancelled FROM bills WHERE id = :billId LIMIT 1")
     suspend fun isCancelled(billId: Int): Boolean?
+
+    // N3: only voids the server hasn't acknowledged yet — once
+    // cancel_synced is set, the bill drops out of the sync loop.
+    @Query("SELECT * FROM bills WHERE is_cancelled = 1 AND cancel_synced = 0")
+    suspend fun getCancelledBills(): List<Bill>
+
+    @Query("UPDATE bills SET cancel_synced = 1 WHERE id = :billId")
+    suspend fun markCancelSynced(billId: Int)
 }

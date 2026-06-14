@@ -21,7 +21,23 @@ class ReportsActivity : BaseActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
 
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    // 🔥 H4 FIX: single source of truth for the active filter.
+    // ViewPager2 creates fragments lazily — fragments read this in
+    // onViewCreated so late-created tabs use the selected filter
+    // instead of defaulting to TODAY.
+    var currentFilter = ReportFilter.TODAY
+        private set
+    var customStart: String? = null
+        private set
+    var customEnd: String? = null
+        private set
+
+    // 🔥 H5 FIX: MaterialDatePicker returns UTC-midnight millis — format
+    // them in UTC or the date shifts back a day west of UTC. Locale.US
+    // guarantees ASCII digits for the API.
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -212,7 +228,10 @@ class ReportsActivity : BaseActivity() {
                     token = token,
                     type = type,
                     startDate = startDate,
-                    endDate = endDate
+                    endDate = endDate,
+                    // I7 FIX: PDF should use the same symbol the app shows
+                    currency = com.example.easy_billing.util.CurrencyHelper
+                        .getCurrencySymbol(this@ReportsActivity)
                 )
 
                 Toast.makeText(
@@ -239,6 +258,11 @@ class ReportsActivity : BaseActivity() {
         start: String? = null,
         end: String? = null
     ) {
+
+        // 🔥 H4 FIX: remember the selection for fragments created later
+        currentFilter = filter
+        customStart = start
+        customEnd = end
 
         supportFragmentManager.fragments.forEach { fragment ->
 

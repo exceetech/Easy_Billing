@@ -10,6 +10,9 @@ import com.example.easy_billing.db.Inventory
 import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.CreateBillRequest
+import com.example.easy_billing.network.CancelBillRequest
+import com.example.easy_billing.util.GstEngine
+import kotlinx.coroutines.sync.withLock
 import com.example.easy_billing.network.BillItemRequest
 import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.network.CreditSyncRequest
@@ -79,6 +82,7 @@ class SyncManager(private val context: Context) {
         syncGstPurchases()
         syncGstInvoices()        // push GST-aware invoice batch
         syncGstCancellations()   // push pending GST invoice cancellations
+        syncBillCancellations()  // push voided bills to the analytics table
         syncStoreInfo()          // pull latest
         syncBillingSettings()    // pull settings
     }
@@ -458,6 +462,29 @@ class SyncManager(private val context: Context) {
 
     private companion object {
         const val SYNC_TAG = "PurchaseSync"
+
+        /**
+         * Serializes [syncBills] across ALL SyncManager instances.
+         *
+         * The bill save flow (InvoiceActivity) and the Dashboard /
+         * periodic sync can both call syncBills() at nearly the same
+         * moment. Without this lock, both read the same bill as
+         * "unsynced" and each POST it to /bills/create → duplicate
+         * rows in the backend bills table (one sale, two entries).
+         */
+        val billSyncMutex = kotlinx.coroutines.sync.Mutex()
+    }
+
+    /**
+     * Stable per-install device id, generated once and persisted.
+     * Part of the bill idempotency key sent to /bills/create.
+     */
+    private fun deviceId(): String {
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+        prefs.getString("DEVICE_ID", null)?.let { return it }
+        val fresh = java.util.UUID.randomUUID().toString()
+        prefs.edit().putString("DEVICE_ID", fresh).apply()
+        return fresh
     }
 
     suspend fun syncPurchaseImportDetails() {
@@ -844,14 +871,16 @@ class SyncManager(private val context: Context) {
         }
     }
 
-    suspend fun syncBills() {
+    suspend fun syncBills() = billSyncMutex.withLock {
 
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
 
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return
+            .getString("TOKEN", null) ?: return@withLock
 
+        // Re-read INSIDE the lock: a concurrent caller that just finished
+        // has already marked these bills synced, so we see fresh flags.
         val bills = db.billDao().getUnsyncedBills()
         val productDao = db.productDao()
 
@@ -860,6 +889,12 @@ class SyncManager(private val context: Context) {
             try {
 
                 val items = db.billItemDao().getItemsForBill(bill.id)
+                val gstInvoice = db.gstSalesInvoiceDao().getByBillId(bill.id)
+                val gstInvoiceItems = if (gstInvoice != null) {
+                    db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id).associateBy { it.productId }
+                } else {
+                    emptyMap()
+                }
 
                 val apiItems = items.mapNotNull {
 
@@ -871,10 +906,28 @@ class SyncManager(private val context: Context) {
                         return@mapNotNull null
                     }
 
+                    val gstItem = gstInvoiceItems[it.productId]
+
                     BillItemRequest(
                         shop_product_id = serverId,
+                        product_name = product.name,
                         quantity = it.quantity,
-                        variant = product.variant
+                        variant = product.variant,
+                        unit = product.unit ?: "unit",
+                        unit_price = gstItem?.sellingPrice ?: product.price,
+                        line_subtotal = gstItem?.taxableAmount ?: it.subTotal,
+                        discount_amount = 0.0,
+                        taxable_amount = gstItem?.taxableAmount ?: it.subTotal,
+                        gst_rate = gstItem?.let { g -> g.salesCgstPercentage + g.salesSgstPercentage + g.salesIgstPercentage } ?: 0.0,
+                        cgst_rate = gstItem?.salesCgstPercentage ?: 0.0,
+                        sgst_rate = gstItem?.salesSgstPercentage ?: 0.0,
+                        igst_rate = gstItem?.salesIgstPercentage ?: 0.0,
+                        cgst_amount = gstItem?.cgstAmount ?: 0.0,
+                        sgst_amount = gstItem?.sgstAmount ?: 0.0,
+                        igst_amount = gstItem?.igstAmount ?: 0.0,
+                        cess_amount = 0.0,
+                        total_amount = gstItem?.netValue ?: it.subTotal,
+                        hsn_code = gstItem?.hsnCode ?: ""
                     )
                 }
 
@@ -883,13 +936,70 @@ class SyncManager(private val context: Context) {
                     continue
                 }
 
+                val isoDate = try {
+                    val parsed = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).parse(bill.date)
+                    if (parsed != null) {
+                        java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).format(parsed)
+                    } else null
+                } catch (e: Exception) {
+                    null
+                }
+
+                val supplyType = if (gstInvoice?.totalIgst != null && gstInvoice.totalIgst > 0) "interstate" else "intrastate"
+
+                // ── Resolve customer state name + code as a consistent pair ──
+                // Code: from the saved invoice, else derived from the saved
+                //       state name, else from the customer GSTIN.
+                // Name: as typed on the invoice, else looked up from the code.
+                // When both end up null the backend fills in the shop's own
+                // state (B2C local sale).
+                val resolvedStateCode = gstInvoice?.customerStateCode
+                    ?.takeIf { it.isNotBlank() }
+                    ?: GstEngine.getStateCodeFromName(gstInvoice?.customerState)
+                    ?: GstEngine.getStateCode(gstInvoice?.customerGst).takeIf { !it.isNullOrBlank() }
+                val resolvedStateName = gstInvoice?.customerState
+                    ?.takeIf { it.isNotBlank() }
+                    ?: resolvedStateCode?.let { GstEngine.INDIA_STATES[it] }
+
                 val request = CreateBillRequest(
                     bill_number = "",
                     items = apiItems,
                     payment_method = bill.paymentMethod,
                     discount = bill.discount,
                     gst = bill.gst,
-                    total_amount = bill.total
+                    total_amount = bill.total,
+                    
+                    subtotal = gstInvoice?.subtotal ?: (bill.total - bill.gst + bill.discount),
+                    discount_amount = bill.discount,
+                    taxable_amount = gstInvoice?.subtotal ?: (bill.total - bill.gst),
+                    
+                    cgst_amount = gstInvoice?.totalCgst ?: 0.0,
+                    sgst_amount = gstInvoice?.totalSgst ?: 0.0,
+                    igst_amount = gstInvoice?.totalIgst ?: 0.0,
+                    cess_amount = 0.0,
+                    gst_amount = gstInvoice?.totalTax ?: bill.gst,
+                    
+                    round_off = 0.0,
+                    final_amount = gstInvoice?.grandTotal ?: bill.total,
+                    
+                    gst_scheme = gstInvoice?.gstScheme ?: "Regular",
+                    supply_type = supplyType,
+                    customer_state = resolvedStateName,
+                    customer_state_code = resolvedStateCode,
+                    invoice_type = gstInvoice?.invoiceType ?: bill.customerType,
+                    is_gst_invoice = gstInvoice != null,
+
+                    // Idempotency key — backend dedupes on this, so a
+                    // retried/concurrent sync can't create two entries.
+                    client_bill_id = bill.id,
+                    client_device_id = deviceId(),
+
+                    created_at = isoDate,
+
+                    // Cancelled-before-first-sync: arrive already voided
+                    // so the bill never counts in server reports.
+                    is_cancelled = bill.isCancelled,
+                    cancelled_at = bill.cancelledAt
                 )
 
                 val response = api.createBill(token, request)
@@ -897,10 +1007,22 @@ class SyncManager(private val context: Context) {
                 if (response.bill_number.isNotEmpty()) {
                     db.billDao().updateBillNumber(bill.id, response.bill_number)
                     db.gstSalesInvoiceDao().updateInvoiceNumberByBillId(bill.id, response.bill_number)
+                    // Purge stale duplicate bill numbers from Room DB.
+                    // After a server DB wipe + restart the server reissues numbers
+                    // from INV_YYYY_1. If Room DB still has an old bill with the same
+                    // number, getByBillNumber in BillDetailsActivity would find the
+                    // OLD bill and pass wrong items to SalesReturn/DebitNote.
+                    db.billDao().clearDuplicateBillNumbers(response.bill_number, bill.id)
                 }
 
                 db.billDao().markBillSynced(bill.id)
                 db.billItemDao().markItemsSynced(bill.id)
+                // A bill sent as is_cancelled=true was never created on the server
+                // (server returns bill_id=-1). Mark cancelSynced immediately so
+                // syncBillCancellations() never tries to void a non-existent row.
+                if (bill.isCancelled) {
+                    db.billDao().markCancelSynced(bill.id)
+                }
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -1822,6 +1944,65 @@ class SyncManager(private val context: Context) {
             } catch (e: Exception) {
                 Log.e(SYNC_TAG, "syncGstCancellations: failed for invoice ${inv.id}", e)
                 // Leave as pending for next retry
+            }
+        }
+    }
+
+    /**
+     * Pushes void state for locally-cancelled bills to the server's
+     * analytics `bills` table (sets active=false there, so every report
+     * excludes them).
+     *
+     * Covers bills cancelled AFTER they were already synced — bills
+     * cancelled BEFORE first sync carry `is_cancelled` inside their
+     * CreateBillRequest instead. Also covers non-GST bills, whose
+     * cancellation has no GstSalesInvoice row and therefore never
+     * travels through syncGstCancellations.
+     *
+     * N3: each void is pushed until the server acknowledges it once,
+     * then `cancel_synced` takes it out of the loop. The endpoint is
+     * idempotent, so a lost response retrying next cycle is harmless.
+     */
+    suspend fun syncBillCancellations() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncBillCancellations skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        // Only bills that already exist on the server; unsynced ones
+        // carry the flag in their create payload.
+        val cancelled = db.billDao().getCancelledBills().filter { it.isSynced }
+
+        for (bill in cancelled) {
+            try {
+                api.cancelBill(
+                    token,
+                    CancelBillRequest(
+                        bill_number      = bill.billNumber.takeIf { it.isNotBlank() },
+                        client_bill_id   = bill.id,
+                        client_device_id = deviceId(),
+                        cancelled_at     = bill.cancelledAt ?: System.currentTimeMillis()
+                    )
+                )
+                // N3: acknowledged — drop out of the sync loop for good
+                db.billDao().markCancelSynced(bill.id)
+                Log.d(SYNC_TAG, "syncBillCancellations: bill ${bill.id} voided on server")
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 404) {
+                    // Bill doesn't exist on the server — nothing to cancel.
+                    // Mark it done so we don't retry this every sync cycle.
+                    db.billDao().markCancelSynced(bill.id)
+                    Log.w(SYNC_TAG, "syncBillCancellations: bill ${bill.id} not found on server (404); marked cancel-synced")
+                } else {
+                    Log.e(SYNC_TAG, "syncBillCancellations: HTTP ${e.code()} for bill ${bill.id}")
+                    // Retried automatically on the next sync cycle
+                }
+            } catch (e: Exception) {
+                Log.e(SYNC_TAG, "syncBillCancellations: failed for bill ${bill.id}", e)
+                // Retried automatically on the next sync cycle
             }
         }
     }

@@ -146,7 +146,7 @@ class PurchaseReturnItemAdapter(
         holder.btnIncrement.setOnClickListener {
             val cur  = returnQtyMap[item.id] ?: 0.0
             if (noteType == "C" || cur < max) {
-                val step = if (item.unit?.lowercase() in listOf("kg", "g", "l", "ml")) 0.5 else 1.0
+                val step = if (item.unit?.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = if (noteType == "C") cur + step else (cur + step).coerceAtMost(max)
                 setQty(holder, item, next, ctx)
             }
@@ -156,7 +156,7 @@ class PurchaseReturnItemAdapter(
         holder.btnDecrement.setOnClickListener {
             val cur = returnQtyMap[item.id] ?: 0.0
             if (cur > 0.0) {
-                val step = if (item.unit?.lowercase() in listOf("kg", "g", "l", "ml")) 0.5 else 1.0
+                val step = if (item.unit?.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = (cur - step).coerceAtLeast(0.0)
                 setQty(holder, item, next, ctx)
             }

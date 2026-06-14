@@ -34,5 +34,14 @@ data class Bill(
 
     /** Epoch millis when cancellation was confirmed. */
     @ColumnInfo(name = "cancelled_at")
-    val cancelledAt: Long? = null
+    val cancelledAt: Long? = null,
+
+    // ── N3 (v42) ──────────────────────────────────────────────────────
+    /**
+     * True once the void has been acknowledged by the server's
+     * /bills/cancel endpoint. Stops syncBillCancellations from
+     * re-pushing every cancelled bill on every sync cycle forever.
+     */
+    @ColumnInfo(name = "cancel_synced")
+    var cancelSynced: Boolean = false
 )

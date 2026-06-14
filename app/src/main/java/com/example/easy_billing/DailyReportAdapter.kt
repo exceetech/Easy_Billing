@@ -69,8 +69,10 @@ class DailyReportAdapter(
         holder.tvBills.text = "${current.bills} bills"
 
         // 📈 GROWTH
-        val prevRevenue = if (position > 0)
-            data[position - 1].revenue
+        // List is ordered newest-first (DESC), so the previous day
+        // is the NEXT row (position + 1), not the one above.
+        val prevRevenue = if (position < data.size - 1)
+            data[position + 1].revenue
         else current.revenue
 
         val change = if (prevRevenue == 0.0) 0.0

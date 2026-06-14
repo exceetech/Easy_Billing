@@ -28,12 +28,15 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
     private var customStartDate: String? = null
     private var customEndDate: String? = null
 
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    // 🔥 H5 FIX: Locale.US guarantees ASCII digits for API dates
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         chart = view.findViewById(R.id.chartSalesTrend)
+
+        syncFilterFromActivity()
         loadChart()
     }
 
@@ -46,6 +49,16 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         customStartDate = startDate
         customEndDate = endDate
         loadChart()
+    }
+
+    // 🔥 H4 FIX: ViewPager2 creates this fragment lazily — pick up the
+    // filter that was selected before this tab existed.
+    private fun syncFilterFromActivity() {
+        (activity as? com.example.easy_billing.ReportsActivity)?.let {
+            currentFilter = it.currentFilter
+            customStartDate = it.customStart
+            customEndDate = it.customEnd
+        }
     }
 
     private fun loadChart() {
@@ -140,7 +153,11 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val cal = Calendar.getInstance()
         val todayIndex = cal.get(Calendar.DAY_OF_WEEK) - 1 // 0 = Sunday
 
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        // 🔥 H5 FIX: locale-independent week start (Sunday)
+        cal.add(
+            Calendar.DAY_OF_MONTH,
+            -(cal.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY)
+        )
 
         for (i in 0..6) {
 
@@ -197,19 +214,24 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
-        val parser = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val parser = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val formatter = SimpleDateFormat("MMM", Locale.getDefault())
 
         val map = HashMap<Int, Float>()
 
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
         // 🔥 map API data → month index (0–11)
+        // ✅ Only current year — API returns all years (newest first),
+        // without this check older years overwrite the current one.
         data.forEach {
             val date = parser.parse(it.month)!!
             val cal = Calendar.getInstance()
             cal.time = date
-            val monthIndex = cal.get(Calendar.MONTH)
 
-            map[monthIndex] = it.revenue.toFloat()
+            if (cal.get(Calendar.YEAR) == currentYear) {
+                map[cal.get(Calendar.MONTH)] = it.revenue.toFloat()
+            }
         }
 
         val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
@@ -238,7 +260,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
-        val apiFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val apiFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
         val start = apiFormat.parse(customStartDate!!)!!
         val selectedEnd = apiFormat.parse(customEndDate!!)!!

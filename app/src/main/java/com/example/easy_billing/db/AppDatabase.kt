@@ -66,7 +66,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         ProductCategory::class,
         Customer::class
     ],
-    version = 41
+    version = 42
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1284,6 +1284,18 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // N3 (v42): tracks whether a bill's void has been acknowledged by
+        // the server, so syncBillCancellations stops re-pushing it every
+        // cycle. Existing cancelled bills default to 0 → pushed once more,
+        // then marked.
+        val MIGRATION_41_42 = object : Migration(41, 42) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE bills ADD COLUMN cancel_synced INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1320,7 +1332,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_35_36,
                         MIGRATION_36_37,
                         MIGRATION_37_38, MIGRATION_38_39,
-                        MIGRATION_39_40, MIGRATION_40_41
+                        MIGRATION_39_40, MIGRATION_40_41,
+                        MIGRATION_41_42
                     )
                     .fallbackToDestructiveMigration()
                     .build()
