@@ -213,6 +213,14 @@ interface ApiService {
         @Query("end_date") end: String? = null
     ): AverageBillResponse
 
+    @GET("reports/overview")
+    suspend fun getOverview(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") start: String? = null,
+        @Query("end_date") end: String? = null
+    ): OverviewResponse
+
     @GET("reports/trend")
     suspend fun getSalesTrend(
         @Header("Authorization") token: String

@@ -39,7 +39,8 @@ open class BaseActivity : AppCompatActivity() {
         requestedOrientation =
             android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         
-        hideSystemUI()
+        // Removed hideSystemUI() from here to prevent NullPointerException on some devices 
+        // where the DecorView is not yet initialized. It is handled in onWindowFocusChanged.
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

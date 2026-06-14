@@ -11,6 +11,7 @@ import com.example.easy_billing.Filterable
 import com.example.easy_billing.R
 import com.example.easy_billing.ReportFilter
 import com.example.easy_billing.network.*
+import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.ChartMarkerView
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.*
@@ -29,7 +30,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
     private var customEndDate: String? = null
 
     // 🔥 H5 FIX: Locale.US guarantees ASCII digits for API dates
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val sdf = AppTime.isoDate()   // app timezone (matches backend)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -128,7 +129,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
-        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val currentHour = AppTime.calendar().get(Calendar.HOUR_OF_DAY)
 
         // ✅ ONLY ADD DATA TILL CURRENT TIME
         for (i in 0..currentHour) {
@@ -150,7 +151,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
-        val cal = Calendar.getInstance()
+        val cal = AppTime.calendar()
         val todayIndex = cal.get(Calendar.DAY_OF_WEEK) - 1 // 0 = Sunday
 
         // 🔥 H5 FIX: locale-independent week start (Sunday)
@@ -184,7 +185,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val map = HashMap<String, Float>()
         data.forEach { map[it.date] = it.revenue.toFloat() }
 
-        val cal = Calendar.getInstance()
+        val cal = AppTime.calendar()
         val today = cal.get(Calendar.DAY_OF_MONTH)
         val days = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
 
@@ -214,19 +215,19 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
-        val parser = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val parser = AppTime.isoDate()   // app timezone (matches backend)
         val formatter = SimpleDateFormat("MMM", Locale.getDefault())
 
         val map = HashMap<Int, Float>()
 
-        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val currentYear = AppTime.calendar().get(Calendar.YEAR)
 
         // 🔥 map API data → month index (0–11)
         // ✅ Only current year — API returns all years (newest first),
         // without this check older years overwrite the current one.
         data.forEach {
             val date = parser.parse(it.month)!!
-            val cal = Calendar.getInstance()
+            val cal = AppTime.calendar()
             cal.time = date
 
             if (cal.get(Calendar.YEAR) == currentYear) {
@@ -234,12 +235,12 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             }
         }
 
-        val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
+        val currentMonth = AppTime.calendar().get(Calendar.MONTH)
 
         // 🔥 build full year labels
         for (i in 0..11) {
 
-            val cal = Calendar.getInstance()
+            val cal = AppTime.calendar()
             cal.set(Calendar.MONTH, i)
 
             labels.add(formatter.format(cal.time))
@@ -260,7 +261,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
-        val apiFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val apiFormat = AppTime.isoDate()   // app timezone (matches backend)
 
         val start = apiFormat.parse(customStartDate!!)!!
         val selectedEnd = apiFormat.parse(customEndDate!!)!!
@@ -277,7 +278,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             map[it.date] = it.revenue.toFloat()
         }
 
-        val cal = Calendar.getInstance()
+        val cal = AppTime.calendar()
         cal.time = start
 
         var index = 0

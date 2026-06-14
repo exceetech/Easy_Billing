@@ -14,6 +14,7 @@ import com.example.easy_billing.ReportFilter
 import com.example.easy_billing.DailyReportAdapter
 import com.example.easy_billing.adapter.MonthlyReportAdapter
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.AppTime
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,7 +28,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
     private var customStartDate: String? = null
     private var customEndDate: String? = null
 
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val sdf = AppTime.isoDate()   // app timezone (matches backend)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,7 +68,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
 
             try {
 
-                val calendar = Calendar.getInstance()
+                val calendar = AppTime.calendar()
 
                 var start: String? = null
                 var end: String? = null

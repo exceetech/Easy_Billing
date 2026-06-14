@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hover/highlight tooltip for the Peak Hours bubble chart -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/transparent"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp">
+
+    <!-- Hour title (e.g. 4pm) -->
+    <TextView
+        android:id="@+id/tvHour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="—"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="9dp"/>
+
+    <!-- Revenue row: color swatch + value -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <View
+            android:id="@+id/colorSwatch"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/bg_marker_swatch"/>
+
+        <TextView
+            android:id="@+id/tvRevenue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Revenue: —"
+            android:textColor="#C9D2E3"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- Bills count -->
+    <TextView
+        android:id="@+id/tvBills"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bills: —"
+        android:textColor="#C9D2E3"
+        android:textSize="14sp"
+        android:layout_marginStart="25dp"/>
+</LinearLayout>

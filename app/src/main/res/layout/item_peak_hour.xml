@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--
+  ALL HOURS row — matches the mockup exactly:
+  [rank] [dot] [time / bills] ··· [revenue / badge]
+  [━━━━━━━━━━ progress bar ━━━━━━━━━━]
+-->
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,93 +12,113 @@
     android:id="@+id/cardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="5dp"
 
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@android:color/transparent">
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF">
 
-    <!-- 🔥 CONTENT -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="10dp">
 
-        <!-- 🔝 TOP ROW -->
+        <!-- ── TOP ROW ── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- 🏆 RANK -->
+            <!-- Rank: muted gray text, no chip -->
             <TextView
                 android:id="@+id/tvRank"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#1"
-                android:textSize="10sp"
+                android:text="#4"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:layout_marginEnd="6dp"
-                android:background="@drawable/bg_rank_chip"/>
+                android:textColor="#CBD5E1"
+                android:minWidth="28dp"
+                android:layout_marginEnd="8dp"/>
 
-            <!-- ⏰ HOUR -->
-            <TextView
-                android:id="@+id/tvHour"
+            <!-- Status dot — coloured circle via adapter -->
+            <View
+                android:id="@+id/vAccent"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:layout_marginEnd="10dp"/>
+
+            <!-- Time + Bills (left, stacked) -->
+            <LinearLayout
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="10:00"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#111827"
-                android:layout_height="wrap_content"/>
+                android:orientation="vertical">
 
-            <!-- 📊 STATUS -->
-            <TextView
-                android:id="@+id/tvStatus"
+                <TextView
+                    android:id="@+id/tvHour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12:00 PM"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"/>
+
+                <TextView
+                    android:id="@+id/tvBills"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18 bills"
+                    android:textSize="11sp"
+                    android:textColor="#9CA3AF"
+                    android:layout_marginTop="1dp"/>
+
+            </LinearLayout>
+
+            <!-- Revenue + Badge (right-aligned, stacked) -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🔥 Peak"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:textColor="#16A34A"
-                android:background="@drawable/bg_growth_chip"/>
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/tvRevenue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹6,100"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#111827"/>
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚖ Avg"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:layout_marginTop="3dp"
+                    android:textColor="#475569"/>
+
+            </LinearLayout>
+
         </LinearLayout>
 
-        <!-- 💰 REVENUE -->
-        <TextView
-            android:id="@+id/tvRevenue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₹10,500"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#111827"
-            android:layout_marginTop="6dp"/>
-
-        <!-- 🧾 BILLS -->
-        <TextView
-            android:id="@+id/tvBills"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="25 bills"
-            android:textSize="12sp"
-            android:textColor="#6B7280"
-            android:layout_marginTop="2dp"/>
-
-        <!-- 📊 PROGRESS -->
+        <!-- ── PROGRESS BAR ── -->
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="6dp"
+            android:layout_height="3dp"
             android:layout_marginTop="10dp"
             android:max="100"
             android:progressDrawable="@drawable/bg_progress_rounded"/>

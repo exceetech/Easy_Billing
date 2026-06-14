@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.Toast
@@ -108,23 +110,41 @@ class ReportsActivity : BaseActivity() {
             selectChip(chipCustom)
             openCustomDatePicker()
         }
+
+        // Apply initial selected state — XML state lists are ignored by M3
+        chipToday?.let { selectChip(it) }
     }
 
-    // ---------------- bold for tab ----------------------
+    // ── Chip selection ───────────────────────────────────────────────────
+    // Material3 overrides chipBackgroundColor via chipSurfaceColor from the
+    // theme, so XML color state lists are silently ignored. We drive every
+    // visual property programmatically here instead.
+
+    private fun allChips() = listOf(
+        findViewById<Chip>(R.id.chipToday),
+        findViewById<Chip>(R.id.chipWeek),
+        findViewById<Chip>(R.id.chipMonth),
+        findViewById<Chip>(R.id.chipYear),
+        findViewById<Chip>(R.id.chipCustom)
+    ).filterNotNull()
+
     private fun selectChip(selectedChip: Chip) {
+        allChips().forEach { chip -> applyChipStyle(chip, chip == selectedChip) }
+    }
 
-        val chips = listOf(
-            findViewById<Chip>(R.id.chipToday),
-            findViewById<Chip>(R.id.chipWeek),
-            findViewById<Chip>(R.id.chipMonth),
-            findViewById<Chip>(R.id.chipYear),
-            findViewById<Chip>(R.id.chipCustom)
-        )
-
-        chips.forEach { chip ->
-            chip?.apply {
-                setTypeface(null, if (this == selectedChip) Typeface.BOLD else Typeface.NORMAL)
-            }
+    private fun applyChipStyle(chip: Chip, selected: Boolean) {
+        if (selected) {
+            chip.chipBackgroundColor  = ColorStateList.valueOf(Color.parseColor("#1B3A8A"))
+            chip.chipStrokeColor      = ColorStateList.valueOf(Color.parseColor("#1B3A8A"))
+            chip.setTextColor(Color.WHITE)
+            chip.chipIconTint         = ColorStateList.valueOf(Color.WHITE)
+            chip.setTypeface(null, Typeface.BOLD)
+        } else {
+            chip.chipBackgroundColor  = ColorStateList.valueOf(Color.WHITE)
+            chip.chipStrokeColor      = ColorStateList.valueOf(Color.parseColor("#E5E7EB"))
+            chip.setTextColor(Color.parseColor("#6B7280"))
+            chip.chipIconTint         = ColorStateList.valueOf(Color.TRANSPARENT)
+            chip.setTypeface(null, Typeface.NORMAL)
         }
     }
 

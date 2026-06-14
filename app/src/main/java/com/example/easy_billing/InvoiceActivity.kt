@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.util.AppTime
+
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -171,7 +173,7 @@ class InvoiceActivity : AppCompatActivity() {
         )
         rvItems.scheduleLayoutAnimation()
 
-        val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+        val date = AppTime.nowBillStamp()   // app-timezone wall clock (matches backend)
         tvBillInfo.text = "Date: $date"
 
         // Premium polish — staggered card reveal + press scaling on
@@ -681,7 +683,7 @@ class InvoiceActivity : AppCompatActivity() {
 
             try {
                 val db = AppDatabase.getDatabase(this@InvoiceActivity)
-                val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+                val date = AppTime.nowBillStamp()   // app-timezone wall clock (matches backend)
 
                 // 1. Stock validation — preserve existing flow.
                 for (cartItem in items) {

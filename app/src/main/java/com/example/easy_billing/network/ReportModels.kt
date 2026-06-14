@@ -80,3 +80,24 @@ data class SalesTrendResponse(
     val revenue: Double,
     val month: String
 )
+
+data class PaymentSplitItem(
+    val method: String,
+    val bills: Int,
+    val revenue: Double,
+    val percent: Int
+)
+
+data class OverviewResponse(
+    val total_revenue: Double,
+    val total_bills: Int,
+    val average_bill: Double,
+    val returns_total: Double,
+    val cancelled_count: Int,
+    val cancelled_amount: Double,
+    val payment_split: List<PaymentSplitItem>,
+    val sparkline: List<Double>,
+    val prev_revenue: Double,
+    val prev_bills: Int,
+    val prev_avg: Double
+)

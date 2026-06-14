@@ -1,203 +1,786 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#F7F8FA">
+    android:background="#F7F8FA"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="32dp">
 
-        <!-- KPI CARDS -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- HEADER: avatar + greeting/shop (left) | date pill (right)     -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="3">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
-            <!-- ================= REVENUE ================= -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Avatar + text group -->
+            <LinearLayout
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_margin="6dp"
-                android:layout_height="170dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="6dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/light_gray"
-                android:backgroundTint="#EEF2FF">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <FrameLayout
+                    android:id="@+id/llAvatar"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_ov_avatar">
+
+                    <TextView
+                        android:id="@+id/tvInitials"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="?"
+                        android:textColor="#1D4ED8"
+                        android:textSize="13sp"/>
+
+                </FrameLayout>
 
                 <LinearLayout
-                    android:padding="14dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_marginStart="12dp">
 
-                    <!-- TITLE -->
                     <TextView
-                        android:text="Revenue"
-                        android:textSize="12sp"
-                        android:textColor="#6366F1"
-                        android:textStyle="bold"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-
-                    <!-- VALUE -->
-                    <TextView
-                        android:id="@+id/tvRevenue"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:textColor="#111827"
-                        android:layout_marginTop="6dp"
+                        android:id="@+id/tvGreeting"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <!-- GROWTH CHIP -->
-                    <TextView
-                        android:id="@+id/tvRevenueGrowth"
-                        android:textSize="11sp"
-                        android:layout_marginTop="6dp"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/bg_growth_positive"
                         android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:text="Good morning"
+                        android:textColor="@color/textHint"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="2dp"/>
 
-                    <!-- MINI CHART -->
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="8dp">
-
-                        <com.github.mikephil.charting.charts.LineChart
-                            android:id="@+id/chartRevenueMini"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"/>
-                    </FrameLayout>
+                    <TextView
+                        android:id="@+id/tvShopName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Your Store"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp"/>
 
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <!-- ================= BILLS ================= -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_margin="6dp"
-                android:layout_height="170dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="6dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/light_gray"
-                android:backgroundTint="#ECFEFF">
+            </LinearLayout>
 
+            <!-- Date pill -->
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/bg_date_pill"/>
+
+        </LinearLayout>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- HERO CARD — navy, revenue left / sparkline right              -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#1B3A8A"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="22dp">
+
+                <!-- Left: revenue info -->
                 <LinearLayout
-                    android:padding="14dp"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.5"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:text="Bills"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="#0891B2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="TOTAL REVENUE"
+                        android:textColor="#80FFFFFF"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.18"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tvRevenue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="38sp"
+                        android:layout_marginBottom="14dp"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvRevenueGrowth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textColor="#80FFFFFF"
+                            android:textSize="12sp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:background="@drawable/bg_ov_hero_growth_pos"
+                            android:layout_marginEnd="10dp"/>
+
+                        <TextView
+                            android:id="@+id/tvRevenuePrev"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#61FFFFFF"
+                            android:textSize="12sp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Right: sparkline -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="7-day trend"
+                        android:textColor="#59FFFFFF"
+                        android:textSize="10sp"
+                        android:layout_marginBottom="6dp"/>
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartRevenueMini"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- METRICS — 4 cards in a single row                            -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="METRICS"
+            android:textColor="@color/textHint"
+            android:textSize="10sp"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="18dp">
+
+            <!-- BILLS -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <!-- Icon + growth chip row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_ov_bills"
+                            app:tint="@color/ov_blue"
+                            android:contentDescription="Bills"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"/>
+
+                        <TextView
+                            android:id="@+id/tvBillsGrowth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textColor="@color/textHint"
+                            android:textSize="10sp"
+                            android:paddingStart="9dp"
+                            android:paddingEnd="9dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp"
+                            android:background="@drawable/bg_ov_growth_neutral"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvBills"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:textColor="#111827"
-                        android:layout_marginTop="6dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:text="0"
+                        android:textColor="@color/ov_blue"
+                        android:textSize="26sp"
+                        android:layout_marginBottom="2dp"/>
 
                     <TextView
-                        android:id="@+id/tvBillsGrowth"
-                        android:textSize="11sp"
-                        android:layout_marginTop="6dp"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/bg_growth_positive"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="8dp">
-
-                        <com.github.mikephil.charting.charts.LineChart
-                            android:id="@+id/chartBillsMini"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"/>
-                    </FrameLayout>
+                        android:layout_height="wrap_content"
+                        android:text="Total Bills"
+                        android:textColor="@color/textHint"
+                        android:textSize="11sp"/>
 
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ================= AVG ================= -->
+            <!-- AVG BILL -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_margin="6dp"
-                android:layout_height="170dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="6dp"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/light_gray"
-                android:backgroundTint="#FFF7ED">
+                app:strokeColor="@color/light_gray">
 
                 <LinearLayout
-                    android:padding="14dp"
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
-                    <TextView
-                        android:text="Avg Bill"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="#EA580C"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_ov_avgbill"
+                            app:tint="@color/ov_purple"
+                            android:contentDescription="Avg bill"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"/>
+
+                        <TextView
+                            android:id="@+id/tvAverageGrowth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textColor="@color/textHint"
+                            android:textSize="10sp"
+                            android:paddingStart="9dp"
+                            android:paddingEnd="9dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp"
+                            android:background="@drawable/bg_ov_growth_neutral"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvAverage"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:textColor="#111827"
-                        android:layout_marginTop="6dp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="@color/ov_purple"
+                        android:textSize="26sp"
+                        android:layout_marginBottom="2dp"/>
 
                     <TextView
-                        android:id="@+id/tvAverageGrowth"
-                        android:textSize="11sp"
-                        android:layout_marginTop="6dp"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:background="@drawable/bg_growth_positive"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="8dp">
-
-                        <com.github.mikephil.charting.charts.LineChart
-                            android:id="@+id/chartAvgMini"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"/>
-                    </FrameLayout>
+                        android:text="Avg Bill"
+                        android:textColor="@color/textHint"
+                        android:textSize="11sp"/>
 
                 </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- RETURNS -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_ov_returns"
+                        app:tint="@color/ov_amber"
+                        android:contentDescription="Returns"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvReturns"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="@color/ov_amber"
+                        android:textSize="22sp"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvReturnsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Returns"
+                        android:textColor="@color/textHint"
+                        android:textSize="11sp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CANCELLED -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_ov_cancelled"
+                        app:tint="@color/ov_red_cancel"
+                        android:contentDescription="Cancelled"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCancelled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/ov_red_cancel"
+                        android:textSize="26sp"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCancelledAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cancelled"
+                        android:textColor="@color/textHint"
+                        android:textSize="11sp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- PAYMENT SPLIT — 4 cards with icon + amount + progress bar    -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PAYMENT SPLIT"
+            android:textColor="@color/textHint"
+            android:textSize="10sp"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- CASH -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_ov_cash"
+                        app:tint="@color/ov_green_cash"
+                        android:contentDescription="Cash"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cash"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCashAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="@color/ov_green_cash"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- Progress track -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_progress_track"
+                        android:clipToOutline="true"
+                        android:layout_marginBottom="5dp">
+
+                        <View
+                            android:id="@+id/vProgCashFill"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            android:background="@color/ov_green_cash"/>
+
+                        <View
+                            android:id="@+id/vProgCashSpacer"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="100"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvCashPct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0% of total"
+                        android:textColor="@color/textHint"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- UPI -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_ov_upi"
+                        app:tint="@color/ov_purple"
+                        android:contentDescription="UPI"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="UPI"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvUpiAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="@color/ov_purple"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_progress_track"
+                        android:clipToOutline="true"
+                        android:layout_marginBottom="5dp">
+
+                        <View
+                            android:id="@+id/vProgUpiFill"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            android:background="@color/ov_purple"/>
+
+                        <View
+                            android:id="@+id/vProgUpiSpacer"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="100"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvUpiPct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0% of total"
+                        android:textColor="@color/textHint"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CARD -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_ov_card"
+                        app:tint="@color/ov_blue"
+                        android:contentDescription="Card"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Card"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCardAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="@color/ov_blue"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_progress_track"
+                        android:clipToOutline="true"
+                        android:layout_marginBottom="5dp">
+
+                        <View
+                            android:id="@+id/vProgCardFill"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            android:background="@color/ov_blue"/>
+
+                        <View
+                            android:id="@+id/vProgCardSpacer"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="100"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvCardPct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0% of total"
+                        android:textColor="@color/textHint"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CREDIT -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_ov_credit"
+                        app:tint="@color/ov_amber"
+                        android:contentDescription="Credit"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Credit"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="2dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCreditAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹0"
+                        android:textColor="@color/ov_amber"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_progress_track"
+                        android:clipToOutline="true"
+                        android:layout_marginBottom="5dp">
+
+                        <View
+                            android:id="@+id/vProgCreditFill"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            android:background="@color/ov_amber"/>
+
+                        <View
+                            android:id="@+id/vProgCreditSpacer"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="100"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvCreditPct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0% of total"
+                        android:textColor="@color/textHint"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>

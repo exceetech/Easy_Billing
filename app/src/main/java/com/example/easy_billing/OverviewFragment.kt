@@ -1,9 +1,12 @@
 package com.example.easy_billing.fragments
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -11,7 +14,9 @@ import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.Filterable
 import com.example.easy_billing.R
 import com.example.easy_billing.ReportFilter
+import com.example.easy_billing.network.OverviewResponse
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.CurrencyHelper
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.*
@@ -21,40 +26,119 @@ import java.util.*
 
 class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
 
+    // ── Hero card ───────────────────────────────────────────────────────────
     private lateinit var tvRevenue: TextView
-    private lateinit var tvBills: TextView
-    private lateinit var tvAverage: TextView
-
     private lateinit var tvRevenueGrowth: TextView
-    private lateinit var tvBillsGrowth: TextView
-    private lateinit var tvAverageGrowth: TextView
-
+    private lateinit var tvRevenuePrev: TextView
     private lateinit var chartRevenueMini: LineChart
-    private lateinit var chartBillsMini: LineChart
-    private lateinit var chartAvgMini: LineChart
+
+    // ── Header ──────────────────────────────────────────────────────────────
+    private lateinit var tvGreeting: TextView
+    private lateinit var tvShopName: TextView
+    private lateinit var tvInitials: TextView
+
+    // ── Metric grid ─────────────────────────────────────────────────────────
+    private lateinit var tvBills: TextView
+    private lateinit var tvBillsGrowth: TextView
+    private lateinit var tvAverage: TextView
+    private lateinit var tvAverageGrowth: TextView
+    private lateinit var tvReturns: TextView
+    private lateinit var tvReturnsLabel: TextView
+    private lateinit var tvCancelled: TextView
+    private lateinit var tvCancelledAmount: TextView
+
+    // ── Payment split text ───────────────────────────────────────────────────
+    private lateinit var tvCashAmount: TextView
+    private lateinit var tvCashPct: TextView
+    private lateinit var tvUpiAmount: TextView
+    private lateinit var tvUpiPct: TextView
+    private lateinit var tvCardAmount: TextView
+    private lateinit var tvCardPct: TextView
+    private lateinit var tvCreditAmount: TextView
+    private lateinit var tvCreditPct: TextView
+
+    // ── Payment progress bars (fill + spacer pairs) ──────────────────────────
+    private lateinit var vProgCashFill: View
+    private lateinit var vProgCashSpacer: View
+    private lateinit var vProgUpiFill: View
+    private lateinit var vProgUpiSpacer: View
+    private lateinit var vProgCardFill: View
+    private lateinit var vProgCardSpacer: View
+    private lateinit var vProgCreditFill: View
+    private lateinit var vProgCreditSpacer: View
+
+    // ── Header ───────────────────────────────────────────────────────────────
+    private lateinit var tvDate: TextView
 
     private var currentFilter = ReportFilter.TODAY
     private var customStartDate: String? = null
     private var customEndDate: String? = null
 
     // 🔥 H5 FIX: Locale.US guarantees ASCII digits for API dates
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private val sdf = AppTime.isoDate()   // app timezone (matches backend)
+
+    // Semi-transparent white sparkline on the navy hero card
+    private val sparklineColor = Color.argb(180, 255, 255, 255)
+
+    // Convert dp → pixels for programmatic padding/margins
+    private fun Int.dp(): Int = (this * resources.displayMetrics.density + 0.5f).toInt()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tvRevenue = view.findViewById(R.id.tvRevenue)
-        tvBills = view.findViewById(R.id.tvBills)
-        tvAverage = view.findViewById(R.id.tvAverage)
-
+        // Hero
+        tvRevenue       = view.findViewById(R.id.tvRevenue)
         tvRevenueGrowth = view.findViewById(R.id.tvRevenueGrowth)
-        tvBillsGrowth = view.findViewById(R.id.tvBillsGrowth)
-        tvAverageGrowth = view.findViewById(R.id.tvAverageGrowth)
-
+        tvRevenuePrev   = view.findViewById(R.id.tvRevenuePrev)
         chartRevenueMini = view.findViewById(R.id.chartRevenueMini)
-        chartBillsMini = view.findViewById(R.id.chartBillsMini)
-        chartAvgMini = view.findViewById(R.id.chartAvgMini)
 
+        // Header
+        tvGreeting  = view.findViewById(R.id.tvGreeting)
+        tvShopName  = view.findViewById(R.id.tvShopName)
+        tvInitials  = view.findViewById(R.id.tvInitials)
+
+        // Metric grid
+        tvBills           = view.findViewById(R.id.tvBills)
+        tvBillsGrowth     = view.findViewById(R.id.tvBillsGrowth)
+        tvAverage         = view.findViewById(R.id.tvAverage)
+        tvAverageGrowth   = view.findViewById(R.id.tvAverageGrowth)
+        tvReturns         = view.findViewById(R.id.tvReturns)
+        tvReturnsLabel    = view.findViewById(R.id.tvReturnsLabel)
+        tvCancelled       = view.findViewById(R.id.tvCancelled)
+        tvCancelledAmount = view.findViewById(R.id.tvCancelledAmount)
+
+        // Payment split text
+        tvCashAmount   = view.findViewById(R.id.tvCashAmount)
+        tvCashPct      = view.findViewById(R.id.tvCashPct)
+        tvUpiAmount    = view.findViewById(R.id.tvUpiAmount)
+        tvUpiPct       = view.findViewById(R.id.tvUpiPct)
+        tvCardAmount   = view.findViewById(R.id.tvCardAmount)
+        tvCardPct      = view.findViewById(R.id.tvCardPct)
+        tvCreditAmount = view.findViewById(R.id.tvCreditAmount)
+        tvCreditPct    = view.findViewById(R.id.tvCreditPct)
+
+        // Payment progress bars
+        vProgCashFill    = view.findViewById(R.id.vProgCashFill)
+        vProgCashSpacer  = view.findViewById(R.id.vProgCashSpacer)
+        vProgUpiFill     = view.findViewById(R.id.vProgUpiFill)
+        vProgUpiSpacer   = view.findViewById(R.id.vProgUpiSpacer)
+        vProgCardFill    = view.findViewById(R.id.vProgCardFill)
+        vProgCardSpacer  = view.findViewById(R.id.vProgCardSpacer)
+        vProgCreditFill  = view.findViewById(R.id.vProgCreditFill)
+        vProgCreditSpacer = view.findViewById(R.id.vProgCreditSpacer)
+
+        // Date pill
+        tvDate = view.findViewById(R.id.tvDate)
+        tvDate.text = SimpleDateFormat("MMM dd, yyyy", Locale.US).format(Date())
+
+        // Rounded pill fills for progress bars
+        setRoundedFill(vProgCashFill,   R.color.ov_green_cash)
+        setRoundedFill(vProgUpiFill,    R.color.ov_purple)
+        setRoundedFill(vProgCardFill,   R.color.ov_blue)
+        setRoundedFill(vProgCreditFill, R.color.ov_amber)
+
+        tvGreeting.text = greeting()
+        loadShopName()
         syncFilterFromActivity()
         loadKPI()
     }
@@ -70,8 +154,7 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         loadKPI()
     }
 
-    // 🔥 H4 FIX: ViewPager2 creates this fragment lazily — pick up the
-    // filter that was selected before this tab existed.
+    // 🔥 H4 FIX: ViewPager2 creates fragments lazily — pick up filter set before tab existed.
     private fun syncFilterFromActivity() {
         (activity as? com.example.easy_billing.ReportsActivity)?.let {
             currentFilter = it.currentFilter
@@ -80,71 +163,71 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         }
     }
 
-    private fun loadKPI() {
+    // ── Header helpers ──────────────────────────────────────────────────────
 
+    private fun greeting(): String {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        return when {
+            hour < 12 -> "Good morning"
+            hour < 17 -> "Good afternoon"
+            else      -> "Good evening"
+        }
+    }
+
+    private fun initials(name: String): String {
+        val words = name.trim().split(" ").filter { it.isNotBlank() }
+        return when {
+            words.size >= 2 -> "${words[0][0]}${words[1][0]}".uppercase()
+            words.size == 1 -> words[0].take(2).uppercase()
+            else            -> "?"
+        }
+    }
+
+    private fun loadShopName() {
         lifecycleScope.launch {
+            val token = requireActivity()
+                .getSharedPreferences("auth", Context.MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+            try {
+                val profile = RetrofitClient.api.getProfile(token)
+                tvShopName.text = profile.shop_name
+                tvInitials.text = initials(profile.shop_name)
+            } catch (_: Exception) {
+                tvShopName.text = "Your Store"
+                tvInitials.text = "?"
+            }
+        }
+    }
 
+    // ── KPI load ────────────────────────────────────────────────────────────
+
+    private fun loadKPI() {
+        lifecycleScope.launch {
             val token = requireActivity()
                 .getSharedPreferences("auth", Context.MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
 
             try {
-
-                val calendar = Calendar.getInstance()
-
+                val calendar = AppTime.calendar()
                 var start: String? = null
                 var end: String? = null
                 var type = ""
 
                 when (currentFilter) {
-
                     ReportFilter.TODAY -> {
                         type = "today"
                     }
-
                     ReportFilter.WEEK -> {
-                        // 🔥 H5 FIX: locale-independent week start (Sunday).
-                        // set(DAY_OF_WEEK, SUNDAY) can jump FORWARD on
-                        // Monday-first locales.
-                        calendar.add(
-                            Calendar.DAY_OF_MONTH,
-                            -(calendar.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY)
-                        )
-                        start = sdf.format(calendar.time)
-
-                        calendar.add(Calendar.DAY_OF_MONTH, 6)
-                        end = sdf.format(calendar.time)
-
-                        type = "custom"
+                        // Send named type so backend can compute prev-week comparison
+                        type = "week"
                     }
-
                     ReportFilter.MONTH -> {
-                        calendar.set(Calendar.DAY_OF_MONTH, 1)
-                        start = sdf.format(calendar.time)
-
-                        calendar.set(
-                            Calendar.DAY_OF_MONTH,
-                            calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                        )
-                        end = sdf.format(calendar.time)
-
-                        type = "custom"
+                        type = "month"
                     }
-
                     ReportFilter.YEAR -> {
-                        calendar.set(Calendar.MONTH, Calendar.JANUARY)
-                        calendar.set(Calendar.DAY_OF_MONTH, 1)
-                        start = sdf.format(calendar.time)
-
-                        calendar.set(Calendar.MONTH, Calendar.DECEMBER)
-                        calendar.set(Calendar.DAY_OF_MONTH, 31)
-                        end = sdf.format(calendar.time)
-
-                        type = "custom"
+                        type = "year"
                     }
-
                     ReportFilter.CUSTOM -> {
-                        // ✅ SAFETY FIX ONLY
                         if (customStartDate != null && customEndDate != null) {
                             start = customStartDate
                             end = customEndDate
@@ -155,143 +238,183 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
                     }
                 }
 
-                val avg = RetrofitClient.api.getAverageBill(
-                    token,
-                    type,
-                    start,
-                    end
-                )
-
-                val context = requireContext()
-
-                // 🔥 KPI VALUES
-                tvRevenue.text = CurrencyHelper.format(context, avg.total_revenue)
-                tvBills.text = avg.total_bills.toString()
-                tvAverage.text = CurrencyHelper.format(context, avg.average_bill)
-
-                // 🔥 MINI CHARTS (FIX: clear before set)
-                setupMiniChart(
-                    chartRevenueMini,
-                    listOf(avg.prev_revenue.toFloat(), avg.total_revenue.toFloat()),
-                    getTrendColor(avg.total_revenue, avg.prev_revenue)
-                )
-
-                setupMiniChart(
-                    chartBillsMini,
-                    listOf(avg.prev_bills.toFloat(), avg.total_bills.toFloat()),
-                    getTrendColor(avg.total_bills.toDouble(), avg.prev_bills.toDouble())
-                )
-
-                setupMiniChart(
-                    chartAvgMini,
-                    listOf(avg.prev_avg.toFloat(), avg.average_bill.toFloat()),
-                    getTrendColor(avg.average_bill, avg.prev_avg)
-                )
-
-                // 🔥 GROWTH
-                setGrowth(tvRevenueGrowth, avg.total_revenue, avg.prev_revenue)
-                setGrowth(tvBillsGrowth, avg.total_bills.toDouble(), avg.prev_bills.toDouble())
-                setGrowth(tvAverageGrowth, avg.average_bill, avg.prev_avg)
+                val data = RetrofitClient.api.getOverview(token, type, start, end)
+                bindUI(data)
 
             } catch (e: Exception) {
-
                 e.printStackTrace()
-
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to load overview",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Failed to load overview", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun setGrowth(view: TextView, current: Double, previous: Double) {
+    private fun bindUI(data: OverviewResponse) {
+        val ctx = requireContext()
 
-        // I5 FIX: previous period empty — "0%" was misleading when current
-        // revenue exists, and the early return left stale colors from a
-        // previous bind. Show "New" instead, and always reset styling.
-        if (previous == 0.0) {
+        // ── Hero card ────────────────────────────────────────────────────────
+        tvRevenue.text = CurrencyHelper.format(ctx, data.total_revenue)
+        if (data.prev_revenue > 0) {
+            tvRevenuePrev.visibility = View.VISIBLE
+            tvRevenuePrev.text = "prev ${CurrencyHelper.format(ctx, data.prev_revenue)}"
+        } else {
+            tvRevenuePrev.visibility = View.GONE
+        }
 
-            if (current > 0.0) {
-                view.text = "New"
-                view.setTextColor(requireContext().getColor(R.color.green))
-                view.setBackgroundResource(R.drawable.bg_growth_positive)
-            } else {
-                view.text = "0%"
-                view.setTextColor(requireContext().getColor(R.color.gray))
-                view.setBackgroundResource(R.drawable.bg_chip_neutral)
+        setHeroGrowth(tvRevenueGrowth, data.total_revenue, data.prev_revenue)
+        setupSparkline(data.sparkline)
+
+        // ── Metric grid ──────────────────────────────────────────────────────
+        tvBills.text   = data.total_bills.toString()
+        tvAverage.text = CurrencyHelper.format(ctx, data.average_bill)
+        setGrowth(tvBillsGrowth, data.total_bills.toDouble(), data.prev_bills.toDouble())
+        setGrowth(tvAverageGrowth, data.average_bill, data.prev_avg)
+
+        // Returns
+        tvReturns.text = CurrencyHelper.format(ctx, data.returns_total)
+        tvReturnsLabel.text = "credit/debit notes"
+
+        // Cancelled
+        tvCancelled.text = data.cancelled_count.toString()
+        tvCancelledAmount.text = if (data.cancelled_amount > 0)
+            CurrencyHelper.format(ctx, data.cancelled_amount) + " voided"
+        else "none this period"
+
+        // ── Payment split ────────────────────────────────────────────────────
+        val zero = CurrencyHelper.format(ctx, 0.0)
+        tvCashAmount.text   = zero; tvCashPct.text   = "0%"
+        tvUpiAmount.text    = zero; tvUpiPct.text    = "0%"
+        tvCardAmount.text   = zero; tvCardPct.text   = "0%"
+        tvCreditAmount.text = zero; tvCreditPct.text = "0%"
+
+        var pctCash = 0f; var pctUpi = 0f; var pctCard = 0f; var pctCredit = 0f
+
+        for (item in data.payment_split) {
+            when (item.method.lowercase().trim()) {
+                "cash" -> {
+                    tvCashAmount.text = CurrencyHelper.format(ctx, item.revenue)
+                    tvCashPct.text    = "${item.percent}% of total"
+                    pctCash           = item.percent.toFloat()
+                }
+                "upi" -> {
+                    tvUpiAmount.text = CurrencyHelper.format(ctx, item.revenue)
+                    tvUpiPct.text    = "${item.percent}% of total"
+                    pctUpi           = item.percent.toFloat()
+                }
+                "card" -> {
+                    tvCardAmount.text = CurrencyHelper.format(ctx, item.revenue)
+                    tvCardPct.text    = "${item.percent}% of total"
+                    pctCard           = item.percent.toFloat()
+                }
+                "credit" -> {
+                    tvCreditAmount.text = CurrencyHelper.format(ctx, item.revenue)
+                    tvCreditPct.text    = "${item.percent}% of total"
+                    pctCredit           = item.percent.toFloat()
+                }
             }
+        }
 
-            view.setPadding(12, 4, 12, 4)
+        // Update individual progress bars
+        updateProgressBars(pctCash, pctUpi, pctCard, pctCredit)
+    }
+
+    /** Assigns a capsule-shaped GradientDrawable so both ends of the fill are rounded. */
+    private fun setRoundedFill(v: View, colorRes: Int) {
+        v.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 100f * resources.displayMetrics.density
+            setColor(requireContext().getColor(colorRes))
+        }
+    }
+
+    private fun setBarWeight(fill: View, spacer: View, pct: Float) {
+        val safeP = pct.coerceIn(0f, 100f)
+        (fill.layoutParams   as LinearLayout.LayoutParams).weight = safeP
+        (spacer.layoutParams as LinearLayout.LayoutParams).weight = 100f - safeP
+        fill.requestLayout()
+        spacer.requestLayout()
+    }
+
+    private fun updateProgressBars(cash: Float, upi: Float, card: Float, credit: Float) {
+        setBarWeight(vProgCashFill,   vProgCashSpacer,   cash)
+        setBarWeight(vProgUpiFill,    vProgUpiSpacer,    upi)
+        setBarWeight(vProgCardFill,   vProgCardSpacer,   card)
+        setBarWeight(vProgCreditFill, vProgCreditSpacer, credit)
+    }
+
+    // ── Growth chip styling ─────────────────────────────────────────────────
+
+    /** Growth chip shown on WHITE metric cards — green/red on light bg */
+    private fun setGrowth(view: TextView, current: Double, previous: Double) {
+        if (previous == 0.0) {
+            view.visibility = View.GONE
             return
         }
-
+        view.visibility = View.VISIBLE
+        val hPad = 9.dp(); val vPad = 4.dp()
         val change = ((current - previous) / previous) * 100
         val isPositive = change >= 0
+        view.text = if (isPositive) "↑ ${"%.1f".format(change)}%"
+                    else            "↓ ${"%.1f".format(kotlin.math.abs(change))}%"
+        view.setTextColor(requireContext().getColor(if (isPositive) R.color.ov_green else R.color.ov_red))
+        view.setBackgroundResource(if (isPositive) R.drawable.bg_growth_positive else R.drawable.bg_growth_negative)
+        view.setPadding(hPad, vPad, hPad, vPad)
+    }
 
-        view.text = if (isPositive)
-            "↑ ${"%.1f".format(change)}%"
-        else
-            "↓ ${"%.1f".format(kotlin.math.abs(change))}%"
-
-        val color = if (isPositive)
-            requireContext().getColor(R.color.green)
-        else
-            requireContext().getColor(R.color.red)
-
-        view.setTextColor(color)
-
+    /** Growth chip shown on the NAVY hero card — light-tinted text on translucent bg */
+    private fun setHeroGrowth(view: TextView, current: Double, previous: Double) {
+        if (previous == 0.0) {
+            view.visibility = View.GONE
+            return
+        }
+        view.visibility = View.VISIBLE
+        val hPad = 12.dp(); val vPad = 4.dp()
+        val change = ((current - previous) / previous) * 100
+        val isPositive = change >= 0
+        view.text = if (isPositive) "↑ ${"%.1f".format(change)}%"
+                    else            "↓ ${"%.1f".format(kotlin.math.abs(change))}%"
+        view.setTextColor(requireContext().getColor(
+            if (isPositive) R.color.ov_hero_growth_pos else R.color.ov_hero_growth_neg))
         view.setBackgroundResource(
-            if (isPositive)
-                R.drawable.bg_growth_positive
-            else
-                R.drawable.bg_growth_negative
-        )
-
-        view.setPadding(12, 4, 12, 4)
+            if (isPositive) R.drawable.bg_ov_hero_growth_pos else R.drawable.bg_ov_hero_growth_neg)
+        view.setPadding(hPad, vPad, hPad, vPad)
     }
 
-    private fun getTrendColor(current: Double, previous: Double): Int {
-        return if (current >= previous)
-            requireContext().getColor(R.color.green)
-        else
-            requireContext().getColor(R.color.red)
-    }
+    // ── Sparkline ───────────────────────────────────────────────────────────
 
-    private fun setupMiniChart(chart: LineChart, values: List<Float>, color: Int) {
+    /**
+     * Draws the 7-point sparkline (last 7 calendar days, net of returns)
+     * on the dark hero card. Line is always light-purple — the delta chip
+     * already communicates direction.
+     */
+    private fun setupSparkline(values: List<Double>) {
+        chartRevenueMini.clear()
 
-        chart.clear() // ✅ IMPORTANT FIX
+        val entries = values.mapIndexed { i, v -> Entry(i.toFloat(), v.toFloat()) }
 
-        val entries = values.mapIndexed { index, v ->
-            Entry(index.toFloat(), v)
+        val dataSet = LineDataSet(entries, "").apply {
+            color        = sparklineColor
+            lineWidth    = 2f
+            setDrawCircles(false)
+            setDrawValues(false)
+            mode         = LineDataSet.Mode.CUBIC_BEZIER
+            setDrawFilled(true)
+            fillDrawable = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(Color.argb(20, 255, 255, 255), Color.TRANSPARENT)
+            )
         }
 
-        val dataSet = LineDataSet(entries, "")
-
-        dataSet.color = color
-        dataSet.lineWidth = 2.5f
-        dataSet.setDrawCircles(false)
-        dataSet.setDrawValues(false)
-
-        dataSet.setDrawFilled(true)
-        dataSet.fillDrawable = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(color, android.graphics.Color.TRANSPARENT)
-        )
-
-        chart.data = LineData(dataSet)
-
-        chart.description.isEnabled = false
-        chart.legend.isEnabled = false
-
-        chart.axisLeft.isEnabled = false
-        chart.axisRight.isEnabled = false
-        chart.xAxis.isEnabled = false
-
-        chart.setTouchEnabled(false)
-
-        chart.animateX(500)
-        chart.invalidate()
+        chartRevenueMini.apply {
+            data                  = LineData(dataSet)
+            description.isEnabled = false
+            legend.isEnabled      = false
+            axisLeft.isEnabled    = false
+            axisRight.isEnabled   = false
+            xAxis.isEnabled       = false
+            setTouchEnabled(false)
+            setBackgroundColor(Color.TRANSPARENT)
+            animateX(600)
+            invalidate()
+        }
     }
 }

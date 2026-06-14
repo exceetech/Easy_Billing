@@ -42,6 +42,19 @@
     <color name="gray">#6B7280</color>
     <color name="light_gray">#E5E7EB</color>
 
+    <!-- Overview light-theme text colors (metric card growth chips) -->
+    <color name="ov_green">#3B6D11</color>
+    <color name="ov_red">#A32D2D</color>
+    <!-- Hero card growth chip text (on navy bg) -->
+    <color name="ov_hero_growth_pos">#86EFAC</color>
+    <color name="ov_hero_growth_neg">#FCA5A5</color>
+    <!-- Per-method accent colors -->
+    <color name="ov_blue">#185FA5</color>
+    <color name="ov_purple">#534AB7</color>
+    <color name="ov_amber">#854F0B</color>
+    <color name="ov_red_cancel">#A32D2D</color>
+    <color name="ov_green_cash">#3B6D11</color>
+
     <!-- Aliases used by GSTR-1 UI -->
     <color name="colorPrimary">#2563AB</color>
     <color name="colorAccent">#059669</color>

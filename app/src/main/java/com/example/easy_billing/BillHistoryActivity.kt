@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillResponse
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
@@ -193,7 +194,7 @@ class BillHistoryActivity : BaseActivity() {
 
     private fun applyActiveFilter(source: List<BillResponse>): List<BillResponse> {
 
-        val today = SimpleDateFormat("yyyy-MM-dd").format(Date())
+        val today = AppTime.todayIso()   // app timezone (matches backend created_at)
 
         return when (activeFilter) {
 
@@ -202,23 +203,23 @@ class BillHistoryActivity : BaseActivity() {
             }
 
             "WEEK" -> {
-                val cal = Calendar.getInstance()
+                val cal = AppTime.calendar()
                 cal.add(Calendar.DAY_OF_YEAR, -7)
 
                 source.filter {
                     val dateStr = it.created_at.substring(0, 10)
-                    val billDate = SimpleDateFormat("yyyy-MM-dd").parse(dateStr)
+                    val billDate = AppTime.isoDate().parse(dateStr)
                     billDate != null && billDate.after(cal.time)
                 }
             }
 
             "MONTH" -> {
-                val cal = Calendar.getInstance()
+                val cal = AppTime.calendar()
                 cal.add(Calendar.MONTH, -1)
 
                 source.filter {
                     val dateStr = it.created_at.substring(0, 10)
-                    val billDate = SimpleDateFormat("yyyy-MM-dd").parse(dateStr)
+                    val billDate = AppTime.isoDate().parse(dateStr)
                     billDate != null && billDate.after(cal.time)
                 }
             }
@@ -233,7 +234,7 @@ class BillHistoryActivity : BaseActivity() {
 
     private fun updateSummary(bills: List<BillResponse>) {
 
-        val today = SimpleDateFormat("yyyy-MM-dd").format(Date())
+        val today = AppTime.todayIso()   // app timezone (matches backend created_at)
 
         // N1: cancelled bills are visible in the list but must not count
         // in the summary — keeps it consistent with the Reports screen.

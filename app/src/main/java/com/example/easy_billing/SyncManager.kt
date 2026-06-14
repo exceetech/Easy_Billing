@@ -936,13 +936,28 @@ class SyncManager(private val context: Context) {
                     continue
                 }
 
-                val isoDate = try {
-                    val parsed = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).parse(bill.date)
-                    if (parsed != null) {
-                        java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).format(parsed)
-                    } else null
-                } catch (e: Exception) {
-                    null
+                // created_at must always be the bill's actual wall-clock time in the
+                // APP timezone (AppTime — mirrors backend app/util/time_utils.py). If it
+                // arrives null the server falls back to local_now() (the SYNC time),
+                // which mis-places the bill on time-based reports — e.g. a 12am bill
+                // made/synced in the evening shows up around 10pm. So we never send null,
+                // and we parse AND format in the app timezone (never device-local/UTC).
+                val isoDate: String = run {
+                    val patterns = listOf(
+                        "dd/MM/yyyy HH:mm:ss",
+                        "dd/MM/yyyy HH:mm",
+                        "yyyy-MM-dd'T'HH:mm:ss",
+                        "yyyy-MM-dd HH:mm:ss"
+                    )
+                    val parsed = patterns.firstNotNullOfOrNull { pat ->
+                        try {
+                            com.example.easy_billing.util.AppTime.formatter(pat)
+                                .apply { isLenient = false }
+                                .parse(bill.date)
+                        } catch (_: Exception) { null }
+                    }
+                    com.example.easy_billing.util.AppTime.isoDateTime()
+                        .format(parsed ?: java.util.Date())
                 }
 
                 val supplyType = if (gstInvoice?.totalIgst != null && gstInvoice.totalIgst > 0) "interstate" else "intrastate"

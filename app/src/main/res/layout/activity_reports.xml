@@ -7,7 +7,10 @@
     android:layout_height="match_parent"
     android:background="#F7F8FA">
 
-    <!-- TOOLBAR -->
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TOOLBAR                                                           -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -24,14 +27,25 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 
-    <!-- DATE FILTER -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- PERIOD FILTER CHIPS — BADGE / TAG STYLE                          -->
+    <!-- ──────────────────────────────────────────────────────────────── -->
+    <!-- Shape language: 8dp corners (tag/badge) vs tabs (100dp pill)    -->
+    <!-- Unselected: white bg, #E5E7EB border, #6B7280 text, dot hidden  -->
+    <!-- Selected  : #EEF4FF bg, #1B3A8A border 1.5dp, #1B3A8A text,    -->
+    <!--             small navy dot leading icon (8dp)                    -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipDateFilter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
         app:singleSelection="true"
+        app:chipSpacingHorizontal="8dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -41,67 +55,199 @@
             android:text="Today"
             android:checked="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="36dp"
+            app:chipBackgroundColor="@color/chip_bg_soft_selector"
+            app:chipStrokeColor="@color/chip_stroke_soft_selector"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipIcon="@drawable/ic_chip_dot"
+            app:chipIconSize="8dp"
+            app:chipIconTint="@color/chip_dot_tint_selector"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
+            app:iconStartPadding="0dp"
+            app:iconEndPadding="4dp"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:textColor="@color/chip_text_soft_selector"
+            android:textSize="13sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipWeek"
             android:text="Week"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="36dp"
+            app:chipBackgroundColor="@color/chip_bg_soft_selector"
+            app:chipStrokeColor="@color/chip_stroke_soft_selector"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipIcon="@drawable/ic_chip_dot"
+            app:chipIconSize="8dp"
+            app:chipIconTint="@color/chip_dot_tint_selector"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
+            app:iconStartPadding="0dp"
+            app:iconEndPadding="4dp"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:textColor="@color/chip_text_soft_selector"
+            android:textSize="13sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipMonth"
             android:text="Month"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="36dp"
+            app:chipBackgroundColor="@color/chip_bg_soft_selector"
+            app:chipStrokeColor="@color/chip_stroke_soft_selector"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipIcon="@drawable/ic_chip_dot"
+            app:chipIconSize="8dp"
+            app:chipIconTint="@color/chip_dot_tint_selector"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
+            app:iconStartPadding="0dp"
+            app:iconEndPadding="4dp"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:textColor="@color/chip_text_soft_selector"
+            android:textSize="13sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipYear"
             android:text="Year"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="36dp"
+            app:chipBackgroundColor="@color/chip_bg_soft_selector"
+            app:chipStrokeColor="@color/chip_stroke_soft_selector"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipIcon="@drawable/ic_chip_dot"
+            app:chipIconSize="8dp"
+            app:chipIconTint="@color/chip_dot_tint_selector"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
+            app:iconStartPadding="0dp"
+            app:iconEndPadding="4dp"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:textColor="@color/chip_text_soft_selector"
+            android:textSize="13sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipCustom"
             android:text="Custom"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="36dp"
+            app:chipBackgroundColor="@color/chip_bg_soft_selector"
+            app:chipStrokeColor="@color/chip_stroke_soft_selector"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipIcon="@drawable/ic_chip_dot"
+            app:chipIconSize="8dp"
+            app:chipIconTint="@color/chip_dot_tint_selector"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
+            app:iconStartPadding="0dp"
+            app:iconEndPadding="4dp"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:textColor="@color/chip_text_soft_selector"
+            android:textSize="13sp"/>
 
     </com.google.android.material.chip.ChipGroup>
 
 
-    <!-- TAB LAYOUT -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TAB BAR — PILL INDICATOR STYLE (VARIETY)                         -->
+    <!-- ──────────────────────────────────────────────────────────────── -->
+    <!-- The navy pill indicator (36dp tall) sits BEHIND the tab text.   -->
+    <!-- Selected tab text is white (on the dark pill). Unselected: gray.-->
+    <!-- Result: a bold "capsule nav" — completely different from the     -->
+    <!-- standard underline tab, matches hero card's navy color story.    -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:background="@color/white"
+        app:tabIndicatorColor="#1B3A8A"
+        app:tabIndicatorHeight="44dp"
+        app:tabIndicator="@drawable/bg_tab_indicator"
+        app:tabIndicatorFullWidth="true"
+        app:tabIndicatorGravity="center"
+        app:tabPaddingTop="0dp"
+        app:tabPaddingBottom="0dp"
+        app:tabPaddingStart="6dp"
+        app:tabPaddingEnd="6dp"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabTextColor="@color/textHint"
+        app:tabRippleColor="#0D1B3A8A"
+        app:tabMode="fixed"
+        app:tabTextAppearance="@style/TabTextAppearance"
         app:layout_constraintTop_toBottomOf="@id/chipDateFilter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Thin divider under the tab card -->
+    <View
+        android:id="@+id/tabDivider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#E5E7EB"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- VIEWPAGER -->
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- VIEWPAGER                                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintTop_toBottomOf="@id/tabDivider"
         app:layout_constraintBottom_toTopOf="@id/btnSendReport"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
 
-    <!-- 🔥 SEND REPORT BUTTON (FIXED) -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SEND REPORT BUTTON — GRADIENT VARIETY                            -->
+    <!-- ──────────────────────────────────────────────────────────────── -->
+    <!-- L→R gradient: #1B3A8A → #2563AB (navy to cornflower)            -->
+    <!-- Lucide "send" icon on the right end                             -->
+    <!-- 16dp corners, 58dp height, zero elevation (flat premium)        -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSendReport"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="58dp"
         android:text="Send Report to Email"
-        android:layout_margin="12dp"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_send_btn_gradient"
+        app:backgroundTint="@null"
+        app:icon="@drawable/ic_send_report"
+        app:iconGravity="end"
+        app:iconTint="@color/white"
+        app:iconPadding="8dp"
+        app:cornerRadius="16dp"
+        app:elevation="0dp"
+        app:strokeWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
