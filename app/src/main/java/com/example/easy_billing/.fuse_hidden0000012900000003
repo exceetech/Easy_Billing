@@ -76,6 +76,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.ReportsScroll.attach(this, view)
 
         // Hero
         llMiniChart   = view.findViewById(R.id.llMiniChart)
@@ -437,8 +438,8 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
         chart.axisLeft.apply {
             // Push the baseline below 0 so low bubbles sit above the x-axis instead of being clipped
-            axisMinimum = -(maxValue * 0.14f)
-            axisMaximum = maxValue * 1.40f      // extra headroom so top bubble isn't clipped
+            axisMinimum = -(maxValue * 0.10f)
+            axisMaximum = maxValue * 1.18f      // headroom so top bubble isn't clipped
             setDrawAxisLine(true)
             axisLineColor = Color.parseColor("#D1D5DB")
             axisLineWidth = 1.5f
@@ -487,7 +488,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         chart.isHighlightPerTapEnabled  = true
         chart.isHighlightPerDragEnabled = true
         chart.marker = BubbleChartMarker(requireContext())
-        chart.setExtraOffsets(53.5f, 28f, 8f, 12f) // left padding for "12am"; extra top so the tallest bubble isn't clipped
+        chart.setExtraOffsets(53.5f, 16f, 8f, 12f) // left padding (~0.5cm more) so "12am" sits further right
         chart.animateY(900)
         chart.invalidate()
 

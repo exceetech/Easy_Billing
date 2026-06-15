@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Calm Sales breakdown row (matches the redesign):
+  [★] day / bills ····· [───── relative bar ─────] ····· revenue
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/vDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A9CA3AF"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+
+        <!-- Day + bills -->
+        <LinearLayout
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvStar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="★"
+                    android:textSize="13sp"
+                    android:textColor="#E0921A"
+                    android:layout_marginEnd="5dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvDay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#14161A"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvBills"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textSize="12sp"
+                android:textColor="#9AA0A8"/>
+        </LinearLayout>
+
+        <!-- Relative bar (track + fill via weighted children) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="6dp"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:orientation="horizontal"
+            android:weightSum="100"
+            android:background="@drawable/bg_sales_track">
+
+            <View
+                android:id="@+id/vBarFill"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="60"
+                android:background="@drawable/bg_sales_fill"/>
+
+            <View
+                android:id="@+id/vBarSpacer"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="40"/>
+        </LinearLayout>
+
+        <!-- Revenue -->
+        <TextView
+            android:id="@+id/tvRevenue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#14161A"
+            android:minWidth="64dp"
+            android:gravity="end"/>
+
+    </LinearLayout>
+</LinearLayout>

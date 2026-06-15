@@ -1,36 +1,71 @@
 package com.example.easy_billing.util
 
 import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.renderer.BarChartRenderer
+import com.github.mikephil.charting.utils.Utils
 import com.github.mikephil.charting.utils.ViewPortHandler
 
+/**
+ * BarChartRenderer that rounds the TOP corners of each bar and preserves
+ * per-bar colors (so the "best" bar can be highlighted). Matches the Sales
+ * mockup (border-radius 4, flat bottom on the axis).
+ */
 class RoundedBarChartRenderer(
     chart: BarChart,
     animator: ChartAnimator,
-    viewPortHandler: ViewPortHandler
+    viewPortHandler: ViewPortHandler,
+    private val radiusDp: Float = 4f
 ) : BarChartRenderer(chart, animator, viewPortHandler) {
 
-    private val radius = 20f
+    private val barPath = Path()
+    private val rect = RectF()
 
-    override fun drawDataSet(c: Canvas, dataSet: com.github.mikephil.charting.interfaces.datasets.IBarDataSet, index: Int) {
-
-        val buffer = mBarBuffers[index]
+    override fun drawDataSet(c: Canvas, dataSet: IBarDataSet, index: Int) {
         val trans = mChart.getTransformer(dataSet.axisDependency)
+        val radius = Utils.convertDpToPixel(radiusDp)
 
-        for (j in 0 until buffer.size() step 4) {
+        // Safety check: ensure buffers are initialized and data is available
+        val barData = mChart.barData ?: return
+        
+        if (mBarBuffers == null || index >= mBarBuffers.size) {
+            initBuffers()
+        }
 
-            val left = buffer.buffer[j]
-            val top = buffer.buffer[j + 1]
-            val right = buffer.buffer[j + 2]
-            val bottom = buffer.buffer[j + 3]
+        val buffers = mBarBuffers
+        if (buffers == null || index >= buffers.size) return
+        val buffer = buffers[index] ?: return
 
-            val rect = RectF(left, top, right, bottom)
+        buffer.setPhases(mAnimator.phaseX, mAnimator.phaseY)
+        buffer.setDataSet(index)
+        buffer.setInverted(mChart.isInverted(dataSet.axisDependency))
+        buffer.setBarWidth(barData.barWidth)
+        buffer.feed(dataSet)
+        trans.pointValuesToPixel(buffer.buffer)
 
-            c.drawRoundRect(rect, radius, radius, mRenderPaint)
+        val isSingleColor = dataSet.colors.size == 1
+        if (isSingleColor) mRenderPaint.color = dataSet.color
+
+        var j = 0
+        while (j < buffer.size()) {
+            if (!mViewPortHandler.isInBoundsLeft(buffer.buffer[j + 2])) { j += 4; continue }
+            if (!mViewPortHandler.isInBoundsRight(buffer.buffer[j])) break
+
+            if (!isSingleColor) mRenderPaint.color = dataSet.getColor(j / 4)
+
+            rect.set(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2], buffer.buffer[j + 3])
+            barPath.reset()
+            barPath.addRoundRect(
+                rect,
+                floatArrayOf(radius, radius, radius, radius, 0f, 0f, 0f, 0f),
+                Path.Direction.CW
+            )
+            c.drawPath(barPath, mRenderPaint)
+            j += 4
         }
     }
 }

@@ -58,6 +58,15 @@ class ReportsActivity : BaseActivity() {
         setupSendReportButton()
     }
 
+    private fun tabTitle(position: Int): String = when (position) {
+        0 -> "Overview"
+        1 -> "Charts"
+        2 -> "Peak Hours"
+        3 -> "Sales"
+        4 -> "Products"
+        else -> ""
+    }
+
     // ---------------- VIEWPAGER ----------------
 
     private fun setupViewPager() {
@@ -65,14 +74,7 @@ class ReportsActivity : BaseActivity() {
         viewPager.adapter = ReportsPagerAdapter(this)
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "Overview"
-                1 -> "Charts"
-                2 -> "Peak Hours"
-                3 -> "Reports"
-                4 -> "Products"
-                else -> ""
-            }
+            tab.text = tabTitle(position)
         }.attach()
     }
 

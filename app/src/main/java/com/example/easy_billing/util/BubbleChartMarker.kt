@@ -29,8 +29,13 @@ import com.github.mikephil.charting.highlight.Highlight
  * is centered vertically on the bubble and clamped inside the chart, with the
  * arrow sliding to stay aimed at the bubble.
  */
-class BubbleChartMarker(context: Context) :
-    MarkerView(context, R.layout.marker_peak_bubble) {
+class BubbleChartMarker(
+    context: Context,
+    /** Title text for a bubble. Default = hour label from the x value (Peak Hours). */
+    private val titleProvider: ((Float) -> String)? = null,
+    /** Swatch color for a bubble. Default = period color from the x value (Peak Hours). */
+    private val colorProvider: ((Float) -> Int)? = null
+) : MarkerView(context, R.layout.marker_peak_bubble) {
 
     private val tvHour: TextView = findViewById(R.id.tvHour)
     private val tvRevenue: TextView = findViewById(R.id.tvRevenue)
@@ -72,18 +77,18 @@ class BubbleChartMarker(context: Context) :
     }
 
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
-        val hour    = e?.x?.toInt() ?: 0
+        val x       = e?.x ?: 0f
         val revenue = e?.y?.toDouble() ?: 0.0
         val bills   = (e as? BubbleEntry)?.size?.toInt() ?: 0
 
-        tvHour.text    = formatHour(hour)
+        tvHour.text    = titleProvider?.invoke(x) ?: formatHour(x.toInt())
         tvRevenue.text = "Revenue: " + CurrencyHelper.format(context, revenue)
         tvBills.text   = "Bills: $bills"
 
         colorSwatch.background = GradientDrawable().apply {
             shape        = GradientDrawable.RECTANGLE
             cornerRadius = 4f * d
-            setColor(colorForHour(hour))
+            setColor(colorProvider?.invoke(x) ?: colorForHour(x.toInt()))
         }
 
         // Text width changes per point, so re-measure & lay out the card.

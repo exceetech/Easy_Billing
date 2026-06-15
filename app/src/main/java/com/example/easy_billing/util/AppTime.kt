@@ -9,25 +9,26 @@ import java.util.TimeZone
 /**
  * Single source of truth for time on the client.
  *
- * Mirrors the backend's app/util/time_utils.py (APP_TIMEZONE, default
- * Asia/Kolkata). The backend stores Bill.created_at as a NAIVE wall-clock
- * timestamp in this timezone and computes every report's "today" / period
- * boundary in the same timezone. The client must therefore produce bill
- * timestamps and report date ranges in this SAME timezone — never the
- * device-local zone and never UTC — so the two always agree regardless of the
- * device's own timezone setting.
+ * Bills are stamped with — and reports are computed in — the DEVICE's own local
+ * timezone (the wall clock the cashier sees). A bill made at 2:00 is stored as
+ * 2:00 wherever the shop is, with no conversion. Every date/time the client
+ * sends to the backend (Bill.created_at, report range boundaries, "today")
+ * therefore flows through this single object so the whole app stays consistent.
  *
- * If the backend's APP_TIMEZONE ever changes, update APP_TIMEZONE_ID here too.
+ * NOTE for the backend: it stores Bill.created_at as a NAIVE timestamp and
+ * interprets it in APP_TIMEZONE. For reports to line up exactly, set the
+ * backend's APP_TIMEZONE env var to the shop's actual timezone (the same zone
+ * the device is set to).
  */
 object AppTime {
 
-    /** Must match the backend APP_TIMEZONE (app/util/time_utils.py). */
-    const val APP_TIMEZONE_ID = "Asia/Kolkata"
+    /**
+     * The timezone used for every date/time value — the device's current zone.
+     * Read fresh each time so it always follows the device setting.
+     */
+    val ZONE: TimeZone get() = TimeZone.getDefault()
 
-    /** The app timezone used for every backend-facing date/time value. */
-    val ZONE: TimeZone = TimeZone.getTimeZone(APP_TIMEZONE_ID)
-
-    /** A Calendar positioned at "now" in the app timezone. */
+    /** A Calendar positioned at "now" in the device timezone. */
     fun calendar(): Calendar = Calendar.getInstance(ZONE)
 
     /**
