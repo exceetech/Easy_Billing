@@ -140,4 +140,85 @@ object ThemedDropdown {
         )
         dialog.show()
     }
+
+    /**
+     * Theme-matched confirmation dialog (centred card, title + message, Cancel / confirm).
+     * The confirm action is styled as destructive (red).
+     */
+    fun showConfirm(
+        context: Context,
+        title: String,
+        message: String,
+        confirmLabel: String,
+        onConfirm: () -> Unit
+    ) {
+        val density = context.resources.displayMetrics.density
+        fun dp(v: Int): Int = (v * density).toInt()
+
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dp(20), dp(18), dp(20), dp(16))
+        }
+
+        card.addView(TextView(context).apply {
+            text = title
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            setTextColor(Color.parseColor("#1A1A18"))
+        })
+        card.addView(TextView(context).apply {
+            text = message
+            textSize = 13f
+            setTextColor(Color.parseColor("#6E6A60"))
+            setLineSpacing(dp(3).toFloat(), 1f)
+            (layoutParams as? LinearLayout.LayoutParams
+                ?: LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )).also { it.topMargin = dp(6); layoutParams = it }
+        })
+
+        val dialog = Dialog(context)
+
+        val buttons = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also { it.topMargin = dp(18) }
+        }
+        val cancel = TextView(context).apply {
+            text = "Cancel"
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#1A1A18"))
+            setBackgroundResource(R.drawable.bg_imp_filter)
+            isClickable = true
+            layoutParams = LinearLayout.LayoutParams(0, dp(46), 1f)
+        }
+        val confirm = TextView(context).apply {
+            text = confirmLabel
+            textSize = 14f
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#FFFFFF"))
+            setBackgroundResource(R.drawable.bg_confirm_danger)
+            isClickable = true
+            layoutParams = LinearLayout.LayoutParams(0, dp(46), 1f).also { it.marginStart = dp(10) }
+        }
+        cancel.setOnClickListener { dialog.dismiss() }
+        confirm.setOnClickListener { dialog.dismiss(); onConfirm() }
+        buttons.addView(cancel)
+        buttons.addView(confirm)
+        card.addView(buttons)
+
+        dialog.setContentView(card)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setLayout(
+            (context.resources.displayMetrics.widthPixels * 0.82f).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.show()
+    }
 }
