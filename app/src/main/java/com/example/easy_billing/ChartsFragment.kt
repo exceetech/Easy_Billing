@@ -13,6 +13,7 @@ import com.example.easy_billing.ReportFilter
 import com.example.easy_billing.network.*
 import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.ChartMarkerView
+import com.example.easy_billing.util.GlowLineChartRenderer
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.components.XAxis
@@ -36,6 +37,8 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         super.onViewCreated(view, savedInstanceState)
 
         chart = view.findViewById(R.id.chartSalesTrend)
+        // BlurMaskFilter (line glow) only renders on a software layer
+        chart.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
         syncFilterFromActivity()
         loadChart()
@@ -328,74 +331,73 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             Color.parseColor("#EF4444") // 🔴 red
 
         val fillDrawable = if (isUpTrend)
-            requireContext().getDrawable(R.drawable.chart_gradient_green)
+            requireContext().getDrawable(R.drawable.chart_fill_green)
         else
-            requireContext().getDrawable(R.drawable.chart_gradient_red)
+            requireContext().getDrawable(R.drawable.chart_fill_red)
 
+        // ================= GLOW PASS (thick, blurred, under the line) =================
+        val glowSet = LineDataSet(entries, "glow")
+        glowSet.setColor(lineColor, 120)
+        glowSet.lineWidth = 10f
+        glowSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        glowSet.cubicIntensity = 0.18f
+        glowSet.setDrawCircles(false)
+        glowSet.setDrawValues(false)
+        glowSet.setDrawFilled(false)
+        glowSet.isHighlightEnabled = false
+
+        // ================= MAIN LINE (crisp, smooth) + soft fill =================
         val set = LineDataSet(entries, "")
-
-        // ================= LINE =================
         set.color = lineColor
-        set.lineWidth = 3f
+        set.lineWidth = 3.6f
         set.mode = LineDataSet.Mode.CUBIC_BEZIER
+        set.cubicIntensity = 0.18f
         set.setDrawCircles(false)
         set.setDrawValues(false)
-
-        // 🔥 ensure line always visible
         set.setDrawFilled(true)
         set.fillDrawable = fillDrawable
 
-        // ================= HIGHLIGHT =================
-        set.highLightColor = Color.argb(120, 0, 0, 0)
+        // ================= HIGHLIGHT (clean, vertical guide only) =================
+        set.highLightColor = Color.parseColor("#C9CDD4")
+        set.highlightLineWidth = 1.2f
         set.setDrawVerticalHighlightIndicator(true)
-        set.setDrawHorizontalHighlightIndicator(true)
-        set.enableDashedHighlightLine(10f, 6f, 0f)
+        set.setDrawHorizontalHighlightIndicator(false)
+        set.enableDashedHighlightLine(8f, 6f, 0f)
 
-        chart.data = LineData(set)
+        // Glow first (under), crisp line on top
+        chart.renderer = GlowLineChartRenderer(chart, chart.animator, chart.viewPortHandler)
+        chart.data = LineData(glowSet, set)
 
-        // ================= X AXIS =================
+        // ================= X AXIS (labels only, no line/grid) =================
         chart.xAxis.apply {
 
             valueFormatter = IndexAxisValueFormatter(labels)
             position = XAxis.XAxisPosition.BOTTOM
 
-            setDrawAxisLine(true)
-            axisLineColor = Color.parseColor("#374151")
-            axisLineWidth = 1.5f
+            setDrawAxisLine(false)
+            setDrawGridLines(false)
 
-            setDrawGridLines(true)
-            gridColor = Color.argb(25, 156, 163, 175)
-            enableGridDashedLine(6f, 6f, 0f)
-
-            textColor = Color.parseColor("#6B7280")
+            textColor = Color.parseColor("#9AA0A8")
             textSize = 10f
 
             granularity = 1f
             labelCount = 6
-            yOffset = 8f
+            yOffset = 10f
         }
 
-        // ================= Y AXIS =================
+        // ================= Y AXIS (faint horizontal guides, no labels) =================
         chart.axisLeft.apply {
+            setDrawAxisLine(false)
+            setDrawLabels(false)
 
-            // ✅ PREMIUM AXIS LINE
-            setDrawAxisLine(true)
-            axisLineColor = Color.parseColor("#374151")
-            axisLineWidth = 1.5f
-
-            // GRID
             setDrawGridLines(true)
-            gridColor = Color.argb(25, 156, 163, 175)
-            enableGridDashedLine(6f, 6f, 0f)
-
-            // TEXT
-            textColor = Color.parseColor("#6B7280")
-            textSize = 11f
+            gridColor = Color.parseColor("#ECEFF3")
+            gridLineWidth = 1f
 
             labelCount = 4
-
-            xOffset = 10f
-            yOffset = 6f
+            // Lift the baseline below 0 so a flat/zero line still shows above the bottom edge
+            axisMinimum = -(entries.maxOf { it.y }.coerceAtLeast(20f) * 0.12f)
+            setSpaceTop(22f)
         }
 
         // ================= CLEAN =================
@@ -405,19 +407,20 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         chart.setDrawGridBackground(false)
 
         // ================= INTERACTION =================
+        // Drag scrubs the marker along the line (no pan/zoom)
         chart.setTouchEnabled(true)
-        chart.setDragEnabled(true)
-        chart.setScaleEnabled(true)
-        chart.setPinchZoom(true)
+        chart.setDragEnabled(false)
+        chart.setScaleEnabled(false)
+        chart.setPinchZoom(false)
 
         chart.isHighlightPerTapEnabled = true
         chart.isHighlightPerDragEnabled = true
 
-        // ================= MARKER =================
-        chart.marker = ChartMarkerView(requireContext())
+        // ================= MARKER (premium, slides along the line) =================
+        chart.marker = ChartMarkerView(requireContext(), labels)
 
-        // ================= SPACING =================
-        chart.setExtraOffsets(8f, 16f, 8f, 12f)
+        // ================= SPACING (top room so the pill never clips) =================
+        chart.setExtraOffsets(8f, 30f, 8f, 12f)
 
         // ================= ANIMATION =================
         chart.animateX(900, com.github.mikephil.charting.animation.Easing.EaseOutCubic)

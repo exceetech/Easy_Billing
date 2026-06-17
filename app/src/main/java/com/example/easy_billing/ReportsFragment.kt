@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -232,17 +231,17 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
         return when (offset) { 0 -> "This year"; 1 -> "Last year"; else -> year.toString() }
     }
 
-    /** Dropdown to pick the week (Daily) or the year (Monthly). */
+    /** Themed dropdown to pick the week (Daily) or the year (Monthly). */
     private fun showPeriodMenu(anchor: View) {
-        val popup = PopupMenu(requireContext(), anchor)
         if (currentView == SalesView.DAILY) {
-            (0..4).forEach { popup.menu.add(0, it, it, weekLabel(it)) }
-            popup.setOnMenuItemClickListener { item -> weekOffset = item.itemId; render(); true }
+            com.example.easy_billing.ui.ThemedDropdown.show(
+                anchor, (0..4).map { weekLabel(it) }, weekOffset
+            ) { idx -> weekOffset = idx; render() }
         } else {
-            (0..3).forEach { popup.menu.add(0, it, it, yearLabel(it)) }
-            popup.setOnMenuItemClickListener { item -> yearOffset = item.itemId; render(); true }
+            com.example.easy_billing.ui.ThemedDropdown.show(
+                anchor, (0..3).map { yearLabel(it) }, yearOffset
+            ) { idx -> yearOffset = idx; render() }
         }
-        popup.show()
     }
 
     private fun renderDaily() {

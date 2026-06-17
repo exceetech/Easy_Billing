@@ -180,27 +180,23 @@ class ReportsActivity : BaseActivity() {
 
     private fun showReportOptions() {
 
-        val options = arrayOf(
+        val options = listOf(
             "Today's Bills",
             "Weekly Bills",
             "Monthly Bills",
             "Custom Report"
         )
 
-        AlertDialog.Builder(this)
-            .setTitle("Send Report")
-            .setItems(options) { _, which ->
-
-                when (which) {
-
-                    0 -> sendEmailReport("today")
-                    1 -> sendEmailReport("weekly")
-                    2 -> sendEmailReport("monthly")
-                    3 -> openEmailDatePicker()
-                }
-
+        com.example.easy_billing.ui.ThemedDropdown.showActionSheet(
+            this, "Send report", options
+        ) { which ->
+            when (which) {
+                0 -> sendEmailReport("today")
+                1 -> sendEmailReport("weekly")
+                2 -> sendEmailReport("monthly")
+                3 -> openEmailDatePicker()
             }
-            .show()
+        }
     }
 
     private fun openEmailDatePicker() {

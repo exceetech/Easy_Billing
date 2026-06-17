@@ -1,174 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
-
+    android:id="@+id/cardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_inv_card"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="5dp"
+    android:padding="13dp">
 
-    android:layout_marginVertical="2dp"
-    android:layout_marginHorizontal="6dp"
-
-    app:cardCornerRadius="18dp"
-    app:cardElevation="4dp"
-    app:cardUseCompatPadding="true"
-
-    app:cardBackgroundColor="#FFFAD1"
-    app:strokeWidth="0dp">
-
+    <!-- HEADER ROW: checkbox · info · stock badge -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="horizontal">
 
-        <!-- 🔥 HEADER ROW -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <!-- PRODUCT NAME -->
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-
-                android:text="Product Name"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#111827"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-
-            <!-- 🔥 STOCK BADGE -->
-            <TextView
-                android:id="@+id/tvStock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:text="10"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-
-                android:background="@drawable/bg_stock_badge"/>
-        </LinearLayout>
-
-        <!-- 🔥 COST + LABEL -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical">
-
-            <!-- LABEL -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:textSize="13sp"
-                android:textColor="#6B7280"/>
-
-            <!-- VALUE -->
-            <TextView
-                android:id="@+id/tvCost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:layout_marginStart="8dp"
-
-                android:text="₹0.00"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#111827"/>
-        </LinearLayout>
-
-        <!-- 🔥 DIVIDER -->
         <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="14dp"
-            android:background="#E5E7EB"/>
+            android:id="@+id/chkSelect"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/bg_inv_chk"/>
 
-        <!-- 🔥 ACTION BUTTONS -->
-        <!-- 🔥 ACTION BUTTONS -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3">
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
 
-            <!-- ➕ ADD STOCK -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAddStock"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="52dp"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-                android:text="Add"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Product Name"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
 
-                app:icon="@drawable/ic_plus"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
+                <TextView
+                    android:id="@+id/tvCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="₹0"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"/>
+            </LinearLayout>
 
-                app:cornerRadius="16dp"
-                app:backgroundTint="#16A34A"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp">
 
-            <!-- ➖ REDUCE -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReduceStock"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="52dp"
+                <TextView
+                    android:id="@+id/tvMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dairy · pack"
+                    android:textSize="11sp"
+                    android:textColor="#6B7280"/>
 
-                android:layout_marginStart="8dp"
-
-                android:text="Reduce"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-
-                app:icon="@drawable/ic_minus"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-
-                app:cornerRadius="16dp"
-                app:backgroundTint="#F59E0B"/>
-
-            <!-- 🧹 CLEAR STOCK -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClearStock"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="52dp"
-
-                android:layout_marginStart="8dp"
-
-                android:text="Clear"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-
-                app:cornerRadius="16dp"
-                app:backgroundTint="#DC2626"/>
+                <TextView
+                    android:id="@+id/tvGst"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="5% GST"
+                    android:textSize="10sp"
+                    android:textColor="#185FA5"
+                    android:background="@drawable/bg_inv_gst"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="1dp"/>
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    <!-- STATUS ROW -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="● In stock"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#0F6E56"/>
+
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Category"
+            android:textSize="11sp"
+            android:textColor="#185FA5"
+            android:background="@drawable/bg_inv_pill"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+    </LinearLayout>
+
+    <!-- STOCK BAR -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/bg_inv_bar_track">
+
+        <View
+            android:id="@+id/barFill"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_inv_bar_ok"/>
+    </FrameLayout>
+
+    <!-- ACTION BUTTONS: Add · Reduce · Clear -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_marginTop="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddStock"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:text="Add"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#27500A"
+            app:icon="@drawable/ic_lucide_plus"
+            app:iconGravity="textStart"
+            app:iconPadding="5dp"
+            app:iconTint="#27500A"
+            app:cornerRadius="11dp"
+            app:backgroundTint="#E7F0DA"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReduceStock"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:text="Reduce"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#854F0B"
+            app:icon="@drawable/ic_lucide_minus"
+            app:iconGravity="textStart"
+            app:iconPadding="5dp"
+            app:iconTint="#854F0B"
+            app:cornerRadius="11dp"
+            app:backgroundTint="#F7ECD9"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClearStock"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:text="Clear"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#791F1F"
+            app:icon="@drawable/ic_lucide_trash"
+            app:iconGravity="textStart"
+            app:iconPadding="5dp"
+            app:iconTint="#791F1F"
+            app:cornerRadius="11dp"
+            app:backgroundTint="#F6E1E1"/>
+    </LinearLayout>
+</LinearLayout>

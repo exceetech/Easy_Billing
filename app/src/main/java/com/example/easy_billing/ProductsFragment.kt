@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -107,16 +106,15 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
     }
 
     private fun showSortMenu(anchor: View) {
-        val popup = PopupMenu(requireContext(), anchor)
         val keys = listOf("quantity", "revenue", "frequency", "smart")
-        keys.forEachIndexed { i, k -> popup.menu.add(0, i, i, sortLabel(k)) }
-        popup.setOnMenuItemClickListener { item ->
-            sortBy = keys[item.itemId]
+        val selected = keys.indexOf(sortBy).coerceAtLeast(0)
+        com.example.easy_billing.ui.ThemedDropdown.show(
+            anchor, keys.map { sortLabel(it) }, selected, rightAlign = true
+        ) { idx ->
+            sortBy = keys[idx]
             tvSortChip.text = sortLabel() + " ▾"
             loadProducts()
-            true
         }
-        popup.show()
     }
 
     // ── Data loading ───────────────────────────────────────────────────────────

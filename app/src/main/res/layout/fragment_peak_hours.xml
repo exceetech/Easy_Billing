@@ -1,520 +1,294 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Peak Hours fragment — premium redesign.
-  Layout: NestedScrollView > LinearLayout >
-    [1] Full-width navy hero (title + KPIs + mini bar chart)
-    [2] TOP PERFORMERS section (3 podium cards side by side)
-    [3] ALL HOURS section label
-    [4] RecyclerView (nestedScrollingEnabled=false)
+  Peak hours — redesigned to match Sales (cream page + white card).
+  header (Peak hours + Today chip + bubble-chart button) · peak-revenue hero
+    · legend · hourly bar chart · 2 metric cards · hourly breakdown list.
+  The bubble-chart button opens the existing full-screen bubble dialog.
 -->
-<androidx.core.widget.NestedScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F2F5"
-    android:fillViewport="true">
+    android:background="#F1EEE9">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardBackgroundColor="#FFFFFF">
 
-        <!-- ═══════════════════════════════════════════════ -->
-        <!--  NAVY HERO BLOCK                               -->
-        <!-- ═══════════════════════════════════════════════ -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1B3A8A"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="22dp"
+            android:paddingBottom="110dp">
 
-            <!-- Title row -->
+            <!-- Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="14dp">
+                android:layout_marginBottom="16dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:text="Peak hours"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#14161A"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="HOURLY BREAKDOWN"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.14"
-                        android:textColor="#6FA3D0"
-                        android:layout_marginBottom="5dp"/>
+                <TextView
+                    android:id="@+id/tvPeriodChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24 Hour"
+                    android:textSize="13sp"
+                    android:textColor="#1B3A8A"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:layout_marginEnd="4dp"/>
 
-                    <TextView
-                        android:id="@+id/tvTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Peak Hours"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Revenue ranked by busiest hours"
-                        android:textSize="11sp"
-                        android:textColor="#8DB8D8"
-                        android:layout_marginTop="3dp"/>
-
-                </LinearLayout>
-
-                <!-- Chart dialog button -->
                 <ImageButton
                     android:id="@+id/btnChart"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_icon_btn_navy"
-                    android:src="@drawable/ic_chart"
-                    android:tint="#FFFFFF"
-                    android:padding="10dp"
-                    android:contentDescription="View full chart"/>
-
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_bubble_chart"
+                    android:scaleType="centerInside"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Open bubble chart"/>
             </LinearLayout>
 
-            <!-- KPI divider line -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="18dp"
-                android:background="#1AFFFFFF"/>
+            <!-- Peak revenue hero -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Peak revenue"
+                android:textSize="13sp"
+                android:textColor="#6B7280"
+                android:layout_marginBottom="2dp"/>
 
-            <!-- KPI values row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="14dp">
+                android:gravity="center_vertical">
 
-                <!-- Best Hour -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/tvPeakRevenue"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:text="—"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:textColor="#14161A"
+                    android:layout_marginEnd="10dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="BEST HOUR"
-                        android:textSize="8sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.10"
-                        android:textColor="#6FA3D0"
-                        android:layout_marginBottom="3dp"/>
-
-                    <TextView
-                        android:id="@+id/tvBestHour"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF"/>
-
-                </LinearLayout>
-
-                <!-- Divider -->
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#1AFFFFFF"
-                    android:layout_marginEnd="14dp"/>
-
-                <!-- Total Bills -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/tvDelta"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="TOTAL BILLS"
-                        android:textSize="8sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.10"
-                        android:textColor="#6FA3D0"
-                        android:layout_marginBottom="3dp"/>
-
-                    <TextView
-                        android:id="@+id/tvTotalBills"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF"/>
-
-                </LinearLayout>
-
-                <!-- Divider -->
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#1AFFFFFF"
-                    android:layout_marginEnd="14dp"/>
-
-                <!-- Peak Revenue -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="PEAK REVENUE"
-                        android:textSize="8sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.10"
-                        android:textColor="#6FA3D0"
-                        android:layout_marginBottom="3dp"/>
-
-                    <TextView
-                        android:id="@+id/tvPeakRevenue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF"/>
-
-                </LinearLayout>
-
+                    android:text="—"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:visibility="gone"/>
             </LinearLayout>
 
-            <!-- Mini bar chart — bars added programmatically -->
+            <TextView
+                android:id="@+id/tvPeakAt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textSize="13sp"
+                android:textColor="#9AA0A8"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Legend -->
             <LinearLayout
-                android:id="@+id/llMiniChart"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="#33000000"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
-                android:paddingTop="8dp"
-                android:gravity="bottom"/>
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/bg_sales_fill"
+                    android:layout_marginEnd="5dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hourly revenue"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginEnd="16dp"/>
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/bg_sales_fill_best"
+                    android:layout_marginEnd="5dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Peak hour"
+                    android:textSize="12sp"
+                    android:textColor="#6B7280"/>
+            </LinearLayout>
+
+            <!-- Hourly bar chart -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginBottom="18dp"/>
+
+            <!-- Metric cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="18dp">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F1EEE9">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Best hour"
+                            android:textSize="12sp"
+                            android:textColor="#6B7280"
+                            android:layout_marginBottom="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tvBestValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#14161A"/>
+
+                        <TextView
+                            android:id="@+id/tvBestSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="12sp"
+                            android:textColor="#9AA0A8"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F1EEE9">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Avg / hour"
+                            android:textSize="12sp"
+                            android:textColor="#6B7280"
+                            android:layout_marginBottom="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tvAvgValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#14161A"/>
+
+                        <TextView
+                            android:id="@+id/tvAvgSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="12sp"
+                            android:textColor="#9AA0A8"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <!-- Hourly breakdown list -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hourly breakdown"
+                android:textSize="13sp"
+                android:textColor="#6B7280"
+                android:layout_marginBottom="2dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPeakHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
 
         </LinearLayout>
-        <!-- END NAVY HERO -->
+        </androidx.core.widget.NestedScrollView>
 
-        <!-- ═══════════════════════════════════════════════ -->
-        <!--  TOP PERFORMERS — PODIUM                       -->
-        <!-- ═══════════════════════════════════════════════ -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TOP PERFORMERS"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.09"
-            android:textColor="#94A3B8"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"/>
-
-        <LinearLayout
+        <!-- Soft top-edge fade (matches Sales). -->
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginHorizontal="14dp"
-            android:layout_marginBottom="6dp">
+            android:layout_height="30dp"
+            android:layout_gravity="top"
+            android:background="@drawable/bg_scroll_top_fade"/>
 
-            <!-- ── Podium Card #1 — Gold ── -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardPod1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="3dp"
-                        android:background="#F59E0B"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="#1"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:textColor="#D97706"/>
-
-                        <TextView
-                            android:id="@+id/tvPod1Hour"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:textColor="#111827"
-                            android:layout_marginTop="3dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod1Revenue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#111827"
-                            android:layout_marginTop="5dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod1Bills"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="10sp"
-                            android:textColor="#9CA3AF"
-                            android:layout_marginTop="1dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod1Status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="9sp"
-                            android:textStyle="bold"
-                            android:paddingHorizontal="9dp"
-                            android:paddingVertical="3dp"
-                            android:layout_marginTop="7dp"/>
-
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ── Podium Card #2 — Silver ── -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardPod2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="3dp"
-                        android:background="#9CA3AF"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="#2"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:textColor="#9CA3AF"/>
-
-                        <TextView
-                            android:id="@+id/tvPod2Hour"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:textColor="#111827"
-                            android:layout_marginTop="3dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod2Revenue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#111827"
-                            android:layout_marginTop="5dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod2Bills"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="10sp"
-                            android:textColor="#9CA3AF"
-                            android:layout_marginTop="1dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod2Status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="9sp"
-                            android:textStyle="bold"
-                            android:paddingHorizontal="9dp"
-                            android:paddingVertical="3dp"
-                            android:layout_marginTop="7dp"/>
-
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- ── Podium Card #3 — Bronze ── -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardPod3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="3dp"
-                        android:background="#B07D3A"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="#3"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:textColor="#A0713A"/>
-
-                        <TextView
-                            android:id="@+id/tvPod3Hour"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:textColor="#111827"
-                            android:layout_marginTop="3dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod3Revenue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#111827"
-                            android:layout_marginTop="5dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod3Bills"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="10sp"
-                            android:textColor="#9CA3AF"
-                            android:layout_marginTop="1dp"/>
-
-                        <TextView
-                            android:id="@+id/tvPod3Status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="9sp"
-                            android:textStyle="bold"
-                            android:paddingHorizontal="9dp"
-                            android:paddingVertical="3dp"
-                            android:layout_marginTop="7dp"/>
-
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-        <!-- ═══════════════════════════════════════════════ -->
-        <!--  ALL HOURS — RecyclerView                      -->
-        <!-- ═══════════════════════════════════════════════ -->
-
-        <TextView
-            android:id="@+id/tvListTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ALL HOURS"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.09"
-            android:textColor="#94A3B8"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="18dp"
-            android:layout_marginBottom="8dp"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvPeakHours"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:clipToPadding="false"
-            android:paddingBottom="24dp"/>
-
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+</FrameLayout>

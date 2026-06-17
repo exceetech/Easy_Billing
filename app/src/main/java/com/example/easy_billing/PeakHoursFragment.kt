@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -19,12 +18,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.Filterable
 import com.example.easy_billing.R
 import com.example.easy_billing.ReportFilter
-import com.example.easy_billing.adapter.PeakHourAdapter
+import com.example.easy_billing.adapter.SalesRow
+import com.example.easy_billing.adapter.SalesRowAdapter
 import com.example.easy_billing.network.PeakHourResponse
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.AppTime
+import com.example.easy_billing.util.BarValueMarker
 import com.example.easy_billing.util.BubbleChartMarker
 import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.RoundedBarChartRenderer
+import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.XAxis
@@ -33,42 +36,33 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     // ── Views ──────────────────────────────────────────────────────────────
     private lateinit var rvPeakHours: RecyclerView
     private lateinit var btnChart: ImageButton
-    private lateinit var llMiniChart: LinearLayout
-    private lateinit var tvBestHour: TextView
-    private lateinit var tvTotalBills: TextView
+    private lateinit var barChart: BarChart
+
     private lateinit var tvPeakRevenue: TextView
+    private lateinit var tvDelta: TextView
+    private lateinit var tvPeakAt: TextView
 
-    // Podium TextViews
-    private lateinit var tvPod1Hour: TextView
-    private lateinit var tvPod1Revenue: TextView
-    private lateinit var tvPod1Bills: TextView
-    private lateinit var tvPod1Status: TextView
-    private lateinit var cardPod1: View
-
-    private lateinit var tvPod2Hour: TextView
-    private lateinit var tvPod2Revenue: TextView
-    private lateinit var tvPod2Bills: TextView
-    private lateinit var tvPod2Status: TextView
-    private lateinit var cardPod2: View
-
-    private lateinit var tvPod3Hour: TextView
-    private lateinit var tvPod3Revenue: TextView
-    private lateinit var tvPod3Bills: TextView
-    private lateinit var tvPod3Status: TextView
-    private lateinit var cardPod3: View
+    private lateinit var tvBestValue: TextView
+    private lateinit var tvBestSub: TextView
+    private lateinit var tvAvgValue: TextView
+    private lateinit var tvAvgSub: TextView
 
     // ── State ──────────────────────────────────────────────────────────────
-    private lateinit var adapter: PeakHourAdapter
+    private lateinit var adapter: SalesRowAdapter
     private var currentFilter    = ReportFilter.TODAY
     private var customStartDate: String? = null
     private var customEndDate: String?   = null
     private var currentData: List<PeakHourResponse> = emptyList()
+
+    private val blue = Color.parseColor("#378ADD")
+    private val teal = Color.parseColor("#1D9E75")
 
     private val sdf = AppTime.isoDate()   // app timezone (matches backend)
 
@@ -77,42 +71,26 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Hero
-        llMiniChart   = view.findViewById(R.id.llMiniChart)
-        tvBestHour    = view.findViewById(R.id.tvBestHour)
-        tvTotalBills  = view.findViewById(R.id.tvTotalBills)
         tvPeakRevenue = view.findViewById(R.id.tvPeakRevenue)
+        tvDelta       = view.findViewById(R.id.tvDelta)
+        tvPeakAt      = view.findViewById(R.id.tvPeakAt)
 
-        // Podium slot 1
-        cardPod1      = view.findViewById(R.id.cardPod1)
-        tvPod1Hour    = view.findViewById(R.id.tvPod1Hour)
-        tvPod1Revenue = view.findViewById(R.id.tvPod1Revenue)
-        tvPod1Bills   = view.findViewById(R.id.tvPod1Bills)
-        tvPod1Status  = view.findViewById(R.id.tvPod1Status)
+        tvBestValue   = view.findViewById(R.id.tvBestValue)
+        tvBestSub     = view.findViewById(R.id.tvBestSub)
+        tvAvgValue    = view.findViewById(R.id.tvAvgValue)
+        tvAvgSub      = view.findViewById(R.id.tvAvgSub)
 
-        // Podium slot 2
-        cardPod2      = view.findViewById(R.id.cardPod2)
-        tvPod2Hour    = view.findViewById(R.id.tvPod2Hour)
-        tvPod2Revenue = view.findViewById(R.id.tvPod2Revenue)
-        tvPod2Bills   = view.findViewById(R.id.tvPod2Bills)
-        tvPod2Status  = view.findViewById(R.id.tvPod2Status)
-
-        // Podium slot 3
-        cardPod3      = view.findViewById(R.id.cardPod3)
-        tvPod3Hour    = view.findViewById(R.id.tvPod3Hour)
-        tvPod3Revenue = view.findViewById(R.id.tvPod3Revenue)
-        tvPod3Bills   = view.findViewById(R.id.tvPod3Bills)
-        tvPod3Status  = view.findViewById(R.id.tvPod3Status)
-
-        // List
+        barChart    = view.findViewById(R.id.barChart)
         rvPeakHours = view.findViewById(R.id.rvPeakHours)
         btnChart    = view.findViewById(R.id.btnChart)
 
         rvPeakHours.layoutManager = LinearLayoutManager(requireContext())
         rvPeakHours.isNestedScrollingEnabled = false
 
-        adapter = PeakHourAdapter(emptyList())
+        adapter = SalesRowAdapter(emptyList(), 0.0)
         rvPeakHours.adapter = adapter
+
+        setupChartChrome()
 
         btnChart.setOnClickListener { showChartDialog(currentData) }
 
@@ -194,20 +172,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                 val peak = RetrofitClient.api.getPeakHours(token, type, start, end)
                 currentData = peak
 
-                val sortedByRevenue = peak.sortedByDescending { it.revenue }
-                val globalMax = sortedByRevenue.firstOrNull()?.revenue ?: 1.0
-                val globalMin = sortedByRevenue.lastOrNull()?.revenue  ?: 0.0
-
-                // Populate all sections
-                updateKPIs(sortedByRevenue)
-                updateMiniChart(peak)           // sorted by hour inside
-                updatePodium(sortedByRevenue, globalMax)
-                adapter.updateData(
-                    newData       = sortedByRevenue.drop(3),
-                    newStartRank  = 4,
-                    newGlobalMax  = globalMax,
-                    newGlobalMin  = globalMin
-                )
+                render(peak)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -216,121 +181,132 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         }
     }
 
-    // ── Hero KPI row ───────────────────────────────────────────────────────
+    // ── Render (Sales-style: hero · bars · metric cards · breakdown) ────────
 
-    private fun updateKPIs(sorted: List<PeakHourResponse>) {
-        if (sorted.isEmpty()) return
-        val best       = sorted.first()
-        val totalBills = sorted.sumOf { it.bills }
+    private fun render(data: List<PeakHourResponse>) {
+        val ctx = requireContext()
 
-        tvBestHour.text    = formatHour(best.hour)
-        tvTotalBills.text  = "$totalBills"
-        tvPeakRevenue.text = CurrencyHelper.format(requireContext(), best.revenue)
-    }
-
-    // ── Mini bar chart ─────────────────────────────────────────────────────
-
-    private fun updateMiniChart(data: List<PeakHourResponse>) {
-        llMiniChart.removeAllViews()
-        if (data.isEmpty()) return
-
-        val sorted  = data.sortedBy { it.hour }
-        val maxRev  = sorted.maxOf { it.revenue }.takeIf { it > 0 } ?: 1.0
-        val minRev  = sorted.minOf { it.revenue }
-        val density = resources.displayMetrics.density
-
-        val maxHeightPx = (40 * density).toInt()
-        val minHeightPx = (8  * density).toInt()
-        val gapPx       = (3  * density).toInt()
-        val cornerPx    = 3f * density
-
-        sorted.forEach { item ->
-            val ratio   = item.revenue / maxRev
-            val isPeak  = ratio >= 0.8
-            val isLow   = ratio <= 0.3
-
-            val color = when {
-                isPeak -> Color.parseColor("#22C55E")
-                isLow  -> Color.parseColor("#F87171")
-                else   -> Color.argb(72, 255, 255, 255)
-            }
-
-            val normRatio = if (maxRev == minRev) 1.0
-                            else (item.revenue - minRev) / (maxRev - minRev)
-            val heightPx  = (minHeightPx + normRatio * (maxHeightPx - minHeightPx)).toInt()
-
-            val bar = View(requireContext()).apply {
-                background = GradientDrawable().apply {
-                    shape       = GradientDrawable.RECTANGLE
-                    // Round top corners only
-                    cornerRadii = floatArrayOf(
-                        cornerPx, cornerPx,  // top-left
-                        cornerPx, cornerPx,  // top-right
-                        0f, 0f,              // bottom-right
-                        0f, 0f               // bottom-left
-                    )
-                    setColor(color)
-                }
-            }
-
-            val params = LinearLayout.LayoutParams(0, heightPx, 1f)
-            params.marginEnd = gapPx
-            llMiniChart.addView(bar, params)
-        }
-    }
-
-    // ── Podium (top 3) ─────────────────────────────────────────────────────
-
-    private fun updatePodium(sorted: List<PeakHourResponse>, globalMax: Double) {
-        bindPodiumSlot(sorted.getOrNull(0), globalMax, cardPod1,
-            tvPod1Hour, tvPod1Revenue, tvPod1Bills, tvPod1Status)
-        bindPodiumSlot(sorted.getOrNull(1), globalMax, cardPod2,
-            tvPod2Hour, tvPod2Revenue, tvPod2Bills, tvPod2Status)
-        bindPodiumSlot(sorted.getOrNull(2), globalMax, cardPod3,
-            tvPod3Hour, tvPod3Revenue, tvPod3Bills, tvPod3Status)
-    }
-
-    private fun bindPodiumSlot(
-        item: PeakHourResponse?,
-        globalMax: Double,
-        card: View,
-        tvHour: TextView,
-        tvRevenue: TextView,
-        tvBills: TextView,
-        tvStatus: TextView
-    ) {
-        if (item == null) {
-            card.visibility = View.INVISIBLE
+        if (data.isEmpty()) {
+            tvPeakRevenue.text = CurrencyHelper.format(ctx, 0.0)
+            tvDelta.visibility = View.GONE
+            tvPeakAt.text = "—"
+            tvBestValue.text = "—"; tvBestSub.text = "—"
+            tvAvgValue.text = "—"; tvAvgSub.text = "—"
+            barChart.clear(); barChart.invalidate()
+            adapter.updateData(emptyList(), 0.0)
             return
         }
-        card.visibility = View.VISIBLE
 
-        tvHour.text    = formatHour(item.hour)
-        tvRevenue.text = CurrencyHelper.format(requireContext(), item.revenue)
-        tvBills.text   = "${item.bills} bills"
+        val byHour     = data.sortedBy { it.hour }
+        val best       = data.maxByOrNull { it.revenue } ?: byHour.first()
+        val totalRev   = data.sumOf { it.revenue }
+        val totalBills = data.sumOf { it.bills }
+        val avgBills   = totalBills.toDouble() / data.size
 
-        val ratio  = if (globalMax == 0.0) 0.0 else item.revenue / globalMax
-        val isPeak = ratio >= 0.8
-        val isLow  = ratio <= 0.3
-
-        val statusTxt = when { isPeak -> "🔥 Peak"; isLow -> "⚠ Slow"; else -> "⚖ Avg" }
-        val textHex   = when { isPeak -> "#059669"; isLow -> "#DC2626"; else -> "#475569" }
-        val bgHex     = when { isPeak -> "#ECFDF5"; isLow -> "#FEF2F2"; else -> "#F1F5F9" }
-
-        tvStatus.text = statusTxt
-        tvStatus.setTextColor(Color.parseColor(textHex))
-        tvStatus.background = GradientDrawable().apply {
-            shape        = GradientDrawable.RECTANGLE
-            cornerRadius = 100f
-            setColor(Color.parseColor(bgHex))
+        // Hero: peak revenue + share-of-period chip + "at <hour>"
+        tvPeakRevenue.text = CurrencyHelper.format(ctx, best.revenue)
+        tvPeakAt.text      = "at ${formatHour(best.hour)}"
+        if (totalRev > 0) {
+            val pct = (best.revenue / totalRev * 100).roundToInt()
+            tvDelta.visibility = View.VISIBLE
+            tvDelta.text = "$pct% of total"
+            tvDelta.setTextColor(Color.parseColor("#1A7F37"))
+            tvDelta.background = GradientDrawable().apply {
+                cornerRadius = dp(8f); setColor(Color.parseColor("#E6F4EA"))
+            }
+        } else {
+            tvDelta.visibility = View.GONE
         }
-        val d   = resources.displayMetrics.density
-        val hPad = (9 * d).toInt()
-        val vPad = (3 * d).toInt()
-        tvStatus.setPadding(hPad, vPad, hPad, vPad)
+
+        // Metric cards
+        tvBestValue.text = formatHourShort(best.hour)
+        tvBestSub.text   = "${best.bills} bills"
+        tvAvgValue.text  = "%.1f".format(avgBills)
+        tvAvgSub.text    = "$totalBills bills"
+
+        // Hourly bar chart (chronological), peak hour highlighted teal
+        drawBars(byHour, best.hour)
+
+        // Hourly breakdown list (ranked by revenue, ★ on peak)
+        val maxRev = data.maxOf { it.revenue }
+        val rows = data.sortedByDescending { it.revenue }.map {
+            SalesRow(
+                label   = formatHour(it.hour),
+                revenue = it.revenue,
+                bills   = it.bills,
+                isBest  = it.hour == best.hour
+            )
+        }
+        adapter.updateData(rows, maxRev)
     }
 
+    private fun drawBars(byHour: List<PeakHourResponse>, peakHour: Int) {
+        // data = Pair(label, bills) so the tap marker can show them
+        val entries = byHour.mapIndexed { i, p ->
+            BarEntry(i.toFloat(), p.revenue.toFloat(), Pair(formatHour(p.hour), p.bills))
+        }
+        val ds = BarDataSet(entries, "").apply {
+            colors = byHour.map { if (it.hour == peakHour) teal else blue }
+            setDrawValues(false)
+            highLightAlpha = 0
+        }
+        barChart.data = BarData(ds).apply { barWidth = 0.55f }
+
+        val maxRev = byHour.maxOf { it.revenue }.toFloat().takeIf { it > 0f } ?: 1f
+        barChart.axisLeft.axisMaximum  = maxRev * 1.30f
+        barChart.axisRight.axisMaximum = maxRev * 1.30f
+
+        barChart.xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String =
+                byHour.getOrNull(value.roundToInt())?.let { formatHourShort(it.hour) } ?: ""
+        }
+        barChart.setFitBars(true)
+        barChart.renderer = RoundedBarChartRenderer(barChart, barChart.animator, barChart.viewPortHandler, 4f)
+        barChart.animateY(700)
+        barChart.invalidate()
+    }
+
+    /** One-time static bar-chart styling (matches Sales). */
+    private fun setupChartChrome() {
+        barChart.apply {
+            description.isEnabled = false
+            legend.isEnabled = false
+            setScaleEnabled(false)
+            setPinchZoom(false)
+            isDoubleTapToZoomEnabled = false
+            setDrawGridBackground(false)
+            setTouchEnabled(true)
+            isHighlightPerTapEnabled = true
+            isHighlightPerDragEnabled = false
+            marker = BarValueMarker(requireContext())
+            setExtraOffsets(4f, 18f, 4f, 4f)
+            axisRight.isEnabled = false
+            axisLeft.isEnabled = false
+            axisLeft.axisMinimum = 0f
+            axisRight.axisMinimum = 0f
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                granularity = 1f
+                textColor = Color.parseColor("#9AA0A8")
+                textSize = 10f
+                yOffset = 6f
+            }
+        }
+    }
+
+    private fun dp(v: Float): Float = v * resources.displayMetrics.density
+
     // ── Helpers ────────────────────────────────────────────────────────────
+
+    /** Compact hour for axis/metric, e.g. "7 PM", "12 AM". */
+    private fun formatHourShort(hour: Int): String = when {
+        hour == 0  -> "12 AM"
+        hour < 12  -> "$hour AM"
+        hour == 12 -> "12 PM"
+        else       -> "${hour - 12} PM"
+    }
 
     private fun formatHour(hour: Int): String = when {
         hour == 0  -> "12:00 AM"

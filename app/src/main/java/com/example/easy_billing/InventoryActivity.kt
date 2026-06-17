@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputFilter
 import android.view.View
@@ -34,6 +35,13 @@ class InventoryActivity : BaseActivity() {
     private var fullList: List<InventoryItemUI> = emptyList()
     private var productMap: Map<Int, Product> = emptyMap()
     private var currentQuery = ""
+    private var currentCategory = ""   // "" = All
+    private var currentSort = InvSort.STOCK_HIGH_LOW
+
+    private enum class InvSort {
+        A_TO_Z, Z_TO_A, PRICE_LOW_HIGH, PRICE_HIGH_LOW,
+        STOCK_LOW_HIGH, STOCK_HIGH_LOW, STOCK_VALUE_HIGH_LOW
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +69,186 @@ class InventoryActivity : BaseActivity() {
         rvInventory.adapter = adapter
 
         setupSearch()
+        setupHeaderActions()
+    }
+
+    // ================= HEADER ACTIONS =================
+
+    private fun setupHeaderActions() {
+
+        findViewById<View?>(R.id.btnAddProduct)?.setOnClickListener {
+            showAddEditProductChooser()
+        }
+
+        findViewById<View?>(R.id.btnEdit)?.setOnClickListener {
+            startActivity(android.content.Intent(this, ManageProductsActivity::class.java))
+        }
+
+        findViewById<View?>(R.id.btnSort)?.setOnClickListener { showSortMenu(it) }
+
+        updateSortLabel()
+    }
+
+    // ================= THEMED SORT DROPDOWN =================
+
+    private fun showSortMenu(anchor: View) {
+        val options = listOf(
+            InvSort.A_TO_Z              to "Name: A → Z",
+            InvSort.Z_TO_A              to "Name: Z → A",
+            InvSort.PRICE_LOW_HIGH      to "Price: Low → High",
+            InvSort.PRICE_HIGH_LOW      to "Price: High → Low",
+            InvSort.STOCK_LOW_HIGH      to "Stock: Low → High",
+            InvSort.STOCK_HIGH_LOW      to "Stock: High → Low",
+            InvSort.STOCK_VALUE_HIGH_LOW to "Stock value: High → Low"
+        )
+        val selectedIndex = options.indexOfFirst { it.first == currentSort }.coerceAtLeast(0)
+        com.example.easy_billing.ui.ThemedDropdown.show(
+            anchor, options.map { it.second }, selectedIndex,
+            rightAlign = true, minWidthDp = 230
+        ) { idx ->
+            currentSort = options[idx].first
+            updateSortLabel()
+            applyFilter()
+        }
+    }
+
+    private fun showAddEditProductChooser() {
+        val view = layoutInflater.inflate(R.layout.dialog_add_product_chooser, null)
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<MaterialButton>(R.id.btnPurchasedProduct).setOnClickListener {
+            dialog.dismiss()
+            startActivity(android.content.Intent(this, PurchaseActivity::class.java))
+        }
+        view.findViewById<MaterialButton>(R.id.btnNonPurchasedProduct).setOnClickListener {
+            dialog.dismiss()
+            startActivity(android.content.Intent(this, AddProductsActivity::class.java))
+        }
+        view.findViewById<MaterialButton>(R.id.btnManageProducts).setOnClickListener {
+            dialog.dismiss()
+            startActivity(android.content.Intent(this, ManageProductsActivity::class.java))
+        }
+        view.findViewById<MaterialButton>(R.id.btnChooserCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun updateSortLabel() {
+        val label = when (currentSort) {
+            InvSort.A_TO_Z              -> "Name ↑"
+            InvSort.Z_TO_A              -> "Name ↓"
+            InvSort.PRICE_LOW_HIGH      -> "Price ↑"
+            InvSort.PRICE_HIGH_LOW      -> "Price ↓"
+            InvSort.STOCK_LOW_HIGH      -> "Stock ↑"
+            InvSort.STOCK_HIGH_LOW      -> "Stock ↓"
+            InvSort.STOCK_VALUE_HIGH_LOW -> "Value ↓"
+        }
+        findViewById<TextView?>(R.id.tvSortLabel)?.text = "Sort: $label"
+    }
+
+    private fun sortList(list: List<InventoryItemUI>): List<InventoryItemUI> = when (currentSort) {
+        InvSort.A_TO_Z              -> list.sortedBy { it.productName.lowercase() }
+        InvSort.Z_TO_A              -> list.sortedByDescending { it.productName.lowercase() }
+        InvSort.PRICE_LOW_HIGH      -> list.sortedBy { it.avgCost }
+        InvSort.PRICE_HIGH_LOW      -> list.sortedByDescending { it.avgCost }
+        InvSort.STOCK_LOW_HIGH      -> list.sortedBy { it.stock }
+        InvSort.STOCK_HIGH_LOW      -> list.sortedByDescending { it.stock }
+        InvSort.STOCK_VALUE_HIGH_LOW -> list.sortedByDescending { it.stock * it.avgCost }
+    }
+
+    // ================= KPI HEADER =================
+
+    private fun updateKpis() {
+        val totalValue = fullList.sumOf { it.stock * it.avgCost }
+        val totalUnits = fullList.sumOf { it.stock }
+        val lowCount = fullList.count { it.stock in 0.0001..5.0 }
+        val outCount = fullList.count { it.stock <= 0.0 }
+
+        findViewById<TextView?>(R.id.tvKpiValue)?.text = "₹${formatIndianShort(totalValue)}"
+        findViewById<TextView?>(R.id.tvKpiUnits)?.text =
+            if (totalUnits % 1 == 0.0) "%,d".format(totalUnits.toLong())
+            else "%,.1f".format(totalUnits)
+        findViewById<TextView?>(R.id.tvKpiLow)?.text = lowCount.toString()
+        findViewById<TextView?>(R.id.tvKpiOut)?.text = outCount.toString()
+        findViewById<TextView?>(R.id.tvHeroSub)?.text = "${fullList.size} active SKUs"
+
+        updateTrend(totalValue)
+    }
+
+    /**
+     * Stock-value trend vs the start of today. The baseline is the last value recorded on a
+     * previous day; within the same day the chip shows movement against that opening figure.
+     * Persisted in SharedPreferences so no DB/schema change is needed.
+     */
+    private fun updateTrend(currentValue: Double) {
+        val icon = findViewById<ImageView?>(R.id.ivKpiTrendIcon)
+        val label = findViewById<TextView?>(R.id.tvKpiTrend)
+        val chip = findViewById<View?>(R.id.layoutTrendChip)
+        if (icon == null || label == null) return
+
+        val prefs = getSharedPreferences("inv_kpi_prefs", MODE_PRIVATE)
+        val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+            .format(java.util.Date())
+
+        val baselineDate = prefs.getString("trend_baseline_date", null)
+        var baseline = java.lang.Double.longBitsToDouble(
+            prefs.getLong("trend_baseline_value", java.lang.Double.doubleToLongBits(-1.0))
+        )
+
+        if (baselineDate != today) {
+            // New day: roll yesterday's closing value into today's baseline.
+            val lastClose = java.lang.Double.longBitsToDouble(
+                prefs.getLong("trend_last_value", java.lang.Double.doubleToLongBits(currentValue))
+            )
+            baseline = if (lastClose > 0.0) lastClose else currentValue
+            prefs.edit()
+                .putString("trend_baseline_date", today)
+                .putLong("trend_baseline_value", java.lang.Double.doubleToLongBits(baseline))
+                .apply()
+        }
+
+        // Always remember the latest value as today's running close.
+        prefs.edit()
+            .putLong("trend_last_value", java.lang.Double.doubleToLongBits(currentValue))
+            .apply()
+
+        if (baseline <= 0.0) {
+            // No usable baseline yet (first ever run) — hide the chip.
+            (chip ?: icon).visibility = View.GONE
+            return
+        }
+
+        val pct = (currentValue - baseline) / baseline * 100.0
+        val rounded = Math.round(pct * 10.0) / 10.0
+
+        if (rounded == 0.0) {
+            (chip ?: icon).visibility = View.GONE
+            return
+        }
+
+        (chip ?: icon).visibility = View.VISIBLE
+        label.visibility = View.VISIBLE
+        icon.visibility = View.VISIBLE
+        val up = rounded > 0.0
+
+        // Pill (background tint) + content colors tuned for the dark navy hero.
+        val pillBg = Color.parseColor(if (up) "#11402F" else "#4A1B0C")
+        val content = Color.parseColor(if (up) "#7DDCB2" else "#F0997B")
+        chip?.backgroundTintList = android.content.res.ColorStateList.valueOf(pillBg)
+
+        icon.setImageResource(if (up) R.drawable.ic_trending_up else R.drawable.ic_trending_down)
+        icon.setColorFilter(content)
+        label.setTextColor(content)
+        label.text = "%s%.1f%%".format(if (up) "+" else "−", Math.abs(rounded))
+    }
+
+    private fun formatIndianShort(value: Double): String = when {
+        value >= 1_00_00_000 -> "%.2fCr".format(value / 1_00_00_000)
+        value >= 1_00_000    -> "%.2fL".format(value / 1_00_000)
+        value >= 1_000       -> "%,.0f".format(value)
+        else                 -> "%.0f".format(value)
     }
 
     override fun onResume() {
@@ -94,13 +282,15 @@ class InventoryActivity : BaseActivity() {
                             variant = product.variant ?: "",
                             stock = inv?.currentStock ?: 0.0,
                             avgCost = inv?.averageCost ?: 0.0,
-                            productId = product.id
+                            productId = product.id,
+                            category = product.category
                         )
                     }
 
                 withContext(Dispatchers.Main) {
                     productMap = newProductMap
                     fullList = displayList
+                    buildCategoryChips()
                     applyFilter()
                 }
 
@@ -130,19 +320,66 @@ class InventoryActivity : BaseActivity() {
 
     private fun applyFilter() {
 
-        val filtered = if (currentQuery.isEmpty()) {
-            fullList
-        } else {
-            fullList.filter {
+        val filtered = fullList.filter { item ->
 
-                val name = it.productName.lowercase()
-                val variant = it.variant!!.lowercase()
+            val matchesCategory =
+                currentCategory.isEmpty() || item.category.equals(currentCategory, ignoreCase = true)
 
+            val matchesQuery = currentQuery.isEmpty() || run {
+                val name = item.productName.lowercase()
+                val variant = item.variant?.lowercase() ?: ""
                 name.contains(currentQuery) || variant.contains(currentQuery)
             }
+
+            matchesCategory && matchesQuery
         }
 
-        adapter.updateData(filtered)
+        adapter.updateData(sortList(filtered))
+        updateKpis()
+    }
+
+    // ================= CATEGORY CHIPS =================
+
+    private fun buildCategoryChips() {
+
+        val group = findViewById<com.google.android.material.chip.ChipGroup>(R.id.layoutChips) ?: return
+        val allChip = findViewById<com.google.android.material.chip.Chip>(R.id.chipCatAll) ?: return
+
+        // Distinct, non-blank categories from the current inventory, sorted.
+        val categories = fullList
+            .map { it.category.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .sortedBy { it.lowercase() }
+
+        // Remove previously added category chips (keep the static "All" chip).
+        for (i in group.childCount - 1 downTo 0) {
+            if (group.getChildAt(i).id != R.id.chipCatAll) group.removeViewAt(i)
+        }
+
+        for (cat in categories) {
+            val chip = layoutInflater.inflate(R.layout.item_inv_category_chip, group, false)
+                    as com.google.android.material.chip.Chip
+            chip.id = View.generateViewId()
+            chip.text = cat
+            chip.tag = cat
+            group.addView(chip)
+        }
+
+        // If the previously selected category no longer exists, fall back to All.
+        if (currentCategory.isNotEmpty() && categories.none { it.equals(currentCategory, true) }) {
+            currentCategory = ""
+            allChip.isChecked = true
+        }
+
+        group.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull()
+            currentCategory = when (checkedId) {
+                null, R.id.chipCatAll -> ""
+                else -> (group.findViewById<com.google.android.material.chip.Chip>(checkedId)?.tag as? String) ?: ""
+            }
+            applyFilter()
+        }
     }
 
     // ================= ADD STOCK =================
