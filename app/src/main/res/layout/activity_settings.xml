@@ -5,228 +5,125 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#F4F0E6">
 
-    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#FAFAFA"
+        android:background="@android:color/transparent"
         android:elevation="0dp"
-        app:navigationIconTint="@color/textPrimary"
-        app:titleTextColor="@color/textPrimary"/>
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="20dp">
 
-            <!-- Store Info Tile -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnStoreSettings"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#E8F0FE"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:accessibilityHeading="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="6dp"
+                android:text="Manage your store &amp; app"
+                android:textColor="#6E6A60"
+                android:textSize="12sp"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
+            <!-- ===================== STORE ===================== -->
+            <TextView style="@style/SettingsSection" android:text="STORE"/>
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_store"
-                        app:tint="#3B82F6" />
+            <LinearLayout style="@style/SettingsCard">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/store_information"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
-                        android:layout_marginStart="16dp"/>
-
+                <LinearLayout android:id="@+id/btnStoreSettings" style="@style/SettingsRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                        android:src="@drawable/ic_set_store" app:tint="#185FA5"/>
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/store_information"/>
+                        <TextView style="@style/SettingsRowSub" android:text="Name, address, contact"/>
+                    </LinearLayout>
+                    <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+                <LinearLayout android:id="@+id/btnLocalization" style="@style/SettingsRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                        android:src="@drawable/ic_set_languages" app:tint="#534AB7"/>
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/localization_settings"/>
+                        <TextView style="@style/SettingsRowSub" android:text="Language, currency, format"/>
+                    </LinearLayout>
+                    <ImageView style="@style/SettingsChevron"/>
+                </LinearLayout>
+            </LinearLayout>
 
-            <!-- Localization Tile -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnLocalization"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#EEF2FF"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
+            <!-- ===================== BILLING ===================== -->
+            <TextView style="@style/SettingsSection" android:text="BILLING"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
+            <LinearLayout style="@style/SettingsCard">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_language"
-                        app:tint="#6366F1" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/localization_settings"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
-                        android:layout_marginStart="16dp"/>
-
+                <LinearLayout android:id="@+id/btnBillingSettings" style="@style/SettingsRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                        android:src="@drawable/ic_set_receipt" app:tint="#0F6E56"/>
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/billing_settings"/>
+                        <TextView style="@style/SettingsRowSub" android:text="GST, tax rates, defaults"/>
+                    </LinearLayout>
+                    <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Billing Tile -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnBillingSettings"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#E8F8F5"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_receipt"
-                        app:tint="#10B981" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/billing_settings"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
-                        android:layout_marginStart="16dp"/>
-
+                <LinearLayout android:id="@+id/btnInvoiceDesign" style="@style/SettingsRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                        android:src="@drawable/ic_set_file_text" app:tint="#854F0B"/>
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/invoice_design"/>
+                        <TextView style="@style/SettingsRowSub" android:text="Template &amp; branding"/>
+                    </LinearLayout>
+                    <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
+            </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            <!-- ===================== DATA ===================== -->
+            <TextView style="@style/SettingsSection" android:text="DATA"/>
 
-            <!-- Invoice Tile -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnInvoiceDesign"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#FFF4E5"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
+            <LinearLayout style="@style/SettingsCard">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_invoice"
-                        app:tint="#F59E0B" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/invoice_design"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
-                        android:layout_marginStart="16dp"/>
-
+                <LinearLayout android:id="@+id/btnDataManagement" style="@style/SettingsRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FCEBEB"
+                        android:src="@drawable/ic_set_shield" app:tint="#A32D2D"/>
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/data_security_management"/>
+                        <TextView style="@style/SettingsRowSub" android:text="Backup, workspace, reset"/>
+                    </LinearLayout>
+                    <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
+            </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Security Tile -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnDataManagement"
+            <TextView
+                android:id="@+id/tvVersion"
                 android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#FCE7F3"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_security"
-                        app:tint="#EC4899" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/data_security_management"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
-                        android:layout_marginStart="16dp"/>
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="ExPOS"
+                android:textColor="#C9C3B4"
+                android:textSize="11sp"/>
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

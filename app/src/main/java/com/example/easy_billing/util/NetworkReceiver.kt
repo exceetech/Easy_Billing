@@ -46,12 +46,13 @@ class NetworkReceiver(private val context: Context) {
                             // ✅ BACKEND OK → SYNC
                             val syncManager = SyncManager(context)
                             syncManager.syncAll()
-                            
-                syncManager.pullPurchaseBatches()
-                syncManager.pullPurchaseReturns()
-                syncManager.pullCreditNotes()
-                syncManager.pullInventory()
+
+                            syncManager.pullInventory()
+                            syncManager.pullPurchases()
+                            syncManager.pullPurchaseReturns()
+                            syncManager.pullCreditNotes()
                             syncManager.pullImportServices()
+                            syncManager.pullPurchaseBatches()
 
                         } catch (e: Exception) {
                             e.printStackTrace()

@@ -172,6 +172,12 @@ object InventoryValuation {
         val totals = db.purchaseBatchDao().getValuationTotals(productId)
         val inventory = db.inventoryDao().getInventory(productId) ?: return
 
+        // Guard: if ANY non-MIGRATION batch already exists, the product has a
+        // real batch ledger. Do NOT wipe it. Only create MIGRATION when the
+        // ledger is truly empty — that's the only time it's needed.
+        val allBatches = db.purchaseBatchDao().getAllBatches(productId)
+        if (allBatches.any { it.batchCode != "MIGRATION" }) return
+
         // If there are batches but their sum differs from inventory.currentStock,
         // or if there are no batches at all but we have positive stock on hand:
         val hasDrift = totals.totalQty > 0.0 && kotlin.math.abs(totals.totalQty - inventory.currentStock) > 0.001

@@ -1369,7 +1369,7 @@ class SyncManager(private val context: Context) {
                                 isSynced = true
                             )
                         )
-                        InventoryValuation.ensureSyntheticBatch(db, product.id)
+                        //InventoryValuation.ensureSyntheticBatch(db, product.id)
                         println("✅ Updated inventory for productId=${product.id}")
                     } else {
 
@@ -1382,7 +1382,7 @@ class SyncManager(private val context: Context) {
                                 isSynced = true
                             )
                         )
-                        InventoryValuation.ensureSyntheticBatch(db, product.id)
+                        //InventoryValuation.ensureSyntheticBatch(db, product.id)
 
                         println("✅ Inserted inventory for productId=${product.id}")
                     }
@@ -2056,10 +2056,21 @@ class SyncManager(private val context: Context) {
 
         Log.d(SYNC_TAG, "syncPurchaseBatches: ${pending.size} unsynced batch(es)")
 
-        val dtoBatch = pending.map { b: com.example.easy_billing.db.PurchaseBatch ->
+        val productDao = db.productDao()
+
+        val dtoBatch = pending.mapNotNull { b: com.example.easy_billing.db.PurchaseBatch ->
+            // Resolve local product → server product ID.
+            // The server stores product_id as the server-side ID. If we send
+            // the local Room ID, pullPurchaseBatches cannot map it back after
+            // a factory reset (getByServerId won't find a match).
+            val serverProductId = productDao.getById(b.productId)?.serverId
+            if (serverProductId == null) {
+                Log.w(SYNC_TAG, "syncPurchaseBatches: skipping batch ${b.id} — product ${b.productId} has no serverId yet")
+                return@mapNotNull null
+            }
             PurchaseBatchDto(
                 local_id = b.id,
-                product_id = b.productId,
+                product_id = serverProductId,
                 purchase_invoice_id = b.purchaseInvoiceId,
                 supplier_name = b.supplierName,
                 supplier_gstin = b.supplierGstin,
@@ -2109,10 +2120,20 @@ class SyncManager(private val context: Context) {
                 for (b in batches) {
                     val existing = db.purchaseBatchDao().getBatchById(b.local_id)
                     if (existing == null) {
+                        // Map server product_id → local Room product ID.
+                        // Batches on the server carry the server's product_id (e.g. 45).
+                        // All local queries use the Room auto-increment id (e.g. 3).
+                        // Storing the server id here made every pulled batch invisible to the UI.
+                        val localProduct = db.productDao().getByServerId(b.product_id)
+                        val localProductId = localProduct?.id
+                        if (localProductId == null) {
+                            Log.w(SYNC_TAG, "pullPurchaseBatches: skipping batch ${b.local_id} — no local product for serverId=${b.product_id}")
+                            continue
+                        }
                         db.purchaseBatchDao().insertBatch(
                             com.example.easy_billing.db.PurchaseBatch(
                                 id = b.local_id,
-                                productId = b.product_id,
+                                productId = localProductId,
                                 purchaseInvoiceId = b.purchase_invoice_id,
                                 supplierName = b.supplier_name,
                                 supplierGstin = b.supplier_gstin,

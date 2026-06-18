@@ -320,14 +320,14 @@ class DashboardActivity : BaseActivity() {
                 // ================= STEP 4: INVENTORY & PURCHASES =================
                 println("🔄 Syncing inventory, purchases, and logs")
                 syncManager.syncInventory()
-                
-                syncManager.pullPurchaseBatches()
+
                 syncManager.pullPurchaseReturns()
                 syncManager.pullCreditNotes()
                 syncManager.pullInventory()
                 syncManager.pullPurchases()
                 syncManager.pullInventoryLogs()
                 syncManager.pullImportServices()
+                syncManager.pullPurchaseBatches()
 
                 // ================= STEP 5: BILLS =================
                 syncManager.syncBills()
