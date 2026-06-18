@@ -17,6 +17,30 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // API host — single source of truth (read via BuildConfig.API_BASE_URL).
+        // NOTE on reachability (this is what makes the app "load"):
+        //   • Android emulator → the host machine is 10.0.2.2, NOT localhost/127.0.0.1.
+        //   • Physical device  → use the dev machine's LAN IP (e.g. http://192.168.1.100:8080/)
+        //     and make sure the phone is on the same Wi-Fi and the server is running.
+        // Default below targets the emulator; the release build overrides it (see buildTypes).
+        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        getByName("debug") {
+            // Override here if you test on a physical device instead of the emulator.
+            // buildConfigField("String", "API_BASE_URL", "\"http://192.168.1.100:8080/\"")
+        }
+        getByName("release") {
+            isMinifyEnabled = false
+            // TODO: set the real production HTTPS endpoint before shipping.
+            buildConfigField("String", "API_BASE_URL", "\"https://api.example.com/\"")
+        }
     }
 
     compileOptions {

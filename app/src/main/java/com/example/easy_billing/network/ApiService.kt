@@ -288,10 +288,9 @@ interface ApiService {
         @Body request: SaveTokenRequest
     ): Response<Unit>
 
+    // Authorization is added automatically by AuthInterceptor — do not pass it here.
     @GET("analytics/ai-report")
-    suspend fun getAiReport(
-        @Header("Authorization") token: String
-    ): AiReportResponse
+    suspend fun getAiReport(): AiReportResponse
 
     @POST("auth/forgot-password")
     suspend fun forgotPassword(

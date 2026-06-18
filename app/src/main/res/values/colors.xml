@@ -65,4 +65,22 @@
     <color name="warning_banner_bg">#F59E0B</color>
     <color name="success_banner_bg">#10B981</color>
 
+    <!-- AI Insights screen (theme tokens used from code) -->
+    <color name="ai_row_alt">#FBFAF7</color>
+    <color name="ai_text_primary">#1A1A18</color>
+    <color name="ai_text_muted">#6E6A60</color>
+    <color name="ai_green">#0F6E56</color>
+    <color name="band_green_bg">#EAF3DE</color>
+    <color name="band_green_ink">#27500A</color>
+    <color name="band_amber_bg">#FAEEDA</color>
+    <color name="band_amber_ink">#633806</color>
+    <color name="band_red_bg">#FCEBEB</color>
+    <color name="band_red_ink">#791F1F</color>
+
+    <!-- Solid fills for the audit-score color-block tile (tinted by health band) -->
+    <color name="band_green_strong">#0F6E56</color>
+    <color name="band_amber_strong">#BA7517</color>
+    <color name="band_red_strong">#A32D2D</color>
+    <color name="ai_neutral">#5F5E5A</color>
+
 </resources>

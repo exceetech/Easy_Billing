@@ -70,4 +70,36 @@ GROUP BY bi.productId, bi.variant, b.date
         GROUP BY productId
     """)
     suspend fun getSalesAggByProduct(): List<ProductSalesAgg>
+
+    // ── Shop-scoped aggregates for AI insights (filtered + grouped in SQL) ──
+
+    @Query("SELECT COUNT(*) FROM bill_items WHERE productId IN (:productIds)")
+    suspend fun countItemsForProducts(productIds: List<Int>): Int
+
+    @Query("""
+        SELECT productName AS productName, COALESCE(SUM(quantity), 0) AS total
+        FROM bill_items WHERE productId IN (:productIds)
+        GROUP BY productName ORDER BY total DESC LIMIT 1
+    """)
+    suspend fun bestSellerForProducts(productIds: List<Int>): NameAgg?
+
+    @Query("""
+        SELECT productName AS productName, COALESCE(SUM(profit), 0) AS total
+        FROM bill_items WHERE productId IN (:productIds)
+        GROUP BY productName ORDER BY total DESC LIMIT 1
+    """)
+    suspend fun bestProfitForProducts(productIds: List<Int>): NameAgg?
+
+    @Query("""
+        SELECT productName AS productName, COALESCE(SUM(profit), 0) AS total
+        FROM bill_items WHERE productId IN (:productIds)
+        GROUP BY productName ORDER BY total ASC LIMIT 1
+    """)
+    suspend fun worstProfitForProducts(productIds: List<Int>): NameAgg?
 }
+
+/** Lightweight result holder for grouped name → value aggregates. */
+data class NameAgg(
+    val productName: String,
+    val total: Double
+)

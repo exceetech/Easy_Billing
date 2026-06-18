@@ -682,15 +682,21 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnLogout).setOnClickListener {
+            com.example.easy_billing.ui.ThemedDropdown.showConfirm(
+                context = this,
+                title = "Sign out?",
+                message = "You'll need to log in again to access your store.",
+                confirmLabel = "Sign out"
+            ) {
+                getSharedPreferences("auth", MODE_PRIVATE)
+                    .edit {
+                        remove("TOKEN")
+                    }
 
-            getSharedPreferences("auth", MODE_PRIVATE)
-                .edit {
-                    remove("TOKEN")
-                }
-
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
         }
 
         findViewById<View>(R.id.btnGenerateBill).apply {
@@ -1314,9 +1320,12 @@ class DashboardActivity : BaseActivity() {
                     return@launch
                 }
 
-                val response = RetrofitClient.api.getAiReport(token)
-                
-                val activeInsights = response.insights
+                // Auth header is attached by AuthInterceptor, not passed here.
+                val response = RetrofitClient.api.getAiReport()
+
+                // The endpoint now returns the full insight list (the AI Insights screen
+                // shows all of them grouped); the dashboard noticeboard keeps its top 3.
+                val activeInsights = response.insights.take(3)
 
                 if (activeInsights.isEmpty()) {
                     vpAiInsights.visibility = View.GONE

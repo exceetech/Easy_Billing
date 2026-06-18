@@ -22,6 +22,9 @@ interface InventoryDao {
     @Query("SELECT * FROM inventory")
     suspend fun getAll(): List<Inventory>
 
+    @Query("SELECT productId FROM inventory WHERE productId IN (:productIds) AND currentStock <= 5 LIMIT 5")
+    suspend fun getLowStockProductIds(productIds: List<Int>): List<Int>
+
     // 🔥 SAFE REDUCE
     @Query("""
         UPDATE inventory 

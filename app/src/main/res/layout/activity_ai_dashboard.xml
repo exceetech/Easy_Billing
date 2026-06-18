@@ -5,38 +5,60 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#F4F0E6">
 
-    <!-- ── PREMIUM HEADER ── -->
+    <!-- ── HEADER (toolbar + title row, same as Import of Services) ── -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
-        app:navigationIconTint="#18181B">
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Business Oracle"
-                android:textColor="#18181B"
-                android:textSize="18sp"
+                android:text="AI Insights"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
                 android:textStyle="bold"
-                android:fontFamily="@font/googlesans_bold"/>
+                android:accessibilityHeading="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AI POWERED AUDIT"
-                android:textColor="#A1A1AA"
-                android:textSize="9sp"
-                android:letterSpacing="0.1"
-                android:textStyle="bold"/>
+                android:layout_marginTop="2dp"
+                android:text="Business audit · powered by AI"
+                android:textColor="#6E6A60"
+                android:textSize="12sp"/>
         </LinearLayout>
-    </com.google.android.material.appbar.MaterialToolbar>
+
+        <ImageView
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/bg_imp_badge"
+            android:backgroundTint="#FAEEDA"
+            android:padding="8dp"
+            android:src="@drawable/ic_sparkles"
+            app:tint="#854F0B"
+            android:contentDescription="@null"/>
+    </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -48,324 +70,232 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="10dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp">
 
-            <!-- ── ROW 1: THE REVENUE LENS (DUAL SQUARES) ── -->
+            <!-- ── AUDIT SCORE (ring + explanation) ── -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_imp_card"
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <FrameLayout android:layout_width="58dp" android:layout_height="58dp">
+                        <View android:id="@+id/viewAuditRing"
+                            android:layout_width="58dp" android:layout_height="58dp"
+                            android:background="@drawable/bg_audit_ring"
+                            android:backgroundTint="#0F6E56"/>
+                        <TextView android:id="@+id/tvPerformanceScore"
+                            android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:gravity="center" android:text="--"
+                            android:textColor="#0F6E56" android:textSize="17sp" android:textStyle="bold"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="14dp" android:layout_marginEnd="22dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Audit score" android:textColor="#6E6A60" android:textSize="12sp"/>
+                        <TextView android:id="@+id/tvScoreBadge"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp" android:text="—"
+                            android:textColor="#27500A" android:textSize="9sp" android:letterSpacing="0.06" android:textStyle="bold"
+                            android:background="@drawable/bg_imp_badge" android:backgroundTint="#EAF3DE"
+                            android:paddingHorizontal="7dp" android:paddingVertical="2dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp" android:text="Your shop's health out of 100 — higher is better"
+                            android:textColor="#9A968C" android:textSize="11sp" android:lineSpacingMultiplier="1.3"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnScoreInfo"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="top|end"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_info_circle"
+                    android:scaleType="centerInside"
+                    android:padding="5dp"
+                    app:tint="#9A968C"
+                    android:contentDescription="What is the audit score?" />
+            </FrameLayout>
+
+            <!-- ── ROW 1: URGENT / LEAKS / WINS (color-block KPIs, inventory style) ── -->
             <LinearLayout
                 android:id="@+id/bentoRow1"
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp">
 
-                <!-- Card 1: Revenue -->
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="@android:color/transparent">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_ai_bento_card"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center_vertical">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_report"
-                            app:tint="#2563EB"
-                            android:layout_marginBottom="12dp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Revenue"
-                            android:textColor="#71717A"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/googlesans_bold"/>
-                        <TextView
-                            android:id="@+id/tvRevenue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="₹0"
-                            android:textColor="#18181B"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/googlesans_bold"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="+12.5% this week"
-                            android:textColor="#059669"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_imp_block_red"
+                    android:padding="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_kpi_alert" app:tint="#F7C1C1" android:contentDescription="@null"/>
+                    <TextView android:id="@+id/tvKpiUrgent"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" android:text="0"
+                        android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp" android:text="Urgent"
+                        android:textColor="#F7C1C1" android:textSize="10sp"/>
+                </LinearLayout>
 
-                <!-- Card 2: Performance Score -->
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="@android:color/transparent">
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_ai_bento_card"
-                        android:padding="16dp">
-                        
-                        <!-- Circular Progress Indicator (Simulated) -->
-                        <ProgressBar
-                            android:id="@+id/pbPerformance"
-                            android:layout_width="70dp"
-                            android:layout_height="70dp"
-                            android:layout_gravity="end|bottom"
-                            android:layout_marginBottom="-15dp"
-                            android:layout_marginEnd="-15dp"
-                            android:indeterminate="false"
-                            android:progress="85"
-                            android:progressDrawable="@drawable/bg_progress_rounded"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:alpha="0.2"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_imp_block_amber"
+                    android:padding="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_trending_down" app:tint="#FAC775" android:contentDescription="@null"/>
+                    <TextView android:id="@+id/tvKpiLeaks"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" android:text="0"
+                        android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp" android:text="Leaks"
+                        android:textColor="#FAC775" android:textSize="10sp"/>
+                </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center_vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Audit Score"
-                                android:textColor="#71717A"
-                                android:textSize="12sp"
-                                android:fontFamily="@font/googlesans_bold"/>
-                            <TextView
-                                android:id="@+id/tvPerformanceScore"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="85"
-                                android:textColor="#059669"
-                                android:textSize="32sp"
-                                android:textStyle="bold"
-                                android:fontFamily="@font/googlesans_bold"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="OPTIMUM"
-                                android:textColor="#059669"
-                                android:textSize="9sp"
-                                android:letterSpacing="0.1"
-                                android:textStyle="bold"
-                                android:background="@drawable/bg_badge_chip"
-                                android:paddingHorizontal="6dp"
-                                android:paddingVertical="2dp"/>
-                        </LinearLayout>
-                    </FrameLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_imp_block_green"
+                    android:padding="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_kpi_badge_check" app:tint="#9FE1CB" android:contentDescription="@null"/>
+                    <TextView android:id="@+id/tvKpiWins"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" android:text="0"
+                        android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp" android:text="Wins"
+                        android:textColor="#9FE1CB" android:textSize="10sp"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- ── ROW 2: THE STRATEGIC ORACLE (HERO BOX) ── -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardAiHero"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/transparent">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_ai_hero_card"
-                    android:orientation="vertical"
-                    android:padding="24dp">
-                    
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="16dp">
-                        
-                        <View
-                            android:id="@+id/viewHeroPulse"
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:background="@drawable/bg_live_dot_base"
-                            android:layout_marginEnd="8dp"/>
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="LIVE STRATEGIC AUDIT"
-                            android:textColor="#A1A1AA"
-                            android:textSize="10sp"
-                            android:letterSpacing="0.1"
-                            android:textStyle="bold"/>
-                        
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_premium_ai_insights"
-                            app:tint="#D4D4D8"/>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvStrategyTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Optimizing Inventory Turnaround"
-                        android:textColor="#FFFFFF"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp"
-                        android:fontFamily="@font/googlesans_bold"/>
-
-                    <TextView
-                        android:id="@+id/tvStrategyContent"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Analyzing current sales patterns to provide a growth-focused strategy..."
-                        android:textColor="#D4D4D8"
-                        android:textSize="14sp"
-                        android:lineSpacingExtra="6dp"
-                        android:layout_marginBottom="20dp"/>
-
-                    <!-- Action Buttons -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Adjust Stock"
-                            android:textColor="#18181B"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp"
-                            android:background="@drawable/bg_ai_bento_card"
-                            android:layout_marginEnd="12dp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View Trends"
-                            android:textColor="#FFFFFF"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp"
-                            android:background="@drawable/bg_button_outline"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ── ROW 3: PRODUCT ANALYTICS (WIDE BENTO) ── -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- ── ROW 2: TOP PRODUCT VELOCITY (before insights) ── -->
+            <LinearLayout
                 android:id="@+id/bentoRow3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/transparent">
-                <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_imp_card"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Top product velocity"
+                    android:textColor="#1A1A18"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <TableLayout
+                    android:id="@+id/tableProducts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_ai_bento_card"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:stretchColumns="*">
+                    <TableRow android:paddingVertical="8dp">
+                        <TextView
+                            android:id="@+id/headerProduct"
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:text="PRODUCT"
+                            android:textColor="#9A968C"
+                            android:textSize="10sp"
+                            android:letterSpacing="0.04"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/headerQty"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:text="QTY"
+                            android:gravity="center"
+                            android:textColor="#9A968C"
+                            android:textSize="10sp"
+                            android:letterSpacing="0.04"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/headerRevenue"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.2"
+                            android:text="REVENUE"
+                            android:gravity="end"
+                            android:textColor="#9A968C"
+                            android:textSize="10sp"
+                            android:letterSpacing="0.04"
+                            android:textStyle="bold"/>
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Top Product Velocity"
-                        android:textColor="#18181B"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp"
-                        android:fontFamily="@font/googlesans_bold"/>
-
-                    <TableLayout
-                        android:id="@+id/tableProducts"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:stretchColumns="*">
-                        <TableRow
-                            android:paddingVertical="8dp">
-                            <TextView
-                                android:id="@+id/headerProduct"
-                                android:layout_width="0dp"
-                                android:layout_weight="2"
-                                android:text="Product"
-                                android:textColor="#71717A"
-                                android:textSize="11sp"
-                                android:textStyle="bold"/>
-                            <TextView
-                                android:id="@+id/headerQty"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:text="Qty"
-                                android:gravity="center"
-                                android:textColor="#71717A"
-                                android:textSize="11sp"
-                                android:textStyle="bold"/>
-                            <TextView
-                                android:id="@+id/headerRevenue"
-                                android:layout_width="0dp"
-                                android:layout_weight="1.2"
-                                android:text="Revenue"
-                                android:gravity="end"
-                                android:textColor="#71717A"
-                                android:textSize="11sp"
-                                android:textStyle="bold"/>
-                        </TableRow>
-                    </TableLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ── ROW 4: SMART LOCAL PULSE (LONG BOX) ── -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/bentoRow4"
+            <!-- ── ROW 3: INSIGHTS LIST ── -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/transparent">
-                <LinearLayout
-                    android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="2dp"
+                android:paddingHorizontal="2dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_ai_bento_card"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Intelligent Local Alerts"
-                        android:textColor="#18181B"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="14dp"
-                        android:fontFamily="@font/googlesans_bold"/>
+                    android:text="Insights"
+                    android:textColor="#1A1A18"
+                    android:textSize="13sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/tvInsightsSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="#9A968C"
+                    android:textSize="11sp"/>
+            </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tvAiInsights"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Processing localized store data..."
-                        android:textColor="#3F3F46"
-                        android:textSize="13sp"
-                        android:lineSpacingExtra="6dp"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvInsights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp"/>
+
+            <TextView
+                android:id="@+id/tvInsightsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No alerts right now — your shop looks healthy."
+                android:textColor="#6E6A60"
+                android:textSize="13sp"
+                android:gravity="center"
+                android:padding="20dp"
+                android:background="@drawable/bg_imp_card"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

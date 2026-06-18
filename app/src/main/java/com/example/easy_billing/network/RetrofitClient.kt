@@ -1,13 +1,16 @@
 package com.example.easy_billing.network
 
 import android.content.Context
+import com.example.easy_billing.BuildConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://192.168.1.100:8080/"
+    // Configured per build type in app/build.gradle.kts (buildConfigField "API_BASE_URL").
+    private val BASE_URL = BuildConfig.API_BASE_URL
 
     // Use lateinit instead of nullable → avoids repeated null checks
     private lateinit var appContext: Context
@@ -25,6 +28,10 @@ object RetrofitClient {
         }
 
         OkHttpClient.Builder()
+            // Bound every request so a bad host/network fails fast instead of hanging.
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(AuthInterceptor(appContext))
             .addInterceptor(WorkspaceInterceptor(appContext)) // 409 → WorkspaceChangedActivity
             .build()
