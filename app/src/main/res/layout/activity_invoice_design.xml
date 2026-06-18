@@ -1,106 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="#F4F0E6">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            app:titleTextColor="?attr/colorOnSurface"
-            app:navigationIconTint="?attr/colorOnSurface" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
-        <!-- Title -->
-        <TextView
-            android:text="@string/invoice_design"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="24dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <!-- Footer Message -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_message"
-            app:startIconTint="?attr/colorPrimary">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFooter"
-                android:hint="@string/footer_message"
-                android:text="@string/thank_you_visit_again"
+            <!-- Title + Edit action -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="24dp"
-            android:background="?attr/colorSurfaceVariant"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-        <!-- Switches Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/invoice_design"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Receipt footer &amp; printed fields"
+                        android:textColor="#6E6A60"
+                        android:textSize="12sp"/>
+                </LinearLayout>
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchShowLogo"
-            android:text="@string/show_store_logo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <!-- Edit pill (toggles edit mode) -->
+                <LinearLayout
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_edit_pill"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchShowGstin"
-            android:text="@string/show_gstin"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#1A1A18"
+                        android:contentDescription="@string/edit"/>
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchShowPhone"
-            android:text="@string/show_phone_number"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchShowDiscount"
-            android:text="@string/show_discount_section"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <!-- ===================== RECEIPT FOOTER ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="RECEIPT FOOTER"/>
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchRoundOff"
-            android:text="@string/enable_round_off"
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <LinearLayout style="@style/AddCard">
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/footer_message"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_message" app:tint="#185FA5"/>
+                        <EditText
+                            android:id="@+id/etFooter"
+                            style="@style/SiEdit"
+                            android:hint="@string/footer_message"
+                            android:inputType="textCapSentences"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginStart="2dp"
+                        android:text="Printed at the bottom of every receipt"
+                        android:textColor="#9A968C"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
 
-        <!-- Save Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveDesign"
-            android:text="@string/save_design_settings"
-            android:textAllCaps="false"
-            android:layout_marginTop="32dp"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            style="@style/Widget.EasyBilling.Button"/>
+            <!-- ===================== SHOW ON RECEIPT ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="SHOW ON RECEIPT"/>
 
-    </LinearLayout>
+            <LinearLayout
+                style="@style/SettingsCard">
 
-</ScrollView>
+                <!-- Store logo -->
+                <LinearLayout android:id="@+id/rowLogo" style="@style/IdToggleRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                        android:src="@drawable/ic_si_image" app:tint="#534AB7"/>
+                    <LinearLayout style="@style/IdToggleText">
+                        <TextView style="@style/IdToggleTitle" android:text="@string/show_store_logo"/>
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchShowLogo" style="@style/SettingsSwitch"/>
+                </LinearLayout>
+
+                <!-- GSTIN -->
+                <LinearLayout android:id="@+id/rowGstin" style="@style/IdToggleRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FCEBEB"
+                        android:src="@drawable/ic_si_tax" app:tint="#A32D2D"/>
+                    <LinearLayout style="@style/IdToggleText">
+                        <TextView style="@style/IdToggleTitle" android:text="@string/show_gstin"/>
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchShowGstin" style="@style/SettingsSwitch"/>
+                </LinearLayout>
+
+                <!-- Phone number -->
+                <LinearLayout android:id="@+id/rowPhone" style="@style/IdToggleRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                        android:src="@drawable/ic_si_phone" app:tint="#BA7517"/>
+                    <LinearLayout style="@style/IdToggleText">
+                        <TextView style="@style/IdToggleTitle" android:text="@string/show_phone_number"/>
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchShowPhone" style="@style/SettingsSwitch"/>
+                </LinearLayout>
+
+                <!-- Discount section -->
+                <LinearLayout android:id="@+id/rowDiscount" style="@style/IdToggleRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                        android:src="@drawable/ic_si_percent" app:tint="#0F6E56"/>
+                    <LinearLayout style="@style/IdToggleText">
+                        <TextView style="@style/IdToggleTitle" android:text="@string/show_discount_section"/>
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchShowDiscount" style="@style/SettingsSwitch"/>
+                </LinearLayout>
+
+                <!-- Round off total -->
+                <LinearLayout android:id="@+id/rowRoundOff" style="@style/IdToggleRow">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                        android:src="@drawable/ic_si_calc" app:tint="#185FA5"/>
+                    <LinearLayout style="@style/IdToggleText">
+                        <TextView style="@style/IdToggleTitle" android:text="@string/enable_round_off"/>
+                        <TextView style="@style/IdToggleSub" android:text="Round the grand total to nearest rupee"/>
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchRoundOff" style="@style/SettingsSwitch"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Save -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveDesign"
+                style="@style/SiSavePill"
+                android:text="@string/save_design_settings"
+                app:icon="@drawable/ic_lucide_check"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

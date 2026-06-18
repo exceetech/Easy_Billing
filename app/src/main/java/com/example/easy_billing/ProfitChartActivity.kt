@@ -2,125 +2,67 @@ package com.example.easy_billing
 
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.ImageButton
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.ProductProfitRaw
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
+/**
+ * Profit-by-product chart page: a ranked "leaderboard" of products by net profit
+ * (replaces the old MPAndroidChart vertical bar chart with rotated x-axis labels).
+ */
 class ProfitChartActivity : AppCompatActivity() {
-
-    private lateinit var chart: BarChart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profit_chart)
 
-        chart = findViewById(R.id.barChart)
-
-        // 🔥 Close button
-        findViewById<ImageButton>(R.id.btnClose).setOnClickListener {
-            finish()
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
         }
+        // Themed back arrow (matches the rest of the app).
+        toolbar.setNavigationIcon(R.drawable.ic_back_arrow)
+        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        // 🔥 Get data from intent
-        val data = intent.getSerializableExtra("DATA") as? ArrayList<ProductProfitRaw>
+        val rv = findViewById<RecyclerView>(R.id.rvChart)
+        val tvEmpty = findViewById<TextView>(R.id.tvEmpty)
+        val tvTotal = findViewById<TextView>(R.id.tvTotalProfit)
+        val tvBest = findViewById<TextView>(R.id.tvBestProduct)
 
-        if (data != null) {
-            setupChart(data)
-        } else {
-            chart.clear()
-            chart.setNoDataText("No data available")
-        }
-    }
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
+        val data = (intent.getSerializableExtra("DATA") as? ArrayList<ProductProfitRaw>)
+            ?: arrayListOf()
 
-    private fun setupChart(data: List<ProductProfitRaw>) {
+        // Rank by net profit (highest first), keep the top 10.
+        val ranked = data.sortedByDescending { it.profit }.take(10)
 
-        if (data.isEmpty()) {
-            chart.clear()
-            chart.setNoDataText("No profit data")
+        if (ranked.isEmpty()) {
+            rv.visibility = View.GONE
+            tvEmpty.visibility = View.VISIBLE
+            tvTotal.text = "₹0"
+            tvBest.text = "—"
             return
         }
 
-        val topItems = data.take(10)
+        val total = ranked.sumOf { it.profit }
+        tvTotal.text = "₹${"%,.2f".format(total)}"
+        tvTotal.setTextColor(Color.parseColor(if (total < 0) "#A32D2D" else "#0F6E56"))
 
-        val entries = ArrayList<BarEntry>()
-        val labels = ArrayList<String>()
+        val best = ranked.first()
+        tvBest.text = if (best.variant.isNullOrBlank()) best.productName
+            else "${best.productName} (${best.variant})"
 
-        topItems.forEachIndexed { index, item ->
-            entries.add(BarEntry(index.toFloat(), item.profit.toFloat()))
+        rv.layoutManager = LinearLayoutManager(this)
+        rv.adapter = ProfitChartAdapter(ranked)
+    }
 
-            val label = if (item.variant.isNullOrBlank())
-                item.productName
-            else "${item.productName} (${item.variant})"
-
-            labels.add(label.take(10))
-        }
-
-        chart.clear()
-
-        // 🔥 COLOR BASED ON TREND
-        val isUpTrend = if (entries.size >= 2) {
-            entries.last().y >= entries[entries.lastIndex - 1].y
-        } else true
-
-        val barColor = if (isUpTrend)
-            Color.parseColor("#22C55E")
-        else
-            Color.parseColor("#EF4444")
-
-        val dataSet = BarDataSet(entries, "")
-        dataSet.color = barColor
-        dataSet.setDrawValues(false)
-
-        val barData = BarData(dataSet)
-        barData.barWidth = 0.55f
-
-        chart.data = barData
-
-        // ================= X AXIS =================
-        chart.xAxis.apply {
-            valueFormatter = IndexAxisValueFormatter(labels)
-            position = XAxis.XAxisPosition.BOTTOM
-
-            setDrawAxisLine(true)
-            axisLineColor = Color.parseColor("#374151")
-
-            setDrawGridLines(false)
-
-            textColor = Color.parseColor("#6B7280")
-            textSize = 10f
-
-            granularity = 1f
-            labelRotationAngle = -25f
-        }
-
-        // ================= Y AXIS =================
-        chart.axisLeft.apply {
-            setDrawAxisLine(true)
-            axisLineColor = Color.parseColor("#374151")
-
-            setDrawGridLines(true)
-            gridColor = Color.argb(25, 156, 163, 175)
-
-            textColor = Color.parseColor("#6B7280")
-            labelCount = 5
-        }
-
-        chart.axisRight.isEnabled = false
-
-        // ================= CLEAN =================
-        chart.description.isEnabled = false
-        chart.legend.isEnabled = false
-
-        // ================= INTERACTION =================
-        chart.setTouchEnabled(true)
-        chart.setScaleEnabled(true)
-
-        chart.animateY(800)
-
-        chart.invalidate()
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 }

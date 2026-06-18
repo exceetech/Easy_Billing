@@ -1,134 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="#F4F0E6">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            app:titleTextColor="?attr/colorOnSurface"
-            app:navigationIconTint="?attr/colorOnSurface" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
-        <!-- Title -->
-        <TextView
-            android:text="@string/store_information"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="24dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <!-- Store Name -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_store"
-            app:startIconTint="?attr/colorPrimary">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etStoreName"
-                android:hint="@string/store_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Shop Type Dropdown -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Business Type"
-            app:startIconDrawable="@drawable/ic_menu"
-            app:startIconTint="?attr/colorPrimary">
-
-            <AutoCompleteTextView
-                android:id="@+id/actShopType"
+            <!-- Title + Edit action -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
-                android:focusable="false"
-                android:clickable="true"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-        <!-- Store Address -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_location"
-            app:startIconTint="?attr/colorPrimary">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_information"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Name, address &amp; tax details"
+                        android:textColor="#6E6A60"
+                        android:textSize="12sp"/>
+                </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etStoreAddress"
-                android:hint="@string/store_address"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- Edit pill (toggles edit mode) -->
+                <LinearLayout
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_edit_pill"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
-        <!-- Phone -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_phone"
-            app:startIconTint="?attr/colorPrimary">
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#1A1A18"
+                        android:contentDescription="@string/edit"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etStorePhone"
-                android:hint="@string/phone_number"
-                android:inputType="phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
 
-        <!-- GSTIN -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_tax"
-            app:startIconTint="?attr/colorPrimary">
+            <!-- ===================== IDENTITY ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="IDENTITY"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etStoreGstin"
-                android:hint="@string/gstin"
-                android:textAllCaps="true"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout style="@style/AddCard">
 
-        <!-- Save Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
-            android:text="@string/save_changes"
-            android:textAllCaps="false"
-            android:textColor="?attr/colorPrimaryContainer"
-            android:layout_marginTop="28dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <!-- Store name -->
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/store_name"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_set_store" app:tint="#185FA5"/>
+                        <EditText
+                            android:id="@+id/etStoreName"
+                            style="@style/SiEdit"
+                            android:hint="@string/store_name"
+                            android:inputType="textCapWords"/>
+                    </LinearLayout>
+                </LinearLayout>
 
-    </LinearLayout>
+                <!-- Business type (themed dropdown) -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Business type"/>
+                    <LinearLayout
+                        android:id="@+id/rowShopType"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_category" app:tint="#534AB7"/>
+                        <TextView
+                            android:id="@+id/tvShopType"
+                            style="@style/SiValue"
+                            android:text="General"/>
+                        <ImageView
+                            android:id="@+id/icShopTypeChevron"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
 
-</ScrollView>
+            <!-- ===================== CONTACT ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="CONTACT"/>
+
+            <LinearLayout style="@style/AddCard">
+
+                <!-- Address -->
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/store_address"/>
+                    <LinearLayout style="@style/SiFieldBoxMulti">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_pin" app:tint="#0F6E56"/>
+                        <EditText
+                            android:id="@+id/etStoreAddress"
+                            style="@style/SiEditMulti"
+                            android:hint="@string/store_address"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Phone -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/phone_number"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_phone" app:tint="#BA7517"/>
+                        <EditText
+                            android:id="@+id/etStorePhone"
+                            style="@style/SiEdit"
+                            android:hint="@string/phone_number"
+                            android:inputType="phone"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== TAX ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="TAX"/>
+
+            <LinearLayout style="@style/AddCard">
+
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/gstin"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_tax" app:tint="#A32D2D"/>
+                        <EditText
+                            android:id="@+id/etStoreGstin"
+                            style="@style/SiEdit"
+                            android:hint="@string/gstin"
+                            android:textAllCaps="true"
+                            android:inputType="textCapCharacters"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginStart="2dp"
+                        android:text="State code auto-derived from GSTIN prefix"
+                        android:textColor="#9A968C"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Save -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                style="@style/SiSavePill"
+                android:text="@string/save_changes"
+                app:icon="@drawable/ic_lucide_check"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

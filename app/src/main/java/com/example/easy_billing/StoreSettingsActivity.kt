@@ -9,6 +9,7 @@ import com.example.easy_billing.db.GstProfile
 import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.ShopSettingsUpdateRequest
+import com.example.easy_billing.ui.ThemedDropdown
 import com.example.easy_billing.util.GstEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,9 +32,17 @@ class StoreSettingsActivity : BaseActivity() {
     private lateinit var etStorePhone: EditText
     private lateinit var etStoreGstin: EditText
 
-    private lateinit var actShopType: AutoCompleteTextView
+    private lateinit var rowShopType: View
+    private lateinit var tvShopType: TextView
+    private lateinit var icShopTypeChevron: ImageView
+    private lateinit var btnEdit: View
+    private lateinit var tvEdit: TextView
     private lateinit var btnSave: Button
 
+    private val shopTypeOptions = listOf("General", "Hotel", "Bakery", "Grocery")
+    private var selectedShopType = "General"
+
+    private var snapshot: StoreSnapshot? = null
     private var isEditMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,12 +64,18 @@ class StoreSettingsActivity : BaseActivity() {
      * ------------------------------------------------------------------ */
 
     private fun bindViews() {
-        etStoreName    = findViewById(R.id.etStoreName)
-        etStoreAddress = findViewById(R.id.etStoreAddress)
-        etStorePhone   = findViewById(R.id.etStorePhone)
-        etStoreGstin   = findViewById(R.id.etStoreGstin)
-        actShopType    = findViewById(R.id.actShopType)
-        btnSave        = findViewById(R.id.btnSave)
+        etStoreName       = findViewById(R.id.etStoreName)
+        etStoreAddress    = findViewById(R.id.etStoreAddress)
+        etStorePhone      = findViewById(R.id.etStorePhone)
+        etStoreGstin      = findViewById(R.id.etStoreGstin)
+        rowShopType       = findViewById(R.id.rowShopType)
+        tvShopType        = findViewById(R.id.tvShopType)
+        icShopTypeChevron = findViewById(R.id.icShopTypeChevron)
+        btnEdit           = findViewById(R.id.btnEdit)
+        tvEdit            = findViewById(R.id.tvEdit)
+        btnSave           = findViewById(R.id.btnSave)
+
+        btnEdit.setOnClickListener { toggleEditMode() }
     }
 
     private fun setEditMode(enabled: Boolean) {
@@ -72,36 +87,47 @@ class StoreSettingsActivity : BaseActivity() {
             it.isCursorVisible = enabled
         }
 
-        actShopType.isEnabled = enabled
-        actShopType.isFocusable = enabled
-        actShopType.isFocusableInTouchMode = enabled
-        actShopType.isClickable = enabled
-        actShopType.isCursorVisible = enabled
+        rowShopType.isEnabled = enabled
+        rowShopType.isClickable = enabled
+        rowShopType.alpha = if (enabled) 1f else 0.6f
+        icShopTypeChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
 
-        val til = actShopType.parent.parent
-            as? com.google.android.material.textfield.TextInputLayout
-        til?.isEndIconVisible = enabled
-        actShopType.alpha = if (enabled) 1f else 0.6f
-
+        tvEdit.text = if (enabled) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enabled) View.VISIBLE else View.GONE
     }
 
     private fun toggleEditMode() {
         isEditMode = !isEditMode
+        if (isEditMode) {
+            // Entering edit: snapshot current values so "Discard" can revert.
+            snapshot = StoreSnapshot(
+                etStoreName.text.toString(),
+                etStoreAddress.text.toString(),
+                etStorePhone.text.toString(),
+                etStoreGstin.text.toString(),
+                selectedShopType
+            )
+        } else {
+            // Discard: restore the snapshot taken when edit mode began.
+            snapshot?.let { s ->
+                etStoreName.setText(s.name)
+                etStoreAddress.setText(s.address)
+                etStorePhone.setText(s.phone)
+                etStoreGstin.setText(s.gstin)
+                applyShopType(s.type)
+            }
+        }
         setEditMode(isEditMode)
     }
 
-    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_edit, menu)
-        return true
-    }
+    private data class StoreSnapshot(
+        val name: String,
+        val address: String,
+        val phone: String,
+        val gstin: String,
+        val type: String
+    )
 
-    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_edit -> { toggleEditMode(); true }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     /* ------------------------------------------------------------------
      *  Load
@@ -121,14 +147,7 @@ class StoreSettingsActivity : BaseActivity() {
                     etStoreAddress.setText(it.address)
                     etStorePhone.setText(it.phone)
                     etStoreGstin.setText(it.gstin)
-
-                    val display = when (it.type) {
-                        "hotel"   -> "Hotel"
-                        "bakery"  -> "Bakery"
-                        "grocery" -> "Grocery"
-                        else      -> "General"
-                    }
-                    actShopType.setText(display, false)
+                    applyShopTypeFromStored(it.type)
                 }
             }
 
@@ -157,14 +176,7 @@ class StoreSettingsActivity : BaseActivity() {
                         etStoreAddress.setText(updated.address)
                         etStorePhone.setText(updated.phone)
                         etStoreGstin.setText(updated.gstin)
-
-                        val display = when (type.lowercase()) {
-                            "hotel"   -> "Hotel"
-                            "bakery"  -> "Bakery"
-                            "grocery" -> "Grocery"
-                            else      -> "General"
-                        }
-                        actShopType.setText(display, false)
+                        applyShopTypeFromStored(type)
                     }
                 }
             } catch (e: Exception) {
@@ -190,7 +202,7 @@ class StoreSettingsActivity : BaseActivity() {
         val phone   = etStorePhone.text.toString().trim()
         val gstin   = etStoreGstin.text.toString().trim().uppercase()
 
-        val type = when (actShopType.text.toString().lowercase()) {
+        val type = when (selectedShopType.lowercase()) {
             "hotel"   -> "hotel"
             "bakery"  -> "bakery"
             "grocery" -> "grocery"
@@ -300,10 +312,31 @@ class StoreSettingsActivity : BaseActivity() {
      * ------------------------------------------------------------------ */
 
     private fun setupShopTypeDropdown() {
-        val options = listOf("General", "Hotel", "Bakery", "Grocery")
-        val adapter = ArrayAdapter(
-            this, android.R.layout.simple_dropdown_item_1line, options
-        )
-        actShopType.setAdapter(adapter)
+        rowShopType.setOnClickListener {
+            val current = shopTypeOptions.indexOf(selectedShopType).coerceAtLeast(0)
+            ThemedDropdown.show(
+                anchor = rowShopType,
+                options = shopTypeOptions,
+                selectedIndex = current
+            ) { idx ->
+                applyShopType(shopTypeOptions[idx])
+            }
+        }
+    }
+
+    /** Sets the displayed business type from a stored value (e.g. "grocery"). */
+    private fun applyShopTypeFromStored(type: String?) {
+        val display = when (type?.lowercase()) {
+            "hotel"   -> "Hotel"
+            "bakery"  -> "Bakery"
+            "grocery" -> "Grocery"
+            else      -> "General"
+        }
+        applyShopType(display)
+    }
+
+    private fun applyShopType(display: String) {
+        selectedShopType = display
+        tvShopType.text = display
     }
 }

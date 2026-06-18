@@ -1,8 +1,6 @@
 package com.example.easy_billing
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.lifecycle.lifecycleScope
@@ -10,39 +8,54 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.BillingSettings
 import com.example.easy_billing.db.GstProfile
 import com.example.easy_billing.network.*
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.example.easy_billing.ui.ThemedDropdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class BillingSettingsActivity : BaseActivity() {
 
-    // GST
-    private lateinit var etGstin: TextInputEditText
-    private lateinit var etLegalName: TextInputEditText
-    private lateinit var etTradeName: TextInputEditText
-    private lateinit var spScheme: AutoCompleteTextView
-    private lateinit var spRegType: AutoCompleteTextView
-    private lateinit var etStateCode: TextInputEditText
-    private lateinit var etAddress: TextInputEditText
+    // GST text fields
+    private lateinit var etGstin: EditText
+    private lateinit var etLegalName: EditText
+    private lateinit var etTradeName: EditText
+    private lateinit var etStateCode: EditText
+    private lateinit var etAddress: EditText
 
-    private lateinit var tilScheme: TextInputLayout
-    private lateinit var tilRegType: TextInputLayout
-    private lateinit var tilPrinter: TextInputLayout
+    // Themed dropdown rows
+    private lateinit var rowScheme: View
+    private lateinit var tvScheme: TextView
+    private lateinit var icSchemeChevron: ImageView
 
-    // Printer
-    private lateinit var spPrinter: AutoCompleteTextView
+    private lateinit var rowRegType: View
+    private lateinit var tvRegType: TextView
+    private lateinit var icRegTypeChevron: ImageView
+
+    private lateinit var rowPrinter: View
+    private lateinit var tvPrinter: TextView
+    private lateinit var icPrinterChevron: ImageView
+
+    private lateinit var btnEdit: View
+    private lateinit var tvEdit: TextView
     private lateinit var btnSave: Button
 
     private var isEditMode = false
+    private var snapshot: BillingSnapshot? = null
+
+    private val schemeOptions  = listOf("REGULAR", "COMPOSITION")
+    private val regTypeOptions = listOf("Regular", "Composition", "Casual", "SEZ", "Non-Resident")
+    private val printerOptions = listOf("80mm", "A4")
+
+    private var selectedScheme  = "REGULAR"
+    private var selectedRegType = "Regular"
+    private var selectedPrinter = "80mm"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_billing_settings)
 
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = " "
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         bindViews()
         setupDropdowns()
@@ -51,87 +64,88 @@ class BillingSettingsActivity : BaseActivity() {
         setupSave()
     }
 
-    // ---------------- MENU ----------------
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_edit, menu); return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_edit) {
-            toggleEditMode(); return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.action_edit)?.title =
-            if (isEditMode) "Done" else "Click here to Edit"
-        return super.onPrepareOptionsMenu(menu)
-    }
-
     // ---------------- BIND ----------------
 
     private fun bindViews() {
         etGstin     = findViewById(R.id.etGstin)
         etLegalName = findViewById(R.id.etLegalName)
         etTradeName = findViewById(R.id.etTradeName)
-        spScheme    = findViewById(R.id.spScheme)
-        spRegType   = findViewById(R.id.spRegType)
         etStateCode = findViewById(R.id.etStateCode)
         etAddress   = findViewById(R.id.etAddress)
 
-        spPrinter   = findViewById(R.id.spPrinterLayout)
-        btnSave     = findViewById(R.id.btnSaveBilling)
+        rowScheme        = findViewById(R.id.rowScheme)
+        tvScheme         = findViewById(R.id.tvScheme)
+        icSchemeChevron  = findViewById(R.id.icSchemeChevron)
 
-        tilScheme  = findViewById(R.id.tilScheme)
-        tilRegType = findViewById(R.id.tilRegType)
-        tilPrinter = findViewById(R.id.tilPrinter)
+        rowRegType       = findViewById(R.id.rowRegType)
+        tvRegType        = findViewById(R.id.tvRegType)
+        icRegTypeChevron = findViewById(R.id.icRegTypeChevron)
+
+        rowPrinter       = findViewById(R.id.rowPrinter)
+        tvPrinter        = findViewById(R.id.tvPrinter)
+        icPrinterChevron = findViewById(R.id.icPrinterChevron)
+
+        btnEdit = findViewById(R.id.btnEdit)
+        tvEdit  = findViewById(R.id.tvEdit)
+        btnSave = findViewById(R.id.btnSaveBilling)
+
+        btnEdit.setOnClickListener { toggleEditMode() }
     }
+
+    // ---------------- DROPDOWNS (themed) ----------------
 
     private fun setupDropdowns() {
-        spScheme.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_list_item_1,
-                listOf("REGULAR", "COMPOSITION"))
-        )
-        spRegType.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_list_item_1,
-                listOf("Regular", "Composition", "Casual", "SEZ", "Non-Resident"))
-        )
-        spPrinter.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_list_item_1,
-                listOf("80mm", "A4"))
-        )
+        rowScheme.setOnClickListener {
+            ThemedDropdown.show(
+                anchor = rowScheme,
+                options = schemeOptions,
+                selectedIndex = schemeOptions.indexOf(selectedScheme).coerceAtLeast(0)
+            ) { idx -> applyScheme(schemeOptions[idx]) }
+        }
+        rowRegType.setOnClickListener {
+            ThemedDropdown.show(
+                anchor = rowRegType,
+                options = regTypeOptions,
+                selectedIndex = regTypeOptions.indexOf(selectedRegType).coerceAtLeast(0)
+            ) { idx -> applyRegType(regTypeOptions[idx]) }
+        }
+        rowPrinter.setOnClickListener {
+            ThemedDropdown.show(
+                anchor = rowPrinter,
+                options = printerOptions,
+                selectedIndex = printerOptions.indexOf(selectedPrinter).coerceAtLeast(0)
+            ) { idx -> applyPrinter(printerOptions[idx]) }
+        }
     }
+
+    private fun applyScheme(v: String)  { selectedScheme = v;  tvScheme.text = v }
+    private fun applyRegType(v: String) { selectedRegType = v; tvRegType.text = v }
+    private fun applyPrinter(v: String) { selectedPrinter = v; tvPrinter.text = v }
 
     // ---------------- LOAD ----------------
 
     private fun loadData() {
-
         lifecycleScope.launch(Dispatchers.IO) {
 
             val db = AppDatabase.getDatabase(this@BillingSettingsActivity)
             val localGst = db.gstProfileDao().get()
             val billing  = db.billingSettingsDao().get()
 
-            // ✅ Load ROOM first
             withContext(Dispatchers.Main) {
                 etGstin.setText(localGst?.gstin.orEmpty())
                 etLegalName.setText(localGst?.legalName.orEmpty())
                 etTradeName.setText(localGst?.tradeName.orEmpty())
-                spScheme.setText(localGst?.gstScheme ?: "REGULAR", false)
-                spRegType.setText(localGst?.registrationType ?: "Regular", false)
                 etStateCode.setText(localGst?.stateCode.orEmpty())
                 etAddress.setText(localGst?.address.orEmpty())
-                spPrinter.setText(billing?.printerLayout ?: "80mm", false)
+                applyScheme(localGst?.gstScheme ?: "REGULAR")
+                applyRegType(localGst?.registrationType ?: "Regular")
+                applyPrinter(billing?.printerLayout ?: "80mm")
             }
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
 
             try {
-
-                // ✅ FETCH GST PROFILE FROM BACKEND
                 val gstResp = RetrofitClient.api.getGstProfile(token)
 
                 val updatedGst = GstProfile(
@@ -145,51 +159,66 @@ class BillingSettingsActivity : BaseActivity() {
                     syncStatus = "synced",
                     updatedAt = System.currentTimeMillis()
                 )
-
                 db.gstProfileDao().insert(updatedGst)
 
                 val billingResp = RetrofitClient.api.getBillingSettings(token)
-
                 val updatedBilling = (billing ?: BillingSettings(
                     defaultGst = 0f,
                     printerLayout = billingResp.printer_layout
                 )).copy(printerLayout = billingResp.printer_layout)
-
                 db.billingSettingsDao().insert(updatedBilling)
 
                 withContext(Dispatchers.Main) {
-
                     etGstin.setText(updatedGst.gstin)
                     etLegalName.setText(updatedGst.legalName)
                     etTradeName.setText(updatedGst.tradeName)
-                    spScheme.setText(updatedGst.gstScheme, false)
-                    spRegType.setText(updatedGst.registrationType, false)
                     etStateCode.setText(updatedGst.stateCode)
                     etAddress.setText(updatedGst.address)
-
-                    spPrinter.setText(updatedBilling.printerLayout, false)
+                    applyScheme(updatedGst.gstScheme)
+                    applyRegType(updatedGst.registrationType)
+                    applyPrinter(updatedBilling.printerLayout)
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    // ---------------- EDIT ----------------
+    // ---------------- EDIT / DISCARD ----------------
 
     private fun toggleEditMode() {
         isEditMode = !isEditMode
+        if (isEditMode) {
+            // Entering edit: snapshot so "Discard" can revert. GSTIN excluded (locked).
+            snapshot = BillingSnapshot(
+                legalName = etLegalName.text.toString(),
+                tradeName = etTradeName.text.toString(),
+                stateCode = etStateCode.text.toString(),
+                address = etAddress.text.toString(),
+                scheme = selectedScheme,
+                regType = selectedRegType,
+                printer = selectedPrinter
+            )
+        } else {
+            snapshot?.let { s ->
+                etLegalName.setText(s.legalName)
+                etTradeName.setText(s.tradeName)
+                etStateCode.setText(s.stateCode)
+                etAddress.setText(s.address)
+                applyScheme(s.scheme)
+                applyRegType(s.regType)
+                applyPrinter(s.printer)
+            }
+        }
         setEditable(isEditMode)
-        invalidateOptionsMenu()
     }
 
     private fun setEditable(enable: Boolean) {
 
+        // GSTIN is always read-only (entered in Store Information).
         etGstin.isEnabled = false
 
         listOf(etLegalName, etTradeName, etStateCode, etAddress).forEach {
-
             it.isEnabled = enable
             it.isFocusable = enable
             it.isFocusableInTouchMode = enable
@@ -198,27 +227,17 @@ class BillingSettingsActivity : BaseActivity() {
             it.alpha = if (enable) 1f else 0.6f
         }
 
-        fun controlDropdown(
-            view: AutoCompleteTextView,
-            layout: TextInputLayout
-        ) {
-            view.isEnabled = enable
-
-            if (!enable) {
-                view.setOnTouchListener { _, _ -> true }
-                layout.endIconMode = TextInputLayout.END_ICON_NONE
-            } else {
-                view.setOnTouchListener(null)
-                layout.endIconMode = TextInputLayout.END_ICON_DROPDOWN_MENU
-            }
-
-            view.alpha = if (enable) 1f else 0.6f
+        fun controlRow(row: View, chevron: View) {
+            row.isEnabled = enable
+            row.isClickable = enable
+            row.alpha = if (enable) 1f else 0.6f
+            chevron.visibility = if (enable) View.VISIBLE else View.INVISIBLE
         }
+        controlRow(rowScheme, icSchemeChevron)
+        controlRow(rowRegType, icRegTypeChevron)
+        controlRow(rowPrinter, icPrinterChevron)
 
-        controlDropdown(spScheme, tilScheme)
-        controlDropdown(spRegType, tilRegType)
-        controlDropdown(spPrinter, tilPrinter)
-
+        tvEdit.text = if (enable) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enable) View.VISIBLE else View.GONE
     }
 
@@ -231,7 +250,6 @@ class BillingSettingsActivity : BaseActivity() {
     }
 
     private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
-
         val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
 
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
@@ -240,7 +258,6 @@ class BillingSettingsActivity : BaseActivity() {
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView).create()
-
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnVerify.setOnClickListener {
@@ -254,14 +271,11 @@ class BillingSettingsActivity : BaseActivity() {
                 onVerified()
             }
         }
-
         btnCancel.setOnClickListener { dialog.dismiss() }
-
         dialog.show()
     }
 
     private fun saveBillingSettings() {
-
         lifecycleScope.launch(Dispatchers.IO) {
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
@@ -270,17 +284,13 @@ class BillingSettingsActivity : BaseActivity() {
             val db = AppDatabase.getDatabase(this@BillingSettingsActivity)
 
             // ================= PRINTER =================
-            val printer = spPrinter.text.toString().ifEmpty { "80mm" }
+            val printer = selectedPrinter.ifEmpty { "80mm" }
 
             val existingBilling = db.billingSettingsDao().get()
-
             val updatedBilling = (existingBilling ?: BillingSettings(
                 defaultGst = 0f,
                 printerLayout = printer
-            )).copy(
-                printerLayout = printer
-            )
-
+            )).copy(printerLayout = printer)
             db.billingSettingsDao().insert(updatedBilling)
 
             // ================= GST =================
@@ -288,20 +298,17 @@ class BillingSettingsActivity : BaseActivity() {
                 gstin = etGstin.text.toString(),
                 legalName = etLegalName.text.toString(),
                 tradeName = etTradeName.text.toString(),
-                gstScheme = spScheme.text.toString(),
-                registrationType = spRegType.text.toString(),
+                gstScheme = selectedScheme,
+                registrationType = selectedRegType,
                 stateCode = etStateCode.text.toString(),
                 address = etAddress.text.toString(),
                 syncStatus = "pending",
                 updatedAt = System.currentTimeMillis()
             )
-
             db.gstProfileDao().insert(updatedGst)
 
             // ================= BACKEND SYNC =================
             if (token != null) {
-
-                // ---- GST PROFILE ----
                 runCatching {
                     RetrofitClient.api.upsertGstProfile(
                         token,
@@ -318,7 +325,6 @@ class BillingSettingsActivity : BaseActivity() {
                     db.gstProfileDao().updateSyncStatus("synced")
                 }
 
-                // ---- PRINTER SETTINGS ----
                 runCatching {
                     RetrofitClient.api.updateBillingSettings(
                         token,
@@ -349,4 +355,14 @@ class BillingSettingsActivity : BaseActivity() {
             }
         }
     }
+
+    private data class BillingSnapshot(
+        val legalName: String,
+        val tradeName: String,
+        val stateCode: String,
+        val address: String,
+        val scheme: String,
+        val regType: String,
+        val printer: String
+    )
 }

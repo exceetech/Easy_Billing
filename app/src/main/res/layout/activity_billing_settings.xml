@@ -1,207 +1,291 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="#F4F0E6">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            app:titleTextColor="?attr/colorOnSurface"
-            app:navigationIconTint="?attr/colorOnSurface" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
-        <!-- Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:text="@string/billing_settings"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="24sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="@string/billing_settings_subtitle"
-            android:textColor="#6B7280"
-            android:textSize="13sp"/>
-
-        <!-- =================== GST PROFILE =================== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:text="@string/profile_gst_section"
-            android:textColor="#6B7280"
-            android:textSize="13sp"
-            android:textStyle="bold"/>
-
-        <!-- GSTIN (read-only — entered in Store Settings) -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/profile_label_gstin"
-            app:helperText="@string/billing_gstin_helper"
-            app:helperTextEnabled="true">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etGstin"
+            <!-- Title + Edit action -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="false"
-                android:enabled="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <!-- Legal name -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/profile_label_legal_name">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etLegalName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/billing_settings"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="GST profile &amp; print layout"
+                        android:textColor="#6E6A60"
+                        android:textSize="12sp"/>
+                </LinearLayout>
 
-        <!-- Trade name -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/profile_label_trade_name">
+                <!-- Edit pill (toggles edit mode) -->
+                <LinearLayout
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_edit_pill"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etTradeName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#1A1A18"
+                        android:contentDescription="@string/edit"/>
 
-        <!-- GST scheme -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilScheme"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/profile_label_scheme"
-            app:endIconMode="dropdown_menu">
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
 
-            <AutoCompleteTextView
-                android:id="@+id/spScheme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:focusable="false"
-                android:clickable="true"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            <!-- ===================== GST PROFILE ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="GST PROFILE"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilRegType"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/profile_label_reg_type"
-            app:endIconMode="dropdown_menu">
+            <LinearLayout style="@style/AddCard">
 
-            <AutoCompleteTextView
-                android:id="@+id/spRegType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:focusable="false"
-                android:clickable="true"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- GSTIN (locked) -->
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="GSTIN"/>
+                    <LinearLayout style="@style/SiFieldBox"
+                        android:background="@drawable/bg_add_field_locked">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_tax" app:tint="#A32D2D"/>
+                        <EditText
+                            android:id="@+id/etGstin"
+                            style="@style/SiEdit"
+                            android:textColor="#6E6A60"
+                            android:letterSpacing="0.03"
+                            android:enabled="false"
+                            android:focusable="false"/>
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_si_lock"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginStart="2dp"
+                        android:text="Set in Store Information"
+                        android:textColor="#9A968C"
+                        android:textSize="11sp"/>
+                </LinearLayout>
 
-        <!-- State code -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/profile_label_state">
+                <!-- Legal name -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Legal name"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_building" app:tint="#185FA5"/>
+                        <EditText
+                            android:id="@+id/etLegalName"
+                            style="@style/SiEdit"
+                            android:hint="@string/profile_label_legal_name"
+                            android:inputType="textCapWords"/>
+                    </LinearLayout>
+                </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etStateCode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="2"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- Trade name -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Trade name"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_set_store" app:tint="#534AB7"/>
+                        <EditText
+                            android:id="@+id/etTradeName"
+                            style="@style/SiEdit"
+                            android:hint="@string/profile_label_trade_name"
+                            android:inputType="textCapWords"/>
+                    </LinearLayout>
+                </LinearLayout>
 
-        <!-- Address -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/profile_label_address">
+                <!-- GST scheme + State code (row) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="13dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine|textCapSentences"
-                android:minLines="2"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/SiFieldLabel" android:text="GST scheme"/>
+                        <LinearLayout
+                            android:id="@+id/rowScheme"
+                            style="@style/SiFieldBox"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackground">
+                            <ImageView style="@style/SiIcon"
+                                android:src="@drawable/ic_si_layers" app:tint="#0F6E56"/>
+                            <TextView
+                                android:id="@+id/tvScheme"
+                                style="@style/SiValue"
+                                android:text="REGULAR"/>
+                            <ImageView
+                                android:id="@+id/icSchemeChevron"
+                                android:layout_width="17dp"
+                                android:layout_height="17dp"
+                                android:src="@drawable/ic_chevron_down"
+                                app:tint="#C9C3B4"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+                    </LinearLayout>
 
-        <!-- =================== PRINTER =================== -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:layout_marginBottom="6dp"
-            android:text="@string/printer_section"
-            android:textColor="#6B7280"
-            android:textSize="13sp"
-            android:textStyle="bold"/>
+                    <LinearLayout
+                        android:layout_width="96dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView style="@style/SiFieldLabel" android:text="State code"/>
+                        <LinearLayout style="@style/SiFieldBox">
+                            <ImageView style="@style/SiIcon"
+                                android:src="@drawable/ic_si_pin" app:tint="#185FA5"/>
+                            <EditText
+                                android:id="@+id/etStateCode"
+                                style="@style/SiEdit"
+                                android:inputType="number"
+                                android:maxLength="2"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilPrinter"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/ic_print"
-            app:startIconTint="?attr/colorPrimary"
-            app:endIconMode="dropdown_menu">
+                <!-- Registration type -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Registration type"/>
+                    <LinearLayout
+                        android:id="@+id/rowRegType"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_badge" app:tint="#BA7517"/>
+                        <TextView
+                            android:id="@+id/tvRegType"
+                            style="@style/SiValue"
+                            android:text="Regular"/>
+                        <ImageView
+                            android:id="@+id/icRegTypeChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
 
-            <AutoCompleteTextView
-                android:id="@+id/spPrinterLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/printer_layout"
-                android:inputType="none"
-                android:focusable="false"
-                android:clickable="true"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- Address -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_address"/>
+                    <LinearLayout style="@style/SiFieldBoxMulti">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_map" app:tint="#0F6E56"/>
+                        <EditText
+                            android:id="@+id/etAddress"
+                            style="@style/SiEditMulti"
+                            android:hint="@string/profile_label_address"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
 
-        <!-- Save -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveBilling"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="@string/save_billing_settings"
-            android:textAllCaps="false"/>
-    </LinearLayout>
-</ScrollView>
+            <!-- ===================== PRINTER ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="PRINTER"/>
+
+            <LinearLayout style="@style/AddCard">
+
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="Print layout"/>
+                    <LinearLayout
+                        android:id="@+id/rowPrinter"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_printer" app:tint="#993C1D"/>
+                        <TextView
+                            android:id="@+id/tvPrinter"
+                            style="@style/SiValue"
+                            android:text="80mm"/>
+                        <ImageView
+                            android:id="@+id/icPrinterChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Save -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveBilling"
+                style="@style/SiSavePill"
+                android:text="@string/save_billing_settings"
+                app:icon="@drawable/ic_lucide_check"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

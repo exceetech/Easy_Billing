@@ -53,9 +53,9 @@ class ProfitAdapter(
 
         holder.profit.setTextColor(
             if (item.profit < 0)
-                Color.RED
+                Color.parseColor("#A32D2D") // theme red
             else
-                Color.parseColor("#16A34A") // green
+                Color.parseColor("#0F6E56") // theme green
         )
 
         // ================= CLICK =================

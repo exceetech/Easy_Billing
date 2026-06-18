@@ -1,87 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="#F4F0E6">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            app:titleTextColor="?attr/colorOnSurface"
-            app:navigationIconTint="?attr/colorOnSurface" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
 
-        <!-- Title -->
-        <TextView
-            android:text="@string/data_and_security"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="28dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <!-- Title + Unlock action -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <!-- 🟢 LOW RISK -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnChangePassword"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/change_login_password"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="16dp"
-            app:cornerRadius="18dp"
-            app:icon="@drawable/ic_lock"
-            app:iconPadding="16dp"
-            app:iconTint="@android:color/white"
-            app:backgroundTint="#2E7D32" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-        <!-- 🟡 MEDIUM RISK -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnClearBills"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/clear_all_bills"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="16dp"
-            app:cornerRadius="18dp"
-            app:icon="@drawable/ic_clear"
-            app:iconPadding="16dp"
-            app:iconTint="@android:color/black"
-            app:backgroundTint="#FBC02D" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/data_and_security"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Protected actions for your workspace"
+                        android:textColor="#6E6A60"
+                        android:textSize="12sp"/>
+                </LinearLayout>
 
-        <!-- 🟠 HIGH RISK -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnFactoryReset"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/factory_reset_app"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            app:cornerRadius="18dp"
-            app:icon="@drawable/ic_clean"
-            app:iconPadding="16dp"
-            app:iconTint="@android:color/white"
-            app:backgroundTint="#D84315" />
+                <!-- Unlock / Lock pill -->
+                <LinearLayout
+                    android:id="@+id/btnUnlock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_edit_pill"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
-    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/icUnlock"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_lock"
+                        app:tint="#1A1A18"
+                        android:contentDescription="@null"/>
 
-</ScrollView>
+                    <TextView
+                        android:id="@+id/tvUnlock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Unlock"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Helper -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:paddingHorizontal="4dp">
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginEnd="7dp"
+                    android:src="@drawable/ic_info_circle"
+                    app:tint="#9A968C"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tap Unlock, then confirm your password to run an action."
+                    android:textColor="#9A968C"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="1dp"/>
+            </LinearLayout>
+
+            <!-- ===================== SECURITY ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="SECURITY"/>
+
+            <LinearLayout android:id="@+id/btnChangePassword" style="@style/DsCard">
+                <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                    android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
+                <LinearLayout style="@style/DsText">
+                    <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
+                    <TextView style="@style/DsSub" android:text="Update your login PIN"/>
+                </LinearLayout>
+                <TextView style="@style/DsChip"
+                    android:background="@drawable/bg_chip_low"
+                    android:textColor="#3B6D11"
+                    android:text="LOW"/>
+                <ImageView android:id="@+id/icChangePassword" style="@style/DsTrailing"
+                    android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+            </LinearLayout>
+
+            <!-- ===================== DATA ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="DATA"/>
+
+            <LinearLayout android:id="@+id/btnClearBills" style="@style/DsCard">
+                <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                    android:src="@drawable/ic_si_archive" app:tint="#BA7517"/>
+                <LinearLayout style="@style/DsText">
+                    <TextView style="@style/DsTitle" android:text="@string/clear_all_bills"/>
+                    <TextView style="@style/DsSub" android:text="Archive &amp; remove bill history"/>
+                </LinearLayout>
+                <TextView style="@style/DsChip"
+                    android:background="@drawable/bg_chip_med"
+                    android:textColor="#854F0B"
+                    android:text="MEDIUM"/>
+                <ImageView android:id="@+id/icClearBills" style="@style/DsTrailing"
+                    android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+            </LinearLayout>
+
+            <!-- ===================== DANGER ZONE ===================== -->
+            <TextView style="@style/AddSectionLabel"
+                android:text="DANGER ZONE"
+                android:textColor="#A32D2D"/>
+
+            <LinearLayout android:id="@+id/btnFactoryReset" style="@style/DsCard"
+                android:background="@drawable/bg_danger_card">
+                <ImageView style="@style/SettingsIcon" android:backgroundTint="#FCEBEB"
+                    android:src="@drawable/ic_si_alert" app:tint="#A32D2D"/>
+                <LinearLayout style="@style/DsText">
+                    <TextView style="@style/DsTitle"
+                        android:textColor="#A32D2D"
+                        android:text="@string/factory_reset_app"/>
+                    <TextView style="@style/DsSub" android:text="Wipe workspace &amp; start fresh"/>
+                </LinearLayout>
+                <TextView style="@style/DsChip"
+                    android:background="@drawable/bg_chip_high"
+                    android:textColor="#A32D2D"
+                    android:text="HIGH"/>
+                <ImageView android:id="@+id/icFactoryReset" style="@style/DsTrailing"
+                    android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

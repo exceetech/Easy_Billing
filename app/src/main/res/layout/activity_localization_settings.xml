@@ -1,163 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
-
-    <!-- Toolbar -->
+    android:background="#F4F0E6">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#FAFAFA"
+        android:background="@android:color/transparent"
         android:elevation="0dp"
-        app:navigationIconTint="@color/textPrimary"
-        app:titleTextColor="@color/textPrimary"/>
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
 
-            <!-- LANGUAGE -->
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardLanguage"
+            <!-- Title + Edit action -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#EEF2FF"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_language"
-                        android:contentDescription="@null"
-                        app:tint="#6366F1"/>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
-
-                        <TextView
-                            android:text="@string/language"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:textColor="@color/textPrimary"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spLanguage"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:textColor="#6B7280"
-                            android:focusable="false"/>
-
-                    </LinearLayout>
-
+                        android:text="Language &amp; currency"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Display language and currency symbol"
+                        android:textColor="#6E6A60"
+                        android:textSize="12sp"/>
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
-
-
-
-            <!-- CURRENCY -->
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCurrency"
-                android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="22dp"
-                app:cardBackgroundColor="#FFF4E5"
-                app:strokeColor="#FFFFFF"
-                app:strokeWidth="3dp">
-
+                <!-- Edit pill (toggles edit mode) -->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp">
+                    android:background="@drawable/bg_edit_pill"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_currency"
-                        android:contentDescription="@null"
-                        app:tint="#F59E0B"/>
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#1A1A18"
+                        android:contentDescription="@string/edit"/>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:text="@string/edit"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
 
+            <!-- ===================== PREFERENCES ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="PREFERENCES"/>
+
+            <LinearLayout style="@style/AddCard">
+
+                <!-- Language -->
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/language"/>
+                    <LinearLayout
+                        android:id="@+id/rowLanguage"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_set_languages" app:tint="#534AB7"/>
                         <TextView
-                            android:text="@string/currency"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:textColor="@color/textPrimary"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spCurrency"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:textColor="#6B7280"
-                            android:focusable="false"/>
-
+                            android:id="@+id/tvLanguage"
+                            style="@style/SiValue"
+                            android:text="English"/>
+                        <ImageView
+                            android:id="@+id/icLanguageChevron"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
                     </LinearLayout>
-
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+                <!-- Currency -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/currency"/>
+                    <LinearLayout
+                        android:id="@+id/rowCurrency"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_currency" app:tint="#BA7517"/>
+                        <TextView
+                            android:id="@+id/tvCurrency"
+                            style="@style/SiValue"
+                            android:text="₹ INR"/>
+                        <ImageView
+                            android:id="@+id/icCurrencyChevron"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
 
+            <!-- Restart note -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:paddingHorizontal="4dp">
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginEnd="7dp"
+                    android:src="@drawable/ic_info_circle"
+                    app:tint="#9A968C"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="The app restarts to apply a new language or currency."
+                    android:textColor="#9A968C"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="1dp"/>
+            </LinearLayout>
 
-            <!-- SAVE BUTTON -->
-
+            <!-- Save -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveLocalization"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="20dp"
+                style="@style/SiSavePill"
                 android:text="@string/save_changes"
-                android:visibility="gone"
-                style="@style/Widget.Material3.Button"/>
+                app:icon="@drawable/ic_lucide_check"
+                android:visibility="gone"/>
 
         </LinearLayout>
-
     </ScrollView>
-
 </LinearLayout>

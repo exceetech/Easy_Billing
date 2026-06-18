@@ -1,46 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingHorizontal="12dp"
-    android:background="@android:color/white">
+    android:paddingVertical="13dp"
+    android:background="?attr/selectableItemBackground"
+    android:baselineAligned="false">
 
     <!-- PRODUCT NAME -->
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:text="Product Name"
-        android:textSize="14sp"
-        android:textColor="#111827"
-        android:textStyle="bold"
-        android:maxLines="1"
-        android:ellipsize="end"/>
-
-    <!-- QTY -->
-    <TextView
-        android:id="@+id/tvQty"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="10 kg"
-        android:textSize="13sp"
-        android:textColor="#6B7280"
-        android:gravity="center"/>
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product name"
+            android:textSize="14sp"
+            android:textColor="#1A1A18"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+        <TextView
+            android:id="@+id/tvQty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="10 kg"
+            android:textSize="11sp"
+            android:textColor="#9A968C"/>
+    </LinearLayout>
 
     <!-- PROFIT -->
     <TextView
         android:id="@+id/tvProfit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:text="₹1200"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:textStyle="bold"
-        android:textColor="#16A34A"/>
+        android:textColor="#0F6E56"/>
 
 </LinearLayout>

@@ -3,8 +3,7 @@ package com.example.easy_billing
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
-import android.view.Menu
-import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -18,9 +17,17 @@ import kotlinx.coroutines.withContext
 
 class DataSecurityActivity : BaseActivity() {
 
-    private lateinit var btnClearBills: Button
-    private lateinit var btnFactoryReset: Button
-    private lateinit var btnChangePassword: Button
+    private lateinit var btnClearBills: View
+    private lateinit var btnFactoryReset: View
+    private lateinit var btnChangePassword: View
+
+    private lateinit var icChangePassword: ImageView
+    private lateinit var icClearBills: ImageView
+    private lateinit var icFactoryReset: ImageView
+
+    private lateinit var btnUnlock: View
+    private lateinit var tvUnlock: TextView
+    private lateinit var icUnlock: ImageView
 
     private var isEditMode = false
 
@@ -29,81 +36,64 @@ class DataSecurityActivity : BaseActivity() {
         setContentView(R.layout.activity_data_security)
 
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = " "
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        btnClearBills = findViewById(R.id.btnClearBills)
-        btnFactoryReset = findViewById(R.id.btnFactoryReset)
+        btnClearBills     = findViewById(R.id.btnClearBills)
+        btnFactoryReset   = findViewById(R.id.btnFactoryReset)
         btnChangePassword = findViewById(R.id.btnChangePassword)
 
-        disableAllButtons()
+        icChangePassword = findViewById(R.id.icChangePassword)
+        icClearBills     = findViewById(R.id.icClearBills)
+        icFactoryReset   = findViewById(R.id.icFactoryReset)
 
-        btnClearBills.setOnClickListener {
+        btnUnlock = findViewById(R.id.btnUnlock)
+        tvUnlock  = findViewById(R.id.tvUnlock)
+        icUnlock  = findViewById(R.id.icUnlock)
 
-            showPasswordVerificationDialog {
-                clearBills()
-            }
+        setLocked(true)
 
-        }
+        btnUnlock.setOnClickListener { toggleLock() }
 
-        btnFactoryReset.setOnClickListener {
-
-            showPasswordVerificationDialog {
-                performFactoryReset()
-            }
-
-        }
-
+        // Each action stays gated: locked guard + per-action password verification.
         btnChangePassword.setOnClickListener {
-
-            showPasswordVerificationDialog {
-                showChangePinDialog()
-            }
-
+            if (!isEditMode) return@setOnClickListener
+            showPasswordVerificationDialog { showChangePinDialog() }
+        }
+        btnClearBills.setOnClickListener {
+            if (!isEditMode) return@setOnClickListener
+            showPasswordVerificationDialog { clearBills() }
+        }
+        btnFactoryReset.setOnClickListener {
+            if (!isEditMode) return@setOnClickListener
+            showPasswordVerificationDialog { performFactoryReset() }
         }
     }
 
-    // ================= MENU =================
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_edit, menu)
-        return true
-    }
+    // ================= LOCK / UNLOCK =================
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_edit) {
-            toggleEditMode()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun toggleEditMode() {
+    private fun toggleLock() {
         isEditMode = !isEditMode
+        setLocked(!isEditMode)
+    }
 
-        if (isEditMode) {
-            enableAllButtons()
-        } else {
-            disableAllButtons()
+    /** locked = actions disabled (default); unlocked = actions tappable. */
+    private fun setLocked(locked: Boolean) {
+        val rows = listOf(btnChangePassword, btnClearBills, btnFactoryReset)
+        rows.forEach {
+            it.isEnabled = !locked
+            it.isClickable = !locked
+            it.alpha = if (locked) 0.55f else 1f
         }
-    }
 
-    private fun disableAllButtons() {
-        btnClearBills.isEnabled = false
-        btnFactoryReset.isEnabled = false
-        btnChangePassword.isEnabled = false
+        // Trailing glyph: lock when locked, chevron when unlocked.
+        val trailing = if (locked) R.drawable.ic_si_lock else R.drawable.ic_chevron_right
+        listOf(icChangePassword, icClearBills, icFactoryReset).forEach {
+            it.setImageResource(trailing)
+        }
 
-        btnClearBills.alpha = 0.5f
-        btnFactoryReset.alpha = 0.5f
-        btnChangePassword.alpha = 0.5f
-    }
-
-    private fun enableAllButtons() {
-        btnClearBills.isEnabled = true
-        btnFactoryReset.isEnabled = true
-        btnChangePassword.isEnabled = true
-
-        btnClearBills.alpha = 1f
-        btnFactoryReset.alpha = 1f
-        btnChangePassword.alpha = 1f
+        // Pill reflects the action the user can take next.
+        tvUnlock.text = if (locked) "Unlock" else "Lock"
+        icUnlock.setImageResource(if (locked) R.drawable.ic_si_lock else R.drawable.ic_si_unlock)
     }
 
     // ================= LOGIC =================
