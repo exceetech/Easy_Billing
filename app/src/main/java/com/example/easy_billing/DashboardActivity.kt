@@ -62,6 +62,8 @@ class DashboardActivity : BaseActivity() {
     private lateinit var etSearch: EditText
     private lateinit var tvWelcome: TextView
     private lateinit var tvDrawerNameBase: TextView
+    private lateinit var tvDrawerSales: TextView
+    private lateinit var tvDrawerBills: TextView
 
     private lateinit var vpAiInsights: androidx.viewpager2.widget.ViewPager2
     private lateinit var fabAiInsights: View
@@ -318,6 +320,7 @@ class DashboardActivity : BaseActivity() {
                 // Refresh UI from the freshly-synced local DB.
                 loadProducts()        // 🔥 refresh stock in tiles
                 loadStoreFromRoom()
+                loadDrawerStats()
 
                 // Surface sync health — only nag on genuine problems (failed
                 // uploads / product-blocked records), never routine pending rows.
@@ -351,6 +354,8 @@ class DashboardActivity : BaseActivity() {
         etSearch = findViewById(R.id.etSearch)
         tvWelcome = findViewById(R.id.tvWelcome)
         tvDrawerNameBase = findViewById(R.id.tvDrawerNameBase)
+        tvDrawerSales = findViewById(R.id.tvDrawerSales)
+        tvDrawerBills = findViewById(R.id.tvDrawerBills)
 
         vpAiInsights = findViewById(R.id.vpAiInsights)
         fabAiInsights = findViewById(R.id.fabAiInsights)
@@ -361,6 +366,12 @@ class DashboardActivity : BaseActivity() {
         }
 
         switchTranslate = findViewById(R.id.switchTranslate)
+
+        // Drawer footer: app version
+        try {
+            val ver = packageManager.getPackageInfo(packageName, 0).versionName
+            findViewById<TextView>(R.id.tvDrawerVersion)?.text = "ExPOS · v$ver"
+        } catch (_: Exception) {}
         tvDrawerNameBase = findViewById(R.id.tvDrawerNameBase)
     }
 
@@ -396,33 +407,26 @@ class DashboardActivity : BaseActivity() {
 
         btnSort.setOnClickListener {
 
-            val popup = PopupMenu(this, btnSort, Gravity.END)
-            popup.menuInflater.inflate(R.menu.menu_sort, popup.menu)
+            val sortOptions = listOf(
+                "Name: A → Z", "Name: Z → A",
+                "Price: Low → High", "Price: High → Low",
+                "Stock: Low → High", "Stock: High → Low",
+                "Stock Value: High → Low", "Category",
+                "Best Selling", "Top Revenue", "Most Profitable"
+            )
+            val sortTypes = listOf(
+                SortType.A_TO_Z, SortType.Z_TO_A,
+                SortType.PRICE_LOW_HIGH, SortType.PRICE_HIGH_LOW,
+                SortType.STOCK_LOW_HIGH, SortType.STOCK_HIGH_LOW,
+                SortType.STOCK_VALUE_HIGH_LOW, SortType.CATEGORY,
+                SortType.BEST_SELLING, SortType.TOP_REVENUE, SortType.TOP_PROFIT
+            )
+            val current = sortTypes.indexOf(currentSort).coerceAtLeast(0)
 
-            popup.setOnMenuItemClickListener { item ->
-
-                val newSort = when (item.itemId) {
-                    R.id.sort_az            -> SortType.A_TO_Z
-                    R.id.sort_za            -> SortType.Z_TO_A
-                    R.id.sort_price_low     -> SortType.PRICE_LOW_HIGH
-                    R.id.sort_price_high    -> SortType.PRICE_HIGH_LOW
-                    R.id.sort_stock_low     -> SortType.STOCK_LOW_HIGH
-                    R.id.sort_stock_high    -> SortType.STOCK_HIGH_LOW
-                    R.id.sort_stock_value   -> SortType.STOCK_VALUE_HIGH_LOW
-                    R.id.sort_category      -> SortType.CATEGORY
-                    R.id.sort_best_selling  -> SortType.BEST_SELLING
-                    R.id.sort_top_revenue   -> SortType.TOP_REVENUE
-                    R.id.sort_top_profit    -> SortType.TOP_PROFIT
-                    else                    -> null
-                }
-                if (newSort != null) {
-                    currentSort = newSort
-                    applySort()   // instant in-memory reorder
-                    true
-                } else false
+            showOptionPopover(btnSort, sortOptions, current) { idx ->
+                currentSort = sortTypes[idx]
+                applySort()   // instant in-memory reorder
             }
-
-            popup.show()
         }
 
         findViewById<LinearLayout>(R.id.btnFilterContainer).setOnClickListener {
@@ -431,15 +435,17 @@ class DashboardActivity : BaseActivity() {
 
         val btnView = findViewById<LinearLayout>(R.id.btnViewContainer)
         btnView.setOnClickListener {
-            val popup = PopupMenu(this, btnView, Gravity.END)
-            popup.menu.add(0, 1, 0, "Grid (tiles)")
-            popup.menu.add(0, 2, 1, "List")
-            popup.menu.add(0, 3, 2, "Categorized")
-            popup.setOnMenuItemClickListener { item ->
-                val newMode = when (item.itemId) {
-                    1 -> ViewMode.GRID
-                    2 -> ViewMode.LIST
-                    3 -> ViewMode.CATEGORIZED
+            val options = listOf("Grid (tiles)", "List", "Categorized")
+            val current = when (viewMode) {
+                ViewMode.GRID -> 0
+                ViewMode.LIST -> 1
+                ViewMode.CATEGORIZED -> 2
+            }
+            showOptionPopover(btnView, options, current) { idx ->
+                val newMode = when (idx) {
+                    0 -> ViewMode.GRID
+                    1 -> ViewMode.LIST
+                    2 -> ViewMode.CATEGORIZED
                     else -> viewMode
                 }
                 if (newMode != viewMode) {
@@ -447,9 +453,7 @@ class DashboardActivity : BaseActivity() {
                     updateViewModeIcon()
                     applySort()   // re-render in the new mode (instant)
                 }
-                true
             }
-            popup.show()
         }
 
         btnCart.setOnClickListener {
@@ -461,9 +465,9 @@ class DashboardActivity : BaseActivity() {
         val iv = findViewById<android.widget.ImageView>(R.id.ivViewMode)
         iv.setImageResource(
             when (viewMode) {
-                ViewMode.GRID -> R.drawable.ic_view_grid
-                ViewMode.LIST -> R.drawable.ic_view_list
-                ViewMode.CATEGORIZED -> R.drawable.ic_view_categorized
+                ViewMode.GRID -> R.drawable.ic_hdr_view_grid
+                ViewMode.LIST -> R.drawable.ic_hdr_view_list
+                ViewMode.CATEGORIZED -> R.drawable.ic_hdr_view_categorized
             }
         )
     }
@@ -483,6 +487,24 @@ class DashboardActivity : BaseActivity() {
         })
     }
 
+    private fun loadDrawerStats() {
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        lifecycleScope.launch {
+            try {
+                val data = RetrofitClient.api.getOverview(token, "today", null, null)
+                if (::tvDrawerSales.isInitialized) {
+                    tvDrawerSales.text = CurrencyHelper.format(this@DashboardActivity, data.total_revenue)
+                }
+                if (::tvDrawerBills.isInitialized) {
+                    tvDrawerBills.text = data.total_bills.toString()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun loadShopName() {
 
         lifecycleScope.launch {
@@ -495,7 +517,7 @@ class DashboardActivity : BaseActivity() {
                 val profile = RetrofitClient.api.getProfile(token)
 
                 val shopName = profile.shop_name
-                val ownerName = profile.owner_name ?: "Store Owner"
+                val ownerName = profile.owner_name ?: "Owner"
 
                 // 🔥 Split name for premium UI
                 val parts = ownerName.trim().split(" ")
@@ -506,15 +528,15 @@ class DashboardActivity : BaseActivity() {
                     tvDrawerNameBase.text = "Store"
                 }
 
+                // Logout button email subtitle
+                findViewById<TextView>(R.id.tvLogoutEmail)?.text = profile.email
+
                 // ✅ Welcome text
-                typeWriter(
-                    tvWelcome,
-                    "Welcome to $shopName Dashboard 👋"
-                )
+                tvWelcome.text = shopName
 
             } catch (e: Exception) {
 
-                typeWriter(tvWelcome, "Welcome to Dashboard 👋")
+                tvWelcome.text = "Dashboard"
 
                 // 🔥 fallback
                 tvDrawerNameBase.text = "Store"
@@ -1036,6 +1058,9 @@ class DashboardActivity : BaseActivity() {
 
         // Also update the cart drawer's neon badge
         findViewById<TextView>(R.id.tvCartDrawerBadge)?.text = badgeText
+
+        // Cart-header subtotal KPI (mirrors the live order total)
+        findViewById<TextView>(R.id.tvCartHeaderSubtotal)?.text = CurrencyHelper.format(this, total)
     }
 
     private fun clearCart() {
@@ -1070,6 +1095,15 @@ class DashboardActivity : BaseActivity() {
         val gridPad = dialogView.findViewById<GridLayout>(R.id.gridPad)
         val btnAdd = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAddQty)
         val btnBackspace = dialogView.findViewById<ImageButton>(R.id.btnBackspace)
+        val tvProductName = dialogView.findViewById<TextView>(R.id.tvProductName)
+        val tvUnitPrice = dialogView.findViewById<TextView>(R.id.tvUnitPrice)
+        val tvLineTotal = dialogView.findViewById<TextView>(R.id.tvLineTotal)
+        val btnCloseQty = dialogView.findViewById<View>(R.id.btnCloseQty)
+
+        tvProductName.text = if (!product.variant.isNullOrBlank())
+            "${product.name} · ${product.variant}"
+        else product.name
+        tvUnitPrice.text = CurrencyHelper.format(this, product.price)
 
         var quantityStr = ""
 
@@ -1094,7 +1128,12 @@ class DashboardActivity : BaseActivity() {
         // 🔥 FAST DISPLAY (no lag)
         fun updateDisplay() {
             tvQuantity.text = if (quantityStr.isEmpty()) "0" else quantityStr
+            val q = quantityStr.toDoubleOrNull() ?: 0.0
+            tvLineTotal.text = CurrencyHelper.format(this, q * product.price)
         }
+        updateDisplay()
+
+        btnCloseQty.setOnClickListener { dialog.dismiss() }
 
         // 🔥 BUTTON PRESS ANIMATION
         fun View.pressAnim() {
@@ -1609,77 +1648,284 @@ class DashboardActivity : BaseActivity() {
      * via [applySort] — the same instant in-memory pipeline as sorting —
      * so filter → sort → search compose cleanly.
      */
-    private fun showFilterSheet() {
-        val view = layoutInflater.inflate(R.layout.dialog_product_filter, null)
-        val sheet = com.google.android.material.bottomsheet.BottomSheetDialog(this)
-        sheet.setContentView(view)
+    /** Lifted-button + unfold popover for single-select menus (View / Sort), matching the filter. */
+    private fun showOptionPopover(anchor: View, options: List<String>, selectedIndex: Int, onSelect: (Int) -> Unit) {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        val emerald = android.graphics.Color.parseColor("#0F6E56")
+        val ink = android.graphics.Color.parseColor("#1A1A18")
+        val medium = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
 
-        val chipGroupCategory = view.findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipGroupCategory)
-        val chipInStock   = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipInStock)
-        val chipLowStock  = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipLowStock)
-        val chipOutStock  = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipOutOfStock)
-        val chipPurchased = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipPurchased)
-        val chipManual    = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipManual)
-        val etPriceMin    = view.findViewById<EditText>(R.id.etPriceMin)
-        val etPriceMax    = view.findViewById<EditText>(R.id.etPriceMax)
-        val btnClear      = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnClearFilters)
-        val btnApply      = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnApplyFilters)
-
-        // Build category chips from the categories actually in use, plus a
-        // bucket for uncategorized products when any exist.
-        val categoriesInUse = allProducts
-            .map { it.category.ifBlank { ProductCategories.UNCATEGORIZED } }
-            .distinct()
-            .sortedBy { it.lowercase() }
-        val categoryChips = HashMap<String, com.google.android.material.chip.Chip>()
-        for (cat in categoriesInUse) {
-            val chip = com.google.android.material.chip.Chip(this).apply {
-                text = cat
-                isCheckable = true
-                isChecked = cat in filterCategories
+        val list = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_filter_popover)
+            setPadding(dp(6), dp(6), dp(6), dp(6))
+        }
+        val rows = mutableListOf<View>()
+        options.forEachIndexed { i, opt ->
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setBackgroundResource(R.drawable.bg_imp_card)
+                setPadding(dp(13), dp(12), dp(13), dp(12))
+                isClickable = true
+                isFocusable = true
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply { if (i < options.size - 1) bottomMargin = dp(7) }
             }
-            categoryChips[cat] = chip
-            chipGroupCategory.addView(chip)
+            val tv = TextView(this).apply {
+                text = opt
+                textSize = 14f
+                typeface = medium
+                setTextColor(if (i == selectedIndex) emerald else ink)
+                layoutParams = android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            row.addView(tv)
+            if (i == selectedIndex) {
+                row.addView(ImageView(this).apply {
+                    setImageResource(R.drawable.ic_check)
+                    imageTintList = android.content.res.ColorStateList.valueOf(emerald)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dp(18), dp(18))
+                })
+            }
+            list.addView(row)
+            rows.add(row)
         }
 
-        // Restore current selections.
-        chipInStock.isChecked  = StockStatus.IN_STOCK in filterStock
-        chipLowStock.isChecked = StockStatus.LOW in filterStock
-        chipOutStock.isChecked = StockStatus.OUT in filterStock
-        chipPurchased.isChecked = filterPurchased
-        chipManual.isChecked    = filterManual
+        val tall = options.size > 7
+        val content: View = if (tall) androidx.core.widget.NestedScrollView(this).apply { addView(list) } else list
+
+        val popup = android.widget.PopupWindow(
+            content,
+            dp(230),
+            if (tall) dp(360) else android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        popup.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        popup.elevation = 16f * d
+        popup.isOutsideTouchable = true
+        popup.animationStyle = R.style.FilterUnfoldAnim
+
+        rows.forEachIndexed { i, row -> row.setOnClickListener { onSelect(i); popup.dismiss() } }
+
+        anchor.setBackgroundResource(R.drawable.bg_hdr_tile_active)
+        anchor.animate().translationZ(8f * d).setDuration(150).start()
+        popup.setOnDismissListener {
+            anchor.setBackgroundResource(R.drawable.bg_hdr_tile)
+            anchor.animate().translationZ(0f).setDuration(150).start()
+        }
+        popup.showAsDropDown(anchor, 0, dp(3), android.view.Gravity.END)
+    }
+
+    private fun showFilterSheet() {
+        val view = layoutInflater.inflate(R.layout.dialog_product_filter, null)
+        val popDensity = resources.displayMetrics.density
+        val popup = android.widget.PopupWindow(
+            view,
+            (300 * popDensity).toInt(),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        popup.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        )
+        popup.elevation = 16f * popDensity
+        popup.isOutsideTouchable = true
+        popup.inputMethodMode = android.widget.PopupWindow.INPUT_METHOD_NEEDED
+        popup.animationStyle = R.style.FilterUnfoldAnim
+
+        val hdrCategory = view.findViewById<View>(R.id.hdrCategory)
+        val contentCategory = view.findViewById<View>(R.id.contentCategory)
+        val ivCatChevron = view.findViewById<ImageView>(R.id.ivCatChevron)
+        val tvCategorySummary = view.findViewById<TextView>(R.id.tvCategorySummary)
+        val categoryList = view.findViewById<LinearLayout>(R.id.categoryList)
+        val btnCatSelectAll = view.findViewById<TextView>(R.id.btnCatSelectAll)
+
+        val hdrStock = view.findViewById<View>(R.id.hdrStock)
+        val contentStock = view.findViewById<View>(R.id.contentStock)
+        val ivStockChevron = view.findViewById<ImageView>(R.id.ivStockChevron)
+        val tvStockSummary = view.findViewById<TextView>(R.id.tvStockSummary)
+        val stockList = view.findViewById<LinearLayout>(R.id.stockList)
+
+        val hdrType = view.findViewById<View>(R.id.hdrType)
+        val contentType = view.findViewById<View>(R.id.contentType)
+        val ivTypeChevron = view.findViewById<ImageView>(R.id.ivTypeChevron)
+        val tvTypeSummary = view.findViewById<TextView>(R.id.tvTypeSummary)
+        val typeList = view.findViewById<LinearLayout>(R.id.typeList)
+
+        val hdrPrice = view.findViewById<View>(R.id.hdrPrice)
+        val contentPrice = view.findViewById<View>(R.id.contentPrice)
+        val ivPriceChevron = view.findViewById<ImageView>(R.id.ivPriceChevron)
+        val tvPriceSummary = view.findViewById<TextView>(R.id.tvPriceSummary)
+        val etPriceMin = view.findViewById<EditText>(R.id.etPriceMin)
+        val etPriceMax = view.findViewById<EditText>(R.id.etPriceMax)
+
+        val btnClear = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnClearFilters)
+        val btnApply = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnApplyFilters)
+
+        // Working copies of current filter state
+        val workingCategories = filterCategories.toMutableSet()
+        val workingStock = filterStock.toMutableSet()
+        var workingPurchased = filterPurchased
+        var workingManual = filterManual
+
         filterPriceMin?.let { etPriceMin.setText(if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()) }
         filterPriceMax?.let { etPriceMax.setText(if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()) }
 
+        // Reusable check-row builder; returns a setter for "select all"
+        fun addCheckRow(
+            container: LinearLayout, label: String, count: Int?, initial: Boolean, onChange: (Boolean) -> Unit
+        ): (Boolean) -> Unit {
+            val row = layoutInflater.inflate(R.layout.item_filter_check, container, false)
+            val box = row.findViewById<View>(R.id.boxFrame)
+            val check = row.findViewById<ImageView>(R.id.ivCheck)
+            val tvLabel = row.findViewById<TextView>(R.id.tvLabel)
+            val tvCount = row.findViewById<TextView>(R.id.tvCount)
+            tvLabel.text = label
+            if (count != null) tvCount.text = count.toString() else tvCount.visibility = View.GONE
+            var checked = initial
+            fun render() {
+                box.setBackgroundResource(if (checked) R.drawable.bg_check_on else R.drawable.bg_check_off)
+                check.visibility = if (checked) View.VISIBLE else View.INVISIBLE
+            }
+            render()
+            row.setOnClickListener {
+                checked = !checked
+                render()
+                onChange(checked)
+            }
+            container.addView(row)
+            return { v: Boolean ->
+                if (checked != v) {
+                    checked = v
+                    render()
+                    onChange(checked)
+                }
+            }
+        }
+
+        val allCats = allProducts
+            .map { it.category.ifBlank { ProductCategories.UNCATEGORIZED } }
+            .distinct().sortedBy { it.lowercase() }
+        val counts = allProducts
+            .groupingBy { it.category.ifBlank { ProductCategories.UNCATEGORIZED } }.eachCount()
+
+        fun updateCategorySummary() {
+            tvCategorySummary.text = when {
+                workingCategories.isEmpty() -> "All categories"
+                workingCategories.size >= allCats.size -> "All selected"
+                else -> "${workingCategories.size} of ${allCats.size} selected"
+            }
+        }
+        fun updateStockSummary() {
+            tvStockSummary.text = if (workingStock.isEmpty()) "Any" else workingStock.joinToString(", ") {
+                when (it) {
+                    StockStatus.IN_STOCK -> "In stock"
+                    StockStatus.LOW -> "Low"
+                    StockStatus.OUT -> "Out"
+                }
+            }
+        }
+        fun updateTypeSummary() {
+            val s = mutableListOf<String>()
+            if (workingPurchased) s.add("Purchased")
+            if (workingManual) s.add("Manual")
+            tvTypeSummary.text = if (s.isEmpty()) "Any" else s.joinToString(", ")
+        }
+        fun updatePriceSummary() {
+            val mn = etPriceMin.text?.toString()?.trim()
+            val mx = etPriceMax.text?.toString()?.trim()
+            tvPriceSummary.text = when {
+                mn.isNullOrEmpty() && mx.isNullOrEmpty() -> "Any"
+                mn.isNullOrEmpty() -> "Up to ₹$mx"
+                mx.isNullOrEmpty() -> "From ₹$mn"
+                else -> "₹$mn – ₹$mx"
+            }
+        }
+
+        val catSetters = mutableListOf<(Boolean) -> Unit>()
+        for (cat in allCats) {
+            catSetters.add(addCheckRow(categoryList, cat, counts[cat], cat in workingCategories) { on ->
+                if (on) workingCategories.add(cat) else workingCategories.remove(cat)
+                updateCategorySummary()
+            })
+        }
+        btnCatSelectAll.setOnClickListener {
+            val turnOn = workingCategories.size < allCats.size
+            catSetters.forEach { it(turnOn) }
+        }
+
+        val stockSetters = mutableListOf<(Boolean) -> Unit>()
+        listOf(
+            "In stock" to StockStatus.IN_STOCK,
+            "Low stock" to StockStatus.LOW,
+            "Out of stock" to StockStatus.OUT
+        ).forEach { (label, st) ->
+            stockSetters.add(addCheckRow(stockList, label, null, st in workingStock) { on ->
+                if (on) workingStock.add(st) else workingStock.remove(st)
+                updateStockSummary()
+            })
+        }
+
+        val typeSetters = mutableListOf<(Boolean) -> Unit>()
+        typeSetters.add(addCheckRow(typeList, "Purchased", null, workingPurchased) { workingPurchased = it; updateTypeSummary() })
+        typeSetters.add(addCheckRow(typeList, "Manual", null, workingManual) { workingManual = it; updateTypeSummary() })
+
+        updateCategorySummary(); updateStockSummary(); updateTypeSummary(); updatePriceSummary()
+
+        val priceWatcher = object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) { updatePriceSummary() }
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+        }
+        etPriceMin.addTextChangedListener(priceWatcher)
+        etPriceMax.addTextChangedListener(priceWatcher)
+
+        fun toggle(content: View, chevron: ImageView) {
+            val show = content.visibility != View.VISIBLE
+            content.visibility = if (show) View.VISIBLE else View.GONE
+            chevron.animate().rotation(if (show) 180f else 0f).setDuration(150).start()
+        }
+        ivCatChevron.rotation = 180f
+        hdrCategory.setOnClickListener { toggle(contentCategory, ivCatChevron) }
+        hdrStock.setOnClickListener { toggle(contentStock, ivStockChevron) }
+        hdrType.setOnClickListener { toggle(contentType, ivTypeChevron) }
+        hdrPrice.setOnClickListener { toggle(contentPrice, ivPriceChevron) }
+
         btnClear.setOnClickListener {
-            categoryChips.values.forEach { it.isChecked = false }
-            chipInStock.isChecked = false
-            chipLowStock.isChecked = false
-            chipOutStock.isChecked = false
-            chipPurchased.isChecked = false
-            chipManual.isChecked = false
+            catSetters.forEach { it(false) }
+            stockSetters.forEach { it(false) }
+            typeSetters.forEach { it(false) }
             etPriceMin.text?.clear()
             etPriceMax.text?.clear()
+            updatePriceSummary()
         }
 
         btnApply.setOnClickListener {
-            filterCategories = categoryChips.filterValues { it.isChecked }.keys.toSet()
-            filterStock = mutableSetOf<StockStatus>().apply {
-                if (chipInStock.isChecked) add(StockStatus.IN_STOCK)
-                if (chipLowStock.isChecked) add(StockStatus.LOW)
-                if (chipOutStock.isChecked) add(StockStatus.OUT)
-            }
-            filterPurchased = chipPurchased.isChecked
-            filterManual = chipManual.isChecked
+            filterCategories = workingCategories.toSet()
+            filterStock = workingStock.toSet()
+            filterPurchased = workingPurchased
+            filterManual = workingManual
             filterPriceMin = etPriceMin.text?.toString()?.trim()?.toDoubleOrNull()
             filterPriceMax = etPriceMax.text?.toString()?.trim()?.toDoubleOrNull()
-
             updateFilterBadge()
             applySort()
-            sheet.dismiss()
+            popup.dismiss()
         }
 
-        sheet.show()
+        val filterAnchor = findViewById<View>(R.id.btnFilterContainer)
+
+        // Pin & lift the button; panel unfolds from beneath it
+        filterAnchor.setBackgroundResource(R.drawable.bg_hdr_tile_active)
+        filterAnchor.animate().translationZ(8f * popDensity).setDuration(150).start()
+        popup.setOnDismissListener {
+            filterAnchor.setBackgroundResource(R.drawable.bg_hdr_tile)
+            filterAnchor.animate().translationZ(0f).setDuration(150).start()
+        }
+
+        popup.showAsDropDown(filterAnchor, 0, (3 * popDensity).toInt(), android.view.Gravity.END)
     }
 
     /**
@@ -1778,36 +2024,17 @@ class DashboardActivity : BaseActivity() {
         val ring = findViewById<View>(ringId) ?: return
         val dot = findViewById<View>(dotId) ?: return
 
-        // 1. Sonar Pulse for the ring (Expanding & Fading)
-        val scaleX = android.animation.ObjectAnimator.ofFloat(ring, View.SCALE_X, 1f, 2.5f)
-        val scaleY = android.animation.ObjectAnimator.ofFloat(ring, View.SCALE_Y, 1f, 2.5f)
-        val alpha = android.animation.ObjectAnimator.ofFloat(ring, View.ALPHA, 1f, 0f)
+        // Ring removed — dot-only live indicator
+        ring.visibility = View.GONE
 
-        android.animation.AnimatorSet().apply {
-            playTogether(scaleX, scaleY, alpha)
-            duration = 2000
+        // 2. Soft blink for the dot — steady live indicator, no size breathing
+        dot.scaleX = 1f
+        dot.scaleY = 1f
+        android.animation.ObjectAnimator.ofFloat(dot, View.ALPHA, 1f, 0.35f).apply {
+            duration = 900
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            repeatMode = android.animation.ValueAnimator.REVERSE
             interpolator = android.view.animation.AccelerateDecelerateInterpolator()
-            android.animation.ValueAnimator.INFINITE.let {
-                scaleX.repeatCount = it
-                scaleY.repeatCount = it
-                alpha.repeatCount = it
-            }
-            start()
-        }
-
-        // 2. Core Breathing for the dot
-        val dotScaleX = android.animation.ObjectAnimator.ofFloat(dot, View.SCALE_X, 1f, 1.4f)
-        val dotScaleY = android.animation.ObjectAnimator.ofFloat(dot, View.SCALE_Y, 1f, 1.4f)
-
-        android.animation.AnimatorSet().apply {
-            playTogether(dotScaleX, dotScaleY)
-            duration = 1000
-            android.animation.ValueAnimator.INFINITE.let {
-                dotScaleX.repeatCount = it
-                dotScaleY.repeatCount = it
-                dotScaleX.repeatMode = android.animation.ValueAnimator.REVERSE
-                dotScaleY.repeatMode = android.animation.ValueAnimator.REVERSE
-            }
             start()
         }
     }
@@ -1817,10 +2044,10 @@ class DashboardActivity : BaseActivity() {
         val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
 
         val greeting = when (hour) {
-            in 5..11 -> "Good Morning ☀️"
-            in 12..16 -> "Good Afternoon 🌤️"
-            in 17..20 -> "Good Evening 🌙"
-            else -> "Good Night 🌠"
+            in 5..11 -> "Good Morning"
+            in 12..16 -> "Good Afternoon"
+            in 17..20 -> "Good Evening"
+            else -> "Good Night"
         }
         tvGreeting.text = greeting
     }

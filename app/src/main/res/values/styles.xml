@@ -88,6 +88,54 @@
         <item name="cornerRadius">12dp</item>
     </style>
 
+
+    <style name="PosKeyLight">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:textColor">#1A1A18</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:fontFamily">@font/googlesans_medium</item>
+        <item name="backgroundTint">#F7F4EE</item>
+        <item name="cornerRadius">11dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+
+
+    <style name="FilterSection">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#9A968C</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:fontFamily">@font/googlesans_semibold</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginStart">2dp</item>
+    </style>
+
+
+    <style name="FilterUnfoldAnim">
+        <item name="android:windowEnterAnimation">@anim/filter_unfold_in</item>
+        <item name="android:windowExitAnimation">@anim/filter_unfold_out</item>
+    </style>
+
+    <style name="ThemedFilterChip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/filter_chip_bg</item>
+        <item name="android:textColor">@color/filter_chip_text</item>
+        <item name="chipStrokeColor">@color/filter_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="chipMinHeight">38dp</item>
+        <item name="android:fontFamily">@font/googlesans_medium</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">0dp</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+        <item name="rippleColor">#1A0F6E56</item>
+    </style>
+
     <style name="PosKeyClearTall">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">64dp</item>

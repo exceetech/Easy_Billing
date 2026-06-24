@@ -134,10 +134,11 @@ object ThemedDropdown {
 
         dialog.setContentView(card)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.setLayout(
-            (context.resources.displayMetrics.widthPixels * 0.82f).toInt(),
-            ViewGroup.LayoutParams.WRAP_CONTENT
+        val confirmWidth = minOf(
+            (context.resources.displayMetrics.widthPixels * 0.86f).toInt(),
+            dp(330)
         )
+        dialog.window?.setLayout(confirmWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
         dialog.show()
     }
 
