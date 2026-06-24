@@ -30,6 +30,9 @@ interface ImportServiceDao {
     @Query("SELECT * FROM import_services WHERE sync_status = 'pending'")
     suspend fun getPendingSyncImportServices(): List<ImportService>
 
+    @Query("SELECT COUNT(*) FROM import_services WHERE sync_status = 'pending'")
+    suspend fun countPending(): Int
+
     @Query("UPDATE import_services SET sync_status = 'synced' WHERE id = :id")
     suspend fun markAsSynced(id: Int)
 

@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -47,8 +49,8 @@ data class GstSalesRecord(
     val syncStatus: String = "pending",
 
     val deviceId: String = "",
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = appNow(),
+    val updatedAt: Long = appNow(),
 
     // ── GSTR-1 enrichment fields (v23) ───────────────────────────────
 

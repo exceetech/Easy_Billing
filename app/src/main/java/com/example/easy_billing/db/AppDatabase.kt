@@ -31,7 +31,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // GST Entities
         GstProfile::class,
         GstSalesRecord::class,
-        GstPurchaseRecord::class,
+        // GstPurchaseRecord retired (v43) — table dropped via MIGRATION_42_43.
 
         // GST-aware billing (v18) — see [GstSalesInvoice]
         GstSalesInvoice::class,
@@ -66,7 +66,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         ProductCategory::class,
         Customer::class
     ],
-    version = 42
+    version = 43
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -96,7 +96,7 @@ abstract class AppDatabase : RoomDatabase() {
     // GST DAOs
     abstract fun gstProfileDao(): GstProfileDao
     abstract fun gstSalesRecordDao(): GstSalesRecordDao
-    abstract fun gstPurchaseRecordDao(): GstPurchaseRecordDao
+    // gstPurchaseRecordDao retired (v43) — table dropped via MIGRATION_42_43.
 
     // Purchase / inventory ops (v13)
     abstract fun purchaseDao(): PurchaseDao
@@ -1296,6 +1296,16 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v43: retire the unused gst_purchase_records table. It was never read
+        // on the device; GST purchase data lives in purchase_table/items.
+        // DROP (not recreate) so the schema matches the entity list — without
+        // this, fallbackToDestructiveMigration would wipe the whole DB.
+        val MIGRATION_42_43 = object : Migration(42, 43) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS gst_purchase_records")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1333,7 +1343,7 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_36_37,
                         MIGRATION_37_38, MIGRATION_38_39,
                         MIGRATION_39_40, MIGRATION_40_41,
-                        MIGRATION_41_42
+                        MIGRATION_41_42, MIGRATION_42_43
                     )
                     .fallbackToDestructiveMigration()
                     .build()

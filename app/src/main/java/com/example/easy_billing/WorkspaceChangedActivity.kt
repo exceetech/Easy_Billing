@@ -49,27 +49,42 @@ class WorkspaceChangedActivity : AppCompatActivity() {
 
     private fun reloadWorkspace() {
         lifecycleScope.launch {
-            // ── 1. Cancel in-flight sync ──────────────────────────────────────
+            val coordinator = com.example.easy_billing.sync.SyncCoordinator.get(applicationContext)
+
+            // ── 1. Pause + cancel sync ────────────────────────────────────────
+            // Suspend all background sync so nothing writes rows back into the
+            // DB while we clear it. Resumed in the finally — never stuck off.
+            try { coordinator.pauseSync() } catch (_: Exception) {}
+
             try {
-                com.example.easy_billing.sync.SyncCoordinator.get(applicationContext)
-                    .cancelSync()
-            } catch (_: Exception) {}
+                withContext(Dispatchers.IO) {
+                    // ── 2. Clear all local Room tables (DB stays OPEN) ────────
+                    // clearAllTables() empties every table on the same open
+                    // connection. We do NOT close the database (no destroyInstance),
+                    // so no screen / repository / sync keeps a dead reference —
+                    // that's what caused "connection pool has been closed" and the
+                    // close+reopen caused "database is locked".
+                    try {
+                        AppDatabase.getDatabase(applicationContext).clearAllTables()
+                    } catch (_: Exception) {}
 
-            withContext(Dispatchers.IO) {
-                // ── 2. Clear all local Room tables ────────────────────────────
-                try {
-                    AppDatabase.getDatabase(applicationContext).clearAllTables()
-                    AppDatabase.destroyInstance()
-                } catch (_: Exception) {}
+                    // ── 3. Clear auth state ───────────────────────────────────
+                    getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply()
 
-                // ── 3. Clear auth state ───────────────────────────────────────
-                getSharedPreferences("auth", MODE_PRIVATE).edit().clear().apply()
+                    // Drop delta-pull cursors — the workspace changed, so a stale
+                    // cursor could skip rows in the new/restored data set (R6).
+                    getSharedPreferences("sync_cursors", MODE_PRIVATE).edit().clear().apply()
 
-                // Clear app settings cache (language, currency) so next launch
-                // re-fetches from the fresh workspace.
-                getSharedPreferences("app_settings", MODE_PRIVATE).edit().apply {
-                    remove("ai_reset")
-                }.apply()
+                    // Clear app settings cache (language, currency) so next launch
+                    // re-fetches from the fresh workspace.
+                    getSharedPreferences("app_settings", MODE_PRIVATE).edit().apply {
+                        remove("ai_reset")
+                    }.apply()
+                }
+            } finally {
+                // Re-enable sync (it no-ops until the user logs in again since the
+                // token was just cleared) so the flag is never left paused.
+                coordinator.resumeSync()
             }
 
             // ── 4. Go to login ────────────────────────────────────────────────

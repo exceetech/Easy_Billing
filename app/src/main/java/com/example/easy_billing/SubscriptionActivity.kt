@@ -75,9 +75,13 @@ class SubscriptionActivity : BaseActivity() {
 
                 tvPlan.text = "Plan: ${res.plan ?: "None"}"
 
-                tvExpiry.text = if (res.expiry_date != null)
-                    "Expiry: ${formatDate(res.expiry_date)}"
-                else "Expiry: -"
+                tvExpiry.text = when {
+                    // Prefer the UTC instant rendered in the shop timezone (#104).
+                    res.expiry_ms != null ->
+                        "Expiry: ${com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy").format(java.util.Date(res.expiry_ms))}"
+                    res.expiry_date != null -> "Expiry: ${formatDate(res.expiry_date)}"
+                    else -> "Expiry: -"
+                }
 
                 tvDaysLeft.text = "Days left: ${res.remaining_days}"
 

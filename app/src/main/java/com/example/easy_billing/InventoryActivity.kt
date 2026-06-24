@@ -271,17 +271,30 @@ class InventoryActivity : BaseActivity() {
                 val inventoryMap = inventoryList.associateBy { it.productId }
                 val newProductMap = products.associateBy { it.id }
 
+                // Stock value is shown at the GROSS purchase cost (invoice value
+                // incl. GST), not the net taxable cost. We pull a per-product
+                // gross weighted-average from the batch ledger and fall back to
+                // the net averageCost for products that have no batches.
+                // COGS / profit / returns still use inventory.averageCost (net).
+                val grossCostMap = db.purchaseBatchDao()
+                    .getGrossValuationByProduct()
+                    .associateBy { it.productId }
+
                 val displayList = products
                     .filter { inventoryMap[it.id]?.isActive == true }
                     .map { product ->
 
                         val inv = inventoryMap[product.id]
+                        val grossAvg = grossCostMap[product.id]
+                            ?.takeIf { it.totalQty > 0.0 }
+                            ?.grossAvgCost
+                            ?: (inv?.averageCost ?: 0.0)
 
                         InventoryItemUI(
                             productName = product.name,
                             variant = product.variant ?: "",
                             stock = inv?.currentStock ?: 0.0,
-                            avgCost = inv?.averageCost ?: 0.0,
+                            avgCost = grossAvg,
                             productId = product.id,
                             category = product.category
                         )

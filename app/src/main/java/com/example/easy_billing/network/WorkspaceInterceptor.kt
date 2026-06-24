@@ -5,6 +5,7 @@ import android.content.Intent
 import com.example.easy_billing.WorkspaceChangedActivity
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * OkHttp interceptor that catches HTTP 409 responses from the backend.
@@ -23,7 +24,10 @@ class WorkspaceInterceptor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
 
-        if (response.code == 409) {
+        // Several in-flight requests can each get a 409 at the same moment.
+        // Without a guard, every one launches WorkspaceChangedActivity (a
+        // "409 storm"). Debounce so only the first within the window launches.
+        if (response.code == 409 && shouldLaunch()) {
             val intent = Intent(context, WorkspaceChangedActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             }
@@ -31,5 +35,17 @@ class WorkspaceInterceptor(private val context: Context) : Interceptor {
         }
 
         return response
+    }
+
+    /** True at most once per [DEBOUNCE_MS] window, across all interceptor calls. */
+    private fun shouldLaunch(): Boolean {
+        val now = System.currentTimeMillis()
+        val last = lastLaunchAt.get()
+        return now - last > DEBOUNCE_MS && lastLaunchAt.compareAndSet(last, now)
+    }
+
+    private companion object {
+        private val lastLaunchAt = AtomicLong(0L)
+        private const val DEBOUNCE_MS = 10_000L
     }
 }

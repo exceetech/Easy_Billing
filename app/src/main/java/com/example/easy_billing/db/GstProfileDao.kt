@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -50,7 +52,7 @@ interface GstProfileDao {
      * ------------------------------------------------------------------ */
 
     @Query("UPDATE gst_profile SET sync_status = :status, updated_at = :updatedAt WHERE id = 1")
-    suspend fun updateSyncStatus(status: String, updatedAt: Long = System.currentTimeMillis())
+    suspend fun updateSyncStatus(status: String, updatedAt: Long = appNow())
 
     @Query(
         """

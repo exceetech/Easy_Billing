@@ -301,43 +301,36 @@ class DashboardActivity : BaseActivity() {
 
         lifecycleScope.launch {
 
-            val db = AppDatabase.getDatabase(this@DashboardActivity)
-            val syncManager = SyncManager(this@DashboardActivity)
-
             if (token != null) {
 
-                // ================= STEP 1: PRODUCTS =================
+                // Show local data immediately.
                 loadProducts()
 
-                // ================= STEP 2: BASIC =================
-                syncManager.syncStoreInfo()
-                syncManager.syncBillingSettings()
+                // Single coordinated push + pull. Routing through SyncCoordinator
+                // (instead of ad-hoc SyncManager calls) keeps this serialized with
+                // write-triggered syncs via the single-flight lock, so non-bill rows
+                // can't be double-pushed by a concurrent pass (Sync audit S1/S4).
+                com.example.easy_billing.sync.SyncCoordinator
+                    .get(this@DashboardActivity)
+                    .flushPending()
+                    .join()
 
-                // ================= STEP 3: ACCOUNTS =================
-                syncManager.syncAccounts()
-                syncManager.pullAccountsFromServer()
-
-                // ================= STEP 4: INVENTORY & PURCHASES =================
-                println("🔄 Syncing inventory, purchases, and logs")
-                syncManager.syncInventory()
-
-                syncManager.pullPurchaseReturns()
-                syncManager.pullCreditNotes()
-                syncManager.pullInventory()
-                syncManager.pullPurchases()
-                syncManager.pullInventoryLogs()
-                syncManager.pullImportServices()
-                syncManager.pullPurchaseBatches()
-
-                // ================= STEP 5: BILLS =================
-                syncManager.syncBills()
-
-                // ================= STEP 6: CREDIT =================
-                syncManager.syncCredit()
-
-                // ================= STEP 7: FINAL UI =================
+                // Refresh UI from the freshly-synced local DB.
                 loadProducts()        // 🔥 refresh stock in tiles
                 loadStoreFromRoom()
+
+                // Surface sync health — only nag on genuine problems (failed
+                // uploads / product-blocked records), never routine pending rows.
+                val syncStatus = com.example.easy_billing.sync.SyncState.current
+                if (syncStatus.hasProblems) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@DashboardActivity,
+                            syncStatus.summary(),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
 
             } else {
                 loadProducts()

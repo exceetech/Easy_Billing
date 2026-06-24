@@ -1,5 +1,7 @@
 package com.example.easy_billing.repository
 
+import com.example.easy_billing.util.appNow
+
 import android.content.Context
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.GstProfile
@@ -44,7 +46,7 @@ class GstProfileRepository private constructor(
             profile.copy(
                 deviceId   = profile.deviceId.ifBlank { deviceId },
                 syncStatus = "pending",
-                updatedAt  = System.currentTimeMillis()
+                updatedAt  = appNow()
             )
         )
     }
@@ -67,7 +69,7 @@ class GstProfileRepository private constructor(
         return runCatching {
             val remote: GstProfileResponse = api.getGstProfile(token)
             val local = dao.get()
-            val now = System.currentTimeMillis()
+            val now = appNow()
 
             val merged = GstProfile(
                 gstin            = remote.gstin,

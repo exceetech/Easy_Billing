@@ -1,5 +1,7 @@
 package com.example.easy_billing.repository
 
+import com.example.easy_billing.util.appNow
+
 import android.content.Context
 import androidx.room.withTransaction
 import com.example.easy_billing.InventoryManager
@@ -115,7 +117,7 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                 // ── 2. Generate note number ─────────────────────────────────
                 val nextSeq = db.creditNoteDao().getMaxSequence() + 1
                 val noteNumber = "CN-%05d".format(nextSeq)
-                val now = System.currentTimeMillis()
+                val now = appNow()
 
                 // ── 3. Compute aggregate financials ─────────────────────────
                 var totalTaxable = 0.0
@@ -214,6 +216,23 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
 
                     val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
 
+                    // Carry the original sale's GST split onto the restock batch so
+                    // the synced purchase_batches row has the REAL rates (these were
+                    // hardcoded to 0, so the backend showed 0% for sales-return lots).
+                    // The split mirrors the note's supply type — same rule used above
+                    // for the credit-note item amounts.
+                    val interstate = supplyType.equals("interstate", ignoreCase = true)
+                    val cgstPct = if (interstate) 0.0 else bi.gstRate / 2.0
+                    val sgstPct = if (interstate) 0.0 else bi.gstRate / 2.0
+                    val igstPct = if (interstate) bi.gstRate else 0.0
+
+                    // Taxable = net cost × qty. Invoice value = taxable + GST (gross),
+                    // so the batch's invoice_value matches real purchase batches and
+                    // the reduce dialog (invoiceValue / qty) shows the GST-inclusive
+                    // per-unit price for sales-return lots too.
+                    val batchTaxable = round2(unitCost * line.returnQty)
+                    val batchInvoice = round2(batchTaxable * (1.0 + bi.gstRate / 100.0))
+
                     InventoryManager.addStock(
                         db        = db,
                         productId = bi.productId,
@@ -226,12 +245,12 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                             invoiceNumber        = null,
                             batchCode            = "SALES_RETURN-$noteId",
                             unitCostExcludingTax = unitCost,
-                            gstPercent           = 0.0,
-                            cgstPercent          = 0.0,
-                            sgstPercent          = 0.0,
-                            igstPercent          = 0.0,
-                            invoiceValue         = unitCost * line.returnQty,
-                            taxableValue         = unitCost * line.returnQty
+                            gstPercent           = bi.gstRate,
+                            cgstPercent          = cgstPct,
+                            sgstPercent          = sgstPct,
+                            igstPercent          = igstPct,
+                            invoiceValue         = batchInvoice,
+                            taxableValue         = batchTaxable
                         )
                     )
                 }
@@ -290,7 +309,7 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
             db.withTransaction {
                 val nextSeq = db.creditNoteDao().getMaxSequence() + 1
                 val noteNumber = "DN-%05d".format(nextSeq)
-                val now = System.currentTimeMillis()
+                val now = appNow()
 
                 var totalTaxable = 0.0
                 var totalCgst    = 0.0

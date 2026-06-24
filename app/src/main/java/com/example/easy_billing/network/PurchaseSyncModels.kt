@@ -258,6 +258,7 @@ data class PurchaseResponse(
     val availed_itc_state_tax: Double = 0.0,
     val availed_itc_cess: Double = 0.0,
     val purchase_source: String = "DOMESTIC",
+    val updated_at: Long? = null,   // server-set; delta-pull cursor
     val items: List<PurchaseItemResponse>
 )
 

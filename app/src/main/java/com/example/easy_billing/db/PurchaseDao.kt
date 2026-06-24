@@ -27,6 +27,9 @@ interface PurchaseDao {
     @Query("SELECT * FROM purchase_table WHERE is_synced = 0")
     suspend fun getUnsynced(): List<Purchase>
 
+    @Query("SELECT COUNT(*) FROM purchase_table WHERE is_synced = 0")
+    suspend fun countUnsynced(): Int
+
     @Query("UPDATE purchase_table SET is_synced = 1, server_id = :serverId WHERE id = :id")
     suspend fun markSynced(id: Int, serverId: Int?)
 }

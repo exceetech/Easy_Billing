@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.util.appNow
+
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -242,7 +244,7 @@ class StoreSettingsActivity : BaseActivity() {
                         ?.takeIf { it.isNotBlank() }
                         ?: GstEngine.getStateCode(gstin),
                     syncStatus = "pending",
-                    updatedAt  = System.currentTimeMillis()
+                    updatedAt  = appNow()
                 )
                 db.gstProfileDao().insert(merged)
             }

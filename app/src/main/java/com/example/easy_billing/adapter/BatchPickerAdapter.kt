@@ -96,10 +96,18 @@ class BatchPickerAdapter(
             else "Direct add-stock"
             
         holder.tvSupplier.text = supplierText
+        // Display the GROSS per-unit price (what was actually paid, incl. GST) so
+        // a batch is easy to recognize at a glance. This is DISPLAY-ONLY — the
+        // valuation engine and supplier-return crediting still use the net
+        // unitCostExcludingTax. Falls back to net if the line has no invoice value.
+        val grossUnit = if (b.quantityPurchased > 0.0 && b.invoiceValue > 0.0)
+            b.invoiceValue / b.quantityPurchased
+        else
+            b.unitCostExcludingTax
         holder.tvMeta.text = buildString {
             append(dateFmt.format(Date(b.createdAt)))
             append("  ·  ₹")
-            append(formatNum(b.unitCostExcludingTax))
+            append(formatNum(grossUnit))
             append("/unit")
         }
         holder.tvRemain.text = "Remaining: ${formatNum(b.quantityRemaining)}"

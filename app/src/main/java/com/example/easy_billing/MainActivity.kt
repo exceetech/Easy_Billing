@@ -19,7 +19,6 @@ import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.network.RetrofitClient
-import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.DeviceUtils
 import com.example.easy_billing.util.PastelColor
 import com.example.easy_billing.util.applyPremiumClickAnimation
@@ -228,6 +227,27 @@ class MainActivity : BaseActivity() {
 
                     btnLogin.isEnabled = false   // prevent double click
 
+                    // ✅ CLOCK GATE (Phase 0): verify the device clock against
+                    // internet time before authenticating. A wrong clock would
+                    // stamp every bill with the wrong time, so block here.
+                    when (val clock = verifyDeviceClock()) {
+                        is ClockCheck.Skewed -> {
+                            btnLogin.isEnabled = true
+                            showClockBlockedDialog(clock.driftMs) { btnLogin.performClick() }
+                            return@launch
+                        }
+                        ClockCheck.OfflineUnverified -> {
+                            btnLogin.isEnabled = true
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Couldn't verify time. Check your connection and retry.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@launch
+                        }
+                        ClockCheck.Ok, ClockCheck.OfflineVerified -> { /* proceed */ }
+                    }
+
                     val response = RetrofitClient.api.login(
                         username,
                         password,
@@ -268,10 +288,17 @@ class MainActivity : BaseActivity() {
                         putInt("SHOP_ID", response.shop_id)
                     }
 
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        val syncManager = SyncManager(this@MainActivity)
-                        syncManager.syncAll()
-                    }
+                    // Post-login sync. Use flushPending(force=true), not the
+                    // push-only requestSync(): a freshly-logged-in (or post-wipe)
+                    // device needs to PULL server state, and we shouldn't depend on
+                    // DashboardActivity.onResume being the first thing that pulls
+                    // (first-login routes to ChangePassword; deep links may land
+                    // elsewhere) — M4. Routed through the coordinator so it shares
+                    // the single-flight lock; fire-and-forget so navigation isn't
+                    // blocked on the network.
+                    com.example.easy_billing.sync.SyncCoordinator
+                        .get(this@MainActivity)
+                        .flushPending(force = true)
 
                     android.util.Log.d("TOKEN_DEBUG", "Saved Token: $token")
 

@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -18,7 +20,7 @@ data class CreditTransaction(
 
     val referenceInvoice: String? = null,
 
-    val timestamp: Long = System.currentTimeMillis(),
+    val timestamp: Long = appNow(),
 
     val isSynced: Boolean = false
 )

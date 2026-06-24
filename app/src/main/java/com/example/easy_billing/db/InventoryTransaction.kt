@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -15,6 +17,6 @@ data class InventoryTransaction(
     val costPrice: Double,
     val totalCost: Double,
 
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = appNow(),
     val isSynced: Boolean = false
 )

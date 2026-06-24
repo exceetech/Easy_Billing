@@ -1,5 +1,7 @@
 package com.example.easy_billing.network
 
+import com.example.easy_billing.util.appNow
+
 /**
  * Wire-format DTOs for the GST-aware sales invoice batch sync.
  *
@@ -83,7 +85,7 @@ data class GstSalesCancelRequest(
     val invoice_number: String? = null,
     val local_id: Int? = null,
     val server_id: Int? = null,
-    val cancelled_at: Long = System.currentTimeMillis()
+    val cancelled_at: Long = appNow()
 )
 
 data class GstSalesCancelResponse(

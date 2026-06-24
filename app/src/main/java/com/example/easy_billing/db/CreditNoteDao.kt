@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -27,11 +29,17 @@ interface CreditNoteDao {
     @Query("SELECT * FROM credit_notes WHERE syncStatus != 'synced' ORDER BY created_at ASC")
     suspend fun getUnsynced(): List<CreditNote>
 
+    @Query("SELECT COUNT(*) FROM credit_notes WHERE syncStatus = 'pending'")
+    suspend fun countPending(): Int
+
+    @Query("SELECT COUNT(*) FROM credit_notes WHERE syncStatus = 'failed'")
+    suspend fun countFailed(): Int
+
     @Query("UPDATE credit_notes SET syncStatus = 'synced', updated_at = :updatedAt WHERE id = :id")
-    suspend fun markSynced(id: Int, updatedAt: Long = System.currentTimeMillis())
+    suspend fun markSynced(id: Int, updatedAt: Long = appNow())
 
     @Query("UPDATE credit_notes SET syncStatus = 'failed', updated_at = :updatedAt WHERE id = :id")
-    suspend fun markFailed(id: Int, updatedAt: Long = System.currentTimeMillis())
+    suspend fun markFailed(id: Int, updatedAt: Long = appNow())
 
     /**
      * Returns the highest existing note sequence number.

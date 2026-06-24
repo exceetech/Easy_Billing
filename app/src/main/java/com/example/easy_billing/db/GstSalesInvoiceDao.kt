@@ -34,8 +34,18 @@ interface GstSalesInvoiceDao {
 
     // ===== Sync =====
 
-    @Query("SELECT * FROM gst_sales_invoice_table WHERE sync_status = 'pending' ORDER BY created_at ASC")
+    // NOTE: '!= synced' (not '= pending') so rows previously marked 'failed'
+    // by a transient error are picked up and retried on the next pass.
+    // The push endpoint is idempotent on (shop_id, local_id), so re-sending
+    // a row that did land server-side is harmless.
+    @Query("SELECT * FROM gst_sales_invoice_table WHERE sync_status != 'synced' ORDER BY created_at ASC")
     suspend fun getUnsynced(): List<GstSalesInvoice>
+
+    @Query("SELECT COUNT(*) FROM gst_sales_invoice_table WHERE sync_status = 'pending'")
+    suspend fun countPending(): Int
+
+    @Query("SELECT COUNT(*) FROM gst_sales_invoice_table WHERE sync_status = 'failed'")
+    suspend fun countFailed(): Int
 
     @Query("UPDATE gst_sales_invoice_table SET sync_status = 'synced', server_id = :serverId WHERE id = :id")
     suspend fun markSynced(id: Int, serverId: Int?)

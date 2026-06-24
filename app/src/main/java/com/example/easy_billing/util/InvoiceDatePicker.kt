@@ -76,7 +76,7 @@ object InvoiceDatePicker {
         )
         // Hard guard against future dates — the picker simply won't
         // accept anything after today (device clock).
-        dlg.datePicker.maxDate = System.currentTimeMillis()
+        dlg.datePicker.maxDate = appNow()
         dlg.show()
     }
 

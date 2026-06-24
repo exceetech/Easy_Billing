@@ -52,6 +52,20 @@ class SyncCoordinator private constructor(
     )
     private val pushMutex = Mutex()
     @Volatile private var inFlight: Job? = null
+    // Separate handle for flushPending so a push-only requestSync() in flight
+    // can't be returned to a caller that asked for push + pull (Issue 12).
+    @Volatile private var pullInFlight: Job? = null
+
+    // Last time the full (expensive) pull cascade ran. Pulls re-download whole
+    // tables, so we throttle them — pushes still run on every flushPending, but
+    // the heavy pulls run at most once per [PULL_MIN_INTERVAL_MS] (Sync audit S5).
+    @Volatile private var lastFullPullAt: Long = 0L
+
+    // When true, ALL coordinator-driven sync is suspended. Used while a
+    // destructive local operation (factory reset / workspace change) wipes the
+    // database, so no background sync can write rows back into it mid-wipe.
+    // Always paired: pauseSync() … resumeSync() (resume in a finally).
+    @Volatile private var paused = false
 
     /* ------------------------------------------------------------------
      *  Public API
@@ -69,15 +83,20 @@ class SyncCoordinator private constructor(
      * into the in-flight job.
      */
     fun requestSync(): Job {
-        if (!isOnline()) return scope.launch { /* offline noop */ }
-        inFlight?.takeIf { it.isActive }?.let { return it }
-        val job = scope.launch {
-            pushMutex.withLock {
-                runCatching { SyncManager(context).syncAll() }
+        if (paused || !isOnline()) return scope.launch { /* paused or offline noop */ }
+        // Check-and-assign must be atomic: without this guard two callers can
+        // both see no active job and each launch one (Issue 5). syncAll() is
+        // also globally mutex-guarded, so this is belt-and-braces.
+        synchronized(this) {
+            inFlight?.takeIf { it.isActive }?.let { return it }
+            val job = scope.launch {
+                pushMutex.withLock {
+                    runCatching { SyncManager(context).syncAll() }
+                }
             }
+            inFlight = job
+            return job
         }
-        inFlight = job
-        return job
     }
 
     /**
@@ -86,26 +105,48 @@ class SyncCoordinator private constructor(
      * resume so the user's freshly-foregrounded session reflects
      * any changes another device pushed while we were paused.
      */
-    fun flushPending(): Job {
-        if (!isOnline()) return scope.launch { /* offline noop */ }
-        inFlight?.takeIf { it.isActive }?.let { return it }
-        val job = scope.launch {
-            pushMutex.withLock {
-                runCatching {
-                    val sm = SyncManager(context)
-                    // Push first → so unsynced local edits beat the
-                    // pull-side merge. Pull second → freshen the
-                    // read-mostly tables.
-                    sm.syncAll()
-                    runCatching { sm.pullInventory() }
-                    runCatching { sm.pullPurchases() }
-                    runCatching { sm.pullInventoryLogs() }
-                    runCatching { sm.pullImportServices() }
+    fun flushPending(force: Boolean = false): Job {
+        if (paused || !isOnline()) return scope.launch { /* paused or offline noop */ }
+        synchronized(this) {
+            // Coalesce on the PULL handle (not inFlight): if a previous
+            // flushPending is still running, share it — but never hand back a
+            // push-only requestSync() job, which wouldn't run the pulls (Issue 12).
+            pullInFlight?.takeIf { it.isActive }?.let { return it }
+            val job = scope.launch {
+                pushMutex.withLock {
+                    runCatching {
+                        val sm = SyncManager(context)
+                        // Push first → so unsynced local edits beat the
+                        // pull-side merge. Push always runs (it's cheap and it's
+                        // the user's own data going up).
+                        sm.syncAll()
+
+                        // Pulls re-download whole tables, so throttle them: skip
+                        // when the last full pull was very recent unless forced
+                        // (e.g. an explicit pull-to-refresh). Sync audit S5.
+                        val now = System.currentTimeMillis()
+                        if (force || now - lastFullPullAt >= PULL_MIN_INTERVAL_MS) {
+                            runCatching { sm.pullAccountsFromServer() }
+                            runCatching { sm.pullInventory() }
+                            runCatching { sm.pullPurchases() }
+                            runCatching { sm.pullInventoryLogs() }
+                            runCatching { sm.pullImportServices() }
+                            runCatching { sm.pullPurchaseReturns() }
+                            runCatching { sm.pullCreditNotes() }
+                            runCatching { sm.pullPurchaseBatches() }
+                            // Mirror bills from other terminals last — products it
+                            // references are recovered by pullInventory above (R3).
+                            runCatching { sm.pullBills() }
+                            // Propagate voids made on other terminals.
+                            runCatching { sm.pullBillCancellations() }
+                            lastFullPullAt = now
+                        }
+                    }
                 }
             }
+            pullInFlight = job
+            return job
         }
-        inFlight = job
-        return job
     }
 
     /**
@@ -116,6 +157,27 @@ class SyncCoordinator private constructor(
     fun cancelSync() {
         inFlight?.cancel()
         inFlight = null
+        pullInFlight?.cancel()
+        pullInFlight = null
+    }
+
+    /**
+     * Suspend all coordinator-driven sync and cancel anything in flight.
+     * Call this BEFORE wiping the local database (factory reset / workspace
+     * change) so a background sync can't write rows back mid-wipe. While
+     * paused, [requestSync] and [flushPending] are no-ops.
+     *
+     * MUST be paired with [resumeSync] — call it in a `finally` so sync can
+     * never get stuck off.
+     */
+    fun pauseSync() {
+        paused = true
+        cancelSync()
+    }
+
+    /** Re-enable sync after a [pauseSync]. */
+    fun resumeSync() {
+        paused = false
     }
 
     /* ------------------------------------------------------------------
@@ -123,6 +185,10 @@ class SyncCoordinator private constructor(
      * ------------------------------------------------------------------ */
 
     companion object {
+
+        // Minimum gap between full pull cascades (Sync audit S5). Resumes inside
+        // this window still push, but don't re-download every table.
+        private const val PULL_MIN_INTERVAL_MS = 90_000L  // 90s
 
         @Volatile private var INSTANCE: SyncCoordinator? = null
 
@@ -139,8 +205,13 @@ class SyncCoordinator private constructor(
                 as? ConnectivityManager ?: return false
             val activeNetwork = cm.activeNetwork ?: return false
             val caps = cm.getNetworkCapabilities(activeNetwork) ?: return false
-            return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                   caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            // Require INTERNET capability only — NOT VALIDATED (R7). Some networks
+            // (captive portals, slow/odd Wi-Fi, certain enterprise APNs) never report
+            // VALIDATED, which previously made coordinator-triggered syncs no-op
+            // forever. If the link turns out dead the sync call just fails and the
+            // rows stay pending for the next attempt — strictly better than never
+            // trying. (NetworkReceiver still probes the backend before its sync.)
+            return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
         }
     }
 }

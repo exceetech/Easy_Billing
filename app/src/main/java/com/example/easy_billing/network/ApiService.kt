@@ -106,6 +106,18 @@ interface ApiService {
         @Body request: CancelBillRequest
     ): MessageResponse
 
+    @GET("bills/since")
+    suspend fun getBillsSince(
+        @Header("Authorization") token: String,
+        @Query("after_id") afterId: Int = 0   // delta cursor; 0 = full pull
+    ): List<BillSyncDto>
+
+    @GET("bills/cancellations")
+    suspend fun getBillCancellations(
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = all
+    ): List<BillCancellationDto>
+
     @GET("bills/{id}")
     suspend fun getBillDetails(
         @Header("Authorization") token: String,
@@ -373,12 +385,14 @@ interface ApiService {
 
     @GET("inventory/my")
     suspend fun getInventory(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = full pull
     ): List<InventoryResponse>
 
     @GET("inventory/logs")
     suspend fun getInventoryLogs(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("after_id") afterId: Int = 0   // delta cursor; 0 = full pull
     ): List<InventoryLogResponse>
 
 
@@ -509,14 +523,15 @@ interface ApiService {
 
     @GET("purchases/my")
     suspend fun getPurchases(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = full pull
     ): List<PurchaseResponse>
 
     @POST("purchase-returns/sync")
     suspend fun syncPurchaseReturns(
         @Header("Authorization") token: String,
         @Body body: PurchaseReturnSyncRequest
-    ): PurchaseSyncResponse
+    ): RecordSyncResponse
 
     @POST("purchase-import-details/sync")
     suspend fun syncPurchaseImportDetails(
@@ -554,7 +569,7 @@ interface ApiService {
     suspend fun syncScrap(
         @Header("Authorization") token: String,
         @Body body: ScrapSyncRequest
-    ): PurchaseSyncResponse
+    ): RecordSyncResponse
 
     /** Fetch the configurable list of units for this shop. */
     @GET("units")
@@ -566,12 +581,6 @@ interface ApiService {
     suspend fun syncGstSales(
         @Header("Authorization") token: String,
         @Body body: GstSalesSyncRequest
-    ): GstSyncResponse
-
-    @POST("gst/purchases/sync")
-    suspend fun syncGstPurchases(
-        @Header("Authorization") token: String,
-        @Body body: GstPurchaseSyncRequest
     ): GstSyncResponse
 
     @GET("gst/reports/gstr1")
@@ -655,7 +664,8 @@ interface ApiService {
     /** Fetch all credit notes for this shop (pull). */
     @GET("credit-notes")
     suspend fun getCreditNotes(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
+        @Query("after_id") afterId: Int = 0   // delta cursor (M3); 0 = full pull
     ): List<CreditNoteResponseDto>
 
     // ── Import Services ──────────────────────────────────────────
@@ -665,7 +675,7 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("shop_id") shopId: Int,
         @Body records: List<ImportServiceDto>
-    ): Response<MessageResponse>
+    ): Response<ImportServiceSyncResponse>
 
     @GET("import_services/{shop_id}")
     suspend fun getImportServices(

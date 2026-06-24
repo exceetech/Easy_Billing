@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.util.appNow
+
 import com.example.easy_billing.util.AppTime
 
 import android.os.Bundle
@@ -830,7 +832,7 @@ class InvoiceActivity : AppCompatActivity() {
                 val shopId = getSharedPreferences("auth", MODE_PRIVATE)
                     .getInt("SHOP_ID", 1).toString()
 
-                val nowMillis = System.currentTimeMillis()
+                val nowMillis = appNow()
                 val gstInvoice = GstSalesInvoice(
                     billId                = billId,
                     shopId                = shopId,
@@ -1041,7 +1043,7 @@ class InvoiceActivity : AppCompatActivity() {
                                 gstin         = r.gstin,
                                 state         = r.state,
                                 stateCode     = r.state_code,
-                                updatedAt     = if (r.updated_at > 0) r.updated_at else System.currentTimeMillis()
+                                updatedAt     = if (r.updated_at > 0) r.updated_at else appNow()
                             )
                             withContext(Dispatchers.IO) { db.customerDao().insert(local) }
                             found = local
@@ -1083,7 +1085,7 @@ class InvoiceActivity : AppCompatActivity() {
         val ph = phone?.trim().orEmpty()
         if (ph.isEmpty()) return
         val shopId = shopIdInt()
-        val now = System.currentTimeMillis()
+        val now = appNow()
 
         val newName       = name?.trim().orEmpty()
         val newBusiness   = businessName?.trim()?.ifBlank { null }

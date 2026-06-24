@@ -44,6 +44,9 @@ interface BillDao {
     @Query("SELECT * FROM bills WHERE is_synced = 0")
     suspend fun getUnsyncedBills(): List<Bill>
 
+    @Query("SELECT COUNT(*) FROM bills WHERE is_synced = 0")
+    suspend fun countUnsynced(): Int
+
     @Query("UPDATE bills SET billNumber = :billNumber WHERE id = :billId")
     fun updateBillNumber(billId: Int, billNumber: String)
 

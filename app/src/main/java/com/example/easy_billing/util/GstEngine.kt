@@ -136,7 +136,7 @@ object GstEngine {
         enrichments: List<SalesRecordEnrichment> = emptyList()
     ): List<GstSalesRecord> {
         val records = mutableListOf<GstSalesRecord>()
-        val invoiceDate = System.currentTimeMillis()
+        val invoiceDate = appNow()
 
         for ((idx, item) in items.withIndex()) {
             val en = enrichments.getOrNull(idx) ?: SalesRecordEnrichment()

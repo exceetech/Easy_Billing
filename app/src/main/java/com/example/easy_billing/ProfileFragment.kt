@@ -84,7 +84,15 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         view.findViewById<View>(R.id.btnCopyGstin).setOnClickListener { copyGstin() }
         view.findViewById<View>(R.id.btnSignOut).setOnClickListener { signOut() }
 
-        swipeRefresh.setOnRefreshListener { viewModel.refreshFromBackend() }
+        swipeRefresh.setOnRefreshListener {
+            // Refresh profile data…
+            viewModel.refreshFromBackend()
+            // …and force a full push+pull past the 90s throttle, so an explicit
+            // pull-to-refresh truly re-syncs everything, not just the profile (R4).
+            com.example.easy_billing.sync.SyncCoordinator
+                .get(requireContext())
+                .flushPending(force = true)
+        }
 
         observe()
         viewModel.refreshFromBackend()

@@ -1,9 +1,10 @@
 package com.example.easy_billing.repository
 
+import com.example.easy_billing.util.appNow
+
 import android.content.Context
 import com.example.easy_billing.InventoryManager
 import com.example.easy_billing.db.AppDatabase
-import com.example.easy_billing.db.GstPurchaseRecord
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
@@ -225,10 +226,16 @@ class PurchaseRepository private constructor(
 
             // 3. Inventory adjustment.
             //
-            // Pass full batch metadata so the v21 purchase_batches
-            // ledger carries the supplier / GST split. The user requested
-            // to include GST in the unit cost for stock addition.
+            // Pass full batch metadata so the v21 purchase_batches ledger
+            // carries the supplier / GST split. addStock's costPrice keeps the
+            // GST-inclusive (gross) per-unit value used by the inventory log, but
+            // the batch's unitCostExcludingTax must be the NET cost
+            // (taxableAmount / quantity). That column is "excluding tax" and
+            // drives the weighted-average COGS via recomputeAvgFromBatches, so
+            // storing the gross value there baked tax into valuation.
             val unitCostGross = if (line.quantity > 0.0) line.invoiceValue / line.quantity
+                              else line.costPrice
+            val unitCostNet = if (line.quantity > 0.0) line.taxableAmount / line.quantity
                               else line.costPrice
             val combinedGst = (line.purchaseCgst + line.purchaseSgst)
                 .takeIf { it > 0 } ?: line.purchaseIgst
@@ -243,7 +250,7 @@ class PurchaseRepository private constructor(
                     supplierGstin = header.supplierGstin,
                     invoiceNumber = header.invoiceNumber,
                     batchCode = null,
-                    unitCostExcludingTax = line.costPrice,
+                    unitCostExcludingTax = unitCostNet,
                     gstPercent = combinedGst,
                     cgstPercent = line.purchaseCgst,
                     sgstPercent = line.purchaseSgst,
@@ -253,43 +260,11 @@ class PurchaseRepository private constructor(
                 )
             )
 
-            // 4. GST register row (gst_purchase_records). One per
-            //    line item — this is what feeds GSTR-2 / 3B reports
-            //    and what gets pushed to the backend's
-            //    `gst_purchase_record` table by SyncManager.syncGstPurchases().
-            //
-            // gstRate here is the *combined* purchase tax rate so
-            // backend reports always have a single rate to summarise
-            // by. The amount columns carry the actual splits.
-            val combinedRate = (line.purchaseCgst + line.purchaseSgst)
-                .takeIf { it > 0 } ?: line.purchaseIgst
-            db.gstPurchaseRecordDao().insert(
-                GstPurchaseRecord(
-                    id                = UUID.randomUUID().toString(),
-                    vendorGstin       = header.supplierGstin,
-                    vendorName        = header.supplierName,
-                    invoiceNumber     = header.invoiceNumber,
-                    invoiceDate       = header.invoiceDate ?: header.createdAt,
-                    totalInvoiceValue = line.invoiceValue,
-                    taxableValue      = line.taxableAmount,
-                    gstRate           = combinedRate,
-                    cgstAmount        = line.taxableAmount * line.purchaseCgst / 100.0,
-                    sgstAmount        = line.taxableAmount * line.purchaseSgst / 100.0,
-                    igstAmount        = line.taxableAmount * line.purchaseIgst / 100.0,
-                    cessAmount        = 0.0,
-                    hsnCode           = line.hsnCode.orEmpty(),
-                    itcEligibility    = "Eligible",
-                    expenseType       = "STOCK",
-                    description       = listOfNotNull(
-                        line.productName,
-                        line.variant?.takeIf { it.isNotBlank() }?.let { "($it)" }
-                    ).joinToString(" "),
-                    syncStatus        = "pending",
-                    deviceId          = DeviceUtils.getDeviceId(context.applicationContext),
-                    createdAt         = System.currentTimeMillis(),
-                    updatedAt         = System.currentTimeMillis()
-                )
-            )
+            // 4. (Removed) The per-line GST purchase-register row that fed the
+            //    gst_purchase_records table. That table was retired — it was
+            //    never read on the device and its server reports (GSTR-3B/email)
+            //    are unused. The authoritative GST purchase data still lives in
+            //    purchase_table / purchase_items.
         }
 
         purchaseId

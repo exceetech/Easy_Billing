@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -52,7 +54,7 @@ data class PurchaseReturn(
     val supplierGstin: String? = null,
     val supplierName: String? = null,
 
-    @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "created_at") val createdAt: Long = appNow(),
     @ColumnInfo(name = "is_synced", defaultValue = "0")  val isSynced: Boolean = false,
 
     // Credit Integration

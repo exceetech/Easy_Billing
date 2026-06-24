@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.util.appNow
+
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Inventory
 import com.example.easy_billing.db.InventoryLog
@@ -93,7 +95,7 @@ object InventoryManager {
                 type = "ADJUST",
                 quantity = quantity,
                 price = costPrice,
-                date = System.currentTimeMillis(),
+                date = appNow(),
                 isSynced = false
             )
         )
@@ -191,7 +193,7 @@ object InventoryManager {
                 type = "ADD",
                 quantity = quantity,
                 price = costPrice,
-                date = System.currentTimeMillis()
+                date = appNow()
             )
         )
 
@@ -233,7 +235,7 @@ object InventoryManager {
                     igstPercent = batchMeta?.igstPercent ?: 0.0,
                     invoiceValue = batchMeta?.invoiceValue ?: (quantity * costPrice),
                     taxableValue = batchMeta?.taxableValue ?: (quantity * unitCostNet),
-                    createdAt = System.currentTimeMillis(),
+                    createdAt = appNow(),
                     isSynced = false
                 )
             )
@@ -296,7 +298,7 @@ object InventoryManager {
                 type = type, // SALE / LOSS / ADJUST
                 quantity = quantity,
                 price = avgCost,
-                date = System.currentTimeMillis()
+                date = appNow()
             )
         )
 
@@ -378,7 +380,7 @@ object InventoryManager {
                 type = type,
                 quantity = oldStock,
                 price = avgCost,
-                date = System.currentTimeMillis()
+                date = appNow()
             )
         )
 

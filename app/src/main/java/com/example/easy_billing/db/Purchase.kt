@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -45,7 +47,7 @@ data class Purchase(
      */
     @ColumnInfo(name = "invoice_date") val invoiceDate: Long? = null,
 
-    @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "created_at") val createdAt: Long = appNow(),
     @ColumnInfo(name = "is_synced")  val isSynced: Boolean = false,
     @ColumnInfo(name = "server_id")  val serverId: Int? = null,
 

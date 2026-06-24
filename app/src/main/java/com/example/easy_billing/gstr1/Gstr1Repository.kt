@@ -1,5 +1,7 @@
 package com.example.easy_billing.gstr1
 
+import com.example.easy_billing.util.appNow
+
 import android.content.Context
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.CreditNote
@@ -166,8 +168,8 @@ class Gstr1Repository(private val context: Context) {
             period        = report.period,
             returnType    = report.returnType,
             reportJson    = report.toJson(),
-            generatedAt   = existing?.generatedAt ?: System.currentTimeMillis(),
-            updatedAt     = System.currentTimeMillis()
+            generatedAt   = existing?.generatedAt ?: appNow(),
+            updatedAt     = appNow()
         )
         db.gstr1DraftDao().upsert(entity)
     }

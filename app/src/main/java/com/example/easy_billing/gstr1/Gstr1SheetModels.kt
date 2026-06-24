@@ -1,5 +1,7 @@
 package com.example.easy_billing.gstr1
 
+import com.example.easy_billing.util.appNow
+
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 
@@ -175,7 +177,7 @@ data class Gstr1Report(
     val financialYear: String,         // "2025-26"
     val period: String,                // "April" / "Apr-Jun" etc.
     val returnType: String,            // "Monthly" / "Quarterly"
-    val generatedAt: Long = System.currentTimeMillis(),
+    val generatedAt: Long = appNow(),
 
     val b2b:      List<B2BRow>      = emptyList(),
     val b2cl:     List<B2CLRow>     = emptyList(),

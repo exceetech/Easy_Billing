@@ -1,5 +1,7 @@
 package com.example.easy_billing.viewmodel
 
+import com.example.easy_billing.util.appNow
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -252,7 +254,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                     }
                     val prefix = if (noteType == "D") "DN" else "CN"
                     val noteNumber = "$prefix-%05d".format(nextSeq)
-                    val now        = System.currentTimeMillis()
+                    val now        = appNow()
 
                     val shopIdStr = gst?.shopId?.takeIf { it.isNotBlank() }
                         ?: store?.gstin.orEmpty()

@@ -1,6 +1,7 @@
 package com.example.easy_billing
 
 import android.app.Dialog
+import com.example.easy_billing.util.AppTime
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -502,8 +503,9 @@ class ProfitActivity : AppCompatActivity() {
 
     private fun getFilterDateRange(): Pair<String, String> {
 
-        val cal = Calendar.getInstance()
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        // Corrected internet clock in the shop timezone (matches backend reports).
+        val cal = AppTime.calendar()
+        val format = AppTime.isoDate()
 
         val today = format.format(cal.time)
 
@@ -514,11 +516,11 @@ class ProfitActivity : AppCompatActivity() {
             }
 
             "week" -> {
-                val startCal = Calendar.getInstance()
+                val startCal = AppTime.calendar()
                 startCal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
                 val start = format.format(startCal.time)
 
-                val endCal = Calendar.getInstance()
+                val endCal = AppTime.calendar()
                 endCal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY)
                 val endRaw = format.format(endCal.time)
 
@@ -528,11 +530,11 @@ class ProfitActivity : AppCompatActivity() {
             }
 
             "month" -> {
-                val startCal = Calendar.getInstance()
+                val startCal = AppTime.calendar()
                 startCal.set(Calendar.DAY_OF_MONTH, 1)
                 val start = format.format(startCal.time)
 
-                val endCal = Calendar.getInstance()
+                val endCal = AppTime.calendar()
                 endCal.set(
                     Calendar.DAY_OF_MONTH,
                     endCal.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -545,11 +547,11 @@ class ProfitActivity : AppCompatActivity() {
             }
 
             "year" -> {
-                val startCal = Calendar.getInstance()
+                val startCal = AppTime.calendar()
                 startCal.set(Calendar.DAY_OF_YEAR, 1)
                 val start = format.format(startCal.time)
 
-                val endCal = Calendar.getInstance()
+                val endCal = AppTime.calendar()
                 endCal.set(
                     Calendar.DAY_OF_YEAR,
                     endCal.getActualMaximum(Calendar.DAY_OF_YEAR)

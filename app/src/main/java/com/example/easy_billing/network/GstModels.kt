@@ -88,29 +88,8 @@ data class GstSaleRecordDto(
     val eco_role: String? = null
 )
 
-data class GstPurchaseRecordDto(
-    val record_id: String,
-    val vendor_gstin: String?,
-    val vendor_name: String?,
-    val invoice_number: String,
-    val invoice_date: Long,
-    val total_invoice_value: Double,
-    val taxable_value: Double,
-    val cgst_amount: Double,
-    val sgst_amount: Double,
-    val igst_amount: Double,
-    val cess_amount: Double,
-    val hsn_code: String,
-    val gst_rate: Double,
-    val itc_eligibility: String
-)
-
 data class GstSalesSyncRequest(
     val records: List<GstSaleRecordDto>
-)
-
-data class GstPurchaseSyncRequest(
-    val records: List<GstPurchaseRecordDto>
 )
 
 data class HsnSummaryItem(

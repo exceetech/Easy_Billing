@@ -54,4 +54,7 @@ interface InventoryLogDao {
 
     @Query("SELECT COUNT(*) FROM inventory_log WHERE productId = :productId AND isSynced = 0")
     suspend fun getUnsyncedCountForProduct(productId: Int): Int
+
+    @Query("SELECT COUNT(*) FROM inventory_log WHERE isSynced = 0")
+    suspend fun countUnsynced(): Int
 }

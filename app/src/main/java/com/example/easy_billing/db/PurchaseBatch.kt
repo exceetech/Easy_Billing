@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -85,7 +87,7 @@ data class PurchaseBatch(
     val taxableValue: Double = 0.0,
 
     @ColumnInfo(name = "created_at")
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = appNow(),
 
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false

@@ -62,11 +62,27 @@ interface CreditAccountDao {
     suspend fun getByServerId(serverId: Int, shopId: Int): CreditAccount?
 
     @Query("""
-        UPDATE credit_accounts 
-        SET isActive = 0 
+        UPDATE credit_accounts
+        SET isActive = 0
         WHERE id = :id AND shopId = :shopId
     """)
     suspend fun deactivate(id: Int, shopId: Int)
+
+    /**
+     * Propagate server-side deletions (Sync audit S6): deactivate any locally
+     * server-known account that is no longer in the server's active set. Only
+     * touches rows with a serverId (never pending local-only accounts), so an
+     * unsynced new account isn't wiped. Caller must pass a non-empty list.
+     */
+    @Query("""
+        UPDATE credit_accounts
+        SET isActive = 0
+        WHERE shopId = :shopId
+          AND serverId IS NOT NULL
+          AND isActive = 1
+          AND serverId NOT IN (:activeServerIds)
+    """)
+    suspend fun deactivateMissing(shopId: Int, activeServerIds: List<Int>)
 
     @Query("""
     UPDATE credit_accounts

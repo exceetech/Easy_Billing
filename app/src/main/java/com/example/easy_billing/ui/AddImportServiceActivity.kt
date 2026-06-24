@@ -1,5 +1,7 @@
 package com.example.easy_billing.ui
 
+import com.example.easy_billing.util.appNow
+
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -28,7 +30,7 @@ import java.util.Locale
 
 class AddImportServiceActivity : AppCompatActivity() {
 
-    private var selectedDateEpoch: Long = System.currentTimeMillis()
+    private var selectedDateEpoch: Long = appNow()
     private var selectedItc: String = "Inputs"
     private var selectedPos: String = "97 - Other Territory"
     private val posOptions = listOf("97 - Other Territory", "96 - Foreign Country")

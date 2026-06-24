@@ -94,10 +94,32 @@ interface PurchaseBatchDao {
     )
     suspend fun getValuationTotals(productId: Int): ValuationTotals
 
+    /**
+     * Per-product GROSS stock valuation — values remaining stock at the invoice
+     * value (incl. GST) rather than the net taxable cost. Used ONLY for the
+     * inventory "stock value" display; COGS/profit/returns keep using the net
+     * unit_cost_excluding_tax. Gross unit = invoiceValue / quantityPurchased.
+     */
+    @Query(
+        """
+        SELECT productId AS productId,
+               COALESCE(SUM(quantityRemaining), 0.0) AS totalQty,
+               COALESCE(SUM(quantityRemaining * (invoiceValue / quantityPurchased)), 0.0) AS totalValue
+        FROM purchase_batches
+        WHERE quantityRemaining > 0 AND quantityPurchased > 0
+        GROUP BY productId
+        """
+    )
+    suspend fun getGrossValuationByProduct(): List<ProductGrossValuation>
+
     /* ─── Sync helpers ─── */
 
     @Query("SELECT * FROM purchase_batches WHERE is_synced = 0")
     suspend fun getUnsynced(): List<PurchaseBatch>
+
+    /** All batches across all products — used to build the pull dedupe index (H2). */
+    @Query("SELECT * FROM purchase_batches")
+    suspend fun getAllBatchesGlobal(): List<PurchaseBatch>
 
     @Query("UPDATE purchase_batches SET is_synced = 1 WHERE id IN (:ids)")
     suspend fun markAsSynced(ids: List<Int>)
@@ -113,5 +135,18 @@ data class ValuationTotals(
 ) {
     /** Convenience — RULE 3 weighted-average. */
     val averageCost: Double
+        get() = if (totalQty > 0.0) totalValue / totalQty else 0.0
+}
+
+/**
+ * Per-product GROSS valuation row for [PurchaseBatchDao.getGrossValuationByProduct].
+ */
+data class ProductGrossValuation(
+    val productId: Int,
+    val totalQty: Double,
+    val totalValue: Double
+) {
+    /** GST-inclusive weighted-average unit cost. */
+    val grossAvgCost: Double
         get() = if (totalQty > 0.0) totalValue / totalQty else 0.0
 }

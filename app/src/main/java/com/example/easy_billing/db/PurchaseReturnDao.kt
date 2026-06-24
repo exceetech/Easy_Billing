@@ -20,6 +20,9 @@ interface PurchaseReturnDao {
     @Query("SELECT * FROM purchase_return_table WHERE is_synced = 0")
     suspend fun getUnsynced(): List<PurchaseReturn>
 
+    @Query("SELECT COUNT(*) FROM purchase_return_table WHERE is_synced = 0")
+    suspend fun countUnsynced(): Int
+
     @Query("UPDATE purchase_return_table SET is_synced = 1 WHERE id = :id")
     suspend fun markSynced(id: Int)
 

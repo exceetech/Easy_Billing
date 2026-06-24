@@ -20,6 +20,9 @@ interface ScrapDao {
     @Query("SELECT * FROM scrap_table WHERE is_synced = 0")
     suspend fun getUnsynced(): List<ScrapEntry>
 
+    @Query("SELECT COUNT(*) FROM scrap_table WHERE is_synced = 0")
+    suspend fun countUnsynced(): Int
+
     @Query("UPDATE scrap_table SET is_synced = 1 WHERE id = :id")
     suspend fun markSynced(id: Int)
 }

@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -22,10 +24,10 @@ interface PurchaseImportDetailsDao {
     suspend fun getUnsynced(): List<PurchaseImportDetails>
 
     @Query("UPDATE purchase_import_details SET sync_status = 'synced', updated_at = :timestamp WHERE id = :id")
-    suspend fun markSynced(id: Int, timestamp: Long = System.currentTimeMillis())
+    suspend fun markSynced(id: Int, timestamp: Long = appNow())
 
     @Query("UPDATE purchase_import_details SET sync_status = 'failed', updated_at = :timestamp WHERE id = :id")
-    suspend fun markFailed(id: Int, timestamp: Long = System.currentTimeMillis())
+    suspend fun markFailed(id: Int, timestamp: Long = appNow())
 
     @Query("DELETE FROM purchase_import_details WHERE purchase_id = :purchaseId")
     suspend fun deleteByPurchaseId(purchaseId: Int)

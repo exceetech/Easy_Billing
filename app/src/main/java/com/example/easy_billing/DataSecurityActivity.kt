@@ -144,14 +144,15 @@ class DataSecurityActivity : BaseActivity() {
                 return@launch
             }
 
-            try {
-                // ── STEP 1: Cancel in-flight sync ──────────────────────────────
-                // Prevents a concurrent sync from writing rows back after we wipe.
-                try {
-                    com.example.easy_billing.sync.SyncCoordinator
-                        .get(applicationContext).cancelSync()
-                } catch (_: Exception) {}
+            // ── STEP 1: Pause + cancel sync ────────────────────────────────────
+            // Suspend ALL background sync (in-flight job, 5-min retry loop,
+            // WorkManager, network-regain) so nothing writes rows back into the
+            // DB while we wipe it. Resumed in the finally below — never stuck off.
+            val coordinator = com.example.easy_billing.sync.SyncCoordinator
+                .get(applicationContext)
+            coordinator.pauseSync()
 
+            try {
                 // ── STEP 2: Workspace Rotation on the backend ──────────────────
                 // Archives the current Shop and provisions a clean new Shop.
                 // Migrates the active Subscription. Returns a fresh JWT.
@@ -161,15 +162,21 @@ class DataSecurityActivity : BaseActivity() {
                 val newToken      = resetResponse.access_token
                 val newShopId     = resetResponse.new_shop_id
 
-                // ── STEP 3: Delete local Room database file ────────────────────
-                // destroyInstance() first (closes the connection and nulls the
-                // singleton), then deleteDatabase() removes the main .db file
-                // AND the WAL/SHM side-files atomically. Using clearAllTables()
-                // instead left stale WAL files on disk; when the new instance
-                // opened the same file after routing to SplashActivity it could
-                // not acquire a write lock → "database locked" on first write.
-                AppDatabase.destroyInstance()
-                applicationContext.deleteDatabase("easy_billing_db")
+                // ── STEP 3: Wipe local data WITHOUT closing the DB ─────────────
+                // clearAllTables() empties every table on the SAME open
+                // connection. The database object is never closed, so no screen,
+                // repository, or sync coroutine is left holding a dead instance
+                // (which used to throw "connection pool has been closed", and the
+                // close+reopen used to throw "database is locked"). The file is
+                // kept. Corruption fallback ONLY: if clearing throws, fall back to
+                // close+delete — the next getDatabase() rebuilds a fresh file.
+                try {
+                    AppDatabase.getDatabase(applicationContext).clearAllTables()
+                } catch (clearError: Exception) {
+                    clearError.printStackTrace()
+                    AppDatabase.destroyInstance()
+                    applicationContext.deleteDatabase("easy_billing_db")
+                }
 
                 // ── STEP 4: Write new workspace identity to SharedPrefs ─────────
                 authPrefs.edit {
@@ -185,6 +192,10 @@ class DataSecurityActivity : BaseActivity() {
                     putString("app_currency",      "₹")
                     putBoolean("ai_reset",         true)
                 }
+
+                // Drop delta-pull cursors — the DB was wiped and a new workspace
+                // provisioned, so stale cursors must not carry over (R6).
+                getSharedPreferences("sync_cursors", MODE_PRIVATE).edit().clear().apply()
 
                 // ── STEP 6: Restart into fresh workspace ────────────────────────
                 // SplashActivity validates the new token, then routes to Dashboard.
@@ -208,6 +219,10 @@ class DataSecurityActivity : BaseActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                 }
+            } finally {
+                // Always re-enable sync — against the fresh workspace on success,
+                // or the existing one if the reset failed. Never leave it paused.
+                coordinator.resumeSync()
             }
         }
     }

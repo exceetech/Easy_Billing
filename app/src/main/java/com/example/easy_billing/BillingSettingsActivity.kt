@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.util.appNow
+
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -157,7 +159,7 @@ class BillingSettingsActivity : BaseActivity() {
                     stateCode = gstResp.state_code ?: "",
                     address = gstResp.address ?: "",
                     syncStatus = "synced",
-                    updatedAt = System.currentTimeMillis()
+                    updatedAt = appNow()
                 )
                 db.gstProfileDao().insert(updatedGst)
 
@@ -303,7 +305,7 @@ class BillingSettingsActivity : BaseActivity() {
                 stateCode = etStateCode.text.toString(),
                 address = etAddress.text.toString(),
                 syncStatus = "pending",
-                updatedAt = System.currentTimeMillis()
+                updatedAt = appNow()
             )
             db.gstProfileDao().insert(updatedGst)
 

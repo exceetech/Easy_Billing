@@ -1,5 +1,7 @@
 package com.example.easy_billing.gstr2
 
+import com.example.easy_billing.util.appNow
+
 import android.util.Log
 import com.example.easy_billing.network.ApiService
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +19,7 @@ class Gstr2Repository(
             financialYear = "", 
             period = "",
             returnType = "",
-            generatedAt = System.currentTimeMillis(),
+            generatedAt = appNow(),
             b2b = response.b2b.map { item ->
                 Gstr2B2bRow(
                     supplierGstin = item.supplier_gstin,

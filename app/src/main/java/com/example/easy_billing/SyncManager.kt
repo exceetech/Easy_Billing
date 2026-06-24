@@ -1,11 +1,14 @@
 package com.example.easy_billing.sync
 
+import com.example.easy_billing.util.appNow
+
 import android.content.Context
 import androidx.room.withTransaction
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.InventoryValuation
 import com.example.easy_billing.db.BillingSettings
 import com.example.easy_billing.db.CreditAccount
+import com.example.easy_billing.db.GstProfile
 import com.example.easy_billing.db.Inventory
 import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.network.RetrofitClient
@@ -19,9 +22,7 @@ import com.example.easy_billing.network.CreditSyncRequest
 import com.example.easy_billing.network.InventoryLogRequest
 import com.example.easy_billing.network.GstProfileRequest
 import com.example.easy_billing.network.GstSalesSyncRequest
-import com.example.easy_billing.network.GstPurchaseSyncRequest
 import com.example.easy_billing.network.GstSaleRecordDto
-import com.example.easy_billing.network.GstPurchaseRecordDto
 import com.example.easy_billing.network.CreateGstSalesInvoiceDto
 import com.example.easy_billing.network.CreateGstSalesItemDto
 import com.example.easy_billing.network.GstSalesSyncBatchRequest
@@ -57,7 +58,10 @@ import com.example.easy_billing.network.CustomerSyncRequest
 class SyncManager(private val context: Context) {
 
 
-    suspend fun syncAll() {
+    suspend fun syncAll() = syncAllMutex.withLock {
+
+        // Serialize across every entry point so two full syncs can't run
+        // concurrently and double-push non-idempotent rows (Issue 5).
 
         // 🔥 ORDER MATTERS — products before anything that references
         // them (purchases, bills, returns, scrap), pulls last.
@@ -72,19 +76,67 @@ class SyncManager(private val context: Context) {
         syncPurchases()
         syncPurchaseBatches()
         syncPurchaseImportDetails()
-        syncPurchaseBatches()
         syncImportServices()     // push import services
         syncPurchaseReturns()    // push purchase returns (debit notes)
         syncCreditNotes()        // push sales returns (credit notes)
         syncScrapEntries()       // push scrap
         syncGstProfile()
         syncGstSales()
-        syncGstPurchases()
         syncGstInvoices()        // push GST-aware invoice batch
         syncGstCancellations()   // push pending GST invoice cancellations
         syncBillCancellations()  // push voided bills to the analytics table
         syncStoreInfo()          // pull latest
         syncBillingSettings()    // pull settings
+
+        // Recompute the observable sync status so any open screen can
+        // reflect what is still pending / failed / blocked (Issue 11).
+        refreshSyncStatus()
+    }
+
+    /**
+     * Recomputes the process-wide [SyncState] from a handful of cheap
+     * COUNT(*) queries. Call at the end of a sync pass. Never throws —
+     * status reporting must never break the actual sync.
+     *
+     *   • pending          — rows still waiting to upload (normal/transient).
+     *   • failed           — rows that errored and are being retried.
+     *   • blockedByProduct — products not yet uploaded; every bill / log /
+     *                        purchase referencing them is stuck behind them.
+     */
+    suspend fun refreshSyncStatus() {
+        runCatching {
+            val db = AppDatabase.getDatabase(context)
+
+            val pending =
+                db.billDao().countUnsynced() +
+                db.purchaseDao().countUnsynced() +
+                db.inventoryLogDao().countUnsynced() +
+                db.gstSalesInvoiceDao().countPending() +
+                db.creditNoteDao().countPending() +
+                // R2: these batch-push tables were omitted, so status could read
+                // "all synced" while they were still pending.
+                db.purchaseReturnDao().countUnsynced() +
+                db.scrapDao().countUnsynced() +
+                db.importServiceDao().countPending()
+
+            val failed =
+                db.gstSalesInvoiceDao().countFailed() +
+                db.creditNoteDao().countFailed()
+
+            val blocked = db.productDao().countUnsynced()
+
+            val now  = System.currentTimeMillis()
+            val prev = SyncState.current
+            SyncState.update(
+                prev.copy(
+                    pending          = pending,
+                    failed           = failed,
+                    blockedByProduct = blocked,
+                    lastRunAt        = now,
+                    lastSuccessAt    = if (failed == 0 && blocked == 0) now else prev.lastSuccessAt
+                )
+            )
+        }.onFailure { Log.w(SYNC_TAG, "refreshSyncStatus failed (non-fatal): ${it.message}") }
     }
 
     /* ==================================================================
@@ -267,6 +319,19 @@ class SyncManager(private val context: Context) {
     }
 
     /**
+     * The current numeric shop id, or null when none is set.
+     *
+     * Use this instead of `getInt("SHOP_ID", 1)` — defaulting to 1 silently
+     * attributes a signed-out / freshly-wiped session's rows to shop #1, which
+     * may be a different business (Issue 8). A null result means "no shop yet",
+     * and sync methods should skip rather than guess.
+     */
+    private fun currentShopIdOrNull(): Int? =
+        context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getInt("SHOP_ID", -1)
+            .takeIf { it > 0 }
+
+    /**
      * Pushes every unsynced row in `purchase_table` (and its line
      * items) in a single batch. The backend echoes a
      * `local_id → server_id` map which we apply locally so future
@@ -294,9 +359,17 @@ class SyncManager(private val context: Context) {
      * actionable result back instead of having to wait for the
      * background SyncCoordinator.
      */
-    suspend fun pushPurchaseImmediately(purchaseId: Int): SyncResult {
+    suspend fun pushPurchaseImmediately(purchaseId: Int): SyncResult = syncAllMutex.withLock {
+        // Serialize with syncAll() (Sync deep-audit H1). This inline push calls
+        // syncAccounts()/syncCredit()/syncShopProducts(), none of which are
+        // individually mutexed; without this lock it can run concurrently with a
+        // background syncAll() (5-min retry, network-regain, dashboard resume) and
+        // double-push non-idempotent rows — duplicate credit accounts via
+        // createCreditAccount and duplicate credit transactions via syncCredit.
+        // Lock order is identical to syncAll (syncAllMutex first), so no deadlock;
+        // we never acquire it while holding billSyncMutex.
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return SyncResult.Skipped("not signed in")
+            .getString("TOKEN", null) ?: return@withLock SyncResult.Skipped("not signed in")
         val db = AppDatabase.getDatabase(context)
 
         // Make sure the products this purchase references have been
@@ -317,26 +390,17 @@ class SyncManager(private val context: Context) {
         }
 
         val purchase = db.purchaseDao().getById(purchaseId)
-            ?: return SyncResult.Skipped("local purchase not found")
-        if (purchase.isSynced) return SyncResult.NothingToDo
+            ?: return@withLock SyncResult.Skipped("local purchase not found")
+        if (purchase.isSynced) return@withLock SyncResult.NothingToDo
 
         val mainResult = pushPurchases(token, listOf(purchase))
-
-        // Also flush gst_purchase_records — savePurchase wrote one
-        // row per line item that has to land in the backend's
-        // `gst_purchase_record` table. Failures here don't override
-        // the main purchase result; they're logged and retried on
-        // the next sync pass.
-        runCatching { syncGstPurchases() }.onFailure {
-            Log.w(SYNC_TAG, "pushPurchaseImmediately: gst records flush failed: ${it.message}")
-        }
 
         // Also push the inventory logs created by this purchase immediately.
         runCatching { syncInventory() }.onFailure {
             Log.w(SYNC_TAG, "pushPurchaseImmediately: inventory logs sync failed: ${it.message}")
         }
 
-        return mainResult
+        mainResult
     }
 
     /** Shared push routine — keeps the DTO mapping in one place. */
@@ -386,11 +450,12 @@ class SyncManager(private val context: Context) {
                     supply_classification    = item.supplyClassification
                 )
             }
-            val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-                .getInt("SHOP_ID", 1)
-            val serverCreditAccountId = p.creditAccountId?.let { localId ->
-                db.creditAccountDao().getById(localId, shopId)?.serverId
-            }
+            val shopId = currentShopIdOrNull()
+            val serverCreditAccountId = if (shopId != null) {
+                p.creditAccountId?.let { localId ->
+                    db.creditAccountDao().getById(localId, shopId)?.serverId
+                }
+            } else null
 
             PurchaseDto(
                 local_id         = p.id,
@@ -432,18 +497,22 @@ class SyncManager(private val context: Context) {
             )
             Log.d(SYNC_TAG, "pushPurchases: server replied success_count=${response.success_count}, " +
                 "purchase_id_map=${response.purchase_id_map}")
+            // Only mark synced the purchases the server actually confirmed in
+            // its local_id → server_id map. Rows missing from the map keep their
+            // pending flag and retry next pass. We must NOT blanket-mark on an
+            // empty map: that would (a) drop rows the server silently rejected
+            // and (b) leave the purchase with serverId = null, so its child
+            // records (import details, batches) could never resolve their parent.
+            // The endpoint is idempotent on (shop_id, local_id), so retrying a
+            // row that did land server-side is harmless.
             response.purchase_id_map.forEach { (localIdStr, serverId) ->
                 val localId = localIdStr.toIntOrNull() ?: return@forEach
                 db.purchaseDao().markSynced(localId, serverId)
                 db.purchaseItemDao().markAllSyncedForPurchase(localId)
             }
-            // Fallback: if server didn't echo a map, mark everything
-            // we sent as synced so we don't loop forever.
             if (response.purchase_id_map.isEmpty()) {
-                pending.forEach {
-                    db.purchaseDao().markSynced(it.id, null)
-                    db.purchaseItemDao().markAllSyncedForPurchase(it.id)
-                }
+                Log.w(SYNC_TAG, "pushPurchases: 2xx but empty id_map — leaving " +
+                    "${pending.size} purchase(s) pending for retry")
             }
             SyncResult.Pushed(pending.size)
         } catch (e: Exception) {
@@ -473,6 +542,15 @@ class SyncManager(private val context: Context) {
          * rows in the backend bills table (one sale, two entries).
          */
         val billSyncMutex = kotlinx.coroutines.sync.Mutex()
+
+        /**
+         * Serializes [syncAll] across ALL entry points (SyncCoordinator,
+         * NetworkReceiver, post-login MainActivity). Without it two full
+         * syncs can overlap and double-push non-idempotent rows (Issue 5).
+         * Lock order is always syncAllMutex → billSyncMutex (syncBills runs
+         * inside syncAll), never the reverse, so there is no deadlock.
+         */
+        val syncAllMutex = kotlinx.coroutines.sync.Mutex()
     }
 
     /**
@@ -495,9 +573,6 @@ class SyncManager(private val context: Context) {
 
         val pending = db.purchaseImportDetailsDao().getUnsynced()
         if (pending.isEmpty()) return
-
-        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getInt("SHOP_ID", 1)
 
         val dtos = pending.map { d ->
             val purchase = db.purchaseDao().getById(d.purchaseId)
@@ -525,14 +600,13 @@ class SyncManager(private val context: Context) {
                 token,
                 PurchaseImportDetailsSyncRequest(dtos)
             )
+            // Mark synced ONLY the records the server echoed as accepted (M1).
+            // The old "empty map → mark all" fallback silently dropped any row the
+            // server rejected. Unmapped rows stay pending and retry next pass; the
+            // backend upserts by (shop_id, local_id) so re-push is safe.
             response.record_id_map.forEach { (localIdStr, _) ->
                 val localId = localIdStr.toIntOrNull() ?: return@forEach
                 db.purchaseImportDetailsDao().markSynced(localId)
-            }
-            if (response.record_id_map.isEmpty()) {
-                pending.forEach {
-                    db.purchaseImportDetailsDao().markSynced(it.id)
-                }
             }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncPurchaseImportDetails: FAILED", e)
@@ -548,8 +622,10 @@ class SyncManager(private val context: Context) {
         val pending = db.importServiceDao().getPendingSyncImportServices()
         if (pending.isEmpty()) return
 
-        val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getInt("SHOP_ID", 1)
+        val shopId = currentShopIdOrNull() ?: run {
+            Log.w(SYNC_TAG, "syncImportServices skipped — no valid SHOP_ID")
+            return
+        }
 
         val deviceId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
             .getString("DEVICE_ID", java.util.UUID.randomUUID().toString())
@@ -576,8 +652,16 @@ class SyncManager(private val context: Context) {
         try {
             val response = api.syncImportServices(token, shopId, dtos)
             if (response.isSuccessful) {
-                pending.forEach {
-                    db.importServiceDao().markAsSynced(it.id)
+                // Mark synced ONLY the local_ids the server acknowledged (M1).
+                // If the server omits the field (older build), fall back to the
+                // previous behaviour and mark the whole batch — that backend is
+                // all-or-nothing, so a 200 means everything persisted.
+                val accepted = response.body()?.accepted_local_ids
+                if (accepted != null && accepted.isNotEmpty()) {
+                    val acceptedSet = accepted.toHashSet()
+                    pending.forEach { if (it.id in acceptedSet) db.importServiceDao().markAsSynced(it.id) }
+                } else {
+                    pending.forEach { db.importServiceDao().markAsSynced(it.id) }
                 }
             }
         } catch (e: Exception) {
@@ -600,9 +684,15 @@ class SyncManager(private val context: Context) {
             val dao = db.importServiceDao()
 
             db.withTransaction {
+                // Match on the natural key (invoice_number, invoice_date) — NOT the
+                // originating device's local_id. Reusing that id as our primary key
+                // collided with this device's own autoincrement rows, so a mirrored
+                // record was either skipped or overwrote an unrelated local row (H2).
+                // Insert with id=0 so Room assigns a fresh local primary key.
+                val existingByKey = dao.getAllImportServices()
+                    .associateBy { it.invoiceNumber to it.invoiceDate }
                 for (record in serverRecords) {
-                    val localIdToUse = record.local_id ?: record.id
-                    val existing = dao.getById(localIdToUse)
+                    val existing = existingByKey[record.invoice_number to record.invoice_date]
                     if (existing != null) {
                         dao.update(
                             existing.apply {
@@ -623,7 +713,7 @@ class SyncManager(private val context: Context) {
                     } else {
                         dao.insert(
                             com.example.easy_billing.db.ImportService(
-                                id = localIdToUse,
+                                id = 0,
                                 invoiceNumber = record.invoice_number,
                                 invoiceDate = record.invoice_date,
                                 invoiceValue = record.invoice_value,
@@ -659,11 +749,12 @@ class SyncManager(private val context: Context) {
         val productDao = db.productDao()
         val dtos = pending.map { r ->
             val serverProductId = r.productId?.let { productDao.getById(it)?.serverId }
-            val shopId = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-                .getInt("SHOP_ID", 1)
-            val serverCreditAccountId = r.creditAccountId?.let { localId ->
-                db.creditAccountDao().getById(localId, shopId)?.serverId
-            }
+            val shopId = currentShopIdOrNull()
+            val serverCreditAccountId = if (shopId != null) {
+                r.creditAccountId?.let { localId ->
+                    db.creditAccountDao().getById(localId, shopId)?.serverId
+                }
+            } else null
 
             PurchaseReturnDto(
                 local_id                = r.id,
@@ -717,8 +808,13 @@ class SyncManager(private val context: Context) {
         }
 
         try {
-            api.syncPurchaseReturns(token, PurchaseReturnSyncRequest(dtos))
-            pending.forEach { db.purchaseReturnDao().markSynced(it.id) }
+            val response = api.syncPurchaseReturns(token, PurchaseReturnSyncRequest(dtos))
+            // Mark synced ONLY the records the server accepted (echoed in
+            // record_id_map). Rejected ones stay pending and retry next pass —
+            // never blanket-mark the batch, which silently lost them (R1). The
+            // backend dedupes on (shop_id, local_id) so re-push is safe.
+            val accepted = response.record_id_map.keys.mapNotNull { it.toIntOrNull() }.toSet()
+            pending.forEach { if (it.id in accepted) db.purchaseReturnDao().markSynced(it.id) }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncPurchaseReturns: failed", e)
         }
@@ -814,14 +910,13 @@ class SyncManager(private val context: Context) {
             val response = api.syncCreditNotes(token, CreditNoteSyncRequest(dtoBatch))
             Log.d(SYNC_TAG, "syncCreditNotes: server replied success=${response.success_count}")
 
-            // Mark synced via server's echo map
+            // Mark synced ONLY the notes the server echoed as accepted. The old
+            // "empty map → mark all synced" fallback silently lost notes the
+            // server rejected (R1). Unmapped rows stay pending and retry next
+            // pass; the backend dedupes on (shop_id, local_id) so re-push is safe.
             response.note_id_map.forEach { (localIdStr, _) ->
                 val localId = localIdStr.toIntOrNull() ?: return@forEach
                 db.creditNoteDao().markSynced(localId)
-            }
-            // Fallback — server didn't echo map but accepted the request (2xx)
-            if (response.note_id_map.isEmpty()) {
-                pending.forEach { db.creditNoteDao().markSynced(it.id) }
             }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncCreditNotes: POST /credit-notes/sync FAILED", e)
@@ -864,8 +959,10 @@ class SyncManager(private val context: Context) {
         }
 
         try {
-            api.syncScrap(token, ScrapSyncRequest(dtos))
-            pending.forEach { db.scrapDao().markSynced(it.id) }
+            val response = api.syncScrap(token, ScrapSyncRequest(dtos))
+            // Mark synced ONLY accepted records (R1); rejected ones retry next pass.
+            val accepted = response.record_id_map.keys.mapNotNull { it.toIntOrNull() }.toSet()
+            pending.forEach { if (it.id in accepted) db.scrapDao().markSynced(it.id) }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -902,7 +999,10 @@ class SyncManager(private val context: Context) {
                     val serverId = product?.serverId
 
                     if (serverId == null || serverId <= 0) {
-                        println("❌ Skipping unsynced product: ${product?.name}")
+                        // This bill can't be pushed until its product uploads.
+                        // Surfaced to the user via SyncState.blockedByProduct (Issue 4).
+                        Log.w(SYNC_TAG, "syncBills: bill ${bill.id} blocked — product " +
+                            "'${product?.name}' has no serverId yet")
                         return@mapNotNull null
                     }
 
@@ -932,7 +1032,9 @@ class SyncManager(private val context: Context) {
                 }
 
                 if (apiItems.size != items.size) {
-                    println("❌ Skipping bill ${bill.id} → invalid products")
+                    Log.w(SYNC_TAG, "syncBills: bill ${bill.id} skipped this pass — " +
+                        "${items.size - apiItems.size} item(s) reference an un-uploaded product; " +
+                        "will retry once products sync")
                     continue
                 }
 
@@ -1056,7 +1158,29 @@ class SyncManager(private val context: Context) {
 
         try {
 
-            // ✅ ALWAYS FETCH FROM BACKEND
+            // ── PUSH FIRST (Issue 15) ──────────────────────────────────────
+            // If there's an un-pushed local edit (e.g. the user changed the
+            // store profile while offline), upload it and mark it synced. We
+            // must NOT pull-and-overwrite first, or the local edit is lost.
+            val localPending = db.storeInfoDao().getUnsynced()
+            if (localPending != null) {
+                api.updateStoreSettings(
+                    token,
+                    com.example.easy_billing.network.ShopSettingsUpdateRequest(
+                        localPending.name,
+                        localPending.address,
+                        localPending.phone,
+                        localPending.gstin,
+                        localPending.type
+                    )
+                )
+                db.storeInfoDao().markSynced()
+                // Local is now the source of truth this pass; skip the pull so
+                // we don't clobber the just-pushed values with a stale read.
+                return
+            }
+
+            // ── PULL (only when local is clean) ────────────────────────────
             val response = api.getStoreSettings(token)
 
             if (!response.shop_name.isNullOrBlank()) {
@@ -1073,7 +1197,9 @@ class SyncManager(private val context: Context) {
             }
 
         } catch (e: Exception) {
-            // ignore
+            // Offline or transient error → leave any local edit pending so it
+            // retries next pass. Never overwrite local on failure.
+            Log.w(SYNC_TAG, "syncStoreInfo: ${e.message}")
         }
     }
 
@@ -1109,7 +1235,10 @@ class SyncManager(private val context: Context) {
         val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
         val token = prefs.getString("TOKEN", null) ?: return
-        val shopId = prefs.getInt("SHOP_ID", 1)
+        val shopId = currentShopIdOrNull() ?: run {
+            Log.w(SYNC_TAG, "syncCredit skipped — no valid SHOP_ID")
+            return
+        }
 
         val txns = db.creditTransactionDao().getUnsynced(shopId)
 
@@ -1121,7 +1250,7 @@ class SyncManager(private val context: Context) {
                 val account = db.creditAccountDao().getById(txn.accountId, shopId)
 
                 if (account?.serverId == null || account.serverId == -1) {
-                    println("⏳ Waiting for account sync → txnId=${txn.id}")
+                    Log.d(SYNC_TAG, "⏳ Waiting for account sync → txnId=${txn.id}")
                     continue
                 }
 
@@ -1138,7 +1267,7 @@ class SyncManager(private val context: Context) {
                 if (res.isSuccessful) {
                     db.creditTransactionDao().markSynced(txn.id, shopId)
                 } else {
-                    println("❌ ERROR: ${res.code()} ${res.errorBody()?.string()}")
+                    Log.d(SYNC_TAG, "❌ ERROR: ${res.code()} ${res.errorBody()?.string()}")
                     continue
                 }
 
@@ -1157,7 +1286,10 @@ class SyncManager(private val context: Context) {
         val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
         val token = prefs.getString("TOKEN", null) ?: return
-        val shopId = prefs.getInt("SHOP_ID", 1)
+        val shopId = currentShopIdOrNull() ?: run {
+            Log.w(SYNC_TAG, "syncAccounts skipped — no valid SHOP_ID")
+            return
+        }
 
         // ✅ FIX: filter by shopId
         val accounts = db.creditAccountDao().getAll(shopId)
@@ -1191,11 +1323,25 @@ class SyncManager(private val context: Context) {
         val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
         val token = prefs.getString("TOKEN", null) ?: return
-        val shopId = prefs.getInt("SHOP_ID", 1)
+        val shopId = currentShopIdOrNull() ?: run {
+            Log.w(SYNC_TAG, "pullAccountsFromServer skipped — no valid SHOP_ID")
+            return
+        }
 
         try {
 
             val accounts = api.getCreditAccounts(token)
+
+            // Propagate deletions (Sync audit S6): the server only returns ACTIVE
+            // accounts, so any local server-known account missing from this set was
+            // deactivated on another device → deactivate it locally too. Guarded on
+            // non-empty (Room can't bind an empty IN-list; also avoids mass-hiding
+            // on a spurious empty response — the last-account case reconciles once
+            // any active account exists).
+            val activeServerIds = accounts.map { it.id }
+            if (activeServerIds.isNotEmpty()) {
+                db.creditAccountDao().deactivateMissing(shopId, activeServerIds)
+            }
 
             for (acc in accounts) {
 
@@ -1253,7 +1399,7 @@ class SyncManager(private val context: Context) {
 
             // ❌ skip if not synced to backend
             if (product?.serverId == null || product.serverId == 0) {
-                println("⏳ Skipping log ${log.id} → product not synced yet")
+                Log.d(SYNC_TAG, "⏳ Skipping log ${log.id} → product not synced yet")
                 continue
             }
 
@@ -1263,7 +1409,9 @@ class SyncManager(private val context: Context) {
                     type = log.type,
                     quantity = log.quantity,
                     price = log.price,
-                    date = log.date   // 🔥 REQUIRED
+                    date = log.date,  // 🔥 REQUIRED
+                    // Stable key so a retried push dedupes exactly (Sync audit S2).
+                    client_uid = "${deviceId()}:${log.id}"
                 )
             )
 
@@ -1292,10 +1440,10 @@ class SyncManager(private val context: Context) {
                     }
                 }
 
-                println("✅ Inventory synced: ${syncedLogIds.size}")
+                Log.d(SYNC_TAG, "✅ Inventory synced: ${syncedLogIds.size}")
             } else {
 
-                println("❌ Sync failed: ${response.code()}")
+                Log.d(SYNC_TAG, "❌ Sync failed: ${response.code()}")
             }
 
         } catch (e: Exception) {
@@ -1304,7 +1452,14 @@ class SyncManager(private val context: Context) {
         }
     }
 
-    suspend fun pullInventory() {
+    /**
+     * @param retryMissingProducts when true (default), a single extra pass is
+     *   allowed after fetching products that the server's inventory referenced
+     *   but we didn't have locally. The recursive call passes `false` so an
+     *   orphaned server inventory row (product the server can't actually return)
+     *   can't drive infinite recursion / server hammering (Issue 10).
+     */
+    suspend fun pullInventory(retryMissingProducts: Boolean = true) {
 
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
@@ -1312,11 +1467,17 @@ class SyncManager(private val context: Context) {
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
             .getString("TOKEN", null) ?: return
 
+        // Delta cursor (Sync audit S5): server-set updated_at, keyed by shop.
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val shopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "inventory_updated_since_$shopId"
+        val since = cursorPrefs.getLong(cursorKey, 0L)
+
         try {
 
-            val serverInventory = api.getInventory(token)
+            val serverInventory = api.getInventory(token, since)
 
-            println("📦 SERVER INVENTORY SIZE = ${serverInventory.size}")
+            Log.d(SYNC_TAG, "📦 SERVER INVENTORY (since=$since) SIZE = ${serverInventory.size}")
 
             val productDao = db.productDao()
             val inventoryDao = db.inventoryDao()
@@ -1326,19 +1487,22 @@ class SyncManager(private val context: Context) {
             val productMap = products.associateBy { it.serverId }
 
             val missingProductIds = mutableSetOf<Int>()
+            var maxUpdatedAt = since
 
             db.withTransaction {
 
                 for (item in serverInventory) {
 
-                    println("➡️ Processing product_id=${item.product_id}, stock=${item.stock}")
+                    item.updated_at?.let { if (it > maxUpdatedAt) maxUpdatedAt = it }
+
+                    Log.d(SYNC_TAG, "➡️ Processing product_id=${item.product_id}, stock=${item.stock}")
 
                     // 🔥 TRY TO FIND PRODUCT
                     val product = productMap[item.product_id]
                         ?: productDao.getByServerId(item.product_id)
 
                     if (product == null) {
-                        println("⚠️ Product missing locally: ${item.product_id}")
+                        Log.d(SYNC_TAG, "⚠️ Product missing locally: ${item.product_id}")
                         missingProductIds.add(item.product_id)
                         continue
                     }
@@ -1348,7 +1512,7 @@ class SyncManager(private val context: Context) {
                     if (existing != null) {
                         // 🔥 PROTECT LOCAL CHANGES
                         if (!existing.isSynced) {
-                            println("⏳ Skipping pull for productId=${product.id} → local has unsynced changes")
+                            Log.d(SYNC_TAG, "⏳ Skipping pull for productId=${product.id} → local has unsynced changes")
                             continue
                         }
 
@@ -1370,7 +1534,7 @@ class SyncManager(private val context: Context) {
                             )
                         )
                         //InventoryValuation.ensureSyntheticBatch(db, product.id)
-                        println("✅ Updated inventory for productId=${product.id}")
+                        Log.d(SYNC_TAG, "✅ Updated inventory for productId=${product.id}")
                     } else {
 
                         inventoryDao.insert(
@@ -1384,15 +1548,17 @@ class SyncManager(private val context: Context) {
                         )
                         //InventoryValuation.ensureSyntheticBatch(db, product.id)
 
-                        println("✅ Inserted inventory for productId=${product.id}")
+                        Log.d(SYNC_TAG, "✅ Inserted inventory for productId=${product.id}")
                     }
                 }
             }
 
             // 🔥 FIX MISSING PRODUCTS (CRITICAL FOR REINSTALL CASE)
-            if (missingProductIds.isNotEmpty()) {
+            // Only when retryMissingProducts is true, so a server inventory row
+            // pointing at a product the server can't return won't loop forever.
+            if (missingProductIds.isNotEmpty() && retryMissingProducts) {
 
-                println("🔄 Missing products detected → refetching products")
+                Log.d(SYNC_TAG, "🔄 Missing products detected → refetching products")
 
                 try {
 
@@ -1479,17 +1645,30 @@ class SyncManager(private val context: Context) {
                                 )
                             }
 
-                            println("✅ Recovered missing product ${bp.id}")
+                            Log.d(SYNC_TAG, "✅ Recovered missing product ${bp.id}")
                         }
                     }
 
-                    // 🔥 RE-RUN INVENTORY SYNC ONCE MORE
-                    println("🔁 Re-running inventory sync after product fix")
-                    pullInventory()
+                    // 🔥 RE-RUN INVENTORY SYNC ONCE MORE (and only once):
+                    // pass retryMissingProducts = false to cap the recursion.
+                    Log.d(SYNC_TAG, "🔁 Re-running inventory sync after product fix")
+                    pullInventory(retryMissingProducts = false)
 
                 } catch (e: Exception) {
-                    println("❌ Failed to refetch missing products: ${e.message}")
+                    Log.d(SYNC_TAG, "❌ Failed to refetch missing products: ${e.message}")
                 }
+            } else if (missingProductIds.isNotEmpty()) {
+                Log.w(SYNC_TAG, "pullInventory: ${missingProductIds.size} inventory row(s) " +
+                    "reference unknown product(s) $missingProductIds — skipped to avoid retry loop")
+            }
+
+            // Advance the delta cursor ONLY on a clean outer pass with no missing
+            // products. If anything was skipped we keep the old cursor so those
+            // rows are re-pulled next time — worst case a harmless re-fetch (the
+            // upsert dedupes), never a silently-missed row. The recursive
+            // retryMissingProducts=false call never advances the cursor.
+            if (retryMissingProducts && missingProductIds.isEmpty() && maxUpdatedAt > since) {
+                cursorPrefs.edit().putLong(cursorKey, maxUpdatedAt).apply()
             }
 
         } catch (e: Exception) {
@@ -1502,9 +1681,15 @@ class SyncManager(private val context: Context) {
         val api = RetrofitClient.api
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
 
+        // Delta cursor (Sync audit S5): server-set updated_at, keyed by shop.
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val pShopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "purchases_updated_since_$pShopId"
+        val since = cursorPrefs.getLong(cursorKey, 0L)
+
         try {
-            val serverPurchases = api.getPurchases(token)
-            println("📦 SERVER PURCHASES SIZE = ${serverPurchases.size}")
+            val serverPurchases = api.getPurchases(token, since)
+            Log.d(SYNC_TAG, "📦 SERVER PURCHASES (since=$since) SIZE = ${serverPurchases.size}")
 
             val productDao = db.productDao()
             val purchaseDao = db.purchaseDao()
@@ -1513,12 +1698,15 @@ class SyncManager(private val context: Context) {
             val products = productDao.getAll()
             val productMap = products.associateBy { it.serverId }
 
+            var maxUpdatedAt = since
+
             db.withTransaction {
                 for (p in serverPurchases) {
+                    p.updated_at?.let { if (it > maxUpdatedAt) maxUpdatedAt = it }
                     // Check if purchase already exists locally by server ID
                     val existing = purchaseDao.getByServerId(p.id)
                     if (existing != null) {
-                        println("⏳ Skipping pull for purchase serverId=${p.id} → already exists")
+                        Log.d(SYNC_TAG, "⏳ Skipping pull for purchase serverId=${p.id} → already exists")
                         continue
                     }
 
@@ -1603,6 +1791,13 @@ class SyncManager(private val context: Context) {
                     }
                 }
             }
+
+            // Advance the delta cursor. Purchases are inserted-once (existing
+            // server ids are skipped), so there's no data-losing skip path —
+            // safe to advance to the newest updated_at we saw.
+            if (maxUpdatedAt > since) {
+                cursorPrefs.edit().putLong(cursorKey, maxUpdatedAt).apply()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -1613,9 +1808,17 @@ class SyncManager(private val context: Context) {
         val api = RetrofitClient.api
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
 
+        // Delta cursor (Sync audit S5): only fetch logs newer than the last one
+        // we pulled, keyed by shop so a workspace change starts fresh. Stored in
+        // prefs (no local schema change); the server filters on the monotonic id.
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val shopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "inv_logs_after_id_$shopId"
+        val afterId = cursorPrefs.getInt(cursorKey, 0)
+
         try {
-            val serverLogs = api.getInventoryLogs(token)
-            println("📦 SERVER INVENTORY LOGS SIZE = ${serverLogs.size}")
+            val serverLogs = api.getInventoryLogs(token, afterId)
+            Log.d(SYNC_TAG, "📦 SERVER INVENTORY LOGS (after id=$afterId) SIZE = ${serverLogs.size}")
 
             val productDao = db.productDao()
             val inventoryLogDao = db.inventoryLogDao()
@@ -1623,12 +1826,21 @@ class SyncManager(private val context: Context) {
             val products = productDao.getAll()
             val productMap = products.associateBy { it.serverId }
 
+            var maxProcessedId = afterId
+            // Smallest id we had to skip because its product isn't local yet.
+            // We never advance the cursor past it, so it's re-pulled once the
+            // product arrives (pullInventory runs before this and recovers them).
+            var firstSkippedId = Int.MAX_VALUE
+
             db.withTransaction {
                 for (item in serverLogs) {
                     val product = productMap[item.product_id] ?: productDao.getByServerId(item.product_id)
-                    if (product == null) continue
+                    if (product == null) {
+                        if (item.id in 1 until firstSkippedId) firstSkippedId = item.id
+                        continue
+                    }
 
-                    // Check if similar log exists locally to prevent duplicates
+                    // Content-dedup safety net (covers the first/overlapping pull).
                     val existingLogs = inventoryLogDao.getLogs(product.id)
                     val isDuplicate = existingLogs.any {
                         it.type == item.type &&
@@ -1645,12 +1857,174 @@ class SyncManager(private val context: Context) {
                                 type = item.type,
                                 quantity = item.quantity,
                                 price = item.price,
-                                date = item.date ?: System.currentTimeMillis(),
+                                date = item.date ?: appNow(),
                                 isSynced = true
                             )
                         )
                     }
+                    if (item.id > maxProcessedId) maxProcessedId = item.id
                 }
+            }
+
+            // Advance the cursor — but stop just before any skipped log so it is
+            // re-fetched next pass. If nothing was skipped, advance to the max id.
+            val newCursor = if (firstSkippedId != Int.MAX_VALUE)
+                minOf(maxProcessedId, firstSkippedId - 1)
+            else
+                maxProcessedId
+            if (newCursor > afterId) {
+                cursorPrefs.edit().putInt(cursorKey, newCursor).apply()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Mirror bills created on OTHER terminals into local Room (Sync re-audit R3),
+     * so this device can reprint them and run accurate (tax-complete) sales
+     * returns / debit notes against them. Append-only `id` cursor, keyed by shop.
+     *
+     * Safety:
+     *  • Dedupe by bill_number — never duplicates a bill we created/pulled.
+     *  • If any item's product isn't local yet, skip that bill and HOLD the cursor
+     *    before it (re-pulled once the product arrives; pullInventory recovers
+     *    products earlier in the cascade). Never inserts a partial bill.
+     */
+    suspend fun pullBills() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val shopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "bills_after_id_$shopId"
+        val afterId = cursorPrefs.getInt(cursorKey, 0)
+
+        try {
+            val serverBills = api.getBillsSince(token, afterId)
+            Log.d(SYNC_TAG, "pullBills: ${serverBills.size} bill(s) after id=$afterId")
+
+            val billDao = db.billDao()
+            val productDao = db.productDao()
+
+            var maxProcessedId = afterId
+            var firstSkippedId = Int.MAX_VALUE
+
+            for (sb in serverBills) {
+                // Already present (created here, or pulled before) → advance past it.
+                if (sb.bill_number.isBlank() || billDao.getByBillNumber(sb.bill_number) != null) {
+                    if (sb.bill_id > maxProcessedId) maxProcessedId = sb.bill_id
+                    continue
+                }
+
+                // Map every item's product → local id; if any is missing, defer.
+                val mapped = sb.items.map { it to productDao.getByServerId(it.shop_product_id)?.id }
+                if (mapped.any { it.second == null }) {
+                    if (sb.bill_id < firstSkippedId) firstSkippedId = sb.bill_id
+                    continue
+                }
+
+                db.withTransaction {
+                    val localBillId = billDao.insertBill(
+                        com.example.easy_billing.db.Bill(
+                            id = 0,
+                            billNumber = sb.bill_number,
+                            date = sb.created_at ?: "",
+                            subTotal = sb.subtotal,
+                            gst = sb.gst_amount,
+                            discount = sb.discount_amount,
+                            total = sb.final_amount,
+                            paymentMethod = sb.payment_method,
+                            customerType = sb.invoice_type,
+                            placeOfSupply = sb.customer_state ?: "",
+                            supplyType = sb.supply_type,
+                            cgstAmount = sb.cgst_amount,
+                            sgstAmount = sb.sgst_amount,
+                            igstAmount = sb.igst_amount,
+                            isSynced = true,
+                            isCancelled = sb.is_cancelled,
+                            cancelledAt = sb.cancelled_at,
+                            cancelSynced = true
+                        )
+                    ).toInt()
+
+                    billDao.insertItems(
+                        mapped.map { (it, pid) ->
+                            com.example.easy_billing.db.BillItem(
+                                id = 0,
+                                billId = localBillId,
+                                productId = pid!!,
+                                productName = it.product_name,
+                                variant = it.variant,
+                                unit = it.unit,
+                                price = it.unit_price,
+                                quantity = it.quantity,
+                                subTotal = it.line_subtotal,
+                                hsnCode = it.hsn_code,
+                                gstRate = it.gst_rate,
+                                cgstAmount = it.cgst_amount,
+                                sgstAmount = it.sgst_amount,
+                                igstAmount = it.igst_amount,
+                                taxableValue = it.taxable_amount,
+                                isSynced = true
+                            )
+                        }
+                    )
+                }
+                if (sb.bill_id > maxProcessedId) maxProcessedId = sb.bill_id
+            }
+
+            val newCursor = if (firstSkippedId != Int.MAX_VALUE)
+                minOf(maxProcessedId, firstSkippedId - 1)
+            else
+                maxProcessedId
+            if (newCursor > afterId) {
+                cursorPrefs.edit().putInt(cursorKey, newCursor).apply()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Propagate voids made on OTHER terminals (Sync re-audit, cancellation
+     * propagation). The R3 bill mirror uses an append-only id cursor, so a
+     * cancellation (a flag flip on an existing bill) wouldn't reach this device.
+     * This pulls bills cancelled since a server-set `updated_at` cursor and marks
+     * the local copy cancelled. Idempotent; safe to advance the cursor freely
+     * (a not-yet-mirrored bill will arrive already-cancelled via pullBills).
+     */
+    suspend fun pullBillCancellations() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val shopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "bills_cancel_since_$shopId"
+        val since = cursorPrefs.getLong(cursorKey, 0L)
+
+        try {
+            val cancelled = api.getBillCancellations(token, since)
+            Log.d(SYNC_TAG, "pullBillCancellations: ${cancelled.size} void(s) since $since")
+            val billDao = db.billDao()
+            var maxUpdatedAt = since
+
+            for (c in cancelled) {
+                c.updated_at?.let { if (it > maxUpdatedAt) maxUpdatedAt = it }
+                if (c.bill_number.isBlank()) continue
+                val local = billDao.getByBillNumber(c.bill_number) ?: continue
+                if (local.isCancelled) continue
+                billDao.markBillCancelled(local.id, c.cancelled_at ?: appNow())
+                // Void came FROM the server — mark acknowledged so we don't re-push it.
+                billDao.markCancelSynced(local.id)
+            }
+
+            if (maxUpdatedAt > since) {
+                cursorPrefs.edit().putLong(cursorKey, maxUpdatedAt).apply()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -1662,32 +2036,57 @@ class SyncManager(private val context: Context) {
         val api = RetrofitClient.api
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
 
-        val profile = db.gstProfileDao().get() ?: return
-        if (profile.syncStatus == "synced") return
+        val profile = db.gstProfileDao().get()
 
         try {
-            val request = GstProfileRequest(
-                gstin = profile.gstin,
-                legal_name = profile.legalName,
-                trade_name = profile.tradeName,
-                gst_scheme = profile.gstScheme,
-                registration_type = profile.registrationType,
-                state_code = profile.stateCode
-            )
-            
-            // Re-lookup or direct upsert
-            val response = api.upsertGstProfile(token, request)
-            
-            db.gstProfileDao().insert(profile.copy(
+            // ── PUSH FIRST (mirror syncStoreInfo, Issue 15) ────────────────
+            // A dirty local profile is an un-pushed user edit. Upload it and
+            // mark synced; do NOT pull-and-overwrite first or the edit is lost.
+            if (profile != null && profile.syncStatus != "synced") {
+                val request = GstProfileRequest(
+                    gstin = profile.gstin,
+                    legal_name = profile.legalName,
+                    trade_name = profile.tradeName,
+                    gst_scheme = profile.gstScheme,
+                    registration_type = profile.registrationType,
+                    state_code = profile.stateCode
+                )
+                val response = api.upsertGstProfile(token, request)
+                db.gstProfileDao().insert(profile.copy(
+                    legalName = response.legal_name,
+                    tradeName = response.trade_name,
+                    gstScheme = response.gst_scheme,
+                    registrationType = response.registration_type,
+                    stateCode = response.state_code,
+                    syncStatus = "synced"
+                ))
+                return
+            }
+
+            // ── PULL (local clean OR fresh device with no local profile) ───
+            // R8: previously this method did nothing when clean, so a GST
+            // profile edited on another terminal never reached this device
+            // (one-way sync). Pull the server-canonical row now.
+            val response = api.getGstProfile(token)
+
+            // Blank-guard: never let an empty server row wipe a populated
+            // local profile. Only adopt the pull if it carries a real GSTIN.
+            if (response.gstin.isBlank()) return
+
+            val merged = (profile ?: GstProfile(gstin = response.gstin)).copy(
+                gstin = response.gstin,
                 legalName = response.legal_name,
                 tradeName = response.trade_name,
                 gstScheme = response.gst_scheme,
                 registrationType = response.registration_type,
                 stateCode = response.state_code,
+                address = response.address ?: (profile?.address ?: ""),
                 syncStatus = "synced"
-            ))
+            )
+            db.gstProfileDao().insert(merged)
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Offline/transient → leave any local edit pending for next pass.
+            Log.w(SYNC_TAG, "syncGstProfile: ${e.message}")
         }
     }
 
@@ -1748,55 +2147,6 @@ class SyncManager(private val context: Context) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-        }
-    }
-
-    suspend fun syncGstPurchases() {
-        val db = AppDatabase.getDatabase(context)
-        val api = RetrofitClient.api
-        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: run {
-                Log.w(SYNC_TAG, "syncGstPurchases skipped — no auth token")
-                return
-            }
-
-        val unsynced = db.gstPurchaseRecordDao().getUnsynced()
-        Log.d(SYNC_TAG, "syncGstPurchases: ${unsynced.size} unsynced gst_purchase_records")
-        if (unsynced.isEmpty()) return
-
-        val recordsDto = unsynced.map { record ->
-            GstPurchaseRecordDto(
-                record_id = record.id,
-                vendor_gstin = record.vendorGstin,
-                vendor_name = record.vendorName,
-                invoice_number = record.invoiceNumber,
-                invoice_date = record.invoiceDate,
-                total_invoice_value = record.totalInvoiceValue,
-                taxable_value = record.taxableValue,
-                cgst_amount = record.cgstAmount,
-                sgst_amount = record.sgstAmount,
-                igst_amount = record.igstAmount,
-                cess_amount = record.cessAmount,
-                hsn_code = record.hsnCode,
-                gst_rate = record.gstRate,
-                itc_eligibility = record.itcEligibility
-            )
-        }
-
-        try {
-            Log.d(SYNC_TAG, "syncGstPurchases: POST /gst/purchases/sync with ${recordsDto.size} record(s)")
-            val response = api.syncGstPurchases(token, GstPurchaseSyncRequest(recordsDto))
-            Log.d(SYNC_TAG, "syncGstPurchases: server replied success_count=${response.success_count}, message=${response.message}")
-            // We only get here if the HTTP call returned 2xx. Mark
-            // every row synced — even if `success_count` is 0 the
-            // server has accepted the payload, and looping forever
-            // re-pushing the same rows would mask any real backend
-            // problem.
-            db.gstPurchaseRecordDao().markAsSynced(unsynced.map { it.id })
-            Log.d(SYNC_TAG, "syncGstPurchases: marked ${unsynced.size} record(s) synced")
-        } catch (e: Exception) {
-            Log.e(SYNC_TAG, "syncGstPurchases: POST /gst/purchases/sync FAILED", e)
-            db.gstPurchaseRecordDao().markFailed(unsynced.map { it.id })
         }
     }
 
@@ -1900,15 +2250,19 @@ class SyncManager(private val context: Context) {
             )
             Log.d(SYNC_TAG, "syncGstInvoices: server replied success=${response.success_count}, failed=${response.failed_count}")
 
+            // Only mark synced the invoices the server confirmed in its
+            // local_id → server_id map. Rows missing from the map stay pending
+            // and retry next pass. We must NOT blanket-mark on an empty map:
+            // that would drop rows the server rejected and leave serverId = null.
+            // The endpoint is idempotent on (shop_id, local_id), so retrying a
+            // row that did land server-side is harmless.
             response.invoice_id_map.forEach { (localIdStr, serverId) ->
                 val localId = localIdStr.toIntOrNull() ?: return@forEach
                 db.gstSalesInvoiceDao().markSynced(localId, serverId)
             }
-            // Fallback path — server didn't echo a map but accepted
-            // the payload (2xx). Flip everything to synced so we
-            // don't keep replaying the same rows forever.
             if (response.invoice_id_map.isEmpty()) {
-                pending.forEach { db.gstSalesInvoiceDao().markSynced(it.id, null) }
+                Log.w(SYNC_TAG, "syncGstInvoices: 2xx but empty id_map — leaving " +
+                    "${pending.size} invoice(s) pending for retry")
             }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncGstInvoices: POST /gst-sales/sync FAILED", e)
@@ -1951,7 +2305,7 @@ class SyncManager(private val context: Context) {
                         invoice_number = inv.invoiceNumber.ifBlank { null },
                         local_id       = inv.id,
                         server_id      = inv.serverId,
-                        cancelled_at   = inv.cancelledAt ?: System.currentTimeMillis()
+                        cancelled_at   = inv.cancelledAt ?: appNow()
                     )
                 )
                 Log.d(SYNC_TAG, "syncGstCancellations: cancelled invoice ${inv.id} synced")
@@ -1999,7 +2353,7 @@ class SyncManager(private val context: Context) {
                         bill_number      = bill.billNumber.takeIf { it.isNotBlank() },
                         client_bill_id   = bill.id,
                         client_device_id = deviceId(),
-                        cancelled_at     = bill.cancelledAt ?: System.currentTimeMillis()
+                        cancelled_at     = bill.cancelledAt ?: appNow()
                     )
                 )
                 // N3: acknowledged — drop out of the sync loop for good
@@ -2026,20 +2380,27 @@ class SyncManager(private val context: Context) {
     //  PURCHASE BATCHES, RETURNS & CREDIT NOTES PULL
     // ==========================================
 
-    private fun parseIsoDate(isoString: String?): Long? {
-        if (isoString.isNullOrEmpty()) return null
-        return try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                java.time.Instant.parse(isoString.replace("Z", "") + "Z").toEpochMilli()
-            } else {
-                val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US)
-                format.timeZone = java.util.TimeZone.getTimeZone("UTC")
-                format.parse(isoString)?.time
-            }
-        } catch (e: Exception) {
-            null
-        }
-    }
+    /**
+     * Parse an EVENT-time value pulled from the backend into epoch-millis.
+     *
+     * Backend event datetimes (created_at, note_date, …) are NAIVE wall clock in
+     * the shop timezone (Bucket A, e.g. "2026-06-24T00:10:00" or "… 00:10:00").
+     * They MUST be parsed in [AppTime.ZONE] — NOT UTC — otherwise the instant is
+     * shifted by the shop's offset and then shifted AGAIN when we format it back,
+     * which is the round-trip bug (#85) this replaces. Some fields arrive as a
+     * numeric epoch-millis string (a true instant); those are returned as-is.
+     */
+    private fun parseIsoDate(isoString: String?): Long? =
+        com.example.easy_billing.util.WallClockParser
+            .parse(isoString, com.example.easy_billing.util.AppTime.ZONE)
+
+    /**
+     * Parse a CURSOR/technical value (Bucket B, e.g. updated_at) into epoch-millis.
+     * These are stored UTC on the backend, so parse in UTC.
+     */
+    private fun parseUtcDate(isoString: String?): Long? =
+        com.example.easy_billing.util.WallClockParser
+            .parse(isoString, java.util.TimeZone.getTimeZone("UTC"))
 
     suspend fun syncPurchaseBatches() {
         val db = AppDatabase.getDatabase(context)
@@ -2116,23 +2477,38 @@ class SyncManager(private val context: Context) {
 
         try {
             val batches = api.getPurchaseBatches(token, shopId)
+
+            // Dedupe on a composite natural key — NOT the originating device's
+            // local_id, which collided with this device's own autoincrement ids and
+            // could skip a mirrored batch or pin a colliding id (H2). Batches feed
+            // COGS, so a skip/dup distorts cost; the key identifies a purchase line
+            // (product + invoice + qty + unit cost + second). Insert with id=0 so
+            // Room assigns a fresh local primary key.
+            fun batchKey(productId: Int, invoice: String?, qty: Double, cost: Double, createdMs: Long) =
+                "$productId|${invoice ?: ""}|${"%.3f".format(qty)}|${"%.3f".format(cost)}|${createdMs / 1000}"
+            val productDao = db.productDao()
+            val existingKeys = db.purchaseBatchDao().getAllBatchesGlobal()
+                .mapTo(HashSet()) {
+                    batchKey(it.productId, it.invoiceNumber, it.quantityPurchased, it.unitCostExcludingTax, it.createdAt)
+                }
+
             db.withTransaction {
                 for (b in batches) {
-                    val existing = db.purchaseBatchDao().getBatchById(b.local_id)
-                    if (existing == null) {
-                        // Map server product_id → local Room product ID.
-                        // Batches on the server carry the server's product_id (e.g. 45).
-                        // All local queries use the Room auto-increment id (e.g. 3).
-                        // Storing the server id here made every pulled batch invisible to the UI.
-                        val localProduct = db.productDao().getByServerId(b.product_id)
-                        val localProductId = localProduct?.id
-                        if (localProductId == null) {
-                            Log.w(SYNC_TAG, "pullPurchaseBatches: skipping batch ${b.local_id} — no local product for serverId=${b.product_id}")
-                            continue
-                        }
+                    // Map server product_id → local Room product ID (server sends 45,
+                    // local queries use Room id 3; storing the server id hid batches).
+                    val localProduct = productDao.getByServerId(b.product_id)
+                    val localProductId = localProduct?.id
+                    if (localProductId == null) {
+                        Log.w(SYNC_TAG, "pullPurchaseBatches: skipping batch ${b.local_id} — no local product for serverId=${b.product_id}")
+                        continue
+                    }
+                    val createdMs = parseIsoDate(b.created_at) ?: appNow()
+                    val key = batchKey(localProductId, b.invoice_number, b.quantity_purchased, b.unit_cost_excluding_tax, createdMs)
+                    if (key !in existingKeys) {
+                        existingKeys.add(key)
                         db.purchaseBatchDao().insertBatch(
                             com.example.easy_billing.db.PurchaseBatch(
-                                id = b.local_id,
+                                id = 0,
                                 productId = localProductId,
                                 purchaseInvoiceId = b.purchase_invoice_id,
                                 supplierName = b.supplier_name,
@@ -2148,8 +2524,8 @@ class SyncManager(private val context: Context) {
                                 igstPercent = b.igst_percent,
                                 invoiceValue = b.invoice_value,
                                 taxableValue = b.taxable_value,
-                                
-                                createdAt = parseIsoDate(b.created_at) ?: System.currentTimeMillis(),
+
+                                createdAt = createdMs,
                                 isSynced = true
                             )
                         )
@@ -2166,21 +2542,38 @@ class SyncManager(private val context: Context) {
         val api = RetrofitClient.api
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
 
+        // Delta cursor (M3): append-only server id, keyed by shop, so we no longer
+        // refetch the entire credit-note history on every (throttled) cascade.
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val cnShopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "credit_notes_after_id_$cnShopId"
+        val afterId = cursorPrefs.getInt(cursorKey, 0)
+
         try {
-            val notes = api.getCreditNotes(token)
+            val notes = api.getCreditNotes(token, afterId)
+            var maxId = afterId
+
+            // Dedupe on note_number — a stable business key present on both
+            // locally-created and pulled notes. Matching on the originating device's
+            // local_id (and reusing it as our primary key) collided with this
+            // device's own autoincrement ids, so a mirrored note was skipped or
+            // overwrote an unrelated row (H2). Insert with id=0 so Room assigns a
+            // fresh local primary key.
+            val existingNoteNumbers = db.creditNoteDao().getAll()
+                .mapNotNull { it.noteNumber.takeIf { n -> n.isNotBlank() } }
+                .toHashSet()
             db.withTransaction {
                 for (noteDto in notes) {
-                    // Try to match by serverId if local_id is missing, or local_id
-                    val existing = if (noteDto.local_id != null && noteDto.local_id > 0) {
-                        db.creditNoteDao().getById(noteDto.local_id)
-                    } else null
-                    
-                    if (existing == null) {
+                    if (noteDto.id > maxId) maxId = noteDto.id
+                    val isDuplicate = noteDto.note_number.isNotBlank() &&
+                        noteDto.note_number in existingNoteNumbers
+                    if (!isDuplicate) {
+                        if (noteDto.note_number.isNotBlank()) existingNoteNumbers.add(noteDto.note_number)
                         val newId = db.creditNoteDao().insert(
                             com.example.easy_billing.db.CreditNote(
-                                id = noteDto.local_id ?: 0,
+                                id = 0,
                                 noteNumber = noteDto.note_number,
-                                noteDate = parseIsoDate(noteDto.note_date) ?: System.currentTimeMillis(),
+                                noteDate = parseIsoDate(noteDto.note_date) ?: appNow(),
                                 noteType = noteDto.note_type,
                                 noteSupplyType = noteDto.note_supply_type ?: "Regular",
                                 originalInvoiceId = noteDto.original_invoice_id ?: 0,
@@ -2203,8 +2596,8 @@ class SyncManager(private val context: Context) {
                                 taxAmount = noteDto.tax_amount,
                                 totalAmount = noteDto.total_amount,
                                 syncStatus = "synced",
-                                createdAt = parseIsoDate(noteDto.created_at) ?: System.currentTimeMillis(),
-                                updatedAt = parseIsoDate(noteDto.updated_at) ?: System.currentTimeMillis()
+                                createdAt = parseIsoDate(noteDto.created_at) ?: appNow(),
+                                updatedAt = parseUtcDate(noteDto.updated_at) ?: appNow()  // Bucket B (UTC)
                             )
                         )
                         for (itemDto in noteDto.items) {
@@ -2236,6 +2629,11 @@ class SyncManager(private val context: Context) {
                     }
                 }
             }
+            // Notes are inserted-once (dedupe by note_number), so advancing to the
+            // newest id we saw can't skip an un-inserted row.
+            if (maxId > afterId) {
+                cursorPrefs.edit().putInt(cursorKey, maxId).apply()
+            }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "pullCreditNotes: FAILED", e)
         }
@@ -2250,15 +2648,40 @@ class SyncManager(private val context: Context) {
 
         try {
             val returns = api.getPurchaseReturns(token, shopId)
+
+            // Map server product id → local product id ONCE (H3). Returns are
+            // stored with the LOCAL product id (matching how they're created), so
+            // the column has one consistent meaning and the device's own pushed
+            // returns dedupe correctly when they come back on pull.
+            val productByServerId = db.productDao().getAll().associateBy { it.serverId }
+
             db.withTransaction {
+                // Dedup index built ONCE up front (Issue 13). Primary key is the
+                // note_number — a stable business key present on both locally-created
+                // (PurchaseReturnViewModel sets it) and pulled rows (H3). Fallback
+                // for legacy rows without a note is (createdAt rounded to seconds,
+                // localProductId); seconds because the server round-trips created_at
+                // through second-precision ISO, so millisecond compares would miss.
+                val existingRows = db.purchaseReturnDao().getRecent(10000)
+                val existingNotes = existingRows
+                    .mapNotNull { it.noteNumber?.takeIf { n -> n.isNotBlank() } }
+                    .toHashSet()
+                val existingKeys = existingRows
+                    .mapTo(HashSet()) { (it.createdAt / 1000) to it.productId }
                 for (r in returns) {
-                    val existingRows = db.purchaseReturnDao().getRecent(10000)
-                    val isDuplicate = existingRows.any { it.createdAt == (parseIsoDate(r.created_at) ?: 0L) && it.productId == r.shop_product_id }
+                    val localProductId = r.shop_product_id?.let { productByServerId[it]?.id }
+                    val note = r.note_number?.takeIf { it.isNotBlank() }
+                    val fallbackKey = ((parseIsoDate(r.created_at) ?: 0L) / 1000) to localProductId
+
+                    val isDuplicate =
+                        if (note != null) note in existingNotes
+                        else fallbackKey in existingKeys
                     if (!isDuplicate) {
+                        if (note != null) existingNotes.add(note) else existingKeys.add(fallbackKey)
                         db.purchaseReturnDao().insert(
                             com.example.easy_billing.db.PurchaseReturn(
                                 id = 0, // Auto-generate local ID
-                                productId = r.shop_product_id,
+                                productId = localProductId,
                                 productName = r.product_name,
                                 variantName = r.variant_name,
                                 hsnCode = r.hsn_code,
@@ -2277,7 +2700,7 @@ class SyncManager(private val context: Context) {
                                 isCredit = r.is_credit,
                                 creditAccountId = r.credit_account_id,
                                 creditTransactionId = null,
-                                createdAt = parseIsoDate(r.created_at) ?: System.currentTimeMillis(),
+                                createdAt = parseIsoDate(r.created_at) ?: appNow(),
                                 isSynced = true,
                                 noteNumber = r.note_number,
                                 noteDate = parseIsoDate(r.note_date) ?: 0L,

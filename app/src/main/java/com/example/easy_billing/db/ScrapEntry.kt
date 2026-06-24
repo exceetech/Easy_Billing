@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -46,6 +48,6 @@ data class ScrapEntry(
     val state: String = "",
     val reason: String = "Scrap",
 
-    @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "created_at") val createdAt: Long = appNow(),
     @ColumnInfo(name = "is_synced")  val isSynced: Boolean = false
 )

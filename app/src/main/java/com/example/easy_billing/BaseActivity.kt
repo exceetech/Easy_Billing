@@ -16,10 +16,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.core.content.edit
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.VerifyPasswordRequest
+import com.example.easy_billing.util.AppClock
+import com.example.easy_billing.util.NtpClient
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 open class BaseActivity : AppCompatActivity() {
 
@@ -133,6 +137,69 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
+    // ---------------- CLOCK GATE (Phase 0) ----------------
+
+    /** Result of verifying the device clock against internet time. */
+    sealed class ClockCheck {
+        /** Internet time confirmed (and anchored); drift within tolerance. */
+        object Ok : ClockCheck()
+        /** Device clock is off by [driftMs]; billing must be blocked. */
+        data class Skewed(val driftMs: Long) : ClockCheck()
+        /** Offline but a previously-verified anchor exists; safe to proceed. */
+        object OfflineVerified : ClockCheck()
+        /** Offline and never verified — cannot trust the clock at all. */
+        object OfflineUnverified : ClockCheck()
+    }
+
+    /**
+     * Fetch internet (NTP) time and reconcile it with the device clock.
+     *
+     *  • Online + drift ≤ tolerance → anchor & return [ClockCheck.Ok].
+     *  • Online + drift > tolerance → return [ClockCheck.Skewed] (caller blocks).
+     *  • Offline → [OfflineVerified] if we have a cached anchor, else
+     *    [OfflineUnverified].
+     *
+     * Runs the blocking UDP call off the main thread. Call from a coroutine.
+     */
+    suspend fun verifyDeviceClock(): ClockCheck {
+        if (!isInternetAvailable()) {
+            return if (AppClock.isVerified()) ClockCheck.OfflineVerified
+                   else ClockCheck.OfflineUnverified
+        }
+        val ntp = withContext(Dispatchers.IO) { NtpClient.fetch() }
+            ?: return if (AppClock.isVerified()) ClockCheck.OfflineVerified
+                      else ClockCheck.OfflineUnverified
+
+        val drift = kotlin.math.abs(ntp - System.currentTimeMillis())
+        return if (drift > CLOCK_TOLERANCE_MS) {
+            ClockCheck.Skewed(drift)
+        } else {
+            AppClock.anchor(ntp)
+            ClockCheck.Ok
+        }
+    }
+
+    /** Blocking dialog telling the user to fix their device clock. */
+    fun showClockBlockedDialog(driftMs: Long, onRetry: () -> Unit) {
+        if (isFinishing) return
+        val mins = driftMs / 60000
+        AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setTitle("Wrong device time")
+            .setMessage(
+                "Your device clock is off by about $mins minute(s).\n\n" +
+                "Please set it to automatic / correct date & time, then retry. " +
+                "Billing is paused until the time is correct."
+            )
+            .setPositiveButton("Open date settings") { _, _ ->
+                runCatching {
+                    startActivity(Intent(android.provider.Settings.ACTION_DATE_SETTINGS))
+                }
+            }
+            .setNegativeButton("Retry") { _, _ -> onRetry() }
+            .show()
+    }
+
     // ---------------- SESSION ----------------
 
     fun updateLastOnlineTime() {
@@ -149,8 +216,7 @@ open class BaseActivity : AppCompatActivity() {
 
         val diff = now - lastOnline
 
-        val limit = 1 * 60 * 1000L          // 🔴 TEST (1 min)
-        //val limit = 12 * 60 * 60 * 1000L // ✅ PROD
+        val limit = SESSION_OFFLINE_LIMIT_MS
 
         val warningTime = limit - (15 * 1000L)
 
@@ -182,6 +248,8 @@ open class BaseActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         prefs.edit().clear().apply()
+        // Drop delta-pull cursors so the next workspace starts fresh (R6).
+        getSharedPreferences("sync_cursors", MODE_PRIVATE).edit().clear().apply()
 
         Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show()
 
@@ -225,5 +293,12 @@ open class BaseActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         handler.removeCallbacks(sessionRunnable)
+    }
+
+    companion object {
+        /** Max allowed device-clock vs internet-time drift before billing is blocked. */
+        const val CLOCK_TOLERANCE_MS = 5 * 60 * 1000L        // 5 minutes
+        /** How long an offline session is allowed before forced logout. */
+        const val SESSION_OFFLINE_LIMIT_MS = 12 * 60 * 60 * 1000L // 12 hours (PROD)
     }
 }

@@ -1,5 +1,7 @@
 package com.example.easy_billing.gstr1
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -35,8 +37,8 @@ data class Gstr1DraftEntity(
     val reportJson: String,
 
     @ColumnInfo(name = "generated_at")
-    val generatedAt: Long = System.currentTimeMillis(),
+    val generatedAt: Long = appNow(),
 
     @ColumnInfo(name = "updated_at")
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = appNow()
 )

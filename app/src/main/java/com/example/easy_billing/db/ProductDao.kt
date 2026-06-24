@@ -36,6 +36,11 @@ interface ProductDao {
     @Query("SELECT * FROM products WHERE serverId IS NULL")
     suspend fun getUnsynced(): List<Product>
 
+    // Products without a serverId block every bill / inventory log / purchase
+    // that references them until they upload (see Issue 4 in the sync audit).
+    @Query("SELECT COUNT(*) FROM products WHERE serverId IS NULL")
+    suspend fun countUnsynced(): Int
+
     @Query("UPDATE products SET serverId = :serverId WHERE id = :localId")
     suspend fun setServerId(localId: Int, serverId: Int)
 

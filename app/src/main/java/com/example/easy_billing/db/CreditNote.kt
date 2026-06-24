@@ -1,5 +1,7 @@
 package com.example.easy_billing.db
 
+import com.example.easy_billing.util.appNow
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -32,7 +34,7 @@ data class CreditNote(
     val noteNumber: String,
 
     /** Epoch millis when this credit note was created. */
-    val noteDate: Long = System.currentTimeMillis(),
+    val noteDate: Long = appNow(),
 
     /** Always "C" for Credit Note or "D" for Debit Note. */
     val noteType: String = "C",
@@ -83,6 +85,6 @@ data class CreditNote(
     /** "pending" | "synced" | "failed" */
     val syncStatus: String = "pending",
 
-    @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis()
+    @ColumnInfo(name = "created_at") val createdAt: Long = appNow(),
+    @ColumnInfo(name = "updated_at") val updatedAt: Long = appNow()
 )
