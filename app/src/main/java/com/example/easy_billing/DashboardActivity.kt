@@ -28,6 +28,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import com.example.easy_billing.adapter.CartAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Product
@@ -68,6 +71,16 @@ class DashboardActivity : BaseActivity() {
     private lateinit var vpAiInsights: androidx.viewpager2.widget.ViewPager2
     private lateinit var fabAiInsights: View
     private lateinit var aiInsightsAdapter: AiInsightsAdapter
+
+    // AI notification sheet
+    private lateinit var notifPanel: View
+    private lateinit var notifScrim: View
+    private lateinit var tvNotifyBadge: TextView
+    private lateinit var rvNotifications: RecyclerView
+    private lateinit var llNotifyEmpty: View
+    private lateinit var notifAdapter: AiInsightListAdapter
+    private val notificationStore by lazy { NotificationStore(this) }
+    private var allInsights: List<com.example.easy_billing.network.AiInsight> = emptyList()
 
     private var searchRunnable: Runnable? = null
     private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -365,6 +378,25 @@ class DashboardActivity : BaseActivity() {
             vpAiInsights.visibility = View.VISIBLE
         }
 
+        // ── AI notification bell + sheet ──
+        tvNotifyBadge   = findViewById(R.id.tvNotifyBadge)
+        notifScrim      = findViewById(R.id.notifScrim)
+        notifPanel      = findViewById(R.id.notifPanel)
+        rvNotifications = findViewById(R.id.rvNotifications)
+        llNotifyEmpty   = findViewById(R.id.llNotifyEmpty)
+        notifAdapter    = AiInsightListAdapter(this)
+        rvNotifications.layoutManager = LinearLayoutManager(this)
+        rvNotifications.adapter = notifAdapter
+        attachNotifySwipe()
+        findViewById<View>(R.id.btnNotifyContainer).setOnClickListener { openNotifications() }
+        findViewById<View>(R.id.btnNotifyClose).setOnClickListener { closeNotifications() }
+        notifScrim.setOnClickListener { closeNotifications() }
+        findViewById<View>(R.id.tvNotifyClearAll).setOnClickListener {
+            notificationStore.clearAll(allInsights)
+            refreshNotifications()
+            updateNotifyBadge()
+        }
+
         switchTranslate = findViewById(R.id.switchTranslate)
 
         // Drawer footer: app version
@@ -457,6 +489,10 @@ class DashboardActivity : BaseActivity() {
         }
 
         btnCart.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.END)
+        }
+
+        findViewById<View>(R.id.barCart)?.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.END)
         }
     }
@@ -1059,6 +1095,17 @@ class DashboardActivity : BaseActivity() {
         // Also update the cart drawer's neon badge
         findViewById<TextView>(R.id.tvCartDrawerBadge)?.text = badgeText
 
+        // Floating cart bar (bottom of dashboard)
+        val barCart = findViewById<View>(R.id.barCart)
+        val tvCartBarSummary = findViewById<TextView>(R.id.tvCartBarSummary)
+        if (count > 0) {
+            barCart?.visibility = View.VISIBLE
+            tvCartBarSummary?.text =
+                "$count item${if (count > 1) "s" else ""} · ${CurrencyHelper.format(this, total)}"
+        } else {
+            barCart?.visibility = View.GONE
+        }
+
         // Cart-header subtotal KPI (mirrors the live order total)
         findViewById<TextView>(R.id.tvCartHeaderSubtotal)?.text = CurrencyHelper.format(this, total)
     }
@@ -1355,44 +1402,113 @@ class DashboardActivity : BaseActivity() {
                 // Auth header is attached by AuthInterceptor, not passed here.
                 val response = RetrofitClient.api.getAiReport()
 
-                // The endpoint now returns the full insight list (the AI Insights screen
-                // shows all of them grouped); the dashboard noticeboard keeps its top 3.
-                val activeInsights = response.insights.take(3)
+                // Insights now live in the notification sheet (bell), not the
+                // inline ticker. Keep the old ticker views hidden.
+                allInsights = response.insights
+                vpAiInsights.visibility = View.GONE
+                fabAiInsights.visibility = View.GONE
 
-                if (activeInsights.isEmpty()) {
-                    vpAiInsights.visibility = View.GONE
-                    fabAiInsights.visibility = View.GONE
-                    return@launch
-                }
-
-                // Show by default if we have insights and not manually minimized
-                if (fabAiInsights.visibility != View.VISIBLE) {
-                    vpAiInsights.visibility = View.VISIBLE
-                }
-                
-                aiInsightsAdapter = AiInsightsAdapter(this@DashboardActivity, activeInsights) {
-                    // Handle Minimize
-                    vpAiInsights.visibility = View.GONE
-                    fabAiInsights.visibility = View.VISIBLE
-                }
-                vpAiInsights.adapter = aiInsightsAdapter
-
-                // Auto-scroll logic
-                aiAnimationJob?.cancel()
-                if (activeInsights.size > 1) {
-                    aiAnimationJob = lifecycleScope.launch {
-                        while (isActive) {
-                            kotlinx.coroutines.delay(5000)
-                            val nextItem = (vpAiInsights.currentItem + 1) % activeInsights.size
-                            vpAiInsights.setCurrentItem(nextItem, true)
-                        }
-                    }
-                }
+                updateNotifyBadge()
+                if (notifPanel.visibility == View.VISIBLE) refreshNotifications()
 
             } catch (e: Exception) {
                 vpAiInsights.visibility = View.GONE
             }
         }
+    }
+
+    // ───────────────────────── AI notification sheet ─────────────────────────
+
+    private fun openNotifications() {
+        refreshNotifications()
+        val w = panelWidthPx()
+        notifScrim.visibility = View.VISIBLE
+        notifScrim.alpha = 0f
+        notifScrim.animate().alpha(1f).setDuration(180).start()
+        notifPanel.visibility = View.VISIBLE
+        notifPanel.translationX = w
+        notifPanel.animate().translationX(0f).setDuration(260)
+            .setInterpolator(DecelerateInterpolator()).start()
+        // Opening counts as "seen" → clears the unread badge.
+        notificationStore.markAllSeen(allInsights)
+        updateNotifyBadge()
+    }
+
+    private fun closeNotifications() {
+        val w = panelWidthPx()
+        notifPanel.animate().translationX(w).setDuration(220)
+            .setInterpolator(AccelerateInterpolator())
+            .withEndAction { notifPanel.visibility = View.GONE }.start()
+        notifScrim.animate().alpha(0f).setDuration(200)
+            .withEndAction { notifScrim.visibility = View.GONE }.start()
+    }
+
+    private fun panelWidthPx(): Float =
+        if (notifPanel.width > 0) notifPanel.width.toFloat()
+        else 392f * resources.displayMetrics.density
+
+    private fun refreshNotifications() {
+        val active = notificationStore.active(allInsights)
+        notifAdapter.submit(active)
+
+        findViewById<TextView>(R.id.tvNotifyCritical).text =
+            active.count { it.type.equals("fire", true) }.toString()
+        findViewById<TextView>(R.id.tvNotifyWatch).text =
+            active.count { it.type.equals("leak", true) }.toString()
+        findViewById<TextView>(R.id.tvNotifyTips).text =
+            active.count { it.type.equals("gold", true) }.toString()
+
+        findViewById<TextView>(R.id.tvNotifySubtitle).text =
+            "${active.size} notification${if (active.size == 1) "" else "s"}"
+
+        val empty = active.isEmpty()
+        llNotifyEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+        rvNotifications.visibility = if (empty) View.GONE else View.VISIBLE
+    }
+
+    private fun updateNotifyBadge() {
+        val count = notificationStore.unseenCount(allInsights)
+        if (count > 0) {
+            tvNotifyBadge.text = if (count > 9) "9+" else count.toString()
+            tvNotifyBadge.visibility = View.VISIBLE
+        } else {
+            tvNotifyBadge.visibility = View.GONE
+        }
+    }
+
+    private fun attachNotifySwipe() {
+        val cb = object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun getSwipeDirs(rv: RecyclerView, vh: RecyclerView.ViewHolder): Int =
+                if (notifAdapter.isHeader(vh.adapterPosition)) 0
+                else super.getSwipeDirs(rv, vh)
+
+            override fun onMove(
+                rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
+                val insight = notifAdapter.insightAt(vh.adapterPosition)
+                if (insight != null) {
+                    notificationStore.dismiss(insight)
+                    refreshNotifications()
+                    updateNotifyBadge()
+                } else {
+                    notifAdapter.notifyItemChanged(vh.adapterPosition)
+                }
+            }
+        }
+        ItemTouchHelper(cb).attachToRecyclerView(rvNotifications)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onBackPressed() {
+        if (::notifPanel.isInitialized && notifPanel.visibility == View.VISIBLE) {
+            closeNotifications()
+            return
+        }
+        super.onBackPressed()
     }
 
     private fun setupOutsideTouch() {
@@ -1539,6 +1655,64 @@ class DashboardActivity : BaseActivity() {
      * free for very large catalogues, then submits via DiffUtil so the
      * grid animates smoothly. Safe to call from any sort tap.
      */
+    private var railCategories: List<String> = emptyList()
+
+    private fun buildCategoryRail() {
+        val rail = findViewById<android.widget.LinearLayout>(R.id.categoryRail) ?: return
+        val cats = allProducts
+            .map { it.category.ifBlank { ProductCategories.UNCATEGORIZED } }
+            .distinct().sortedBy { it.lowercase() }
+        if (cats != railCategories) {
+            railCategories = cats
+            rail.removeAllViews()
+            val d = resources.displayMetrics.density
+            fun dp(v: Int) = (v * d).toInt()
+            val medium = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+            val labels = listOf("All") + cats
+            labels.forEachIndexed { i, label ->
+                val pill = TextView(this).apply {
+                    text = label
+                    textSize = 12.5f
+                    typeface = medium
+                    setPadding(dp(15), dp(8), dp(15), dp(8))
+                    isClickable = true
+                    isFocusable = true
+                    includeFontPadding = false
+                    tag = if (i == 0) "" else label
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).also { it.marginEnd = dp(8) }
+                    setOnClickListener {
+                        filterCategories = if (i == 0) emptySet() else setOf(label)
+                        updateFilterBadge()
+                        applySort()
+                        refreshRailSelection()
+                    }
+                }
+                rail.addView(pill)
+            }
+        }
+        refreshRailSelection()
+    }
+
+    private fun refreshRailSelection() {
+        val rail = findViewById<android.widget.LinearLayout>(R.id.categoryRail) ?: return
+        for (i in 0 until rail.childCount) {
+            val pill = rail.getChildAt(i) as? TextView ?: continue
+            val tag = pill.tag as? String ?: ""
+            val selected = if (tag.isEmpty()) filterCategories.isEmpty()
+                           else filterCategories == setOf(tag)
+            pill.setBackgroundResource(
+                if (selected) R.drawable.bg_rail_pill_on else R.drawable.bg_rail_pill_off
+            )
+            pill.setTextColor(
+                if (selected) android.graphics.Color.WHITE
+                else android.graphics.Color.parseColor("#5A554C")
+            )
+        }
+    }
+
     private fun applySort() {
         val source = allProducts
         if (source.isEmpty()) return
@@ -1618,6 +1792,7 @@ class DashboardActivity : BaseActivity() {
                     grouped = viewMode == ViewMode.CATEGORIZED,
                     asList = viewMode == ViewMode.LIST
                 )
+                buildCategoryRail()
             }
         }
     }

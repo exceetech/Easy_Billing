@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Aurora-orb base for the dashboard. Large, soft color washes over a
+     cream gradient so the translucent (frosted) product tiles pick up the
+     colour beneath them and read as glass. No sharp shapes — the softness
+     is what sells the frosted effect on Android (no runtime blur needed). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Cream base -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="315"
+                android:startColor="#F3ECDD"
+                android:endColor="#ECE3D0"/>
+        </shape>
+    </item>
+
+    <!-- Gold, top-left -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial"
+                android:centerX="0.12" android:centerY="0.10"
+                android:gradientRadius="260dp"
+                android:startColor="#B3F2D49E" android:endColor="#00F2D49E"/>
+        </shape>
+    </item>
+
+    <!-- Sage, top-right -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial"
+                android:centerX="0.92" android:centerY="0.08"
+                android:gradientRadius="280dp"
+                android:startColor="#A6BFD8C6" android:endColor="#00BFD8C6"/>
+        </shape>
+    </item>
+
+    <!-- Periwinkle, mid-left -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial"
+                android:centerX="0.16" android:centerY="0.60"
+                android:gradientRadius="300dp"
+                android:startColor="#A6C7D2E8" android:endColor="#00C7D2E8"/>
+        </shape>
+    </item>
+
+    <!-- Rose, mid-right -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial"
+                android:centerX="0.90" android:centerY="0.70"
+                android:gradientRadius="280dp"
+                android:startColor="#99E8C6C0" android:endColor="#00E8C6C0"/>
+        </shape>
+    </item>
+
+    <!-- Lavender, bottom-centre -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial"
+                android:centerX="0.55" android:centerY="1.0"
+                android:gradientRadius="300dp"
+                android:startColor="#99DCCBE6" android:endColor="#00DCCBE6"/>
+        </shape>
+    </item>
+
+</layer-list>

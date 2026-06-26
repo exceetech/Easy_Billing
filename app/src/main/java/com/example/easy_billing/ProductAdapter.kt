@@ -178,14 +178,15 @@ class ProductAdapter(
         private val translated: TextView   = view.findViewById(R.id.tvTranslatedName)
         private val variant: TextView      = view.findViewById(R.id.tvVariantName)
         private val price: TextView        = view.findViewById(R.id.tvProductPrice)
-        private val unit: TextView         = view.findViewById(R.id.tvProductUnit)
         private val stockDot: View         = view.findViewById(R.id.viewStockDot)
-        private val stock: TextView        = view.findViewById(R.id.tvStock)
-        private val lowBadge: TextView     = view.findViewById(R.id.tvLowStockBadge)
+        private val pill: View             = view.findViewById(R.id.pillStock)
+        private val pillText: TextView     = view.findViewById(R.id.tvStockPill)
+        private val priceUnit: TextView    = view.findViewById(R.id.tvPriceUnit)
+        private val addBtn: View           = view.findViewById(R.id.ivAddProduct)
         private val overlay: FrameLayout   = view.findViewById(R.id.flOutOfStockOverlay)
         private val monogram: TextView     = view.findViewById(R.id.tvProductMonogram)
         private val monogramBg: View       = view.findViewById(R.id.viewProductMonogramBg)
-        // Present only in the list-row layout; null in the grid tile.
+        // Category chip (now shown in the grid tile too).
         private val category: TextView?    = view.findViewById(R.id.tvListCategory)
 
         private var boundName: String = ""
@@ -196,21 +197,20 @@ class ProductAdapter(
 
             card.alpha          = 1f
             card.isClickable    = true
-            stock.visibility    = View.GONE
             stockDot.visibility = View.GONE
             overlay.visibility  = View.GONE
-            lowBadge.visibility = View.GONE
+            addBtn.backgroundTintList = null
 
-            // ── Premium Pastel Concept ──────────────────────────────────
-            card.setCardBackgroundColor(Color.parseColor(cardPastels[colorIdx]))
+            // ── Frosted glass: translucent white over the aurora bg ──────
+            card.setCardBackgroundColor(Color.parseColor("#99FFFFFF"))
 
             // ── Monogram Styling ─────────────────────────────────────────
             val firstLetter = product.name.take(1).uppercase()
             monogram.text = firstLetter
             monogramBg.backgroundTintList = ColorStateList.valueOf(
-                Color.parseColor(monogramAccents[colorIdx])
+                Color.parseColor(cardPastels[colorIdx])
             )
-            monogram.setTextColor(Color.WHITE)
+            monogram.setTextColor(Color.parseColor(monogramAccents[colorIdx]))
 
             boundName = product.name
             name.text = product.name
@@ -242,15 +242,26 @@ class ProductAdapter(
 
             val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
             price.text = CurrencyHelper.format(context, product.price)
-            unit.text  = "per $unitLabel"
+            priceUnit.text = "/ $unitLabel"
 
             val stockEntry = if (product.trackInventory) inventoryMap[product.id] else null
 
             when {
                 stockEntry == null -> {
+                    // Untracked / service item — neutral pill, no dot.
+                    stockDot.visibility     = View.GONE
+                    pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1EFE8"))
+                    pillText.text           = "Service"
+                    pillText.setTextColor(Color.parseColor("#6B6B63"))
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {
+                    stockDot.visibility     = View.VISIBLE
+                    stockDot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#DC2626"))
+                    pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FCEBEB"))
+                    pillText.text           = "Out of stock"
+                    pillText.setTextColor(Color.parseColor("#B91C1C"))
+                    addBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#C9C3B4"))
                     overlay.visibility  = View.VISIBLE
                     card.alpha          = 0.55f
                     card.isClickable    = false
@@ -263,22 +274,19 @@ class ProductAdapter(
                     }
                 }
                 stockEntry <= 5 -> {
-                    lowBadge.visibility = View.VISIBLE
-                    stockDot.visibility = View.VISIBLE
-                    stockDot.background.setTint(0xFFEF9F27.toInt())
-                    stock.visibility = View.VISIBLE
-                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel left"
-                    stock.setBackgroundResource(R.drawable.bg_stock_orange)
-                    stock.setTextColor(0xFF92400E.toInt())
+                    stockDot.visibility     = View.VISIBLE
+                    stockDot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#EF9F27"))
+                    pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FBF0DC"))
+                    pillText.text           = "Low · ${fmtQty(stockEntry)} left"
+                    pillText.setTextColor(Color.parseColor("#854F0B"))
                     setClickListeners(product)
                 }
                 else -> {
-                    stockDot.visibility = View.VISIBLE
-                    stockDot.background.setTint(0xFF10B981.toInt())
-                    stock.visibility = View.VISIBLE
-                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel"
-                    stock.setBackgroundResource(R.drawable.bg_stock_green)
-                    stock.setTextColor(0xFF065F46.toInt())
+                    stockDot.visibility     = View.VISIBLE
+                    stockDot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+                    pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#E7F6EF"))
+                    pillText.text           = "${fmtQty(stockEntry)} in stock"
+                    pillText.setTextColor(Color.parseColor("#0F6E56"))
                     setClickListeners(product)
                 }
             }
@@ -348,6 +356,10 @@ class ProductAdapter(
             itemView.setOnLongClickListener { onItemLongClick(product); true }
         }
     }
+
+    /** Stock quantity without a trailing ".0" (24.0 -> "24", 2.5 -> "2.5"). */
+    private fun fmtQty(q: Double): String =
+        if (q % 1.0 == 0.0) q.toInt().toString() else q.toString()
 
     private fun formatUnit(unit: String): String = when (unit.lowercase()) {
         "piece"  -> "Pc"

@@ -58,6 +58,13 @@ class AiInsightListAdapter(
         notifyDataSetChanged()
     }
 
+    /** The insight at a row position, or null if that row is a section header. */
+    fun insightAt(position: Int): AiInsight? =
+        (rows.getOrNull(position) as? Row.Item)?.insight
+
+    /** True if the row at this position is a section header (not swipe-dismissible). */
+    fun isHeader(position: Int): Boolean = rows.getOrNull(position) is Row.Header
+
     override fun getItemCount(): Int = rows.size
 
     override fun getItemViewType(position: Int): Int =
