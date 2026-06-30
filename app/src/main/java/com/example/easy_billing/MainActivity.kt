@@ -200,6 +200,7 @@ class MainActivity : BaseActivity() {
 
         // Login
         btnLogin.applyPremiumClickAnimation()
+        startCtaArrowAnimation(R.id.btnLogin)
         btnLogin.setOnClickListener {
 
             val username = etUsername.text.toString().trim()
@@ -226,6 +227,7 @@ class MainActivity : BaseActivity() {
                     }
 
                     btnLogin.isEnabled = false   // prevent double click
+                    hideCtaArrow(R.id.btnLogin)
 
                     // ✅ CLOCK GATE (Phase 0): verify the device clock against
                     // internet time before authenticating. A wrong clock would
@@ -233,11 +235,13 @@ class MainActivity : BaseActivity() {
                     when (val clock = verifyDeviceClock()) {
                         is ClockCheck.Skewed -> {
                             btnLogin.isEnabled = true
+                            startCtaArrowAnimation(R.id.btnLogin)
                             showClockBlockedDialog(clock.driftMs) { btnLogin.performClick() }
                             return@launch
                         }
                         ClockCheck.OfflineUnverified -> {
                             btnLogin.isEnabled = true
+                            startCtaArrowAnimation(R.id.btnLogin)
                             Toast.makeText(
                                 this@MainActivity,
                                 "Couldn't verify time. Check your connection and retry.",
@@ -262,6 +266,7 @@ class MainActivity : BaseActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                         btnLogin.isEnabled = true
+                        startCtaArrowAnimation(R.id.btnLogin)
                         return@launch
                     }
 
@@ -318,6 +323,7 @@ class MainActivity : BaseActivity() {
                 } catch (e: Exception) {
 
                     btnLogin.isEnabled = true
+                    startCtaArrowAnimation(R.id.btnLogin)
 
                     val message = if (e is retrofit2.HttpException) {
                         e.response()?.errorBody()?.string() ?: "Login failed"
@@ -450,6 +456,18 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /** Show the arrow icon and loop its motion. */
+    private fun startCtaArrowAnimation(buttonId: Int) {
+        val btn = findViewById<com.google.android.material.button.MaterialButton>(buttonId)
+        btn.icon = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.ic_cta_arrow)
+        btn.post { (btn.icon as? android.graphics.drawable.Animatable)?.start() }
+    }
+
+    /** Hide the arrow icon (used while the button is processing). */
+    private fun hideCtaArrow(buttonId: Int) {
+        findViewById<com.google.android.material.button.MaterialButton>(buttonId).icon = null
+    }
+
     private fun setupInputField(
         containerId: Int,
         editTextId: Int,
@@ -470,11 +488,11 @@ class MainActivity : BaseActivity() {
             container.isActivated = hasFocus
 
             if (hasFocus) {
-                icon.setColorFilter(android.graphics.Color.parseColor("#6366F1"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#6366F1"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#0F6E56"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
-                icon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#B8895A"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#A99E88"))
             }
         }
     }
@@ -492,7 +510,7 @@ class MainActivity : BaseActivity() {
 
             // 2. Update icon
             toggleButton.setImageResource(
-                if (isVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
+                if (isVisible) R.drawable.ic_lc_eye else R.drawable.ic_lc_eye_off
             )
 
             // 3. Keep cursor at the end

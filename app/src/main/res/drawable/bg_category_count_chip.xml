@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Plain dashboard background — the warm tone used by the category chips. -->
+<!-- Soft green count chip for category section headers. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#F3ECDD"/>
+    <corners android:radius="20dp"/>
+    <solid android:color="#E7F6EF"/>
 </shape>

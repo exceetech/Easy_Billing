@@ -159,7 +159,7 @@ object ThemedDropdown {
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_pos_dropdown)
-            setPadding(dp(20), dp(18), dp(20), dp(16))
+            setPadding(dp(22), dp(15), dp(22), dp(14))
         }
 
         card.addView(TextView(context).apply {
@@ -177,7 +177,7 @@ object ThemedDropdown {
                 ?: LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                )).also { it.topMargin = dp(6); layoutParams = it }
+                )).also { it.topMargin = dp(4); layoutParams = it }
         })
 
         val dialog = Dialog(context)
@@ -187,7 +187,7 @@ object ThemedDropdown {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).also { it.topMargin = dp(18) }
+            ).also { it.topMargin = dp(14) }
         }
         val cancel = TextView(context).apply {
             text = "Cancel"
@@ -217,7 +217,7 @@ object ThemedDropdown {
         dialog.setContentView(card)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.window?.setLayout(
-            (context.resources.displayMetrics.widthPixels * 0.82f).toInt(),
+            (context.resources.displayMetrics.widthPixels * 0.92f).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         dialog.show()

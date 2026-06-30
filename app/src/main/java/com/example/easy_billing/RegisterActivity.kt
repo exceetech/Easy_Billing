@@ -137,6 +137,7 @@ class RegisterActivity : BaseActivity() {
         }
 
         btnRegister.applyPremiumClickAnimation()
+        startCtaArrowAnimation(R.id.btnRegister)
 
         btnRegister.setOnClickListener {
 
@@ -145,6 +146,7 @@ class RegisterActivity : BaseActivity() {
             isRegistering = true
             btnRegister.isEnabled = false
             btnRegister.text = "Registering..."
+            hideCtaArrow(R.id.btnRegister)
 
             val name = etFullName.text.toString().trim()
             val email = etEmail.text.toString().trim()
@@ -278,24 +280,49 @@ class RegisterActivity : BaseActivity() {
         isRegistering = false
         button.isEnabled = true
         button.text = "Create Account"
+        startCtaArrowAnimation(R.id.btnRegister)
     }
 
     private fun showSuccessDialog(email: String) {
 
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Account Registered")
-            .setMessage("Verification in process.\n\nOTP has been sent to your email.")
-            .setCancelable(false)
-            .setPositiveButton("Continue") { _, _ ->
+        val view = layoutInflater.inflate(R.layout.dialog_register_success, null)
 
-                val intent = Intent(this, OtpVerificationActivity::class.java)
-                intent.putExtra("EMAIL", email)
-                startActivity(intent)
-                finish()
-            }
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(view)
+            .setCancelable(false)
             .create()
 
+        dialog.window?.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        )
+
+        // Blur + dim everything behind the dialog for a premium frosted backdrop.
+        dialog.window?.apply {
+            addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            setDimAmount(0.8f)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                attributes = attributes.apply { blurBehindRadius = 120 }
+            }
+        }
+
+        view.findViewById<TextView>(R.id.tvDialogMsg).text =
+            "We've sent a verification code (OTP) to\n$email"
+
+        view.findViewById<View>(R.id.btnContinue).setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, OtpVerificationActivity::class.java)
+            intent.putExtra("EMAIL", email)
+            startActivity(intent)
+            finish()
+        }
+
         dialog.show()
+
+        dialog.window?.setLayout(
+            (resources.displayMetrics.density * 330).toInt(),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 
     /**
@@ -324,6 +351,18 @@ class RegisterActivity : BaseActivity() {
         onComplete()
     }
 
+    /** Show the arrow icon and loop its motion. */
+    private fun startCtaArrowAnimation(buttonId: Int) {
+        val btn = findViewById<com.google.android.material.button.MaterialButton>(buttonId)
+        btn.icon = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.ic_cta_arrow)
+        btn.post { (btn.icon as? android.graphics.drawable.Animatable)?.start() }
+    }
+
+    /** Hide the arrow icon (used while the button shows a loading label). */
+    private fun hideCtaArrow(buttonId: Int) {
+        findViewById<com.google.android.material.button.MaterialButton>(buttonId).icon = null
+    }
+
     private fun setupInputField(
         containerId: Int,
         editTextId: Int,
@@ -344,11 +383,11 @@ class RegisterActivity : BaseActivity() {
             container.isActivated = hasFocus
 
             if (hasFocus) {
-                icon.setColorFilter(android.graphics.Color.parseColor("#6366F1"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#6366F1"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#0F6E56"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
-                icon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#94A3B8"))
+                icon.setColorFilter(android.graphics.Color.parseColor("#B8895A"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#A99E88"))
             }
         }
     }

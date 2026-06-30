@@ -373,54 +373,70 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingStart="30dp"
-            android:paddingEnd="30dp"
+            android:paddingEnd="32dp"
             android:paddingTop="10dp"
             android:paddingBottom="8dp"
-            android:background="#F8FAFC"
+            android:background="@android:color/transparent"
             android:visibility="gone">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="46dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:text="ITEM"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="#6B7280"
-                android:letterSpacing="0.04"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
                 android:paddingStart="8dp"
-                android:text="CATEGORY"
-                android:textSize="11sp"
+                android:text="ITEM"
+                android:textSize="10sp"
                 android:textStyle="bold"
-                android:textColor="#6B7280"
-                android:letterSpacing="0.04"/>
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3.0"/>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="1.8"
+                android:paddingStart="6dp"
+                android:text="CATEGORY"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.4"
+                android:paddingStart="4dp"
+                android:text="UNIT"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.0"
                 android:gravity="end"
                 android:text="PRICE"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
-                android:textColor="#6B7280"
-                android:letterSpacing="0.04"/>
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="1.8"
                 android:gravity="end"
                 android:text="STOCK"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
-                android:textColor="#6B7280"
-                android:letterSpacing="0.04"/>
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

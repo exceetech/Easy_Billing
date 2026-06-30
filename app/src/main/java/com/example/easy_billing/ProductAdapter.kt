@@ -168,7 +168,7 @@ class ProductAdapter(
         private val count: TextView = view.findViewById(R.id.tvCategoryCount)
         fun bind(header: Row.Header) {
             title.text = header.title
-            count.text = "${header.count}"
+            count.text = "${header.count} item${if (header.count == 1) "" else "s"}"
         }
     }
 
@@ -304,13 +304,22 @@ class ProductAdapter(
         private val name: TextView     = view.findViewById(R.id.tvListName)
         private val variant: TextView  = view.findViewById(R.id.tvListVariant)
         private val category: TextView = view.findViewById(R.id.tvListCategory)
+        private val unit: TextView     = view.findViewById(R.id.tvListUnit)
         private val price: TextView    = view.findViewById(R.id.tvListPrice)
         private val stock: TextView    = view.findViewById(R.id.tvListStock)
+        private val monogram: TextView = view.findViewById(R.id.tvListMonogram)
+        private val monogramBg: View   = view.findViewById(R.id.viewListMonogramBg)
 
         fun bind(product: Product) {
             val context = itemView.context
 
             name.text = product.name
+
+            val colorIdx = getStableIndex(product.name)
+            monogram.text = product.name.take(1).uppercase()
+            monogramBg.backgroundTintList =
+                ColorStateList.valueOf(Color.parseColor(cardPastels[colorIdx]))
+            monogram.setTextColor(Color.parseColor(monogramAccents[colorIdx]))
 
             val variantText = product.variant?.takeIf { it.isNotBlank() }
             variant.text = variantText ?: ""
@@ -320,6 +329,7 @@ class ProductAdapter(
             price.text = CurrencyHelper.format(context, product.price)
 
             val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
+            unit.text = unitLabel
             val stockEntry = if (product.trackInventory) inventoryMap[product.id] else null
 
             row.alpha = 1f
@@ -330,7 +340,7 @@ class ProductAdapter(
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {
-                    stock.text = "Out of stock"
+                    stock.text = "Out"
                     stock.setTextColor(0xFFB91C1C.toInt())
                     row.alpha = 0.6f
                     itemView.setOnClickListener {
@@ -339,12 +349,12 @@ class ProductAdapter(
                     itemView.setOnLongClickListener { onItemLongClick(product); true }
                 }
                 stockEntry <= 5 -> {
-                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel"
+                    stock.text = fmtQty(stockEntry)
                     stock.setTextColor(0xFFB45309.toInt())
                     setClickListeners(product)
                 }
                 else -> {
-                    stock.text = "${String.format("%.2f", stockEntry)} $unitLabel"
+                    stock.text = fmtQty(stockEntry)
                     stock.setTextColor(0xFF047857.toInt())
                     setClickListeners(product)
                 }

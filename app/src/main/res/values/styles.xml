@@ -102,6 +102,12 @@
         <item name="android:insetBottom">0dp</item>
     </style>
 
+    <!-- Quantity pad slide-in/out (right to left), GPU-friendly -->
+    <style name="QtyDialogAnim">
+        <item name="android:windowEnterAnimation">@anim/qty_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/qty_slide_out</item>
+    </style>
+
 
 
     <style name="FilterSection">

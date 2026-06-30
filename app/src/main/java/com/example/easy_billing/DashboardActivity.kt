@@ -975,8 +975,6 @@ class DashboardActivity : BaseActivity() {
 
         lifecycleScope.launch {
 
-            val db = AppDatabase.getDatabase(this@DashboardActivity)
-
             val existing = cartItems.find { it.product.id == product.id }
             val currentQty = existing?.quantity ?: 0.0
             val newQty = currentQty + qty
@@ -998,9 +996,13 @@ class DashboardActivity : BaseActivity() {
 
             // ================= 🔥 INVENTORY LOGIC ONLY IF ENABLED =================
 
-            if (product.trackInventory) {
+            // Inventory read happens off the main thread to avoid UI freeze.
+            val inventory = if (product.trackInventory) withContext(Dispatchers.IO) {
+                AppDatabase.getDatabase(this@DashboardActivity)
+                    .inventoryDao().getInventory(product.id)
+            } else null
 
-                val inventory = db.inventoryDao().getInventory(product.id)
+            if (product.trackInventory) {
 
                 if (inventory != null) {
                     // ❌ OUT OF STOCK
@@ -1163,10 +1165,12 @@ class DashboardActivity : BaseActivity() {
             .setView(dialogView)
             .create()
 
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        dialog.setOnShowListener {
-            dialog.window?.setLayout(
+        // Size + animate the window BEFORE showing so there's no relayout
+        // mid-animation (the old onShowListener resize was the source of lag).
+        dialog.window?.apply {
+            setBackgroundDrawableResource(android.R.color.transparent)
+            setWindowAnimations(R.style.QtyDialogAnim)
+            setLayout(
                 (resources.displayMetrics.widthPixels * 0.55).toInt(),
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )

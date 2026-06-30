@@ -1,35 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="6dp"
-    android:paddingEnd="6dp"
-    android:paddingTop="14dp"
-    android:paddingBottom="8dp">
+    android:layout_marginHorizontal="8dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="9dp">
 
-    <View
-        android:layout_width="4dp"
+    <ImageView
+        android:layout_width="18dp"
         android:layout_height="18dp"
-        android:layout_marginEnd="8dp"
-        android:background="#4F46E5"/>
+        android:layout_marginEnd="9dp"
+        android:src="@drawable/ic_category_tag"
+        app:tint="#0F6E56"
+        android:contentDescription="@null"/>
 
     <TextView
         android:id="@+id/tvCategoryHeader"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:text="Category"
-        android:textColor="#111827"
+        android:textColor="#1A1A18"
         android:textSize="15sp"
-        android:textStyle="bold"/>
+        android:fontFamily="@font/googlesans_semibold"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="#E2D9C6"/>
 
     <TextView
         android:id="@+id/tvCategoryCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textColor="#6B7280"
-        android:textSize="13sp"/>
+        android:textColor="#0F6E56"
+        android:textSize="11sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:background="@drawable/bg_category_count_chip"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="3dp"/>
 </LinearLayout>

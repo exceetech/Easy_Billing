@@ -1,13 +1,18 @@
 package com.example.easy_billing
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -25,11 +30,10 @@ class ChangePasswordActivity : BaseActivity() {
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val btnChangePassword = findViewById<Button>(R.id.btnChangePassword)
-        val btnBack = findViewById<View>(R.id.btnBack)
         val monolithCard = findViewById<View>(R.id.monolithCard)
 
-        // 🔙 BACK BUTTON
-        btnBack.setOnClickListener { finish() }
+        // 🔙 TOOLBAR + BACK (same as Inventory)
+        setupToolbar(R.id.toolbar)
 
         // 🔥 MONOLITH ENTRANCE
         monolithCard.alpha = 0f
@@ -67,6 +71,28 @@ class ChangePasswordActivity : BaseActivity() {
         setupInputField(R.id.passwordContainer, etNewPassword, findViewById(R.id.iconPassword))
         setupInputField(R.id.confirmPasswordContainer, etConfirmPassword, findViewById(R.id.iconConfirmPassword))
 
+        // 👁 PASSWORD VISIBILITY TOGGLES
+        setupPasswordToggle(etNewPassword, findViewById(R.id.btnToggleNewPass))
+        setupPasswordToggle(etConfirmPassword, findViewById(R.id.btnToggleConfirmPass))
+
+        // 💪 STRENGTH METER + ✅ MATCH CHECK
+        etNewPassword.addTextChangedListener(simpleWatcher {
+            updateStrengthMeter(etNewPassword.text.toString())
+            updateMatchState(etNewPassword.text.toString(), etConfirmPassword.text.toString())
+        })
+        etConfirmPassword.addTextChangedListener(simpleWatcher {
+            updateMatchState(etNewPassword.text.toString(), etConfirmPassword.text.toString())
+        })
+
+        // ⬅️ FOOTER: BACK TO LOGIN
+        findViewById<TextView>(R.id.tvBackToLogin).setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
+
+        startCtaArrowAnimation()
         btnChangePassword.applyPremiumClickAnimation()
 
         btnChangePassword.setOnClickListener {
@@ -92,6 +118,7 @@ class ChangePasswordActivity : BaseActivity() {
                 try {
                     btnChangePassword.isEnabled = false
                     btnChangePassword.text = "Updating..."
+                    hideCtaArrow()
 
                     // Retrieve reset token from SharedPreferences
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
@@ -121,7 +148,8 @@ class ChangePasswordActivity : BaseActivity() {
                     Toast.makeText(this@ChangePasswordActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 } finally {
                     btnChangePassword.isEnabled = true
-                    btnChangePassword.text = "Change Password"
+                    btnChangePassword.text = "Update password"
+                    startCtaArrowAnimation()
                 }
             }
         }
@@ -134,13 +162,103 @@ class ChangePasswordActivity : BaseActivity() {
         editText.setOnFocusChangeListener { _, hasFocus ->
             container.isActivated = hasFocus
             if (hasFocus) {
-                icon.setColorFilter(Color.parseColor("#6366F1"))
-                editText.setHintTextColor(Color.parseColor("#6366F1"))
+                icon.setColorFilter(Color.parseColor("#0F6E56"))
+                editText.setHintTextColor(Color.parseColor("#A99E88"))
             } else {
-                icon.setColorFilter(Color.parseColor("#94A3B8"))
-                editText.setHintTextColor(Color.parseColor("#94A3B8"))
+                icon.setColorFilter(Color.parseColor("#B8895A"))
+                editText.setHintTextColor(Color.parseColor("#A99E88"))
             }
         }
+    }
+
+    // ================= PASSWORD VISIBILITY =================
+    private fun setupPasswordToggle(editText: EditText, toggle: ImageView) {
+        toggle.setOnClickListener {
+            val visible = editText.transformationMethod == null
+            if (visible) {
+                editText.transformationMethod = PasswordTransformationMethod.getInstance()
+                toggle.setImageResource(R.drawable.ic_lc_eye_off)
+            } else {
+                editText.transformationMethod = null
+                toggle.setImageResource(R.drawable.ic_lc_eye)
+            }
+            editText.setSelection(editText.text.length)
+        }
+    }
+
+    // ================= STRENGTH METER =================
+    private fun updateStrengthMeter(password: String) {
+        val segs = listOf(
+            findViewById<View>(R.id.strengthSeg1),
+            findViewById<View>(R.id.strengthSeg2),
+            findViewById<View>(R.id.strengthSeg3),
+            findViewById<View>(R.id.strengthSeg4)
+        )
+        val tvStrength = findViewById<TextView>(R.id.tvStrength)
+
+        var score = 0
+        if (password.length >= 6) score++
+        if (password.length >= 10) score++
+        if (password.any { it.isDigit() } && password.any { it.isLetter() }) score++
+        if (password.any { !it.isLetterOrDigit() }) score++
+
+        val empty = Color.parseColor("#E3D9C4")
+        val (label, color) = when {
+            password.isEmpty() -> "" to empty
+            score <= 1 -> "Weak password" to Color.parseColor("#C2553A")
+            score == 2 -> "Fair password" to Color.parseColor("#B8895A")
+            score == 3 -> "Good password" to Color.parseColor("#1D9E75")
+            else -> "Strong password" to Color.parseColor("#0F6E56")
+        }
+
+        val filled = if (password.isEmpty()) 0 else score.coerceIn(1, 4)
+        segs.forEachIndexed { i, seg ->
+            seg.backgroundTintList = ColorStateList.valueOf(if (i < filled) color else empty)
+        }
+        tvStrength.text = label
+        tvStrength.setTextColor(color)
+    }
+
+    // ================= MATCH CHECK =================
+    private fun updateMatchState(newPass: String, confirmPass: String) {
+        val row = findViewById<View>(R.id.matchRow)
+        val tv = findViewById<TextView>(R.id.tvMatch)
+        val iv = findViewById<ImageView>(R.id.ivMatch)
+
+        if (confirmPass.isEmpty()) {
+            row.visibility = View.INVISIBLE
+            return
+        }
+        row.visibility = View.VISIBLE
+        if (newPass == confirmPass) {
+            tv.text = "Passwords match"
+            tv.setTextColor(Color.parseColor("#1D9E75"))
+            iv.setImageResource(R.drawable.ic_lc_check)
+            iv.setColorFilter(Color.parseColor("#1D9E75"))
+        } else {
+            tv.text = "Passwords don't match"
+            tv.setTextColor(Color.parseColor("#C2553A"))
+            iv.setImageResource(R.drawable.ic_lc_check)
+            iv.setColorFilter(Color.parseColor("#C2553A"))
+        }
+    }
+
+    private fun simpleWatcher(onChange: () -> Unit): TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+        override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
+        override fun afterTextChanged(s: Editable?) { onChange() }
+    }
+
+    /** Show the arrow icon and loop its motion. */
+    private fun startCtaArrowAnimation() {
+        val btn = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnChangePassword)
+        btn.icon = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.ic_cta_arrow)
+        btn.post { (btn.icon as? android.graphics.drawable.Animatable)?.start() }
+    }
+
+    /** Hide the arrow icon (used while the button shows a loading label). */
+    private fun hideCtaArrow() {
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.btnChangePassword).icon = null
     }
 
     private fun View.applyPremiumClickAnimation() {
