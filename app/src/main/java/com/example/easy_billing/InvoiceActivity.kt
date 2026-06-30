@@ -61,27 +61,32 @@ import java.util.*
  */
 class InvoiceActivity : AppCompatActivity() {
 
+    // Reactive LIVE / OFFLINE status for the header pill.
+    private var liveStatusCb: android.net.ConnectivityManager.NetworkCallback? = null
+    private var invDotAnim: android.animation.ObjectAnimator? = null
+
     // ---- Header / scheme ----
     private lateinit var tvStoreName: TextView
+    private lateinit var tvStoreMonogram: TextView
     private lateinit var tvBillInfo: TextView
     private lateinit var tvSchemeBadge: TextView
 
     // ---- Type selector ----
-    private lateinit var cgInvoiceType: ChipGroup
-    private lateinit var chipB2C: Chip
-    private lateinit var chipB2B: Chip
+    private lateinit var cgInvoiceType: RadioGroup
+    private lateinit var chipB2C: RadioButton
+    private lateinit var chipB2B: RadioButton
     private lateinit var tvInvoiceTypeHint: TextView
 
     // ---- Customer card ----
     private lateinit var cardCustomer: View
     private lateinit var tvCustomerRequirement: TextView
     private lateinit var etCustomerName: EditText
-    private lateinit var tilBusinessName: TextInputLayout
+    private lateinit var tilBusinessName: View
     private lateinit var etBusinessName: EditText
     private lateinit var etCustomerPhone: EditText
-    private lateinit var tilCustomerGst: TextInputLayout
+    private lateinit var tilCustomerGst: View
     private lateinit var etCustomerGst: EditText
-    private lateinit var tilCustomerState: TextInputLayout
+    private lateinit var tilCustomerState: View
     private lateinit var etCustomerState: AutoCompleteTextView
 
     // ---- GST summary ----
@@ -113,7 +118,7 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var btnClose: Button
 
     // ---- State ----
-    private lateinit var items: List<CartItem>
+    private lateinit var items: MutableList<CartItem>
     private var savedBillId: Int = -1
     private var isBillSaved = false
     private var isUpdating = false
@@ -123,12 +128,13 @@ class InvoiceActivity : AppCompatActivity() {
     private var gstScheme: String = GstBillingCalculator.SCHEME_NORMAL
     private var sellerStateCode: String = ""
     private var sellerGstin: String = ""
+    private var sellerName: String = ""
 
     private var invoiceType: String = "B2C"
 
     // ---- GST Options section (collapsible) ----
     private lateinit var rowGstOptionsHeader: View
-    private lateinit var tvGstOptionsToggle: TextView
+    private lateinit var tvGstOptionsToggle: android.widget.ImageView
     private lateinit var layoutGstOptionsBody: View
     private lateinit var switchReverseCharge: SwitchMaterial
     private lateinit var spinnerGstrInvoiceType: AutoCompleteTextView
@@ -159,7 +165,8 @@ class InvoiceActivity : AppCompatActivity() {
         bindViews()
 
         @Suppress("UNCHECKED_CAST")
-        items = intent.getSerializableExtra("CART_ITEMS") as? List<CartItem> ?: emptyList()
+        items = (intent.getSerializableExtra("CART_ITEMS") as? List<CartItem>)
+            ?.toMutableList() ?: mutableListOf()
 
         val rvItems = findViewById<RecyclerView>(R.id.rvInvoiceItems)
         rvItems.layoutManager = LinearLayoutManager(this)
@@ -169,6 +176,12 @@ class InvoiceActivity : AppCompatActivity() {
             gstScheme   = gstScheme
         )
         rvItems.adapter = invoiceAdapter
+
+        // "Add more items to cart" → return to the dashboard cart.
+        findViewById<View>(R.id.btnAddItem).setOnClickListener {
+            setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
+            finish()
+        }
         // Per-row "fall in" animation when the screen first appears.
         rvItems.layoutAnimation = AnimationUtils.loadLayoutAnimation(
             this, R.anim.layout_animation_fall_down
@@ -176,7 +189,7 @@ class InvoiceActivity : AppCompatActivity() {
         rvItems.scheduleLayoutAnimation()
 
         val date = AppTime.nowBillStamp()   // app-timezone wall clock (matches backend)
-        tvBillInfo.text = "Date: $date"
+        tvBillInfo.text = date
 
         // Premium polish — staggered card reveal + press scaling on
         // anything tappable. Set up *once* per onCreate.
@@ -227,6 +240,7 @@ class InvoiceActivity : AppCompatActivity() {
 
         btnConfirm.setOnClickListener {
             if (!validateB2BFields()) return@setOnClickListener
+            if (!validateEcommerceFields()) return@setOnClickListener
             if (getPaymentMethod() == "CREDIT") handleCreditFlow() else saveBill()
         }
         btnPrint.setOnClickListener { generatePdfAndPrint() }
@@ -241,6 +255,7 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun bindViews() {
         tvStoreName       = findViewById(R.id.tvStoreName)
+        tvStoreMonogram   = findViewById(R.id.tvStoreMonogram)
         tvBillInfo        = findViewById(R.id.tvBillInfo)
         tvSchemeBadge     = findViewById(R.id.tvSchemeBadge)
 
@@ -314,10 +329,90 @@ class InvoiceActivity : AppCompatActivity() {
      * [recalculate] so the intra/inter supply type updates instantly.
      */
     private fun setupStateDropdown() {
-        val states = GstEngine.INDIA_STATES.values.toList()
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, states)
-        etCustomerState.setAdapter(adapter)
-        etCustomerState.setOnClickListener { etCustomerState.showDropDown() }
+        // Tap opens a styled popup sheet (matches "Place of supply" in
+        // Add Import Service) instead of the default autocomplete list.
+        etCustomerState.isFocusable = false
+        etCustomerState.isFocusableInTouchMode = false
+        etCustomerState.setOnClickListener { showStatePopup(it as android.widget.TextView) }
+    }
+
+    private fun dpPx(v: Int): Int =
+        (v * resources.displayMetrics.density).toInt()
+
+    /** State picker styled like the Import-Service "Place of supply" sheet. */
+    private fun showStatePopup(anchor: android.widget.TextView) {
+        showChooserPopup(anchor, GstEngine.INDIA_STATES.values.toList())
+    }
+
+    /** Generic picker sheet matching the Import-Service "Place of supply" popup. */
+    private fun showChooserPopup(
+        anchor: android.widget.TextView,
+        options: List<String>,
+        onPick: (String) -> Unit = {}
+    ) {
+        val states = options
+        val current = anchor.text?.toString()?.trim().orEmpty()
+
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dpPx(5), dpPx(5), dpPx(5), dpPx(5))
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
+
+        // Anchor to the field BOX (parent) so the sheet drops from the
+        // full-width field, not the inner value view.
+        val box = (anchor.parent as? android.view.View) ?: anchor
+
+        // Size to content like the "Place of supply" sheet; cap tall lists
+        // (e.g. states) so they scroll instead of running off-screen.
+        val sheetHeight = minOf(options.size * dpPx(44) + dpPx(10), dpPx(320))
+
+        val popup = android.widget.PopupWindow(
+            scroll, box.width,
+            sheetHeight, true
+        ).apply {
+            elevation = dpPx(10).toFloat()
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
+        states.forEach { opt ->
+            val isSel = opt.equals(current, ignoreCase = true)
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dpPx(44)
+                )
+                setPadding(dpPx(12), 0, dpPx(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val label = android.widget.TextView(this).apply {
+                text = opt
+                textSize = 14f
+                setTextColor(android.graphics.Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
+            }
+            row.addView(label)
+            if (isSel) {
+                row.addView(android.widget.ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(android.graphics.Color.parseColor("#185FA5"))
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dpPx(16), dpPx(16))
+                })
+            }
+            row.setOnClickListener {
+                anchor.text = opt
+                popup.dismiss()
+                onPick(opt)
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(box, 0, dpPx(6))
     }
 
     /**
@@ -363,20 +458,35 @@ class InvoiceActivity : AppCompatActivity() {
         spinnerEcoRole.setAdapter(roleAdapter)
         spinnerEcoRole.setText("Supplier", false)
 
+        // Tap opens the styled chooser sheet (matches "Place of supply").
+        spinnerGstrInvoiceType.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, invoiceTypes)
+        }
+        spinnerEcoNatureOfSupply.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, listOf("B2B", "B2C", "URP2B"))
+        }
+        spinnerEcoDocumentType.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, listOf("Invoice", "Credit Note", "Debit Note"))
+        }
+        spinnerEcoRole.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, listOf("Supplier", "E-Commerce Operator")) {
+                autofillEcoFields()
+            }
+        }
+
         // Collapse/expand toggle.
         rowGstOptionsHeader.setOnClickListener {
             val expanding = layoutGstOptionsBody.visibility != View.VISIBLE
-            (layoutGstOptionsBody.parent as? ViewGroup)?.let { parent ->
-                TransitionManager.beginDelayedTransition(
-                    parent,
-                    AutoTransition().setDuration(220L)
-                )
-            }
+            // No layout transition here — animating the card resize made the
+            // rounded-corner background redraw with a visible lag on collapse.
             layoutGstOptionsBody.visibility = if (expanding) View.VISIBLE else View.GONE
-            tvGstOptionsToggle.text         = if (expanding) "▲" else "▼"
+            tvGstOptionsToggle.animate()
+                .rotation(if (expanding) 180f else 0f)
+                .setDuration(200L)
+                .start()
         }
 
-        // E-commerce toggle → show/hide fields.
+        // E-commerce toggle → show/hide fields + autofill from store / customer.
         switchEcommerce.setOnCheckedChangeListener { _, isChecked ->
             (layoutEcommerceFields.parent as? ViewGroup)?.let { parent ->
                 TransitionManager.beginDelayedTransition(
@@ -385,14 +495,49 @@ class InvoiceActivity : AppCompatActivity() {
                 )
             }
             layoutEcommerceFields.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked) autofillEcoFields()
+        }
+    }
+
+    /**
+     * Pre-fills the e-commerce GST fields, leaving every field editable so the
+     * cashier can override an autofilled value.
+     *
+     *   • Document type → always "Invoice".
+     *   • Nature of supply → taken from the B2C / B2B selector at the top.
+     *   • Role = Supplier → Supplier GSTIN/Name = this shop (GST profile),
+     *     Recipient GSTIN/Name = the customer just entered.
+     *   • Role = E-Commerce Operator → supplier & recipient left blank.
+     */
+    private fun autofillEcoFields() {
+        if (!switchEcommerce.isChecked) return
+
+        spinnerEcoDocumentType.setText("Invoice", false)
+        spinnerEcoNatureOfSupply.setText(invoiceType, false)
+
+        if (spinnerEcoRole.text.toString().equals("Supplier", ignoreCase = true)) {
+            etEcoSupplierGstin.setText(sellerGstin)
+            etEcoSupplierName.setText(
+                sellerName.ifBlank { tvStoreName.text?.toString().orEmpty() }
+            )
+            etEcoRecipientGstin.setText(etCustomerGst.text?.toString()?.trim().orEmpty())
+            val recipientName = etBusinessName.text?.toString()?.trim().orEmpty()
+                .ifBlank { etCustomerName.text?.toString()?.trim().orEmpty() }
+            etEcoRecipientName.setText(recipientName)
+        } else {
+            etEcoSupplierGstin.setText("")
+            etEcoSupplierName.setText("")
+            etEcoRecipientGstin.setText("")
+            etEcoRecipientName.setText("")
         }
     }
 
     private fun wireInvoiceTypeSelector() {
-        cgInvoiceType.setOnCheckedStateChangeListener { _, checkedIds ->
-            invoiceType = if (checkedIds.contains(R.id.chipB2B)) "B2B" else "B2C"
+        cgInvoiceType.setOnCheckedChangeListener { _, checkedId ->
+            invoiceType = if (checkedId == R.id.chipB2B) "B2B" else "B2C"
             applyInvoiceTypeUi(invoiceType)
             recalculate()
+            autofillEcoFields()
             // Switching to B2B with a phone already entered should pull the
             // customer's full B2B details (the earlier B2C lookup only
             // fetched the name).
@@ -496,6 +641,32 @@ class InvoiceActivity : AppCompatActivity() {
     }
 
     /** Brief "pop" animation to call attention to the active chip. */
+    override fun onResume() {
+        super.onResume()
+        updateLiveStatus()
+        if (liveStatusCb == null) {
+            liveStatusCb = com.example.easy_billing.util.NetworkUtils
+                .registerCallback(this) { runOnUiThread { updateLiveStatus() } }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.example.easy_billing.util.NetworkUtils.unregister(this, liveStatusCb)
+        liveStatusCb = null
+    }
+
+    /** Paints the header pill LIVE (internet) or OFFLINE. */
+    private fun updateLiveStatus() {
+        val online = com.example.easy_billing.util.NetworkUtils.isOnline(this)
+        com.example.easy_billing.util.NetworkUtils.applyStatus(
+            findViewById(R.id.containerInvStatus), findViewById(R.id.tvInvStatus), online
+        )
+        invDotAnim = com.example.easy_billing.util.NetworkUtils.blinkDot(
+            findViewById(R.id.viewInvDot), invDotAnim, online
+        )
+    }
+
     private fun popChip(view: View) {
         view.animate()
             .scaleX(1.08f).scaleY(1.08f)
@@ -661,15 +832,28 @@ class InvoiceActivity : AppCompatActivity() {
             return false
         }
 
-        // E-commerce GSTIN format check (when toggle is on).
-        if (switchEcommerce.isChecked) {
-            val ecoGstin = etEcommerceGstin.text.toString().trim()
-            if (ecoGstin.isNotEmpty() && ecoGstin.length != 15) {
-                Toast.makeText(this, "E-Commerce GSTIN must be 15 characters", Toast.LENGTH_LONG).show()
-                return false
-            }
-        }
+        return true
+    }
 
+    /**
+     * E-commerce validation — runs for BOTH B2C and B2B (B2C e-commerce
+     * sales are common). When the toggle is on the operator's GSTIN is
+     * mandatory and must be 15 characters, since TCS is attributed to it.
+     */
+    private fun validateEcommerceFields(): Boolean {
+        if (!switchEcommerce.isChecked) return true
+
+        val ecoGstin = etEcommerceGstin.text.toString().trim()
+        if (ecoGstin.isEmpty()) {
+            Toast.makeText(this, "E-Commerce operator GSTIN is required", Toast.LENGTH_LONG).show()
+            etEcommerceGstin.requestFocus()
+            return false
+        }
+        if (ecoGstin.length != 15) {
+            Toast.makeText(this, "E-Commerce GSTIN must be 15 characters", Toast.LENGTH_LONG).show()
+            etEcommerceGstin.requestFocus()
+            return false
+        }
         return true
     }
 
@@ -1198,6 +1382,8 @@ class InvoiceActivity : AppCompatActivity() {
                     gstScheme = scheme
                     sellerStateCode = profile.stateCode.ifBlank { sellerStateCode }
                     sellerGstin     = profile.gstin.ifBlank { sellerGstin }
+                    sellerName      = profile.tradeName.ifBlank { profile.legalName }
+                        .ifBlank { sellerName }
                     tvSchemeBadge.text = scheme.uppercase()
                     recalculate()
                 }
@@ -1207,7 +1393,10 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun applyStoreInfo(store: StoreInfo) {
         runOnUiThread {
-            tvStoreName.text = store.name.ifBlank { "My Store" }
+            val resolvedName = store.name.ifBlank { "My Store" }
+            tvStoreName.text = resolvedName
+            tvStoreMonogram.text = resolvedName.trim().firstOrNull()?.uppercase() ?: "M"
+            if (sellerName.isBlank()) sellerName = resolvedName
             sellerStateCode = store.stateCode.ifBlank {
                 GstEngine.getStateCode(store.gstin)
             }

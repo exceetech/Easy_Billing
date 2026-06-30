@@ -56,6 +56,11 @@ import kotlinx.coroutines.withContext
 
 class DashboardActivity : BaseActivity() {
 
+    // Reactive LIVE / OFFLINE status for the drawer pills.
+    private var liveStatusCb: android.net.ConnectivityManager.NetworkCallback? = null
+    private var navDotAnim: android.animation.ObjectAnimator? = null
+    private var liveDotAnim: android.animation.ObjectAnimator? = null
+
     // ================= UI =================
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var rvProducts: RecyclerView
@@ -307,6 +312,13 @@ class DashboardActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        // LIVE / OFFLINE pills — paint now, then keep them reactive.
+        updateLiveStatus()
+        if (liveStatusCb == null) {
+            liveStatusCb = com.example.easy_billing.util.NetworkUtils
+                .registerCallback(this) { runOnUiThread { updateLiveStatus() } }
+        }
 
         NetworkReceiver(this).startListening()
         checkSubscription()
@@ -2191,6 +2203,29 @@ class DashboardActivity : BaseActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        com.example.easy_billing.util.NetworkUtils.unregister(this, liveStatusCb)
+        liveStatusCb = null
+    }
+
+    /** Paints both drawer status pills LIVE (internet) or OFFLINE. */
+    private fun updateLiveStatus() {
+        val online = com.example.easy_billing.util.NetworkUtils.isOnline(this)
+        com.example.easy_billing.util.NetworkUtils.applyStatus(
+            findViewById(R.id.containerNavStatus), findViewById(R.id.tvNavMenu), online
+        )
+        com.example.easy_billing.util.NetworkUtils.applyStatus(
+            findViewById(R.id.containerLiveStatus), findViewById(R.id.tvLiveStatus), online
+        )
+        navDotAnim = com.example.easy_billing.util.NetworkUtils.blinkDot(
+            findViewById(R.id.viewNavDot), navDotAnim, online
+        )
+        liveDotAnim = com.example.easy_billing.util.NetworkUtils.blinkDot(
+            findViewById(R.id.viewLiveDot), liveDotAnim, online
+        )
+    }
+
     private fun startLiveStatusAnimation() {
         // --- 1. Right Drawer (Cart) Indicator ---
         animateCyberTag(R.id.viewLiveRing, R.id.viewLiveDot)
@@ -2203,19 +2238,12 @@ class DashboardActivity : BaseActivity() {
         val ring = findViewById<View>(ringId) ?: return
         val dot = findViewById<View>(dotId) ?: return
 
-        // Ring removed — dot-only live indicator
+        // Dot-only indicator (no ring). Blink is driven by connectivity
+        // in updateLiveStatus() — steady when offline.
         ring.visibility = View.GONE
-
-        // 2. Soft blink for the dot — steady live indicator, no size breathing
         dot.scaleX = 1f
         dot.scaleY = 1f
-        android.animation.ObjectAnimator.ofFloat(dot, View.ALPHA, 1f, 0.35f).apply {
-            duration = 900
-            repeatCount = android.animation.ValueAnimator.INFINITE
-            repeatMode = android.animation.ValueAnimator.REVERSE
-            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
-            start()
-        }
+        dot.alpha = 1f
     }
 
     private fun setupGreeting() {

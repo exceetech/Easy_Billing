@@ -790,6 +790,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingBottom="72dp"
                 android:visibility="gone">
                 <FrameLayout
                     android:layout_width="84dp"
@@ -1351,6 +1352,7 @@
 
                 <!-- Live status pill (animated dot preserved) -->
                 <LinearLayout
+                    android:id="@+id/containerLiveStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
@@ -1377,6 +1379,7 @@
                     </FrameLayout>
 
                     <TextView
+                        android:id="@+id/tvLiveStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"

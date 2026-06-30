@@ -1,1371 +1,1630 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Invoice screen — editorial light theme.
+    Invoice screen — premium two-pane layout (tablet-first).
 
-    Visual language is borrowed from MainActivity / Dashboard:
-       • Warm cream surface  — #FAF8F5
-       • Editorial title     — serif italic
-       • Gold accent line    — #D4A574 (24dp + tracked label)
-       • Section dividers    — 1dp #EDE8E0 hairlines (no cards)
-       • Confirm CTA         — emerald gradient
+    Header  : graphite+gold monogram · store identity · invoice meta · B2C/B2B toggle
+    Left pane : BILL TO · LINE ITEMS · GST OPTIONS (advanced)
+    Right rail: TAX breakdown · bill summary · graphite GRAND TOTAL · payment · actions
 
-    Six top-level sections — every one is a plain LinearLayout
-    with a section marker (`── SECTION NAME`) at the top, separated
-    by a thin warm hairline. No CardViews anywhere.
-
-    Section IDs (heroCard, chipsCard, cardCustomer, itemsCard,
-    cardGstSummary, cardTaxBreakdown, totalsCard) are kept verbatim
-    so InvoiceActivity's findViewById, the staggered entry
-    animation, and the B2B/B2C transition all keep working.
+    Every id referenced by InvoiceActivity.kt / InvoiceAdapter is preserved
+    (heroCard, chipsCard, cardCustomer, itemsCard, cardGstSummary,
+    cardTaxBreakdown, totalsCard, cardGstOptions and all field ids) so
+    findViewById, the staggered entry animation and the B2B/B2C transition
+    keep working.
 -->
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#FAF8F5">
+    android:orientation="vertical"
+    android:background="#F3ECDD">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <!-- ════════════════════════════════════════════════════════
-             ① EDITORIAL HEADER — store name as the wordmark
-        ════════════════════════════════════════════════════════ -->
+        <!-- ════════════ PREMIUM MASTHEAD ════════════ -->
         <LinearLayout
             android:id="@+id/heroCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_header_bar"
-            android:elevation="4dp"
-            android:paddingHorizontal="22dp"
-            android:paddingTop="22dp"
-            android:paddingBottom="22dp">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="4dp">
 
-            <!-- Top row: INVOICE tracked label  ·  date -->
+            <!-- Navy hero card (matches dashboard right drawer) -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="22dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="INVOICE"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.22"
-                    android:layout_marginStart="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="1dp"/>
-
-                <TextView
-                    android:id="@+id/tvBillInfo"
-                    android:text="Date"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <!-- Wordmark (serif italic) -->
-            <TextView
-                android:id="@+id/tvStoreName"
-                android:text="My Store"
-                android:textColor="#18181B"
-                android:textSize="30sp"
-                android:textStyle="bold|italic"
-                android:fontFamily="serif"
-                android:layout_marginTop="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <!-- Gold underline -->
-            <View
-                android:layout_width="56dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="6dp"
-                android:background="#D4A574"/>
-
-            <TextView
-                android:id="@+id/tvSchemeBadge"
-                android:text="NORMAL GST SCHEME"
-                android:textColor="#15803D"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.16"
-                android:paddingHorizontal="11dp"
-                android:paddingVertical="5dp"
-                android:background="@drawable/bg_pill_scheme_warm"
-                android:layout_marginTop="14dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- ════════════════════════════════════════════════════════
-             ② INVOICE TYPE
-        ════════════════════════════════════════════════════════ -->
-        <LinearLayout
-            android:id="@+id/chipsCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="22dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="18dp">
-
-            <!-- Section marker -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="INVOICE TYPE"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_marginStart="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/cgInvoiceType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:singleSelection="true"
-                app:selectionRequired="true"
-                app:chipSpacingHorizontal="10dp">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipB2C"
-                    android:text="  B2C  "
-                    android:checkable="true"
-                    android:checked="true"
-                    android:textStyle="bold"
-                    android:minHeight="42dp"
-                    android:textSize="13sp"
-                    android:letterSpacing="0.06"
-                    app:chipBackgroundColor="@color/chip_bg_state"
-                    android:textColor="@color/chip_text_state"
-                    app:chipStrokeWidth="1dp"
-                    app:chipStrokeColor="#E5DBC4"
-                    app:chipCornerRadius="14dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipB2B"
-                    android:text="  B2B  "
-                    android:checkable="true"
-                    android:textStyle="bold"
-                    android:minHeight="42dp"
-                    android:textSize="13sp"
-                    android:letterSpacing="0.06"
-                    app:chipBackgroundColor="@color/chip_bg_state"
-                    android:textColor="@color/chip_text_state"
-                    app:chipStrokeWidth="1dp"
-                    app:chipStrokeColor="#E5DBC4"
-                    app:chipCornerRadius="14dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.chip.ChipGroup>
-
-            <TextView
-                android:id="@+id/tvInvoiceTypeHint"
-                android:text="B2C — quick sale (customer details optional)"
-                android:textColor="#71717A"
-                android:textSize="12sp"
-                android:layout_marginTop="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EDE8E0"/>
-
-        <!-- ════════════════════════════════════════════════════════
-             ③ CUSTOMER DETAILS
-        ════════════════════════════════════════════════════════ -->
-        <LinearLayout
-            android:id="@+id/cardCustomer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="22dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="18dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="CUSTOMER DETAILS"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvCustomerRequirement"
-                    android:text="Optional"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:textColor="#16A34A"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:background="@drawable/bg_pill_green"
-                    android:letterSpacing="0.08"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:hint="Customer Name"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="#E5DBC4"
-                app:hintTextColor="#71717A"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCustomerName"
-                    android:inputType="textPersonName"
-                    android:textSize="14sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilBusinessName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="Business Name"
-                android:visibility="gone"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="#E5DBC4"
-                app:hintTextColor="#71717A"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etBusinessName"
-                    android:inputType="text"
-                    android:textSize="14sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="Phone Number"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="#E5DBC4"
-                app:hintTextColor="#71717A"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCustomerPhone"
-                    android:inputType="phone"
-                    android:textSize="14sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilCustomerGst"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="GST Number"
-                android:visibility="gone"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="#E5DBC4"
-                app:hintTextColor="#71717A"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCustomerGst"
-                    android:inputType="textCapCharacters"
-                    android:maxLength="15"
-                    android:textSize="14sp"
-                    android:textAllCaps="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilCustomerState"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="State of Customer"
-                android:visibility="gone"
-                app:boxStrokeColor="#E5DBC4"
-                app:hintTextColor="#71717A"
-                app:boxCornerRadiusTopStart="14dp"
-                app:boxCornerRadiusTopEnd="14dp"
-                app:boxCornerRadiusBottomStart="14dp"
-                app:boxCornerRadiusBottomEnd="14dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/etCustomerState"
-                    android:inputType="textCapWords"
-                    android:completionThreshold="1"
-                    android:textSize="14sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EDE8E0"/>
-
-        <!-- ════════════════════════════════════════════════════════
-             ④ ITEMS — column header + line list, no card chrome
-        ════════════════════════════════════════════════════════ -->
-        <LinearLayout
-            android:id="@+id/itemsCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="14dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginStart="8dp">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="ITEMS"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_marginStart="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <!-- Column header (transparent, bottom border only) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="9dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_weight="1.70"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="ITEM"
-                    android:textColor="#71717A"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="0.75"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="QTY"
-                    android:textColor="#71717A"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="0.85"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="RATE (₹)"
-                    android:textColor="#71717A"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="0.95"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="CGST (₹)"
-                    android:textColor="#0E7490"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="0.95"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="SGST (₹)"
-                    android:textColor="#0E7490"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="0.95"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="IGST (₹)"
-                    android:textColor="#7C3AED"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="0.90"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:text="SUBTOTAL (₹)"
-                    android:textColor="#71717A"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-
-                <TextView
-                    android:layout_weight="1.00"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:text="TOTAL (₹)"
-                    android:textColor="#71717A"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.10"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#EDE8E0"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvInvoiceItems"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:paddingHorizontal="6dp"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EDE8E0"/>
-
-        <!-- ════════════════════════════════════════════════════════
-             ⑤ GST DETAILS — scheme/supply context + 3-column tax grid
-        ════════════════════════════════════════════════════════ -->
-        <LinearLayout
-            android:id="@+id/cardGstSummary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="22dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="18dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="GST DETAILS"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvSupplyTypeBadge"
-                    android:text="INTRASTATE"
-                    android:textColor="#15803D"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:background="@drawable/bg_pill_supply_intra"
-                    android:letterSpacing="0.10"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvSchemeLine"
-                android:text="Scheme: Normal GST Scheme"
-                android:textColor="#18181B"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginTop="14dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvSupplyExplain"
-                android:text="Same-state sale — CGST + SGST will be charged."
-                android:textColor="#71717A"
-                android:textSize="12sp"
-                android:layout_marginTop="2dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <!-- Total tax — prominent line -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="14dp">
-
-                <TextView
-                    android:text="TOTAL TAX"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.16"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvTotalTax"
-                    android:text="₹0.00"
-                    android:textColor="#15803D"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#EDE8E0"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="14dp"/>
-
-            <!-- 3-column tax grid -->
-            <LinearLayout
-                android:id="@+id/cardTaxBreakdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:id="@+id/rowCgst"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <TextView
-                        android:text="CGST"
-                        android:textColor="#0E7490"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.16"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <TextView
-                        android:id="@+id/tvCgstAmount"
-                        android:text="₹0.00"
-                        android:textColor="#18181B"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#EDE8E0"/>
-
-                <LinearLayout
-                    android:id="@+id/rowSgst"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <TextView
-                        android:text="SGST"
-                        android:textColor="#0E7490"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.16"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <TextView
-                        android:id="@+id/tvSgstAmount"
-                        android:text="₹0.00"
-                        android:textColor="#18181B"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#EDE8E0"/>
-
-                <LinearLayout
-                    android:id="@+id/rowIgst"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <TextView
-                        android:text="IGST"
-                        android:textColor="#7C3AED"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.16"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <TextView
-                        android:id="@+id/tvIgstAmount"
-                        android:text="₹0.00"
-                        android:textColor="#18181B"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:layout_marginTop="6dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvCompositionNote"
-                android:text="Composition Scheme — tax is included in the selling price. No CGST / SGST / IGST is charged separately."
-                android:textColor="#92400E"
-                android:textSize="11sp"
-                android:padding="12dp"
-                android:background="@drawable/bg_pill_amber"
-                android:visibility="gone"
-                android:layout_marginTop="14dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EDE8E0"/>
-
-        <!-- ════════════════════════════════════════════════════════
-             ⑦ GST OPTIONS (collapsed by default — reverse charge,
-                GSTR invoice type, e-commerce)
-        ════════════════════════════════════════════════════════ -->
-        <LinearLayout
-            android:id="@+id/cardGstOptions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="22dp"
-            android:paddingTop="14dp"
-            android:paddingBottom="14dp">
-
-            <!-- Collapsible header row -->
-            <LinearLayout
-                android:id="@+id/rowGstOptionsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:clickable="true"
-                android:focusable="true">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="GST OPTIONS"
-                    android:textColor="#71717A"
-                    android:textSize="10sp"
-                    android:letterSpacing="0.12"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:background="#EDE8E0"
-                    android:layout_weight="1"/>
-
-                <TextView
-                    android:id="@+id/tvGstOptionsToggle"
-                    android:text="▼ Expand"
-                    android:textColor="#D4A574"
-                    android:textSize="11sp"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <!-- Expandable body (GONE by default) -->
-            <LinearLayout
-                android:id="@+id/layoutGstOptionsBody"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginTop="12dp">
+                android:background="@drawable/bg_drawer_header_card"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingHorizontal="17dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="16dp">
 
-                <!-- Reverse Charge -->
+                <!-- Identity row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:baselineAligned="false">
 
-                    <TextView
-                        android:text="Reverse Charge Applicable?"
-                        android:textSize="13sp"
-                        android:textColor="#3F3F46"
+                    <!-- Gold-ringed monogram -->
+                    <FrameLayout
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_drawer_avatar_ring">
+
+                        <TextView
+                            android:id="@+id/tvStoreMonogram"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="2dp"
+                            android:background="@drawable/bg_drawer_avatar_inner"
+                            android:gravity="center"
+                            android:text="M"
+                            android:textColor="#F3E2C7"
+                            android:textSize="20sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"/>
+                    </FrameLayout>
+
+                    <!-- Eyebrow + store name -->
+                    <LinearLayout
                         android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
+                        android:orientation="vertical"
+                        android:layout_marginStart="13dp">
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchReverseCharge"
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:text="Invoice · "
+                                android:textColor="#9FB0D4"
+                                android:textSize="11sp"
+                                android:letterSpacing="0.02"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvBillInfo"
+                                android:text="—"
+                                android:textColor="#9FB0D4"
+                                android:textSize="11sp"
+                                android:singleLine="true"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:text=" · "
+                                android:textColor="#5E709C"
+                                android:textSize="11sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvSchemeBadge"
+                                android:text="NORMAL GST"
+                                android:textColor="#E5C089"
+                                android:textSize="11sp"
+                                android:singleLine="true"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvStoreName"
+                            android:text="My Store"
+                            android:textColor="#FFFFFF"
+                            android:textSize="22sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <!-- Live / offline status pill -->
+                    <LinearLayout
+                        android:id="@+id/containerInvStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="false"/>
+                        android:layout_gravity="top"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_drawer_live_pill"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="5dp">
+
+                        <View
+                            android:id="@+id/viewInvDot"
+                            android:layout_width="6dp"
+                            android:layout_height="6dp"
+                            android:background="@drawable/bg_live_dot_base"/>
+
+                        <TextView
+                            android:id="@+id/tvInvStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="LIVE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:letterSpacing="0.14"/>
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- GSTR Invoice Type -->
-                <TextView
-                    android:text="GSTR Invoice Type"
-                    android:textSize="12sp"
-                    android:textColor="#71717A"
+                <!-- Invoice type toggle — segmented control (left) + label -->
+                <LinearLayout
+                    android:id="@+id/chipsCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:layout_marginTop="14dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilGstrInvoiceType"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    app:boxCornerRadiusTopStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    xmlns:app="http://schemas.android.com/apk/res-auto">
+                    <RadioGroup
+                        android:id="@+id/cgInvoiceType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_inv_seg_track"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:padding="3dp">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/spinnerGstrInvoiceType"
-                        android:inputType="none"
-                        android:text="Regular"
-                        android:textSize="13sp"
-                        android:layout_width="match_parent"
+                        <RadioButton
+                            android:id="@+id/chipB2C"
+                            android:text="B2C"
+                            android:checked="true"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:minWidth="64dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:background="@drawable/bg_inv_seg_item"
+                            android:textColor="@color/inv_type_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <RadioButton
+                            android:id="@+id/chipB2B"
+                            android:text="B2B"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:minWidth="64dp"
+                            android:paddingHorizontal="18dp"
+                            android:paddingVertical="8dp"
+                            android:background="@drawable/bg_inv_seg_item"
+                            android:textColor="@color/inv_type_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:layout_marginStart="3dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </RadioGroup>
+
+                    <TextView
+                        android:text="Invoice type"
+                        android:textColor="#9FB0D4"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.04"
+                        android:layout_marginStart="12dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- E-Commerce Toggle -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:text="Sale via E-Commerce Operator?"
-                        android:textSize="13sp"
-                        android:textColor="#3F3F46"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchEcommerce"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="false"/>
                 </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
 
-                <!-- E-Commerce fields (hidden unless toggle ON) -->
+        <!-- ════════════ TWO-PANE BODY ════════════ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <!-- ───────── LEFT PANE (scrolls) ───────── -->
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_weight="1.3"
+                android:layout_height="match_parent"
+                android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- BILL TO -->
                 <LinearLayout
-                    android:id="@+id/layoutEcommerceFields"
+                    android:id="@+id/cardCustomer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:visibility="gone">
+                    android:background="@drawable/bg_inv_card_cream"
+                    android:padding="15dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcommerceGstin"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="E-Commerce Operator GSTIN *"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEcommerceGstin"
-                            android:inputType="textCapCharacters"
-                            android:maxLength="15"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#D4A574"/>
+
+                        <TextView
+                            android:text="CUSTOMER DETAILS"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.13"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcommerceOperator"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="E-Commerce Operator Name (optional)"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEcommerceOperatorName"
-                            android:inputType="textCapWords"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/tvCustomerRequirement"
+                            android:text="Optional"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#16A34A"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_pill_green"
+                            android:letterSpacing="0.06"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
 
-                    <!-- ── NEW ECO FIELDS (Table 14/15) ── -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoNatureOfSupply"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:hint="Nature of Supply *"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerEcoNatureOfSupply"
-                            android:inputType="none"
-                            android:text="B2C"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoDocumentType"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:hint="Document Type *"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerEcoDocumentType"
-                            android:inputType="none"
-                            android:text="Invoice"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoRole"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:hint="Role *"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/spinnerEcoRole"
-                            android:inputType="none"
-                            android:text="Supplier"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoSupplierGstin"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="Supplier GSTIN (optional)"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEcoSupplierGstin"
-                            android:inputType="textCapCharacters"
-                            android:maxLength="15"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoSupplierName"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="Supplier Name (optional)"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEcoSupplierName"
-                            android:inputType="textCapWords"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoRecipientGstin"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="Recipient GSTIN (cond. required)"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEcoRecipientGstin"
-                            android:inputType="textCapCharacters"
-                            android:maxLength="15"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilEcoRecipientName"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:hint="Recipient Name (optional)"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusBottomEnd="14dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEcoRecipientName"
-                            android:inputType="textCapWords"
-                            android:textSize="13sp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EDE8E0"/>
-
-        <!-- ════════════════════════════════════════════════════════
-             ⑥ BILL SUMMARY · PAYMENT · ACTIONS
-        ════════════════════════════════════════════════════════ -->
-        <LinearLayout
-            android:id="@+id/totalsCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="22dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="26dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="BILL SUMMARY"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_marginStart="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="14dp">
-
-                <TextView
-                    android:text="Subtotal"
-                    android:textColor="#71717A"
-                    android:textSize="14sp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"/>
-
-                <TextView
-                    android:id="@+id/tvSubtotal"
-                    android:text="₹0"
-                    android:textColor="#18181B"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="8dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:text="GST"
-                    android:textColor="#71717A"
-                    android:textSize="14sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvGstPercent"
-                    android:text="(0%)"
-                    android:textColor="#A1A1AA"
-                    android:textSize="11sp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvGst"
-                    android:text="₹0"
-                    android:textColor="#18181B"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="8dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:text="Discount"
-                    android:textColor="#71717A"
-                    android:textSize="14sp"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:paddingEnd="10dp"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="120dp"
-                    android:layout_height="44dp"
-                    app:boxBackgroundMode="outline"
-                    app:boxStrokeColor="#E5DBC4"
-                    app:hintTextColor="#71717A"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etDiscount"
-                        android:hint="₹"
-                        android:inputType="numberDecimal"
-                        android:padding="8dp"
-                        android:textSize="13sp"
-                        android:gravity="end"
+                    <TextView
+                        android:id="@+id/tvInvoiceTypeHint"
+                        android:text="B2C — quick sale (customer details optional)"
+                        android:textColor="#9A8F79"
+                        android:textSize="11sp"
+                        android:layout_marginTop="8dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
-                </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Login-style glass inputs with Lucide icons.
+                         Phone first: a complete number auto-fills saved
+                         customers; otherwise the cashier fills in manually. -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_glass_input">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:layout_gravity="center_vertical|start"
+                            android:layout_marginStart="14dp"
+                            android:src="@drawable/ic_lc_phone"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null"/>
+
+                        <EditText
+                            android:id="@+id/etCustomerPhone"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:paddingStart="44dp"
+                            android:paddingEnd="14dp"
+                            android:hint="Phone number"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="phone"
+                            android:singleLine="true"
+                            android:textSize="14sp"/>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_glass_input">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:layout_gravity="center_vertical|start"
+                            android:layout_marginStart="14dp"
+                            android:src="@drawable/ic_lc_user"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null"/>
+
+                        <EditText
+                            android:id="@+id/etCustomerName"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:paddingStart="44dp"
+                            android:paddingEnd="14dp"
+                            android:hint="Customer name"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="textPersonName"
+                            android:singleLine="true"
+                            android:textSize="14sp"/>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/tilBusinessName"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone"
+                        android:background="@drawable/bg_glass_input">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:layout_gravity="center_vertical|start"
+                            android:layout_marginStart="14dp"
+                            android:src="@drawable/ic_lc_store"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null"/>
+
+                        <EditText
+                            android:id="@+id/etBusinessName"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:paddingStart="44dp"
+                            android:paddingEnd="14dp"
+                            android:hint="Business name"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:textSize="14sp"/>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/tilCustomerGst"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone"
+                        android:background="@drawable/bg_glass_input">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:layout_gravity="center_vertical|start"
+                            android:layout_marginStart="14dp"
+                            android:src="@drawable/ic_lc_id_card"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null"/>
+
+                        <EditText
+                            android:id="@+id/etCustomerGst"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:paddingStart="44dp"
+                            android:paddingEnd="14dp"
+                            android:hint="GST number"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="textCapCharacters"
+                            android:maxLength="15"
+                            android:textAllCaps="true"
+                            android:singleLine="true"
+                            android:textSize="14sp"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/tilCustomerState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:text="State of customer"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"
+                            android:layout_marginBottom="5dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_input"
+                            android:paddingHorizontal="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginEnd="9dp"
+                                android:src="@drawable/ic_lc_map_pin"
+                                app:tint="#B8895A"
+                                android:contentDescription="@null"/>
+
+                            <AutoCompleteTextView
+                                android:id="@+id/etCustomerState"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:background="@null"
+                                android:hint="Select state"
+                                android:textColor="#1A1A18"
+                                android:textColorHint="#A99E88"
+                                android:inputType="textCapWords"
+                                android:completionThreshold="1"
+                                android:singleLine="true"
+                                android:textSize="14sp"/>
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_chevron_down"
+                                app:tint="#C9C3B4"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- LINE ITEMS -->
+                <LinearLayout
+                    android:id="@+id/itemsCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_inv_card_cream"
+                    android:padding="15dp"
+                    android:layout_marginTop="13dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#D4A574"/>
+
+                        <TextView
+                            android:text="LINE ITEMS"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.13"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F1EBDD"
+                        android:layout_marginTop="11dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvInvoiceItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"/>
+
+                    <LinearLayout
+                        android:id="@+id/btnAddItem"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/bg_inv_add_dashed"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:padding="11dp"
+                        android:layout_marginTop="11dp">
+
+                        <TextView
+                            android:text="+  Add more items to cart"
+                            android:textColor="#0F6E56"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- GST OPTIONS (advanced, collapsible) -->
+                <LinearLayout
+                    android:id="@+id/cardGstOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_inv_card_cream"
+                    android:padding="15dp"
+                    android:layout_marginTop="13dp">
+
+                    <LinearLayout
+                        android:id="@+id/rowGstOptionsHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#D4A574"/>
+
+                        <TextView
+                            android:text="GST OPTIONS"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.13"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <ImageView
+                            android:id="@+id/tvGstOptionsToggle"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutGstOptionsBody"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:layout_marginTop="14dp">
+
+                        <!-- Reverse charge toggle row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_input"
+                            android:paddingHorizontal="13dp"
+                            android:paddingVertical="11dp"
+                            android:layout_marginBottom="10dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_lc_arrow_back_up"
+                                app:tint="#B8895A"
+                                android:layout_marginEnd="11dp"
+                                android:contentDescription="@null"/>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:text="Reverse charge"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#1A1A18"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                                <TextView
+                                    android:text="Tax paid by recipient"
+                                    android:textSize="10sp"
+                                    android:textColor="#9A8F79"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
+
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switchReverseCharge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="false"
+                                app:thumbTint="@color/inv_switch_thumb"
+                                app:trackTint="@color/inv_switch_track"/>
+                        </LinearLayout>
+
+                        <!-- GSTR invoice type -->
+                        <TextView
+                            android:text="GSTR invoice type"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"
+                            android:layout_marginBottom="5dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_input"
+                            android:paddingHorizontal="12dp"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginEnd="9dp"
+                                android:src="@drawable/ic_lc_file_text"
+                                app:tint="#B8895A"
+                                android:contentDescription="@null"/>
+
+                            <AutoCompleteTextView
+                                android:id="@+id/spinnerGstrInvoiceType"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:background="@null"
+                                android:hint="Select"
+                                android:textColor="#1A1A18"
+                                android:textColorHint="#A99E88"
+                                android:inputType="none"
+                                android:focusable="false"
+                                android:clickable="true"
+                                android:text="Regular"
+                                android:textSize="14sp"/>
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_chevron_down"
+                                app:tint="#C9C3B4"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+
+                        <!-- E-commerce toggle row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_input"
+                            android:paddingHorizontal="13dp"
+                            android:paddingVertical="11dp"
+                            android:layout_marginBottom="10dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_lc_store"
+                                app:tint="#B8895A"
+                                android:layout_marginEnd="11dp"
+                                android:contentDescription="@null"/>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:text="Sold via e-commerce"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#1A1A18"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                                <TextView
+                                    android:text="Amazon, Flipkart, etc."
+                                    android:textSize="10sp"
+                                    android:textColor="#9A8F79"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
+
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switchEcommerce"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="false"
+                                app:thumbTint="@color/inv_switch_thumb"
+                                app:trackTint="@color/inv_switch_track"/>
+                        </LinearLayout>
+
+                        <!-- E-commerce details -->
+                        <LinearLayout
+                            android:id="@+id/layoutEcommerceFields"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#E4D6BA"
+                                android:layout_marginBottom="11dp"/>
+
+                            <!-- Role + Nature of supply -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="12dp">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:layout_marginEnd="9dp">
+
+                                    <TextView
+                                        android:text="Role"
+                                        android:textSize="11sp"
+                                        android:textColor="#6E6A60"
+                                        android:layout_marginBottom="5dp"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"/>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="50dp"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical"
+                                        android:background="@drawable/bg_glass_input"
+                                        android:paddingHorizontal="12dp">
+
+                                        <ImageView
+                                            android:layout_width="18dp"
+                                            android:layout_height="18dp"
+                                            android:layout_marginEnd="8dp"
+                                            android:src="@drawable/ic_lc_user"
+                                            app:tint="#B8895A"
+                                            android:contentDescription="@null"/>
+                                        <AutoCompleteTextView
+                                            android:id="@+id/spinnerEcoRole"
+                                            android:layout_width="0dp"
+                                            android:layout_weight="1"
+                                            android:layout_height="match_parent"
+                                            android:background="@null"
+                                            android:hint="Select"
+                                            android:textColor="#1A1A18"
+                                            android:textColorHint="#A99E88"
+                                            android:inputType="none"
+                                            android:focusable="false"
+                                            android:clickable="true"
+                                            android:text="Supplier"
+                                            android:textSize="13sp"/>
+                                        <ImageView
+                                            android:layout_width="17dp"
+                                            android:layout_height="17dp"
+                                            android:src="@drawable/ic_chevron_down"
+                                            app:tint="#C9C3B4"
+                                            android:contentDescription="@null"/>
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:text="Nature of supply"
+                                        android:textSize="11sp"
+                                        android:textColor="#6E6A60"
+                                        android:layout_marginBottom="5dp"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"/>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="50dp"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical"
+                                        android:background="@drawable/bg_glass_input"
+                                        android:paddingHorizontal="12dp">
+
+                                        <ImageView
+                                            android:layout_width="18dp"
+                                            android:layout_height="18dp"
+                                            android:layout_marginEnd="8dp"
+                                            android:src="@drawable/ic_lc_package"
+                                            app:tint="#B8895A"
+                                            android:contentDescription="@null"/>
+                                        <AutoCompleteTextView
+                                            android:id="@+id/spinnerEcoNatureOfSupply"
+                                            android:layout_width="0dp"
+                                            android:layout_weight="1"
+                                            android:layout_height="match_parent"
+                                            android:background="@null"
+                                            android:hint="Select"
+                                            android:textColor="#1A1A18"
+                                            android:textColorHint="#A99E88"
+                                            android:inputType="none"
+                                            android:focusable="false"
+                                            android:clickable="true"
+                                            android:text="B2C"
+                                            android:textSize="13sp"/>
+                                        <ImageView
+                                            android:layout_width="17dp"
+                                            android:layout_height="17dp"
+                                            android:src="@drawable/ic_chevron_down"
+                                            app:tint="#C9C3B4"
+                                            android:contentDescription="@null"/>
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Document type -->
+                            <TextView
+                                android:text="Document type"
+                                android:textSize="11sp"
+                                android:textColor="#6E6A60"
+                                android:layout_marginBottom="5dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:background="@drawable/bg_glass_input"
+                                android:paddingHorizontal="12dp"
+                                android:layout_marginBottom="12dp">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginEnd="9dp"
+                                    android:src="@drawable/ic_lc_file_text"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <AutoCompleteTextView
+                                    android:id="@+id/spinnerEcoDocumentType"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:hint="Select"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="none"
+                                    android:focusable="false"
+                                    android:clickable="true"
+                                    android:text="Invoice"
+                                    android:textSize="14sp"/>
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:src="@drawable/ic_chevron_down"
+                                    app:tint="#C9C3B4"
+                                    android:contentDescription="@null"/>
+                            </LinearLayout>
+
+                            <!-- Operator GSTIN -->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@drawable/bg_glass_input">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center_vertical|start"
+                                    android:layout_marginStart="14dp"
+                                    android:src="@drawable/ic_lc_id_card"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <EditText
+                                    android:id="@+id/etEcommerceGstin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:paddingStart="44dp"
+                                    android:paddingEnd="14dp"
+                                    android:hint="Operator GSTIN"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="textCapCharacters"
+                                    android:maxLength="15"
+                                    android:singleLine="true"
+                                    android:textSize="14sp"/>
+                            </FrameLayout>
+
+                            <!-- Operator name -->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@drawable/bg_glass_input">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center_vertical|start"
+                                    android:layout_marginStart="14dp"
+                                    android:src="@drawable/ic_lc_store"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <EditText
+                                    android:id="@+id/etEcommerceOperatorName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:paddingStart="44dp"
+                                    android:paddingEnd="14dp"
+                                    android:hint="Operator name (optional)"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="textCapWords"
+                                    android:singleLine="true"
+                                    android:textSize="14sp"/>
+                            </FrameLayout>
+
+                            <!-- Supplier GSTIN -->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@drawable/bg_glass_input">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center_vertical|start"
+                                    android:layout_marginStart="14dp"
+                                    android:src="@drawable/ic_lc_id_card"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <EditText
+                                    android:id="@+id/etEcoSupplierGstin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:paddingStart="44dp"
+                                    android:paddingEnd="14dp"
+                                    android:hint="Supplier GSTIN"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="textCapCharacters"
+                                    android:maxLength="15"
+                                    android:singleLine="true"
+                                    android:textSize="14sp"/>
+                            </FrameLayout>
+
+                            <!-- Supplier name -->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@drawable/bg_glass_input">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center_vertical|start"
+                                    android:layout_marginStart="14dp"
+                                    android:src="@drawable/ic_lc_store"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <EditText
+                                    android:id="@+id/etEcoSupplierName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:paddingStart="44dp"
+                                    android:paddingEnd="14dp"
+                                    android:hint="Supplier name"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="textCapWords"
+                                    android:singleLine="true"
+                                    android:textSize="14sp"/>
+                            </FrameLayout>
+
+                            <!-- Recipient GSTIN -->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@drawable/bg_glass_input">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center_vertical|start"
+                                    android:layout_marginStart="14dp"
+                                    android:src="@drawable/ic_lc_id_card"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <EditText
+                                    android:id="@+id/etEcoRecipientGstin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:paddingStart="44dp"
+                                    android:paddingEnd="14dp"
+                                    android:hint="Recipient GSTIN"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="textCapCharacters"
+                                    android:maxLength="15"
+                                    android:singleLine="true"
+                                    android:textSize="14sp"/>
+                            </FrameLayout>
+
+                            <!-- Recipient name -->
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:background="@drawable/bg_glass_input">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center_vertical|start"
+                                    android:layout_marginStart="14dp"
+                                    android:src="@drawable/ic_lc_user"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
+                                <EditText
+                                    android:id="@+id/etEcoRecipientName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:paddingStart="44dp"
+                                    android:paddingEnd="14dp"
+                                    android:hint="Recipient name"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#A99E88"
+                                    android:inputType="textCapWords"
+                                    android:singleLine="true"
+                                    android:textSize="14sp"/>
+                            </FrameLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
+            </ScrollView>
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="14dp"
-                android:background="@drawable/divider_dotted"/>
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#ECE2CE"/>
+
+            <!-- ───────── RIGHT RAIL (fixed, own scroll) ───────── -->
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_inv_rail"
+                android:clipToPadding="false">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <TextView
-                    android:text="GRAND TOTAL"
-                    android:textColor="#18181B"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"/>
+                <!-- TAX -->
+                <LinearLayout
+                    android:id="@+id/cardGstSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvTotal"
-                    android:text="₹0"
-                    android:textSize="30sp"
-                    android:textStyle="bold|italic"
-                    android:fontFamily="serif"
-                    android:textColor="#15803D"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#D4A574"/>
+
+                        <TextView
+                            android:text="TAX"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.13"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tvSupplyTypeBadge"
+                            android:text="INTRASTATE"
+                            android:textColor="#15803D"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:paddingHorizontal="9dp"
+                            android:paddingVertical="3dp"
+                            android:background="@drawable/bg_pill_supply_intra"
+                            android:letterSpacing="0.06"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSupplyExplain"
+                        android:text="Same-state sale — CGST + SGST will be charged."
+                        android:textColor="#9A8F79"
+                        android:textSize="11sp"
+                        android:layout_marginTop="6dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <!-- 3 tax tiles -->
+                    <LinearLayout
+                        android:id="@+id/cardTaxBreakdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="10dp">
+
+                        <LinearLayout
+                            android:id="@+id/rowCgst"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_tax_tile"
+                            android:padding="10dp"
+                            android:layout_marginEnd="6dp">
+
+                            <TextView
+                                android:text="CGST"
+                                android:textColor="#9A8F79"
+                                android:textSize="10sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvCgstAmount"
+                                android:text="₹0.00"
+                                android:textColor="#18181B"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
+                                android:layout_marginTop="3dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/rowSgst"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_tax_tile"
+                            android:padding="10dp"
+                            android:layout_marginEnd="6dp">
+
+                            <TextView
+                                android:text="SGST"
+                                android:textColor="#9A8F79"
+                                android:textSize="10sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvSgstAmount"
+                                android:text="₹0.00"
+                                android:textColor="#18181B"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
+                                android:layout_marginTop="3dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/rowIgst"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_tax_tile_muted"
+                            android:padding="10dp">
+
+                            <TextView
+                                android:text="IGST"
+                                android:textColor="#B7AB91"
+                                android:textSize="10sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvIgstAmount"
+                                android:text="—"
+                                android:textColor="#B7AB91"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
+                                android:layout_marginTop="3dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp">
+
+                        <TextView
+                            android:text="Total tax"
+                            android:textColor="#5F5B52"
+                            android:textSize="12sp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tvTotalTax"
+                            android:text="₹0.00"
+                            android:textColor="#15803D"
+                            android:textStyle="bold"
+                            android:textSize="15sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSchemeLine"
+                        android:text="Scheme: Normal GST Scheme"
+                        android:textColor="#71717A"
+                        android:textSize="11sp"
+                        android:layout_marginTop="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvCompositionNote"
+                        android:text="Composition Scheme — tax is included in the selling price. No CGST / SGST / IGST is charged separately."
+                        android:textColor="#92400E"
+                        android:textSize="11sp"
+                        android:padding="11dp"
+                        android:background="@drawable/bg_pill_amber"
+                        android:visibility="gone"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <!-- SUMMARY + TOTAL + PAYMENT + ACTIONS -->
+                <LinearLayout
+                    android:id="@+id/totalsCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#ECE2CE"
+                        android:layout_marginTop="14dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="12dp">
+
+                        <TextView
+                            android:text="Subtotal"
+                            android:textColor="#5F5B52"
+                            android:textSize="13sp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"/>
+
+                        <TextView
+                            android:id="@+id/tvSubtotal"
+                            android:text="₹0"
+                            android:textColor="#18181B"
+                            android:textSize="13sp"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="7dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:text="GST"
+                            android:textColor="#5F5B52"
+                            android:textSize="13sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tvGstPercent"
+                            android:text="(0%)"
+                            android:textColor="#A1A1AA"
+                            android:textSize="11sp"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tvGst"
+                            android:text="₹0"
+                            android:textColor="#18181B"
+                            android:textSize="13sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="7dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:text="Discount"
+                            android:textColor="#5F5B52"
+                            android:textSize="13sp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <EditText
+                            android:id="@+id/etDiscount"
+                            android:hint="₹ 0"
+                            android:textColorHint="#AEA48C"
+                            android:inputType="numberDecimal"
+                            android:background="@drawable/bg_inv_discount_box"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="7dp"
+                            android:textSize="13sp"
+                            android:gravity="end"
+                            android:minWidth="84dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <!-- Graphite grand total -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_total_graphite"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp"
+                        android:layout_marginTop="14dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:text="GRAND TOTAL"
+                                android:textColor="#C9B88F"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.12"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:text="incl. all taxes"
+                                android:textColor="#7C7567"
+                                android:textSize="9sp"
+                                android:layout_marginTop="2dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvTotal"
+                            android:text="₹0"
+                            android:textSize="24sp"
+                            android:textStyle="bold|italic"
+                            android:fontFamily="serif"
+                            android:textColor="#F3ECDD"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <!-- PAYMENT -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="18dp">
+
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#D4A574"/>
+
+                        <TextView
+                            android:text="PAYMENT"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.13"
+                            android:layout_marginStart="9dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <RadioGroup
+                        android:id="@+id/rgPaymentMethod"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content">
+
+                        <RadioButton android:id="@+id/rbCash" android:text="Cash"
+                            android:checked="true"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_pay_chip"
+                            android:textColor="@color/inv_pay_text_color"
+                            android:textSize="12sp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"/>
+                        <RadioButton android:id="@+id/rbUpi" android:text="UPI"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_pay_chip"
+                            android:textColor="@color/inv_pay_text_color"
+                            android:textSize="12sp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"/>
+                        <RadioButton android:id="@+id/rbCard" android:text="Card"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_pay_chip"
+                            android:textColor="@color/inv_pay_text_color"
+                            android:textSize="12sp"
+                            android:paddingVertical="10dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"/>
+                        <RadioButton android:id="@+id/rbCredit" android:text="Credit"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:background="@drawable/bg_inv_pay_chip"
+                            android:textColor="@color/inv_pay_text_color"
+                            android:textSize="12sp"
+                            android:paddingVertical="10dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"/>
+                    </RadioGroup>
+
+                    <!-- ACTIONS -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnClose"
+                            android:layout_width="50dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="9dp"
+                            android:text=""
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:background="@drawable/bg_outlined_action"
+                            android:stateListAnimator="@null"
+                            app:rippleColor="#FEE2E2"
+                            app:icon="@drawable/ic_close"
+                            app:iconTint="#B91C1C"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:cornerRadius="13dp"
+                            app:backgroundTint="@null"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPrint"
+                            android:layout_width="50dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="9dp"
+                            android:text=""
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:background="@drawable/bg_outlined_action"
+                            android:stateListAnimator="@null"
+                            app:rippleColor="#EDE8E0"
+                            app:icon="@drawable/ic_print"
+                            app:iconTint="#18181B"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:cornerRadius="13dp"
+                            app:backgroundTint="@null"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnConfirm"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="52dp"
+                            android:text="Generate invoice"
+                            android:textAllCaps="false"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:background="@drawable/bg_confirm_warm"
+                            android:elevation="6dp"
+                            android:letterSpacing="0.02"
+                            android:stateListAnimator="@null"
+                            app:rippleColor="#0F6E33"
+                            app:icon="@drawable/ic_ok"
+                            app:iconTint="@android:color/white"
+                            app:iconPadding="8dp"
+                            app:iconGravity="textStart"
+                            app:cornerRadius="13dp"
+                            app:backgroundTint="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
-
-            <!-- ── PAYMENT METHOD ── -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="22dp">
-
-                <View
-                    android:layout_width="18dp"
-                    android:layout_height="1dp"
-                    android:background="#D4A574"/>
-
-                <TextView
-                    android:text="PAYMENT METHOD"
-                    android:textColor="#71717A"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.18"
-                    android:layout_marginStart="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <RadioGroup
-                android:id="@+id/rgPaymentMethod"
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
-
-                <RadioButton android:id="@+id/rbCash" android:text="Cash"
-                    android:textColor="#18181B"
-                    android:checked="true"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-                <RadioButton android:id="@+id/rbUpi" android:text="UPI"
-                    android:textColor="#18181B"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-                <RadioButton android:id="@+id/rbCard" android:text="Card"
-                    android:textColor="#18181B"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-                <RadioButton android:id="@+id/rbCredit" android:text="Credit"
-                    android:textColor="#18181B"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-            </RadioGroup>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnConfirm"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="22dp"
-                android:text="Confirm Bill"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="@drawable/bg_confirm_warm"
-                android:elevation="6dp"
-                android:letterSpacing="0.04"
-                android:stateListAnimator="@null"
-                app:rippleColor="#0F6E33"
-                app:icon="@drawable/ic_ok"
-                app:iconTint="@android:color/white"
-                app:iconPadding="8dp"
-                app:iconGravity="textStart"
-                app:cornerRadius="18dp"
-                app:backgroundTint="@null"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnPrint"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Print"
-                    android:textColor="#18181B"
-                    android:background="@drawable/bg_outlined_action"
-                    android:stateListAnimator="@null"
-                    app:rippleColor="#EDE8E0"
-                    app:icon="@drawable/ic_print"
-                    app:iconTint="#18181B"
-                    app:iconPadding="6dp"
-                    app:iconGravity="textStart"
-                    app:cornerRadius="16dp"
-                    app:backgroundTint="@null"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnClose"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:text="Close"
-                    android:textColor="#B91C1C"
-                    android:background="@drawable/bg_outlined_action"
-                    android:stateListAnimator="@null"
-                    app:rippleColor="#FEE2E2"
-                    app:icon="@drawable/ic_close"
-                    app:iconTint="#B91C1C"
-                    app:iconPadding="6dp"
-                    app:iconGravity="textStart"
-                    app:cornerRadius="16dp"
-                    app:backgroundTint="@null"/>
-            </LinearLayout>
+            </ScrollView>
         </LinearLayout>
     </LinearLayout>
-</ScrollView>

@@ -10,20 +10,17 @@ import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.util.CurrencyHelper
 
 /**
- * Renders one row per cart line in [com.example.easy_billing.InvoiceActivity].
+ * Renders one premium row per cart line in
+ * [com.example.easy_billing.InvoiceActivity].
  *
- * Each row carries the per-product CGST / SGST / IGST percentages
- * saved at product creation time. The columns that don't apply to
- * the active supply type are dimmed to "—" so the user sees at a
- * glance which side of the GST split is in effect:
+ * Row anatomy:
+ *   [avatar]  Name                       ₹LineTotal
+ *             qty × rate · GST x%         +₹tax
  *
- *   • Composition Scheme → all three columns dimmed.
- *   • Intra-state Normal → CGST + SGST shown, IGST dimmed.
- *   • Inter-state Normal → IGST shown, CGST + SGST dimmed.
- *
- * The adapter accepts the supply type as a constructor argument so
- * the activity can rebuild a fresh list (or call [updateMode]) when
- * the user toggles between B2B and B2C / changes the customer state.
+ * The supply type drives which GST applies:
+ *   • Composition Scheme → no GST charged (meta shows "no GST").
+ *   • Intra-state Normal → CGST + SGST.
+ *   • Inter-state Normal → IGST.
  */
 class InvoiceAdapter(
     private val items: List<CartItem>,
@@ -39,36 +36,28 @@ class InvoiceAdapter(
         const val SCHEME_NORMAL = "Normal GST Scheme"
         const val SCHEME_COMPOSITION = "Composition Scheme"
 
-        // Column accents — kept in sync with item_invoice.xml.
-        private const val ACCENT_INTRA = 0xFF0E7490.toInt()  // teal — CGST + SGST
-        private const val ACCENT_INTER = 0xFF7C3AED.toInt()  // purple — IGST
-        private const val MUTED        = 0xFFB0B5BD.toInt()  // inactive cell
+        // Avatar tints (alternate per row).
+        private val AVATAR_BG    = intArrayOf(R.drawable.bg_inv_avatar_green, R.drawable.bg_inv_avatar_gold)
+        private val AVATAR_INK   = intArrayOf(0xFF0B5544.toInt(), 0xFF8A6526.toInt())
     }
 
     class InvoiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val name: TextView     = view.findViewById(R.id.tvName)
-        val qty: TextView      = view.findViewById(R.id.tvQty)
-        val rate: TextView     = view.findViewById(R.id.tvRate)
-        val cgst: TextView     = view.findViewById(R.id.tvCgst)
-        val sgst: TextView     = view.findViewById(R.id.tvSgst)
-        val igst: TextView     = view.findViewById(R.id.tvIgst)
-        /** Pre-tax amount: price × quantity. */
-        val subtotal: TextView = view.findViewById(R.id.tvSubtotal)
-        /** Final line amount: subtotal + CGST + SGST + IGST. */
-        val price: TextView    = view.findViewById(R.id.tvPrice)
+        val avatar: TextView = view.findViewById(R.id.tvAvatar)
+        val name: TextView   = view.findViewById(R.id.tvName)
+        val meta: TextView   = view.findViewById(R.id.tvMeta)
+        val price: TextView  = view.findViewById(R.id.tvPrice)
+        val tax: TextView    = view.findViewById(R.id.tvTax)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvoiceViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_invoice, parent, false)
+            .inflate(R.layout.item_invoice_premium, parent, false)
         return InvoiceViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: InvoiceViewHolder, position: Int) {
-
         val item = items[position]
         val context = holder.itemView.context
-
         val product = item.product
         val qty = item.quantity
         val unit = product.unit?.lowercase() ?: "unit"
@@ -76,13 +65,6 @@ class InvoiceAdapter(
         val formattedQty = if (qty % 1 == 0.0) qty.toInt().toString()
                            else String.format("%.2f", qty).trimEnd('0').trimEnd('.')
 
-        // ---- Name ----
-        holder.name.text = buildString {
-            append(product.name)
-            if (!product.variant.isNullOrBlank()) append(" (${product.variant})")
-        }
-
-        // ---- Quantity ----
         val unitText = when (unit) {
             "kilogram"   -> "kg"
             "litre"      -> "L"
@@ -91,126 +73,73 @@ class InvoiceAdapter(
             "piece"      -> "pc"
             else         -> unit
         }
-        holder.qty.text = "$formattedQty $unitText"
 
-        // ---- Rate (price per unit) ----
-        // Rupee symbol lives in the column header — cells render
-        // just the number so the column stays narrow.
-        val formattedUnitPrice = CurrencyHelper.formatNoSymbol(context, product.price)
-        holder.rate.text = "$formattedUnitPrice/$unitText"
+        // ---- Name ----
+        val displayName = buildString {
+            append(product.name)
+            if (!product.variant.isNullOrBlank()) append(" (${product.variant})")
+        }
+        holder.name.text = displayName
 
-        // ---- GST columns ----
+        // ---- Avatar (initials + alternating tint) ----
+        holder.avatar.text = initialsOf(product.name)
+        val slot = position % 2
+        holder.avatar.setBackgroundResource(AVATAR_BG[slot])
+        holder.avatar.setTextColor(AVATAR_INK[slot])
+
+        // ---- GST context ----
         val isComposition = gstScheme.equals(SCHEME_COMPOSITION, ignoreCase = true) ||
                             supplyType.equals(SUPPLY_COMPOSITION, ignoreCase = true)
         val isIntra = supplyType.equals(SUPPLY_INTRASTATE, ignoreCase = true)
         val isInter = supplyType.equals(SUPPLY_INTERSTATE, ignoreCase = true)
 
-        // Pull rates straight from the product row — these are what
-        // the user keyed in on the AddProduct screen.
         val cgstPct = product.cgstPercentage
         val sgstPct = product.sgstPercentage
         val igstPct = product.igstPercentage
 
-        // ---- Subtotal (price × qty, BEFORE GST) ----
-        // Symbol-less render — column header already says "(₹)".
         val subtotal = item.subTotal()
-        holder.subtotal.text = CurrencyHelper.formatNoSymbol(context, subtotal)
-
-        // Per-line GST amounts derived from the line subtotal — kept
-        // here so the cells can show "<amount> (<pct>%)" together.
         val cgstAmt = subtotal * cgstPct / 100.0
         val sgstAmt = subtotal * sgstPct / 100.0
         val igstAmt = subtotal * igstPct / 100.0
 
-        bindGstCell(
-            view        = holder.cgst,
-            amount      = cgstAmt,
-            pct         = cgstPct,
-            highlight   = !isComposition && isIntra,
-            activeColor = ACCENT_INTRA
-        )
-        bindGstCell(
-            view        = holder.sgst,
-            amount      = sgstAmt,
-            pct         = sgstPct,
-            highlight   = !isComposition && isIntra,
-            activeColor = ACCENT_INTRA
-        )
-        bindGstCell(
-            view        = holder.igst,
-            amount      = igstAmt,
-            pct         = igstPct,
-            highlight   = !isComposition && isInter,
-            activeColor = ACCENT_INTER
-        )
-
-        // ---- Total (subtotal + applicable GST) ----
-        // Composition rows charge no GST separately, so the total
-        // collapses to the subtotal. Otherwise we apply only the
-        // percentages that match the supply type.
-        val lineTotal = when {
-            isComposition -> subtotal
-            isIntra       -> subtotal + cgstAmt + sgstAmt
-            isInter       -> subtotal + igstAmt
-            else          -> subtotal
+        val (taxAmt, taxPct) = when {
+            isComposition -> 0.0 to 0.0
+            isIntra       -> (cgstAmt + sgstAmt) to (cgstPct + sgstPct)
+            isInter       -> igstAmt to igstPct
+            else          -> 0.0 to 0.0
         }
-        // Symbol-less render — column header already says "(₹)".
-        holder.price.text = CurrencyHelper.formatNoSymbol(context, lineTotal)
+
+        // ---- Meta line: "2 × ₹480 · GST 5%" ----
+        val rateText = CurrencyHelper.format(context, product.price)
+        holder.meta.text = buildString {
+            append("$formattedQty $unitText × $rateText")
+            if (taxPct > 0.0) append(" · GST ${formatPct(taxPct)}")
+        }
+
+        // ---- Line total + tax ----
+        val lineTotal = subtotal + taxAmt
+        holder.price.text = CurrencyHelper.format(context, lineTotal)
+        holder.tax.text = if (taxAmt > 0.0)
+            "+${CurrencyHelper.format(context, taxAmt)} tax"
+        else
+            "no tax"
     }
 
-    /**
-     * Renders one GST cell.
-     *
-     *   • Active (the cell applies to the chosen supply type, and
-     *     the product carries a non-zero rate) — show
-     *     "<amount> (<pct>%)" in [activeColor]. The rupee symbol
-     *     is *not* prefixed here — the column header carries "(₹)"
-     *     instead, which keeps the cell short and consistent across
-     *     varying amounts.
-     *   • Inactive (composition scheme, wrong supply type, or rate
-     *     is zero) — show "—" in muted grey so it visually recedes.
-     */
-    private fun bindGstCell(
-        view: TextView,
-        amount: Double,
-        pct: Double,
-        highlight: Boolean,
-        activeColor: Int
-    ) {
-        if (!highlight || pct <= 0.0) {
-            view.text = "—"
-            view.setTextColor(MUTED)
-        } else {
-            view.text = "${formatAmount(amount)} (${formatPct(pct)})"
-            view.setTextColor(activeColor)
+    private fun initialsOf(name: String): String {
+        val parts = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            parts.isEmpty()   -> "•"
+            parts.size == 1   -> parts[0].take(2).uppercase()
+            else              -> (parts[0].take(1) + parts[1].take(1)).uppercase()
         }
     }
 
-    /**
-     * Formats a rupee amount without the symbol — the column header
-     * already carries "(₹)" so cells stay short.
-     *
-     *   6.00  → "6"        (whole number)
-     *   6.50  → "6.50"     (one decimal kept, trailing zero stripped to "6.5")
-     *   6.36  → "6.36"
-     */
-    private fun formatAmount(value: Double): String {
-        if (value % 1.0 == 0.0) return value.toInt().toString()
-        return String.format("%.2f", value).trimEnd('0').trimEnd('.')
-    }
-
-    /** "6%" / "12.5%" — strips trailing zeros for whole-number rates. */
     private fun formatPct(value: Double): String {
         val pretty = if (value % 1.0 == 0.0) value.toInt().toString()
                      else String.format("%.2f", value).trimEnd('0').trimEnd('.')
         return "$pretty%"
     }
 
-    /**
-     * Lets the host activity flip the supply type / scheme without
-     * rebuilding the adapter (e.g. when the user toggles the
-     * customer state field or the B2B chip).
-     */
     fun updateMode(supplyType: String, gstScheme: String) {
         this.supplyType = supplyType
         this.gstScheme = gstScheme
