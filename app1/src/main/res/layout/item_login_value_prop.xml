@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Brand-column bullet. Looks like a small chip with a coloured
+    dot, then a label. Three of these stack on the left side of
+    the login screen. Caller fills the label via findViewById on
+    the included root id (e.g. propBilling).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="6dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="28dp"
+        android:layout_height="28dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_login_pill"/>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_login_button"/>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textColor="#FAFAF7"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:text="Lightning-fast billing"/>
+</LinearLayout>

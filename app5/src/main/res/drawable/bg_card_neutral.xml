@@ -1,0 +1,17 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 🌿 Soft pastel neutral background -->
+    <gradient
+        android:startColor="#F8FAFC"
+        android:endColor="#EEF2F7"
+        android:angle="135"/>
+
+    <!-- ✨ Smooth rounded corners -->
+    <corners android:radius="20dp"/>
+
+    <!-- 🔥 Subtle border (premium feel) -->
+    <stroke
+        android:width="1dp"
+        android:color="#E5E7EB"/>
+
+</shape>

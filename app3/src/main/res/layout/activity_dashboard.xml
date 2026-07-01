@@ -1,0 +1,1579 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_dashboard_premium"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <!-- ══════════════════════════════════════════════════════
+             PREMIUM HEADER — Cream Butter Editorial
+        ══════════════════════════════════════════════════════ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F4F0E6"
+            android:elevation="6dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <!-- ── ROW 1: Menu + Wordmark + Action cluster ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="6dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <!-- Menu -->
+                <LinearLayout
+                    android:id="@+id/btnMenuContainer"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_hdr_tile"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_hdr_menu"
+                        app:tint="#3A3733"
+                        android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <!-- Eyebrow + wordmark -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GOOD MORNING"
+                        android:textColor="#B8895A"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.14"
+                        android:textAllCaps="true"
+                        android:singleLine="true"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <TextView
+                        android:id="@+id/tvWelcome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/welcome"
+                        android:textColor="#1A1A18"
+                        android:textSize="20sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+
+                <!-- Action cluster -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <LinearLayout
+                        android:id="@+id/btnViewContainer"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_hdr_tile"
+                        android:layout_marginStart="10dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+                        <ImageView
+                            android:id="@+id/ivViewMode"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_hdr_view_grid"
+                            app:tint="#3A3733"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false">
+
+                        <LinearLayout
+                            android:id="@+id/btnFilterContainer"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_hdr_tile"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_hdr_filter"
+                                app:tint="#3A3733"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvFilterBadge"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="-5dp"
+                            android:layout_marginEnd="-5dp"
+                            android:gravity="center"
+                            android:text="0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_hdr_badge_red"
+                            android:elevation="12dp"
+                            android:visibility="gone"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/btnSortContainer"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_hdr_tile"
+                        android:layout_marginStart="10dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_hdr_sort"
+                            app:tint="#3A3733"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+
+                    <!-- ── Notifications (AI insights) ── -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false">
+
+                        <LinearLayout
+                            android:id="@+id/btnNotifyContainer"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_hdr_tile"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/ic_hdr_bell"
+                                app:tint="#3A3733"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvNotifyBadge"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="-5dp"
+                            android:layout_marginEnd="-5dp"
+                            android:gravity="center"
+                            android:text="0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_hdr_badge_red"
+                            android:elevation="12dp"
+                            android:visibility="gone"/>
+                    </FrameLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ── ROW 2: Search + Cart ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_hdr_search"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginEnd="10dp">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_hdr_search"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null"/>
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="9dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/search_products"
+                        android:textColorHint="#C4B9A6"
+                        android:textColor="#1A1A18"
+                        android:textSize="14sp"
+                        android:inputType="text"
+                        android:maxLength="50"
+                        android:singleLine="true"
+                        android:imeOptions="actionSearch"
+                        android:importantForAutofill="no"/>
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <LinearLayout
+                        android:id="@+id/btnCartContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_hdr_cart_pill"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="18dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="19dp"
+                            android:layout_height="19dp"
+                            android:src="@drawable/ic_drawer_purchase"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Cart"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:letterSpacing="0.02"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvCartBadge"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-6dp"
+                        android:layout_marginEnd="-6dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_hdr_badge_red"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:elevation="8dp"/>
+                </FrameLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- ================= CATEGORY RAIL ================= -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:overScrollMode="never"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="4dp"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:id="@+id/categoryRail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"/>
+        </HorizontalScrollView>
+
+        <!-- ================= AI INSIGHTS (RULE OF 3) ================= -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpAiInsights"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <!-- ================= PRODUCTS ================= -->
+
+        <!-- List-view column header (shown only in List mode). Weights
+             mirror item_product_list.xml so columns line up. -->
+        <LinearLayout
+            android:id="@+id/llListHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="30dp"
+            android:paddingEnd="32dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="8dp"
+            android:background="@android:color/transparent"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="46dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:text="ITEM"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3.0"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.8"
+                android:paddingStart="6dp"
+                android:text="CATEGORY"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.4"
+                android:paddingStart="4dp"
+                android:text="UNIT"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.0"
+                android:gravity="end"
+                android:text="PRICE"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.8"
+                android:gravity="end"
+                android:text="STOCK"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#0F6E56"
+                android:letterSpacing="0.06"/>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvProducts"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="84dp"
+            android:clipToPadding="false"/>
+
+        <!-- ============================================================
+              AI TICKER BAR — slim, edge-to-edge, no card chrome.
+
+                ▌●  AI    Top product is Maggi · +28% growth · …
+
+              The card view itself stays (DashboardActivity holds a
+              MaterialCardView reference for the entrance animation)
+              but is reduced to a transparent, zero-elevation, zero-
+              radius hull. The visible bar is a 40dp black strip
+              with a single phosphor hairline at its top edge.
+
+              IDs preserved — `cardNoticeBoard`, `tvNoticeBoard`,
+              `aiLiveDot`. -->
+
+        <!-- ============================================================
+              AI TICKER BAR — Ultra-slim, edge-to-edge, bottom-anchored.
+              Removed from the main vertical flow to maximize product tile
+              space. This is now a subtle 'cyber' ticker at the bottom.
+        ============================================================ -->
+
+        </LinearLayout>
+        
+        <!-- ================= MINIMIZED AI DASHBOARD RESTORE ================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/fabAiInsights"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="160dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="#0F172A"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🤖"
+                    android:textSize="18sp"/>
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Insights"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================= FLOATING CART BAR ================= -->
+        <LinearLayout
+            android:id="@+id/barCart"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginHorizontal="14dp"
+            android:layout_marginBottom="14dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_cart_bar"
+            android:elevation="14dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_drawer_purchase"
+                app:tint="#FFFFFF"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:id="@+id/tvCartBarSummary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:text="0 items"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:fontFamily="@font/googlesans_semibold"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_cart_bar_chip"
+                android:paddingHorizontal="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View cart"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_arrow_forward"
+                    app:tint="#FFFFFF"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ================= AI NOTIFICATION SHEET ================= -->
+        <View
+            android:id="@+id/notifScrim"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="#66000000"
+            android:elevation="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/notifPanel"
+            android:layout_width="392dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="vertical"
+            android:background="#F4F0E6"
+            android:elevation="22dp"
+            android:visibility="gone">
+
+            <!-- Navy hero header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_drawer_header_card"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="4dp"
+                android:paddingHorizontal="17dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Gold-ringed glyph (matches the cart drawer avatar) -->
+                    <FrameLayout
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_drawer_avatar_ring">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="2dp"
+                            android:background="@drawable/bg_drawer_avatar_inner">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_hdr_bell"
+                                app:tint="#F3E2C7"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="11dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="LIVE INTELLIGENCE"
+                            android:textColor="#9FB0D4"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.12"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Notifications"
+                            android:textColor="#FFFFFF"
+                            android:textSize="22sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/btnNotifyClose"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_notify_close"
+                        app:tint="#9FB0D4"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Close"/>
+                </LinearLayout>
+
+                <!-- Severity tally -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="15dp"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_notify_stat"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp">
+                        <TextView android:id="@+id/tvNotifyCritical"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="0" android:textColor="#FCA5A5" android:textSize="17sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Critical" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_notify_stat"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp">
+                        <TextView android:id="@+id/tvNotifyWatch"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="0" android:textColor="#FAC775" android:textSize="17sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Watch" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_notify_stat"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp">
+                        <TextView android:id="@+id/tvNotifyTips"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="0" android:textColor="#86EFAC" android:textSize="17sp" android:textStyle="bold"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Tips" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Action row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="18dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="6dp">
+                <TextView
+                    android:id="@+id/tvNotifySubtitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=""
+                    android:textColor="#6E6A60"
+                    android:textSize="11sp"/>
+                <TextView
+                    android:id="@+id/tvNotifyClearAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear all"
+                    android:textColor="#A3392B"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"/>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="14dp"
+                android:paddingBottom="16dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"/>
+
+            <!-- Empty state -->
+            <LinearLayout
+                android:id="@+id/llNotifyEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingBottom="72dp"
+                android:visibility="gone">
+                <FrameLayout
+                    android:layout_width="84dp"
+                    android:layout_height="84dp">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_notify_empty_circle"/>
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_hdr_bell"
+                        app:tint="#B8AE9A"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="You're all caught up"
+                    android:textColor="#1A1A18"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="No new notifications right now"
+                    android:textColor="#9A968C"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ================= LEFT MENU DRAWER ================= -->
+    <LinearLayout
+        android:id="@+id/leftDrawer"
+        android:layout_width="360dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#F4F0E6"
+        android:orientation="vertical">
+
+        <!-- Header: premium navy hero card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_drawer_header_card"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="4dp"
+            android:paddingHorizontal="17dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="16dp">
+
+            <!-- Identity row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Gold-ringed monogram -->
+                <FrameLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_drawer_avatar_ring">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dp"
+                        android:background="@drawable/bg_drawer_avatar_inner"
+                        android:gravity="center"
+                        android:text="EB"
+                        android:textColor="#F3E2C7"
+                        android:textSize="20sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"/>
+                </FrameLayout>
+
+                <!-- Greeting + store name -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="13dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvDrawerGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Welcome back"
+                        android:textColor="#9FB0D4"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.02"/>
+
+                    <TextView
+                        android:id="@+id/tvDrawerNameBase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Easy Billing"
+                        android:textColor="#FFFFFF"
+                        android:textSize="22sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+
+                <!-- Live status pill (animated dot preserved) -->
+                <LinearLayout
+                    android:id="@+id/containerNavStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_drawer_live_pill"
+                    android:paddingHorizontal="9dp"
+                    android:paddingVertical="5dp">
+
+                    <FrameLayout
+                        android:layout_width="10dp"
+                        android:layout_height="10dp">
+                        <View
+                            android:id="@+id/viewNavRing"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_live_dot_ring"/>
+                        <View
+                            android:id="@+id/viewNavDot"
+                            android:layout_width="5dp"
+                            android:layout_height="5dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_live_dot_base"/>
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvNavMenu"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="LIVE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:letterSpacing="0.14"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Quick-stat strip -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="15dp"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_drawer_stat_tile"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Today's sales"
+                        android:textColor="#9FB0D4"
+                        android:textSize="10sp"/>
+                    <TextView
+                        android:id="@+id/tvDrawerSales"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="₹0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="17sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="9dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_drawer_stat_tile"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bills today"
+                        android:textColor="#9FB0D4"
+                        android:textSize="10sp"/>
+                    <TextView
+                        android:id="@+id/tvDrawerBills"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="17sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- SCROLLABLE CONTENT -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="20dp">
+
+                <!-- Auto Translate (Settings-style row with switch) -->
+                <LinearLayout style="@style/SettingsCard" android:layout_marginTop="12dp">
+                    <LinearLayout style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                            android:src="@drawable/ic_set_languages" app:tint="#185FA5"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/auto_translation"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Translate product names"/>
+                        </LinearLayout>
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchTranslate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ===================== CORE OPERATIONS ===================== -->
+                <TextView style="@style/SettingsSection" android:text="CORE OPERATIONS"/>
+                <LinearLayout style="@style/SettingsCard">
+
+                    <LinearLayout android:id="@+id/btnAdmin" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                            android:src="@drawable/ic_drawer_product" app:tint="#185FA5"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/add_edit_product"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Catalog &amp; pricing"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnPurchase" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                            android:src="@drawable/ic_drawer_purchase" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Purchase"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Record stock in"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnPurchaseHistory" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_drawer_purchase_history" app:tint="#854F0B"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Purchase History"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Past stock batches"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                            android:src="@drawable/ic_drawer_import" app:tint="#534AB7"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Import Services"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Bulk service import"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ===================== ANALYTICS & REPORTS ===================== -->
+                <TextView style="@style/SettingsSection" android:text="ANALYTICS &amp; REPORTS"/>
+                <LinearLayout style="@style/SettingsCard">
+
+                    <LinearLayout android:id="@+id/btnInventory" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                            android:src="@drawable/ic_drawer_inventory" app:tint="#185FA5"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Inventory"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Stock levels &amp; alerts"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnProfit" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                            android:src="@drawable/ic_drawer_profit" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Profit Analytics"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Margins &amp; trends"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnPreviousBills" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_set_receipt" app:tint="#854F0B"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/bill_history"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Invoice history"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnCreditAccounts" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                            android:src="@drawable/ic_drawer_credit" app:tint="#534AB7"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Credit Accounts"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Customer dues"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnGstReports" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                            android:src="@drawable/ic_set_file_text" app:tint="#185FA5"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="GST Reports"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Tax filings"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnReports" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                            android:src="@drawable/ic_drawer_reports" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/reports"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Sales summary"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnAiInsights" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                            android:src="@drawable/ic_drawer_ai" app:tint="#534AB7"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/ai_insights"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Smart recommendations"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ===================== SYSTEM & ACCOUNT ===================== -->
+                <TextView style="@style/SettingsSection" android:text="SYSTEM &amp; ACCOUNT"/>
+                <LinearLayout style="@style/SettingsCard">
+
+                    <LinearLayout android:id="@+id/btnSettings" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EFEDE7"
+                            android:src="@drawable/ic_drawer_settings" app:tint="#57534E"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/settings"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Store &amp; app config"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnProfile" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                            android:src="@drawable/ic_drawer_profile" app:tint="#185FA5"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/profile"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Your account"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnSubscription" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_drawer_subscription" app:tint="#854F0B"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Subscription"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Plan &amp; billing"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Logout (CTA-style, red) -->
+                <FrameLayout
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:background="@drawable/bg_logout_cta_red"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/button_press_anim"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="10dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/logout"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp"
+                                android:letterSpacing="0.01"
+                                android:fontFamily="@font/googlesans_semibold"
+                                android:includeFontPadding="false"/>
+
+                            <TextView
+                                android:id="@+id/tvLogoutEmail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Tap to sign out"
+                                android:textColor="#F7CFCF"
+                                android:textSize="11sp"
+                                android:singleLine="true"
+                                android:ellipsize="end"
+                                android:includeFontPadding="false"/>
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_logout_icon_circle">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_drawer_logout"
+                                app:tint="#B91C1C"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvDrawerVersion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center"
+                    android:text="ExPOS"
+                    android:textColor="#C9C3B4"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <!-- ================= RIGHT CART DRAWER ================= -->
+    <LinearLayout
+        android:id="@+id/cartDrawer"
+        android:layout_width="392dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="#F4F0E6"
+        android:orientation="vertical"
+        android:elevation="20dp">
+
+        <!-- Header: navy hero card (matches left drawer) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_drawer_header_card"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="4dp"
+            android:paddingHorizontal="17dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="16dp">
+
+            <!-- Identity row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Gold-ringed cart glyph -->
+                <FrameLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_drawer_avatar_ring">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dp"
+                        android:background="@drawable/bg_drawer_avatar_inner">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_drawer_purchase"
+                            app:tint="#F3E2C7"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+                </FrameLayout>
+
+                <!-- Eyebrow + title -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="13dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Live order"
+                        android:textColor="#9FB0D4"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.02"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cart"
+                        android:textColor="#FFFFFF"
+                        android:textSize="22sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+
+                <!-- Live status pill (animated dot preserved) -->
+                <LinearLayout
+                    android:id="@+id/containerLiveStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_drawer_live_pill"
+                    android:paddingHorizontal="9dp"
+                    android:paddingVertical="5dp">
+
+                    <FrameLayout
+                        android:layout_width="10dp"
+                        android:layout_height="10dp">
+                        <View
+                            android:id="@+id/viewLiveRing"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_live_dot_ring"/>
+                        <View
+                            android:id="@+id/viewLiveDot"
+                            android:layout_width="5dp"
+                            android:layout_height="5dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_live_dot_base"/>
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvLiveStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="LIVE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:letterSpacing="0.14"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Quick-stat strip -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="15dp"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_drawer_stat_tile"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Items"
+                        android:textColor="#9FB0D4"
+                        android:textSize="10sp"/>
+                    <TextView
+                        android:id="@+id/tvCartDrawerBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="17sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="9dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_drawer_stat_tile"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Subtotal"
+                        android:textColor="#9FB0D4"
+                        android:textSize="10sp"/>
+                    <TextView
+                        android:id="@+id/tvCartHeaderSubtotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="₹0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="17sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- CART ITEMS -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingHorizontal="14dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never"/>
+
+        <!-- ORDER SUMMARY PANEL -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_cart_summary_light"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="22dp"
+            android:elevation="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ORDER SUMMARY"
+                android:textColor="#9A968C"
+                android:textSize="11sp"
+                android:letterSpacing="0.05"/>
+
+            <!-- Total row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Total payable"
+                    android:textColor="#6E6A60"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹0.00"
+                    android:textColor="#1A1A18"
+                    android:textSize="28sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"/>
+            </LinearLayout>
+
+            <!-- Generate Bill CTA (premium navy + gold arrow) -->
+            <FrameLayout
+                android:id="@+id/btnGenerateBill"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_cart_cta_navy"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/button_press_anim"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Generate Bill"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:letterSpacing="0.01"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:includeFontPadding="false"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Checkout &amp; print receipt"
+                            android:textColor="#A7D9C9"
+                            android:textSize="11sp"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_cta_arrow_circle">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="#0B3B2E"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

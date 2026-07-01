@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="13dp"
+        android:paddingBottom="13dp">
+
+        <!-- Leading colored monogram (matches the grid tile) -->
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="10dp">
+            <View
+                android:id="@+id/viewListMonogramBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_product_monogram"/>
+            <TextView
+                android:id="@+id/tvListMonogram"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#1A1A18"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"/>
+        </FrameLayout>
+
+        <!-- COLUMN 1: Item (name + variant) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3.0"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvListName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#1A1A18"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/tvListVariant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="10.5sp"
+                android:textColor="#A8A294"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- COLUMN 2: Category -->
+        <TextView
+            android:id="@+id/tvListCategory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:textSize="12sp"
+            android:textColor="#6E6A60"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <!-- COLUMN 3: Unit -->
+        <TextView
+            android:id="@+id/tvListUnit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.4"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:textSize="12sp"
+            android:textColor="#9A968C"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <!-- COLUMN 4: Price -->
+        <TextView
+            android:id="@+id/tvListPrice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.0"
+            android:gravity="end"
+            android:textSize="14sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#0F6E56"
+            android:maxLines="1"/>
+
+        <!-- COLUMN 5: Stock -->
+        <TextView
+            android:id="@+id/tvListStock"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:gravity="end"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:maxLines="1"/>
+    </LinearLayout>
+
+    <!-- Row divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EFE9DC"/>
+</LinearLayout>

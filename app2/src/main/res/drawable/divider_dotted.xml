@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Receipt-style dotted divider used between bill summary rows
+    and the grand-total row. Drawn with a 1dp dashed line.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="line">
+    <stroke
+        android:width="1dp"
+        android:color="#CBD5E1"
+        android:dashWidth="3dp"
+        android:dashGap="3dp"/>
+    <size android:height="1dp"/>
+</shape>

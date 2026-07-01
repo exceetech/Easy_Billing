@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Per-field reveal — slides up 16dp and fades in. Caller staggers
+    these with a startOffset so each field appears 80 ms apart.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="450"
+    android:fillAfter="true"
+    android:interpolator="@android:interpolator/decelerate_cubic">
+
+    <translate
+        android:fromYDelta="20%"
+        android:toYDelta="0%"/>
+
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"/>
+</set>

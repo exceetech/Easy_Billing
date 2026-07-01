@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Root background for InvoiceActivity. Soft top-down gradient
+    that gives the screen depth without competing with the
+    glass-style cards layered on top.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#F4F6FB"
+        android:centerColor="#EEF1F7"
+        android:endColor="#E6EAF2"
+        android:angle="270"/>
+</shape>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Champagne CTA — cream `#E8DCC4 → #D4A574` with a brushed-
+    metal feel. Dark text sits on top (12dp letter-spacing).
+
+    The two-stop gradient is angled vertical so the button
+    appears to be lit from above; subsequent layers add a
+    micro-highlight at the very top edge for the "polished" feel
+    you see on premium fintech buttons.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <gradient
+                android:angle="270"
+                android:startColor="#D4A574"
+                android:endColor="#E8DCC4"
+                android:type="linear"/>
+        </shape>
+    </item>
+
+    <!-- Top-edge highlight — short, cream-on-cream sliver. -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <gradient
+                android:angle="270"
+                android:startColor="#44FFFFFF"
+                android:centerColor="#00FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:type="linear"/>
+        </shape>
+    </item>
+</layer-list>

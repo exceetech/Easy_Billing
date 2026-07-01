@@ -1,0 +1,1223 @@
+package com.example.easy_billing
+
+import android.app.AlertDialog
+import android.os.Bundle
+import android.view.View
+import android.widget.*
+import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.Product
+import com.example.easy_billing.network.AddProductRequest
+import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.repository.ProductRepository
+import com.example.easy_billing.repository.ProductVerificationRepository
+import com.example.easy_billing.util.AddProductDialogBinder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.util.UqcMapper
+
+class AddProductsActivity : BaseActivity() {
+
+    private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var db: AppDatabase
+    private var catalogList: List<String> = emptyList()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_add_products)
+
+        setupToolbar(R.id.toolbar)
+        supportActionBar?.title = " "
+
+        db = AppDatabase.getDatabase(this)
+
+        setupList()
+        setupSearch()
+        loadCatalogFromBackend()
+    }
+
+    // ================= LOAD CATALOG =================
+
+    private fun loadCatalogFromBackend() {
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null)
+
+        lifecycleScope.launch {
+            try {
+                if (!token.isNullOrEmpty()) {
+                    val catalog = RetrofitClient.api.getCatalog(token)
+                    catalogList = catalog.map { it.name }
+                    updateList(catalogList)
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@AddProductsActivity,
+                    "Failed to load products", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // ================= LIST =================
+
+    private fun setupList() {
+        val listItems = findViewById<ListView>(R.id.listItems)
+
+        adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_1,
+            mutableListOf()
+        )
+
+        listItems.adapter = adapter
+
+        listItems.setOnItemClickListener { _, _, position, _ ->
+
+            val selected = adapter.getItem(position) ?: return@setOnItemClickListener
+
+            if (selected == "Others") {
+                showAddProductDialog(selected)
+            } else {
+                showVariantDialog(selected)
+            }
+        }
+    }
+
+    private fun showVariantDialog(productName: String) {
+
+        lifecycleScope.launch {
+
+            val products = com.example.easy_billing.repository.ProductRepository.get(this@AddProductsActivity).getAllForCurrentShop()
+
+            val variants = products.filter { it.name == productName }
+
+            val dialogView = layoutInflater.inflate(R.layout.dialog_variants, null)
+
+            val tvTitle = dialogView.findViewById<TextView>(R.id.tvProductTitle)
+            val listView = dialogView.findViewById<ListView>(R.id.listVariants)
+            val btnAdd = dialogView.findViewById<Button>(R.id.btnAddVariant)
+
+            tvTitle.text = productName
+
+            // Show every existing variant with an "(Already added)"
+            // affordance so the user understands they can't add a
+            // duplicate from this screen.
+            val displayList = variants.map {
+                val variantText = it.variant?.takeIf { v -> v.isNotBlank() } ?: "(no variant)"
+                val unit = it.unit ?: "piece"
+                "$variantText ($unit) — ₹${it.price}  •  ${getString(R.string.action_already_added)}"
+            }
+
+            val adapter = ArrayAdapter(
+                this@AddProductsActivity,
+                android.R.layout.simple_list_item_1,
+                displayList
+            )
+
+            listView.adapter = adapter
+
+            val dialog = AlertDialog.Builder(this@AddProductsActivity)
+                .setView(dialogView)
+                .create()
+
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            // 🔥 CLICK EXISTING VARIANT → ASK BEFORE EDIT REDIRECT
+            //
+            // The Add Product screen never edits inline. Tapping a
+            // row that already exists opens a confirmation dialog
+            // and, on confirm, hands off to EditProductActivity.
+            listView.setOnItemClickListener { _, _, position, _ ->
+                val selectedVariant = variants[position]
+                dialog.dismiss()
+                confirmEditExistingVariant(selectedVariant)
+            }
+
+            // 🔥 ADD NEW VARIANT — only entry point for new products
+            //   from this dialog.
+            btnAdd.setOnClickListener {
+                dialog.dismiss()
+                showAddProductDialog(productName)
+            }
+            dialog.show()
+        }
+    }
+
+    private fun showUpdatePriceDialog(product: Product) {
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_product, null)
+
+        val etPrice = dialogView.findViewById<EditText>(R.id.etDialogPrice)
+        val etVariant = dialogView.findViewById<AutoCompleteTextView>(R.id.etVariantName)
+        val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
+        
+        val etHsnCode = dialogView.findViewById<EditText>(R.id.etHsnCode)
+        val etGstRate = dialogView.findViewById<EditText>(R.id.etGstRate)
+
+        val switchInventory = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTrackInventory)
+        val layoutInventory = dialogView.findViewById<LinearLayout>(R.id.layoutInventoryFields)
+        val etStock = dialogView.findViewById<EditText>(R.id.etInitialStock)
+        val etCost = dialogView.findViewById<EditText>(R.id.etCostPrice)
+
+        val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
+
+        // 🔥 Prefill basic fields
+        etVariant.setText(product.variant)
+        etVariant.isEnabled = false
+        etVariant.alpha = 0.5f
+
+        etUnit.setText(product.unit, false)
+        etUnit.isEnabled = false
+        etUnit.alpha = 0.5f
+
+        etPrice.setText(product.price.toString())
+        
+        etHsnCode.setText(product.hsnCode ?: "")
+        etGstRate.setText(if (product.defaultGstRate > 0) product.defaultGstRate.toString() else "")
+
+        // ===== Product-level tax inputs + HSN help + autofill =====
+        val etCgst = dialogView.findViewById<EditText>(R.id.etCgst)
+        val etSgst = dialogView.findViewById<EditText>(R.id.etSgst)
+        val etIgst = dialogView.findViewById<EditText>(R.id.etIgst)
+        if (product.cgstPercentage > 0) etCgst.setText(product.cgstPercentage.toString())
+        if (product.sgstPercentage > 0) etSgst.setText(product.sgstPercentage.toString())
+        if (product.igstPercentage > 0) etIgst.setText(product.igstPercentage.toString())
+
+        AddProductDialogBinder.bind(
+            dialogView = dialogView,
+            scope = lifecycleScope,
+            productRepo = ProductRepository.get(this),
+            verificationRepo = ProductVerificationRepository.get(this),
+            nameSource = { product.name }
+        )
+
+        // ── GSTR-1 product master fields (v23) ──
+        val spinnerUqcUpdate = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
+        val etHsnDescUpdate  = dialogView.findViewById<EditText>(R.id.etHsnDescription)
+        val etCessRateUpdate = dialogView.findViewById<EditText>(R.id.etCessRate)
+        val spinnerSupplyClassUpdate = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerSupplyClassification)
+        
+        spinnerUqcUpdate.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            UqcMapper.ALL_UQC_DISPLAY))
+            
+        spinnerSupplyClassUpdate.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")))
+            
+        // Prefill from existing product
+        spinnerUqcUpdate.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
+        etHsnDescUpdate.setText(product.hsnDescription ?: "")
+        spinnerSupplyClassUpdate.setText(product.supplyClassification, false)
+        if (product.cessRate > 0) etCessRateUpdate.setText(product.cessRate.toString())
+
+        // 🔥 Prefill inventory state
+        switchInventory.isChecked = product.trackInventory
+        layoutInventory.visibility = if (product.trackInventory) View.VISIBLE else View.GONE
+
+        // Read the current stock once when the dialog opens. We use
+        // this both to (a) gate the trackInventory toggle so the user
+        // can't switch OFF while stock > 0, and (b) tell the save
+        // handler to short-circuit if the rule is violated anyway.
+        val currentStockHolder = doubleArrayOf(0.0)
+        lifecycleScope.launch {
+            currentStockHolder[0] = withContext(Dispatchers.IO) {
+                db.inventoryDao().getInventory(product.id)?.currentStock ?: 0.0
+            }
+        }
+
+        // ===== Purchase-based products: lock stock + inventory =====
+        if (product.isPurchased) {
+            switchInventory.isEnabled = false
+            switchInventory.alpha = 0.5f
+            etStock.isEnabled = false
+            etStock.alpha = 0.5f
+            etStock.hint = "Stock is managed through purchase entries"
+            layoutInventory.visibility = View.VISIBLE
+        }
+
+        switchInventory.setOnCheckedChangeListener { _, isChecked ->
+            // Strict: cannot turn OFF while stock > 0.
+            if (product.trackInventory && !isChecked && currentStockHolder[0] > 0) {
+                switchInventory.setOnCheckedChangeListener(null)
+                switchInventory.isChecked = true  // revert silently
+                switchInventory.setOnCheckedChangeListener { _, c2 ->
+                    layoutInventory.visibility = if (c2) View.VISIBLE else View.GONE
+                }
+                toast("Cannot turn off inventory while stock > 0")
+                return@setOnCheckedChangeListener
+            }
+            layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnAdd.text = "Update"
+
+        btnAdd.setOnClickListener {
+
+            val newPrice = etPrice.text.toString().toDoubleOrNull()
+            if (newPrice == null || newPrice <= 0) {
+                toast("Invalid price")
+                return@setOnClickListener
+            }
+
+            val trackInventory = switchInventory.isChecked
+            val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
+
+            // Cost-price input was removed. Per the latest spec, when
+            // there is no purchase invoice the average cost stays 0
+            // — selling price is NOT a substitute for cost-of-goods.
+            val costPrice = 0.0
+
+            val hsnCode = etHsnCode.text.toString().trim()
+            val gstRate = etGstRate.text.toString().toDoubleOrNull() ?: 0.0
+            val cgstPct = etCgst.text.toString().toDoubleOrNull() ?: 0.0
+            val sgstPct = etSgst.text.toString().toDoubleOrNull() ?: 0.0
+            val igstPct = etIgst.text.toString().toDoubleOrNull() ?: 0.0
+            // GSTR-1 product master (v23)
+            val officialUqcUpd  = UqcMapper.displayToCode(spinnerUqcUpdate.text.toString())
+            val hsnDescUpd      = etHsnDescUpdate.text.toString().trim().ifBlank { null }
+            val cessRateUpd     = etCessRateUpdate.text.toString().toDoubleOrNull() ?: 0.0
+            val supplyClassVal  = spinnerSupplyClassUpdate.text.toString().trim().ifBlank { "TAXABLE" }
+
+            lifecycleScope.launch {
+                val storeInfo = db.storeInfoDao().get()
+                val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+
+                if (isGstEnabled && hsnCode.isBlank()) {
+                    withContext(Dispatchers.Main) {
+                        toast("HSN Code is mandatory for GST billing")
+                        etHsnCode.error = "Required"
+                    }
+                    return@launch
+                }
+
+                // 🚫 Strict guard: if the user is switching OFF
+                // trackInventory while stock still exists, refuse
+                // before any writes. This prevents the previous bug
+                // where the row was already updated in the DB before
+                // the early return fired.
+                val onHand = withContext(Dispatchers.IO) {
+                    db.inventoryDao().getInventory(product.id)?.currentStock ?: 0.0
+                }
+                if (product.trackInventory && !trackInventory && onHand > 0) {
+                    withContext(Dispatchers.Main) {
+                        toast("Reduce stock to 0 before turning inventory off")
+                    }
+                    return@launch
+                }
+
+                // 🚫 Purchase-based products: stock fields locked.
+                // Re-route through the restricted updater so cgst /
+                // sgst / igst / price / hsn change but trackInventory
+                // and stock stay untouched.
+                if (product.isPurchased) {
+                    com.example.easy_billing.repository.ProductRepository.get(
+                        this@AddProductsActivity
+                    ).updateSalesFieldsOnly(
+                        productId = product.id,
+                        price     = newPrice,
+                        cgst      = cgstPct,
+                        sgst      = sgstPct,
+                        igst      = igstPct,
+                        hsn       = hsnCode.ifBlank { null },
+                        officialUqc = officialUqcUpd,
+                        hsnDescription = hsnDescUpd,
+                        cessRate = cessRateUpd,
+                        supplyClassification = supplyClassVal
+                    )
+                    com.example.easy_billing.sync.SyncCoordinator
+                        .get(this@AddProductsActivity).requestSync()
+                    withContext(Dispatchers.Main) {
+                        toast("Updated. Stock is managed through purchase entries.")
+                        finish()
+                    }
+                    return@launch
+                }
+
+                try {
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    val productId = product.id
+
+                    // 🔥 CALL API (ONLY PRODUCT UPDATE)
+                    var serverId: Int? = null
+                    if (!token.isNullOrEmpty()) {
+                        val response = RetrofitClient.api.addProductToShop(
+                            token,
+                            AddProductRequest(
+                                name = product.name,
+                                variant_name = product.variant,
+                                unit = normalizeUnit(product.unit),
+                                price = newPrice,
+                                track_inventory = trackInventory,
+                                initial_stock = null,
+                                cost_price = null,
+                                hsn_code = hsnCode.ifBlank { null },
+                                default_gst_rate = gstRate,
+                                cgst_percentage = cgstPct,
+                                sgst_percentage = sgstPct,
+                                igst_percentage = igstPct,
+                                official_uqc = officialUqcUpd,
+                                hsn_description = hsnDescUpd,
+                                cess_rate = cessRateUpd,
+                                supply_classification = supplyClassVal
+                            )
+                        )
+                        // 🆕 Mirror to global catalogue (best-effort).
+                        registerProductGlobally(
+                            token = token,
+                            name = product.name,
+                            variant = product.variant,
+                            hsn = hsnCode
+                        )
+                        serverId = response.product_id
+                    }
+
+                    // 🔥 UPDATE LOCAL PRODUCT
+                    db.productDao().update(
+                        product.copy(
+                            price = newPrice,
+                            trackInventory = trackInventory,
+                            serverId = serverId ?: product.serverId,
+                            isActive = true,
+                            hsnCode = hsnCode.ifBlank { null },
+                            defaultGstRate = gstRate,
+                            cgstPercentage = cgstPct,
+                            sgstPercentage = sgstPct,
+                            igstPercentage = igstPct,
+                            officialUqc = officialUqcUpd,
+                            hsnDescription = hsnDescUpd,
+                            cessRate = cessRateUpd,
+                            supplyClassification = supplyClassVal
+                        )
+                    )
+
+                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+
+                    // ================= STATE TRANSITIONS =================
+
+                    // 🔴 ON → OFF
+                    if (product.trackInventory && !trackInventory) {
+
+                        if ((inventory?.currentStock ?: 0.0) > 0) {
+                            toast("Reduce stock to 0 first")
+                            return@launch
+                        }
+
+                        inventory?.let {
+                            db.inventoryDao().update(it.copy(isActive = false))
+                        }
+                    }
+
+                    // 🟢 OFF → ON (RESTORE)
+                    if (!product.trackInventory && trackInventory) {
+
+                        if (inventory != null) {
+                            db.inventoryDao().update(inventory.copy(isActive = true))
+                        }
+
+                        if (stockQty > 0) {
+                            InventoryManager.addStock(db, productId, stockQty, costPrice)
+                        }
+                        if (stockQty <= 0) {
+                            toast("Enter stock quantity")
+                            return@launch
+                        }
+                    }
+
+                    // 🔵 ON → ON (ADD STOCK)
+                    if (product.trackInventory && trackInventory && stockQty > 0) {
+
+                        InventoryManager.addStock(db, productId, stockQty, costPrice)
+                    }
+
+                    // ⚪ OFF → OFF (DO NOTHING)
+
+                    toast("Product updated")
+                    dialog.dismiss()
+                    finish()
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    toast("Update failed")
+                }
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun setupSearch() {
+        val etSearch = findViewById<EditText>(R.id.etSearch)
+
+        etSearch.addTextChangedListener { text ->
+            val query = text.toString().trim().lowercase()
+
+            val filtered = if (query.isEmpty()) {
+                catalogList
+            } else {
+                catalogList.filter {
+                    it.lowercase().contains(query)
+                }
+            }
+
+            updateList(filtered)
+        }
+    }
+
+    private fun updateList(list: List<String>) {
+        val displayList = list.toMutableList()
+
+        if (!displayList.contains("Others")) {
+            displayList.add("Others")
+        }
+
+        adapter.clear()
+        adapter.addAll(displayList)
+        adapter.notifyDataSetChanged()
+    }
+
+    // ================= ADD PRODUCT =================
+    private fun showAddProductDialog(selectedItem: String) {
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_product, null)
+
+        val etPrice = dialogView.findViewById<EditText>(R.id.etDialogPrice)
+        val etCustomName = dialogView.findViewById<EditText>(R.id.etDialogCustomName)
+        val etVariant = dialogView.findViewById<AutoCompleteTextView>(R.id.etVariantName)
+        val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
+
+        val etHsnCode = dialogView.findViewById<EditText>(R.id.etHsnCode)
+        val etGstRate = dialogView.findViewById<EditText>(R.id.etGstRate)
+
+        val switchInventory = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTrackInventory)
+        val layoutInventory = dialogView.findViewById<LinearLayout>(R.id.layoutInventoryFields)
+        val etStock = dialogView.findViewById<EditText>(R.id.etInitialStock)
+        val etCost = dialogView.findViewById<EditText>(R.id.etCostPrice)
+
+        val btnAdd = dialogView.findViewById<Button>(R.id.btnDialogAdd)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnDialogCancel)
+
+        val layoutCustomName = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutCustomName)
+
+        layoutCustomName.visibility =
+            if (selectedItem == "Others") View.VISIBLE else View.GONE
+
+        val units = listOf("piece", "kilogram", "litre", "gram", "millilitre")
+        etUnit.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, units))
+        etUnit.setText("piece", false)
+
+        // ── Category dropdown (predefined ∪ shop custom) ──
+        val etCategory = dialogView.findViewById<AutoCompleteTextView>(R.id.etCategory)
+        lifecycleScope.launch {
+            val shopIdStr = shopIdSync(db)
+            val cats = com.example.easy_billing.util.ProductCategories.dropdownFor(
+                this@AddProductsActivity, shopIdStr
+            )
+            withContext(Dispatchers.Main) {
+                etCategory.setAdapter(
+                    ArrayAdapter(
+                        this@AddProductsActivity,
+                        android.R.layout.simple_list_item_1,
+                        cats
+                    )
+                )
+            }
+        }
+        etCategory.setOnClickListener { etCategory.showDropDown() }
+
+        // ── GSTR-1 product master fields (v23) ──
+        val spinnerUqc  = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqc)
+        val etHsnDesc   = dialogView.findViewById<EditText>(R.id.etHsnDescription)
+        val etCessRate  = dialogView.findViewById<EditText>(R.id.etCessRate)
+        val spinnerSupplyClass = dialogView.findViewById<AutoCompleteTextView>(R.id.spinnerSupplyClassification)
+        
+        spinnerUqc.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            UqcMapper.ALL_UQC_DISPLAY))
+            
+        spinnerSupplyClass.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+            listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")))
+        spinnerSupplyClass.setText("TAXABLE", false)
+
+        switchInventory.setOnCheckedChangeListener { _, isChecked ->
+            layoutInventory.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+
+        // ===== HSN help + product-level tax + autofill =====
+        AddProductDialogBinder.bind(
+            dialogView = dialogView,
+            scope = lifecycleScope,
+            productRepo = ProductRepository.get(this),
+            verificationRepo = ProductVerificationRepository.get(this),
+            nameSource = {
+                if (selectedItem == "Others") etCustomName.text.toString().trim() else selectedItem
+            }
+        )
+
+        // Trigger name-based autofill once the user lands on the dialog
+        // for a known product (i.e. anything other than "Others").
+        if (selectedItem != "Others") {
+
+            bindGlobalData(selectedItem, dialogView)
+
+            AddProductDialogBinder.triggerNameAutofill(
+                dialogView,
+                lifecycleScope,
+                ProductRepository.get(this),
+                ProductVerificationRepository.get(this),
+                selectedItem
+            )
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnAdd.setOnClickListener {
+
+            val price = etPrice.text.toString().toDoubleOrNull()
+            if (price == null || price <= 0) {
+                toast("Invalid price")
+                return@setOnClickListener
+            }
+
+            val name = if (selectedItem == "Others") {
+                etCustomName.text.toString().trim()
+            } else selectedItem
+
+            if (name.isEmpty()) {
+                toast("Enter product name")
+                return@setOnClickListener
+            }
+
+            val variantName = etVariant.text.toString()
+                .trim()
+                .split(" ")
+                .joinToString(" ") {
+                    if (it.isEmpty()) it else it.replaceFirstChar { c -> c.uppercase() }
+                }
+                .ifEmpty { null }
+            val unit = normalizeUnit(etUnit.text.toString())
+            val trackInventory = switchInventory.isChecked
+
+            val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
+            // Cost-price input was removed. Per the latest spec, when
+            // there is no purchase invoice the average cost stays 0
+            // — selling price is NOT a substitute for cost-of-goods.
+            val costPrice = 0.0
+
+            if (trackInventory && stockQty <= 0) {
+                toast("Enter stock quantity")
+                return@setOnClickListener
+            }
+            
+            val hsnCode = etHsnCode.text.toString().trim()
+            val gstRate = etGstRate.text.toString().toDoubleOrNull() ?: 0.0
+
+            // Product-level CGST/SGST/IGST (new model — store-level
+            // tax was removed in the GST refactor).
+            val cgstPct = dialogView.findViewById<EditText>(R.id.etCgst)
+                .text.toString().toDoubleOrNull() ?: 0.0
+            val sgstPct = dialogView.findViewById<EditText>(R.id.etSgst)
+                .text.toString().toDoubleOrNull() ?: 0.0
+            val igstPct = dialogView.findViewById<EditText>(R.id.etIgst)
+                .text.toString().toDoubleOrNull() ?: 0.0
+
+            // ── GSTR-1 product master (v23) ──
+            val officialUqcVal   = UqcMapper.displayToCode(spinnerUqc.text.toString())
+            val hsnDescVal       = etHsnDesc.text.toString().trim().ifBlank { null }
+            val cessRateVal      = etCessRate.text.toString().toDoubleOrNull() ?: 0.0
+            val supplyClassVal   = spinnerSupplyClass.text.toString().trim().ifBlank { "TAXABLE" }
+
+            // ── Category (v40) ──
+            val categoryVal      = etCategory.text.toString().trim()
+
+            lifecycleScope.launch {
+                val storeInfo = db.storeInfoDao().get()
+                val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+
+                if (isGstEnabled && hsnCode.isBlank()) {
+                    withContext(Dispatchers.Main) {
+                        toast("HSN Code is mandatory for GST billing")
+                        etHsnCode.error = "Required"
+                    }
+                    return@launch
+                }
+
+                try {
+
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+
+                    // 🔥 LOCAL CHECK FIRST (FAST + IMPORTANT)
+                    val validShopIds = com.example.easy_billing.repository.ProductRepository.get(this@AddProductsActivity).getValidShopIds()
+                    val localExisting = db.productDao()
+                        .getByNameAndVariant(name, variantName, validShopIds)
+
+                    // ================= NEW PRODUCT =================
+                    if (localExisting == null) {
+
+                        var serverId: Int? = null
+                        if (!token.isNullOrEmpty()) {
+                            val response = RetrofitClient.api.addProductToShop(
+                                token,
+                                AddProductRequest(
+                                    name = name,
+                                    variant_name = variantName,
+                                    unit = unit,
+                                    price = price,
+                                    track_inventory = trackInventory,
+                                    initial_stock = if (trackInventory) stockQty else null,
+                                    cost_price = if (trackInventory) costPrice else null,
+                                    hsn_code = hsnCode.ifBlank { null },
+                                    default_gst_rate = gstRate,
+                                    cgst_percentage = cgstPct,
+                                    sgst_percentage = sgstPct,
+                                    igst_percentage = igstPct,
+                                    official_uqc = officialUqcVal,
+                                    hsn_description = hsnDescVal,
+                                    cess_rate = cessRateVal,
+                                    supply_classification = supplyClassVal,
+                                    category = categoryVal,
+                                    is_purchased = false
+                                )
+                            )
+                            // 🆕 Mirror to global catalogue (best-effort).
+                            registerProductGlobally(
+                                token = token,
+                                name = name,
+                                variant = variantName,
+                                hsn = hsnCode
+                            )
+                            serverId = response.product_id
+                        }
+
+                        val newId = db.productDao().insert(
+                            Product(
+                                name = capitalizeFirst(name),
+                                variant = variantName?.let { capitalizeFirst(it) },
+                                unit = unit,
+                                price = price,
+                                trackInventory = trackInventory,
+                                serverId = serverId,
+                                isActive = true,
+                                isCustom = (selectedItem == "Others"),
+                                hsnCode = hsnCode.ifBlank { null },
+                                defaultGstRate = gstRate,
+                                cgstPercentage = cgstPct,
+                                sgstPercentage = sgstPct,
+                                igstPercentage = igstPct,
+                                officialUqc = officialUqcVal,
+                                hsnDescription = hsnDescVal,
+                                cessRate = cessRateVal,
+                                supplyClassification = supplyClassVal,
+                                category = categoryVal,
+                                shopId = shopIdSync(db)
+                            )
+                        ).toInt()
+
+                        // Remember a brand-new custom category for future dropdowns.
+                        rememberCategoryIfNew(db, categoryVal, shopIdSync(db))
+
+                        if (trackInventory) {
+                            InventoryManager.addStock(db, newId, stockQty, costPrice)
+                            // 🔥 Immediately push inventory logs to backend
+                            try {
+                                SyncManager(this@AddProductsActivity).syncInventory()
+                            } catch (_: Exception) { /* best-effort — DashboardActivity will retry */ }
+                        }
+
+                        toast("Product added")
+                        dialog.dismiss()
+                        finish()
+                        return@launch
+                    }
+
+                    // ================= EXISTING PRODUCT =================
+
+                    runOnUiThread {
+
+                        val customView = layoutInflater.inflate(R.layout.dialog_product_exists, null)
+
+                        val customDialog = AlertDialog.Builder(this@AddProductsActivity)
+                            .setView(customView)
+                            .create()
+
+                        customDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                        val btnCancel = customView.findViewById<Button>(R.id.btnCancel)
+                        val btnUpdate = customView.findViewById<Button>(R.id.btnUpdate)
+                        val btnReplace = customView.findViewById<Button>(R.id.btnReplace)
+
+                        val tvMessage = customView.findViewById<TextView>(R.id.tvMessage)
+                        val tvDetails = customView.findViewById<TextView>(R.id.tvDetails)
+
+                        lifecycleScope.launch {
+
+                            val inventory = db.inventoryDao()
+                                .getInventoryIncludingInactive(localExisting.id)
+
+                            val stock = inventory?.currentStock ?: 0.0
+
+                            val detailsText = buildString {
+                                append("Selling Price: ₹${localExisting.price}\n")
+                                if (!localExisting.hsnCode.isNullOrEmpty()) append("HSN: ${localExisting.hsnCode}\n")
+                                if (!localExisting.variant.isNullOrEmpty()) append("Variant: ${localExisting.variant}\n")
+                                append("Unit: ${localExisting.unit}\n")
+                                if (localExisting.cgstPercentage > 0 || localExisting.sgstPercentage > 0) {
+                                    append("CGST: ${localExisting.cgstPercentage}%  SGST: ${localExisting.sgstPercentage}%\n")
+                                }
+                                if (localExisting.igstPercentage > 0) {
+                                    append("IGST: ${localExisting.igstPercentage}%\n")
+                                }
+                                if (localExisting.trackInventory) {
+                                    append("Stock: $stock")
+                                } else {
+                                    append("Inventory: OFF")
+                                }
+                            }
+
+                            runOnUiThread {
+                                if (localExisting.isActive) {
+                                    // CASE 2: Active Exists
+                                    tvMessage.text = "${localExisting.name} (${localExisting.variant ?: ""}) already exists.\nYou must edit the existing product from the catalog."
+                                    btnUpdate.text = "OK"
+                                    btnReplace.visibility = View.GONE
+                                } else {
+                                    if (!localExisting.isPurchased) {
+                                        // CASE 3: Inactive & Same Type (Manual)
+                                        tvMessage.text = "${localExisting.name} (${localExisting.variant ?: ""}) was deactivated.\nDo you want to restore it?"
+                                        btnUpdate.text = "Restore with New Values"
+                                        btnReplace.text = "Restore Existing"
+                                        btnReplace.visibility = View.VISIBLE
+                                    } else {
+                                        // CASE 4: Inactive & Different Type (Purchased)
+                                        tvMessage.text = "${localExisting.name} (${localExisting.variant ?: ""}) was previously a PURCHASED product.\nDo you want to convert it to a MANUAL product?"
+                                        btnUpdate.text = "Convert to Manual"
+                                        btnReplace.visibility = View.GONE
+                                    }
+                                }
+                                tvDetails.text = detailsText
+                            }
+                        }
+
+                        // ================= BUTTON LOGIC =================
+                        btnUpdate.setOnClickListener {
+                            if (localExisting.isActive) {
+                                customDialog.dismiss()
+                                return@setOnClickListener
+                            }
+
+                            // CASE 3 (Restore with New Values) or CASE 4 (Convert to Manual)
+                            lifecycleScope.launch {
+                                try {
+                                    val productId = localExisting.id
+                                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+                                    
+                                    if (!trackInventory && (inventory?.currentStock ?: 0.0) > 0) {
+                                        toast("Cannot disable inventory (stock exists)")
+                                        return@launch
+                                    }
+
+                                    var serverId: Int? = localExisting.serverId
+                                    if (!token.isNullOrEmpty()) {
+                                        val req = AddProductRequest(
+                                            name = name,
+                                            variant_name = variantName,
+                                            unit = unit,
+                                            price = price,
+                                            track_inventory = trackInventory,
+                                            initial_stock = if (trackInventory) stockQty else null,
+                                            cost_price = if (trackInventory) costPrice else null,
+                                            hsn_code = hsnCode.ifBlank { null },
+                                            default_gst_rate = gstRate,
+                                            cgst_percentage = cgstPct,
+                                            sgst_percentage = sgstPct,
+                                            igst_percentage = igstPct,
+                                            official_uqc = officialUqcVal,
+                                            hsn_description = hsnDescVal,
+                                            cess_rate = cessRateVal,
+                                            is_purchased = false // Convert or Restore as Manual
+                                        )
+                                        val sId = serverId
+                                        if (sId != null) {
+                                            RetrofitClient.api.updateShopProduct(token, sId, req)
+                                        } else {
+                                            val response = RetrofitClient.api.addProductToShop(token, req)
+                                            serverId = response.product_id
+                                        }
+                                        registerProductGlobally(token, name, variantName, hsnCode)
+                                    }
+
+                                    // Restore/update ALL fields with NEW values
+                                    db.productDao().update(
+                                        localExisting.copy(
+                                            price = price,
+                                            trackInventory = trackInventory,
+                                            serverId = serverId ?: localExisting.serverId,
+                                            isActive = true,
+                                            isPurchased = false, // Always false when adding manually
+                                            hsnCode = hsnCode.ifBlank { null },
+                                            defaultGstRate = gstRate,
+                                            cgstPercentage = cgstPct,
+                                            sgstPercentage = sgstPct,
+                                            igstPercentage = igstPct,
+                                            officialUqc = officialUqcVal,
+                                            hsnDescription = hsnDescVal,
+                                            cessRate = cessRateVal,
+                                            supplyClassification = supplyClassVal
+                                        )
+                                    )
+
+                                    // Inventory logic
+                                    if (trackInventory) {
+                                        if (inventory != null && !inventory.isActive) {
+                                            db.inventoryDao().update(inventory.copy(isActive = true))
+                                        }
+                                        // Overwrite stock when restoring/converting
+                                        InventoryManager.resetStock(db, productId, stockQty, costPrice)
+                                    } else {
+                                        inventory?.let {
+                                            db.inventoryDao().update(it.copy(isActive = false))
+                                        }
+                                    }
+
+                                    try {
+                                        SyncManager(this@AddProductsActivity).syncInventory()
+                                    } catch (_: Exception) { }
+
+                                    toast("Product restored/converted successfully")
+                                    customDialog.dismiss()
+                                    finish()
+                                } catch (e: Exception) {
+                                    toast("Error: ${e.message}")
+                                }
+                            }
+                        }
+
+                        // CASE 3: Restore Existing (Keep old values, just reactivate)
+                        btnReplace.setOnClickListener {
+                            lifecycleScope.launch {
+                                try {
+                                    val productId = localExisting.id
+                                    
+                                    var serverId: Int? = localExisting.serverId
+                                    if (!token.isNullOrEmpty()) {
+                                        val req = AddProductRequest(
+                                            name = localExisting.name,
+                                            variant_name = localExisting.variant,
+                                            unit = localExisting.unit ?: "piece",
+                                            price = localExisting.price,
+                                            track_inventory = localExisting.trackInventory,
+                                            initial_stock = null,
+                                            cost_price = null,
+                                            hsn_code = localExisting.hsnCode,
+                                            default_gst_rate = localExisting.defaultGstRate,
+                                            cgst_percentage = localExisting.cgstPercentage,
+                                            sgst_percentage = localExisting.sgstPercentage,
+                                            igst_percentage = localExisting.igstPercentage,
+                                            official_uqc = localExisting.officialUqc,
+                                            hsn_description = localExisting.hsnDescription,
+                                            cess_rate = localExisting.cessRate,
+                                            is_purchased = false
+                                        )
+                                        val sId = serverId
+                                        if (sId != null) {
+                                            RetrofitClient.api.updateShopProduct(token, sId, req)
+                                        } else {
+                                            val response = RetrofitClient.api.addProductToShop(token, req)
+                                            serverId = response.product_id
+                                        }
+                                    }
+                                    
+                                    db.productDao().update(
+                                        localExisting.copy(
+                                            isActive = true,
+                                            serverId = serverId ?: localExisting.serverId
+                                        )
+                                    )
+                                    
+                                    val inventory = db.inventoryDao().getInventoryIncludingInactive(productId)
+                                    if (localExisting.trackInventory && inventory != null && !inventory.isActive) {
+                                        db.inventoryDao().update(inventory.copy(isActive = true))
+                                    }
+                                    
+                                    toast("Product restored successfully")
+                                    customDialog.dismiss()
+                                    dialog.dismiss()
+                                    finish()
+                                } catch (e: Exception) {
+                                    toast("Error: ${e.message}")
+                                }
+                            }
+                        }
+
+                        // ================= CANCEL =================
+                        btnCancel.setOnClickListener {
+                            customDialog.dismiss()
+                        }
+
+                        customDialog.show()
+                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    toast("Failed")
+                }
+            }
+        }
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
+    }
+
+    private fun normalizeUnit(unit: String?): String {
+        return when (unit?.lowercase()) {
+            "piece" -> "piece"
+            "kilogram", "kg" -> "kg"
+            "litre", "liter", "l", "ltr" -> "litre"
+            "gram", "g" -> "gram"
+            "millilitre", "ml" -> "ml"
+            else -> "piece"
+        }
+    }
+
+
+    /**
+     * "Variant already exists. Edit instead?" dialog. Surfaced
+     * whenever the Add Product flow detects a tap on a row that
+     * is already in the catalogue. Confirm → [EditProductActivity];
+     * cancel → user stays on the variant list.
+     */
+    private fun confirmEditExistingVariant(product: com.example.easy_billing.db.Product) {
+        val message = getString(
+            R.string.variant_already_exists_message,
+            product.variant?.takeIf { it.isNotBlank() } ?: product.name
+        )
+        AlertDialog.Builder(this)
+            .setTitle(R.string.variant_already_exists_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.action_edit) { d, _ ->
+                d.dismiss()
+                startActivity(
+                    android.content.Intent(this, EditProductActivity::class.java)
+                        .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
+                )
+                finish()
+            }
+            .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+            .show()
+    }
+
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Best-effort: tells the backend to also add this product to its
+     * **global** catalogue (so the same name/HSN/variant can be
+     * verified by other shops via [com.example.easy_billing.network.ApiService.verifyProductName]
+     * etc.). Failures are swallowed — the inline addProductToShop
+     * call has already succeeded by the time we call this.
+     */
+    private suspend fun registerProductGlobally(
+        token: String,
+        name: String,
+        variant: String?,
+        hsn: String?
+    ) {
+        runCatching {
+            RetrofitClient.api.registerGlobalProduct(
+                token,
+                com.example.easy_billing.network.GlobalProductRegisterRequest(
+                    name = name,
+                    variant = variant,
+                    hsn_code = hsn?.takeIf { it.isNotBlank() }
+                )
+            )
+        }
+    }
+
+    /**
+     * Current shop id used when inserting product rows.
+     *
+     * We deliberately use the numeric SHOP_ID from auth prefs (not
+     * the GSTIN) so that the shopId column is always in the same
+     * format as [ProductRepository.currentShopId] uses when it
+     * falls back to the numeric id — i.e. the two are consistent.
+     * [ProductRepository.getAllForCurrentShop] accepts BOTH the
+     * numeric id AND the GSTIN, so older rows stored with the
+     * GSTIN will still surface even after this change.
+     */
+    private suspend fun shopIdSync(db: AppDatabase): String {
+        val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+        return try {
+            prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
+        } catch (e: ClassCastException) {
+            prefs.getInt("SHOP_ID", 0).toString()
+        }
+    }
+
+    /**
+     * Persists a user-typed category if it isn't already known (neither
+     * predefined nor previously saved). Stored as a [com.example.easy_billing.db.ProductCategory]
+     * so it appears in future dropdowns and syncs to the backend.
+     */
+    private suspend fun rememberCategoryIfNew(db: AppDatabase, category: String, shopId: String) {
+        val name = category.trim()
+        if (name.isEmpty()) return
+        if (com.example.easy_billing.util.ProductCategories.PREDEFINED.any {
+                it.equals(name, ignoreCase = true)
+            }) return
+        if (name.equals(com.example.easy_billing.util.ProductCategories.UNCATEGORIZED, true)) return
+        if (db.productCategoryDao().getByName(name, shopId) == null) {
+            db.productCategoryDao().insertIgnore(
+                com.example.easy_billing.db.ProductCategory(shopId = shopId, name = name)
+            )
+        }
+    }
+
+    /**
+     * Capitalises the first letter of every word in [value]. Used
+     * everywhere a product name or variant is persisted.
+     */
+    private fun capitalizeFirst(value: String): String =
+        value.trim().split(Regex("\\s+")).joinToString(" ") { word ->
+            if (word.isEmpty()) word
+            else word.first().uppercaseChar() + word.drop(1)
+        }
+
+
+    private fun bindGlobalData(
+        productName: String,
+        dialogView: View
+    ) {
+
+        val etVariant = dialogView.findViewById<AutoCompleteTextView>(R.id.etVariantName)
+        val etHsn = dialogView.findViewById<EditText>(R.id.etHsnCode)
+        val etGst = dialogView.findViewById<EditText>(R.id.etGstRate)
+        val etUnit = dialogView.findViewById<AutoCompleteTextView>(R.id.etUnit)
+
+        lifecycleScope.launch {
+            try {
+                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("TOKEN", null) ?: return@launch
+
+                // ✅ 1. Verify product name and get global ID (Faster than full catalog)
+                val verifyResp = RetrofitClient.api.verifyProductName(token, productName)
+                if (!verifyResp.valid || verifyResp.matched_global_id == null) return@launch
+
+                val productId = verifyResp.matched_global_id
+
+                // ✅ 2. Fetch HSN immediately
+                launch {
+                    try {
+                        val hsnResp = RetrofitClient.api.getHsn(token, productId)
+                        withContext(Dispatchers.Main) {
+                            etHsn.setText(hsnResp.hsn_code)
+                            
+                            // Derive GST from HSN length
+                            val totalGst = when (hsnResp.hsn_code.length) {
+                                4 -> 5.0
+                                6 -> 12.0
+                                else -> 18.0
+                            }
+                            val halfGst = totalGst / 2.0
+                            dialogView.findViewById<EditText>(R.id.etCgst).setText(halfGst.toString())
+                            dialogView.findViewById<EditText>(R.id.etSgst).setText(halfGst.toString())
+                            dialogView.findViewById<EditText>(R.id.etIgst).setText(totalGst.toString())
+                            etGst.setText(totalGst.toString())
+                        }
+                    } catch (e: Exception) { e.printStackTrace() }
+                }
+
+                // ✅ 3. Fetch variants
+                val variants = RetrofitClient.api.getVariants(token, productId)
+                val variantNames = variants.map { it.variant_name }
+
+                withContext(Dispatchers.Main) {
+                    val adapter = ArrayAdapter(
+                        this@AddProductsActivity,
+                        android.R.layout.simple_list_item_1,
+                        variantNames
+                    )
+                    etVariant.setAdapter(adapter)
+                    etVariant.setOnClickListener { etVariant.showDropDown() }
+
+                    etVariant.addTextChangedListener {
+                        val normalized = it.toString()
+                            .trim()
+                            .split(" ")
+                            .joinToString(" ") { word ->
+                                if (word.isEmpty()) word
+                                else word.replaceFirstChar { c -> c.uppercase() }
+                            }
+                        if (normalized != it.toString()) {
+                            etVariant.setText(normalized)
+                            etVariant.setSelection(normalized.length)
+                        }
+                    }
+
+                    etVariant.setOnItemClickListener { _, _, position, _ ->
+
+                        val selectedVariant = variants[position]
+
+                        lifecycleScope.launch {
+                            try {
+
+                                val hsnResp = RetrofitClient.api.getHsn(
+                                    token,
+                                    productId
+                                )
+
+                                withContext(Dispatchers.Main) {
+
+                                    etHsn.setText(hsnResp.hsn_code)
+                                    etUnit.setText(selectedVariant.unit, false)
+
+                                    val totalGst = when (hsnResp.hsn_code.length) {
+                                        4 -> 5.0
+                                        6 -> 12.0
+                                        else -> 18.0
+                                    }
+
+                                    val halfGst = totalGst / 2.0
+                                    
+                                    // Autofill the split components
+                                    dialogView.findViewById<EditText>(R.id.etCgst).setText(halfGst.toString())
+                                    dialogView.findViewById<EditText>(R.id.etSgst).setText(halfGst.toString())
+                                    dialogView.findViewById<EditText>(R.id.etIgst).setText(totalGst.toString())
+                                    
+                                    // Update legacy field
+                                    etGst.setText(totalGst.toString())
+                                }
+
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+}

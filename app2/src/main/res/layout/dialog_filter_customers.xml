@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@android:color/white"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- DRAG HANDLE -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:background="#D1D5DB"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- TITLE -->
+    <TextView
+        android:id="@+id/tvActiveFilter"
+        android:text="Filter Customers"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- ALL -->
+    <LinearLayout
+        android:id="@+id/optionAll"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:text="📋"
+            android:textSize="18sp"
+            android:layout_marginEnd="12dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:text="All Customers"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#1F2937"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
+    <!-- DUE -->
+    <LinearLayout
+        android:id="@+id/optionDue"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:text="🔴"
+            android:textSize="16sp"
+            android:layout_marginEnd="12dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:text="Due Only"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#DC2626"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
+    <!-- ADVANCE -->
+    <LinearLayout
+        android:id="@+id/optionAdvance"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:text="🟢"
+            android:textSize="16sp"
+            android:layout_marginEnd="12dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:text="Advance Only"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#16A34A"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
+    <!-- SETTLED -->
+    <LinearLayout
+        android:id="@+id/optionSettled"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:text="⚖️"
+            android:textSize="16sp"
+            android:layout_marginEnd="12dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:text="Settled Only"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#374151"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ambient atmosphere glow — replaces the previous "blob".
+    Very low-opacity champagne fog; you barely see it but it
+    gives the brand column its sense of depth and warmth.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="280"
+        android:centerX="0.5"
+        android:centerY="0.5"
+        android:startColor="#22D4A574"
+        android:endColor="#00D4A574"/>
+</shape>

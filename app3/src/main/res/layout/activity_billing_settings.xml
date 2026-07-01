@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
+
+            <!-- Title + Edit action -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/billing_settings"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="GST profile &amp; print layout"
+                        android:textColor="#6E6A60"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!-- Edit pill (toggles edit mode) -->
+                <LinearLayout
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_edit_pill"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="7dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#1A1A18"
+                        android:contentDescription="@string/edit"/>
+
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== GST PROFILE ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="GST PROFILE"/>
+
+            <LinearLayout style="@style/AddCard">
+
+                <!-- GSTIN (locked) -->
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="GSTIN"/>
+                    <LinearLayout style="@style/SiFieldBox"
+                        android:background="@drawable/bg_add_field_locked">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_tax" app:tint="#A32D2D"/>
+                        <EditText
+                            android:id="@+id/etGstin"
+                            style="@style/SiEdit"
+                            android:textColor="#6E6A60"
+                            android:letterSpacing="0.03"
+                            android:enabled="false"
+                            android:focusable="false"/>
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_si_lock"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginStart="2dp"
+                        android:text="Set in Store Information"
+                        android:textColor="#9A968C"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+
+                <!-- Legal name -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Legal name"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_building" app:tint="#185FA5"/>
+                        <EditText
+                            android:id="@+id/etLegalName"
+                            style="@style/SiEdit"
+                            android:hint="@string/profile_label_legal_name"
+                            android:inputType="textCapWords"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Trade name -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Trade name"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_set_store" app:tint="#534AB7"/>
+                        <EditText
+                            android:id="@+id/etTradeName"
+                            style="@style/SiEdit"
+                            android:hint="@string/profile_label_trade_name"
+                            android:inputType="textCapWords"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- GST scheme + State code (row) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="13dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/SiFieldLabel" android:text="GST scheme"/>
+                        <LinearLayout
+                            android:id="@+id/rowScheme"
+                            style="@style/SiFieldBox"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:foreground="?attr/selectableItemBackground">
+                            <ImageView style="@style/SiIcon"
+                                android:src="@drawable/ic_si_layers" app:tint="#0F6E56"/>
+                            <TextView
+                                android:id="@+id/tvScheme"
+                                style="@style/SiValue"
+                                android:text="REGULAR"/>
+                            <ImageView
+                                android:id="@+id/icSchemeChevron"
+                                android:layout_width="17dp"
+                                android:layout_height="17dp"
+                                android:src="@drawable/ic_chevron_down"
+                                app:tint="#C9C3B4"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="96dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView style="@style/SiFieldLabel" android:text="State code"/>
+                        <LinearLayout style="@style/SiFieldBox">
+                            <ImageView style="@style/SiIcon"
+                                android:src="@drawable/ic_si_pin" app:tint="#185FA5"/>
+                            <EditText
+                                android:id="@+id/etStateCode"
+                                style="@style/SiEdit"
+                                android:inputType="number"
+                                android:maxLength="2"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Registration type -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="Registration type"/>
+                    <LinearLayout
+                        android:id="@+id/rowRegType"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_badge" app:tint="#BA7517"/>
+                        <TextView
+                            android:id="@+id/tvRegType"
+                            style="@style/SiValue"
+                            android:text="Regular"/>
+                        <ImageView
+                            android:id="@+id/icRegTypeChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Address -->
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_address"/>
+                    <LinearLayout style="@style/SiFieldBoxMulti">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_map" app:tint="#0F6E56"/>
+                        <EditText
+                            android:id="@+id/etAddress"
+                            style="@style/SiEditMulti"
+                            android:hint="@string/profile_label_address"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== PRINTER ===================== -->
+            <TextView style="@style/AddSectionLabel" android:text="PRINTER"/>
+
+            <LinearLayout style="@style/AddCard">
+
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="Print layout"/>
+                    <LinearLayout
+                        android:id="@+id/rowPrinter"
+                        style="@style/SiFieldBox"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_si_printer" app:tint="#993C1D"/>
+                        <TextView
+                            android:id="@+id/tvPrinter"
+                            style="@style/SiValue"
+                            android:text="80mm"/>
+                        <ImageView
+                            android:id="@+id/icPrinterChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#C9C3B4"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Save -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveBilling"
+                style="@style/SiSavePill"
+                android:text="@string/save_billing_settings"
+                app:icon="@drawable/ic_lucide_check"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

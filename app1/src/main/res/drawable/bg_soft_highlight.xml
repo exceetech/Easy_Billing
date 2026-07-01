@@ -1,0 +1,5 @@
+<!-- res/drawable/bg_soft_highlight.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#EEF2FF"/>
+    <corners android:radius="14dp"/>
+</shape>

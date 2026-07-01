@@ -1,0 +1,143 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#F9FAFB"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:titleTextColor="@color/textPrimary"
+        app:navigationIconTint="@color/textPrimary" />
+
+    <!-- 🔍 SEARCH -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="10dp"
+
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="#FAFAFA"
+        app:strokeColor="#FFFFFF"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="6dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:startIconDrawable="@drawable/ic_search"
+                app:startIconTint="?attr/colorPrimary"
+                app:endIconMode="clear_text"
+
+                app:boxBackgroundMode="none"
+
+                app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearchTxn"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+
+                    android:hint="Search by type or amount"
+
+                    android:inputType="text"
+                    android:maxLength="50"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch"
+
+                    android:importantForAutofill="no"
+                    android:autofillHints=""
+
+                    android:paddingStart="4dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 🔹 DIVIDER -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#E5E7EB"
+        android:layout_marginHorizontal="12dp"/>
+
+    <!-- 📋 LIST (EXPANDS FULL SPACE) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTransactions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="6dp"
+        android:clipToPadding="false"/>
+
+    <!-- ⚡ BUTTONS (NOW FIXED AT BOTTOM) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="#F9FAFB"
+        android:elevation="6dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFilter"
+            android:layout_weight="1"
+            android:text="Filter"
+            android:textAllCaps="false"
+            android:layout_marginEnd="8dp"
+            android:layout_width="0dp"
+            android:layout_height="48dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSummary"
+            android:layout_weight="1"
+            android:text="Summary"
+            android:textAllCaps="false"
+            android:layout_marginEnd="8dp"
+            android:layout_width="0dp"
+            android:layout_height="48dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrint"
+            android:layout_weight="1"
+            android:text="Print"
+            android:textAllCaps="false"
+            android:layout_width="0dp"
+            android:layout_height="48dp"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_pos_dropdown"
+    android:padding="18dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="What's the audit score?"
+        android:textColor="#1A1A18"
+        android:textSize="15sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="A quick health check of your shop, from 0 to 100. It starts at 100 and goes down for every urgent issue or money leak we find — so a higher score means fewer problems to fix."
+        android:textColor="#6E6A60"
+        android:textSize="13sp"
+        android:lineSpacingMultiplier="1.4"/>
+
+    <!-- Healthy -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="14dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#0F6E56"/>
+        <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+            android:layout_marginStart="9dp" android:text="Healthy"
+            android:textColor="#1A1A18" android:textSize="12sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="78–100 · few or no issues" android:textColor="#6E6A60" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Fair -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#BA7517"/>
+        <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+            android:layout_marginStart="9dp" android:text="Fair"
+            android:textColor="#1A1A18" android:textSize="12sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="66–77 · a few things to watch" android:textColor="#6E6A60" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Needs work -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#A32D2D"/>
+        <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+            android:layout_marginStart="9dp" android:text="Needs work"
+            android:textColor="#1A1A18" android:textSize="12sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="below 66 · act on the alerts" android:textColor="#6E6A60" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnScoreInfoGotIt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:text="Got it"
+        android:textColor="#412402"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:background="@drawable/bg_inv_a_gold_btn"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="9dp"
+        android:clickable="true"
+        android:focusable="true"/>
+</LinearLayout>

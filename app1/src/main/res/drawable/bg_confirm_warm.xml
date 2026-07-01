@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Confirm CTA — deep emerald with a soft top edge. Reads as
+    "go" against the cream backdrop without screaming.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="18dp"/>
+    <gradient
+        android:startColor="#16A34A"
+        android:centerColor="#15803D"
+        android:endColor="#0F6E33"
+        android:angle="270"/>
+</shape>

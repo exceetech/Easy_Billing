@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1073568399126",
+    "project_id": "expos-4d98c",
+    "storage_bucket": "expos-4d98c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1073568399126:android:2f30a1ef617e705a99da37",
+        "android_client_info": {
+          "package_name": "com.example.easy_billing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADc1enB6VtKi1-34cxOXM7ebTgYi1sFAg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

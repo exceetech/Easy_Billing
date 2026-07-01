@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:layout_marginBottom="1dp">
+    
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvInvoiceNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="INV-1234"
+            android:textColor="#111827"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="27/04/2026"
+            android:textColor="#6B7280"
+            android:textSize="12sp"/>
+    </LinearLayout>
+        
+    <TextView
+        android:id="@+id/tvGstin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Unregistered"
+        android:textColor="#4B5563"
+        android:textSize="13sp"
+        android:gravity="center_vertical"/>
+        
+    <TextView
+        android:id="@+id/tvTaxableValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="end|center_vertical"
+        android:text="₹100.00"
+        android:textColor="#111827"
+        android:textSize="14sp"/>
+        
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="end">
+        <TextView
+            android:id="@+id/tvTotalTax"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹18.00"
+            android:textColor="#DC2626"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/tvTaxBreakup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CGST/SGST"
+            android:textColor="#6B7280"
+            android:textSize="10sp"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Primary CTA — emerald gradient with a subtle highlight along
+    the top edge. Lives behind the MaterialButton's ripple so the
+    press still produces a Material ripple while the gradient
+    remains stable.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="20dp"/>
+    <gradient
+        android:startColor="#10B981"
+        android:centerColor="#16A34A"
+        android:endColor="#0F8C42"
+        android:angle="270"/>
+</shape>

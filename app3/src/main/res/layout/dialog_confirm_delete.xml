@@ -1,0 +1,79 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_dialog_rounded"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- ICON -->
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/baseline_delete_24"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        app:tint="#EF4444" />
+
+    <!-- TITLE -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:text="Remove Product"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- MESSAGE -->
+    <TextView
+        android:id="@+id/tvMessage"
+        android:text="Are you sure?"
+        android:textSize="14sp"
+        android:textColor="#6B7280"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- BUTTON ROW -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <!-- CANCEL -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Cancel"
+            android:textColor="#111827"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#E5E7EB"
+            app:rippleColor="#33000000"
+            android:foreground="?attr/selectableItemBackground"/>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="1dp"/>
+
+        <!-- DELETE -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDelete"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Delete"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#EF4444"
+            app:rippleColor="#33FFFFFF"
+            android:foreground="?attr/selectableItemBackground"/>
+    </LinearLayout>
+
+</LinearLayout>

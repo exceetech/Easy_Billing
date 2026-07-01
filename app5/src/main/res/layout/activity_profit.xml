@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- Eyebrow: title + subtitle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profit analytics"
+            android:textColor="#1A1A18"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:accessibilityHeading="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="Revenue, cost &amp; net earnings"
+            android:textColor="#6E6A60"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Spotlight: net profit headline + margin pill -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvNetProfit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹0"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A18"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="26sp"
+            app:autoSizeMaxTextSize="40sp"/>
+
+        <LinearLayout
+            android:id="@+id/layoutMarginPill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/bg_inv_a_trend_pill"
+            android:backgroundTint="#11402F"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp">
+            <ImageView
+                android:id="@+id/ivMarginTrend"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="3dp"
+                android:src="@drawable/ic_si_trend_up"
+                app:tint="#7DDCB2"
+                android:contentDescription="@null"/>
+            <TextView
+                android:id="@+id/tvMargin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0% margin"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#7DDCB2"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingHorizontal="16dp"
+        android:text="Net profit"
+        android:textSize="12sp"
+        android:textColor="#6E6A60"/>
+
+    <!-- Period filters (chips, matching Reports) -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipDateFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="16dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:chipSpacingHorizontal="8dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnToday" style="@style/ReportChip" android:text="Today"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnWeek" style="@style/ReportChip" android:text="Week"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnMonth" style="@style/ReportChip" android:text="Month"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnAll" style="@style/ReportChip" android:text="All"
+            android:checked="true"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnCustom" style="@style/ReportChip" android:text="Custom"/>
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- KPI color blocks (single row, no net profit) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="14dp">
+
+        <LinearLayout style="@style/ProfitKpi" android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_imp_block_green">
+            <ImageView style="@style/ProfitKpiIcon" android:src="@drawable/ic_si_wallet"/>
+            <TextView android:id="@+id/tvRevenue" style="@style/ProfitKpiValue" android:text="₹0"/>
+            <TextView style="@style/ProfitKpiSub" android:text="Revenue"/>
+        </LinearLayout>
+
+        <LinearLayout style="@style/ProfitKpi" android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_imp_block_amber">
+            <ImageView style="@style/ProfitKpiIcon" android:src="@drawable/ic_si_cart"/>
+            <TextView android:id="@+id/tvExpense" style="@style/ProfitKpiValue" android:text="₹0"/>
+            <TextView style="@style/ProfitKpiSub" android:text="Expense"/>
+        </LinearLayout>
+
+        <LinearLayout style="@style/ProfitKpi" android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_imp_block_blue">
+            <ImageView style="@style/ProfitKpiIcon" android:src="@drawable/ic_si_tag"/>
+            <TextView android:id="@+id/tvCost" style="@style/ProfitKpiValue" android:text="₹0"/>
+            <TextView style="@style/ProfitKpiSub" android:text="Cost"/>
+        </LinearLayout>
+
+        <LinearLayout style="@style/ProfitKpi"
+            android:background="@drawable/bg_imp_block_red">
+            <ImageView style="@style/ProfitKpiIcon" android:src="@drawable/ic_si_trend_down"/>
+            <TextView android:id="@+id/tvLoss" style="@style/ProfitKpiValue" android:text="₹0"/>
+            <TextView style="@style/ProfitKpiSub" android:text="Loss"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Search + chart (inline) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_add_field"
+            android:paddingHorizontal="12dp">
+            <ImageView
+                android:layout_width="18dp" android:layout_height="18dp"
+                android:layout_marginEnd="9dp"
+                android:src="@drawable/ic_si_search" app:tint="#9A968C"
+                android:contentDescription="@null"/>
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:gravity="center_vertical"
+                android:hint="Search products…"
+                android:textSize="14sp"
+                android:textColor="#1A1A18"
+                android:textColorHint="#9A968C"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
+                android:inputType="text"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnChart"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_btn_dark"
+            android:src="@drawable/ic_si_chart_columns"
+            app:tint="#FFFFFF"
+            android:scaleType="centerInside"
+            android:padding="11dp"
+            android:contentDescription="View chart"/>
+    </LinearLayout>
+
+    <!-- By product -->
+    <TextView style="@style/AddSectionLabel" android:text="BY PRODUCT"
+        android:layout_marginStart="20dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvProducts"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_imp_card"
+        android:paddingHorizontal="14dp"
+        android:clipToPadding="false"/>
+
+    <!-- Print -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrint"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Print report"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            app:icon="@drawable/ic_si_printer"
+            app:iconTint="#FFFFFF"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:backgroundTint="#1B3A8A"
+            app:cornerRadius="14dp"
+            android:stateListAnimator="@null"
+            android:elevation="0dp"/>
+    </LinearLayout>
+
+</LinearLayout>

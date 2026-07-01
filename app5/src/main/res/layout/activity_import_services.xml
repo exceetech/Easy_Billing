@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- ===================== HERO ===================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F4F0E6"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="20dp">
+
+            <!-- Toolbar (same as Inventory: back nav via BaseActivity.setupToolbar) -->
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
+                android:elevation="0dp"
+                app:title=""
+                app:titleTextColor="#1A1A18"
+                app:navigationIconTint="#1A1A18" />
+
+            <!-- Eyebrow + subtitle + export -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Import of Services"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"
+                        android:accessibilityHeading="true" />
+
+                    <TextView
+                        android:id="@+id/tvHeroCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="14 records · FY 2025–26"
+                        android:textSize="12sp"
+                        android:textColor="#6E6A60"
+                        android:singleLine="true"
+                        android:ellipsize="end" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Spotlight taxable value + ITC chip -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom"
+                android:layout_marginTop="18dp">
+
+                <TextView
+                    android:id="@+id/tvKpiTaxable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹6,40,000"
+                    android:textSize="38sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="24sp"
+                    app:autoSizeMaxTextSize="38sp" />
+
+                <LinearLayout
+                    android:id="@+id/layoutItcChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/bg_imp_itc_chip"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp">
+
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:layout_marginEnd="3dp"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="#7DDCB2"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ITC ready"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="#7DDCB2" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Total taxable value"
+                android:textSize="12sp"
+                android:textColor="#6E6A60" />
+
+            <!-- KPI color blocks -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_imp_block_blue"
+                    android:padding="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_kpi_landmark" app:tint="#CFE6FF" android:contentDescription="@null"/>
+                    <TextView android:id="@+id/tvKpiIgst"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="₹1,15,200" android:textSize="16sp" android:textStyle="bold" android:textColor="#FFFFFF"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="IGST paid" android:textSize="10sp" android:textColor="#B5D4F4"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_imp_block_green"
+                    android:padding="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_kpi_badge_check" app:tint="#9FE1CB" android:contentDescription="@null"/>
+                    <TextView android:id="@+id/tvKpiItc"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="₹1,12,800" android:textSize="16sp" android:textStyle="bold" android:textColor="#FFFFFF"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="ITC availed" android:textSize="10sp" android:textColor="#9FE1CB"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_imp_block_amber"
+                    android:padding="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_kpi_cloud_off" app:tint="#FAC775" android:contentDescription="@null"/>
+                    <TextView android:id="@+id/tvKpiUnsynced"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="2" android:textSize="16sp" android:textStyle="bold" android:textColor="#FFFFFF"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="Unsynced" android:textSize="10sp" android:textColor="#FAC775"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== SEARCH + FILTER ===================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_imp_filter"
+                android:paddingHorizontal="11dp">
+                <ImageView android:layout_width="15dp" android:layout_height="15dp"
+                    android:src="@drawable/ic_search" app:tint="#9CA3AF" android:contentDescription="@null"/>
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:hint="Search invoice no."
+                    android:textColorHint="#9CA3AF"
+                    android:textColor="#1A1A18"
+                    android:textSize="13sp"
+                    android:singleLine="true"
+                    android:paddingStart="7dp"
+                    android:importantForAutofill="no"
+                    android:inputType="text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnFyFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_imp_filter"
+                android:paddingHorizontal="12dp"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView android:layout_width="15dp" android:layout_height="15dp"
+                    android:src="@drawable/ic_calendar" app:tint="#1A1A18" android:contentDescription="@null"/>
+                <TextView android:id="@+id/tvFyLabel"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp" android:text="FY 25–26" android:textSize="12sp" android:textColor="#1A1A18"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="2dp"
+            android:text="RECORDS"
+            android:textSize="11sp"
+            android:letterSpacing="0.04"
+            android:textColor="#9A968C" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvImportServices"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingTop="6dp"
+            android:paddingBottom="96dp" />
+    </LinearLayout>
+
+    <!-- ===================== EMPTY STATE ===================== -->
+    <LinearLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="28dp"
+        android:layout_marginHorizontal="32dp"
+        android:visibility="gone">
+        <ImageView android:layout_width="40dp" android:layout_height="40dp"
+            android:src="@drawable/ic_file_import" android:contentDescription="@null"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:text="No import records yet"
+            android:textSize="15sp" android:textStyle="bold" android:textColor="#1A1A18"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" android:gravity="center"
+            android:text="Add your first import-of-services invoice to track IGST and ITC."
+            android:textSize="12sp" android:textColor="#6E6A60"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- ===================== ADD FAB ===================== -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="18dp"
+        android:text="Add record"
+        android:textColor="#412402"
+        android:textAllCaps="false"
+        app:icon="@drawable/ic_add_thin"
+        app:iconTint="#412402"
+        app:backgroundTint="#EF9F27"
+        app:elevation="0dp"
+        app:cornerRadius="16dp"
+        android:contentDescription="Add import service" />
+
+</FrameLayout>

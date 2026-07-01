@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Supplier-return batch picker.
+
+    Shown when the user picks "Supplier Return" as the reduce-stock
+    reason, or "Return to Supplier" from the clear-stock chooser.
+    Each row is a remaining purchase batch for the product (invoice
+    number · supplier · purchase date · unit cost · qty remaining)
+    with an EditText for the user's per-batch return qty.
+
+    Validation lives in the host activity:
+      • per-batch qty ≤ batch.quantityRemaining
+      • SUM(per-batch qty) == intended total reduction
+      • at least one line > 0
+
+    Styling matches the existing dialog_reduce_stock / dialog_clear_stock
+    premium look: rounded MaterialCardView, gradient background drawable,
+    24dp padding, 16dp inter-element spacing.
+-->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    android:layout_margin="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp"
+        android:background="@drawable/bg_dialog_gradient">
+
+        <!-- ── HEADER ─────────────────────────────── -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Return to Supplier"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="serif"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick batches and the quantity to return per batch"
+            android:textColor="#B0FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginTop="2dp"/>
+
+        <!-- ── PRODUCT NAME (set at runtime) ───────── -->
+        <TextView
+            android:id="@+id/tvBatchProduct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:textColor="#D4A574"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.04"/>
+
+        <!-- ── INTENDED TOTAL (set at runtime) ─────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Target return quantity"
+                android:textColor="#B0FFFFFF"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/tvBatchTarget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"/>
+        </LinearLayout>
+
+        <!-- ── BATCH LIST ──────────────────────────── -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBatches"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_marginTop="14dp"
+            android:overScrollMode="never"
+            android:nestedScrollingEnabled="true"/>
+
+        <!-- ── RUNNING TOTAL ──────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="4dp"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Selected"
+                android:textColor="#B0FFFFFF"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/tvBatchRunning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvBatchError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#FCA5A5"
+            android:textSize="11sp"
+            android:visibility="gone"
+            android:layout_marginTop="6dp"/>
+
+        <!-- ── BUTTONS ─────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="18dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBatchCancel"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:textColor="@color/white"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBatchConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirm Return"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                app:cornerRadius="14dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -248,23 +248,37 @@ object InvoicePdfGenerator {
             paint.typeface = Typeface.MONOSPACE
             paint.textSize = 13f
 
+            // Per-line detail (Option A): gross amount → its share of the bill
+            // discount → net taxable → net GST → net total. Every value comes
+            // straight from what was saved, so each line foots and the per-line
+            // GST equals the bill GST.
+            val grossTaxable = it.price * it.quantity           // price × qty
+            val netTaxable   = it.taxableValue                  // after discount
+            val lineDiscount = grossTaxable - netTaxable
+            val gstAmt       = it.cgstAmount + it.sgstAmount + it.igstAmount
+            val lineTotal    = netTaxable + gstAmt
+
+            leftText("$qtyText × $rateText", 13f)
+            rightText("$currencySymbol%.2f".format(grossTaxable), 13f)
+            y += 18
+
+            if (lineDiscount >= 0.01) {
+                leftText("Discount", 13f)
+                rightText("- $currencySymbol%.2f".format(lineDiscount), 13f)
+                y += 18
+            }
+
             if (isComposition) {
-                // ── Composition: plain amount-only, no GST anywhere ──
-                leftText("$qtyText × $rateText", 13f)
-                rightText("$currencySymbol%.2f".format(it.subTotal), 13f)
-                y += 24
+                // Composition: no GST; total is the (discounted) net value.
+                rightText("Total $currencySymbol%.2f".format(netTaxable), 13f, bold = true)
+                y += 22
             } else {
-                // ── Regular GST: taxable + GST % + GST amount + total ──
-                // Values come straight from what was saved with the bill;
-                // nothing is recalculated here.
-                val gstAmt    = it.cgstAmount + it.sgstAmount + it.igstAmount
-                val lineTotal = it.taxableValue + gstAmt
                 val gstPctText =
                     if (it.gstRate % 1 == 0.0) "${it.gstRate.toInt()}%"
                     else String.format("%.2f%%", it.gstRate)
 
-                leftText("$qtyText × $rateText", 13f)
-                rightText("Taxable $currencySymbol%.2f".format(it.taxableValue), 13f)
+                leftText("Taxable", 13f)
+                rightText("$currencySymbol%.2f".format(netTaxable), 13f)
                 y += 18
 
                 leftText("GST $gstPctText", 13f)
@@ -290,17 +304,17 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.MONOSPACE
         paint.textSize = 14f
 
-        val subTotal = billItems.sumOf { it.subTotal }
+        // Per line already shows gross → discount → net taxable, so the summary
+        // totals the NET taxable directly (no separate bill-discount line).
+        val taxable  = billItems.sumOf { it.taxableValue }
+        val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount
 
-        // For Composition this is the simple Sub Total; for Regular it is
-        // the Taxable Amount that the GST sits on top of.
         leftText(if (isComposition) "Sub Total" else "Taxable Amount", 14f)
-        rightText("$currencySymbol%.2f".format(subTotal), 14f)
+        rightText("$currencySymbol%.2f".format(taxable), 14f)
         y += 22
 
         if (!isComposition) {
             // Intra-state → CGST + SGST.  Inter-state → IGST only.
-            // Selected purely by the amounts saved on the bill.
             if (bill.igstAmount > 0.0) {
                 leftText("IGST", 14f)
                 rightText("$currencySymbol%.2f".format(bill.igstAmount), 14f)
@@ -315,9 +329,15 @@ object InvoicePdfGenerator {
             }
         }
 
-        if (showDiscount) {
-            leftText("Discount", 14f)
-            rightText("$currencySymbol%.2f".format(bill.discount), 14f)
+        var finalTotal = bill.total
+        if (roundOff) finalTotal = round(finalTotal)
+
+        // Round-off line so Taxable + tax (+ round off) == TOTAL exactly.
+        val computed  = if (isComposition) taxable else taxable + totalTax
+        val roundDiff = finalTotal - computed
+        if (kotlin.math.abs(roundDiff) >= 0.01) {
+            leftText("Round Off", 14f)
+            rightText("$currencySymbol%.2f".format(roundDiff), 14f)
             y += 22
         }
 
@@ -327,9 +347,6 @@ object InvoicePdfGenerator {
         paint.textSize = 18f
 
         canvas.drawText("TOTAL", colItem, y.toFloat(), paint)
-
-        var finalTotal = bill.total
-        if (roundOff) finalTotal = round(finalTotal)
 
         val total = "$currencySymbol%.2f".format(finalTotal)
         canvas.drawText(total, colAmount - paint.measureText(total), y.toFloat(), paint)

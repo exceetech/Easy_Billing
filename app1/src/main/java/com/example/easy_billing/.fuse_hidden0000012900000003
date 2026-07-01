@@ -1,0 +1,498 @@
+package com.example.easy_billing.fragments
+
+import android.app.Dialog
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.Filterable
+import com.example.easy_billing.R
+import com.example.easy_billing.ReportFilter
+import com.example.easy_billing.adapter.PeakHourAdapter
+import com.example.easy_billing.network.PeakHourResponse
+import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.AppTime
+import com.example.easy_billing.util.BubbleChartMarker
+import com.example.easy_billing.util.CurrencyHelper
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.LegendEntry
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.ValueFormatter
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+
+class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
+
+    // ── Views ──────────────────────────────────────────────────────────────
+    private lateinit var rvPeakHours: RecyclerView
+    private lateinit var btnChart: ImageButton
+    private lateinit var llMiniChart: LinearLayout
+    private lateinit var tvBestHour: TextView
+    private lateinit var tvTotalBills: TextView
+    private lateinit var tvPeakRevenue: TextView
+
+    // Podium TextViews
+    private lateinit var tvPod1Hour: TextView
+    private lateinit var tvPod1Revenue: TextView
+    private lateinit var tvPod1Bills: TextView
+    private lateinit var tvPod1Status: TextView
+    private lateinit var cardPod1: View
+
+    private lateinit var tvPod2Hour: TextView
+    private lateinit var tvPod2Revenue: TextView
+    private lateinit var tvPod2Bills: TextView
+    private lateinit var tvPod2Status: TextView
+    private lateinit var cardPod2: View
+
+    private lateinit var tvPod3Hour: TextView
+    private lateinit var tvPod3Revenue: TextView
+    private lateinit var tvPod3Bills: TextView
+    private lateinit var tvPod3Status: TextView
+    private lateinit var cardPod3: View
+
+    // ── State ──────────────────────────────────────────────────────────────
+    private lateinit var adapter: PeakHourAdapter
+    private var currentFilter    = ReportFilter.TODAY
+    private var customStartDate: String? = null
+    private var customEndDate: String?   = null
+    private var currentData: List<PeakHourResponse> = emptyList()
+
+    private val sdf = AppTime.isoDate()   // app timezone (matches backend)
+
+    // ── Lifecycle ──────────────────────────────────────────────────────────
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.ReportsScroll.attach(this, view)
+
+        // Hero
+        llMiniChart   = view.findViewById(R.id.llMiniChart)
+        tvBestHour    = view.findViewById(R.id.tvBestHour)
+        tvTotalBills  = view.findViewById(R.id.tvTotalBills)
+        tvPeakRevenue = view.findViewById(R.id.tvPeakRevenue)
+
+        // Podium slot 1
+        cardPod1      = view.findViewById(R.id.cardPod1)
+        tvPod1Hour    = view.findViewById(R.id.tvPod1Hour)
+        tvPod1Revenue = view.findViewById(R.id.tvPod1Revenue)
+        tvPod1Bills   = view.findViewById(R.id.tvPod1Bills)
+        tvPod1Status  = view.findViewById(R.id.tvPod1Status)
+
+        // Podium slot 2
+        cardPod2      = view.findViewById(R.id.cardPod2)
+        tvPod2Hour    = view.findViewById(R.id.tvPod2Hour)
+        tvPod2Revenue = view.findViewById(R.id.tvPod2Revenue)
+        tvPod2Bills   = view.findViewById(R.id.tvPod2Bills)
+        tvPod2Status  = view.findViewById(R.id.tvPod2Status)
+
+        // Podium slot 3
+        cardPod3      = view.findViewById(R.id.cardPod3)
+        tvPod3Hour    = view.findViewById(R.id.tvPod3Hour)
+        tvPod3Revenue = view.findViewById(R.id.tvPod3Revenue)
+        tvPod3Bills   = view.findViewById(R.id.tvPod3Bills)
+        tvPod3Status  = view.findViewById(R.id.tvPod3Status)
+
+        // List
+        rvPeakHours = view.findViewById(R.id.rvPeakHours)
+        btnChart    = view.findViewById(R.id.btnChart)
+
+        rvPeakHours.layoutManager = LinearLayoutManager(requireContext())
+        rvPeakHours.isNestedScrollingEnabled = false
+
+        adapter = PeakHourAdapter(emptyList())
+        rvPeakHours.adapter = adapter
+
+        btnChart.setOnClickListener { showChartDialog(currentData) }
+
+        syncFilterFromActivity()
+        loadPeakHours()
+    }
+
+    // ── Filter ─────────────────────────────────────────────────────────────
+
+    override fun onFilterChanged(filter: ReportFilter, startDate: String?, endDate: String?) {
+        currentFilter   = filter
+        customStartDate = startDate
+        customEndDate   = endDate
+        loadPeakHours()
+    }
+
+    private fun syncFilterFromActivity() {
+        (activity as? com.example.easy_billing.ReportsActivity)?.let {
+            currentFilter   = it.currentFilter
+            customStartDate = it.customStart
+            customEndDate   = it.customEnd
+        }
+    }
+
+    // ── Data loading ───────────────────────────────────────────────────────
+
+    private fun loadPeakHours() {
+        lifecycleScope.launch {
+            val token = requireActivity()
+                .getSharedPreferences("auth", Context.MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+                val calendar = AppTime.calendar()
+                var start: String? = null
+                var end: String?   = null
+                var type = ""
+
+                when (currentFilter) {
+                    ReportFilter.TODAY -> type = "today"
+
+                    ReportFilter.WEEK -> {
+                        calendar.add(Calendar.DAY_OF_MONTH,
+                            -(calendar.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY))
+                        start = sdf.format(calendar.time)
+                        calendar.add(Calendar.DAY_OF_MONTH, 6)
+                        end   = sdf.format(calendar.time)
+                        type  = "custom"
+                    }
+
+                    ReportFilter.MONTH -> {
+                        calendar.set(Calendar.DAY_OF_MONTH, 1)
+                        start = sdf.format(calendar.time)
+                        calendar.set(Calendar.DAY_OF_MONTH,
+                            calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+                        end   = sdf.format(calendar.time)
+                        type  = "custom"
+                    }
+
+                    ReportFilter.YEAR -> {
+                        calendar.set(Calendar.MONTH, Calendar.JANUARY)
+                        calendar.set(Calendar.DAY_OF_MONTH, 1)
+                        start = sdf.format(calendar.time)
+                        calendar.set(Calendar.MONTH, Calendar.DECEMBER)
+                        calendar.set(Calendar.DAY_OF_MONTH, 31)
+                        end   = sdf.format(calendar.time)
+                        type  = "custom"
+                    }
+
+                    ReportFilter.CUSTOM -> {
+                        if (customStartDate != null && customEndDate != null) {
+                            start = customStartDate
+                            end   = customEndDate
+                            type  = "custom"
+                        } else return@launch
+                    }
+                }
+
+                val peak = RetrofitClient.api.getPeakHours(token, type, start, end)
+                currentData = peak
+
+                val sortedByRevenue = peak.sortedByDescending { it.revenue }
+                val globalMax = sortedByRevenue.firstOrNull()?.revenue ?: 1.0
+                val globalMin = sortedByRevenue.lastOrNull()?.revenue  ?: 0.0
+
+                // Populate all sections
+                updateKPIs(sortedByRevenue)
+                updateMiniChart(peak)           // sorted by hour inside
+                updatePodium(sortedByRevenue, globalMax)
+                adapter.updateData(
+                    newData       = sortedByRevenue.drop(3),
+                    newStartRank  = 4,
+                    newGlobalMax  = globalMax,
+                    newGlobalMin  = globalMin
+                )
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(requireContext(), "Failed to load peak hours", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // ── Hero KPI row ───────────────────────────────────────────────────────
+
+    private fun updateKPIs(sorted: List<PeakHourResponse>) {
+        if (sorted.isEmpty()) return
+        val best       = sorted.first()
+        val totalBills = sorted.sumOf { it.bills }
+
+        tvBestHour.text    = formatHour(best.hour)
+        tvTotalBills.text  = "$totalBills"
+        tvPeakRevenue.text = CurrencyHelper.format(requireContext(), best.revenue)
+    }
+
+    // ── Mini bar chart ─────────────────────────────────────────────────────
+
+    private fun updateMiniChart(data: List<PeakHourResponse>) {
+        llMiniChart.removeAllViews()
+        if (data.isEmpty()) return
+
+        val sorted  = data.sortedBy { it.hour }
+        val maxRev  = sorted.maxOf { it.revenue }.takeIf { it > 0 } ?: 1.0
+        val minRev  = sorted.minOf { it.revenue }
+        val density = resources.displayMetrics.density
+
+        val maxHeightPx = (40 * density).toInt()
+        val minHeightPx = (8  * density).toInt()
+        val gapPx       = (3  * density).toInt()
+        val cornerPx    = 3f * density
+
+        sorted.forEach { item ->
+            val ratio   = item.revenue / maxRev
+            val isPeak  = ratio >= 0.8
+            val isLow   = ratio <= 0.3
+
+            val color = when {
+                isPeak -> Color.parseColor("#22C55E")
+                isLow  -> Color.parseColor("#F87171")
+                else   -> Color.argb(72, 255, 255, 255)
+            }
+
+            val normRatio = if (maxRev == minRev) 1.0
+                            else (item.revenue - minRev) / (maxRev - minRev)
+            val heightPx  = (minHeightPx + normRatio * (maxHeightPx - minHeightPx)).toInt()
+
+            val bar = View(requireContext()).apply {
+                background = GradientDrawable().apply {
+                    shape       = GradientDrawable.RECTANGLE
+                    // Round top corners only
+                    cornerRadii = floatArrayOf(
+                        cornerPx, cornerPx,  // top-left
+                        cornerPx, cornerPx,  // top-right
+                        0f, 0f,              // bottom-right
+                        0f, 0f               // bottom-left
+                    )
+                    setColor(color)
+                }
+            }
+
+            val params = LinearLayout.LayoutParams(0, heightPx, 1f)
+            params.marginEnd = gapPx
+            llMiniChart.addView(bar, params)
+        }
+    }
+
+    // ── Podium (top 3) ─────────────────────────────────────────────────────
+
+    private fun updatePodium(sorted: List<PeakHourResponse>, globalMax: Double) {
+        bindPodiumSlot(sorted.getOrNull(0), globalMax, cardPod1,
+            tvPod1Hour, tvPod1Revenue, tvPod1Bills, tvPod1Status)
+        bindPodiumSlot(sorted.getOrNull(1), globalMax, cardPod2,
+            tvPod2Hour, tvPod2Revenue, tvPod2Bills, tvPod2Status)
+        bindPodiumSlot(sorted.getOrNull(2), globalMax, cardPod3,
+            tvPod3Hour, tvPod3Revenue, tvPod3Bills, tvPod3Status)
+    }
+
+    private fun bindPodiumSlot(
+        item: PeakHourResponse?,
+        globalMax: Double,
+        card: View,
+        tvHour: TextView,
+        tvRevenue: TextView,
+        tvBills: TextView,
+        tvStatus: TextView
+    ) {
+        if (item == null) {
+            card.visibility = View.INVISIBLE
+            return
+        }
+        card.visibility = View.VISIBLE
+
+        tvHour.text    = formatHour(item.hour)
+        tvRevenue.text = CurrencyHelper.format(requireContext(), item.revenue)
+        tvBills.text   = "${item.bills} bills"
+
+        val ratio  = if (globalMax == 0.0) 0.0 else item.revenue / globalMax
+        val isPeak = ratio >= 0.8
+        val isLow  = ratio <= 0.3
+
+        val statusTxt = when { isPeak -> "🔥 Peak"; isLow -> "⚠ Slow"; else -> "⚖ Avg" }
+        val textHex   = when { isPeak -> "#059669"; isLow -> "#DC2626"; else -> "#475569" }
+        val bgHex     = when { isPeak -> "#ECFDF5"; isLow -> "#FEF2F2"; else -> "#F1F5F9" }
+
+        tvStatus.text = statusTxt
+        tvStatus.setTextColor(Color.parseColor(textHex))
+        tvStatus.background = GradientDrawable().apply {
+            shape        = GradientDrawable.RECTANGLE
+            cornerRadius = 100f
+            setColor(Color.parseColor(bgHex))
+        }
+        val d   = resources.displayMetrics.density
+        val hPad = (9 * d).toInt()
+        val vPad = (3 * d).toInt()
+        tvStatus.setPadding(hPad, vPad, hPad, vPad)
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    private fun formatHour(hour: Int): String = when {
+        hour == 0  -> "12:00 AM"
+        hour < 12  -> "${hour}:00 AM"
+        hour == 12 -> "12:00 PM"
+        else       -> "${hour - 12}:00 PM"
+    }
+
+    // ── Full-screen chart dialog (unchanged) ───────────────────────────────
+
+    private fun showChartDialog(data: List<PeakHourResponse>) {
+        if (data.isEmpty()) return
+
+        val dialog = Dialog(requireContext(), R.style.FullScreenDialog)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_peak_chart)
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+
+        // ── KPI stat cards (Peak revenue / Peak hour / Total bills / Avg bills) ──
+        val best        = data.maxByOrNull { it.revenue }
+        val totalBills  = data.sumOf { it.bills }
+        val avgBillsHr  = if (data.isNotEmpty()) totalBills.toDouble() / data.size else 0.0
+
+        dialog.findViewById<TextView>(R.id.tvDlgPeakRevenue).text =
+            best?.let { CurrencyHelper.format(requireContext(), it.revenue) } ?: "—"
+        dialog.findViewById<TextView>(R.id.tvDlgPeakHour).text =
+            best?.let { formatHour(it.hour) } ?: "—"
+        dialog.findViewById<TextView>(R.id.tvDlgTotalBills).text = "$totalBills"
+        dialog.findViewById<TextView>(R.id.tvDlgAvgBills).text =
+            "%.1f".format(avgBillsHr)
+
+        val chart = dialog.findViewById<com.github.mikephil.charting.charts.BubbleChart>(R.id.chart)
+        chart.clear()
+
+        // Period palette (matches "Daily pulse" design)
+        val morningColor   = Color.parseColor("#2F93E0")  // < 12pm
+        val afternoonColor = Color.parseColor("#D68A1E")  // 12pm – 3pm
+        val eveningColor   = Color.parseColor("#8B5CF6")  // 4pm onward
+
+        fun colorForHour(hour: Int): Int = when {
+            hour < 12  -> morningColor
+            hour <= 15 -> afternoonColor
+            else       -> eveningColor
+        }
+
+        val sorted  = data.sortedBy { it.hour }
+
+        // BubbleEntry(x = hour, y = revenue, size = bill count)
+        val entries = ArrayList<BubbleEntry>()
+        sorted.forEach { item ->
+            entries.add(BubbleEntry(item.hour.toFloat(), item.revenue.toFloat(), item.bills.toFloat()))
+        }
+
+        if (entries.isEmpty()) { chart.setNoDataText("No data available"); return }
+
+        val minHour = sorted.first().hour
+        val maxHour = sorted.last().hour
+        val maxValue = entries.maxOfOrNull { it.y } ?: 0f
+
+        // MPAndroidChart's BubbleChartRenderer picks each bubble's color via
+        // getColor((int) entry.getX()) — i.e. it indexes the color list by the HOUR,
+        // not by entry order. So build a 0..23 list keyed by hour to keep the
+        // Morning / Afternoon / Evening rule correct.
+        val hourColors = IntArray(24) { colorForHour(it) }
+
+        val dataSet = BubbleDataSet(entries, "").apply {
+            setColors(*hourColors)          // per-bubble color by period (indexed by hour)
+            setDrawValues(false)
+            isNormalizeSizeEnabled = true   // bubble area scales to bill count
+            highLightColor = Color.argb(120, 0, 0, 0)
+        }
+
+        chart.data = BubbleData(dataSet)
+
+        chart.xAxis.apply {
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    val hour = value.toInt()
+                    if (hour < 0 || hour > 23) return ""
+                    return when {
+                        hour == 0  -> "12am"
+                        hour < 12  -> "${hour}am"
+                        hour == 12 -> "12pm"
+                        else       -> "${hour - 12}pm"
+                    }
+                }
+            }
+            position = XAxis.XAxisPosition.BOTTOM
+            axisMinimum = (minHour - 1.8f)   // extra room so the first (12am) bubble isn't clipped by the y-axis
+            axisMaximum = (maxHour + 1).toFloat()
+            setDrawAxisLine(true)
+            axisLineColor = Color.parseColor("#D1D5DB")
+            axisLineWidth = 1.5f
+            setDrawGridLines(true)
+            gridColor = Color.argb(40, 156, 163, 175)
+            enableGridDashedLine(6f, 6f, 0f)
+            textColor = Color.parseColor("#9AA0A8")
+            textSize  = 10f
+            granularity = 1f
+        }
+
+        chart.axisLeft.apply {
+            // Push the baseline below 0 so low bubbles sit above the x-axis instead of being clipped
+            axisMinimum = -(maxValue * 0.10f)
+            axisMaximum = maxValue * 1.18f      // headroom so top bubble isn't clipped
+            setDrawAxisLine(true)
+            axisLineColor = Color.parseColor("#D1D5DB")
+            axisLineWidth = 1.5f
+            setDrawGridLines(true)
+            gridColor = Color.argb(40, 156, 163, 175)
+            enableGridDashedLine(6f, 6f, 0f)
+            textColor = Color.parseColor("#9AA0A8")
+            textSize  = 11f
+            labelCount = 4
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    if (value < 0f) return ""   // hide the sub-zero padding label
+                    return "₹" + (value / 1000f).let {
+                        if (it == it.toInt().toFloat()) "${it.toInt()}k" else "%.1fk".format(it)
+                    }
+                }
+            }
+        }
+
+        chart.axisRight.isEnabled   = false
+        chart.description.isEnabled = false
+
+        // Custom legend — Morning / Afternoon / Evening
+        chart.legend.apply {
+            isEnabled = true
+            verticalAlignment   = Legend.LegendVerticalAlignment.TOP
+            horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+            orientation         = Legend.LegendOrientation.HORIZONTAL
+            setDrawInside(false)
+            textColor = Color.parseColor("#3A3F45")
+            textSize  = 13f
+            form      = Legend.LegendForm.CIRCLE
+            xEntrySpace = 16f
+            setCustom(listOf(
+                LegendEntry("Morning",   Legend.LegendForm.CIRCLE, 10f, 2f, null, morningColor),
+                LegendEntry("Afternoon", Legend.LegendForm.CIRCLE, 10f, 2f, null, afternoonColor),
+                LegendEntry("Evening",   Legend.LegendForm.CIRCLE, 10f, 2f, null, eveningColor)
+            ))
+        }
+
+        chart.setDrawGridBackground(false)
+        chart.setTouchEnabled(true)
+        chart.setDragEnabled(true)
+        chart.setScaleEnabled(true)
+        chart.setPinchZoom(true)
+        chart.isHighlightPerTapEnabled  = true
+        chart.isHighlightPerDragEnabled = true
+        chart.marker = BubbleChartMarker(requireContext())
+        chart.setExtraOffsets(53.5f, 16f, 8f, 12f) // left padding (~0.5cm more) so "12am" sits further right
+        chart.animateY(900)
+        chart.invalidate()
+
+        dialog.findViewById<View>(R.id.btnClose).setOnClickListener { dialog.dismiss() }
+        dialog.show()
+    }
+}

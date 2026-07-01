@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxHeight="460dp"
+    android:background="@drawable/bg_filter_popover">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:paddingHorizontal="14dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Filters"
+            android:textSize="18sp"
+            android:textColor="#1A1A18"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/googlesans_bold"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- ===== CATEGORY ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_imp_card"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:id="@+id/hdrCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                    android:src="@drawable/ic_filter_tag" app:tint="#185FA5" android:contentDescription="@null"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="11dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Category" android:textColor="#1A1A18" android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView android:id="@+id/tvCategorySummary" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="All categories"
+                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+                <ImageView android:id="@+id/ivCatChevron" android:layout_width="18dp" android:layout_height="18dp"
+                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contentCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="14dp"
+                android:paddingBottom="10dp">
+
+                <TextView android:id="@+id/btnCatSelectAll" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_gravity="end" android:text="Select all"
+                    android:textColor="#0F6E56" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold"
+                    android:paddingVertical="4dp" android:paddingHorizontal="4dp"
+                    android:clickable="true" android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <LinearLayout android:id="@+id/categoryList" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="vertical"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== STOCK STATUS ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_imp_card"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:id="@+id/hdrStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                    android:src="@drawable/ic_drawer_inventory" app:tint="#0F6E56" android:contentDescription="@null"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="11dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Stock status" android:textColor="#1A1A18" android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView android:id="@+id/tvStockSummary" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="Any"
+                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+                <ImageView android:id="@+id/ivStockChevron" android:layout_width="18dp" android:layout_height="18dp"
+                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contentStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="14dp"
+                android:paddingBottom="10dp"
+                android:visibility="gone">
+
+                <LinearLayout android:id="@+id/stockList" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="vertical"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== PRODUCT TYPE ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_imp_card"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:id="@+id/hdrType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                    android:src="@drawable/ic_drawer_product" app:tint="#854F0B" android:contentDescription="@null"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="11dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Product type" android:textColor="#1A1A18" android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView android:id="@+id/tvTypeSummary" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="Any"
+                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+                <ImageView android:id="@+id/ivTypeChevron" android:layout_width="18dp" android:layout_height="18dp"
+                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contentType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="14dp"
+                android:paddingBottom="10dp"
+                android:visibility="gone">
+
+                <LinearLayout android:id="@+id/typeList" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:orientation="vertical"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== PRICE RANGE ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_imp_card"
+            android:layout_marginBottom="14dp">
+
+            <LinearLayout
+                android:id="@+id/hdrPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                    android:src="@drawable/ic_drawer_credit" app:tint="#534AB7" android:contentDescription="@null"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="11dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Price range" android:textColor="#1A1A18" android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView android:id="@+id/tvPriceSummary" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="Any"
+                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+                <ImageView android:id="@+id/ivPriceChevron" android:layout_width="18dp" android:layout_height="18dp"
+                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contentPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingBottom="14dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    style="@style/SiFieldBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp">
+
+                    <EditText
+                        android:id="@+id/etPriceMin"
+                        style="@style/SiEdit"
+                        android:hint="Min ₹"
+                        android:inputType="numberDecimal"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/SiFieldBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp">
+
+                    <EditText
+                        android:id="@+id/etPriceMax"
+                        style="@style/SiEdit"
+                        android:hint="Max ₹"
+                        android:inputType="numberDecimal"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearFilters"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                android:text="Reset"
+                android:textSize="14sp"
+                android:textColor="#6E6A60"
+                android:fontFamily="@font/googlesans_semibold"
+                android:minWidth="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="0dp"
+                app:strokeColor="#E4DAC6"
+                app:cornerRadius="14dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnApplyFilters"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="Apply"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/googlesans_semibold"
+                android:minWidth="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="0dp"
+                app:backgroundTint="#0F6E56"
+                app:cornerRadius="14dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

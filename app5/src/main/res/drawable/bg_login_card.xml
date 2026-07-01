@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Elevated card surface — slightly lighter than the backdrop
+    so it lifts off, with a 1dp inner stroke that catches light
+    and reads as a refined edge bevel.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Base panel — dark blue-grey, 24dp radius. -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp"/>
+            <solid android:color="#D915192B"/>
+            <stroke
+                android:width="1dp"
+                android:color="#1F2745"/>
+        </shape>
+    </item>
+
+    <!-- Top-edge highlight — very faint cream sliver to suggest
+         a polished-metal lip catching the room light. -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp"/>
+            <gradient
+                android:angle="270"
+                android:startColor="#11E8DCC4"
+                android:centerColor="#0011E8DC"
+                android:endColor="#0011E8DC"
+                android:type="linear"/>
+        </shape>
+    </item>
+</layer-list>

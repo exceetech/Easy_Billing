@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug only: allow cleartext (http) so local dev backends work
+     (emulator http://10.0.2.2, or a LAN IP on a physical device). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true"/>
+</network-security-config>

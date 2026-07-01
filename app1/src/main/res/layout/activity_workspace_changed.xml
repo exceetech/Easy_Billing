@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="@android:color/white">
+
+    <!-- Icon -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔄"
+        android:textSize="64sp"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Workspace Updated"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Body -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your business workspace has been restored or replaced from another device.\n\nYou must reload the latest workspace to continue."
+        android:textSize="15sp"
+        android:textColor="#4B5563"
+        android:textAlignment="center"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="40dp"/>
+
+    <!-- Reload button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnReloadWorkspace"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Reload Workspace"
+        android:textAllCaps="false"
+        android:textSize="16sp"/>
+
+</LinearLayout>

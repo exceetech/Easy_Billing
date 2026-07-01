@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Section card — frosted-white surface used for every content
+    block under the hero. Soft border + 24dp corners give it the
+    "glass" silhouette without needing alpha trickery that
+    older devices choke on.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="24dp"/>
+    <solid android:color="#FFFFFF"/>
+    <stroke android:width="1dp" android:color="#E8ECF3"/>
+</shape>

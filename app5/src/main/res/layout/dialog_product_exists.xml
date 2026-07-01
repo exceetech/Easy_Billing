@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_dialog_rounded"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- ICON -->
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:src="@android:drawable/ic_dialog_info"
+        app:tint="#3B82F6" />
+
+    <!-- TITLE -->
+    <TextView
+        android:text="Product Exists"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- MESSAGE -->
+    <TextView
+        android:id="@+id/tvMessage"
+        android:text="Update existing or replace with new?"
+        android:textSize="14sp"
+        android:textColor="#6B7280"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- 🔥 PRODUCT DETAILS -->
+    <TextView
+        android:id="@+id/tvDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_dialog_rounded_inner"
+        android:text="Price: ₹0\nVariant: -\nUnit: -\nStock: 0"
+        android:textSize="13sp"
+        android:textColor="#374151"
+        android:lineSpacingExtra="2dp"/>
+
+    <!-- BUTTONS -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <!-- CANCEL -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Cancel"
+            android:textColor="#111827"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#E5E7EB"
+            app:rippleColor="?attr/colorControlHighlight"/>
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <!-- CREATE NEW -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReplace"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Create New"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#EF4444"
+            app:rippleColor="#33FFFFFF"/>
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="1dp"/>
+
+        <!-- RESTORE -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpdate"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:text="Restore"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#3B82F6"
+            app:rippleColor="#33FFFFFF"/>
+    </LinearLayout>
+
+</LinearLayout>
