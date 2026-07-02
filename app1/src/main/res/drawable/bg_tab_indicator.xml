@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Full-height pill indicator: sits BEHIND the tab text.
-     Selected text turns white (contrast on navy). Unselected stays gray. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#1B3A8A"/>
-    <corners android:radius="100dp"/>
-</shape>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Soft green count chip for category section headers. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners android:radius="20dp"/>
-    <solid android:color="#E7F6EF"/>
-</shape>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Soft premium area fill (red): subtle near the line, fading to clear -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:angle="90"
-        android:startColor="#00EF4444"
-        android:centerColor="#1AEF4444"
-        android:endColor="#33EF4444"/>
-</shape>

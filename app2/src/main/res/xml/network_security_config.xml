@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Release/default: cleartext (http) is forbidden — forces HTTPS in production.
-     The debug build overrides this file (src/debug/res/xml) to allow cleartext for
-     local dev servers (emulator 10.0.2.2 / LAN IP over http). -->
-<network-security-config>
-    <base-config cleartextTrafficPermitted="false"/>
-</network-security-config>

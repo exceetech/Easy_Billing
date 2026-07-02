@@ -73,8 +73,8 @@ object InventoryValuation {
                 consumed += take
             }
 
-            // We intentionally do NOT delete empty batches here so the SyncManager
-            // can push their 0-quantity state to the backend first!
+            // Drop zero-qty batches so future FIFO walks stay tight.
+            db.purchaseBatchDao().clearEmptyBatches(productId)
 
             // Recompute average cost from whatever's left.
             recomputeAvgFromBatches(db, productId)
@@ -131,8 +131,8 @@ object InventoryValuation {
                 totalReduced += line.quantity
             }
 
-            // We intentionally do NOT delete empty batches here so the SyncManager
-            // can push their 0-quantity state to the backend first!
+            db.purchaseBatchDao().clearEmptyBatches(productId)
+            recomputeAvgFromBatches(db, productId)
 
             totalReduced
         }
@@ -145,7 +145,18 @@ object InventoryValuation {
      * row — that keeps `isSynced` from flipping on no-op recomputes.
      */
     suspend fun recomputeAvgFromBatches(db: AppDatabase, productId: Int) {
-        return
+        val totals = db.purchaseBatchDao().getValuationTotals(productId)
+        val inventory = db.inventoryDao().getInventory(productId) ?: return
+
+        val newAvg = if (totals.totalQty > 0.0) totals.totalValue / totals.totalQty else 0.0
+
+        // Float comparison tolerance — anything within a paisa is
+        // already aligned, no need to dirty the row.
+        if (kotlin.math.abs(newAvg - inventory.averageCost) < 0.0001) return
+
+        db.inventoryDao().update(
+            inventory.copy(averageCost = newAvg, isSynced = false)
+        )
     }
 
     /**

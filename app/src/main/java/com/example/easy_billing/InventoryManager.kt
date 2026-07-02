@@ -285,7 +285,7 @@ object InventoryManager {
         inventoryDao.update(
             inventory.copy(
                 currentStock = newStock,
-                averageCost = inventory.averageCost,
+                averageCost = if (newStock <= 0.0) 0.0 else inventory.averageCost,
                 isActive = true,
                 isSynced = false
             )
@@ -367,7 +367,7 @@ object InventoryManager {
         inventoryDao.update(
             inventory.copy(
                 currentStock = 0.0,
-                averageCost = inventory.averageCost,
+                averageCost = 0.0,
                 isActive = true,
                 isSynced = false
             )

@@ -8,8 +8,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.animation.AnimationUtils
 import android.widget.*
 import android.transition.AutoTransition
@@ -114,6 +117,8 @@ class InvoiceActivity : AppCompatActivity() {
 
     // ---- Totals ----
     private lateinit var tvSubtotal: TextView
+    private lateinit var tvChargesSubtotal: TextView
+    private lateinit var tvNetAmount: TextView
     private lateinit var tvGst: TextView
     private lateinit var tvGstPercent: TextView
     private lateinit var tvTotal: TextView
@@ -123,9 +128,9 @@ class InvoiceActivity : AppCompatActivity() {
     private var roundOffEnabled: Boolean = false
     private lateinit var etDiscount: EditText
     private lateinit var rgPaymentMethod: RadioGroup
-    private lateinit var btnConfirm: Button
-    private lateinit var btnPrint: Button
-    private lateinit var btnClose: Button
+    private lateinit var btnConfirm: View
+    private lateinit var btnPrint: View
+    private lateinit var btnClose: View
 
     // ---- State ----
     private lateinit var items: MutableList<CartItem>
@@ -258,7 +263,8 @@ class InvoiceActivity : AppCompatActivity() {
             setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
             finish()
         }
-        btnPrint.isEnabled = false
+        // Print stays cosmetically disabled until the invoice is generated.
+        setCosmeticEnabled(btnPrint, false)
     }
 
     // ================= BIND =================
@@ -306,7 +312,9 @@ class InvoiceActivity : AppCompatActivity() {
         tvTotalTax        = findViewById(R.id.tvTotalTax)
         tvCompositionNote = findViewById(R.id.tvCompositionNote)
 
-        tvSubtotal     = findViewById(R.id.tvSubtotal)
+        tvSubtotal        = findViewById(R.id.tvSubtotal)
+        tvChargesSubtotal = findViewById(R.id.tvChargesSubtotal)
+        tvNetAmount       = findViewById(R.id.tvNetAmount)
         tvGst          = findViewById(R.id.tvGst)
         tvGstPercent   = findViewById(R.id.tvGstPercent)
         tvTotal        = findViewById(R.id.tvTotal)
@@ -553,16 +561,17 @@ class InvoiceActivity : AppCompatActivity() {
     private fun wireInvoiceTypeSelector() {
         cgInvoiceType.setOnCheckedChangeListener { _, checkedId ->
             invoiceType = if (checkedId == R.id.chipB2B) "B2B" else "B2C"
+
+            // Clear all customer detail boxes when toggling B2C ⇄ B2B.
+            etCustomerName.setText("")
+            etBusinessName.setText("")
+            etCustomerPhone.setText("")
+            etCustomerGst.setText("")
+            etCustomerState.setText("")
+
             applyInvoiceTypeUi(invoiceType)
             recalculate()
             autofillEcoFields()
-            // Switching to B2B with a phone already entered should pull the
-            // customer's full B2B details (the earlier B2C lookup only
-            // fetched the name).
-            if (invoiceType.equals("B2B", true)) {
-                val phone = etCustomerPhone.text?.toString()?.trim().orEmpty()
-                if (phone.length == 10) lookupCustomerByPhone(phone)
-            }
         }
     }
 
@@ -737,6 +746,31 @@ class InvoiceActivity : AppCompatActivity() {
      * Always runs on the main thread; the calculator itself is
      * pure CPU and doesn't touch the DB.
      */
+    // ---------------- FULL-SCREEN (immersive, like other activities) ----------------
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideSystemUI()
+    }
+
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let { controller ->
+                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                controller.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        }
+    }
+
     /**
      * Paints one tax tile. Active → white tile, gold label, ink amount and
      * effective rate; inactive → muted tile with "—" / "n/a".
@@ -797,8 +831,10 @@ class InvoiceActivity : AppCompatActivity() {
         val roundOff = roundOffAmount(payable)
         val finalTotal = (payable - roundOff).coerceAtLeast(0.0)
 
-        tvSubtotal.text = CurrencyHelper.format(this, breakdown.subtotal)
-        tvGst.text      = CurrencyHelper.format(this, breakdown.totalTax)
+        tvSubtotal.text        = CurrencyHelper.format(this, breakdown.taxableValue)
+        tvChargesSubtotal.text = CurrencyHelper.format(this, breakdown.subtotal)
+        tvNetAmount.text       = CurrencyHelper.format(this, breakdown.taxableValue)
+        tvGst.text             = CurrencyHelper.format(this, breakdown.totalTax)
 
         if (roundOffEnabled) {
             rowInvRoundOff.visibility = View.VISIBLE
@@ -858,6 +894,9 @@ class InvoiceActivity : AppCompatActivity() {
                 supplyType = breakdown.supplyType,
                 gstScheme  = breakdown.gstScheme
             )
+            // Feed per-line discounted values so rows strike the original
+            // amount and show the discounted amount + recalculated tax.
+            invoiceAdapter.updateBreakdown(breakdown.lines)
         }
     }
 
@@ -937,11 +976,17 @@ class InvoiceActivity : AppCompatActivity() {
 
     // ================= SAVE BILL =================
 
+    /** Enable/disable a control and dim it so the state reads visually. */
+    private fun setCosmeticEnabled(view: View, enabled: Boolean) {
+        view.isEnabled = enabled
+        view.alpha = if (enabled) 1f else 0.45f
+    }
+
     private fun saveBill() {
 
         if (isBillSaved) return
         isBillSaved = true
-        btnConfirm.isEnabled = false
+        setCosmeticEnabled(btnConfirm, false)
 
         lifecycleScope.launch(Dispatchers.IO) {
 
@@ -963,7 +1008,7 @@ class InvoiceActivity : AppCompatActivity() {
                                 ).show()
                             }
                             isBillSaved = false
-                            withContext(Dispatchers.Main) { btnConfirm.isEnabled = true }
+                            withContext(Dispatchers.Main) { setCosmeticEnabled(btnConfirm, true) }
                             return@launch
                         }
                     }
@@ -1253,12 +1298,6 @@ class InvoiceActivity : AppCompatActivity() {
                     // next sync cycle will push it exactly once.
                 }
 
-                try {
-                    SyncManager(this@InvoiceActivity).syncPurchaseBatches()
-                } catch (_: Exception) {
-                    // offline safe
-                }
-
                 // 10. Push the new GST invoice batch — best effort.
                 try {
                     SyncManager(this@InvoiceActivity).syncGstInvoices()
@@ -1267,7 +1306,10 @@ class InvoiceActivity : AppCompatActivity() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    btnPrint.isEnabled = true
+                    // Invoice generated → enable Print, lock Generate + Discount.
+                    setCosmeticEnabled(btnPrint, true)
+                    setCosmeticEnabled(btnConfirm, false)
+                    setCosmeticEnabled(etDiscount, false)
                     Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()
                 }
 
@@ -1275,7 +1317,7 @@ class InvoiceActivity : AppCompatActivity() {
                 e.printStackTrace()
                 isBillSaved = false
                 withContext(Dispatchers.Main) {
-                    btnConfirm.isEnabled = true
+                    setCosmeticEnabled(btnConfirm, true)
                     Toast.makeText(
                         this@InvoiceActivity,
                         e.message ?: "Error saving bill",

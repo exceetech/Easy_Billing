@@ -67,6 +67,15 @@
         android:layout_marginStart="8dp">
 
         <TextView
+            android:id="@+id/tvPriceOriginal"
+            android:text="₹0"
+            android:textColor="#B0A48C"
+            android:textSize="11sp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
             android:id="@+id/tvPrice"
             android:text="₹1,008"
             android:textColor="#18181B"
@@ -78,7 +87,7 @@
         <TextView
             android:id="@+id/tvTax"
             android:text="+₹48 tax"
-            android:textColor="#9A8F79"
+            android:textColor="#0F6E56"
             android:textSize="10sp"
             android:layout_marginTop="2dp"
             android:layout_width="wrap_content"

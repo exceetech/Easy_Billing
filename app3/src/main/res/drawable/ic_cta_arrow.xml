@@ -1,6 +1,0 @@
-<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/ic_cta_arrow_static">
-    <target
-        android:name="arrow"
-        android:animation="@animator/arrow_move"/>
-</animated-vector>

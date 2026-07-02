@@ -560,6 +560,174 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- CHARGES (subtotal + discount) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_inv_card_cream"
+                    android:padding="15dp"
+                    android:layout_marginTop="13dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="3dp"
+                            android:layout_height="14dp"
+                            android:background="#D4A574"/>
+
+                        <TextView
+                            android:text="CHARGES"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.13"
+                            android:layout_marginStart="9dp"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F1EBDD"
+                        android:layout_marginTop="11dp"/>
+
+                    <!-- Subtotal -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom"
+                        android:layout_marginTop="12dp">
+
+                        <TextView
+                            android:text="SUBTOTAL"
+                            android:textColor="#9A8F79"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.08"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tvChargesSubtotal"
+                            android:text="₹0"
+                            android:textColor="#18181B"
+                            android:textSize="16sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <!-- Discount (editable, applied pre-tax) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="9dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:text="DISCOUNT"
+                            android:textColor="#9A8F79"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.08"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_marginStart="6dp"
+                            android:src="@drawable/ic_lc_tag"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null"/>
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="1dp"/>
+
+                        <TextView
+                            android:text="−"
+                            android:textColor="#B91C1C"
+                            android:textSize="14sp"
+                            android:layout_marginEnd="2dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_discount_underline"
+                            android:paddingBottom="2dp">
+
+                            <TextView
+                                android:text="₹"
+                                android:textColor="#8A6526"
+                                android:textSize="13sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <EditText
+                                android:id="@+id/etDiscount"
+                                android:hint="0"
+                                android:textColorHint="#AEA48C"
+                                android:textColor="#18181B"
+                                android:inputType="numberDecimal"
+                                android:background="@null"
+                                android:paddingStart="4dp"
+                                android:paddingVertical="2dp"
+                                android:textSize="16sp"
+                                android:gravity="end"
+                                android:minWidth="44dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- = Net amount (taxable; GST is charged on this) -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#EADFC9"
+                        android:layout_marginTop="11dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="9dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom">
+
+                        <TextView
+                            android:text="NET AMOUNT"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tvNetAmount"
+                            android:text="₹0"
+                            android:textColor="#18181B"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
                 <!-- GST OPTIONS (advanced, collapsible) -->
                 <LinearLayout
                     android:id="@+id/cardGstOptions"
@@ -1124,6 +1292,7 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="8dp"
                 android:background="#ECE2CE"/>
 
             <!-- ───────── RIGHT RAIL (fixed, own scroll) ───────── -->
@@ -1132,6 +1301,7 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_inv_rail"
                 android:clipToPadding="false">
 
@@ -1139,7 +1309,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
 
                 <!-- TAX -->
                 <LinearLayout
@@ -1193,7 +1365,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
-                    <!-- Tax tiles (always shown; inactive side muted) -->
+                    <!-- Tax tiles (compact; inactive side muted) -->
                     <LinearLayout
                         android:id="@+id/cardTaxBreakdown"
                         android:layout_width="match_parent"
@@ -1206,9 +1378,11 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
                             android:background="@drawable/bg_inv_tax_tile"
-                            android:padding="11dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="7dp"
                             android:layout_marginEnd="7dp">
 
                             <TextView
@@ -1216,17 +1390,7 @@
                                 android:text="CGST"
                                 android:textColor="#8A6526"
                                 android:textSize="10sp"
-                                android:letterSpacing="0.06"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
-
-                            <TextView
-                                android:id="@+id/tvCgstAmount"
-                                android:text="₹0.00"
-                                android:textColor="#18181B"
-                                android:textStyle="bold"
-                                android:textSize="15sp"
-                                android:layout_marginTop="3dp"
+                                android:letterSpacing="0.04"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
 
@@ -1235,7 +1399,21 @@
                                 android:text="—"
                                 android:textColor="#B7AB91"
                                 android:textSize="9sp"
-                                android:layout_marginTop="1dp"
+                                android:layout_marginStart="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <Space
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="1dp"/>
+
+                            <TextView
+                                android:id="@+id/tvCgstAmount"
+                                android:text="₹0.00"
+                                android:textColor="#18181B"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -1245,9 +1423,11 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
                             android:background="@drawable/bg_inv_tax_tile"
-                            android:padding="11dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="7dp"
                             android:layout_marginEnd="7dp">
 
                             <TextView
@@ -1255,17 +1435,7 @@
                                 android:text="SGST"
                                 android:textColor="#8A6526"
                                 android:textSize="10sp"
-                                android:letterSpacing="0.06"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
-
-                            <TextView
-                                android:id="@+id/tvSgstAmount"
-                                android:text="₹0.00"
-                                android:textColor="#18181B"
-                                android:textStyle="bold"
-                                android:textSize="15sp"
-                                android:layout_marginTop="3dp"
+                                android:letterSpacing="0.04"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
 
@@ -1274,7 +1444,21 @@
                                 android:text="—"
                                 android:textColor="#B7AB91"
                                 android:textSize="9sp"
-                                android:layout_marginTop="1dp"
+                                android:layout_marginStart="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <Space
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="1dp"/>
+
+                            <TextView
+                                android:id="@+id/tvSgstAmount"
+                                android:text="₹0.00"
+                                android:textColor="#18181B"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -1284,26 +1468,18 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
                             android:background="@drawable/bg_inv_tax_tile_muted"
-                            android:padding="11dp">
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="7dp">
 
                             <TextView
                                 android:id="@+id/tvIgstLabel"
                                 android:text="IGST"
                                 android:textColor="#B7AB91"
                                 android:textSize="10sp"
-                                android:letterSpacing="0.06"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
-
-                            <TextView
-                                android:id="@+id/tvIgstAmount"
-                                android:text="—"
-                                android:textColor="#B7AB91"
-                                android:textStyle="bold"
-                                android:textSize="15sp"
-                                android:layout_marginTop="3dp"
+                                android:letterSpacing="0.04"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
 
@@ -1312,7 +1488,21 @@
                                 android:text="n/a"
                                 android:textColor="#B7AB91"
                                 android:textSize="9sp"
-                                android:layout_marginTop="1dp"
+                                android:layout_marginStart="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <Space
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="1dp"/>
+
+                            <TextView
+                                android:id="@+id/tvIgstAmount"
+                                android:text="—"
+                                android:textColor="#B7AB91"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -1417,7 +1607,7 @@
                         android:layout_marginTop="13dp">
 
                         <TextView
-                            android:text="SUBTOTAL"
+                            android:text="TAXABLE"
                             android:textColor="#9A8F79"
                             android:textSize="11sp"
                             android:letterSpacing="0.08"
@@ -1429,7 +1619,6 @@
                             android:id="@+id/tvSubtotal"
                             android:text="₹0"
                             android:textColor="#18181B"
-                            android:fontFamily="serif"
                             android:textSize="16sp"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content"/>
@@ -1464,71 +1653,9 @@
                             android:id="@+id/tvGst"
                             android:text="₹0"
                             android:textColor="#18181B"
-                            android:fontFamily="serif"
                             android:textSize="16sp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="7dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:text="DISCOUNT"
-                            android:textColor="#9A8F79"
-                            android:textSize="11sp"
-                            android:letterSpacing="0.08"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:layout_marginStart="6dp"
-                            android:src="@drawable/ic_lc_tag"
-                            app:tint="#B8895A"
-                            android:contentDescription="@null"/>
-
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="1dp"/>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_discount_underline"
-                            android:paddingBottom="2dp">
-
-                            <TextView
-                                android:text="₹"
-                                android:textColor="#8A6526"
-                                android:textSize="13sp"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
-
-                            <EditText
-                                android:id="@+id/etDiscount"
-                                android:hint="0"
-                                android:textColorHint="#AEA48C"
-                                android:textColor="#18181B"
-                                android:fontFamily="serif"
-                                android:inputType="numberDecimal"
-                                android:background="@null"
-                                android:paddingStart="4dp"
-                                android:paddingVertical="2dp"
-                                android:textSize="16sp"
-                                android:gravity="end"
-                                android:minWidth="44dp"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
-                        </LinearLayout>
                     </LinearLayout>
 
                     <!-- Round off (shown only when enabled in Invoice Design) -->
@@ -1554,7 +1681,6 @@
                             android:id="@+id/tvInvRoundOff"
                             android:text="₹0.00"
                             android:textColor="#18181B"
-                            android:fontFamily="serif"
                             android:textSize="16sp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
@@ -1573,8 +1699,11 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:background="@drawable/bg_inv_total_graphite"
-                        android:paddingHorizontal="16dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="18dp"
                         android:paddingVertical="14dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
                         android:layout_marginTop="14dp">
 
                         <LinearLayout
@@ -1605,9 +1734,12 @@
                             android:id="@+id/tvTotal"
                             android:text="₹0"
                             android:textSize="24sp"
-                            android:textStyle="bold|italic"
+                            android:textStyle="bold"
                             android:fontFamily="serif"
                             android:textColor="#F3ECDD"
+                            android:includeFontPadding="false"
+                            android:ellipsize="none"
+                            android:singleLine="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -1641,80 +1773,130 @@
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:orientation="horizontal"
+                        android:background="@drawable/bg_inv_pay_seg_track"
+                        android:padding="3dp"
                         android:layout_height="wrap_content">
 
                         <RadioButton android:id="@+id/rbCash" android:text="Cash"
                             android:checked="true"
-                            android:drawableTop="@drawable/ic_pay_cash"
-                            android:drawablePadding="5dp"
-                            android:drawableTint="@color/inv_pay_text_color"
                             android:button="@null"
                             android:gravity="center"
-                            android:background="@drawable/bg_inv_pay_chip"
-                            android:textColor="@color/inv_pay_text_color"
-                            android:textSize="12sp"
-                            android:paddingVertical="10dp"
-                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_inv_pay_seg_item"
+                            android:textColor="@color/inv_pay_seg_text"
+                            android:textSize="11sp"
+                            android:paddingVertical="6dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
                         <RadioButton android:id="@+id/rbUpi" android:text="UPI"
-                            android:drawableTop="@drawable/ic_pay_upi"
-                            android:drawablePadding="5dp"
-                            android:drawableTint="@color/inv_pay_text_color"
                             android:button="@null"
                             android:gravity="center"
-                            android:background="@drawable/bg_inv_pay_chip"
-                            android:textColor="@color/inv_pay_text_color"
-                            android:textSize="12sp"
-                            android:paddingVertical="10dp"
-                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_inv_pay_seg_item"
+                            android:textColor="@color/inv_pay_seg_text"
+                            android:textSize="11sp"
+                            android:paddingVertical="6dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
                         <RadioButton android:id="@+id/rbCard" android:text="Card"
-                            android:drawableTop="@drawable/ic_pay_card"
-                            android:drawablePadding="5dp"
-                            android:drawableTint="@color/inv_pay_text_color"
                             android:button="@null"
                             android:gravity="center"
-                            android:background="@drawable/bg_inv_pay_chip"
-                            android:textColor="@color/inv_pay_text_color"
-                            android:textSize="12sp"
-                            android:paddingVertical="10dp"
-                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_inv_pay_seg_item"
+                            android:textColor="@color/inv_pay_seg_text"
+                            android:textSize="11sp"
+                            android:paddingVertical="6dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
                         <RadioButton android:id="@+id/rbCredit" android:text="Credit"
-                            android:drawableTop="@drawable/ic_pay_credit"
-                            android:drawablePadding="5dp"
-                            android:drawableTint="@color/inv_pay_text_color"
                             android:button="@null"
                             android:gravity="center"
-                            android:background="@drawable/bg_inv_pay_chip"
-                            android:textColor="@color/inv_pay_text_color"
-                            android:textSize="12sp"
-                            android:paddingVertical="10dp"
+                            android:background="@drawable/bg_inv_pay_seg_item"
+                            android:textColor="@color/inv_pay_seg_text"
+                            android:textSize="11sp"
+                            android:paddingVertical="6dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
                     </RadioGroup>
 
                     <!-- ACTIONS -->
+                    <!-- Primary CTA (matches drawer Generate Bill) -->
+                    <FrameLayout
+                        android:id="@+id/btnConfirm"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_cart_cta_navy"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="10dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Generate invoice"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="16sp"
+                                    android:letterSpacing="0.01"
+                                    android:fontFamily="@font/googlesans_semibold"
+                                    android:includeFontPadding="false"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Save &amp; print receipt"
+                                    android:textColor="#A7D9C9"
+                                    android:textSize="11sp"
+                                    android:includeFontPadding="false"/>
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_cta_arrow_circle">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_arrow_forward"
+                                    app:tint="#0B3B2E"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+                        </LinearLayout>
+                    </FrameLayout>
+
+                    <!-- Secondary premium buttons -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="16dp">
+                        android:layout_marginTop="10dp">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnClose"
-                            android:layout_width="50dp"
-                            android:layout_height="52dp"
-                            android:layout_marginEnd="9dp"
-                            android:text=""
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="10dp"
+                            android:text="Close"
+                            android:textAllCaps="false"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#9A2E2E"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
                             android:background="@drawable/bg_inv_action_close"
@@ -1723,47 +1905,29 @@
                             app:icon="@drawable/ic_close"
                             app:iconTint="#B91C1C"
                             app:iconGravity="textStart"
-                            app:iconPadding="0dp"
+                            app:iconPadding="8dp"
                             app:cornerRadius="14dp"
                             app:backgroundTint="@null"/>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPrint"
-                            android:layout_width="50dp"
-                            android:layout_height="52dp"
-                            android:layout_marginEnd="9dp"
-                            android:text=""
-                            android:insetTop="0dp"
-                            android:insetBottom="0dp"
-                            android:background="@drawable/bg_inv_action_neutral"
-                            android:stateListAnimator="@null"
-                            app:rippleColor="#EDE4D2"
-                            app:icon="@drawable/ic_print"
-                            app:iconTint="#26241F"
-                            app:iconGravity="textStart"
-                            app:iconPadding="0dp"
-                            app:cornerRadius="14dp"
-                            app:backgroundTint="@null"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnConfirm"
                             android:layout_width="0dp"
                             android:layout_weight="1"
-                            android:layout_height="52dp"
-                            android:text="Generate invoice"
+                            android:layout_height="48dp"
+                            android:text="Print"
                             android:textAllCaps="false"
-                            android:textSize="15sp"
+                            android:textSize="13.5sp"
                             android:textStyle="bold"
-                            android:textColor="@android:color/white"
-                            android:background="@drawable/bg_inv_confirm_premium"
-                            android:elevation="7dp"
-                            android:letterSpacing="0.02"
+                            android:textColor="#F3ECDD"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:background="@drawable/bg_inv_print_graphite"
                             android:stateListAnimator="@null"
-                            app:rippleColor="#2E9C5B"
-                            app:icon="@drawable/ic_ok"
-                            app:iconTint="@android:color/white"
-                            app:iconPadding="8dp"
+                            app:rippleColor="#4A453B"
+                            app:icon="@drawable/ic_print"
+                            app:iconTint="#E7C48A"
                             app:iconGravity="textStart"
+                            app:iconPadding="8dp"
                             app:cornerRadius="14dp"
                             app:backgroundTint="@null"/>
                     </LinearLayout>

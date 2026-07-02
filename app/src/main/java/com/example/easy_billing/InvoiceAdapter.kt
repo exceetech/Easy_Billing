@@ -1,13 +1,15 @@
 package com.example.easy_billing.adapter
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.GstBillingCalculator
 
 /**
  * Renders one premium row per cart line in
@@ -41,10 +43,14 @@ class InvoiceAdapter(
         private val AVATAR_INK   = intArrayOf(0xFF0B5544.toInt(), 0xFF8A6526.toInt())
     }
 
+    /** Per-line discounted breakdown (parallel to [items]); null when no discount. */
+    private var lineCalcs: List<GstBillingCalculator.LineBreakdown>? = null
+
     class InvoiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: TextView = view.findViewById(R.id.tvAvatar)
         val name: TextView   = view.findViewById(R.id.tvName)
         val meta: TextView   = view.findViewById(R.id.tvMeta)
+        val priceOriginal: TextView = view.findViewById(R.id.tvPriceOriginal)
         val price: TextView  = view.findViewById(R.id.tvPrice)
         val tax: TextView    = view.findViewById(R.id.tvTax)
     }
@@ -97,10 +103,17 @@ class InvoiceAdapter(
         val sgstPct = product.sgstPercentage
         val igstPct = product.igstPercentage
 
-        val subtotal = item.subTotal()
-        val cgstAmt = subtotal * cgstPct / 100.0
-        val sgstAmt = subtotal * sgstPct / 100.0
-        val igstAmt = subtotal * igstPct / 100.0
+        val grossSubtotal = item.subTotal()
+
+        // Per-line discounted breakdown from the calculator (spreads the bill discount).
+        val line = lineCalcs?.getOrNull(position)
+        val netTaxable = line?.taxableAmount ?: grossSubtotal
+        val hasDiscount = line != null && netTaxable < grossSubtotal - 0.01
+
+        // Tax amounts: prefer the calculator's per-line figures (on the net taxable).
+        val cgstAmt = line?.cgstAmount ?: (grossSubtotal * cgstPct / 100.0)
+        val sgstAmt = line?.sgstAmount ?: (grossSubtotal * sgstPct / 100.0)
+        val igstAmt = line?.igstAmount ?: (grossSubtotal * igstPct / 100.0)
 
         val (taxAmt, taxPct) = when {
             isComposition -> 0.0 to 0.0
@@ -116,13 +129,28 @@ class InvoiceAdapter(
             if (taxPct > 0.0) append(" · GST ${formatPct(taxPct)}")
         }
 
-        // ---- Line total + tax ----
-        val lineTotal = subtotal + taxAmt
-        holder.price.text = CurrencyHelper.format(context, lineTotal)
+        // ---- Line amount (ex-GST). Strike the original when discounted. ----
+        if (hasDiscount) {
+            holder.priceOriginal.visibility = View.VISIBLE
+            holder.priceOriginal.text = CurrencyHelper.format(context, grossSubtotal)
+            holder.priceOriginal.paintFlags =
+                holder.priceOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.price.text = CurrencyHelper.format(context, netTaxable)
+        } else {
+            holder.priceOriginal.visibility = View.GONE
+            holder.price.text = CurrencyHelper.format(context, grossSubtotal)
+        }
+
         holder.tax.text = if (taxAmt > 0.0)
             "+${CurrencyHelper.format(context, taxAmt)} tax"
         else
             "no tax"
+    }
+
+    /** Feed the calculator's per-line breakdown so rows can show discounted amounts. */
+    fun updateBreakdown(lines: List<GstBillingCalculator.LineBreakdown>?) {
+        lineCalcs = lines
+        notifyDataSetChanged()
     }
 
     private fun initialsOf(name: String): String {
