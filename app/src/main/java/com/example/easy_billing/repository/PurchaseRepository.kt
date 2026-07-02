@@ -161,6 +161,7 @@ class PurchaseRepository private constructor(
                 trackInventory  = true,
                 isActive        = true,
                 isPurchased     = true,
+                isTaxInclusive  = line.isTaxInclusive,
                 hsnCode         = line.hsnCode,
                 defaultGstRate  = (line.salesCgst + line.salesSgst)
                     .takeIf { it > 0 } ?: line.salesIgst,
@@ -300,7 +301,8 @@ class PurchaseRepository private constructor(
                             cess_rate        = l.cessRate,
                             supply_classification = l.supplyClassification,
                             category         = l.category,
-                            is_purchased     = true
+                            is_purchased     = true,
+                            is_tax_inclusive = l.isTaxInclusive
                         )
                     )
                 } // fire-and-forget
@@ -327,6 +329,7 @@ class PurchaseRepository private constructor(
         val invoiceValue: Double,
         val costPrice: Double = if (quantity > 0) invoiceValue / quantity else 0.0,
         val sellingPrice: Double? = null,
+        val isTaxInclusive: Boolean = false,
 
         // Purchase tax (from supplier invoice)
         val purchaseCgst: Double = 0.0,

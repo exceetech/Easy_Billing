@@ -1492,13 +1492,27 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="12dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Total payable"
-                    android:textColor="#6E6A60"
-                    android:textSize="14sp"/>
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Subtotal"
+                        android:textColor="#6E6A60"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="Taxes applied at billing"
+                        android:textColor="#A99E88"
+                        android:textSize="10sp"/>
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvTotal"

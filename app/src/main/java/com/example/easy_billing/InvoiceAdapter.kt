@@ -103,10 +103,13 @@ class InvoiceAdapter(
         val sgstPct = product.sgstPercentage
         val igstPct = product.igstPercentage
 
-        val grossSubtotal = item.subTotal()
-
         // Per-line discounted breakdown from the calculator (spreads the bill discount).
         val line = lineCalcs?.getOrNull(position)
+        
+        // Use the calculator's base selling price so we don't treat tax-exclusive adjustments as discounts
+        val unitPrice = line?.sellingPrice ?: product.price
+        val grossSubtotal = unitPrice * item.quantity
+
         val netTaxable = line?.taxableAmount ?: grossSubtotal
         val hasDiscount = line != null && netTaxable < grossSubtotal - 0.01
 
@@ -123,7 +126,7 @@ class InvoiceAdapter(
         }
 
         // ---- Meta line: "2 × ₹480 · GST 5%" ----
-        val rateText = CurrencyHelper.format(context, product.price)
+        val rateText = CurrencyHelper.format(context, unitPrice)
         holder.meta.text = buildString {
             append("$formattedQty $unitText × $rateText")
             if (taxPct > 0.0) append(" · GST ${formatPct(taxPct)}")
@@ -138,7 +141,7 @@ class InvoiceAdapter(
             holder.price.text = CurrencyHelper.format(context, netTaxable)
         } else {
             holder.priceOriginal.visibility = View.GONE
-            holder.price.text = CurrencyHelper.format(context, grossSubtotal)
+            holder.price.text = CurrencyHelper.format(context, netTaxable)
         }
 
         holder.tax.text = if (taxAmt > 0.0)

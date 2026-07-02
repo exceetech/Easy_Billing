@@ -20,5 +20,6 @@ data class ShopProductResponse(
     val hsn_description: String? = null,
     val cess_rate: Double = 0.0,
     val category: String = "",
-    val is_purchased: Boolean = false
+    val is_purchased: Boolean = false,
+    val is_tax_inclusive: Boolean = false
 )

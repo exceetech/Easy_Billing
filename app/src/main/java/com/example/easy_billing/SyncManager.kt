@@ -184,9 +184,10 @@ class SyncManager(private val context: Context) {
                         official_uqc     = product.officialUqc,
                         hsn_description  = product.hsnDescription,
                         cess_rate        = product.cessRate,
-                        supply_classification = product.supplyClassification,
+                        supply_classification = product.supplyClassification ?: "TAXABLE",
                         category         = product.category,
-                        is_purchased     = product.isPurchased
+                        is_purchased     = product.isPurchased,
+                        is_tax_inclusive = product.isTaxInclusive
                     )
                 )
                 if (response.product_id > 0) {
@@ -1613,7 +1614,8 @@ class SyncManager(private val context: Context) {
                                         officialUqc    = bp.official_uqc ?: alreadyLocal.officialUqc,
                                         hsnDescription = bp.hsn_description ?: alreadyLocal.hsnDescription,
                                         cessRate       = bp.cess_rate,
-                                        category       = bp.category.ifBlank { alreadyLocal.category }
+                                        category       = bp.category.ifBlank { alreadyLocal.category },
+                                        isTaxInclusive = bp.is_tax_inclusive
                                     )
                                 )
                             } else {
@@ -1642,7 +1644,8 @@ class SyncManager(private val context: Context) {
                                         officialUqc    = bp.official_uqc,
                                         hsnDescription = bp.hsn_description,
                                         cessRate       = bp.cess_rate,
-                                        category       = bp.category
+                                        category       = bp.category,
+                                        isTaxInclusive = bp.is_tax_inclusive
                                     )
                                 )
                             }

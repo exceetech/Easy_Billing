@@ -39,7 +39,8 @@ data class ShopProductDto(
     val hsn_description: String? = null,
     val cess_rate: Double = 0.0,
     // ── Category (v40) ──
-    val category: String = ""
+    val category: String = "",
+    val is_tax_inclusive: Boolean = false
 )
 
 data class ShopProductSyncResponse(

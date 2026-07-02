@@ -33,6 +33,7 @@ data class AddProductRequest(
 
     val category: String = "",
 
-    val is_purchased: Boolean = false
+    val is_purchased: Boolean = false,
 
+    val is_tax_inclusive: Boolean = false
 )

@@ -902,7 +902,8 @@ class DashboardActivity : BaseActivity() {
                                 officialUqc    = bp.official_uqc ?: existing.officialUqc,
                                 hsnDescription = bp.hsn_description ?: existing.hsnDescription,
                                 cessRate       = bp.cess_rate,
-                                category       = bp.category.ifBlank { existing.category }
+                                category       = bp.category.ifBlank { existing.category },
+                                isTaxInclusive = bp.is_tax_inclusive
                             )
                         )
                     } else {
@@ -929,7 +930,8 @@ class DashboardActivity : BaseActivity() {
                                 officialUqc    = bp.official_uqc,
                                 hsnDescription = bp.hsn_description,
                                 cessRate       = bp.cess_rate,
-                                category       = bp.category
+                                category       = bp.category,
+                                isTaxInclusive = bp.is_tax_inclusive
                             )
                         )
                     }

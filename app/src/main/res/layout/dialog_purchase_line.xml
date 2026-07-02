@@ -132,6 +132,14 @@
                     android:inputType="numberDecimal"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Price includes GST (MRP) Toggle -->
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchTaxInclusive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price includes GST (MRP)"
+                android:layout_marginTop="8dp"/>
+
             <!-- Collapsible GSTR-2 Item Details Toggle -->
             <LinearLayout
                 android:id="@+id/llGstr2HeaderToggle"

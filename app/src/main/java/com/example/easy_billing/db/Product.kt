@@ -58,6 +58,7 @@ data class Product(
     val trackInventory: Boolean,
     val isCustom: Boolean = false,
     val isActive: Boolean = true,
+    val isTaxInclusive: Boolean = false,
 
     @ColumnInfo(name = "is_purchased")
     val isPurchased: Boolean = false,

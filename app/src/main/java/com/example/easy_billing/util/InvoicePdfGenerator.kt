@@ -252,8 +252,10 @@ object InvoicePdfGenerator {
             // discount → net taxable → net GST → net total. Every value comes
             // straight from what was saved, so each line foots and the per-line
             // GST equals the bill GST.
-            val grossTaxable = it.price * it.quantity           // price × qty
-            val netTaxable   = it.taxableValue                  // after discount
+            val rawGross     = it.price * it.quantity
+            val netTaxable   = it.taxableValue
+            val hasDiscount  = netTaxable < rawGross - 0.01
+            val grossTaxable = if (hasDiscount) rawGross else netTaxable
             val lineDiscount = grossTaxable - netTaxable
             val gstAmt       = it.cgstAmount + it.sgstAmount + it.igstAmount
             val lineTotal    = netTaxable + gstAmt

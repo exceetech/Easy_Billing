@@ -150,7 +150,8 @@ class ProductRepository private constructor(
         hsnDescription: String? = null,
         cessRate: Double = 0.0,
         supplyClassification: String = "TAXABLE",
-        category: String? = null
+        category: String? = null,
+        isTaxInclusive: Boolean = false
     ) {
         val combined = (cgst + sgst).takeIf { it > 0 } ?: igst
         productDao.updateSalesFields(
@@ -164,7 +165,8 @@ class ProductRepository private constructor(
             officialUqc = officialUqc,
             hsnDescription = hsnDescription,
             cessRate = cessRate,
-            supplyClassification = supplyClassification
+            supplyClassification = supplyClassification,
+            isTaxInclusive = isTaxInclusive
         )
 
         // Persist an edited category locally (kept separate from
@@ -206,7 +208,8 @@ class ProductRepository private constructor(
                     cess_rate        = cessRate,
                     supply_classification = supplyClassification,
                     category         = product.category,
-                    is_purchased     = product.isPurchased
+                    is_purchased     = product.isPurchased,
+                    is_tax_inclusive = isTaxInclusive
                 )
             )
         } // fire-and-forget — local write is authoritative; network failure is silent

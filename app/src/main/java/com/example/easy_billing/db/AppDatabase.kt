@@ -66,7 +66,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         ProductCategory::class,
         Customer::class
     ],
-    version = 43
+    version = 44
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1306,6 +1306,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v44: Add isTaxInclusive flag to products
+        val MIGRATION_43_44 = object : Migration(43, 44) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE products ADD COLUMN isTaxInclusive INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1343,7 +1350,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_36_37,
                         MIGRATION_37_38, MIGRATION_38_39,
                         MIGRATION_39_40, MIGRATION_40_41,
-                        MIGRATION_41_42, MIGRATION_42_43
+                        MIGRATION_41_42, MIGRATION_42_43,
+                        MIGRATION_43_44
                     )
                     .fallbackToDestructiveMigration()
                     .build()

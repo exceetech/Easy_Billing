@@ -674,6 +674,7 @@ class PurchaseActivity : BaseActivity() {
         val etUnit     = view.findViewById<AutoCompleteTextView>(R.id.etUnit)
         val etHsn      = view.findViewById<TextInputEditText>(R.id.etHsn)
         val etSelling  = view.findViewById<TextInputEditText>(R.id.etSellingPrice)
+        val switchTaxInclusive = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTaxInclusive)
         val etQty      = view.findViewById<TextInputEditText>(R.id.etQuantity)
         val etTax      = view.findViewById<TextInputEditText>(R.id.etTaxable)
         val etInv      = view.findViewById<TextInputEditText>(R.id.etInvoiceValue)
@@ -847,7 +848,7 @@ class PurchaseActivity : BaseActivity() {
 
         val setProductMasterFieldsEnabled: (Boolean) -> Unit = { enabled ->
             val fields = listOf(
-                etSelling, etSCgst, etSSgst, etSIgst, etHsn, etUnit, 
+                etSelling, switchTaxInclusive, etSCgst, etSSgst, etSIgst, etHsn, etUnit, 
                 spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase,
                 spinnerSupplyClassPurchase
             )
@@ -893,6 +894,7 @@ class PurchaseActivity : BaseActivity() {
                         if (match != null && match.isActive) {
                             withContext(Dispatchers.Main) {
                                 etSelling.setText(match.price.toString())
+                                switchTaxInclusive.isChecked = match.isTaxInclusive
                                 etSCgst.setText(match.cgstPercentage.toString())
                                 etSSgst.setText(match.sgstPercentage.toString())
                                 etSIgst.setText(match.igstPercentage.toString())
@@ -935,6 +937,7 @@ class PurchaseActivity : BaseActivity() {
                 etSSgst.setText("")
                 etSIgst.setText("")
                 etSelling.setText("")
+                switchTaxInclusive.isChecked = false
                 setProductMasterFieldsEnabled(true)
             }
             
@@ -1281,6 +1284,7 @@ class PurchaseActivity : BaseActivity() {
                 invoiceValue   = invoice,
                 costPrice      = if (qty > 0) invoice / qty else 0.0,
                 sellingPrice   = selling,
+                isTaxInclusive = switchTaxInclusive.isChecked,
                 purchaseCgst   = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 purchaseSgst   = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 purchaseIgst   = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,

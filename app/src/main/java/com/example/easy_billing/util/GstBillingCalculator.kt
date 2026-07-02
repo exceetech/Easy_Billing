@@ -100,7 +100,60 @@ object GstBillingCalculator {
         // Gross taxable per line (price × qty); spread the bill discount over
         // the lines in proportion to that gross value. Last line absorbs the
         // rounding remainder so Σ(lineDiscount) == effDiscount exactly.
-        val grossTaxables = items.map { round2(it.product.price * it.quantity) }
+        
+        // Determine tax rates per item first so we can back-calculate base prices for inclusive items
+        val itemTaxRates = items.map { ci ->
+            val product = ci.product
+            if (isComposition) {
+                Triple(0.0, 0.0, 0.0)
+            } else if (supplyType == "intrastate") {
+                when {
+                    product.cgstPercentage > 0.0 || product.sgstPercentage > 0.0 ->
+                        Triple(product.cgstPercentage, product.sgstPercentage, 0.0)
+                    else -> {
+                        val total = if (product.igstPercentage > 0.0) product.igstPercentage else product.defaultGstRate
+                        val half = total / 2.0
+                        Triple(half, half, 0.0)
+                    }
+                }
+            } else {
+                val igst = when {
+                    product.igstPercentage > 0.0 -> product.igstPercentage
+                    (product.cgstPercentage + product.sgstPercentage) > 0.0 -> product.cgstPercentage + product.sgstPercentage
+                    else -> product.defaultGstRate
+                }
+                Triple(0.0, 0.0, igst)
+            }
+        }
+
+        val basePrices = items.mapIndexed { idx, ci ->
+            val product = ci.product
+            val (cgstPct, sgstPct, igstPct) = itemTaxRates[idx]
+            val totalTaxPct = cgstPct + sgstPct + igstPct
+            if (product.isTaxInclusive && !isComposition) {
+                product.price / (1.0 + totalTaxPct / 100.0)
+            } else {
+                product.price
+            }
+        }
+
+        val grossTaxables = items.mapIndexed { idx, ci -> 
+            val product = ci.product
+            val (cgstPct, sgstPct, igstPct) = itemTaxRates[idx]
+            val totalTaxPct = cgstPct + sgstPct + igstPct
+            val isInclusive = product.isTaxInclusive && !isComposition
+
+            if (isInclusive) {
+                // Backward calculation guarantees exact MRP totals without penny loss
+                val net = round2(product.price * ci.quantity)
+                val cgstAmt = round2(net * cgstPct / (100.0 + totalTaxPct))
+                val sgstAmt = round2(net * sgstPct / (100.0 + totalTaxPct))
+                val igstAmt = round2(net * igstPct / (100.0 + totalTaxPct))
+                round2(net - cgstAmt - sgstAmt - igstAmt)
+            } else {
+                round2(basePrices[idx] * ci.quantity) 
+            }
+        }
         val grossSubtotal = round2(grossTaxables.sum())
         val effDiscount   = round2(billDiscount.coerceIn(0.0, grossSubtotal))
 
@@ -121,7 +174,7 @@ object GstBillingCalculator {
         val lines = items.mapIndexed { idx, ci ->
             val product   = ci.product
             val quantity  = ci.quantity
-            val price     = product.price
+            val price     = basePrices[idx]
             // NET taxable: gross minus this line's share of the bill discount.
             val taxable   = round2((grossTaxables[idx] - lineDiscounts[idx]).coerceAtLeast(0.0))
 
@@ -150,36 +203,7 @@ object GstBillingCalculator {
                 // inter-state rate (e.g. 12). They must NOT be summed
                 // — doing that double-counts the same tax and pushes
                 // a 12 % bill up to 24 %.
-                val (cgstPct, sgstPct, igstPct) = if (supplyType == "intrastate") {
-                    when {
-                        // Use the explicit per-product split.
-                        product.cgstPercentage > 0.0 || product.sgstPercentage > 0.0 ->
-                            Triple(product.cgstPercentage, product.sgstPercentage, 0.0)
-
-                        // No explicit split saved — fall back to
-                        // halving either the IGST rate or the legacy
-                        // `defaultGstRate` (treated as the combined
-                        // total).
-                        else -> {
-                            val total = if (product.igstPercentage > 0.0)
-                                product.igstPercentage
-                            else
-                                product.defaultGstRate
-                            val half = total / 2.0
-                            Triple(half, half, 0.0)
-                        }
-                    }
-                } else {
-                    val igst = when {
-                        product.igstPercentage > 0.0 -> product.igstPercentage
-                        // Inter-state IGST = sum of the intra-state
-                        // CGST + SGST split.
-                        (product.cgstPercentage + product.sgstPercentage) > 0.0 ->
-                            product.cgstPercentage + product.sgstPercentage
-                        else -> product.defaultGstRate
-                    }
-                    Triple(0.0, 0.0, igst)
-                }
+                val (cgstPct, sgstPct, igstPct) = itemTaxRates[idx]
 
                 val cgstAmt = round2(taxable * cgstPct / 100.0)
                 val sgstAmt = round2(taxable * sgstPct / 100.0)

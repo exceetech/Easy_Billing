@@ -23,6 +23,8 @@ object CurrencyHelper {
         } else {
             NumberFormat.getNumberInstance(Locale.US)
         }
+        
+        formatter.maximumFractionDigits = 2
 
         val formatted = formatter.format(amount)
 
@@ -43,6 +45,7 @@ object CurrencyHelper {
         } else {
             NumberFormat.getNumberInstance(Locale.US)
         }
+        formatter.maximumFractionDigits = 2
         return formatter.format(amount)
     }
 }

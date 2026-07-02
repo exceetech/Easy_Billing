@@ -84,9 +84,11 @@ class CartAdapter(
         // ✅ PRICE (subtotal badge)
         holder.tvPrice.text = CurrencyHelper.format(context, item.subTotal())
 
-        // ✅ UNIT PRICE label below product name
+        // ✅ UNIT PRICE label below product name (mark MRP / tax-inclusive items)
         val unitPriceFormatted = CurrencyHelper.format(context, product.price ?: 0.0)
-        holder.tvUnitPrice.text = "$unitPriceFormatted / ${product.unit?.lowercase() ?: "unit"}"
+        val unitLabel = "$unitPriceFormatted / ${product.unit?.lowercase() ?: "unit"}"
+        holder.tvUnitPrice.text =
+            if (product.isTaxInclusive) "$unitLabel · incl. all taxes" else unitLabel
 
         // ✅ STEP (CORRECT)
         val step = when (unit) {

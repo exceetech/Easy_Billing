@@ -1105,7 +1105,7 @@ class InvoiceActivity : AppCompatActivity() {
                             productName   = product.name,
                             variant       = product.variant,
                             unit          = product.unit ?: "unit",
-                            price         = product.price,
+                            price         = line.sellingPrice,
                             quantity      = quantity,
                             subTotal      = line.taxableAmount,
                             costPriceUsed = avgCost * quantity,

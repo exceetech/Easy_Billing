@@ -157,6 +157,7 @@ class AddProductsActivity : BaseActivity() {
         val etGstRate = dialogView.findViewById<EditText>(R.id.etGstRate)
 
         val switchInventory = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTrackInventory)
+        val switchTaxInclusive = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTaxInclusive)
         val layoutInventory = dialogView.findViewById<LinearLayout>(R.id.layoutInventoryFields)
         val etStock = dialogView.findViewById<EditText>(R.id.etInitialStock)
         val etCost = dialogView.findViewById<EditText>(R.id.etCostPrice)
@@ -174,6 +175,7 @@ class AddProductsActivity : BaseActivity() {
         etUnit.alpha = 0.5f
 
         etPrice.setText(product.price.toString())
+        switchTaxInclusive.isChecked = product.isTaxInclusive
         
         etHsnCode.setText(product.hsnCode ?: "")
         etGstRate.setText(if (product.defaultGstRate > 0) product.defaultGstRate.toString() else "")
@@ -269,6 +271,7 @@ class AddProductsActivity : BaseActivity() {
 
             val trackInventory = switchInventory.isChecked
             val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
+            val isTaxInclusive = switchTaxInclusive.isChecked
 
             // Cost-price input was removed. Per the latest spec, when
             // there is no purchase invoice the average cost stays 0
@@ -330,7 +333,8 @@ class AddProductsActivity : BaseActivity() {
                         officialUqc = officialUqcUpd,
                         hsnDescription = hsnDescUpd,
                         cessRate = cessRateUpd,
-                        supplyClassification = supplyClassVal
+                        supplyClassification = supplyClassVal,
+                        isTaxInclusive = isTaxInclusive
                     )
                     com.example.easy_billing.sync.SyncCoordinator
                         .get(this@AddProductsActivity).requestSync()
@@ -369,7 +373,8 @@ class AddProductsActivity : BaseActivity() {
                                 official_uqc = officialUqcUpd,
                                 hsn_description = hsnDescUpd,
                                 cess_rate = cessRateUpd,
-                                supply_classification = supplyClassVal
+                                supply_classification = supplyClassVal,
+                                is_tax_inclusive = isTaxInclusive
                             )
                         )
                         // 🆕 Mirror to global catalogue (best-effort).
@@ -397,7 +402,8 @@ class AddProductsActivity : BaseActivity() {
                             officialUqc = officialUqcUpd,
                             hsnDescription = hsnDescUpd,
                             cessRate = cessRateUpd,
-                            supplyClassification = supplyClassVal
+                            supplyClassification = supplyClassVal,
+                            isTaxInclusive = isTaxInclusive
                         )
                     )
 
@@ -504,6 +510,7 @@ class AddProductsActivity : BaseActivity() {
         val etGstRate = dialogView.findViewById<EditText>(R.id.etGstRate)
 
         val switchInventory = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTrackInventory)
+        val switchTaxInclusive = dialogView.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchTaxInclusive)
         val layoutInventory = dialogView.findViewById<LinearLayout>(R.id.layoutInventoryFields)
         val etStock = dialogView.findViewById<EditText>(R.id.etInitialStock)
         val etCost = dialogView.findViewById<EditText>(R.id.etCostPrice)
@@ -616,6 +623,7 @@ class AddProductsActivity : BaseActivity() {
             val trackInventory = switchInventory.isChecked
 
             val stockQty = etStock.text.toString().toDoubleOrNull() ?: 0.0
+            val isTaxInclusive = switchTaxInclusive.isChecked
             // Cost-price input was removed. Per the latest spec, when
             // there is no purchase invoice the average cost stays 0
             // — selling price is NOT a substitute for cost-of-goods.
@@ -694,7 +702,8 @@ class AddProductsActivity : BaseActivity() {
                                     cess_rate = cessRateVal,
                                     supply_classification = supplyClassVal,
                                     category = categoryVal,
-                                    is_purchased = false
+                                    is_purchased = false,
+                                    is_tax_inclusive = isTaxInclusive
                                 )
                             )
                             // 🆕 Mirror to global catalogue (best-effort).
@@ -727,7 +736,8 @@ class AddProductsActivity : BaseActivity() {
                                 cessRate = cessRateVal,
                                 supplyClassification = supplyClassVal,
                                 category = categoryVal,
-                                shopId = shopIdSync(db)
+                                shopId = shopIdSync(db),
+                                isTaxInclusive = isTaxInclusive
                             )
                         ).toInt()
 

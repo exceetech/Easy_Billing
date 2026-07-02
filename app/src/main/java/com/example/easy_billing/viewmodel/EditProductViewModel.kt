@@ -56,7 +56,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         hsnDescription: String? = null,
         cessRate: Double = 0.0,
         supplyClassification: String = "TAXABLE",
-        category: String? = null
+        category: String? = null,
+        isTaxInclusive: Boolean = false
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -71,7 +72,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     hsnDescription = hsnDescription,
                     cessRate = cessRate,
                     supplyClassification = supplyClassification,
-                    category = category
+                    category = category,
+                    isTaxInclusive = isTaxInclusive
                 )
                 SyncCoordinator.get(getApplication()).requestSync()
             }.onSuccess {
@@ -96,7 +98,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         hsnDescription: String? = null,
         cessRate: Double = 0.0,
         supplyClassification: String = "TAXABLE",
-        category: String? = null
+        category: String? = null,
+        isTaxInclusive: Boolean = false
     ) {
         val current = _product.value ?: return
         viewModelScope.launch {
@@ -115,7 +118,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                     hsnDescription = hsnDescription,
                     cessRate = cessRate,
                     supplyClassification = supplyClassification,
-                    category = category?.ifBlank { current.category } ?: current.category
+                    category = category?.ifBlank { current.category } ?: current.category,
+                    isTaxInclusive = isTaxInclusive
                 )
                 productRepo.upsert(updated)
 
@@ -135,7 +139,8 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
                         officialUqc    = officialUqc,
                         hsnDescription = hsnDescription,
                         cessRate       = cessRate,
-                        supplyClassification = supplyClassification
+                        supplyClassification = supplyClassification,
+                        isTaxInclusive = isTaxInclusive
                     )
                 }
 

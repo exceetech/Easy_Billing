@@ -64,6 +64,7 @@ class EditProductActivity : BaseActivity() {
     private lateinit var etCgst: TextInputEditText
     private lateinit var etSgst: TextInputEditText
     private lateinit var etIgst: TextInputEditText
+    private lateinit var switchTaxInclusive: SwitchMaterial
     private lateinit var btnHsnHelp: MaterialButton
 
     // GSTR-1 product master fields (v23)
@@ -118,6 +119,7 @@ class EditProductActivity : BaseActivity() {
         etCgst    = findViewById(R.id.etCgst)
         etSgst    = findViewById(R.id.etSgst)
         etIgst    = findViewById(R.id.etIgst)
+        switchTaxInclusive = findViewById(R.id.switchTaxInclusive)
         btnHsnHelp = findViewById(R.id.btnHsnHelp)
 
         spinnerOfficialUqc = findViewById(R.id.spinnerOfficialUqc)
@@ -279,6 +281,7 @@ class EditProductActivity : BaseActivity() {
         etCgst.setText(formatRate(product.cgstPercentage))
         etSgst.setText(formatRate(product.sgstPercentage))
         etIgst.setText(formatRate(product.igstPercentage))
+        switchTaxInclusive.isChecked = product.isTaxInclusive
         // GSTR-1 product master (v23)
         spinnerOfficialUqc.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
         etHsnDescription.setText(product.hsnDescription ?: "")
@@ -339,7 +342,8 @@ class EditProductActivity : BaseActivity() {
                 hsnDescription = hsnDescVal,
                 cessRate = cessRateVal,
                 supplyClassification = supplyClassVal,
-                category = etCategory.text?.toString()?.trim().orEmpty()
+                category = etCategory.text?.toString()?.trim().orEmpty(),
+                isTaxInclusive = switchTaxInclusive.isChecked
             )
             return
         }
@@ -364,7 +368,8 @@ class EditProductActivity : BaseActivity() {
             hsnDescription = hsnDescVal,
             cessRate = cessRateVal,
             supplyClassification = supplyClassVal,
-            category = etCategory.text?.toString()?.trim().orEmpty()
+            category = etCategory.text?.toString()?.trim().orEmpty(),
+            isTaxInclusive = switchTaxInclusive.isChecked
         )
     }
 
