@@ -1253,6 +1253,12 @@ class InvoiceActivity : AppCompatActivity() {
                     // next sync cycle will push it exactly once.
                 }
 
+                try {
+                    SyncManager(this@InvoiceActivity).syncPurchaseBatches()
+                } catch (_: Exception) {
+                    // offline safe
+                }
+
                 // 10. Push the new GST invoice batch — best effort.
                 try {
                     SyncManager(this@InvoiceActivity).syncGstInvoices()

@@ -400,6 +400,9 @@ class SyncManager(private val context: Context) {
             Log.w(SYNC_TAG, "pushPurchaseImmediately: inventory logs sync failed: ${it.message}")
         }
 
+        runCatching { syncPurchaseBatches() }.onFailure {
+            Log.w(SYNC_TAG, "pushPurchaseImmediately: purchase batches sync failed: ${it.message}")
+        }
         mainResult
     }
 
@@ -1518,14 +1521,9 @@ class SyncManager(private val context: Context) {
                             continue
                         }
 
-                        // For purchased products, the local batch ledger is the ground truth for average cost.
-                        // Overwriting it with the server's avg_cost (which is not batch-aware and doesn't
-                        // update on scrap/sales) causes it to revert to outdated values.
-                        val resolvedAvgCost = if (product.isPurchased) {
-                            existing.averageCost
-                        } else {
-                            0.0
-                        }
+                        // WAC is now calculated by the backend. We aggressively adopt the server's avg_cost
+                        // to prevent split-brain profit calculations.
+                        val resolvedAvgCost = item.avg_cost
 
                         inventoryDao.update(
                             existing.copy(
