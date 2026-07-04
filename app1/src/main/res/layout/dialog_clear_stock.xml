@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    android:layout_margin="16dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:background="@drawable/bg_dialog_gradient">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/ic_clean"
+                app:tint="#EF4444"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Clear Stock"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvCurrentStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Remaining: 0"
+                android:textColor="#B0FFFFFF"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="24dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reason for clearing"
+                android:textColor="#80FFFFFF"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="8dp"/>
+
+            <RadioGroup
+                android:id="@+id/rgReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
+
+                <RadioButton
+                    android:id="@+id/rbReturn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Purchase Return"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/white"/>
+
+                <RadioButton
+                    android:id="@+id/rbScrap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Scrap / Damage"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/white"/>
+            </RadioGroup>
+
+            <!-- Batches Section (visible for purchased products only) -->
+            <LinearLayout
+                android:id="@+id/batchesSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Select batches to clear"
+                        android:textColor="#80FFFFFF"
+                        android:textSize="12sp"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.1"/>
+
+                    <CheckBox
+                        android:id="@+id/cbSelectAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select All"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:buttonTint="@color/white"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvBatchesEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center"
+                    android:text="No active batches available"
+                    android:textColor="#B0FFFFFF"
+                    android:textSize="13sp"
+                    android:visibility="gone"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvBatches"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:overScrollMode="never"
+                    android:descendantFocusability="afterDescendants"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/tvTotalLabel"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Total to clear"
+                        android:textColor="#B0FFFFFF"
+                        android:textSize="12sp"/>
+
+                    <TextView
+                        android:id="@+id/tvBatchRunning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Credit Adjustment Option (Visible only for Return) -->
+            <LinearLayout
+                android:id="@+id/layoutCreditReturn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adjust Credit Account?"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="12sp"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.1"
+                    android:layout_marginBottom="8dp"/>
+
+                <CheckBox
+                    android:id="@+id/cbAdjustCredit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reduce debt from account"
+                    android:textColor="@color/white"
+                    android:buttonTint="@color/white"/>
+
+                <TextView
+                    android:id="@+id/tvReturnAccountName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No account selected"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancel"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:textColor="@color/white"
+                    android:layout_marginEnd="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear Selected"
+                    android:backgroundTint="#EF4444"
+                    android:textColor="@color/white"
+                    app:cornerRadius="12dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</com.google.android.material.card.MaterialCardView>

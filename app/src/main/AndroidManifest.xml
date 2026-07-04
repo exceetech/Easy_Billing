@@ -52,6 +52,9 @@
             android:name=".AddProductsActivity"
             android:exported="false" />
         <activity
+            android:name=".AddProductActivity"
+            android:exported="false" />
+        <activity
             android:name=".BillHistoryActivity" />
         <activity
             android:name=".DashboardActivity"

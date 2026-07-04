@@ -1159,7 +1159,8 @@ class AddProductsActivity : BaseActivity() {
 
                 // ✅ 3. Fetch variants
                 val variants = RetrofitClient.api.getVariants(token, productId)
-                val variantNames = variants.map { it.variant_name }
+                // Exclude the product-level "" holder row from the dropdown.
+                val variantNames = variants.map { it.variant_name }.filter { it.isNotBlank() }
 
                 withContext(Dispatchers.Main) {
                     val adapter = ArrayAdapter(

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tiny gold accent fleck — sits as a punctuation mark, not
+     a competing focal point. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="120"
+        android:centerX="0.5"
+        android:centerY="0.5"
+        android:startColor="#44D4A574"
+        android:endColor="#00D4A574"/>
+</shape>

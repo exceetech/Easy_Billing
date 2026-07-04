@@ -645,6 +645,13 @@ interface ApiService {
         @Path("product_id") productId: Int
     ): List<VariantResponse>
 
+    /** One-shot variant fetch by product name (merges duplicate rows). */
+    @GET("global-catalog/products/variants-by-name")
+    suspend fun getVariantsByName(
+        @Header("Authorization") token: String,
+        @Query("name") name: String
+    ): List<VariantResponse>
+
 
     @GET("global-catalog/products/{product_id}/hsn")
     suspend fun getHsn(

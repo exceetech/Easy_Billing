@@ -200,9 +200,17 @@ class SyncManager(private val context: Context) {
                     api.registerGlobalProduct(
                         token,
                         GlobalProductRegisterRequest(
-                            name      = product.name,
-                            variant   = product.variant,
-                            hsn_code  = product.hsnCode
+                            name             = product.name,
+                            variant          = product.variant,
+                            unit             = product.unit,
+                            hsn_code         = product.hsnCode,
+                            hsn_description  = product.hsnDescription,
+                            official_uqc     = product.officialUqc,
+                            default_gst_rate = product.defaultGstRate,
+                            cgst_percentage  = product.cgstPercentage,
+                            sgst_percentage  = product.sgstPercentage,
+                            igst_percentage  = product.igstPercentage,
+                            cess_rate        = product.cessRate
                         )
                     )
                 }.onFailure {
@@ -428,6 +436,7 @@ class SyncManager(private val context: Context) {
                     quantity                 = item.quantity,
                     unit                     = item.unit,
                     taxable_amount           = item.taxableAmount,
+                    discount_amount          = item.discountAmount,
                     invoice_value            = item.invoiceValue,
                     cost_price               = item.costPrice,
                     purchase_cgst_percentage = item.purchaseCgstPercentage,
@@ -1017,7 +1026,7 @@ class SyncManager(private val context: Context) {
                         unit = product.unit ?: "unit",
                         unit_price = gstItem?.sellingPrice ?: product.price,
                         line_subtotal = gstItem?.taxableAmount ?: it.subTotal,
-                        discount_amount = 0.0,
+                        discount_amount = it.discountAmount,
                         taxable_amount = gstItem?.taxableAmount ?: it.subTotal,
                         gst_rate = gstItem?.let { g -> g.salesCgstPercentage + g.salesSgstPercentage + g.salesIgstPercentage } ?: 0.0,
                         cgst_rate = gstItem?.salesCgstPercentage ?: 0.0,
@@ -1769,6 +1778,7 @@ class SyncManager(private val context: Context) {
                                 quantity = item.quantity,
                                 unit = item.unit,
                                 taxableAmount = item.taxable_amount,
+                                discountAmount = item.discount_amount,
                                 invoiceValue = item.invoice_value,
                                 costPrice = item.cost_price,
                                 purchaseCgstPercentage = item.purchase_cgst_percentage,

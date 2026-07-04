@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_marker"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="6dp">
+
+    <TextView
+        android:id="@+id/tvPrimary"
+        android:text="₹0"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/tvSecondary"
+        android:text="0 Bills"
+        android:textColor="#D1D5DB"
+        android:textSize="10sp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
+</LinearLayout>

@@ -1,0 +1,105 @@
+package com.example.easy_billing.db
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+
+@Dao // 🔥 REQUIRED
+interface BillItemDao {
+
+    @Query("SELECT * FROM bill_items WHERE billId = :billId")
+    suspend fun getItemsForBill(billId: Int): List<BillItem>
+
+    @Query("UPDATE bill_items SET is_synced = 1 WHERE billId = :billId")
+    suspend fun markItemsSynced(billId: Int)
+
+    @Insert
+    suspend fun insertAll(items: List<BillItem>)
+
+    @Query("DELETE FROM bill_items")
+    suspend fun deleteAll()
+
+    @Query("""
+SELECT 
+    productName,
+    variant,
+    unit,
+    SUM(quantity) as totalQty,
+    SUM(subTotal) as revenue,
+    SUM(costPriceUsed) as cost,
+    SUM(profit) as profit,
+    0.0 AS added,
+    0.0 AS sold,
+    0.0 AS remaining,
+    0.0 AS lossQty,
+    0.0 AS lossAmount
+FROM bill_items
+GROUP BY productName, variant, unit
+ORDER BY profit DESC
+""")
+    suspend fun getProductProfit(): List<ProductProfitRaw>
+
+    @Query("""
+SELECT 
+    bi.productName AS productName,
+    bi.variant AS variant,
+    SUM(bi.quantity) AS totalQty,
+    SUM(bi.subTotal) AS revenue,
+    SUM(bi.costPriceUsed) AS cost,
+    SUM(bi.profit) AS profit,
+    b.date AS billDate
+FROM bill_items bi
+INNER JOIN bills b ON bi.billId = b.id
+GROUP BY bi.productId, bi.variant, b.date
+""")
+    suspend fun getAllProductProfitRaw(): List<ProductProfitWithDate>
+
+    @Query("SELECT * FROM bill_items")
+    suspend fun getAllItems(): List<BillItem>
+
+    /**
+     * One row per product with lifetime units sold, revenue and profit.
+     * Single GROUP BY so the Dashboard can precompute sort keys cheaply.
+     */
+    @Query("""
+        SELECT productId AS productId,
+               COALESCE(SUM(quantity), 0)  AS qty,
+               COALESCE(SUM(subTotal), 0)  AS revenue,
+               COALESCE(SUM(profit), 0)    AS profit
+        FROM bill_items
+        GROUP BY productId
+    """)
+    suspend fun getSalesAggByProduct(): List<ProductSalesAgg>
+
+    // ── Shop-scoped aggregates for AI insights (filtered + grouped in SQL) ──
+
+    @Query("SELECT COUNT(*) FROM bill_items WHERE productId IN (:productIds)")
+    suspend fun countItemsForProducts(productIds: List<Int>): Int
+
+    @Query("""
+        SELECT productName AS productName, COALESCE(SUM(quantity), 0) AS total
+        FROM bill_items WHERE productId IN (:productIds)
+        GROUP BY productName ORDER BY total DESC LIMIT 1
+    """)
+    suspend fun bestSellerForProducts(productIds: List<Int>): NameAgg?
+
+    @Query("""
+        SELECT productName AS productName, COALESCE(SUM(profit), 0) AS total
+        FROM bill_items WHERE productId IN (:productIds)
+        GROUP BY productName ORDER BY total DESC LIMIT 1
+    """)
+    suspend fun bestProfitForProducts(productIds: List<Int>): NameAgg?
+
+    @Query("""
+        SELECT productName AS productName, COALESCE(SUM(profit), 0) AS total
+        FROM bill_items WHERE productId IN (:productIds)
+        GROUP BY productName ORDER BY total ASC LIMIT 1
+    """)
+    suspend fun worstProfitForProducts(productIds: List<Int>): NameAgg?
+}
+
+/** Lightweight result holder for grouped name → value aggregates. */
+data class NameAgg(
+    val productName: String,
+    val total: Double
+)

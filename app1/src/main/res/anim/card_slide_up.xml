@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Per-card reveal: 40dp slide-up + fade. Used by the activity
+    to stagger the cards into place after onCreate.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true"
+    android:interpolator="@android:interpolator/decelerate_quint">
+
+    <translate
+        android:fromYDelta="36"
+        android:toYDelta="0"
+        android:duration="420"/>
+
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        android:duration="320"/>
+</set>

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_login_champagne"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mainContainerCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="36dp"
+        android:layout_marginVertical="22dp"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#94FFFFFF"
+        app:strokeColor="#CCFFFFFF"
+        app:strokeWidth="1dp"
+        app:layout_constraintWidth_max="660dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <!-- ===== LEFT: BRAND ===== -->
+            <LinearLayout
+                android:id="@+id/brandingPane"
+                android:transitionName="shared_branding_pane"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.86"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingStart="26dp"
+                android:paddingEnd="22dp"
+                android:paddingVertical="28dp">
+
+                <ImageView
+                    android:id="@+id/brandLogo"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    android:contentDescription="@null"/>
+
+                <LinearLayout
+                    android:id="@+id/brandTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ex"
+                        android:textColor="#1A1A18"
+                        android:textSize="30sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="POS"
+                        android:textColor="#B8895A"
+                        android:textSize="30sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/brandTagline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="POINT OF SALE"
+                    android:textColor="#9A8F79"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.18"
+                    android:fontFamily="@font/googlesans_semibold"/>
+
+                <LinearLayout
+                    android:id="@+id/brandFeatures"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="22dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                            android:src="@drawable/ic_feat_receipt" android:contentDescription="@null"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="GST billing"
+                            android:textColor="#3A3733" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="15dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                            android:src="@drawable/ic_feat_package" android:contentDescription="@null"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="Live inventory"
+                            android:textColor="#3A3733" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="15dp">
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                            android:src="@drawable/ic_feat_chart" android:contentDescription="@null"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="Business analytics"
+                            android:textColor="#3A3733" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="22dp"
+                android:background="#E6DDCB"/>
+
+            <!-- ===== RIGHT: SIGN-UP FORM ===== -->
+            <LinearLayout
+                android:id="@+id/registerContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.18"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="24dp"
+                android:paddingVertical="22dp">
+
+                <LinearLayout
+                    android:id="@+id/registerHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_login_tab_track"
+                    android:padding="3dp">
+                    <TextView
+                        android:id="@+id/tvBackToLogin"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:paddingVertical="8dp"
+                        android:text="Login"
+                        android:textColor="#8C8576"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:paddingVertical="8dp"
+                        android:text="Sign up"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:background="@drawable/bg_login_tab_active"/>
+                </LinearLayout>
+
+                <TextView android:id="@+id/lblFullName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full Name" android:visibility="gone"/>
+                <FrameLayout
+                    android:id="@+id/nameContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_glass_input">
+                    <ImageView android:id="@+id/iconFullName" android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
+                        android:src="@drawable/ic_lc_user" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <EditText android:id="@+id/etFullName" android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
+                        android:hint="Full name" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="textPersonName" android:singleLine="true" android:textSize="14sp"/>
+                </FrameLayout>
+
+                <TextView android:id="@+id/lblEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:visibility="gone"/>
+                <FrameLayout
+                    android:id="@+id/emailContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_input">
+                    <ImageView android:id="@+id/iconEmail" android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
+                        android:src="@drawable/ic_lc_mail" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <EditText android:id="@+id/etEmail" android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
+                        android:hint="Email" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="textEmailAddress" android:singleLine="true" android:textSize="14sp"/>
+                </FrameLayout>
+
+                <TextView android:id="@+id/lblPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phone Number" android:visibility="gone"/>
+                <FrameLayout
+                    android:id="@+id/phoneContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_input">
+                    <ImageView android:id="@+id/iconPhone" android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
+                        android:src="@drawable/ic_lc_phone" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <EditText android:id="@+id/etPhoneNumber" android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
+                        android:hint="Phone number" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="phone" android:singleLine="true" android:textSize="14sp"/>
+                </FrameLayout>
+
+                <TextView android:id="@+id/lblShopName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shop Name" android:visibility="gone"/>
+                <FrameLayout
+                    android:id="@+id/shopContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_input">
+                    <ImageView android:id="@+id/iconShop" android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
+                        android:src="@drawable/ic_lc_store" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <EditText android:id="@+id/ShopName" android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
+                        android:hint="Shop name" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="text" android:singleLine="true" android:textSize="14sp"/>
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRegister"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_login_cta_green"
+                    app:backgroundTint="@null"
+                    android:text="Create account"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textAllCaps="false"
+                    android:fontFamily="@font/googlesans_semibold"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_cta_arrow"
+                    app:iconGravity="textEnd"
+                    app:iconTint="#FFFFFF"/>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

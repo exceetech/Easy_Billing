@@ -20,10 +20,10 @@ class Gstr2DraftsAdapter(
     private val df = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
-        val tvSubtitle: TextView = view.findViewById(R.id.tvSubtitle)
+        val tvTitle: TextView = view.findViewById(R.id.tvDraftTitle)
+        val tvSubtitle: TextView = view.findViewById(R.id.tvDraftSubtitle)
         val btnOpen: MaterialButton = view.findViewById(R.id.btnOpen)
-        val btnDelete: MaterialButton = view.findViewById(R.id.btnDelete)
+        val btnDelete: MaterialButton = view.findViewById(R.id.btnDeleteDraft)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

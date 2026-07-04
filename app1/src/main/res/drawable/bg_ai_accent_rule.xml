@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1dp horizontal rule that fades from green → transparent.
+     Sits at the bottom of the card under the marquee text. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="0"
+        android:startColor="#3300FF88"
+        android:endColor="#0000FF88"
+        android:type="linear"/>
+</shape>

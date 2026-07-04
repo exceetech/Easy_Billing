@@ -148,14 +148,16 @@ object AddProductDialogBinder {
                                 etIgst.setText(totalGst.toString())
                             }
 
-                            // Setup variants
-                            if (varRes.isNotEmpty()) {
-                                val vNames = varRes.map { it.variant_name.firstCapital() }
+                            // Setup variants (exclude the product-level "" holder
+                            // row so the dropdown never shows a blank entry).
+                            val namedVariants = varRes.filter { it.variant_name.isNotBlank() }
+                            if (namedVariants.isNotEmpty()) {
+                                val vNames = namedVariants.map { it.variant_name.firstCapital() }
                                 etVariant.setAdapter(ArrayAdapter(etVariant.context, android.R.layout.simple_list_item_1, vNames))
-                                
+
                                 // 🔥 Add listener to these newly fetched variants
                                 etVariant.setOnItemClickListener { _, _, pos, _ ->
-                                    val selectedV = varRes[pos]
+                                    val selectedV = namedVariants[pos]
                                     etUnit.setText(selectedV.unit, false)
                                     // Update HSN/GST if variant has its own or if we want to refresh
                                     scope.launch {

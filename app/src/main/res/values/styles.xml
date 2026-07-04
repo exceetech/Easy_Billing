@@ -677,4 +677,26 @@
         <item name="android:textColor">#B3FFFFFF</item>
     </style>
 
+    <!-- Manage-products filter chip (champagne theme) -->
+    <style name="MpFilterChip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/mp_chip_bg</item>
+        <item name="android:textColor">@color/mp_chip_text</item>
+        <item name="chipStrokeColor">@color/mp_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+    </style>
+
+    <!-- Field label used across the Add-product screen -->
+    <style name="AddpFieldLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:textSize">12.5sp</item>
+        <item name="android:textColor">#8A8272</item>
+    </style>
+
 </resources>

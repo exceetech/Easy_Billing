@@ -646,20 +646,30 @@ class DashboardActivity : BaseActivity() {
             .setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        view.findViewById<MaterialButton>(R.id.btnPurchasedProduct).setOnClickListener {
+        view.findViewById<View>(R.id.btnPurchasedProduct).setOnClickListener {
             dialog.dismiss()
             startActivity(Intent(this, PurchaseActivity::class.java))
         }
-        view.findViewById<MaterialButton>(R.id.btnNonPurchasedProduct).setOnClickListener {
+        view.findViewById<View>(R.id.btnNonPurchasedProduct).setOnClickListener {
             dialog.dismiss()
-            startActivity(Intent(this, AddProductsActivity::class.java))
+            startActivity(Intent(this, AddProductActivity::class.java))
         }
-        view.findViewById<MaterialButton>(R.id.btnManageProducts).setOnClickListener {
+        view.findViewById<View>(R.id.btnManageProducts).setOnClickListener {
             dialog.dismiss()
             startActivity(Intent(this, ManageProductsActivity::class.java))
         }
-        view.findViewById<MaterialButton>(R.id.btnChooserCancel).setOnClickListener {
+        view.findViewById<View>(R.id.btnChooserCancel).setOnClickListener {
             dialog.dismiss()
+        }
+
+        // Blur / dim the dashboard behind the pop-up
+        dialog.window?.let { w ->
+            w.setDimAmount(0.8f)
+            w.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                w.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                w.attributes = w.attributes.apply { blurBehindRadius = 48 }
+            }
         }
         dialog.show()
     }

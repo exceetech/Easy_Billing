@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        Covers getExternalFilesDir(null) — used by Gstr1ExcelExporter and
+        Gstr1CsvExporter to write report files before sharing them.
+        This directory is app-private on external storage and does not
+        require WRITE_EXTERNAL_STORAGE permission on API 26+.
+    -->
+    <external-files-path
+        name="gstr1_exports"
+        path="." />
+
+    <!--
+        Covers getCacheDir() / getExternalCacheDir() for any future
+        temporary file sharing.
+    -->
+    <cache-path
+        name="shared_cache"
+        path="." />
+
+    <external-cache-path
+        name="shared_external_cache"
+        path="." />
+</paths>

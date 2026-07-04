@@ -1,62 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Manage-products row — invoice line-item style.
+  No card background of its own: rows live inside one continuous card
+  (the RecyclerView), separated by the bottom hairline (vDivider).
+  The adapter hides vDivider on the last row.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="6dp"
-    android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="@android:color/white"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
-    app:strokeColor="#E5E7EB"
-    app:strokeWidth="1dp">
+    android:orientation="vertical"
+    android:paddingHorizontal="22dp"
+    android:background="@android:color/transparent"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="14dp">
+        android:gravity="center_vertical"
+        android:paddingVertical="17dp">
 
+        <!-- Avatar tile -->
+        <FrameLayout
+            android:id="@+id/avatarTile"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_addp_tile_green">
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="#0F6E56"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                tools:text="B"/>
+        </FrameLayout>
+
+        <!-- Name + meta line -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
 
             <TextView
                 android:id="@+id/tvName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#111827"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                tools:text="Lipton Tea 500g"
-                xmlns:tools="http://schemas.android.com/tools"/>
+                android:textColor="#18181B"
+                android:textSize="14sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:singleLine="true"
+                android:ellipsize="end"
+                tools:text="Basmati Rice   ·   5 kg"/>
 
             <TextView
-                android:id="@+id/tvSubtitle"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvMeta"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="#6B7280"
-                android:textSize="12sp"
-                xmlns:tools="http://schemas.android.com/tools"
-                tools:text="Variant: Green  •  HSN 0902  •  ₹120"/>
+                android:layout_marginTop="3dp"
+                android:textColor="#9A8F79"
+                android:textSize="11sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:singleLine="true"
+                android:ellipsize="end"
+                tools:text="Groceries · HSN 1006 · GST 18% · Purchased"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/badge"
+        <!-- Price + sub-note -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_badge_chip"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            xmlns:tools="http://schemas.android.com/tools"
-            tools:text="PURCHASED"/>
+            android:layout_marginStart="8dp"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/tvPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#18181B"
+                android:textSize="14sp"
+                android:fontFamily="@font/googlesans_semibold"
+                tools:text="₹480"/>
+
+            <TextView
+                android:id="@+id/tvSubNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp"
+                android:textSize="10.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                tools:text="42 in stock"/>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_lc_chevron_right"
+            app:tint="#C7A15A"
+            android:contentDescription="@null"/>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+
+    <!-- Divider — inset under the text (not full width), hidden on the
+         last row by the adapter. -->
+    <View
+        android:id="@+id/vDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="58dp"
+        android:background="#E2D4B8"/>
+</LinearLayout>

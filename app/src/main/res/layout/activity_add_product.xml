@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3ECDD"
+    android:paddingBottom="16dp">
+
+    <!-- ══ Toolbar (usual back arrow) ══ -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- ══ Header ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="2dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="INVENTORY"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add product"
+                android:textColor="#1A1A18"
+                android:textSize="24sp"
+                android:fontFamily="serif"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_addp_badge"
+            android:paddingHorizontal="13dp"
+            android:paddingVertical="7dp">
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_lc_tag"
+                app:tint="#B8895A"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@null"/>
+            <TextView
+                android:id="@+id/tvCatalogBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New to catalog"
+                android:textColor="#8A8272"
+                android:textSize="12.5sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ══ Scrollable body ══ -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="22dp">
+
+            <!-- Row: PRODUCT DETAILS + PRICING & TAX -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <!-- ─ PRODUCT DETAILS ─ -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_addp_card"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="PRODUCT DETAILS"
+                            android:textColor="#8A6526"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.12"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                    </LinearLayout>
+
+                    <TextView style="@style/AddpFieldLabel" android:text="Product name"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/etName"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_addp_field_selector"
+                        android:paddingHorizontal="13dp"
+                        android:drawablePadding="10dp"
+                        app:drawableStartCompat="@drawable/ic_lc_box"
+                        android:drawableTint="#8A8272"
+                        android:hint="e.g. Basmati Rice"
+                        android:textColorHint="#A99E88"
+                        android:textColor="#1A1A18"
+                        android:textSize="15sp"
+                        android:inputType="textCapWords"
+                        android:completionThreshold="1"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/AddpFieldLabel" android:text="Variant"/>
+                            <AutoCompleteTextView
+                                android:id="@+id/etVariant"
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/bg_addp_field_selector"
+                                android:paddingHorizontal="13dp"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#8A8272"
+                                android:hint="e.g. 5 kg"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="textCapWords"
+                                android:completionThreshold="1"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView style="@style/AddpFieldLabel" android:text="Unit"/>
+                            <AutoCompleteTextView
+                                android:id="@+id/etUnit"
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/bg_addp_field_selector"
+                                android:paddingHorizontal="13dp"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#8A8272"
+                                android:hint="Unit"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="none"
+                                android:focusable="false"
+                                android:completionThreshold="1"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView style="@style/AddpFieldLabel" android:text="Category"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/etCategory"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_addp_field_selector"
+                        android:paddingHorizontal="13dp"
+                        app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                        android:drawableTint="#8A8272"
+                        android:hint="Select category"
+                        android:textColorHint="#A99E88"
+                        android:textColor="#1A1A18"
+                        android:textSize="15sp"
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:completionThreshold="1"/>
+                </LinearLayout>
+
+                <!-- ─ PRICING & TAX ─ -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_addp_card"
+                    android:padding="18dp"
+                    android:layout_marginStart="16dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="PRICING &amp; TAX"
+                            android:textColor="#8A6526"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.12"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/AddpFieldLabel" android:text="Selling price"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/bg_addp_field"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingHorizontal="13dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="₹"
+                                    android:textColor="#1A1A18"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_semibold"/>
+                                <EditText
+                                    android:id="@+id/etPrice"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@android:color/transparent"
+                                    android:paddingStart="6dp"
+                                    android:hint="0"
+                                    android:textColorHint="#A99E88"
+                                    android:textColor="#1A1A18"
+                                    android:textSize="15sp"
+                                    android:inputType="numberDecimal"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView style="@style/AddpFieldLabel" android:text="HSN / SAC"/>
+                            <EditText
+                                android:id="@+id/etHsn"
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/bg_addp_field_selector"
+                                android:paddingHorizontal="13dp"
+                                android:hint="HSN/SAC"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="number"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- MRP toggle bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_addp_toggle_bar"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="10dp"
+                        android:paddingVertical="8dp">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Price includes tax"
+                                android:textColor="#1A1A18"
+                                android:textSize="14sp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Selling price is MRP (tax-inclusive)"
+                                android:textColor="#8A8272"
+                                android:textSize="11.5sp"/>
+                        </LinearLayout>
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchTaxInclusive"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            app:trackTint="@color/addp_switch_track"
+                            app:thumbTint="@color/addp_switch_thumb"/>
+                    </LinearLayout>
+
+                    <!-- CGST / SGST / IGST -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView style="@style/AddpFieldLabel" android:text="CGST"/>
+                            <EditText
+                                android:id="@+id/etCgst"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:background="@drawable/bg_addp_field_selector"
+                                android:paddingHorizontal="13dp"
+                                android:hint="0%"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView style="@style/AddpFieldLabel" android:text="SGST"/>
+                            <EditText
+                                android:id="@+id/etSgst"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:background="@drawable/bg_addp_field_selector"
+                                android:paddingHorizontal="13dp"
+                                android:hint="0%"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView style="@style/AddpFieldLabel" android:text="IGST · auto"/>
+                            <EditText
+                                android:id="@+id/etIgst"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:background="@drawable/bg_addp_field_disabled"
+                                android:paddingHorizontal="13dp"
+                                android:hint="0%"
+                                android:textColorHint="#B0A895"
+                                android:textColor="#8A8272"
+                                android:textSize="15sp"
+                                android:enabled="false"
+                                android:inputType="numberDecimal"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ─ GST & COMPLIANCE ─ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card"
+                android:padding="18dp"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="GST &amp; COMPLIANCE"
+                        android:textColor="#8A6526"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.12"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="optional — for GSTR-1 filing"
+                        android:textColor="#A99E88"
+                        android:textSize="11.5sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/AddpFieldLabel" android:text="Official UQC"/>
+                        <AutoCompleteTextView
+                            android:id="@+id/spinnerUqc"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/bg_addp_field_selector"
+                            android:paddingHorizontal="13dp"
+                            app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                            android:drawableTint="#8A8272"
+                            android:hint="Auto from unit"
+                            android:textColorHint="#A99E88"
+                            android:textColor="#1A1A18"
+                            android:textSize="14.5sp"
+                            android:inputType="none"
+                            android:focusable="false"
+                            android:completionThreshold="1"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView style="@style/AddpFieldLabel" android:text="Supply classification"/>
+                        <AutoCompleteTextView
+                            android:id="@+id/spinnerSupplyClass"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/bg_addp_field_selector"
+                            android:paddingHorizontal="13dp"
+                            app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                            android:drawableTint="#8A8272"
+                            android:hint="TAXABLE"
+                            android:textColorHint="#A99E88"
+                            android:textColor="#1A1A18"
+                            android:textSize="14.5sp"
+                            android:inputType="none"
+                            android:focusable="false"
+                            android:completionThreshold="1"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1.2"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView style="@style/AddpFieldLabel" android:text="HSN description"/>
+                        <EditText
+                            android:id="@+id/etHsnDesc"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/bg_addp_field_selector"
+                            android:paddingHorizontal="13dp"
+                            android:hint="e.g. Rice, milled"
+                            android:textColorHint="#A99E88"
+                            android:textColor="#1A1A18"
+                            android:textSize="14.5sp"
+                            android:maxLines="1"
+                            android:inputType="textCapSentences"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="0.6"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView style="@style/AddpFieldLabel" android:text="Cess %"/>
+                        <EditText
+                            android:id="@+id/etCessRate"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/bg_addp_field_selector"
+                            android:paddingHorizontal="13dp"
+                            android:hint="0"
+                            android:textColorHint="#A99E88"
+                            android:textColor="#1A1A18"
+                            android:textSize="14.5sp"
+                            android:inputType="numberDecimal"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ─ OPENING STOCK ─ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card"
+                android:padding="18dp"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_addp_tile_green">
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_package"
+                            app:tint="#0F6E56"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="13dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Add opening stock"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Optional — sets current stock &amp; cost"
+                            android:textColor="#8A8272"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchOpeningStock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:trackTint="@color/addp_switch_track"
+                        app:thumbTint="@color/addp_switch_thumb"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/groupOpeningStock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:layout_marginTop="14dp"
+                    android:gravity="bottom"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/AddpFieldLabel" android:text="Quantity" android:layout_marginTop="0dp"/>
+                        <EditText
+                            android:id="@+id/etQty"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/bg_addp_field_selector"
+                            android:paddingHorizontal="13dp"
+                            android:hint="0"
+                            android:textColorHint="#A99E88"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"
+                            android:inputType="numberDecimal"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView style="@style/AddpFieldLabel" android:text="Cost / unit" android:layout_marginTop="0dp"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@drawable/bg_addp_field"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="13dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="₹"
+                                android:textColor="#1A1A18"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/googlesans_semibold"/>
+                            <EditText
+                                android:id="@+id/etCost"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent"
+                                android:paddingStart="6dp"
+                                android:hint="0"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1.4"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_addp_hint"
+                        android:padding="12dp">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_lc_tag"
+                            app:tint="#8A6526"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@null"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="No input credit. For GST ITC, use Record a purchase."
+                            android:textColor="#8A6526"
+                            android:textSize="12.5sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ══ Footer ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp"
+        android:paddingHorizontal="22dp"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="58dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bg_addp_cancel"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_lc_x"
+                app:tint="#B23A3A"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@null"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:textColor="#B23A3A"
+                android:textSize="16sp"
+                android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_weight="2.2"
+            android:layout_height="58dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bg_addp_save"
+            android:layout_marginStart="16dp"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_lc_check"
+                app:tint="#FFFFFF"
+                android:layout_marginEnd="9dp"
+                android:contentDescription="@null"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save product"
+                android:textColor="#FFFFFF"
+                android:textSize="16.5sp"
+                android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

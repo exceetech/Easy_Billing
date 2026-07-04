@@ -1,99 +1,309 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="#F4F0E6"
     android:orientation="vertical">
 
+    <!-- ══ Usual toolbar (back arrow) ══ -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
-        app:navigationIconTint="?attr/colorOnSurface"
-        app:titleTextColor="?attr/colorOnSurface"/>
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18"/>
 
+    <!-- ══ Header ══ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="2dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/manage_products"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="22sp"
-            android:textStyle="bold"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:text="@string/manage_products_subtitle"
-            android:textColor="#6B7280"
-            android:textSize="13sp"/>
+            <View
+                android:layout_width="3dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="11dp"
+                android:background="@drawable/bg_mp_title_tick"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/manage_products_search_hint"
-            app:boxCornerRadiusBottomEnd="22dp"
-            app:boxCornerRadiusBottomStart="22dp"
-            app:boxCornerRadiusTopEnd="22dp"
-            app:boxCornerRadiusTopStart="22dp"
-            app:startIconDrawable="@drawable/ic_search"
-            app:startIconTint="?attr/colorPrimary">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearch"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INVENTORY"
+                    android:textColor="#B8895A"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.16"
+                    android:fontFamily="@font/googlesans_semibold"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="1dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Manage"
+                        android:textColor="#1A1A18"
+                        android:textSize="23sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="products"
+                        android:textColor="#0F6E56"
+                        android:textSize="23sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/ic_lc_tag"
+                app:tint="#8A8272"
+                android:contentDescription="@null"/>
+            <TextView
+                android:id="@+id/tvCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#8A8272"
+                android:textSize="12.5sp"
+                tools:text="8 categories"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ══ Summary tiles ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:paddingHorizontal="22dp"
+        android:layout_marginTop="14dp">
+
+        <LinearLayout
+            android:id="@+id/tileAll"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_mp_stat"
+            android:padding="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <FrameLayout
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_mp_tile_neutral">
+                <ImageView android:layout_width="15dp" android:layout_height="15dp"
+                    android:layout_gravity="center" android:src="@drawable/ic_lc_store"
+                    app:tint="#6E6A60" android:contentDescription="@null"/>
+            </FrameLayout>
+            <TextView android:id="@+id/tvAllCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="0" android:textColor="#1A1A18"
+                android:textSize="19sp" android:fontFamily="serif" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="1dp" android:text="All" android:textColor="#8A8272"
+                android:textSize="10.5sp" android:singleLine="true"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tilePurchased"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_mp_stat"
+            android:padding="10dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <FrameLayout
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_addp_tile_green">
+                <ImageView android:layout_width="15dp" android:layout_height="15dp"
+                    android:layout_gravity="center" android:src="@drawable/ic_lc_truck"
+                    app:tint="#0F6E56" android:contentDescription="@null"/>
+            </FrameLayout>
+            <TextView android:id="@+id/tvPurchasedCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="0" android:textColor="#0F6E56"
+                android:textSize="19sp" android:fontFamily="serif" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="1dp" android:text="Purchased" android:textColor="#8A8272"
+                android:textSize="10.5sp" android:singleLine="true"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tileManual"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_mp_stat"
+            android:padding="10dp"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <FrameLayout
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_tile_gold">
+                <ImageView android:layout_width="15dp" android:layout_height="15dp"
+                    android:layout_gravity="center" android:src="@drawable/ic_lc_box"
+                    app:tint="#B8895A" android:contentDescription="@null"/>
+            </FrameLayout>
+            <TextView android:id="@+id/tvManualCount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="0" android:textColor="#8A6526"
+                android:textSize="19sp" android:fontFamily="serif" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="1dp" android:text="Manual" android:textColor="#8A8272"
+                android:textSize="10.5sp" android:singleLine="true"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ══ Search + sort ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="22dp"
+        android:layout_marginTop="16dp"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_hdr_search"
+            android:paddingStart="14dp"
+            android:paddingEnd="12dp">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_hdr_search"
+                app:tint="#B8895A"
+                android:contentDescription="@null"/>
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="9dp"
+                android:background="@android:color/transparent"
+                android:hint="@string/manage_products_search_hint"
+                android:textColorHint="#C4B9A6"
+                android:textColor="#1A1A18"
+                android:textSize="14sp"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:singleLine="true"/>
-        </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/btnSort"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_mp_icon_btn"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lc_sliders"
+                app:tint="#8A6526"
+                android:contentDescription="Sort"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- ══ Filter chips ══ -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:paddingHorizontal="22dp"
+        android:scrollbars="none"
+        android:clipToPadding="false">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipFilter"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             app:singleSelection="true"
-            app:selectionRequired="true">
+            app:singleLine="true"
+            app:chipSpacingHorizontal="8dp">
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                style="@style/Widget.Material3.Chip.Filter"
+                android:id="@+id/chipCatAll"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:checked="true"
-                android:text="@string/manage_filter_all"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipPurchased"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/manage_filter_purchased"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipManual"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/manage_filter_manual"/>
+                android:checkable="true"
+                android:text="All"
+                app:chipBackgroundColor="@color/chip_bg_soft_selector"
+                app:chipStrokeColor="@color/chip_stroke_soft_selector"
+                app:chipStrokeWidth="1.5dp"
+                app:chipCornerRadius="8dp"
+                app:chipIcon="@drawable/ic_chip_dot"
+                app:chipIconSize="8dp"
+                app:chipIconTint="@color/chip_dot_tint_selector"
+                app:chipStartPadding="10dp"
+                app:chipEndPadding="10dp"
+                app:iconStartPadding="0dp"
+                app:iconEndPadding="4dp"
+                app:checkedIconVisible="false"
+                app:chipMinTouchTargetSize="0dp"
+                android:textColor="@color/chip_text_soft_selector"
+                android:textSize="13sp"/>
         </com.google.android.material.chip.ChipGroup>
-    </LinearLayout>
+    </HorizontalScrollView>
 
+    <!-- ══ List ══ -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="6dp"
         android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -101,19 +311,78 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="20dp"/>
+            android:paddingTop="2dp"
+            android:paddingBottom="16dp"/>
 
-        <TextView
-            android:id="@+id/tvEmpty"
+        <LinearLayout
+            android:id="@+id/emptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="32dp"
+            android:orientation="vertical"
             android:gravity="center"
-            android:text="@string/manage_empty_state"
-            android:textColor="#6B7280"
-            android:textSize="14sp"
-            android:visibility="gone"/>
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_mp_tile_neutral">
+                <ImageView
+                    android:id="@+id/ivEmpty"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_box"
+                    app:tint="#8A8272"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvEmptyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="No products match"
+                android:textColor="#1A1A18"
+                android:textSize="15sp"
+                android:fontFamily="@font/googlesans_semibold"/>
+
+            <TextView
+                android:id="@+id/tvEmptySub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:gravity="center"
+                android:text="Try a different search or filter."
+                android:textColor="#8A8272"
+                android:textSize="12.5sp"/>
+
+            <TextView
+                android:id="@+id/btnEmptyAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_mp_tag_outline"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="10dp"
+                android:text="Clear filters"
+                android:textColor="#8A6526"
+                android:textSize="13sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
     </FrameLayout>
+
+    <!-- ══ Footer hint ══ -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="12dp"
+        android:text="Swipe left on a product to edit its details."
+        android:textColor="#A99E88"
+        android:textSize="12.5sp"/>
+
 </LinearLayout>
