@@ -2,7 +2,8 @@ package com.example.easy_billing.network
 
 // ================= REQUEST =================
 data class CreateSaleRequest(
-    val items: List<SaleItemDto>
+    val items: List<SaleItemDto>,
+    val bill_number: String? = null
 )
 
 // ================= ITEM =================

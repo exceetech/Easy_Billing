@@ -117,7 +117,8 @@ object InventoryManager {
          * Default null preserves the existing 4-arg call sites
          * across the codebase (sales, manual flows, tests).
          */
-        batchMeta: StockBatchMeta? = null
+        batchMeta: StockBatchMeta? = null,
+        logType: String = "ADD"
     ) {
 
         require(productId > 0) { "Invalid productId" }
@@ -190,7 +191,7 @@ object InventoryManager {
         db.inventoryLogDao().insert(
             InventoryLog(
                 productId = productId,
-                type = "ADD",
+                type = logType,
                 quantity = quantity,
                 price = costPrice,
                 date = appNow()

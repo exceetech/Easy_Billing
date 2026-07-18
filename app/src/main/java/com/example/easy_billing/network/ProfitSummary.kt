@@ -5,5 +5,10 @@ data class ProfitSummary(
     val cost: Double,
     val profit: Double,
     val loss: Double,
-    val expense: Double
+    val expense: Double,
+    val growth: ProfitGrowth? = null
+)
+
+data class ProfitGrowth(
+    val profit_percentage: Double
 )

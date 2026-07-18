@@ -1260,9 +1260,16 @@ class InvoiceActivity : AppCompatActivity() {
                                 variant       = product.variant
                             )
                         }
+                        val deviceId = getSharedPreferences("auth", MODE_PRIVATE)
+                            .getString("DEVICE_ID", "") ?: ""
+                        val tempId = "LOCAL-$deviceId-$billId"
+
                         RetrofitClient.api.createSale(
                             token,
-                            CreateSaleRequest(saleItems)
+                            CreateSaleRequest(
+                                items = saleItems,
+                                bill_number = tempId
+                            )
                         )
                     }
                 } catch (e: Exception) {

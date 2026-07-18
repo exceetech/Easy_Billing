@@ -18,7 +18,7 @@
         app:titleTextColor="#1A1A18"
         app:navigationIconTint="#1A1A18" />
 
-    <!-- ══ Header ══ -->
+    <!-- ══ Header — same title treatment as Manage Products ══ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,22 +31,54 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="11dp"
+                android:background="@drawable/bg_mp_title_tick"/>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INVENTORY"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
-                android:letterSpacing="0.16"
-                android:fontFamily="@font/googlesans_semibold"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add product"
-                android:textColor="#1A1A18"
-                android:textSize="24sp"
-                android:fontFamily="serif"/>
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INVENTORY"
+                    android:textColor="#B8895A"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.16"
+                    android:fontFamily="@font/googlesans_semibold"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="1dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add"
+                        android:textColor="#1A1A18"
+                        android:textSize="23sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="product"
+                        android:textColor="#0F6E56"
+                        android:textSize="23sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -128,10 +160,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:background="@drawable/bg_addp_field_selector"
+                        android:popupBackground="@drawable/bg_pos_dropdown"
                         android:paddingHorizontal="13dp"
                         android:drawablePadding="10dp"
                         app:drawableStartCompat="@drawable/ic_lc_box"
-                        android:drawableTint="#8A8272"
+                        android:drawableTint="#B8895A"
                         android:hint="e.g. Basmati Rice"
                         android:textColorHint="#A99E88"
                         android:textColor="#1A1A18"
@@ -156,9 +189,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:background="@drawable/bg_addp_field_selector"
+                                android:popupBackground="@drawable/bg_pos_dropdown"
                                 android:paddingHorizontal="13dp"
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                                android:drawableTint="#8A8272"
+                                android:drawableTint="#A99E88"
                                 android:hint="e.g. 5 kg"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
@@ -174,40 +208,40 @@
                             android:orientation="vertical"
                             android:layout_marginStart="12dp">
                             <TextView style="@style/AddpFieldLabel" android:text="Unit"/>
-                            <AutoCompleteTextView
+                            <TextView
                                 android:id="@+id/etUnit"
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
+                                android:gravity="center_vertical"
                                 android:background="@drawable/bg_addp_field_selector"
                                 android:paddingHorizontal="13dp"
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                                android:drawableTint="#8A8272"
+                                android:drawableTint="#A99E88"
                                 android:hint="Unit"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
-                                android:inputType="none"
-                                android:focusable="false"
-                                android:completionThreshold="1"/>
+                                android:clickable="true"
+                                android:focusable="true"/>
                         </LinearLayout>
                     </LinearLayout>
 
                     <TextView style="@style/AddpFieldLabel" android:text="Category"/>
-                    <AutoCompleteTextView
+                    <TextView
                         android:id="@+id/etCategory"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
+                        android:gravity="center_vertical"
                         android:background="@drawable/bg_addp_field_selector"
                         android:paddingHorizontal="13dp"
                         app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                        android:drawableTint="#8A8272"
+                        android:drawableTint="#A99E88"
                         android:hint="Select category"
                         android:textColorHint="#A99E88"
                         android:textColor="#1A1A18"
                         android:textSize="15sp"
-                        android:inputType="none"
-                        android:focusable="false"
-                        android:completionThreshold="1"/>
+                        android:clickable="true"
+                        android:focusable="true"/>
                 </LinearLayout>
 
                 <!-- ─ PRICING & TAX ─ -->
@@ -327,13 +361,10 @@
                                 android:textColor="#8A8272"
                                 android:textSize="11.5sp"/>
                         </LinearLayout>
-                        <com.google.android.material.switchmaterial.SwitchMaterial
+                        <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switchTaxInclusive"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            app:trackTint="@color/addp_switch_track"
-                            app:thumbTint="@color/addp_switch_thumb"/>
+                            style="@style/EpSwitch"
+                            android:checked="true"/>
                     </LinearLayout>
 
                     <!-- CGST / SGST / IGST -->
@@ -451,21 +482,21 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <TextView style="@style/AddpFieldLabel" android:text="Official UQC"/>
-                        <AutoCompleteTextView
+                        <TextView
                             android:id="@+id/spinnerUqc"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
+                            android:gravity="center_vertical"
                             android:background="@drawable/bg_addp_field_selector"
                             android:paddingHorizontal="13dp"
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                            android:drawableTint="#8A8272"
+                            android:drawableTint="#A99E88"
                             android:hint="Auto from unit"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
-                            android:inputType="none"
-                            android:focusable="false"
-                            android:completionThreshold="1"/>
+                            android:clickable="true"
+                            android:focusable="true"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -475,21 +506,21 @@
                         android:orientation="vertical"
                         android:layout_marginStart="12dp">
                         <TextView style="@style/AddpFieldLabel" android:text="Supply classification"/>
-                        <AutoCompleteTextView
+                        <TextView
                             android:id="@+id/spinnerSupplyClass"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
+                            android:gravity="center_vertical"
                             android:background="@drawable/bg_addp_field_selector"
                             android:paddingHorizontal="13dp"
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                            android:drawableTint="#8A8272"
+                            android:drawableTint="#A99E88"
                             android:hint="TAXABLE"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
-                            android:inputType="none"
-                            android:focusable="false"
-                            android:completionThreshold="1"/>
+                            android:clickable="true"
+                            android:focusable="true"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -585,12 +616,9 @@
                             android:textSize="12sp"/>
                     </LinearLayout>
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
+                    <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switchOpeningStock"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:trackTint="@color/addp_switch_track"
-                        app:thumbTint="@color/addp_switch_thumb"/>
+                        style="@style/EpSwitch"/>
                 </LinearLayout>
 
                 <LinearLayout

@@ -19,10 +19,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import com.example.easy_billing.util.UqcMapper
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
@@ -54,9 +52,14 @@ class EditProductActivity : BaseActivity() {
     private val viewModel: EditProductViewModel by viewModels()
 
     // Header
+    private lateinit var tvAvatar: TextView
     private lateinit var tvName: TextView
     private lateinit var tvVariant: TextView
     private lateinit var badge: TextView
+    private lateinit var tvHsnStatus: TextView
+    private lateinit var tvHeroPrice: TextView
+    private lateinit var tvHeroGst: TextView
+    private lateinit var tvHeroCategory: TextView
 
     // Editable fields
     private lateinit var etPrice: TextInputEditText
@@ -64,25 +67,30 @@ class EditProductActivity : BaseActivity() {
     private lateinit var etCgst: TextInputEditText
     private lateinit var etSgst: TextInputEditText
     private lateinit var etIgst: TextInputEditText
-    private lateinit var switchTaxInclusive: SwitchMaterial
+    private lateinit var switchTaxInclusive: MaterialSwitch
     private lateinit var btnHsnHelp: MaterialButton
 
     // GSTR-1 product master fields (v23)
-    private lateinit var spinnerOfficialUqc: AutoCompleteTextView
+    // UQC / Supply classification are fixed-choice fields, so they open
+    // the same custom picker popup as the Manage Products sort dropdown
+    // (bg_pos_dropdown container, bg_pos_row_selected highlight) rather
+    // than a native AutoCompleteTextView dropdown.
+    private lateinit var spinnerOfficialUqc: TextView
     private lateinit var etHsnDescription: TextInputEditText
     private lateinit var etCessRate: TextInputEditText
-    private lateinit var spinnerSupplyClassification: AutoCompleteTextView
+    private lateinit var spinnerSupplyClassification: TextView
     private lateinit var etCategory: AutoCompleteTextView
 
     // Inventory section
-    private lateinit var cardLockedStock: MaterialCardView
+    private lateinit var cardLockedStock: View
     private lateinit var tvCurrentStock: TextView
     private lateinit var groupEditableInventory: View
-    private lateinit var switchTrack: SwitchMaterial
-    private lateinit var tilStock: TextInputLayout
+    private lateinit var switchTrack: MaterialSwitch
+    private lateinit var tilStock: View
     private lateinit var etAddStock: TextInputEditText
 
     private lateinit var btnSave: MaterialButton
+    private lateinit var btnCancel: MaterialButton
 
     /** Current stock at dialog-open time (used to gate the toggle). */
     private var currentStock: Double = 0.0
@@ -93,7 +101,6 @@ class EditProductActivity : BaseActivity() {
         setContentView(R.layout.activity_edit_product)
 
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = getString(R.string.edit_screen_title)
 
         bindViews()
         wireButtons()
@@ -110,9 +117,14 @@ class EditProductActivity : BaseActivity() {
     /* ---------------- Bind ---------------- */
 
     private fun bindViews() {
+        tvAvatar  = findViewById(R.id.tvAvatar)
         tvName    = findViewById(R.id.tvName)
         tvVariant = findViewById(R.id.tvVariant)
         badge     = findViewById(R.id.badge)
+        tvHsnStatus = findViewById(R.id.tvHsnStatus)
+        tvHeroPrice    = findViewById(R.id.tvHeroPrice)
+        tvHeroGst      = findViewById(R.id.tvHeroGst)
+        tvHeroCategory = findViewById(R.id.tvHeroCategory)
 
         etPrice   = findViewById(R.id.etPrice)
         etHsn     = findViewById(R.id.etHsn)
@@ -126,13 +138,19 @@ class EditProductActivity : BaseActivity() {
         etHsnDescription   = findViewById(R.id.etHsnDescription)
         etCessRate         = findViewById(R.id.etCessRate)
         spinnerSupplyClassification = findViewById(R.id.spinnerSupplyClassification)
-        
-        spinnerOfficialUqc.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, UqcMapper.ALL_UQC_DISPLAY)
-        )
-        spinnerSupplyClassification.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST"))
-        )
+
+        // Exact same popup as ManageProductsActivity.showSortPopup().
+        spinnerOfficialUqc.setOnClickListener {
+            showSortStylePopup(spinnerOfficialUqc, UqcMapper.ALL_UQC_DISPLAY, spinnerOfficialUqc.text.toString()) { picked ->
+                spinnerOfficialUqc.text = picked
+            }
+        }
+        spinnerSupplyClassification.setOnClickListener {
+            val options = listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")
+            showSortStylePopup(spinnerSupplyClassification, options, spinnerSupplyClassification.text.toString()) { picked ->
+                spinnerSupplyClassification.text = picked
+            }
+        }
 
         etCategory = findViewById(R.id.etCategory)
         lifecycleScope.launch {
@@ -144,7 +162,7 @@ class EditProductActivity : BaseActivity() {
                 this@EditProductActivity, shopIdStr
             )
             etCategory.setAdapter(
-                ArrayAdapter(this@EditProductActivity, android.R.layout.simple_list_item_1, cats)
+                ArrayAdapter(this@EditProductActivity, R.layout.item_dropdown_ep, cats)
             )
         }
         etCategory.setOnClickListener { etCategory.showDropDown() }
@@ -156,19 +174,20 @@ class EditProductActivity : BaseActivity() {
         tilStock               = findViewById(R.id.tilStock)
         etAddStock             = findViewById(R.id.etAddStock)
 
-        btnSave = findViewById(R.id.btnSave)
+        btnSave   = findViewById(R.id.btnSave)
+        btnCancel = findViewById(R.id.btnCancel)
     }
 
     private fun wireButtons() {
         btnHsnHelp.setOnClickListener { HsnHelpLauncher.open(this) }
 
         btnSave.setOnClickListener { onSaveClicked() }
+        btnCancel.setOnClickListener { finish() }
 
-        // Debounced HSN backend verify — same UX as Add Product.
-        val tilHsn = etHsn.parent.parent as? TextInputLayout
+        // Debounced HSN backend verify — same UX as Add Product, shown
+        // via the small status line under the field (tvHsnStatus).
         etHsn.addTextChangedListener { editable ->
-            tilHsn?.error = null
-            tilHsn?.helperText = null
+            tvHsnStatus.visibility = View.GONE
             val hsn = editable?.toString()?.trim().orEmpty()
             if (hsn.length < 4) return@addTextChangedListener
             hsnVerifyJob?.cancel()
@@ -179,11 +198,14 @@ class EditProductActivity : BaseActivity() {
                         .verifyHsn(hsn)
                 }
                 result.onSuccess { resp ->
+                    tvHsnStatus.visibility = View.VISIBLE
                     if (resp.valid) {
-                        tilHsn?.helperText = resp.description
+                        tvHsnStatus.setTextColor(0xFF0F6E56.toInt())
+                        tvHsnStatus.text = resp.description
                             ?.takeIf { it.isNotBlank() } ?: "HSN verified"
                     } else {
-                        tilHsn?.error = resp.message ?: "HSN not found in registry"
+                        tvHsnStatus.setTextColor(0xFFA32D2D.toInt())
+                        tvHsnStatus.text = resp.message ?: "HSN not found in registry"
                     }
                 }
             }
@@ -265,14 +287,23 @@ class EditProductActivity : BaseActivity() {
         tvVariant.text = product.variant
             ?.takeIf { it.isNotBlank() }
             ?.let { "Variant: $it" } ?: "No variant"
+        tvAvatar.text = avatarInitials(product.name)
 
         if (product.isPurchased) {
             badge.text = getString(R.string.badge_purchased)
-            badge.setBackgroundResource(R.drawable.bg_badge_chip)
+            badge.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(0xFF1D9E75.toInt())
         } else {
             badge.text = getString(R.string.badge_manual)
-            badge.setBackgroundResource(R.drawable.bg_badge_chip)
+            badge.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(0xFFB8895A.toInt())
         }
+
+        tvHeroPrice.text = "₹%.2f".format(product.price)
+        val gstTotal = if (product.igstPercentage > 0) product.igstPercentage
+            else product.cgstPercentage + product.sgstPercentage
+        tvHeroGst.text = if (gstTotal > 0) "${formatRate(gstTotal)}%" else "—"
+        tvHeroCategory.text = product.category.takeIf { it.isNotBlank() } ?: "—"
 
         // Pre-fill editable fields — always populate every field so the
         // user sees the current value and can edit it directly.
@@ -283,10 +314,10 @@ class EditProductActivity : BaseActivity() {
         etIgst.setText(formatRate(product.igstPercentage))
         switchTaxInclusive.isChecked = product.isTaxInclusive
         // GSTR-1 product master (v23)
-        spinnerOfficialUqc.setText(UqcMapper.codeToDisplay(product.officialUqc) ?: "", false)
+        spinnerOfficialUqc.text = UqcMapper.codeToDisplay(product.officialUqc) ?: ""
         etHsnDescription.setText(product.hsnDescription ?: "")
         etCessRate.setText(formatRate(product.cessRate))
-        spinnerSupplyClassification.setText(product.supplyClassification, false)
+        spinnerSupplyClassification.text = product.supplyClassification
         etCategory.setText(product.category, false)
 
         // Inventory section toggles by isPurchased.
@@ -373,7 +404,88 @@ class EditProductActivity : BaseActivity() {
         )
     }
 
+    /* ---------------- Picker popup — same visual as
+       ManageProductsActivity.showSortPopup() ---------------- */
+
+    private fun showSortStylePopup(
+        anchor: View,
+        options: List<String>,
+        current: String,
+        onPick: (String) -> Unit
+    ) {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        val green = android.graphics.Color.parseColor("#0F6E56")
+        val ink = android.graphics.Color.parseColor("#1A1A18")
+        val medium = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+        val currentIndex = options.indexOf(current).coerceAtLeast(-1)
+
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dp(5), dp(5), dp(5), dp(5))
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
+
+        val popup = android.widget.PopupWindow(
+            scroll, dp(200),
+            minOf(options.size * dp(44) + dp(10), dp(320)),
+            true
+        ).apply {
+            elevation = dp(10).toFloat()
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
+        options.forEachIndexed { i, label ->
+            val isSel = i == currentIndex
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dp(44)
+                )
+                setPadding(dp(12), 0, dp(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val tv = TextView(this).apply {
+                text = label
+                textSize = 14f
+                typeface = medium
+                setTextColor(if (isSel) green else ink)
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
+            }
+            row.addView(tv)
+            if (isSel) {
+                row.addView(android.widget.ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(green)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dp(16), dp(16))
+                })
+            }
+            row.setOnClickListener {
+                onPick(label)
+                popup.dismiss()
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(anchor, 0, dp(6))
+    }
+
     /* ---------------- Helpers ---------------- */
+
+    /** First letters of up to 2 words, uppercased; falls back to first 2 chars. */
+    private fun avatarInitials(name: String): String {
+        val words = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            words.size >= 2 -> "${words[0].first()}${words[1].first()}".uppercase()
+            words.size == 1 -> words[0].take(2).uppercase()
+            else -> "—"
+        }
+    }
 
     private fun formatStock(value: Double): String =
         if (value % 1.0 == 0.0) value.toInt().toString() else "%.2f".format(value)

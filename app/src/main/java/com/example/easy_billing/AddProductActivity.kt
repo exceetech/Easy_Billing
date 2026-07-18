@@ -20,7 +20,7 @@ import com.example.easy_billing.network.VariantResponse
 import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.UqcMapper
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,23 +58,25 @@ class AddProductActivity : BaseActivity() {
 
     // Views
     private lateinit var etName: AutoCompleteTextView
-    private lateinit var etCategory: AutoCompleteTextView
+    private lateinit var etCategory: TextView
     private lateinit var etPrice: EditText
     private lateinit var etHsn: EditText
     private lateinit var etCgst: EditText
     private lateinit var etSgst: EditText
     private lateinit var etIgst: EditText
-    private lateinit var switchTaxInclusive: SwitchMaterial
-    private lateinit var switchOpeningStock: SwitchMaterial
+    private lateinit var switchTaxInclusive: MaterialSwitch
+    private lateinit var switchOpeningStock: MaterialSwitch
     private lateinit var etQty: EditText
     private lateinit var etCost: EditText
     private lateinit var tvBadge: TextView
 
     // More-details views
     private lateinit var etVariant: AutoCompleteTextView
-    private lateinit var etUnit: AutoCompleteTextView
-    private lateinit var spinnerUqc: AutoCompleteTextView
-    private lateinit var spinnerSupplyClass: AutoCompleteTextView
+    // Fixed-choice fields — plain TextViews that open the same picker
+    // popup as the Manage Products sort dropdown (showSortStylePopup).
+    private lateinit var etUnit: TextView
+    private lateinit var spinnerUqc: TextView
+    private lateinit var spinnerSupplyClass: TextView
     private lateinit var etHsnDesc: EditText
     private lateinit var etCessRate: EditText
 
@@ -123,34 +125,42 @@ class AddProductActivity : BaseActivity() {
         etCgst.addTextChangedListener { recomputeIgst() }
         etSgst.addTextChangedListener { recomputeIgst() }
 
-        // ── Dropdown adapters ──
-        etUnit.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, units))
-        etUnit.setText("piece", false)
-        etUnit.setOnClickListener { etUnit.showDropDown() }
-        etUnit.setOnItemClickListener { _, _, _, _ -> unitUserSet = true }
+        // ── Fixed-choice pickers — same popup as the Manage Products sort
+        //    dropdown (rounded white sheet, selected row highlighted with
+        //    a green tick). ──
+        etUnit.text = "piece"
+        etUnit.setOnClickListener {
+            showSortStylePopup(etUnit, units, etUnit.text.toString()) { picked ->
+                etUnit.text = picked
+                unitUserSet = true
+            }
+        }
 
-        spinnerUqc.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, UqcMapper.ALL_UQC_DISPLAY)
-        )
-        spinnerUqc.setOnClickListener { spinnerUqc.showDropDown() }
+        spinnerUqc.setOnClickListener {
+            showSortStylePopup(spinnerUqc, UqcMapper.ALL_UQC_DISPLAY, spinnerUqc.text.toString()) { picked ->
+                spinnerUqc.text = picked
+            }
+        }
 
-        spinnerSupplyClass.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, supplyClasses)
-        )
-        spinnerSupplyClass.setText("TAXABLE", false)
-        spinnerSupplyClass.setOnClickListener { spinnerSupplyClass.showDropDown() }
+        spinnerSupplyClass.text = "TAXABLE"
+        spinnerSupplyClass.setOnClickListener {
+            showSortStylePopup(spinnerSupplyClass, supplyClasses, spinnerSupplyClass.text.toString()) { picked ->
+                spinnerSupplyClass.text = picked
+            }
+        }
 
-        // ── Category dropdown ──
+        // ── Category picker ──
         lifecycleScope.launch {
             val shopIdStr = shopIdSync()
             val cats = com.example.easy_billing.util.ProductCategories.dropdownFor(
                 this@AddProductActivity, shopIdStr
             )
             withContext(Dispatchers.Main) {
-                etCategory.setAdapter(
-                    ArrayAdapter(this@AddProductActivity, android.R.layout.simple_list_item_1, cats)
-                )
-                etCategory.setOnClickListener { etCategory.showDropDown() }
+                etCategory.setOnClickListener {
+                    showSortStylePopup(etCategory, cats, etCategory.text.toString()) { picked ->
+                        etCategory.text = picked
+                    }
+                }
             }
         }
 
@@ -197,13 +207,13 @@ class AddProductActivity : BaseActivity() {
         if (etCgst.text.isNullOrBlank() && p.cgstPercentage > 0) etCgst.setText(trimNum(p.cgstPercentage))
         if (etSgst.text.isNullOrBlank() && p.sgstPercentage > 0) etSgst.setText(trimNum(p.sgstPercentage))
         switchTaxInclusive.isChecked = p.isTaxInclusive
-        if (p.category.isNotBlank() && etCategory.text.isNullOrBlank()) etCategory.setText(p.category, false)
+        if (p.category.isNotBlank() && etCategory.text.isNullOrBlank()) etCategory.text = p.category
         // More-details
         if (etVariant.text.isNullOrBlank()) p.variant?.let { etVariant.setText(it) }
-        if (!unitUserSet) p.unit?.let { etUnit.setText(it, false) }
+        if (!unitUserSet) p.unit?.let { etUnit.text = it }
         if (etHsnDesc.text.isNullOrBlank()) p.hsnDescription?.let { etHsnDesc.setText(it) }
         if (p.cessRate > 0 && etCessRate.text.isNullOrBlank()) etCessRate.setText(trimNum(p.cessRate))
-        if (p.supplyClassification.isNotBlank()) spinnerSupplyClass.setText(p.supplyClassification, false)
+        if (p.supplyClassification.isNotBlank()) spinnerSupplyClass.text = p.supplyClassification
     }
 
     /**
@@ -241,7 +251,7 @@ class AddProductActivity : BaseActivity() {
                 etVariant.setAdapter(
                     ArrayAdapter(
                         this@AddProductActivity,
-                        android.R.layout.simple_list_item_1,
+                        R.layout.item_dropdown_ep,
                         named.map { it.variant_name }
                     )
                 )
@@ -272,11 +282,11 @@ class AddProductActivity : BaseActivity() {
      */
     private fun fillStatutoryFrom(v: VariantResponse, applyUnit: Boolean) {
         if (applyUnit && !unitUserSet && !v.unit.isNullOrBlank() && !v.unit.equals("unit", true))
-            etUnit.setText(v.unit, false)
+            etUnit.text = v.unit
         if (etHsn.text.isNullOrBlank()) v.hsn_code?.let { etHsn.setText(it) }
         if (etHsnDesc.text.isNullOrBlank()) v.hsn_description?.let { etHsnDesc.setText(it) }
         if (spinnerUqc.text.isNullOrBlank() && !v.official_uqc.isNullOrBlank())
-            UqcMapper.codeToDisplay(v.official_uqc)?.let { spinnerUqc.setText(it, false) }
+            UqcMapper.codeToDisplay(v.official_uqc)?.let { spinnerUqc.text = it }
         if (etCgst.text.isNullOrBlank() && v.cgst_percentage > 0) etCgst.setText(trimNum(v.cgst_percentage))
         if (etSgst.text.isNullOrBlank() && v.sgst_percentage > 0) etSgst.setText(trimNum(v.sgst_percentage))
         if (etCessRate.text.isNullOrBlank() && v.cess_rate > 0) etCessRate.setText(trimNum(v.cess_rate))
@@ -309,7 +319,7 @@ class AddProductActivity : BaseActivity() {
                 etName.setAdapter(
                     ArrayAdapter(
                         this@AddProductActivity,
-                        android.R.layout.simple_list_item_1,
+                        R.layout.item_dropdown_ep,
                         names.toList()
                     )
                 )
@@ -495,6 +505,77 @@ class AddProductActivity : BaseActivity() {
             }
             .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
             .show()
+    }
+
+    /* ---------------- Picker popup — same visual as
+       ManageProductsActivity.showSortPopup() / EditProductActivity. ---------------- */
+
+    private fun showSortStylePopup(
+        anchor: View,
+        options: List<String>,
+        current: String,
+        onPick: (String) -> Unit
+    ) {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        val green = android.graphics.Color.parseColor("#0F6E56")
+        val ink = android.graphics.Color.parseColor("#1A1A18")
+        val medium = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+        val currentIndex = options.indexOf(current).coerceAtLeast(-1)
+
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dp(5), dp(5), dp(5), dp(5))
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
+
+        val popup = android.widget.PopupWindow(
+            scroll, dp(200),
+            minOf(options.size * dp(44) + dp(10), dp(320)),
+            true
+        ).apply {
+            elevation = dp(10).toFloat()
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
+        options.forEachIndexed { i, label ->
+            val isSel = i == currentIndex
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dp(44)
+                )
+                setPadding(dp(12), 0, dp(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val tv = TextView(this).apply {
+                text = label
+                textSize = 14f
+                typeface = medium
+                setTextColor(if (isSel) green else ink)
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
+            }
+            row.addView(tv)
+            if (isSel) {
+                row.addView(android.widget.ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(green)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dp(16), dp(16))
+                })
+            }
+            row.setOnClickListener {
+                onPick(label)
+                popup.dismiss()
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(anchor, 0, dp(6))
     }
 
     // ============================================================

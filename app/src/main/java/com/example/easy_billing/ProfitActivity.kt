@@ -227,27 +227,31 @@ class ProfitActivity : AppCompatActivity() {
                     netTv.setTextColor(
                         Color.parseColor(if (summary.profit < 0) "#A32D2D" else "#1A1A18")
                     )
+                    val layoutMarginPill = findViewById<android.view.View>(R.id.layoutMarginPill)
+                    if (summary.growth != null) {
+                        layoutMarginPill.visibility = android.view.View.VISIBLE
+                        val growthPct = summary.growth.profit_percentage
+                        val positive = growthPct >= 0
+                        val pillFg = if (positive) "#7DDCB2" else "#F0A3A3"
+                        val sign = if (positive) "+" else ""
 
-                    // Margin pill: profit ÷ revenue, green when ≥ 0, red when negative.
-                    val margin = if (summary.revenue != 0.0)
-                        summary.profit / summary.revenue * 100 else 0.0
-                    val positive = summary.profit >= 0
-                    val pillFg = if (positive) "#7DDCB2" else "#F0A3A3"
-
-                    findViewById<TextView>(R.id.tvMargin).apply {
-                        text = "${Math.round(margin)}% margin"
-                        setTextColor(Color.parseColor(pillFg))
-                    }
-                    findViewById<android.view.View>(R.id.layoutMarginPill).backgroundTintList =
-                        android.content.res.ColorStateList.valueOf(
-                            Color.parseColor(if (positive) "#11402F" else "#5A1E1E")
-                        )
-                    findViewById<ImageView>(R.id.ivMarginTrend).apply {
-                        setColorFilter(Color.parseColor(pillFg))
-                        setImageResource(
-                            if (positive) R.drawable.ic_si_trend_up
-                            else R.drawable.ic_si_trend_down
-                        )
+                        findViewById<TextView>(R.id.tvMargin).apply {
+                            text = "${sign}${Math.round(growthPct)}% growth"
+                            setTextColor(Color.parseColor(pillFg))
+                        }
+                        layoutMarginPill.backgroundTintList =
+                            android.content.res.ColorStateList.valueOf(
+                                Color.parseColor(if (positive) "#11402F" else "#5A1E1E")
+                            )
+                        findViewById<ImageView>(R.id.ivMarginTrend).apply {
+                            setColorFilter(Color.parseColor(pillFg))
+                            setImageResource(
+                                if (positive) R.drawable.ic_si_trend_up
+                                else R.drawable.ic_si_trend_down
+                            )
+                        }
+                    } else {
+                        layoutMarginPill.visibility = android.view.View.GONE
                     }
 
                     val mapped = response.products.map {

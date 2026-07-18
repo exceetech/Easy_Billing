@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Stock status pill. Solid fill is tinted per-state from the adapter
-     via backgroundTintList (green / amber / red / neutral). -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners android:radius="20dp"/>
-    <solid android:color="#E7F6EF"/>
-</shape>

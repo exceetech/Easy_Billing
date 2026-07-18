@@ -277,7 +277,7 @@ class BillDetailsActivity : AppCompatActivity() {
                                     igstPercent          = 0.0,
                                     invoiceValue         = unitCost * qtyToRestore,
                                     taxableValue         = unitCost * qtyToRestore
-                                )
+                                ), logType = "CANCEL_RESTOCK"
                             )
                         }
                     }

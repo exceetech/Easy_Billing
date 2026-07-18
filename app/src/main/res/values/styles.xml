@@ -194,6 +194,114 @@
 
     </style>
 
+    <!-- ================= EDIT PRODUCT — premium pill switch, same
+         Material3 MaterialSwitch used on Invoice Design / Purchase,
+         tinted in theme green instead of the app-wide blue. ================= -->
+    <style name="EpSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="trackTint">@color/ep_switch_track</item>
+        <item name="thumbTint">@color/ep_switch_thumb</item>
+        <item name="trackDecorationTint">@android:color/transparent</item>
+        <item name="thumbIcon">@drawable/ic_lc_check</item>
+        <item name="thumbIconTint">@color/ep_switch_thumb_icon</item>
+    </style>
+
+    <!-- ================= EDIT PRODUCT — white section card, same as
+         Invoice Activity's cardCustomer (bg_inv_card_cream). ================= -->
+    <style name="EpCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/bg_inv_card_cream</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:layout_marginTop">14dp</item>
+    </style>
+
+    <style name="EpCardHeaderLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">9dp</item>
+        <item name="android:textColor">#8A6526</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.13</item>
+    </style>
+
+    <!-- ================= EDIT PRODUCT — per-field caption above each box ================= -->
+    <style name="EpFieldLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textColor">#9A968C</item>
+        <item name="android:fontFamily">@font/googlesans_medium</item>
+    </style>
+
+    <!-- ================= EDIT PRODUCT — hero stat trio ================= -->
+    <style name="EpHeroStat">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/bg_ep_hero_stat</item>
+        <item name="android:paddingHorizontal">10dp</item>
+        <item name="android:paddingVertical">8dp</item>
+    </style>
+
+    <style name="EpHeroStatLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:textColor">#9FB0D4</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="EpHeroStatValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- ================= EDIT PRODUCT — mini glass boxes (CGST/SGST/IGST) ================= -->
+    <style name="EpMiniGlassBox">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">54dp</item>
+        <item name="android:background">@drawable/bg_glass_input</item>
+    </style>
+
+    <style name="EpMiniLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">9sp</item>
+        <item name="android:textColor">#A99E88</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="EpMiniInput">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#1A1A18</item>
+        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:minWidth">40dp</item>
+        <item name="android:hint">0</item>
+    </style>
+
     <!-- ================= ADD IMPORT-SERVICE FORM ================= -->
     <style name="AddSectionLabel">
         <item name="android:layout_width">wrap_content</item>
