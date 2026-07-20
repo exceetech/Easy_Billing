@@ -74,6 +74,15 @@ class ProductRepository private constructor(
         productDao.getInactiveByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds())
 
     /**
+     * A product that differs only in capitalisation. Detection only — the
+     * unique (shop_id, name, variant) index is case-*sensitive*, so this is
+     * how a caller spots a clash it would otherwise only learn about from a
+     * constraint error. Never use the result to decide what to update.
+     */
+    suspend fun findConflictIgnoringCase(name: String, variant: String?): Product? =
+        productDao.findConflictIgnoringCase(capitalize(name), variant?.let(::capitalize), getValidShopIds())
+
+    /**
      * Auto-fill: when the user enters a product name *or* an HSN
      * code on Add-Product / Purchase, look up the most recent
      * matching shop_product row so we can pre-populate HSN +
@@ -136,7 +145,7 @@ class ProductRepository private constructor(
     /**
      * Restricted update for purchased products — only price + GST
      * (and HSN) may change. Stock and inventory flags are left
-     * untouched. Used by [com.example.easy_billing.AddProductsActivity.showUpdatePriceDialog]
+     * untouched. Was used by the retired AddProductsActivity price dialog
      * when the row's `isPurchased == true`.
      */
     suspend fun updateSalesFieldsOnly(

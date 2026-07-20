@@ -90,11 +90,23 @@ class PurchaseRepository private constructor(
         // Collect products that need a backend field-update (already synced).
         val pendingUpdates = mutableListOf<PendingProductUpdate>()
 
+        // A credit purchase with no account is contradictory: the credit block
+        // below would be skipped, so the amount would raise nobody's due and
+        // leave no CreditTransaction — silently under-reporting payables.
+        // Store it as a cash purchase rather than persisting that state.
+        val safeHeader =
+            if (header.isCredit && header.creditAccountId == null) {
+                header.copy(isCredit = false, creditAccountId = null)
+            } else if (!header.isCredit && header.creditAccountId != null) {
+                // Likewise, a cash purchase shouldn't carry an account id.
+                header.copy(creditAccountId = null)
+            } else header
+
         val purchaseId = db.withTransaction {
 
         require(lines.isNotEmpty()) { "Purchase must have at least one line" }
 
-        val purchaseId = db.purchaseDao().insert(header).toInt()
+        val purchaseId = db.purchaseDao().insert(safeHeader).toInt()
 
         if (importDetails != null) {
             val importDetailsEntity = com.example.easy_billing.db.PurchaseImportDetails(
@@ -113,14 +125,14 @@ class PurchaseRepository private constructor(
         }
 
         // 1. Credit Integration
-        if (header.isCredit && header.creditAccountId != null) {
+        if (safeHeader.isCredit && safeHeader.creditAccountId != null) {
             val shopId = context.getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
                 .getInt("SHOP_ID", 1)
             
-            val account = db.creditAccountDao().getById(header.creditAccountId, shopId)
+            val account = db.creditAccountDao().getById(safeHeader.creditAccountId, shopId)
             if (account != null) {
                 // Increase debt
-                val newDue = account.dueAmount + header.invoiceValue
+                val newDue = account.dueAmount + safeHeader.invoiceValue
                 db.creditAccountDao().updateDue(account.id, newDue, shopId)
 
                 // Log transaction
@@ -128,9 +140,9 @@ class PurchaseRepository private constructor(
                     com.example.easy_billing.db.CreditTransaction(
                         accountId = account.id,
                         shopId = shopId,
-                        amount = header.invoiceValue,
+                        amount = safeHeader.invoiceValue,
                         type = "PURCHASE_CREDIT",
-                        referenceInvoice = header.invoiceNumber,
+                        referenceInvoice = safeHeader.invoiceNumber,
                         isSynced = false
                     )
                 )
@@ -248,9 +260,9 @@ class PurchaseRepository private constructor(
                 costPrice = unitCostGross,
                 batchMeta = InventoryManager.StockBatchMeta(
                     purchaseInvoiceId = purchaseId,
-                    supplierName = header.supplierName,
-                    supplierGstin = header.supplierGstin,
-                    invoiceNumber = header.invoiceNumber,
+                    supplierName = safeHeader.supplierName,
+                    supplierGstin = safeHeader.supplierGstin,
+                    invoiceNumber = safeHeader.invoiceNumber,
                     batchCode = null,
                     unitCostExcludingTax = unitCostNet,
                     gstPercent = combinedGst,

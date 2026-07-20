@@ -27,8 +27,8 @@ import kotlin.math.roundToInt
 
 /**
  * Browse, search, filter, and sort the local product catalogue.
- * Tap a row (or swipe right) to edit; swipe left to hide (deactivate).
- * The KPI tiles double as filter shortcuts.
+ * Tap a row or swipe it left to edit. The KPI tiles double as filter
+ * shortcuts.
  */
 class ManageProductsActivity : BaseActivity() {
 
@@ -90,9 +90,7 @@ class ManageProductsActivity : BaseActivity() {
     }
 
     private fun setupRecycler() {
-        adapter = ManageProductsAdapter { _ ->
-            // Do nothing on tap, rely on swipe to edit
-        }
+        adapter = ManageProductsAdapter { product -> openEdit(product.id) }
         rv.layoutManager = LinearLayoutManager(this)
         rv.adapter = adapter
         attachSwipe()
@@ -321,7 +319,7 @@ class ManageProductsActivity : BaseActivity() {
             ) {
                 val item = vh.itemView
                 val pad = ((item.height - (editIcon?.intrinsicHeight ?: 0)) / 2)
-                
+
                 if (dX < 0) {                 // swiping left → edit
                     editBg.setBounds(item.right + dX.roundToInt() - 24, item.top, item.right, item.bottom)
                     editBg.draw(c)

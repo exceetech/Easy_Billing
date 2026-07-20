@@ -117,19 +117,15 @@ class InventoryActivity : BaseActivity() {
         val dialog = AlertDialog.Builder(this).setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        view.findViewById<MaterialButton>(R.id.btnPurchasedProduct).setOnClickListener {
+        view.findViewById<View>(R.id.btnNonPurchasedProduct).setOnClickListener {
             dialog.dismiss()
-            startActivity(android.content.Intent(this, PurchaseActivity::class.java))
+            startActivity(android.content.Intent(this, AddProductActivity::class.java))
         }
-        view.findViewById<MaterialButton>(R.id.btnNonPurchasedProduct).setOnClickListener {
-            dialog.dismiss()
-            startActivity(android.content.Intent(this, AddProductsActivity::class.java))
-        }
-        view.findViewById<MaterialButton>(R.id.btnManageProducts).setOnClickListener {
+        view.findViewById<View>(R.id.btnManageProducts).setOnClickListener {
             dialog.dismiss()
             startActivity(android.content.Intent(this, ManageProductsActivity::class.java))
         }
-        view.findViewById<MaterialButton>(R.id.btnChooserCancel).setOnClickListener {
+        view.findViewById<View>(R.id.btnChooserCancel).setOnClickListener {
             dialog.dismiss()
         }
         dialog.show()
@@ -475,11 +471,25 @@ class InventoryActivity : BaseActivity() {
         // Credit-adjust picker is identical to the prior dialog.
         cbAdjust.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked && selectedAccountForReturn == null) {
-                com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
-                    selectedAccountForReturn = account
-                    tvAccount.text = "Account: ${account.name}"
-                    tvAccount.visibility = View.VISIBLE
-                }
+                com.example.easy_billing.util.CreditAccountPicker.show(
+                    activity = this,
+                    onAccountSelected = { account ->
+                        selectedAccountForReturn = account
+                        tvAccount.text = "Account: ${account.name}"
+                        tvAccount.visibility = View.VISIBLE
+                    },
+                    onDismissedWithoutSelection = {
+                        // No account chosen — don't leave the box ticked.
+                        if (selectedAccountForReturn == null) {
+                            cbAdjust.isChecked = false
+                            Toast.makeText(
+                                this,
+                                "Credit needs an account — adjustment turned off",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
             } else if (!isChecked) {
                 tvAccount.visibility = View.GONE
             } else if (selectedAccountForReturn != null) {
@@ -487,10 +497,13 @@ class InventoryActivity : BaseActivity() {
             }
         }
         tvAccount.setOnClickListener {
-            com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
-                selectedAccountForReturn = account
-                tvAccount.text = "Account: ${account.name}"
-            }
+            com.example.easy_billing.util.CreditAccountPicker.show(
+                activity = this,
+                onAccountSelected = { account ->
+                    selectedAccountForReturn = account
+                    tvAccount.text = "Account: ${account.name}"
+                }
+            )
         }
 
         btnCancel.setOnClickListener { dialog.dismiss() }
@@ -795,11 +808,25 @@ class InventoryActivity : BaseActivity() {
 
         cbAdjust.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked && selectedAccountForClear == null) {
-                com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
-                    selectedAccountForClear = account
-                    tvAccount.text = "Account: ${account.name}"
-                    tvAccount.visibility = View.VISIBLE
-                }
+                com.example.easy_billing.util.CreditAccountPicker.show(
+                    activity = this,
+                    onAccountSelected = { account ->
+                        selectedAccountForClear = account
+                        tvAccount.text = "Account: ${account.name}"
+                        tvAccount.visibility = View.VISIBLE
+                    },
+                    onDismissedWithoutSelection = {
+                        // No account chosen — don't leave the box ticked.
+                        if (selectedAccountForClear == null) {
+                            cbAdjust.isChecked = false
+                            Toast.makeText(
+                                this,
+                                "Credit needs an account — adjustment turned off",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
             } else if (!isChecked) {
                 tvAccount.visibility = View.GONE
             } else if (selectedAccountForClear != null) {
@@ -808,10 +835,13 @@ class InventoryActivity : BaseActivity() {
         }
         
         tvAccount.setOnClickListener {
-            com.example.easy_billing.util.CreditAccountPicker.show(this) { account ->
-                selectedAccountForClear = account
-                tvAccount.text = "Account: ${account.name}"
-            }
+            com.example.easy_billing.util.CreditAccountPicker.show(
+                activity = this,
+                onAccountSelected = { account ->
+                    selectedAccountForClear = account
+                    tvAccount.text = "Account: ${account.name}"
+                }
+            )
         }
 
         btnCancel.setOnClickListener { dialog.dismiss() }

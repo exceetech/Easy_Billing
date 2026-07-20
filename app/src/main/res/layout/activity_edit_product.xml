@@ -407,10 +407,12 @@
                     <LinearLayout
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
-                        <TextView style="@style/EpMiniLabel" android:text="IGST %"/>
+                        <TextView style="@style/EpMiniLabel" android:text="IGST · auto"/>
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etIgst"
-                            style="@style/EpMiniInput"/>
+                            style="@style/EpMiniInput"
+                            android:enabled="false"
+                            android:textColor="#8A8272"/>
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>

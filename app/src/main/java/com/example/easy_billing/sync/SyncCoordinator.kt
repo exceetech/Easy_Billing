@@ -127,6 +127,7 @@ class SyncCoordinator private constructor(
                         val now = System.currentTimeMillis()
                         if (force || now - lastFullPullAt >= PULL_MIN_INTERVAL_MS) {
                             runCatching { sm.pullAccountsFromServer() }
+                            runCatching { sm.pullSuppliers() }
                             runCatching { sm.pullInventory() }
                             runCatching { sm.pullPurchases() }
                             runCatching { sm.pullInventoryLogs() }

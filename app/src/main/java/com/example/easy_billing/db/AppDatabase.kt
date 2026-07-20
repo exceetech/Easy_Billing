@@ -64,9 +64,13 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
 
         // Categories + Customer master (v40)
         ProductCategory::class,
-        Customer::class
+        Customer::class,
+
+        // Supplier autofill index (v47) — a convenience lookup only;
+        // purchase_table keeps its own denormalised supplier fields.
+        Supplier::class
     ],
-    version = 46
+    version = 48
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -126,6 +130,8 @@ abstract class AppDatabase : RoomDatabase() {
     // Categories + Customer master (v40)
     abstract fun productCategoryDao(): ProductCategoryDao
     abstract fun customerDao(): CustomerDao
+
+    abstract fun supplierDao(): SupplierDao
 
     companion object {
 
@@ -1325,6 +1331,64 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v47 — supplier autofill index.
+         *
+         * Purely additive: no existing table is touched, and purchases keep
+         * their own copy of the supplier details, so nothing about already
+         * recorded invoices changes.
+         *
+         * `(shopId, gstin)` is unique: SQLite compares NULLs as distinct,
+         * so this pins one row per registered supplier while leaving any
+         * number of unregistered (NULL-GSTIN) rows alone. Names are only
+         * indexed for lookup speed — two registered suppliers may legally
+         * share one.
+         */
+        /**
+         * v48 — track whether a product's hide/restore has reached the
+         * server. Existing rows are assumed already in sync, so the default
+         * is 1: nothing is re-pushed on upgrade.
+         */
+        val MIGRATION_47_48 = object : Migration(47, 48) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE products ADD COLUMN activeStateSynced " +
+                    "INTEGER NOT NULL DEFAULT 1"
+                )
+            }
+        }
+
+        val MIGRATION_46_47 = object : Migration(46, 47) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `supplier_table` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `serverId` INTEGER,
+                        `gstin` TEXT,
+                        `name` TEXT NOT NULL,
+                        `nameKey` TEXT NOT NULL,
+                        `state` TEXT NOT NULL,
+                        `lastUsedAt` INTEGER NOT NULL,
+                        `isSynced` INTEGER NOT NULL DEFAULT 0,
+                        `isActive` INTEGER NOT NULL DEFAULT 1,
+                        `shopId` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_supplier_table_shopId_gstin` " +
+                    "ON `supplier_table` (`shopId`, `gstin`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_supplier_table_shopId_nameKey` " +
+                    "ON `supplier_table` (`shopId`, `nameKey`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_supplier_table_lastUsedAt` " +
+                    "ON `supplier_table` (`lastUsedAt`)"
+                )
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1364,7 +1428,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_39_40, MIGRATION_40_41,
                         MIGRATION_41_42, MIGRATION_42_43,
                         MIGRATION_43_44, MIGRATION_44_45,
-                        MIGRATION_45_46
+                        MIGRATION_45_46, MIGRATION_46_47,
+                        MIGRATION_47_48
                     )
                     .fallbackToDestructiveMigration()
                     .build()

@@ -18,14 +18,14 @@ import kotlinx.coroutines.launch
  * Backs [com.example.easy_billing.ManageProductsActivity].
  *
  * Holds the loaded shop-scoped product list plus the search query,
- * a single-select filter (All / Purchased / Manual / No GST) and a
+ * a single-select filter (All / Purchased / Manual) and a
  * sort order. Also exposes a productId → current-stock map for the
  * per-row stock pills. The derived [filtered] flow combines query +
  * filter + sort so the UI subscribes once.
  */
 class ManageProductsViewModel(app: Application) : AndroidViewModel(app) {
 
-    enum class Filter { ALL, PURCHASED, MANUAL, NOGST }
+    enum class Filter { ALL, PURCHASED, MANUAL }
     enum class SortBy {
         NAME_ASC, NAME_DESC, PRICE_LOW, PRICE_HIGH,
         STOCK_LOW, STOCK_HIGH, STOCK_VALUE, CATEGORY
@@ -62,7 +62,6 @@ class ManageProductsViewModel(app: Application) : AndroidViewModel(app) {
                 Filter.ALL       -> list
                 Filter.PURCHASED -> list.filter { it.isPurchased }
                 Filter.MANUAL    -> list.filter { !it.isPurchased }
-                Filter.NOGST     -> list.filter { gstOf(it) <= 0.0 }
             }
             val byCategory = 
                 if (c.isBlank() || c == "All") byFilter
@@ -106,16 +105,4 @@ class ManageProductsViewModel(app: Application) : AndroidViewModel(app) {
     fun setCategory(c: String) { _category.value = c }
     fun setSort(s: SortBy) { _sort.value = s }
 
-    /** Soft-hide (deactivate) a product locally, then refresh. */
-    fun deactivate(productId: Int) {
-        viewModelScope.launch {
-            db.productDao().deactivate(productId)
-            reload()
-        }
-    }
-
-    companion object {
-        fun gstOf(p: Product): Double =
-            (p.cgstPercentage + p.sgstPercentage).let { if (it > 0) it else p.igstPercentage }
-    }
 }

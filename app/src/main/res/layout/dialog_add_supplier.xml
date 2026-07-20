@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Add-supplier dialog — champagne theme, glass inputs.
+
+    State is derived from the GSTIN when one is given (its first two
+    characters are the state code), so the state row only becomes
+    tappable for unregistered suppliers.
+
+    Ids bound by SupplierPicker.showAddSupplierDialog: etSupName,
+    etSupGstin, etSupState, tvSupStateHint, btnSupCancel, btnSupSave.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="20dp"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="18dp"
+    android:paddingTop="18dp"
+    android:paddingBottom="18dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <View android:layout_width="3dp" android:layout_height="12dp" android:background="#D4A574"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="SUPPLIER"
+            android:textColor="#8A6526"
+            android:textSize="10sp"
+            android:letterSpacing="0.14"
+            android:fontFamily="@font/googlesans_semibold"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="New supplier"
+        android:textColor="#1A1A18"
+        android:textSize="20sp"
+        android:fontFamily="serif"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="GSTIN is optional — leave it blank for an unregistered supplier"
+        android:textColor="#8A8272"
+        android:textSize="11.5sp"/>
+
+    <!-- Name -->
+    <TextView
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" android:layout_marginBottom="5dp"
+        android:text="Supplier name" android:textColor="#9A8F79" android:textSize="10.5sp"
+        android:fontFamily="@font/googlesans_medium"/>
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="50dp"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+        <ImageView
+            android:layout_width="19dp" android:layout_height="19dp" android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_lc_user" app:tint="#B8895A" android:contentDescription="@null"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSupName"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:background="@null" android:hint="Supplier name"
+            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+            android:inputType="textCapWords" android:singleLine="true" android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- GSTIN -->
+    <TextView
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
+        android:text="GSTIN" android:textColor="#9A8F79" android:textSize="10.5sp"
+        android:fontFamily="@font/googlesans_medium"/>
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="50dp"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+        <ImageView
+            android:layout_width="19dp" android:layout_height="19dp" android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_lc_id_card" app:tint="#B8895A" android:contentDescription="@null"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSupGstin"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:background="@null" android:hint="15-character GSTIN"
+            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            android:inputType="textCapCharacters" android:maxLength="15"
+            android:singleLine="true" android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- State -->
+    <TextView
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
+        android:text="State" android:textColor="#9A8F79" android:textSize="10.5sp"
+        android:fontFamily="@font/googlesans_medium"/>
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="50dp"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+        <ImageView
+            android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_lc_map_pin" app:tint="#B8895A" android:contentDescription="@null"/>
+        <TextView
+            android:id="@+id/etSupState"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:hint="Select state" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+            android:singleLine="true" android:ellipsize="end" android:textSize="14sp"/>
+        <ImageView
+            android:layout_width="18dp" android:layout_height="18dp"
+            android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSupStateHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Taken from the GSTIN"
+        android:textColor="#0F6E56"
+        android:textSize="11sp"
+        android:visibility="gone"/>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSupCancel"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+            android:text="Cancel" android:textAllCaps="false" android:textSize="13.5sp"
+            android:textColor="#8A8272"
+            android:insetTop="0dp" android:insetBottom="0dp"
+            app:cornerRadius="13dp" app:backgroundTint="#F1EBDD"
+            android:stateListAnimator="@null"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSupSave"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+            android:layout_marginStart="10dp"
+            android:text="Save supplier" android:textAllCaps="false" android:textSize="13.5sp"
+            android:textColor="@android:color/white"
+            android:insetTop="0dp" android:insetBottom="0dp"
+            app:cornerRadius="13dp" app:backgroundTint="#0F6E56"
+            android:stateListAnimator="@null"/>
+    </LinearLayout>
+</LinearLayout>

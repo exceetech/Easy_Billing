@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom-sheet surface: champagne head, rounded top corners. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#F3ECDD"/>
+    <corners android:topLeftRadius="22dp" android:topRightRadius="22dp"/>
+</shape>

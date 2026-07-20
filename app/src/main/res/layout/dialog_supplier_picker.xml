@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Supplier picker sheet — champagne theme, same skeleton as the
+    credit-account picker (dialog_customer_picker.xml).
+
+    A sheet rather than a plain dropdown on purpose: two suppliers can
+    share a trade name and differ only by GSTIN / state, so every row has
+    to show all three for the user to tell them apart.
+
+    Ids bound by SupplierPicker: etSearchSupplier, rvSuppliers,
+    tvSupplierCount, emptySuppliers.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/bg_picker_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_picker_handle"/>
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="12dp">
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="11dp"
+            android:background="@drawable/bg_mp_title_tick"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PURCHASE"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="1dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Saved"
+                    android:textColor="#1A1A18"
+                    android:textSize="19sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="suppliers"
+                    android:textColor="#0F6E56"
+                    android:textSize="19sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSupplierCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#9A8F79"
+            android:textSize="11sp"
+            android:fontFamily="@font/googlesans_medium"/>
+    </LinearLayout>
+
+    <!-- Glass search field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_glass_input"
+        android:paddingHorizontal="13dp">
+
+        <ImageView
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_search"
+            app:tint="#B8895A"
+            android:contentDescription="@null"/>
+
+        <EditText
+            android:id="@+id/etSearchSupplier"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="Search name, GSTIN or state"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
+            android:inputType="text"
+            android:singleLine="true"
+            android:textSize="13.5sp"/>
+    </LinearLayout>
+
+    <!-- List -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="252dp"
+        android:background="#FFFFFF">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSuppliers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="16dp"
+            android:clipToPadding="false"/>
+
+        <TextView
+            android:id="@+id/emptySuppliers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingHorizontal="30dp"
+            android:text="No saved suppliers yet.\nTap “New supplier” below to add one."
+            android:textColor="#9A8F79"
+            android:textSize="12.5sp"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+    <!-- New supplier -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="18dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNewSupplier"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="+  New supplier"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#0F6E56"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:background="@drawable/bg_inv_add_dashed"
+            android:stateListAnimator="@null"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@null"
+            app:rippleColor="#220F6E56"/>
+    </LinearLayout>
+</LinearLayout>

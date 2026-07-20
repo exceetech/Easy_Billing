@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 /**
  * Single-product edit screen.
  *
- * Strict separation from [AddProductsActivity]:
+ * Strict separation from [AddProductActivity]:
  *   • Add screen creates new entries only and never edits.
  *   • This screen edits an existing entry only and never creates.
  *
@@ -181,6 +181,21 @@ class EditProductActivity : BaseActivity() {
     private fun wireButtons() {
         btnHsnHelp.setOnClickListener { HsnHelpLauncher.open(this) }
 
+        // IGST is derived, never typed — exactly as in Add Product. Letting
+        // the three rates be edited independently allowed CGST+SGST and IGST
+        // to disagree, so the same product charged one rate on an intra-state
+        // bill and a different one inter-state.
+        //
+        // Guarded on split > 0 so a legacy IGST-only row (no CGST/SGST
+        // recorded) keeps its rate instead of being silently zeroed.
+        val recomputeIgst = {
+            val split = (etCgst.text?.toString()?.toDoubleOrNull() ?: 0.0) +
+                    (etSgst.text?.toString()?.toDoubleOrNull() ?: 0.0)
+            if (split > 0) etIgst.setText(formatRate(split))
+        }
+        etCgst.addTextChangedListener { recomputeIgst() }
+        etSgst.addTextChangedListener { recomputeIgst() }
+
         btnSave.setOnClickListener { onSaveClicked() }
         btnCancel.setOnClickListener { finish() }
 
@@ -311,7 +326,11 @@ class EditProductActivity : BaseActivity() {
         etHsn.setText(product.hsnCode.orEmpty())
         etCgst.setText(formatRate(product.cgstPercentage))
         etSgst.setText(formatRate(product.sgstPercentage))
-        etIgst.setText(formatRate(product.igstPercentage))
+        // Set last, and derived: the watchers above have already written a
+        // value off the two setText calls. A row with no CGST/SGST is an
+        // IGST-only product and keeps what was stored.
+        val split = product.cgstPercentage + product.sgstPercentage
+        etIgst.setText(formatRate(if (split > 0) split else product.igstPercentage))
         switchTaxInclusive.isChecked = product.isTaxInclusive
         // GSTR-1 product master (v23)
         spinnerOfficialUqc.text = UqcMapper.codeToDisplay(product.officialUqc) ?: ""
@@ -363,6 +382,47 @@ class EditProductActivity : BaseActivity() {
         val cessRateVal     = etCessRate.text?.toString()?.toDoubleOrNull() ?: 0.0
         val supplyClassVal  = spinnerSupplyClassification.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
 
+        // GST billing needs an HSN on every product. Add Product blocks this
+        // at creation; without the same gate here a product could be created
+        // valid and then quietly saved back with the code stripped out.
+        if (hsn.isBlank()) {
+            lifecycleScope.launch {
+                val gstEnabled = withContext(Dispatchers.IO) {
+                    AppDatabase.getDatabase(this@EditProductActivity)
+                        .storeInfoDao().get()?.gstin?.isNotBlank() == true
+                }
+                if (gstEnabled) {
+                    etHsn.error = "Required"
+                    Toast.makeText(
+                        this@EditProductActivity,
+                        "HSN Code is mandatory for GST billing",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    commitSave(product, newPrice, hsn, cgst, sgst, igst,
+                        officialUqcVal, hsnDescVal, cessRateVal, supplyClassVal)
+                }
+            }
+            return
+        }
+
+        commitSave(product, newPrice, hsn, cgst, sgst, igst,
+            officialUqcVal, hsnDescVal, cessRateVal, supplyClassVal)
+    }
+
+    /** The save itself, once validation has passed. */
+    private fun commitSave(
+        product: Product,
+        newPrice: Double,
+        hsn: String,
+        cgst: Double,
+        sgst: Double,
+        igst: Double,
+        officialUqcVal: String?,
+        hsnDescVal: String?,
+        cessRateVal: Double,
+        supplyClassVal: String
+    ) {
         if (product.isPurchased) {
             // Restricted save — sales fields only.
             viewModel.savePurchased(

@@ -93,6 +93,17 @@ interface ProductDao {
         isTaxInclusive: Boolean = false
     )
 
+    /**
+     * Exact match — this **resolves identity**, so it must be exact.
+     *
+     * `ProductRepository.upsert` writes to whatever row this returns. A
+     * case-insensitive comparison here would be non-deterministic when two
+     * rows differ only in capitalisation (`Rice` / `RICE`, both legal under
+     * the binary unique index), and an edit could land on the wrong row.
+     *
+     * For *detecting* a near-duplicate before an insert, use
+     * [findConflictIgnoringCase] instead.
+     */
     @Query(
         """
         SELECT * FROM products
@@ -103,6 +114,31 @@ interface ProductDao {
         """
     )
     suspend fun getByNameAndVariant(name: String, variant: String?, shopIds: List<String>): Product?
+
+    /**
+     * Case-insensitive **detection only** — never use it to decide which
+     * row to write to.
+     *
+     * The caller capitalises the first letter of each word but leaves the
+     * rest alone, so "BASMATI RICE" stays distinct from "Basmati Rice".
+     * Without this check that insert sails past the exact lookup and dies
+     * on the unique (shop_id, name, variant) index with a raw constraint
+     * error instead of the friendly "already exists" prompt.
+     *
+     * Ordered so the result is at least stable when several rows collide.
+     */
+    @Query(
+        """
+        SELECT * FROM products
+         WHERE name = :name COLLATE NOCASE
+           AND ((variant IS NULL AND :variant IS NULL)
+                OR variant = :variant COLLATE NOCASE)
+           AND shop_id IN (:shopIds)
+         ORDER BY isActive DESC, id ASC
+         LIMIT 1
+        """
+    )
+    suspend fun findConflictIgnoringCase(name: String, variant: String?, shopIds: List<String>): Product?
 
     /* ------------ Soft delete ------------ */
 

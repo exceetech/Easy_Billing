@@ -1748,6 +1748,8 @@ class InvoiceActivity : AppCompatActivity() {
                 addCreditAndSaveBill(customer)
             }
             rvCustomers.adapter = adapter
+            view.findViewById<android.widget.TextView>(R.id.tvAccountCount)?.text =
+                if (allCustomers.size == 1) "1 account" else "${allCustomers.size} accounts"
 
             fun updateList(data: List<CreditAccount>) {
                 currentList.clear(); currentList.addAll(data)
@@ -1775,6 +1777,7 @@ class InvoiceActivity : AppCompatActivity() {
             dialog.dismiss(); showAddCustomerDialog()
         }
         dialog.setContentView(view)
+        (view.parent as? android.view.View)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         dialog.show()
     }
 

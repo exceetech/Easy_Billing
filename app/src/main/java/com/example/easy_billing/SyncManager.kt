@@ -8,6 +8,7 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.InventoryValuation
 import com.example.easy_billing.db.BillingSettings
 import com.example.easy_billing.db.CreditAccount
+import com.example.easy_billing.db.Supplier
 import com.example.easy_billing.db.GstProfile
 import com.example.easy_billing.db.Inventory
 import com.example.easy_billing.db.StoreInfo
@@ -54,6 +55,8 @@ import com.example.easy_billing.network.CategoryDto
 import com.example.easy_billing.network.CategorySyncRequest
 import com.example.easy_billing.network.CustomerDto
 import com.example.easy_billing.network.CustomerSyncRequest
+import com.example.easy_billing.network.SupplierDto
+import com.example.easy_billing.network.SupplierSyncRequest
 
 class SyncManager(private val context: Context) {
 
@@ -71,6 +74,7 @@ class SyncManager(private val context: Context) {
         syncCategories()         // custom categories (string-on-product, no FK)
         syncShopProducts()       // push unsynced shop_product (and global)
         syncCustomers()          // customer master (after products, before invoices)
+        syncSuppliers()          // supplier master (autofill index; no FK)
         syncInventory()          // inventory BEFORE bills
         syncBills()              // then bills
         syncPurchases()
@@ -314,6 +318,145 @@ class SyncManager(private val context: Context) {
             }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncCustomers push failed", e)
+        }
+    }
+
+    /**
+     * Pushes locally-created/edited suppliers.
+     *
+     * Unlike customers this pushes on `isSynced = 0` rather than a null
+     * serverId, because suppliers get *edited* — a rename or corrected
+     * state on an already-synced row still has to go up.
+     *
+     * The server upserts by (shop_id, gstin), so two devices that recorded
+     * purchases from the same GSTIN offline converge to one row. No FK
+     * dependency in either direction: purchases carry their own supplier
+     * snapshot, so this table is pure convenience and failures here are
+     * harmless.
+     *
+     * `updated_at` is sent as `lastUsedAt`, which
+     * `SupplierRepository.remember` bumps on every write — so it is in
+     * fact the last-write timestamp the server's conflict rule wants.
+     */
+    suspend fun syncSuppliers() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncSuppliers skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val pending = db.supplierDao().getUnsynced()
+        if (pending.isEmpty()) return
+        Log.d(SYNC_TAG, "syncSuppliers: ${pending.size} unsynced supplier(s)")
+
+        try {
+            val dtos = pending.map {
+                SupplierDto(
+                    local_id     = it.id,
+                    name         = it.name,
+                    gstin        = it.gstin,
+                    state        = it.state,
+                    state_code   = GstEngine.getStateCodeFromName(it.state),
+                    last_used_at = it.lastUsedAt,
+                    updated_at   = it.lastUsedAt
+                )
+            }
+            val response = api.syncSuppliers(token, SupplierSyncRequest(dtos))
+            // Only rows the server acknowledged are marked synced; anything
+            // it skipped stays pending and is retried on the next run.
+            response.supplier_id_map.forEach { (localIdStr, serverId) ->
+                localIdStr.toIntOrNull()?.let { db.supplierDao().markSynced(it, serverId) }
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncSuppliers push failed", e)
+        }
+    }
+
+    /**
+     * Seeds / refreshes the supplier picker from the server.
+     *
+     * Matters most on a fresh install: without it the picker is empty
+     * until the device has recorded purchases of its own, even though the
+     * shop has years of suppliers on other terminals.
+     *
+     * Matching order per remote row — serverId, then GSTIN, then name
+     * among unregistered rows. Going straight to an insert would violate
+     * the unique (shopId, gstin) index for a supplier this device already
+     * knows locally.
+     *
+     * A local row with pending edits (`isSynced = 0`) is left alone: push
+     * runs before pull, but if that push failed the user's own edit is
+     * still the newer truth and must not be overwritten by what the server
+     * had before it.
+     */
+    suspend fun pullSuppliers() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val shopId = currentShopIdOrNull() ?: run {
+            Log.w(SYNC_TAG, "pullSuppliers skipped — no valid SHOP_ID")
+            return
+        }
+        val db = AppDatabase.getDatabase(context)
+        val dao = db.supplierDao()
+
+        try {
+            val remote = RetrofitClient.api.getSuppliers(token).suppliers
+            Log.d(SYNC_TAG, "pullSuppliers: ${remote.size} supplier(s) from server")
+
+            for (r in remote) {
+              // Per-row: a single conflicting insert must not abandon the
+              // rest of the pull.
+              try {
+                val name = r.name.trim()
+                if (name.isEmpty()) continue
+                val gstin = r.gstin?.trim()?.uppercase()?.takeIf { it.isNotBlank() }
+                val key = Supplier.keyOf(name)
+
+                val existing = dao.getByServerId(r.id, shopId)
+                    ?: gstin?.let { dao.getByGstinAny(it, shopId) }
+                    ?: dao.getUnregisteredByName(key, shopId).singleOrNull()
+
+                if (existing != null) {
+                    // Don't clobber an edit that hasn't made it up yet.
+                    if (!existing.isSynced) continue
+                    dao.update(
+                        existing.copy(
+                            serverId   = r.id,
+                            name       = name,
+                            nameKey    = key,
+                            gstin      = gstin,
+                            state      = r.state?.takeIf { it.isNotBlank() } ?: existing.state,
+                            // Recency is a max, not a copy: this device may
+                            // have used the supplier more recently offline.
+                            lastUsedAt = maxOf(existing.lastUsedAt, r.last_used_at),
+                            isSynced   = true,
+                            isActive   = true
+                        )
+                    )
+                } else {
+                    dao.insert(
+                        Supplier(
+                            serverId   = r.id,
+                            gstin      = gstin,
+                            name       = name,
+                            nameKey    = key,
+                            state      = r.state.orEmpty(),
+                            lastUsedAt = r.last_used_at,
+                            isSynced   = true,
+                            shopId     = shopId
+                        )
+                    )
+                }
+              } catch (rowError: Exception) {
+                Log.w(SYNC_TAG, "pullSuppliers: skipped supplier ${r.id}", rowError)
+              }
+            }
+        } catch (e: Exception) {
+            // The picker is a convenience: a failed pull just means it
+            // shows what this device already knows.
+            Log.e(SYNC_TAG, "pullSuppliers failed", e)
         }
     }
 

@@ -1056,7 +1056,7 @@
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
                             android:src="@drawable/ic_drawer_purchase" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Purchase"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="Add Purchase"/>
                             <TextView style="@style/SettingsRowSub" android:text="Record stock in"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>

@@ -234,8 +234,10 @@
     <string name="taxable_amount">Taxable amount</string>
     <string name="invoice_value">Invoice value</string>
     <string name="quantity">Quantity</string>
-    <string name="purchase_tax">Purchase tax</string>
-    <string name="sales_tax">Sales tax (when sold)</string>
+    <string name="purchase_tax">Tax you paid</string>
+    <string name="purchase_tax_helper">GST on this invoice from your supplier</string>
+    <string name="sales_tax">Tax you\'ll charge</string>
+    <string name="sales_tax_helper">GST you\'ll add when this item is sold</string>
     <string name="selling_price">Selling price (per unit)</string>
     <string name="purchased_stock_managed_note">Stock is managed through purchase entries</string>
 
@@ -251,7 +253,7 @@
     <string name="manage_filter_all">All</string>
     <string name="manage_filter_purchased">Purchased</string>
     <string name="manage_filter_manual">Manual</string>
-    <string name="manage_empty_state">No products yet. Use \"Add/Edit Product\" to create your first one.</string>
+    <string name="manage_empty_state">No products yet. Use \"Add/Edit Products\" to create your first one.</string>
     <string name="badge_purchased">PURCHASED</string>
     <string name="badge_manual">MANUAL</string>
     <string name="edit_section_inventory">Inventory</string>
@@ -263,13 +265,15 @@
     <string name="edit_screen_title">Edit product</string>
     <string name="edit_save_success">Saved</string>
     <string name="variant_already_exists_title">Variant already exists</string>
-    <string name="variant_already_exists_message">"%1$s" already exists with this variant. Open it for editing instead?</string>
+    <string name="variant_already_exists_message">%1$s · %2$s is already in your catalog. Edit it, or change the variant name.</string>
+    <string name="variant_already_exists_message_no_variant">%1$s is already in your catalog. Edit it, or change the variant name.</string>
     <string name="action_edit">Edit</string>
+    <string name="action_add_another_variant">Add another variant</string>
     <string name="action_already_added">Already added</string>
     <string name="save">Save</string>
 
     <!-- Add/Edit Product chooser -->
-    <string name="add_edit_product">Add/Edit Product</string>
+    <string name="add_edit_product">Add/Edit Products</string>
     <string name="add_edit_product_title">Add or edit a product</string>
     <string name="add_edit_product_subtitle">How was this product acquired?</string>
     <string name="add_purchased_product">Add Purchased Product</string>

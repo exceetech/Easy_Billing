@@ -207,6 +207,37 @@
         <item name="thumbIconTint">@color/ep_switch_thumb_icon</item>
     </style>
 
+    <!-- ================= PURCHASE — cream/gold TextInputLayout skin.
+         Same underlying Material3 OutlinedBox widget (no behavior change,
+         no id/hierarchy change) — just visual restyle so calendar-icon
+         end-icons, exposed dropdowns, and .error states keep working. ================= -->
+    <style name="Widget.ExPOS.TextField" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/ep_field_stroke</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxBackgroundColor">#FFFDF8</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="hintTextColor">#8A6526</item>
+        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textColor">#1A1A18</item>
+    </style>
+
+    <style name="Widget.ExPOS.TextField.Dropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/ep_field_stroke</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxBackgroundColor">#FFFDF8</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="hintTextColor">#8A6526</item>
+        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textColor">#1A1A18</item>
+        <item name="endIconTint">#B8895A</item>
+    </style>
+
     <!-- ================= EDIT PRODUCT — white section card, same as
          Invoice Activity's cardCustomer (bg_inv_card_cream). ================= -->
     <style name="EpCard">
@@ -807,4 +838,19 @@
         <item name="android:textColor">#8A8272</item>
     </style>
 
+
+    <!-- Add-item screen: non-floating from creation, so the window is never
+         laid out as a small centred card first (that resize is what caused
+         the blink). The window background is already the champagne surface,
+         so there is no colour flash before the content draws. -->
+    <style name="PurchaseLineFullScreen" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@color/champagne_bg</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:statusBarColor">@color/champagne_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
 </resources>

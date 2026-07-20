@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Add item to purchase — full-screen, styled to match the invoice
+    activity: champagne background, white cards (#FFFFFF / #EEE7D8 / 18dp)
+    with gold-bar section headers, and the invoice 48dp glass fields with
+    lucide icons.
+
+    Every id bound by PurchaseLineDialog is preserved. Editors stay
+    TextInputEditText / AutoCompleteTextView so the existing findViewById
+    casts keep working, even though they now sit in glass containers
+    rather than TextInputLayouts.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3ECDD">
+
+    <!-- ============ TOOLBAR (usual back arrow) ============ -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- ============ HEADER ============ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="12dp">
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="11dp"
+            android:background="@drawable/bg_mp_title_tick"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PURCHASE LINE"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="1dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add"
+                    android:textColor="#1A1A18"
+                    android:textSize="23sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:text="item"
+                    android:textColor="#0F6E56"
+                    android:textSize="23sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ============ BODY — two independently scrolling columns ============ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:paddingHorizontal="24dp">
+
+        <!-- ======== LEFT COLUMN (scrolls) ======== -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <!-- ======== PRODUCT ======== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="PRODUCT"
+                        android:textColor="#8A6526" android:textSize="11sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F1EBDD" android:layout_marginTop="11dp" android:layout_marginBottom="12dp"/>
+
+                <!-- Product name -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp" android:layout_marginBottom="5dp"
+                    android:text="Product name" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_lc_package" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/etProductName"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown" android:hint="Product name"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="textCapWords" android:completionThreshold="1"
+                        android:singleLine="true" android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- Variant (revealed once a product is chosen) -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp" android:layout_marginBottom="5dp"
+                    android:text="Variant" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:id="@+id/tilVariant"
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_lc_sliders" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/etVariant"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown" android:hint="Variant (e.g. 25 kg)"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="textCapWords" android:completionThreshold="1"
+                        android:singleLine="true" android:textSize="14sp"/>
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <!-- Unit + Category -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="9dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="9dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="Unit" android:textColor="#9A8F79" android:textSize="10.5sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:tag="floatlabel" android:visibility="invisible"/>
+                        <LinearLayout
+                            android:id="@+id/tilUnit"
+                            android:layout_width="match_parent" android:layout_height="48dp"
+                            android:orientation="horizontal" android:gravity="center_vertical"
+
+                            android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                            <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_marginEnd="10dp"
+                                android:src="@drawable/ic_lc_ruler" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <AutoCompleteTextView
+                                android:id="@+id/etUnit"
+                                android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                android:background="@null" android:hint="Unit"
+                                android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="none" android:focusable="false" android:clickable="true"
+                                android:singleLine="true" android:textSize="14sp"/>
+                            <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="Category" android:textColor="#9A8F79" android:textSize="10.5sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:tag="floatlabel" android:visibility="invisible"/>
+                        <LinearLayout
+                            android:id="@+id/tilCategoryPurchase"
+                            android:layout_width="match_parent" android:layout_height="48dp"
+                            android:orientation="horizontal" android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                            <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_marginEnd="10dp"
+                                android:src="@drawable/ic_lc_tag" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <AutoCompleteTextView
+                                android:id="@+id/etCategoryPurchase"
+                                android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                android:background="@null" android:hint="Category"
+                                android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="none" android:focusable="false" android:clickable="true"
+                                android:singleLine="true" android:textSize="14sp"/>
+                            <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ======== TAX CLASSIFICATION ======== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="14dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="TAX CLASSIFICATION"
+                        android:textColor="#8A6526" android:textSize="11sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F1EBDD" android:layout_marginTop="11dp" android:layout_marginBottom="12dp"/>
+
+                <!-- HSN + help -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp" android:layout_marginBottom="5dp"
+                    android:text="HSN / SAC" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_glass_input" android:paddingStart="13dp" android:paddingEnd="4dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_lc_file_text" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHsn"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:hint="HSN / SAC"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="number" android:singleLine="true" android:textSize="14sp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHsnHelp"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="40dp" android:layout_height="40dp"
+                        android:minWidth="0dp" android:minHeight="0dp"
+                        android:insetTop="0dp" android:insetBottom="0dp"
+                        android:padding="0dp"
+                        app:icon="@drawable/ic_lc_help_circle" app:iconSize="18dp"
+                        app:iconTint="#B8895A" app:iconGravity="textStart" app:iconPadding="0dp"/>
+                </LinearLayout>
+
+                <!-- UQC (required) -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp" android:layout_marginBottom="5dp"
+                    android:text="Official UQC" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:id="@+id/tilOfficialUqcPurchase"
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_lc_shield_check" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerOfficialUqcPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:hint="Official UQC (GST unit)"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="none" android:focusable="false" android:clickable="true"
+                        android:singleLine="true" android:textSize="14sp"/>
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <!-- HSN description -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp" android:layout_marginBottom="5dp"
+                    android:text="HSN description" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHsnDescriptionPurchase"
+                        android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:hint="HSN description (optional)"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="text" android:singleLine="true" android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- Supply classification + cess % -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="9dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="1.3"
+                        android:layout_marginEnd="9dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="Supply class" android:textColor="#9A8F79" android:textSize="10.5sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:tag="floatlabel" android:visibility="invisible"/>
+                        <LinearLayout
+                            android:id="@+id/tilSupplyClassificationPurchase"
+                            android:layout_width="0dp" android:layout_height="48dp"
+                            android:orientation="horizontal" android:gravity="center_vertical"
+
+                            android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                            <AutoCompleteTextView
+                                android:id="@+id/spinnerSupplyClassificationPurchase"
+                                android:layout_width="0dp" android:layout_height="match_parent"
+                                android:background="@null" android:hint="Supply class"
+                                android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="none" android:focusable="false" android:clickable="true"
+                                android:singleLine="true" android:textSize="14sp"/>
+                            <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="7dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="Cess %" android:textColor="#9A8F79" android:textSize="10.5sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:tag="floatlabel" android:visibility="invisible"/>
+                        <LinearLayout
+                            android:layout_width="0dp" android:layout_height="48dp"
+                            android:orientation="horizontal" android:gravity="center_vertical"
+                            android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCessRatePurchase"
+                                android:layout_width="match_parent" android:layout_height="match_parent"
+                                android:background="@null" android:hint="Cess %"
+                                android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ======== RIGHT COLUMN (scrolls) ======== -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <!-- ======== YOU WILL SELL AT ======== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="14dp"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="YOU WILL SELL AT"
+                        android:textColor="#8A6526" android:textSize="11sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F1EBDD" android:layout_marginTop="11dp" android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp" android:layout_marginBottom="5dp"
+                    android:text="Selling price" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="9dp"
+                        android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSellingPrice"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:hint="Selling price"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- Tax-inclusive toggle — same row pattern as "Imported goods". -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="11dp">
+                    <ImageView
+                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <TextView
+                        android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:text="Price includes GST (MRP)" android:textColor="#1A1A18" android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_medium"/>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchTaxInclusive"
+                        style="@style/EpSwitch"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="11dp">
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="CGST" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSalesCgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="SGST" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSalesSgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="IGST" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSalesIgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ======== SUPPLIER INVOICE ======== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="14dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="SUPPLIER INVOICE"
+                        android:textColor="#8A6526" android:textSize="11sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="#F1EBDD" android:layout_marginTop="11dp" android:layout_marginBottom="12dp"/>
+
+                <!-- Qty + Gross -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginEnd="9dp"
+                        android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" android:text="Qty"
+                            android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etQuantity"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" android:text="Gross"
+                            android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etGrossAmount"
+                            android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Discount + Taxable -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="9dp">
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginEnd="9dp"
+                        android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" android:text="Disc"
+                            android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDiscountAmount"
+                            android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" android:text="Taxable"
+                            android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etTaxable"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- GST paid to supplier -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="9dp">
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="CGST paid" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurchaseCgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="SGST paid" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurchaseSgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="IGST paid" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurchaseIgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Invoice value -->
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="11dp"
+                    android:background="@drawable/bg_pos_row_selected"
+                    android:paddingHorizontal="13dp" android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Invoice value" android:textColor="#3A3733" android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etInvoiceValue"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:background="@null" android:hint="0"
+                        android:gravity="end"
+                        android:textColor="#18181B" android:textColorHint="#A99E88"
+                        android:fontFamily="serif"
+                        android:inputType="numberDecimal" android:singleLine="true"
+                        android:textSize="18sp" android:padding="0dp" android:minHeight="0dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ======== ITC (collapsible) ======== -->
+            <LinearLayout
+                android:id="@+id/llGstr2HeaderToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="14dp"
+                android:layout_marginTop="12dp"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="18dp" android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Input tax credit details"
+                    android:textColor="#1A1A18" android:textSize="13sp"
+                    android:fontFamily="@font/googlesans_medium"/>
+                <ImageView
+                    android:id="@+id/ivGstr2ToggleArrow"
+                    android:layout_width="17dp" android:layout_height="17dp"
+                    android:src="@drawable/ic_lc_chevron_down" app:tint="#A99E88"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llGstr2ItemDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="14dp"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+
+                <!-- Eligibility -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp" android:layout_marginBottom="5dp"
+                    android:text="Eligibility for ITC" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:id="@+id/tilEligibilityItemPurchase"
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_lc_shield_check" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerEligibilityItemPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:hint="Eligibility for ITC"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="none" android:focusable="false" android:clickable="true"
+                        android:singleLine="true" android:textSize="14sp"/>
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <!-- Cess amount -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp" android:layout_marginBottom="5dp"
+                    android:text="Cess amount" android:textColor="#9A8F79" android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:tag="floatlabel" android:visibility="invisible"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="9dp"
+                        android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCessAmountPurchase"
+                        android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:hint="Cess amount"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:layout_marginBottom="2dp"
+                    android:text="Availed ITC" android:textColor="#9A8F79" android:textSize="10sp"
+                    android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="7dp">
+                    <LinearLayout
+                        android:id="@+id/tilAvailedItcIgstPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="IGST" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAvailedItcIgstPurchase"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/tilAvailedItcCgstPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="CGST" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAvailedItcCgstPurchase"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/tilAvailedItcSgstPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_glass_input" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="SGST" android:textColor="#9A8F79" android:textSize="9.5sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAvailedItcSgstPurchase"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="13.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tilAvailedItcCessPurchase"
+                    android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="9dp"
+                    android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginEnd="9dp" android:text="Cess"
+                        android:textColor="#9A8F79" android:textSize="10sp"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAvailedItcCessPurchase"
+                        android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:hint="0"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                </LinearLayout>
+            </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ============ FOOTER ============ -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E6DCC8"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLineCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="52dp"
+            android:layout_marginEnd="12dp"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textSize="13.5sp"
+            android:textStyle="bold"
+            android:textColor="#9A2E2E"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:background="@drawable/bg_inv_action_close"
+            android:stateListAnimator="@null"
+            app:rippleColor="#F6D8D4"
+            app:icon="@drawable/ic_lc_x"
+            app:iconTint="#B91C1C"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp"
+            app:backgroundTint="@null"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLineAdd"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="52dp"
+            android:text="Add item"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:background="@drawable/bg_login_cta_green"
+            android:stateListAnimator="@null"
+            app:rippleColor="#2E9C5B"
+            app:icon="@drawable/ic_lucide_plus"
+            app:iconTint="#FFFFFF"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            app:cornerRadius="13dp"
+            app:backgroundTint="@null"/>
+    </LinearLayout>
+</LinearLayout>

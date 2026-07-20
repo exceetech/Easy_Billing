@@ -637,8 +637,8 @@ class DashboardActivity : BaseActivity() {
      * "Add/Edit Product" drawer entry now routes through a 2-option
      * chooser:
      *   • Add Purchased Product   → [PurchaseActivity]
-     *   • Add Non-Purchased       → [AddProductsActivity] (existing
-     *                                manual-product flow)
+     *   • Add a product           → [AddProductActivity] (the single
+     *                                manual-product form)
      */
     private fun showAddEditProductChooser() {
         val view = layoutInflater.inflate(R.layout.dialog_add_product_chooser, null)
@@ -646,10 +646,6 @@ class DashboardActivity : BaseActivity() {
             .setView(view).create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        view.findViewById<View>(R.id.btnPurchasedProduct).setOnClickListener {
-            dialog.dismiss()
-            startActivity(Intent(this, PurchaseActivity::class.java))
-        }
         view.findViewById<View>(R.id.btnNonPurchasedProduct).setOnClickListener {
             dialog.dismiss()
             startActivity(Intent(this, AddProductActivity::class.java))

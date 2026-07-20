@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="26dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="22dp">
+
+    <FrameLayout
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_copy"
+            app:tint="#B8895A"
+            android:contentDescription="@null"/>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:text="ALREADY IN CATALOG"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Already exists"
+        android:textColor="#1A1A18"
+        android:textSize="20sp"
+        android:fontFamily="serif"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tvVariantExistsMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:gravity="center"
+        android:text="This product and variant already exist. Open it for editing instead?"
+        android:textColor="#6E6A60"
+        android:textSize="13sp"
+        android:lineSpacingExtra="3dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddAnotherVariant"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_inv_action_close"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Add another"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:textColor="#8A3A32"
+            app:cornerRadius="14dp"
+            app:rippleColor="#22B8895A"/>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="1dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditExisting"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_login_cta_green"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Edit existing"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="@android:color/white"
+            app:cornerRadius="14dp"
+            app:rippleColor="#33FFFFFF"/>
+    </LinearLayout>
+
+</LinearLayout>

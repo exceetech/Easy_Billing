@@ -17,8 +17,20 @@ class CreditAdapter(
         val name = view.findViewById<TextView>(R.id.tvName)
         val phone = view.findViewById<TextView>(R.id.tvPhone)
         val due = view.findViewById<TextView>(R.id.tvDue)
+        val status = view.findViewById<TextView>(R.id.tvStatus)
         val tvAvatar = view.findViewById<TextView>(R.id.tvAvatar)
     }
+
+    /** Monogram tiles cycle through the theme's three accent tints. */
+    private val tileBg = intArrayOf(
+        R.drawable.bg_addp_tile_green,
+        R.drawable.bg_tile_gold,
+        R.drawable.bg_tile_violet
+    )
+    private val tileInk = arrayOf("#0F6E56", "#B8895A", "#6C4EA0")
+
+    private fun money(v: Double): String =
+        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
@@ -36,30 +48,29 @@ class CreditAdapter(
         holder.name.text = name
         holder.phone.text = item.phone
 
-        // ✅ Avatar
+        // Avatar — theme tile, colour cycled by position for variety.
         holder.tvAvatar.text = if (name.isNotEmpty()) name[0].uppercase() else "?"
+        val slot = position % tileBg.size
+        holder.tvAvatar.backgroundTintList = null
+        holder.tvAvatar.setBackgroundResource(tileBg[slot])
+        holder.tvAvatar.setTextColor(android.graphics.Color.parseColor(tileInk[slot]))
 
-        val colors = listOf("#2563EB", "#7C3AED", "#059669", "#DC2626", "#EA580C")
-        val color = colors[Math.abs(name.hashCode()) % colors.size]
-
-        holder.tvAvatar.backgroundTintList =
-            android.content.res.ColorStateList.valueOf(
-                android.graphics.Color.parseColor(color)
-            )
-
-        // 🔥 FINAL DUE LOGIC
+        // Balance: caption + amount, so "owes you" and "you owe" read apart.
         when {
             item.dueAmount > 0 -> {
-                holder.due.setTextColor(android.graphics.Color.parseColor("#DC2626")) // red
-                holder.due.text = "Due: ₹${item.dueAmount}"
+                holder.status.text = "DUE"
+                holder.due.text = money(item.dueAmount)
+                holder.due.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
             }
             item.dueAmount < 0 -> {
-                holder.due.setTextColor(android.graphics.Color.parseColor("#16A34A")) // green
-                holder.due.text = "Advance: ₹${-item.dueAmount}"
+                holder.status.text = "ADVANCE"
+                holder.due.text = money(-item.dueAmount)
+                holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             }
             else -> {
-                holder.due.setTextColor(android.graphics.Color.GRAY)
-                holder.due.text = "Settled"
+                holder.status.text = "SETTLED"
+                holder.due.text = money(0.0)
+                holder.due.setTextColor(android.graphics.Color.parseColor("#8A8272"))
             }
         }
 

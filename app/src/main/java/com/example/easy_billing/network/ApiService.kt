@@ -431,7 +431,7 @@ interface ApiService {
 
     /* ================= Product / HSN / variant verification =================
      *
-     * Used by AddProductsActivity + PurchaseActivity to validate user
+     * Used by AddProductActivity + PurchaseActivity to validate user
      * input against the global catalogue. The shop's backend is the
      * authority — global product / HSN / variant data does NOT live
      * locally and is not cached past the screen lifecycle.
@@ -513,6 +513,38 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body body: CustomerAccountRequest
     ): CustomerRemote
+
+    /* ================= Suppliers (v47) ================= */
+
+    @GET("suppliers")
+    suspend fun getSuppliers(
+        @Header("Authorization") token: String
+    ): SupplierListResponse
+
+    @GET("suppliers/by-gstin")
+    suspend fun getSupplierByGstin(
+        @Header("Authorization") token: String,
+        @Query("gstin") gstin: String
+    ): SupplierLookupResponse
+
+    /** Plural by design — a name can match several suppliers. */
+    @GET("suppliers/by-name")
+    suspend fun getSuppliersByName(
+        @Header("Authorization") token: String,
+        @Query("name") name: String
+    ): SupplierMatchResponse
+
+    @POST("suppliers/sync")
+    suspend fun syncSuppliers(
+        @Header("Authorization") token: String,
+        @Body body: SupplierSyncRequest
+    ): SupplierSyncResponse
+
+    @POST("suppliers/account")
+    suspend fun upsertSupplierAccount(
+        @Header("Authorization") token: String,
+        @Body body: SupplierAccountRequest
+    ): SupplierRemote
 
     /** Push a batch of purchase invoices + their line items. */
     @POST("purchases/sync")

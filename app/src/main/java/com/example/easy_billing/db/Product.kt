@@ -58,6 +58,14 @@ data class Product(
     val trackInventory: Boolean,
     val isCustom: Boolean = false,
     val isActive: Boolean = true,
+
+    /**
+     * Unused. Added in v48 for an offline hide/restore queue that was
+     * removed again; the column stays so databases that already ran
+     * MIGRATION_47_48 keep matching the entity. Safe to drop in a future
+     * migration alongside a schema bump.
+     */
+    val activeStateSynced: Boolean = true,
     val isTaxInclusive: Boolean = false,
 
     @ColumnInfo(name = "is_purchased")

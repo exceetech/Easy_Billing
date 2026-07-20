@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Supplier row — same invoice line-item shape as item_credit.xml.
+
+    Shows name, GSTIN and state together because those are exactly the
+    fields that tell two same-named suppliers apart.
+
+    Bound by SupplierAdapter: tvAvatar, tvSupName, tvSupGstin, tvSupState,
+    tvSupTag.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="12dp">
+
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="A"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"
+            android:textColor="#0F6E56"
+            android:background="@drawable/bg_addp_tile_green"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/tvSupName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Supplier name"
+                android:textSize="14sp"
+                android:textColor="#18181B"
+                android:fontFamily="@font/googlesans_medium"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/tvSupGstin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="33AAAAA0000A1Z5"
+                android:textSize="11sp"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:textColor="#9A8F79"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/tvSupTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="REGISTERED"
+                android:textSize="9.5sp"
+                android:letterSpacing="0.06"
+                android:textColor="#9A8F79"
+                android:fontFamily="@font/googlesans_semibold"/>
+
+            <TextView
+                android:id="@+id/tvSupState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Tamil Nadu"
+                android:textSize="12.5sp"
+                android:textColor="#3A3733"
+                android:fontFamily="@font/googlesans_medium"
+                android:singleLine="true"
+                android:ellipsize="end"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="52dp"
+        android:background="#F1EBDD"/>
+</LinearLayout>

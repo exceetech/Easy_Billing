@@ -75,9 +75,9 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- Option 1: Purchased -->
+    <!-- Option 1: Add a product manually -->
     <LinearLayout
-        android:id="@+id/btnPurchasedProduct"
+        android:id="@+id/btnNonPurchasedProduct"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -92,41 +92,6 @@
         <FrameLayout
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:background="@drawable/bg_tile_green">
-            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center"
-                android:src="@drawable/ic_lc_truck" app:tint="#0F6E56" android:contentDescription="@null"/>
-        </FrameLayout>
-        <LinearLayout
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:orientation="vertical" android:layout_marginStart="13dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Record a purchase" android:textColor="#1A1A18" android:textSize="14.5sp"
-                android:fontFamily="@font/googlesans_semibold"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="2dp" android:text="Bought stock — records cost &amp; purchase"
-                android:textColor="#8A8272" android:textSize="11.5sp"/>
-        </LinearLayout>
-        <ImageView android:layout_width="19dp" android:layout_height="19dp"
-            android:src="@drawable/ic_lc_chevron_right" app:tint="#C7A15A" android:contentDescription="@null"/>
-    </LinearLayout>
-
-    <!-- Option 2: Non-purchased -->
-    <LinearLayout
-        android:id="@+id/btnNonPurchasedProduct"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_chooser_row"
-        android:foreground="?attr/selectableItemBackground"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="13dp"
-        android:layout_marginTop="10dp"
-        android:clickable="true"
-        android:focusable="true">
-        <FrameLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp"
             android:background="@drawable/bg_tile_gold">
             <ImageView android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center"
                 android:src="@drawable/ic_lc_box" app:tint="#B8895A" android:contentDescription="@null"/>
@@ -135,7 +100,7 @@
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:orientation="vertical" android:layout_marginStart="13dp">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Non-purchased product" android:textColor="#1A1A18" android:textSize="14.5sp"
+                android:text="Add a product" android:textColor="#1A1A18" android:textSize="14.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="2dp" android:text="Add directly, without a purchase entry"
@@ -145,7 +110,7 @@
             android:src="@drawable/ic_lc_chevron_right" app:tint="#C7A15A" android:contentDescription="@null"/>
     </LinearLayout>
 
-    <!-- Option 3: Manage -->
+    <!-- Option 2: Manage -->
     <LinearLayout
         android:id="@+id/btnManageProducts"
         android:layout_width="match_parent"

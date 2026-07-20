@@ -19,6 +19,7 @@ import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.VariantResponse
 import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.util.CatalogAutofill
 import com.example.easy_billing.util.UqcMapper
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
@@ -37,9 +38,12 @@ class AddProductActivity : BaseActivity() {
 
     private lateinit var db: AppDatabase
 
-    // Local products keyed by lowercase name → used for autofill of a
-    // previously-added product's HSN / tax / price / classification.
-    private val localByName = HashMap<String, Product>()
+    // Local products grouped by lowercase name — a name can have several
+    // saved variants, so this holds the *list* of this shop's own
+    // products sharing that name. Nothing auto-fills from name alone; if
+    // the user picks a variant that already exists here, they're prompted
+    // to edit that existing product instead — see applyVariantAutofill().
+    private val localVariantsByName = HashMap<String, MutableList<Product>>()
 
     // Lowercased catalog product names — used only to gate the variant
     // fetch to products actually in the global catalog. The fetch itself
@@ -127,10 +131,14 @@ class AddProductActivity : BaseActivity() {
 
         // ── Fixed-choice pickers — same popup as the Manage Products sort
         //    dropdown (rounded white sheet, selected row highlighted with
-        //    a green tick). ──
-        etUnit.text = "piece"
+        //    a green tick). Left blank (hint only) until the user picks
+        //    one — normalizeUnit() still falls back to "piece" at save
+        //    time if nothing was ever chosen. ──
         etUnit.setOnClickListener {
-            showSortStylePopup(etUnit, units, etUnit.text.toString()) { picked ->
+            // The field can hold a stored/catalog token ("kg"), while the
+            // picker lists long forms ("kilogram") — map across so the
+            // current unit actually shows as selected.
+            showSortStylePopup(etUnit, units, unitDisplay(etUnit.text.toString())) { picked ->
                 etUnit.text = picked
                 unitUserSet = true
             }
@@ -142,7 +150,8 @@ class AddProductActivity : BaseActivity() {
             }
         }
 
-        spinnerSupplyClass.text = "TAXABLE"
+        // Left blank (hint "TAXABLE") until the user picks one — saveProduct()
+        // still falls back to TAXABLE at save time if nothing was chosen.
         spinnerSupplyClass.setOnClickListener {
             showSortStylePopup(spinnerSupplyClass, supplyClasses, spinnerSupplyClass.text.toString()) { picked ->
                 spinnerSupplyClass.text = picked
@@ -180,7 +189,7 @@ class AddProductActivity : BaseActivity() {
             }
         }
         etName.addTextChangedListener {
-            if (!localByName.containsKey(etName.text.toString().trim().lowercase())) {
+            if (!localVariantsByName.containsKey(etName.text.toString().trim().lowercase())) {
                 tvBadge.text = "New to catalog"
             }
         }
@@ -193,27 +202,49 @@ class AddProductActivity : BaseActivity() {
         etVariant.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) applyVariantAutofill()
         }
+        // Clearing the variant (backspace to empty, or the "Add another
+        // variant" action) means there's no longer a specific variant
+        // chosen — wipe any statutory fields that were auto-filled for the
+        // previous selection so nothing stale gets saved by mistake.
+        etVariant.addTextChangedListener {
+            if (etVariant.text.isNullOrBlank()) resetAutofilledFields()
+        }
 
         findViewById<View>(R.id.btnSave).setOnClickListener { saveProduct() }
     }
 
     // ============================================================
+    /**
+     * Runs when the product NAME is picked/typed. Deliberately touches NO
+     * form field — only the catalog badge and the Variant dropdown's
+     * contents. Every other field (category, unit, price, HSN, GST...)
+     * fills in only once the user explicitly picks a variant — see
+     * applyVariantAutofill().
+     */
     private fun tryAutofill() {
         val key = etName.text.toString().trim().lowercase()
-        val p = localByName[key] ?: run { tvBadge.text = "New to catalog"; return }
+        val matches = localVariantsByName[key]
+        if (matches.isNullOrEmpty()) {
+            tvBadge.text = "New to catalog"
+            etVariant.setAdapter(ArrayAdapter(this, R.layout.item_dropdown_ep, emptyList<String>()))
+            return
+        }
         tvBadge.text = "In catalog"
-        if (etPrice.text.isNullOrBlank()) etPrice.setText(trimNum(p.price))
-        if (etHsn.text.isNullOrBlank()) p.hsnCode?.let { etHsn.setText(it) }
-        if (etCgst.text.isNullOrBlank() && p.cgstPercentage > 0) etCgst.setText(trimNum(p.cgstPercentage))
-        if (etSgst.text.isNullOrBlank() && p.sgstPercentage > 0) etSgst.setText(trimNum(p.sgstPercentage))
-        switchTaxInclusive.isChecked = p.isTaxInclusive
-        if (p.category.isNotBlank() && etCategory.text.isNullOrBlank()) etCategory.text = p.category
-        // More-details
-        if (etVariant.text.isNullOrBlank()) p.variant?.let { etVariant.setText(it) }
-        if (!unitUserSet) p.unit?.let { etUnit.text = it }
-        if (etHsnDesc.text.isNullOrBlank()) p.hsnDescription?.let { etHsnDesc.setText(it) }
-        if (p.cessRate > 0 && etCessRate.text.isNullOrBlank()) etCessRate.setText(trimNum(p.cessRate))
-        if (p.supplyClassification.isNotBlank()) spinnerSupplyClass.text = p.supplyClassification
+        refreshVariantAdapter(key)
+    }
+
+    /**
+     * Merges this shop's own saved variants for [nameKey] with the global
+     * catalog's variants (if already fetched) into the Variant dropdown,
+     * so tapping the field shows every variant that actually belongs to
+     * this product name — not a guess.
+     */
+    private fun refreshVariantAdapter(nameKey: String) {
+        val localNames = localVariantsByName[nameKey].orEmpty()
+            .mapNotNull { it.variant?.trim()?.takeIf { v -> v.isNotBlank() } }
+        val globalNames = variantCache.filter { it.variant_name.isNotBlank() }.map { it.variant_name }
+        val merged = LinkedHashSet<String>().apply { addAll(localNames); addAll(globalNames) }
+        etVariant.setAdapter(ArrayAdapter(this, R.layout.item_dropdown_ep, merged.toList()))
     }
 
     /**
@@ -223,53 +254,59 @@ class AddProductActivity : BaseActivity() {
      */
     private fun fetchGlobalVariants(name: String) {
         val key = name.trim().lowercase()
-        if (!catalogNames.contains(key)) { variantCache = emptyList(); return }
+        if (!catalogNames.contains(key)) {
+            // Not in the catalog — drop the cache, and drop the key with it.
+            // These two must always agree: leaving a stale key behind while
+            // the cache is empty made the guard below short-circuit when the
+            // user came back to the earlier product, so its variants never
+            // reloaded and nothing auto-filled again.
+            variantCache = emptyList()
+            lastFetchedProduct = null
+            return
+        }
         // Skip if we already loaded this exact product (multiple triggers).
+        // Safe because lastFetchedProduct is non-null only while variantCache
+        // actually holds that product's variants.
         if (key == lastFetchedProduct) return
         lastFetchedProduct = key
         lifecycleScope.launch {
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return@launch
             // Single by-name call — the backend merges variants across any
             // duplicate global_products rows sharing this name.
-            val raw = try {
-                RetrofitClient.api.getVariantsByName(token, name.trim())
-            } catch (_: Exception) {
-                lastFetchedProduct = null; return@launch  // allow retry if offline
+            val variants = CatalogAutofill.fetchVariants(this@AddProductActivity, name)
+            if (variants == null) {
+                lastFetchedProduct = null; return@launch  // offline — allow retry
             }
-            // De-dupe by lowercased variant name (defensive against legacy dups).
-            val seen = HashSet<String>()
-            val variants = raw.filter { seen.add(it.variant_name.trim().lowercase()) }
             variantCache = variants
-            val named = variants.filter { it.variant_name.isNotBlank() }
-            // Product-level statutory holder: prefer the "" holder row, else
-            // fall back to any variant (HSN/GST are product-level facts). Used
-            // so variant-less products still autofill HSN/GST on name-pick.
-            val productDefault = variants.firstOrNull { it.variant_name.isBlank() }
-                ?: variants.firstOrNull()
+            // Only auto-apply the product-level holder row when there is
+            // NOTHING to choose from — see CatalogAutofill.productLevelDefault.
+            val productDefault = CatalogAutofill.productLevelDefault(variants)
             withContext(Dispatchers.Main) {
-                etVariant.setAdapter(
-                    ArrayAdapter(
-                        this@AddProductActivity,
-                        R.layout.item_dropdown_ep,
-                        named.map { it.variant_name }
-                    )
-                )
-                productDefault?.let {
-                    fillStatutoryFrom(it, applyUnit = it.variant_name.isBlank())
-                }
+                refreshVariantAdapter(key)
+                productDefault?.let { fillStatutoryFrom(it, applyUnit = true) }
             }
         }
     }
 
     /**
-     * When a known variant is chosen, fill ONLY the statutory tax fields
-     * and only when empty — never price or the tax-inclusive toggle, and
-     * never overwriting something the user already typed.
+     * Runs only once the user has explicitly picked (or typed and moved
+     * on from) a variant name. If that exact name+variant already exists
+     * locally, surface the "already exists — edit instead?" prompt right
+     * here instead of waiting until Save. Otherwise falls back to the
+     * global catalog's variant data (statutory fields only) for a fresh
+     * variant of this product.
      */
     private fun applyVariantAutofill() {
         val chosen = etVariant.text.toString().trim()
-        val v = variantCache.firstOrNull { it.variant_name.equals(chosen, true) } ?: return
+        if (chosen.isEmpty()) return
+        val nameKey = etName.text.toString().trim().lowercase()
+        val localMatch = localVariantsByName[nameKey]?.firstOrNull {
+            it.variant?.trim()?.equals(chosen, true) == true
+        }
+        if (localMatch != null) {
+            confirmEditExistingVariant(localMatch)
+            return
+        }
+        val v = CatalogAutofill.variantNamed(variantCache, chosen) ?: return
         fillStatutoryFrom(v, applyUnit = true)
     }
 
@@ -293,6 +330,24 @@ class AddProductActivity : BaseActivity() {
         // IGST recomputes from CGST+SGST via the text watcher.
     }
 
+    /**
+     * Wipes every field that [fillStatutoryFrom] may have auto-filled for a
+     * variant, leaving only the product name/badge intact. Called whenever
+     * the Variant field goes back to empty, since at that point there is no
+     * longer a specific variant selection backing those values.
+     */
+    private fun resetAutofilledFields() {
+        unitUserSet = false
+        etUnit.setText("")
+        etHsn.setText("")
+        etHsnDesc.setText("")
+        spinnerUqc.text = ""
+        etCgst.setText("")
+        etSgst.setText("")
+        etCessRate.setText("")
+        // etIgst recomputes to blank/0 automatically via its text watcher.
+    }
+
     // ============================================================
     private fun loadNameSuggestions() {
         lifecycleScope.launch {
@@ -300,7 +355,7 @@ class AddProductActivity : BaseActivity() {
             try {
                 val locals = ProductRepository.get(this@AddProductActivity).getAllForCurrentShop()
                 for (p in locals) {
-                    localByName[p.name.trim().lowercase()] = p
+                    localVariantsByName.getOrPut(p.name.trim().lowercase()) { mutableListOf() }.add(p)
                     names.add(p.name)
                 }
             } catch (_: Exception) { /* offline-safe */ }
@@ -377,10 +432,82 @@ class AddProductActivity : BaseActivity() {
 
             try {
                 val shopId = shopIdSync()
-                val validShopIds = ProductRepository.get(this@AddProductActivity).getValidShopIds()
-                val existing = db.productDao().getByNameAndVariant(name, variant, validShopIds)
-                if (existing != null) {
+                val repo = ProductRepository.get(this@AddProductActivity)
+
+                // Via the repository, not the DAO directly: it capitalises the
+                // name the same way the insert below does, so "basmati rice"
+                // correctly matches the stored "Basmati Rice" instead of
+                // slipping past and hitting the unique index.
+                //
+                // Exact match first, then branch on isActive. The query
+                // deliberately matches hidden rows too (ProductRepository
+                // .upsert depends on that — a purchase line naming a hidden
+                // product must update it, not insert a second row into the
+                // unique (shop_id, name, variant) slot). So the *caller* has
+                // to tell the two cases apart; a second inactive-only query
+                // after this one could never be reached.
+                //
+                // A case-different near-duplicate ("BASMATI RICE" vs the
+                // stored "Basmati Rice") is a separate question, handled
+                // below — it must not be resolved by this lookup, or an edit
+                // could land on the wrong row.
+                val existing = repo.getByNameAndVariant(name, variant)
+                if (existing != null && existing.isActive) {
                     withContext(Dispatchers.Main) { confirmEditExistingVariant(existing) }
+                    return@launch
+                }
+
+                // The typed values, applied over whichever saved row we
+                // matched. Declared once: both the exact-match and the
+                // case-different paths below hand it to the restore dialog,
+                // and an earlier version of this only built it on one of
+                // them — so "Restore with my details" quietly restored the
+                // old values instead.
+                fun restoredFrom(base: Product) = base.copy(
+                    isActive = true,
+                    price = price,
+                    unit = unit,
+                    // trackInventory is deliberately NOT taken from the
+                    // opening-stock switch. A restore leaves stock alone, so
+                    // flipping tracking off here would strand whatever the
+                    // product still holds — untracked, unsellable and
+                    // invisible in Manage Products. It is the same invariant
+                    // Edit Product guards with "Reduce stock to 0 before
+                    // turning inventory off"; change it there.
+                    trackInventory = base.trackInventory,
+                    hsnCode = hsnCode.ifBlank { null },
+                    defaultGstRate = igstPct,
+                    cgstPercentage = cgstPct,
+                    sgstPercentage = sgstPct,
+                    igstPercentage = igstPct,
+                    officialUqc = officialUqcVal,
+                    hsnDescription = hsnDescVal,
+                    cessRate = cessRateVal,
+                    supplyClassification = supplyClassVal,
+                    category = categoryVal,
+                    isTaxInclusive = isTaxInclusive
+                )
+
+                // Hidden: the row still occupies the unique slot, so a fresh
+                // insert would fail and that name would be unusable forever.
+                // Offer to bring it back instead.
+                if (existing != null) {
+                    withContext(Dispatchers.Main) {
+                        confirmRestoreDeactivated(existing, restoredFrom(existing))
+                    }
+                    return@launch
+                }
+
+                // No exact match — but the unique index is case-*sensitive*,
+                // so "BASMATI RICE" would insert happily next to "Basmati
+                // Rice" and leave two rows for one product. Catch it here and
+                // send the user to the one that already exists.
+                val clash = repo.findConflictIgnoringCase(name, variant)
+                if (clash != null) {
+                    withContext(Dispatchers.Main) {
+                        if (clash.isActive) confirmEditExistingVariant(clash)
+                        else confirmRestoreDeactivated(clash, restoredFrom(clash))
+                    }
                     return@launch
                 }
 
@@ -487,24 +614,161 @@ class AddProductActivity : BaseActivity() {
     }
 
     /**
+     * "This product was hidden — restore it?"
+     *
+     * Reached when the name + variant matches a deactivated product. The
+     * unique (shop_id, name, variant) index means we cannot simply insert a
+     * new row, so restoring is the only way that name becomes usable again;
+     * without this the user would hit a raw constraint error with no way out.
+     *
+     * Opening stock is deliberately ignored here. Hiding is a soft delete,
+     * so the product still holds whatever stock it had; adding the typed
+     * quantity on top would silently inflate it, and treating it as a new
+     * total would need a stock-adjustment entry to keep the ledger honest.
+     * Stock goes in through "Record a purchase", which is the only path
+     * that creates a proper batch — the dialog says so.
+     *
+     * @param hidden   the row as stored today
+     * @param restored the same row with the values just typed applied
+     */
+    private fun confirmRestoreDeactivated(
+        hidden: Product,
+        restored: Product
+    ) {
+        val view = layoutInflater.inflate(R.layout.dialog_variant_restore, null)
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val label = hidden.variant?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?.let { "${hidden.name} ($it)" } ?: hidden.name
+        val stockNote = if (switchOpeningStock.isChecked)
+            "\n\nIts existing stock is kept as-is — add more from \"Record a purchase\"."
+        else ""
+        view.findViewById<TextView>(R.id.tvRestoreMessage).text =
+            "$label was hidden earlier. Restore it to use this name again.$stockNote"
+
+        // The whole write path for a restore. Local to this dialog so both
+        // buttons go through exactly the same steps and can't drift apart.
+        fun restore(product: Product) {
+            dialog.dismiss()
+            lifecycleScope.launch {
+                try {
+                    db.productDao().update(product)
+                    db.productDao().activate(product.id)
+                    rememberCategoryIfNew(product.category, shopIdSync())
+                    pushRestoredProduct(product)
+                    withContext(Dispatchers.Main) {
+                        toast("Product restored")
+                        finish()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        toast("Could not restore: ${e.message ?: "unknown error"}")
+                    }
+                }
+            }
+        }
+
+        view.findViewById<View>(R.id.btnRestoreUpdate).setOnClickListener { restore(restored) }
+        // Keeps every saved value; only flips it back to active.
+        view.findViewById<View>(R.id.btnRestoreKeep).setOnClickListener {
+            restore(hidden.copy(isActive = true))
+        }
+        view.findViewById<View>(R.id.btnRestoreCancel).setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
+    }
+
+    /**
      * "Variant already exists. Edit instead?" — mirrors the old
-     * AddProducts flow. Confirm → EditProductActivity; cancel stays.
+     * AddProducts flow. Confirm → EditProductActivity; the other option
+     * stays on this screen but clears the Variant box (rather than just
+     * dismissing) so the user can type a genuinely new variant name
+     * instead of re-triggering this same prompt.
      */
     private fun confirmEditExistingVariant(product: Product) {
-        val label = product.variant?.takeIf { it.isNotBlank() } ?: product.name
-        AlertDialog.Builder(this)
-            .setTitle(R.string.variant_already_exists_title)
-            .setMessage(getString(R.string.variant_already_exists_message, label))
-            .setPositiveButton(R.string.action_edit) { d, _ ->
-                d.dismiss()
-                startActivity(
-                    Intent(this, EditProductActivity::class.java)
-                        .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
-                )
-                finish()
+        val variantName = product.variant?.trim()
+        val view = layoutInflater.inflate(R.layout.dialog_variant_exists, null)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvVariantExistsMessage).text = if (!variantName.isNullOrBlank())
+            getString(R.string.variant_already_exists_message, product.name, variantName)
+        else
+            getString(R.string.variant_already_exists_message_no_variant, product.name)
+
+        var editChosen = false
+        view.findViewById<View>(R.id.btnEditExisting).setOnClickListener {
+            editChosen = true
+            dialog.dismiss()
+            startActivity(
+                Intent(this, EditProductActivity::class.java)
+                    .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
+            )
+            finish()
+        }
+        view.findViewById<View>(R.id.btnAddAnotherVariant).setOnClickListener {
+            dialog.dismiss()
+        }
+        // Dismissing any other way — tapping outside, back press — leaves a
+        // stale variant name sitting in the field with no real selection
+        // behind it, so treat it the same as "Add another variant".
+        dialog.setOnDismissListener {
+            if (!editChosen) {
+                etVariant.setText("")
+                etVariant.requestFocus()
             }
-            .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
-            .show()
+        }
+        dialog.show()
+    }
+
+    /**
+     * Mirrors a restore to the backend.
+     *
+     * `activate()` leaves the row pending so SyncManager pushes the
+     * *isActive* flip, but the price / GST / HSN the user just typed would
+     * otherwise stay local. Every other edit path in the app pushes inline
+     * right after its local write (see
+     * ProductRepository.updateSalesFieldsOnly) — this keeps that contract.
+     *
+     * Fire-and-forget: the local row is authoritative and the purchase is
+     * already saved, so a network failure must not surface as an error.
+     */
+    private suspend fun pushRestoredProduct(product: Product) {
+        val serverId = product.serverId ?: return
+        val token = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        runCatching {
+            RetrofitClient.api.updateShopProduct(
+                token = "Bearer $token",
+                serverId = serverId,
+                request = AddProductRequest(
+                    name = product.name,
+                    variant_name = product.variant?.ifBlank { null },
+                    unit = product.unit ?: "piece",
+                    price = product.price,
+                    track_inventory = product.trackInventory,
+                    initial_stock = null,   // stock is never touched by a restore
+                    cost_price = null,
+                    hsn_code = product.hsnCode?.takeIf { it.isNotBlank() },
+                    default_gst_rate = product.defaultGstRate,
+                    cgst_percentage = product.cgstPercentage,
+                    sgst_percentage = product.sgstPercentage,
+                    igst_percentage = product.igstPercentage,
+                    official_uqc = product.officialUqc,
+                    hsn_description = product.hsnDescription,
+                    cess_rate = product.cessRate,
+                    supply_classification = product.supplyClassification,
+                    category = product.category,
+                    is_purchased = product.isPurchased,
+                    is_tax_inclusive = product.isTaxInclusive
+                )
+            )
+        }
     }
 
     /* ---------------- Picker popup — same visual as
@@ -530,10 +794,24 @@ class AddProductActivity : BaseActivity() {
         }
         val scroll = android.widget.ScrollView(this).apply { addView(container) }
 
+        // Fit the sheet to the room actually available, and flip it above the
+        // field when there isn't enough space below — this form is long, so a
+        // picker near the bottom would otherwise be clipped by the screen
+        // edge. Same treatment as PurchaseActivity.showSortStylePopup().
+        val loc = IntArray(2)
+        anchor.getLocationInWindow(loc)
+        val windowH = anchor.rootView.height
+        val gap = dp(6)
+        val margin = dp(12)
+        val spaceBelow = windowH - (loc[1] + anchor.height) - gap - margin
+        val spaceAbove = loc[1] - gap - margin
+        val wanted = minOf(options.size * dp(44) + dp(10), dp(320))
+        val showAbove = spaceBelow < wanted && spaceAbove > spaceBelow
+        val available = (if (showAbove) spaceAbove else spaceBelow).coerceAtLeast(dp(88))
+        val height = minOf(wanted, available)
+
         val popup = android.widget.PopupWindow(
-            scroll, dp(200),
-            minOf(options.size * dp(44) + dp(10), dp(320)),
-            true
+            scroll, dp(200), height, true
         ).apply {
             elevation = dp(10).toFloat()
             setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
@@ -575,10 +853,26 @@ class AddProductActivity : BaseActivity() {
             container.addView(row)
         }
 
-        popup.showAsDropDown(anchor, 0, dp(6))
+        if (showAbove) {
+            // showAsDropDown anchors below, so offset back up by the anchor's
+            // own height plus the sheet's.
+            popup.showAsDropDown(anchor, 0, -(anchor.height + height + gap))
+        } else {
+            popup.showAsDropDown(anchor, 0, gap)
+        }
     }
 
     // ============================================================
+    /** Inverse of [normalizeUnit] — storage token to picker label. */
+    private fun unitDisplay(unit: String?): String = when (unit?.trim()?.lowercase()) {
+        "kg", "kilogram" -> "kilogram"
+        "ml", "millilitre" -> "millilitre"
+        "l", "ltr", "liter", "litre" -> "litre"
+        "g", "gram" -> "gram"
+        "piece" -> "piece"
+        else -> unit.orEmpty()
+    }
+
     private fun normalizeUnit(unit: String?): String = when (unit?.lowercase()) {
         "piece" -> "piece"
         "kilogram", "kg" -> "kg"

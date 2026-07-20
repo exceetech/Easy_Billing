@@ -31,11 +31,20 @@ import kotlinx.coroutines.withContext
  */
 object CreditAccountPicker {
 
+    /**
+     * @param onAccountSelected fires only when an account is actually chosen.
+     * @param onDismissedWithoutSelection fires when the sheet closes without a
+     *        choice (back, tap-outside, swipe-down). Callers **must** use this
+     *        to undo whatever opened the picker — otherwise the screen is left
+     *        claiming "on credit" with no account behind it.
+     */
     fun show(
         activity: AppCompatActivity,
-        onAccountSelected: (CreditAccount) -> Unit
+        onAccountSelected: (CreditAccount) -> Unit,
+        onDismissedWithoutSelection: () -> Unit = {}
     ) {
         val dialog = BottomSheetDialog(activity)
+        var picked = false
         val view = activity.layoutInflater.inflate(R.layout.dialog_customer_picker, null)
 
         val etSearch = view.findViewById<EditText>(R.id.etSearchCustomer)
@@ -56,10 +65,13 @@ object CreditAccountPicker {
             var currentList = allAccounts.toMutableList()
 
             val adapter = CreditAdapter(currentList) { account ->
+                picked = true
                 dialog.dismiss()
                 onAccountSelected(account)
             }
             rvCustomers.adapter = adapter
+            view.findViewById<android.widget.TextView>(R.id.tvAccountCount)?.text =
+                if (allAccounts.size == 1) "1 account" else "${allAccounts.size} accounts"
 
             fun updateList(data: List<CreditAccount>) {
                 currentList.clear()
@@ -85,18 +97,23 @@ object CreditAccountPicker {
         }
 
         btnNew.setOnClickListener {
+            picked = true          // the add-account dialog takes over from here
             dialog.dismiss()
-            showAddAccountDialog(activity, onAccountSelected)
+            showAddAccountDialog(activity, onAccountSelected, onDismissedWithoutSelection)
         }
         
+        dialog.setOnDismissListener { if (!picked) onDismissedWithoutSelection() }
         dialog.setContentView(view)
+        (view.parent as? android.view.View)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         dialog.show()
     }
 
     private fun showAddAccountDialog(
         activity: AppCompatActivity,
-        onAccountSelected: (CreditAccount) -> Unit
+        onAccountSelected: (CreditAccount) -> Unit,
+        onDismissedWithoutSelection: () -> Unit = {}
     ) {
+        var saved = false
         val view = activity.layoutInflater.inflate(R.layout.dialog_add_customer, null)
         val etName = view.findViewById<EditText>(R.id.etName)
         val etPhone = view.findViewById<EditText>(R.id.etPhone)
@@ -108,6 +125,7 @@ object CreditAccountPicker {
             .setCancelable(true)
             .create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.setOnDismissListener { if (!saved) onDismissedWithoutSelection() }
 
         btnCancel.setOnClickListener { dialog.dismiss() }
         btnSave.setOnClickListener {
@@ -137,6 +155,7 @@ object CreditAccountPicker {
                 if (token == null) {
                     newAccount = CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
                     val id = withContext(Dispatchers.IO) { db.creditAccountDao().insert(newAccount) }
+                    saved = true
                     onAccountSelected(newAccount.copy(id = id.toInt()))
                 } else {
                     try {
@@ -151,11 +170,13 @@ object CreditAccountPicker {
                             isSynced = true, shopId = shopId
                         )
                         val id = withContext(Dispatchers.IO) { db.creditAccountDao().insert(newAccount) }
-                        onAccountSelected(newAccount.copy(id = id.toInt()))
+                        saved = true
+                    onAccountSelected(newAccount.copy(id = id.toInt()))
                     } catch (e: Exception) {
                         e.printStackTrace()
                         val offlineAccount = CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
                         val id = withContext(Dispatchers.IO) { db.creditAccountDao().insert(offlineAccount) }
+                        saved = true
                         onAccountSelected(offlineAccount.copy(id = id.toInt()))
                     }
                 }
