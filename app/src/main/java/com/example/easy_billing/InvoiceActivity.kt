@@ -141,6 +141,14 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var items: MutableList<CartItem>
     private var savedBillId: Int = -1
     private var isBillSaved = false
+
+    /**
+     * Set when the sale is on credit, consumed by [saveBill] after the bill row
+     * is inserted. Held rather than written immediately so a bill that fails to
+     * save can't leave a debt behind. Cleared as soon as it is applied, so a
+     * retry can't apply it twice.
+     */
+    private var pendingCreditAccount: CreditAccount? = null
     private var isUpdating = false
     private var billNumber: String = " "
 
@@ -262,7 +270,15 @@ class InvoiceActivity : AppCompatActivity() {
         btnConfirm.setOnClickListener {
             if (!validateB2BFields()) return@setOnClickListener
             if (!validateEcommerceFields()) return@setOnClickListener
-            if (getPaymentMethod() == "CREDIT") handleCreditFlow() else saveBill()
+            if (getPaymentMethod() == "CREDIT") {
+                handleCreditFlow()
+            } else {
+                // Drop any customer left over from a credit attempt that failed
+                // to save — otherwise switching to Cash and confirming would
+                // put the debt on them anyway.
+                pendingCreditAccount = null
+                saveBill()
+            }
         }
         btnPrint.setOnClickListener { generatePdfAndPrint() }
         btnClose.setOnClickListener {
@@ -991,6 +1007,22 @@ class InvoiceActivity : AppCompatActivity() {
     private fun saveBill() {
 
         if (isBillSaved) return
+
+        // Resolved before anything is written. The GST invoice row is stamped
+        // with this id, and it used to default to 1 — filing the invoice under
+        // another shop. Checked here rather than at the point of use because by
+        // then the bill row already exists, and a bill without its GST invoice
+        // is worse than a bill that didn't save.
+        val billShopId = currentShopIdOrNull()
+        if (billShopId == null) {
+            Toast.makeText(
+                this,
+                "No shop selected — can't save this bill. Sign in again.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
         isBillSaved = true
         setCosmeticEnabled(btnConfirm, false)
 
@@ -1150,9 +1182,42 @@ class InvoiceActivity : AppCompatActivity() {
                 val finalBillItems = billItemsTmp.map { it.copy(billId = billId) }
                 db.billItemDao().insertAll(finalBillItems)
 
+                // ── Credit sale: the debt goes on only now the bill exists ──
+                // Applied as a delta so a concurrent payment or sync can't be
+                // overwritten, and cleared immediately so a retry of this bill
+                // can never charge the customer twice.
+                //
+                // referenceInvoice is left unset on purpose: `billNumber` is
+                // still the placeholder " " at this point — the real invoice
+                // number is assigned by the server and written back later by
+                // SyncManager.updateBillNumber — so recording it here would
+                // store a blank.
+                // Checked against the bill actually being written, not against
+                // the radio button: the bill is the record of what was agreed,
+                // and reading it here is also the only thread-safe option from
+                // inside this coroutine.
+                pendingCreditAccount?.takeIf { finalBill.paymentMethod == "CREDIT" }?.let { creditAccount ->
+                    pendingCreditAccount = null
+
+                    val creditShopId = currentShopIdOrNull()
+
+                    if (creditShopId != null) {
+                        db.creditAccountDao().addToDue(creditAccount.id, total, creditShopId)
+                        db.creditTransactionDao().insert(
+                            CreditTransaction(
+                                accountId = creditAccount.id,
+                                shopId    = creditShopId,
+                                amount    = total,
+                                type      = "ADD"
+                            )
+                        )
+                        SyncManager(this@InvoiceActivity).syncCredit()
+                    }
+                }
+
                 // 5. Persist new GST-aware invoice + items (the spec's new tables).
-                val shopId = getSharedPreferences("auth", MODE_PRIVATE)
-                    .getInt("SHOP_ID", 1).toString()
+                // Validated at the top of saveBill — never a fallback value.
+                val shopId = billShopId.toString()
 
                 val nowMillis = appNow()
                 val gstInvoice = GstSalesInvoice(
@@ -1344,8 +1409,12 @@ class InvoiceActivity : AppCompatActivity() {
 
     // ================= CUSTOMER LOOKUP (phone-first) =================
 
-    private fun shopIdInt(): Int =
-        getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+    /**
+     * Shop for customer lookups and writes. Null when none is signed in —
+     * never a fallback, which used to mean reading and writing shop 1's
+     * customer records.
+     */
+    private fun shopIdInt(): Int? = currentShopIdOrNull()
 
     /**
      * Looks a customer up by phone AND the currently selected invoice type
@@ -1357,7 +1426,10 @@ class InvoiceActivity : AppCompatActivity() {
     private fun lookupCustomerByPhone(phone: String) {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@InvoiceActivity)
-            val shopId = shopIdInt()
+            // No shop, no lookup. Silent by design — this runs as the cashier
+            // types a phone number and must never block them; the save paths
+            // are where the missing shop is reported.
+            val shopId = shopIdInt() ?: return@launch
             val type = invoiceType
 
             var found = withContext(Dispatchers.IO) {
@@ -1424,7 +1496,10 @@ class InvoiceActivity : AppCompatActivity() {
     ) {
         val ph = phone?.trim().orEmpty()
         if (ph.isEmpty()) return
-        val shopId = shopIdInt()
+        // Callers reach here only from saveBill, which already refuses without
+        // a shop — this is the belt to that braces, so a customer record can
+        // never be filed under a fallback id.
+        val shopId = shopIdInt() ?: return
         val now = appNow()
 
         val newName       = name?.trim().orEmpty()
@@ -1724,7 +1799,31 @@ class InvoiceActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * The signed-in shop. Never falls back to a real id.
+     *
+     * A default of 1 meant a missing id silently addressed shop 1 — listing and
+     * charging another shop's customers. -1 matches no row, and every caller
+     * checks it before touching credit data.
+     */
+    private fun currentShopIdOrNull(): Int? =
+        getSharedPreferences("auth", MODE_PRIVATE)
+            .getInt("SHOP_ID", -1)
+            .takeIf { it > 0 }
+
     private fun handleCreditFlow() {
+        // Checked before the sheet opens, so the customer list can only ever be
+        // this shop's. Previously the list loaded with a default of 1 and the
+        // refusal came later, at save — showing the wrong names first.
+        if (currentShopIdOrNull() == null) {
+            Toast.makeText(
+                this,
+                "No shop selected — can't take a credit sale. Sign in again.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_customer_picker, null)
 
@@ -1739,7 +1838,8 @@ class InvoiceActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@InvoiceActivity)
-            val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+            // Guarded above, so this is the real shop id — never a fallback.
+            val shopId = currentShopIdOrNull() ?: return@launch
             val allCustomers = db.creditAccountDao().getAll(shopId)
             var currentList = allCustomers.toMutableList()
 
@@ -1781,36 +1881,37 @@ class InvoiceActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    /**
+     * Marks this bill as being sold on credit, then saves it.
+     *
+     * The debt is NOT written here. It used to be — before saveBill ran — which
+     * meant the customer was charged even when the bill then failed, and there
+     * were two ways to reach that:
+     *
+     *  * saveBill rejects the sale (out of stock, or any exception) and clears
+     *    isBillSaved so the user can retry. The debt from the failed attempt
+     *    stayed, and each retry added another.
+     *  * a double-tap on a row in the customer sheet ran this twice while
+     *    saveBill's own isBillSaved guard let only one bill through.
+     *
+     * So the account is only remembered here; [saveBill] applies the debt once
+     * the bill row actually exists.
+     */
     private fun addCreditAndSaveBill(account: CreditAccount) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
-
-            val customerStateCode = resolveBuyerStateCode().orEmpty()
-            val userDiscount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
-            val breakdown = GstBillingCalculator.calculate(
-                items           = items,
-                gstScheme       = gstScheme,
-                sellerStateCode = sellerStateCode,
-                buyerStateCode  = customerStateCode.ifBlank { null },
-                billDiscount    = userDiscount
-            )
-            val roundOff = roundOffAmount(breakdown.grandTotal)
-            val total    = (breakdown.grandTotal - roundOff).coerceAtLeast(0.0)
-
-            val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
-            val newDue = account.dueAmount + total
-            db.creditAccountDao().updateDue(account.id, newDue, shopId)
-            db.creditTransactionDao().insert(
-                CreditTransaction(
-                    accountId = account.id,
-                    shopId    = shopId,
-                    amount    = total,
-                    type      = "ADD"
-                )
-            )
-            SyncManager(this@InvoiceActivity).syncCredit()
-            withContext(Dispatchers.Main) { saveBill() }
+        // Refuse rather than half-complete: without a real shop id the debt
+        // can't be recorded against anyone, and a credit sale that doesn't
+        // record the debt is worth failing loudly for.
+        if (currentShopIdOrNull() == null) {
+            Toast.makeText(
+                this,
+                "No shop selected — can't record this credit sale. Sign in again.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
         }
+
+        pendingCreditAccount = account
+        saveBill()
     }
 
     private fun showAddCustomerDialog() {
@@ -1832,7 +1933,20 @@ class InvoiceActivity : AppCompatActivity() {
             }
             lifecycleScope.launch(Dispatchers.IO) {
                 val db = AppDatabase.getDatabase(this@InvoiceActivity)
-                val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
+
+                // Same rule as the credit sale above: without a real shop id
+                // this would file a customer into shop 1's books.
+                val shopId = currentShopIdOrNull() ?: run {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@InvoiceActivity,
+                            "No shop selected — can't add a customer. Sign in again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    return@launch
+                }
+
                 val existing = db.creditAccountDao().getByPhone(phone, shopId)
                 if (existing != null) {
                     withContext(Dispatchers.Main) {

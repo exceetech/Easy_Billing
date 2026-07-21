@@ -1,38 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Filter the ledger by date — champagne theme, same shell as the other credit
+    dialogs. Replaces a stock AlertDialog whose two rows read "Select Start
+    Date" and "Select End Date" against the platform edit-box background.
+
+    Quick ranges exist because every filter previously cost two date-picker
+    journeys, even for "this month", which is the common case. They also give
+    the only route back to unfiltered: "All time".
+
+    Either side of the custom range may be left empty — the activity has always
+    supported open-ended ranges, but nothing said so, and the Apply handler
+    used to reject them.
+
+    Ids bound by CustomerTransactionsActivity.showDateFilter: tvRangeName,
+    chipAllTime, chipThisMonth, chipLast3, tvStartDate, tvEndDate,
+    tvRangeMatches, btnRangeApply, btnRangeCancel.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_calendar"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+    </FrameLayout>
 
     <TextView
-        android:text="Start Date"
-        android:textStyle="bold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/tvStartDate"
-        android:text="Select Start Date"
-        android:padding="12dp"
-        android:background="@android:drawable/editbox_background"
-        android:layout_marginTop="8dp"
+        android:id="@+id/tvRangeName"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true"
+        android:ellipsize="end" />
 
-    <TextView
-        android:text="End Date"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="date"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
 
+    <!-- ===================== QUICK RANGES ===================== -->
     <TextView
-        android:id="@+id/tvEndDate"
-        android:text="Select End Date"
-        android:padding="12dp"
-        android:background="@android:drawable/editbox_background"
-        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="8dp"
+        android:text="QUICK RANGES"
+        android:textSize="9.5sp"
+        android:letterSpacing="0.13"
+        android:textColor="#A99E88"
+        android:fontFamily="@font/googlesans_semibold" />
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/chipAllTime"
+            style="@style/CreditChip"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="All time" />
+        <View android:layout_width="7dp" android:layout_height="1dp" />
+        <TextView
+            android:id="@+id/chipThisMonth"
+            style="@style/CreditChip"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="This month" />
+        <View android:layout_width="7dp" android:layout_height="1dp" />
+        <TextView
+            android:id="@+id/chipLast3"
+            style="@style/CreditChip"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Last 3 months" />
+    </LinearLayout>
+
+    <!-- ===================== CUSTOM RANGE ===================== -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="8dp"
+        android:text="CUSTOM RANGE"
+        android:textSize="9.5sp"
+        android:letterSpacing="0.13"
+        android:textColor="#A99E88"
+        android:fontFamily="@font/googlesans_semibold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="From"
+                android:textSize="10.5sp"
+                android:textColor="#9A8F79" />
+            <TextView
+                android:id="@+id/tvStartDate"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_imp_field"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="11dp"
+                android:drawableStart="@drawable/ic_lc_calendar"
+                android:drawableTint="#B8895A"
+                android:drawablePadding="8dp"
+                android:text="Pick a date"
+                android:textSize="12.5sp"
+                android:textColor="#1A1A18"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="13dp"
+            android:text="→"
+            android:textSize="13sp"
+            android:textColor="#C9BFA8" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="To"
+                android:textSize="10.5sp"
+                android:textColor="#9A8F79" />
+            <TextView
+                android:id="@+id/tvEndDate"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_imp_field"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="11dp"
+                android:drawableStart="@drawable/ic_lc_calendar"
+                android:drawableTint="#B8895A"
+                android:drawablePadding="8dp"
+                android:text="Pick a date"
+                android:textSize="12.5sp"
+                android:textColor="#1A1A18"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="11dp">
+        <ImageView
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Leave either side empty to run open-ended — everything before, or everything since."
+            android:textColor="#9A8F79"
+            android:textSize="10.5sp"
+            android:lineSpacingExtra="2dp" />
+    </LinearLayout>
+
+    <!-- Live count, so an empty result is visible before it is applied. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_imp_field"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Matches"
+            android:textSize="11.5sp"
+            android:textColor="#9A8F79" />
+        <TextView
+            android:id="@+id/tvRangeMatches"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12.5sp"
+            android:textColor="#1A1A18" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRangeApply"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Apply filter"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRangeCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
 
 </LinearLayout>

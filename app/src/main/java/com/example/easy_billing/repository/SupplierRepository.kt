@@ -18,16 +18,27 @@ object SupplierRepository {
 
     private const val GSTIN_LENGTH = 15
 
-    private fun shopId(context: Context): Int =
-        context.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", 1)
+    /**
+     * The signed-in shop, or null when there isn't one.
+     *
+     * Never falls back to a real id. A default of 1 meant a half-initialised
+     * session filed suppliers into shop 1's books instead of refusing —
+     * silently, since nothing here reports errors.
+     */
+    private fun shopIdOrNull(context: Context): Int? =
+        context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getInt("SHOP_ID", -1)
+            .takeIf { it > 0 }
 
     suspend fun all(context: Context): List<Supplier> = withContext(Dispatchers.IO) {
-        AppDatabase.getDatabase(context).supplierDao().getAll(shopId(context))
+        val shop = shopIdOrNull(context) ?: return@withContext emptyList()
+        AppDatabase.getDatabase(context).supplierDao().getAll(shop)
     }
 
     suspend fun byGstin(context: Context, gstin: String): Supplier? = withContext(Dispatchers.IO) {
+        val shop = shopIdOrNull(context) ?: return@withContext null
         AppDatabase.getDatabase(context).supplierDao()
-            .getByGstin(gstin.trim().uppercase(), shopId(context))
+            .getByGstin(gstin.trim().uppercase(), shop)
     }
 
     /**
@@ -38,8 +49,9 @@ object SupplierRepository {
      * this returns a single row.
      */
     suspend fun byName(context: Context, name: String): List<Supplier> = withContext(Dispatchers.IO) {
+        val shop = shopIdOrNull(context) ?: return@withContext emptyList()
         AppDatabase.getDatabase(context).supplierDao()
-            .getByName(Supplier.keyOf(name), shopId(context))
+            .getByName(Supplier.keyOf(name), shop)
     }
 
     /** Why a [create] call was refused, so the caller can say which field. */
@@ -49,6 +61,9 @@ object SupplierRepository {
         object BadGstin : CreateResult()
         object NoState : CreateResult()
         data class Duplicate(val existing: Supplier) : CreateResult()
+
+        /** No shop is signed in — nothing can be filed against one. */
+        object NoShop : CreateResult()
     }
 
     /**
@@ -79,7 +94,7 @@ object SupplierRepository {
         if (resolvedState.isBlank()) return@withContext CreateResult.NoState
 
         val dao = AppDatabase.getDatabase(context).supplierDao()
-        val shop = shopId(context)
+        val shop = shopIdOrNull(context) ?: return@withContext CreateResult.NoShop
 
         val clash = if (cleanGstin != null) {
             dao.getByGstinAny(cleanGstin, shop)
@@ -133,7 +148,7 @@ object SupplierRepository {
                 ?: state.trim()
 
             val dao = AppDatabase.getDatabase(context).supplierDao()
-            val shop = shopId(context)
+            val shop = shopIdOrNull(context) ?: return@withContext
             val now = System.currentTimeMillis()
 
             val existing = when {
@@ -144,12 +159,21 @@ object SupplierRepository {
             }
 
             if (existing != null) {
+                val newState = resolvedState.ifBlank { existing.state }
+                // updatedAt moves only when a detail actually changed. A
+                // repeat purchase from an unchanged supplier bumps usage, not
+                // modification — otherwise every purchase would outrank a
+                // genuine rename made on another device.
+                val detailsChanged =
+                    existing.name != cleanName || existing.state != newState
+
                 dao.update(
                     existing.copy(
                         name = cleanName,
                         nameKey = Supplier.keyOf(cleanName),
-                        state = resolvedState.ifBlank { existing.state },
+                        state = newState,
                         lastUsedAt = now,
+                        updatedAt = if (detailsChanged) now else existing.updatedAt,
                         isSynced = false
                     )
                 )

@@ -125,7 +125,14 @@ class SyncManager(private val context: Context) {
 
             val failed =
                 db.gstSalesInvoiceDao().countFailed() +
-                db.creditNoteDao().countFailed()
+                db.creditNoteDao().countFailed() +
+                // Records the server refused for breaking a GSTR-2 rule. They
+                // belong in "failed", not "pending": they are not queued and
+                // will never sync on their own — someone has to correct them.
+                // Left out of both counts, the app reported "all synced" while
+                // holding records that had never reached the server, which is
+                // the same hole the R2 note above closed for the batch tables.
+                db.importServiceDao().countRejected()
 
             val blocked = db.productDao().countUnsynced()
 
@@ -334,9 +341,12 @@ class SyncManager(private val context: Context) {
      * snapshot, so this table is pure convenience and failures here are
      * harmless.
      *
-     * `updated_at` is sent as `lastUsedAt`, which
-     * `SupplierRepository.remember` bumps on every write — so it is in
-     * fact the last-write timestamp the server's conflict rule wants.
+     * `updated_at` is the supplier's own `updatedAt`, which moves only when
+     * a *detail* changes (name / GSTIN / state) — not on every purchase.
+     * It used to be sent as `lastUsedAt`, so the server's newest-wins rule
+     * was really comparing recency of use: a rename on a device that then
+     * sat idle lost to a device that merely bought from the supplier again,
+     * and the rename was silently dropped.
      */
     suspend fun syncSuppliers() {
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -347,7 +357,16 @@ class SyncManager(private val context: Context) {
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
 
-        val pending = db.supplierDao().getUnsynced()
+        // Shop-scoped: the server files whatever arrives under the shop in the
+        // token, so an unscoped query could push another shop's suppliers into
+        // this one. Safe today only because the local database is wiped on a
+        // shop change — not a guarantee worth relying on.
+        val shopId = currentShopIdOrNull() ?: run {
+            Log.w(SYNC_TAG, "syncSuppliers skipped — no valid SHOP_ID")
+            return
+        }
+
+        val pending = db.supplierDao().getUnsynced(shopId)
         if (pending.isEmpty()) return
         Log.d(SYNC_TAG, "syncSuppliers: ${pending.size} unsynced supplier(s)")
 
@@ -360,7 +379,7 @@ class SyncManager(private val context: Context) {
                     state        = it.state,
                     state_code   = GstEngine.getStateCodeFromName(it.state),
                     last_used_at = it.lastUsedAt,
-                    updated_at   = it.lastUsedAt
+                    updated_at   = it.updatedAt
                 )
             }
             val response = api.syncSuppliers(token, SupplierSyncRequest(dtos))
@@ -431,6 +450,13 @@ class SyncManager(private val context: Context) {
                             // Recency is a max, not a copy: this device may
                             // have used the supplier more recently offline.
                             lastUsedAt = maxOf(existing.lastUsedAt, r.last_used_at),
+                            // The row now holds the server's details, so it
+                            // must also carry the server's modification time.
+                            // Keeping the local one would make an already-
+                            // overwritten row look newer than what overwrote
+                            // it, and the next push would send stale details
+                            // back up as if they were an edit.
+                            updatedAt  = maxOf(existing.updatedAt, r.updated_at),
                             isSynced   = true,
                             isActive   = true
                         )
@@ -444,6 +470,11 @@ class SyncManager(private val context: Context) {
                             nameKey    = key,
                             state      = r.state.orEmpty(),
                             lastUsedAt = r.last_used_at,
+                            // Older servers don't send updated_at; fall back
+                            // to last_used_at rather than "now", which would
+                            // make every freshly pulled row outrank real
+                            // edits sitting on other devices.
+                            updatedAt  = if (r.updated_at > 0) r.updated_at else r.last_used_at,
                             isSynced   = true,
                             shopId     = shopId
                         )
@@ -775,7 +806,9 @@ class SyncManager(private val context: Context) {
         val pending = db.importServiceDao().getPendingSyncImportServices()
         if (pending.isEmpty()) return
 
-        val shopId = currentShopIdOrNull() ?: run {
+        // Guard only: the server derives the shop from the token now, but
+        // there is no point pushing while no shop is selected.
+        if (currentShopIdOrNull() == null) {
             Log.w(SYNC_TAG, "syncImportServices skipped — no valid SHOP_ID")
             return
         }
@@ -803,17 +836,32 @@ class SyncManager(private val context: Context) {
         }
 
         try {
-            val response = api.syncImportServices(token, shopId, dtos)
+            val response = api.syncImportServices(token, dtos)
             if (response.isSuccessful) {
+                val body = response.body()
+                val accepted = body?.accepted_local_ids
+                val rejected = body?.rejected.orEmpty()
+
+                // Park anything the server refused for breaking a GSTR-2 rule.
+                // These are skipped server-side, not stored, so leaving them
+                // 'pending' would resend them on every sync for ever.
+                val rejectedSet = rejected.mapNotNull { it.local_id }.toHashSet()
+                rejected.forEach {
+                    Log.w(SYNC_TAG, "syncImportServices: rejected invoice ${it.invoice_number} — ${it.reason}")
+                }
+                pending.forEach { if (it.id in rejectedSet) db.importServiceDao().markAsRejected(it.id) }
+
                 // Mark synced ONLY the local_ids the server acknowledged (M1).
                 // If the server omits the field (older build), fall back to the
                 // previous behaviour and mark the whole batch — that backend is
-                // all-or-nothing, so a 200 means everything persisted.
-                val accepted = response.body()?.accepted_local_ids
+                // all-or-nothing, so a 200 means everything persisted. The
+                // rejected check matters here: a batch where every record was
+                // refused also comes back with an empty accepted list, and the
+                // fallback would then mark the whole thing synced.
                 if (accepted != null && accepted.isNotEmpty()) {
                     val acceptedSet = accepted.toHashSet()
                     pending.forEach { if (it.id in acceptedSet) db.importServiceDao().markAsSynced(it.id) }
-                } else {
+                } else if (rejected.isEmpty()) {
                     pending.forEach { db.importServiceDao().markAsSynced(it.id) }
                 }
             }
@@ -833,7 +881,7 @@ class SyncManager(private val context: Context) {
         val api = RetrofitClient.api
 
         try {
-            val serverRecords = api.getImportServices(token, shopId)
+            val serverRecords = api.getImportServices(token)
             val dao = db.importServiceDao()
 
             db.withTransaction {
@@ -847,6 +895,18 @@ class SyncManager(private val context: Context) {
                 for (record in serverRecords) {
                     val existing = existingByKey[record.invoice_number to record.invoice_date]
                     if (existing != null) {
+                        // PROTECT LOCAL CHANGES — same guard pullInventory uses.
+                        // A row that is not 'synced' has edits this device has
+                        // not pushed yet. Overwriting it would replace the
+                        // user's correction with the server's older figures and
+                        // then mark it green, so the fix would vanish silently.
+                        // It stays untouched; the next push sends it up, and the
+                        // pull after that brings back the same values anyway.
+                        if (existing.syncStatus != "synced") {
+                            Log.d(SYNC_TAG,
+                                "⏳ Skipping pull for import service ${existing.invoiceNumber} → local has unsynced changes")
+                            continue
+                        }
                         dao.update(
                             existing.apply {
                                 invoiceNumber = record.invoice_number
@@ -1395,9 +1455,26 @@ class SyncManager(private val context: Context) {
             return
         }
 
+        // Oldest first — see CreditTransactionDao.getUnsynced.
         val txns = db.creditTransactionDao().getUnsynced(shopId)
 
+        // Accounts whose queue has stalled this pass. Once one transaction for
+        // an account fails, the rest of that account's queue must wait: sending
+        // them anyway replays this account's history out of order, and SETTLE
+        // zeroes the balance rather than adjusting it. A sale that failed and
+        // retried after a settle went through would put the debt back on an
+        // account that had been cleared.
+        //
+        // Scoped per account so one customer's problem doesn't hold up
+        // everyone else's payments.
+        val stalledAccounts = mutableSetOf<Int>()
+
         for (txn in txns) {
+
+            if (txn.accountId in stalledAccounts) {
+                Log.d(SYNC_TAG, "⏸ Holding txnId=${txn.id} — earlier transaction for this account is still unsent")
+                continue
+            }
 
             try {
 
@@ -1406,6 +1483,7 @@ class SyncManager(private val context: Context) {
 
                 if (account?.serverId == null || account.serverId == -1) {
                     Log.d(SYNC_TAG, "⏳ Waiting for account sync → txnId=${txn.id}")
+                    stalledAccounts.add(txn.accountId)
                     continue
                 }
 
@@ -1423,11 +1501,13 @@ class SyncManager(private val context: Context) {
                     db.creditTransactionDao().markSynced(txn.id, shopId)
                 } else {
                     Log.d(SYNC_TAG, "❌ ERROR: ${res.code()} ${res.errorBody()?.string()}")
+                    stalledAccounts.add(txn.accountId)
                     continue
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                stalledAccounts.add(txn.accountId)
                 continue
             }
         }
@@ -1464,7 +1544,29 @@ class SyncManager(private val context: Context) {
                 )
 
             } catch (e: Exception) {
-                e.printStackTrace()
+
+                // The server answers 400 "Account already exists" when an
+                // ACTIVE account already holds this phone — which happens when
+                // the account was created offline here while another terminal
+                // already had it. Treated as a plain failure, this row retried
+                // on every sync for ever and never got a serverId, so
+                // syncCredit skipped all its transactions too: the customer's
+                // payments never left this device, silently.
+                //
+                // That 400 is really the server saying "it's already here", so
+                // adopt its account instead of failing.
+                val adopted = runCatching {
+                    api.getCreditAccounts(token)
+                        .firstOrNull { it.phone == acc.phone }
+                }.getOrNull()
+
+                if (adopted != null) {
+                    Log.d(SYNC_TAG,
+                        "🔗 Adopting existing server account ${adopted.id} for local ${acc.id} (${acc.phone})")
+                    db.creditAccountDao().updateServerId(acc.id, adopted.id, shopId)
+                } else {
+                    e.printStackTrace()
+                }
                 continue
             }
         }
@@ -1504,14 +1606,29 @@ class SyncManager(private val context: Context) {
                     .getByServerId(acc.id, shopId)
 
                 if (existing != null) {
-                    db.creditAccountDao().insert(
-                        existing.copy(
-                            name = acc.name,
-                            phone = acc.phone,
-                            dueAmount = acc.due_amount,
-                            isActive = true
+                    // PROTECT LOCAL CHANGES — a payment taken offline is already
+                    // in the local balance but not in the server's, so taking
+                    // the server figure would silently undo it. Same guard as
+                    // pullInventory and pullImportServices.
+                    val unsent = db.creditTransactionDao()
+                        .countUnsyncedForAccount(existing.id, shopId)
+
+                    if (unsent > 0) {
+                        Log.d(SYNC_TAG,
+                            "⏳ Skipping pull for credit account ${existing.id} → $unsent unsent transaction(s)")
+                    } else {
+                        // update(), not insert(): insert is IGNORE-on-conflict and
+                        // this row already exists, so it did nothing and a balance
+                        // changed on another terminal never arrived here.
+                        db.creditAccountDao().update(
+                            existing.copy(
+                                name = acc.name,
+                                phone = acc.phone,
+                                dueAmount = acc.due_amount,
+                                isActive = true
+                            )
                         )
-                    )
+                    }
                 } else {
                     db.creditAccountDao().insert(
                         CreditAccount(
@@ -2196,28 +2313,44 @@ class SyncManager(private val context: Context) {
 
         val profile = db.gstProfileDao().get()
 
+        /**
+         * Uploads [p] and stores whatever the server echoes back.
+         *
+         * `address` is included. It used to be left out of this request, so
+         * every push through the sync engine sent address = null and the
+         * server's `data.address or existing.address` quietly kept the old
+         * value — or wrote "" on a fresh row. The settings screen sent it,
+         * the background sync didn't, so whether your address survived
+         * depended on which path saved it.
+         */
+        suspend fun push(p: GstProfile) {
+            val request = GstProfileRequest(
+                gstin = p.gstin,
+                legal_name = p.legalName,
+                trade_name = p.tradeName,
+                gst_scheme = p.gstScheme,
+                registration_type = p.registrationType,
+                state_code = p.stateCode,
+                address = p.address
+            )
+            val response = api.upsertGstProfile(token, request)
+            db.gstProfileDao().insert(p.copy(
+                legalName = response.legal_name,
+                tradeName = response.trade_name,
+                gstScheme = response.gst_scheme,
+                registrationType = response.registration_type,
+                stateCode = response.state_code,
+                address = response.address ?: p.address,
+                syncStatus = "synced"
+            ))
+        }
+
         try {
             // ── PUSH FIRST (mirror syncStoreInfo, Issue 15) ────────────────
             // A dirty local profile is an un-pushed user edit. Upload it and
             // mark synced; do NOT pull-and-overwrite first or the edit is lost.
             if (profile != null && profile.syncStatus != "synced") {
-                val request = GstProfileRequest(
-                    gstin = profile.gstin,
-                    legal_name = profile.legalName,
-                    trade_name = profile.tradeName,
-                    gst_scheme = profile.gstScheme,
-                    registration_type = profile.registrationType,
-                    state_code = profile.stateCode
-                )
-                val response = api.upsertGstProfile(token, request)
-                db.gstProfileDao().insert(profile.copy(
-                    legalName = response.legal_name,
-                    tradeName = response.trade_name,
-                    gstScheme = response.gst_scheme,
-                    registrationType = response.registration_type,
-                    stateCode = response.state_code,
-                    syncStatus = "synced"
-                ))
+                push(profile)
                 return
             }
 
@@ -2225,7 +2358,32 @@ class SyncManager(private val context: Context) {
             // R8: previously this method did nothing when clean, so a GST
             // profile edited on another terminal never reached this device
             // (one-way sync). Pull the server-canonical row now.
-            val response = api.getGstProfile(token)
+            val response = try {
+                api.getGstProfile(token)
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() != 404) throw e
+
+                // 404 = the server holds no profile for this shop.
+                //
+                // Recoverable, and it has to be recovered here. A device
+                // whose local row says "synced" never enters the push branch
+                // above, so if the server row is gone — database reset,
+                // restored from an older backup, shop re-created, or a push
+                // that was marked synced without ever landing — the pull 404s
+                // on every single sync pass and the profile is never restored.
+                // That is the repeating "GET /gst/profile 404" in the log.
+                //
+                // We hold the only surviving copy, so upload it.
+                if (profile != null && profile.gstin.isNotBlank()) {
+                    Log.w(SYNC_TAG, "syncGstProfile: server has no profile — re-pushing local copy")
+                    push(profile)
+                } else {
+                    // Nothing here either: GST genuinely isn't set up yet.
+                    // Expected on a new shop, not an error.
+                    Log.i(SYNC_TAG, "syncGstProfile: no profile on server or device yet")
+                }
+                return
+            }
 
             // Blank-guard: never let an empty server row wipe a populated
             // local profile. Only adopt the pull if it carries a real GSTIN.

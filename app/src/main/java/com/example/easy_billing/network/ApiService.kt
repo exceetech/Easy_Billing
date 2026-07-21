@@ -346,11 +346,13 @@ interface ApiService {
         @Body request: CreditSyncRequest
     ): Response<Map<String, String>>
 
+    // Returns CreateCreditAccountResponse, not CreditAccountResponse: this
+    // route sends a hand-built object without shop_id / is_active.
     @POST("credit/account")
     suspend fun createCreditAccount(
         @Header("Authorization") token: String,
         @Body request: CreateCreditAccountRequest
-    ): CreditAccountResponse
+    ): CreateCreditAccountResponse
 
     @GET("credit/accounts")
     suspend fun getCreditAccounts(
@@ -709,16 +711,17 @@ interface ApiService {
 
     // ── Import Services ──────────────────────────────────────────
 
-    @POST("import_services/sync/{shop_id}")
+    // The shop is taken from the bearer token, not the path. It used to be a
+    // path parameter, which left both routes unauthenticated server-side —
+    // any shop id in the URL returned that shop's records.
+    @POST("import_services/sync")
     suspend fun syncImportServices(
         @Header("Authorization") token: String,
-        @Path("shop_id") shopId: Int,
         @Body records: List<ImportServiceDto>
     ): Response<ImportServiceSyncResponse>
 
-    @GET("import_services/{shop_id}")
+    @GET("import_services")
     suspend fun getImportServices(
-        @Header("Authorization") token: String,
-        @Path("shop_id") shopId: Int
+        @Header("Authorization") token: String
     ): List<ImportServiceResponseDto>
 }

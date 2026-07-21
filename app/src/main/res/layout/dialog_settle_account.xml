@@ -1,55 +1,156 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@android:color/white"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Settle account — champagne theme, same shell as the other credit dialogs.
 
-    <!-- TITLE -->
+    The amount being written off is the largest thing on the dialog, and the
+    button repeats it. The previous copy read "Clear all dues for [name]?" and
+    never showed a figure, which is easy to accept for the wrong customer.
+
+    The explanatory line separates this from Record a payment: settling zeroes
+    the balance WITHOUT recording money received. Two adjacent menu items that
+    both make a debt disappear need to say which is which.
+
+    Ids bound by CreditAccountsActivity.settleAccount: tvTitle (the customer
+    name eyebrow), tvSettleAmount, tvMessage, btnConfirm, btnCancel.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_check"
+            app:tint="#8A6526"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
     <TextView
         android:id="@+id/tvTitle"
-        android:text="Settle Account"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#111827"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="Customer"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true"
+        android:ellipsize="end" />
 
-    <!-- MESSAGE -->
-    <TextView
-        android:id="@+id/tvMessage"
-        android:text="Clear all dues?"
-        android:textSize="14sp"
-        android:textColor="#6B7280"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="20dp"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settle this"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="account"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
 
-    <!-- BUTTONS -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
-
-        <Button
-            android:id="@+id/btnCancel"
-            android:text="Cancel"
-            android:textAllCaps="false"
-            android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_imp_field"
+        android:padding="14dp">
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/btnConfirm"
-            android:text="Settle"
-            android:textAllCaps="false"
-            android:backgroundTint="#DC2626"
-            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:text="Writing off"
+            android:textColor="#9A8F79"
+            android:textSize="11sp" />
+        <TextView
+            android:id="@+id/tvSettleAmount"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="₹0"
+            android:textColor="#B23A3A"
+            android:textSize="28sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="The balance goes to zero and the amount is logged in their history. This doesn't record money received — use Record a payment for that."
+        android:textColor="#8A8272"
+        android:textSize="12sp"
+        android:lineSpacingExtra="3dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_cta_gold"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Settle account"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
 
 </LinearLayout>

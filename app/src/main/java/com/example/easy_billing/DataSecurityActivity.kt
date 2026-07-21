@@ -170,6 +170,10 @@ class DataSecurityActivity : BaseActivity() {
                 // close+reopen used to throw "database is locked"). The file is
                 // kept. Corruption fallback ONLY: if clearing throws, fall back to
                 // close+delete — the next getDatabase() rebuilds a fresh file.
+                // Also load-bearing for isolation: import_services carries no
+                // shopId, so this clear (or the delete fallback below) is what
+                // stops the archived shop's records showing up under the new
+                // one. See db/ImportService.kt.
                 try {
                     AppDatabase.getDatabase(applicationContext).clearAllTables()
                 } catch (clearError: Exception) {

@@ -74,6 +74,17 @@ data class Supplier(
     /** Epoch millis of the last purchase recorded against this supplier. */
     val lastUsedAt: Long = System.currentTimeMillis(),
 
+    /**
+     * Epoch millis of the last change to this supplier's *details* — name,
+     * GSTIN or state. Distinct from [lastUsedAt], which only tracks usage.
+     *
+     * The sync used to send lastUsedAt as the modification time, so the
+     * server's newest-wins comparison was really comparing recency of use.
+     * Rename a supplier on one device without using it, while another device
+     * used it later, and the rename lost the comparison and was dropped.
+     */
+    val updatedAt: Long = System.currentTimeMillis(),
+
     val isSynced: Boolean = false,
     val isActive: Boolean = true,
 

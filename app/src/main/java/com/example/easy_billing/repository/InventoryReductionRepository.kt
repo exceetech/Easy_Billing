@@ -176,8 +176,8 @@ class InventoryReductionRepository private constructor(
             val account = db.creditAccountDao().getById(creditAccountId, shopId)
             if (account != null) {
                 // Reduce debt
-                val newDue = account.dueAmount - invoiceValue
-                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+                // Adjustment in SQL — see CreditAccountDao.addToDue.
+                db.creditAccountDao().addToDue(account.id, -invoiceValue, shopId)
 
                 // Log transaction
                 db.creditTransactionDao().insert(
@@ -305,8 +305,8 @@ class InventoryReductionRepository private constructor(
         if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null) {
             val account = db.creditAccountDao().getById(creditAccountId, shopId)
             if (account != null) {
-                val newDue = account.dueAmount - invoiceValue
-                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+                // Adjustment in SQL — see CreditAccountDao.addToDue.
+                db.creditAccountDao().addToDue(account.id, -invoiceValue, shopId)
 
                 db.creditTransactionDao().insert(
                     com.example.easy_billing.db.CreditTransaction(
@@ -565,8 +565,8 @@ class InventoryReductionRepository private constructor(
         if (isCredit && creditAccountId != null) {
             val account = db.creditAccountDao().getById(creditAccountId, shopId)
             if (account != null) {
-                val newDue = account.dueAmount - grandTotalInvoiceValue
-                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+                // Adjustment in SQL — see CreditAccountDao.addToDue.
+                db.creditAccountDao().addToDue(account.id, -grandTotalInvoiceValue, shopId)
                 db.creditTransactionDao().insert(
                     com.example.easy_billing.db.CreditTransaction(
                         accountId = account.id,

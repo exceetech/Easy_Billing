@@ -32,6 +32,16 @@ import kotlinx.coroutines.withContext
 object CreditAccountPicker {
 
     /**
+     * The shop to read and create accounts under.
+     *
+     * -1 rather than 1: a missing shop id used to fall back to shop 1, so a
+     * half-initialised session listed and created real customer accounts in
+     * another shop's books. -1 matches no row, and [show] refuses to open.
+     */
+    private fun shopIdOf(activity: AppCompatActivity): Int =
+        activity.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", -1)
+
+    /**
      * @param onAccountSelected fires only when an account is actually chosen.
      * @param onDismissedWithoutSelection fires when the sheet closes without a
      *        choice (back, tap-outside, swipe-down). Callers **must** use this
@@ -43,6 +53,12 @@ object CreditAccountPicker {
         onAccountSelected: (CreditAccount) -> Unit,
         onDismissedWithoutSelection: () -> Unit = {}
     ) {
+        if (shopIdOf(activity) <= 0) {
+            Toast.makeText(activity, "No shop selected. Sign in again.", Toast.LENGTH_SHORT).show()
+            onDismissedWithoutSelection()
+            return
+        }
+
         val dialog = BottomSheetDialog(activity)
         var picked = false
         val view = activity.layoutInflater.inflate(R.layout.dialog_customer_picker, null)
@@ -58,7 +74,7 @@ object CreditAccountPicker {
 
         activity.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(activity)
-            val shopId = activity.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", 1)
+            val shopId = shopIdOf(activity)
             val allAccounts = withContext(Dispatchers.IO) {
                 db.creditAccountDao().getAll(shopId)
             }
@@ -138,7 +154,7 @@ object CreditAccountPicker {
 
             activity.lifecycleScope.launch {
                 val db = AppDatabase.getDatabase(activity)
-                val shopId = activity.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", 1)
+                val shopId = shopIdOf(activity)
                 
                 val existing = withContext(Dispatchers.IO) {
                     db.creditAccountDao().getByPhone(phone, shopId)

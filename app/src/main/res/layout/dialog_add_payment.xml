@@ -1,70 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Record a payment — champagne theme, same shell as the other credit dialogs.
+
+    Shows the current balance and the balance after, because overpayment is
+    allowed (it becomes an advance) and nothing previously warned the user
+    before they committed. Quick amounts include the full balance, since
+    clearing a debt outright is common and typing five digits to do it is
+    needless friction.
+
+    Ids bound by CreditAccountsActivity.showPaymentDialog: tvName, tvOwes,
+    tvOwesCaption, etAmount, chipQuick1, chipQuick2, chipFull, tvBalanceAfter,
+    tvBalanceAfterCaption, btnPay, btnCancel.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@android:color/white"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
 
-    <!-- TITLE -->
-    <TextView
-        android:text="Add Payment"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#111827"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_teal">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_indian_rupee"
+            app:tint="#0F6E56"
+            android:contentDescription="@null" />
+    </FrameLayout>
 
-    <!-- CUSTOMER NAME -->
     <TextView
         android:id="@+id/tvName"
-        android:text="Customer"
-        android:textSize="14sp"
-        android:textColor="#6B7280"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="16dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <!-- AMOUNT FIELD -->
-    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:boxBackgroundMode="outline">
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="Customer"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true"
+        android:ellipsize="end" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etAmount"
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Enter amount"
-            android:inputType="numberDecimal"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:text="Record a"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="payment"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
 
-    <!-- BUTTONS -->
+    <!-- Current balance -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="end">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancel"
-            android:text="Cancel"
-            android:textAllCaps="false"
-            android:layout_marginEnd="8dp"
-            style="@style/Widget.Material3.Button.TextButton"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_imp_field"
+        android:padding="11dp">
+        <TextView
+            android:id="@+id/tvOwesCaption"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Currently owes"
+            android:textColor="#9A8F79"
+            android:textSize="11.5sp" />
+        <TextView
+            android:id="@+id/tvOwes"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPay"
-            android:text="Pay"
-            android:textAllCaps="false"
-            android:backgroundTint="#16A34A"
-            android:textColor="#FFFFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+            android:text="₹0"
+            android:textColor="#B23A3A"
+            android:textSize="17sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false" />
     </LinearLayout>
+
+    <!-- Amount -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="5dp"
+        android:text="Amount received"
+        android:textColor="#9A8F79"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_imp_field"
+        android:paddingHorizontal="14dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹"
+            android:textColor="#B8895A"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAmount"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"
+            android:inputType="numberDecimal"
+            android:singleLine="true"
+            android:importantForAutofill="no" />
+    </LinearLayout>
+
+    <!-- Quick amounts -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:baselineAligned="false">
+        <TextView
+            android:id="@+id/chipQuick1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="7dp"
+            android:background="@drawable/bg_credit_quick_chip"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
+            android:clickable="true"
+            android:focusable="true" />
+        <View android:layout_width="7dp" android:layout_height="1dp" />
+        <TextView
+            android:id="@+id/chipQuick2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="7dp"
+            android:background="@drawable/bg_credit_quick_chip"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
+            android:clickable="true"
+            android:focusable="true" />
+        <View android:layout_width="7dp" android:layout_height="1dp" />
+        <TextView
+            android:id="@+id/chipFull"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingVertical="7dp"
+            android:background="@drawable/bg_credit_quick_chip_full"
+            android:textColor="#0F6E56"
+            android:textSize="11sp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!-- Balance after, live -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="13dp"
+        android:background="#F1EBDD" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+        <TextView
+            android:id="@+id/tvBalanceAfterCaption"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Balance after"
+            android:textColor="#9A8F79"
+            android:textSize="11.5sp" />
+        <TextView
+            android:id="@+id/tvBalanceAfter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹0"
+            android:textColor="#B23A3A"
+            android:textSize="17sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPay"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Record payment"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
 
 </LinearLayout>

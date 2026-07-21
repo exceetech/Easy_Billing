@@ -14,20 +14,14 @@ class CreditAdapter(
 ) : RecyclerView.Adapter<CreditAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
+        val stripe = view.findViewById<View>(R.id.viewBalanceStripe)
         val name = view.findViewById<TextView>(R.id.tvName)
         val phone = view.findViewById<TextView>(R.id.tvPhone)
         val due = view.findViewById<TextView>(R.id.tvDue)
         val status = view.findViewById<TextView>(R.id.tvStatus)
         val tvAvatar = view.findViewById<TextView>(R.id.tvAvatar)
+        val divider = view.findViewById<View>(R.id.viewRowDivider)
     }
-
-    /** Monogram tiles cycle through the theme's three accent tints. */
-    private val tileBg = intArrayOf(
-        R.drawable.bg_addp_tile_green,
-        R.drawable.bg_tile_gold,
-        R.drawable.bg_tile_violet
-    )
-    private val tileInk = arrayOf("#0F6E56", "#B8895A", "#6C4EA0")
 
     private fun money(v: Double): String =
         if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
@@ -47,32 +41,47 @@ class CreditAdapter(
 
         holder.name.text = name
         holder.phone.text = item.phone
-
-        // Avatar — theme tile, colour cycled by position for variety.
         holder.tvAvatar.text = if (name.isNotEmpty()) name[0].uppercase() else "?"
-        val slot = position % tileBg.size
-        holder.tvAvatar.backgroundTintList = null
-        holder.tvAvatar.setBackgroundResource(tileBg[slot])
-        holder.tvAvatar.setTextColor(android.graphics.Color.parseColor(tileInk[slot]))
 
-        // Balance: caption + amount, so "owes you" and "you owe" read apart.
+        // Colour follows the balance, not the row position. Cycling by position
+        // meant the same customer changed colour whenever the list was filtered
+        // or searched, which read as a different person.
+        //
+        // The caption says which way the money goes: "owes you" and "in advance"
+        // are read faster than a DUE / ADVANCE status word next to a number.
+        val stripe: String
+        val tile: String
+        val ink: String
         when {
             item.dueAmount > 0 -> {
-                holder.status.text = "DUE"
+                stripe = "#B23A3A"; tile = "#FCEBEB"; ink = "#791F1F"
+                holder.status.text = "owes you"
                 holder.due.text = money(item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
             }
             item.dueAmount < 0 -> {
-                holder.status.text = "ADVANCE"
+                stripe = "#0F6E56"; tile = "#E1F5EE"; ink = "#0F6E56"
+                holder.status.text = "in advance"
                 holder.due.text = money(-item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             }
             else -> {
-                holder.status.text = "SETTLED"
+                stripe = "#E4DBC6"; tile = "#F3ECDD"; ink = "#8A8272"
+                holder.status.text = "settled"
                 holder.due.text = money(0.0)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#8A8272"))
             }
         }
+
+        holder.stripe.setBackgroundColor(android.graphics.Color.parseColor(stripe))
+        holder.tvAvatar.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(tile))
+        holder.tvAvatar.setTextColor(android.graphics.Color.parseColor(ink))
+
+        // Rows sit inside one card, so the last must not draw a hairline
+        // against the card's bottom edge.
+        holder.divider.visibility =
+            if (position == list.lastIndex) View.GONE else View.VISIBLE
 
         holder.itemView.setOnClickListener {
             onClick(item)

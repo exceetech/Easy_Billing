@@ -289,14 +289,25 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                     // ── Optional Credit/Debit Account Adjustment ───────────────
                     var creditTxId: Int? = null
                     if (p.isCredit && p.creditAccountId != null) {
+                        // Refuse rather than half-complete. Defaulting to 1
+                        // adjusted shop 1's books; defaulting to -1 alone would
+                        // make the lookup below return null and the adjustment
+                        // be skipped in silence, leaving a note recorded with
+                        // the supplier's balance untouched. Throwing rolls back
+                        // the withTransaction block so the note fails visibly.
                         val shopIdInt = getApplication<android.app.Application>()
                             .getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
-                            .getInt("SHOP_ID", 1)
+                            .getInt("SHOP_ID", -1)
+
+                        check(shopIdInt > 0) {
+                            "No shop selected — refusing to save a note whose credit adjustment can't be recorded"
+                        }
+
                         val account = db.creditAccountDao().getById(p.creditAccountId, shopIdInt)
                         if (account != null) {
                             val adjustAmount = if (noteType == "D") -totalNoteInvoiceValue else totalNoteInvoiceValue
-                            val newDue = account.dueAmount + adjustAmount
-                            db.creditAccountDao().updateDue(account.id, newDue, shopIdInt)
+                            // Adjustment in SQL — see CreditAccountDao.addToDue.
+                            db.creditAccountDao().addToDue(account.id, adjustAmount, shopIdInt)
 
                             db.creditTransactionDao().insert(
                                 com.example.easy_billing.db.CreditTransaction(

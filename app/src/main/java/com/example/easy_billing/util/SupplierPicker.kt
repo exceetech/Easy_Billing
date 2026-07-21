@@ -190,6 +190,15 @@ object SupplierPicker {
                         Toast.makeText(activity, "Select the supplier's state", Toast.LENGTH_SHORT).show()
                         btnSave.isEnabled = true
                     }
+                    SupplierRepository.CreateResult.NoShop -> {
+                        // Refused rather than filed against a fallback shop.
+                        Toast.makeText(
+                            activity,
+                            "No shop selected. Sign in again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        dialog.dismiss()
+                    }
                 }
             }
         }

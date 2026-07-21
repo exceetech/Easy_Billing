@@ -70,8 +70,11 @@ interface SupplierDao {
      * but still needs to go up. `SupplierRepository.remember` clears the
      * flag on every write.
      */
-    @Query("SELECT * FROM supplier_table WHERE isSynced = 0 AND isActive = 1")
-    suspend fun getUnsynced(): List<Supplier>
+    @Query("""
+        SELECT * FROM supplier_table
+        WHERE isSynced = 0 AND isActive = 1 AND shopId = :shopId
+    """)
+    suspend fun getUnsynced(shopId: Int): List<Supplier>
 
     @Query("UPDATE supplier_table SET isSynced = 1, serverId = :serverId WHERE id = :id")
     suspend fun markSynced(id: Int, serverId: Int?)

@@ -1,494 +1,309 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Credit accounts (khata) — champagne theme, same language as the
+    import-services list: eyebrow + serif accent header, white cards, serif
+    numerals, green CTA.
 
+    The four stacked summary cards became one. Net position leads, with due and
+    advance as tinted tiles under it; the per-status counts moved into the
+    filter chips, which is what the fourth card existed to show.
+
+    Filtering used to be hidden behind tapping those cards, with a dimming
+    effect as the only feedback. Chips make it visible what can be filtered and
+    which filter is on.
+
+    Ids bound by CreditAccountsActivity: toolbar, etSearchCustomer,
+    tvNetBalance, tvNetCaption, tvTotalDue, tvDueCount, tvTotalAdvance,
+    tvAdvanceCount, chipAll, chipDue, chipAdvance, chipSettled, rvCustomers,
+    btnAddCustomer.
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8FAFC"
-    android:padding="16dp">
+    android:background="#F3ECDD">
 
-    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
         android:elevation="0dp"
-        app:titleTextColor="@color/textPrimary"
-        app:navigationIconTint="@color/textPrimary" />
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-    <com.google.android.material.card.MaterialCardView
+    <!-- ===================== HEADER ===================== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="KHATA"
+            android:textColor="#B8895A"
+            android:textSize="10sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="1dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Credit"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
+                android:letterSpacing="-0.02"
+                android:fontFamily="@font/googlesans_bold"
+                android:includeFontPadding="false"
+                android:accessibilityHeading="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="accounts"
+                android:textColor="#0F6E56"
+                android:textSize="21sp"
+                android:fontFamily="serif"
+                android:textStyle="italic"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ===================== SUMMARY ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="6dp"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="16dp">
 
-
-        app:cardCornerRadius="24dp"
-        app:cardElevation="10dp"
-        app:cardBackgroundColor="#FAFAFA"
-        app:strokeColor="#FFFFFF"
-        app:strokeWidth="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Net position"
+            android:textSize="11sp"
+            android:textColor="#9A8F79" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:layout_marginTop="2dp"
+            android:baselineAligned="false">
 
-            android:focusableInTouchMode="true"
-            android:focusable="true">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvNetBalance"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="30sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="20sp"
+                app:autoSizeMaxTextSize="30sp" />
 
-                app:startIconDrawable="@drawable/ic_search"
-                app:startIconTint="?attr/colorPrimary"
-                app:endIconMode="clear_text"
-
-                app:boxBackgroundMode="none"
-
-                app:boxCornerRadiusTopStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusBottomEnd="20dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSearchCustomer"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-
-                    android:gravity="center_vertical"
-                    android:includeFontPadding="false"
-
-                    android:hint="Search by name or phone"
-
-                    android:inputType="text"
-                    android:maxLength="50"
-                    android:singleLine="true"
-                    android:imeOptions="actionSearch"
-
-                    android:importantForAutofill="no"
-                    android:autofillHints=""
-
-                    android:paddingStart="4dp"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
-
-                    android:textColor="#000000"
-                    android:textColorHint="#888888" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
+            <TextView
+                android:id="@+id/tvNetCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="owed to you"
+                android:textSize="11sp"
+                android:textColor="#B23A3A" />
         </LinearLayout>
 
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- 📊 PREMIUM KPI ROW -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="4"
-        android:layout_marginTop="6dp">
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardDue"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="150dp"
-            android:layout_margin="8dp"
-
-            android:clickable="true"
-            android:focusable="true"
-
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
-
-            app:cardBackgroundColor="#FFFFFF"
-            app:rippleColor="#FCA5A5"
-
-            app:strokeColor="#FEE2E2"
-            app:strokeWidth="2dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp"
+            android:baselineAligned="false">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="14dp">
-
-                <!-- TITLE (LIKE PRODUCT NAME) -->
-                <TextView
-                    android:text="Total Due"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F2937"
-                    android:maxLines="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <!-- SUBTEXT -->
-                <TextView
-                    android:text="Outstanding balance"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="2dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <!-- SPACE PUSH (IMPORTANT FOR CLEAN UI) -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-                <!-- AMOUNT BADGE (LIKE PRICE) -->
+                android:background="@drawable/bg_credit_tile_red"
+                android:padding="10dp">
                 <TextView
                     android:id="@+id/tvTotalDue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="₹0"
+                    android:textSize="16sp"
+                    android:textColor="#791F1F"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
+                <TextView
+                    android:id="@+id/tvDueCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
-                    android:text="₹0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="6dp"
-
-                    android:background="@drawable/bg_due_badge"
-
-                    android:layout_gravity="start"/>
+                    android:layout_marginTop="1dp"
+                    android:text="Due"
+                    android:textSize="9.5sp"
+                    android:textColor="#A32D2D" />
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardAdvance"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="150dp"
-            android:layout_margin="8dp"
-
-            android:clickable="true"
-            android:focusable="true"
-
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
-
-            app:cardBackgroundColor="#FFFFFF"
-            app:rippleColor="#86EFAC"
-
-            app:strokeColor="#DCFCE7"
-            app:strokeWidth="2dp">
+            <View android:layout_width="8dp" android:layout_height="1dp" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="14dp">
-
-                <!-- TITLE -->
-                <TextView
-                    android:text="Advance"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F2937"
-                    android:maxLines="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <!-- SUBTEXT -->
-                <TextView
-                    android:text="Customer balance"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="2dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <!-- SPACE (VERY IMPORTANT FOR CLEAN LOOK) -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-                <!-- BADGE -->
+                android:background="@drawable/bg_credit_tile_teal"
+                android:padding="10dp">
                 <TextView
                     android:id="@+id/tvTotalAdvance"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
                     android:text="₹0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="6dp"
-
-                    android:background="@drawable/bg_advance_badge"
-
-                    android:layout_gravity="start"/>
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- ⚖️ NET -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardNet"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="150dp"
-            android:layout_margin="8dp"
-
-            android:clickable="true"
-            android:focusable="true"
-
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
-
-            app:cardBackgroundColor="#FFFFFF"
-            app:rippleColor="#CBD5F5"
-
-            app:strokeColor="#E5E7EB"
-            app:strokeWidth="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <!-- TITLE -->
+                    android:textSize="16sp"
+                    android:textColor="#085041"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
                 <TextView
-                    android:text="Net Balance"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F2937"
-                    android:maxLines="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <!-- SUBTEXT -->
-                <TextView
-                    android:text="Overall position"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="2dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <!-- SPACE -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-                <!-- BADGE -->
-                <TextView
-                    android:id="@+id/tvNetBalance"
+                    android:id="@+id/tvAdvanceCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
-                    android:text="₹0"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="6dp"
-
-                    android:background="@drawable/bg_net_badge"
-
-                    android:layout_gravity="start"/>
+                    android:layout_marginTop="1dp"
+                    android:text="Advance"
+                    android:textSize="9.5sp"
+                    android:textColor="#0F6E56" />
             </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardCustomers"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="150dp"
-            android:layout_margin="8dp"
-
-            android:clickable="true"
-            android:focusable="true"
-
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
-
-            app:cardBackgroundColor="#FFFFFF"
-            app:rippleColor="#C7D2FE"
-
-            app:strokeColor="#E0E7FF"
-            app:strokeWidth="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <!-- TITLE -->
-                <TextView
-                    android:text="Customers"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#1F2937"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <!-- SUBTEXT -->
-                <TextView
-                    android:text="Account distribution"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginTop="2dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
-
-                <!-- SPACE -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="6dp"/>
-
-                <!-- ROW 1 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:text="Due"
-                        android:textSize="12sp"
-                        android:textColor="#6B7280"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-
-                    <TextView
-                        android:id="@+id/tvDueCount"
-                        android:text="0"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="#DC2626"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-                </LinearLayout>
-
-                <!-- ROW 2 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:text="Advance"
-                        android:textSize="12sp"
-                        android:textColor="#6B7280"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-
-                    <TextView
-                        android:id="@+id/tvAdvanceCount"
-                        android:text="0"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="#16A34A"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-                </LinearLayout>
-
-                <!-- ROW 3 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:text="Settled"
-                        android:textSize="12sp"
-                        android:textColor="#6B7280"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"/>
-
-                    <TextView
-                        android:id="@+id/tvSettledCount"
-                        android:text="0"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="#111827"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- ===================== SEARCH ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_imp_filter"
+        android:paddingHorizontal="12dp">
 
-    <FrameLayout
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/ic_search"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearchCustomer"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:hint="Search name or phone"
+            android:textColorHint="#A99E88"
+            android:textColor="#1A1A18"
+            android:textSize="12.5sp"
+            android:singleLine="true"
+            android:paddingStart="8dp"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+    </LinearLayout>
+
+    <!-- ===================== FILTER CHIPS ===================== -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Chip text carries its own count — set in updateSummary. -->
+            <TextView android:id="@+id/chipAll"      style="@style/CreditChip" android:text="All" />
+            <View android:layout_width="7dp" android:layout_height="1dp" />
+            <TextView android:id="@+id/chipDue"      style="@style/CreditChip" android:text="Due" />
+            <View android:layout_width="7dp" android:layout_height="1dp" />
+            <TextView android:id="@+id/chipAdvance"  style="@style/CreditChip" android:text="Advance" />
+            <View android:layout_width="7dp" android:layout_height="1dp" />
+            <TextView android:id="@+id/chipSettled"  style="@style/CreditChip" android:text="Settled" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!--
+        One card holding hairline-separated rows, like the import-services
+        ledger. clipToOutline is set in code so the first and last row follow
+        the card's corner radius.
+    -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCustomers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_inv_value_card"
+        android:clipToPadding="false"
+        android:paddingBottom="4dp" />
 
-        <!-- 👥 CUSTOMER LIST -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCustomers"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAddCustomer"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Add customer"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        app:icon="@drawable/ic_lc_user_plus"
+        app:iconTint="@android:color/white"
+        app:iconSize="17dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
 
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="80dp"
-
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:scrollbars="none"
-
-            android:background="@android:color/white"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddCustomer"
-            android:layout_width="300dp"
-            android:layout_height="60dp"
-
-            android:layout_gravity="bottom|center"
-            android:layout_margin="16dp"
-
-            android:text="Add Customer"
-            android:textAllCaps="false"
-            android:textStyle="bold"
-            android:textSize="17sp"
-
-            android:textColor="@android:color/white"
-
-            app:icon="@drawable/ic_plus"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            app:iconTint="@android:color/white"
-
-            android:paddingStart="16dp"
-            android:paddingEnd="18dp"
-
-            app:cornerRadius="26dp"
-
-            android:background="@drawable/bg_button_gradient"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-
-            app:elevation="8dp"/>
-    </FrameLayout>
 </LinearLayout>

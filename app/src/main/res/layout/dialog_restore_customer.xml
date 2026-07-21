@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Restore this customer" — shown when the phone number entered belongs to a
+    customer that was deleted. Champagne theme, same shell as the other credit
+    dialogs; this one previously used a stock AlertDialog with setTitle and
+    setMessage, so it was the odd one out.
+
+    The old and new names sit in a comparison card rather than being written
+    into the message body, because the point of the dialog is that they differ.
+    The saved name is muted; the typed one is green — it is the one that wins,
+    since restoreAccount overwrites the stored name.
+
+    The phone number is the eyebrow: it is what actually matched, and the old
+    copy never showed it.
+
+    Ids bound by CreditAccountsActivity: tvRestorePhone, tvOldName, tvOldAvatar,
+    tvNewName, tvNewAvatar, tvRestoreNote, btnRestore, btnKeepOld, btnCancel.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_rotate_ccw"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvRestorePhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Restore this"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="customer"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="This number belonged to a customer you deleted. Restoring brings back their account and past transactions."
+        android:textColor="#8A8272"
+        android:textSize="12.5sp"
+        android:lineSpacingExtra="3dp" />
+
+    <!-- Old vs new. Hidden when the two names match — nothing to compare. -->
+    <LinearLayout
+        android:id="@+id/layoutNameCompare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_credit_compare_card">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="13dp"
+            android:paddingVertical="11dp">
+
+            <TextView
+                android:id="@+id/tvOldAvatar"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:text="?"
+                android:textSize="14sp"
+                android:textColor="#8A8272"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#F3ECDD"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SAVED AS"
+                    android:textColor="#A99E88"
+                    android:textSize="9.5sp"
+                    android:letterSpacing="0.08"
+                    android:fontFamily="@font/googlesans_semibold" />
+                <TextView
+                    android:id="@+id/tvOldName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text=""
+                    android:textColor="#8A8272"
+                    android:textSize="13sp"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginHorizontal="13dp"
+            android:background="#EFE7D6" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="13dp"
+            android:paddingVertical="11dp">
+
+            <TextView
+                android:id="@+id/tvNewAvatar"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:text="?"
+                android:textSize="14sp"
+                android:textColor="#0F6E56"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#E1F5EE"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YOU TYPED"
+                    android:textColor="#0F6E56"
+                    android:textSize="9.5sp"
+                    android:letterSpacing="0.08"
+                    android:fontFamily="@font/googlesans_semibold" />
+                <TextView
+                    android:id="@+id/tvNewName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text=""
+                    android:textColor="#1A1A18"
+                    android:textSize="13sp"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
+        <ImageView
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+        <TextView
+            android:id="@+id/tvRestoreNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Their balance is restored as it was when the account was deleted."
+            android:textColor="#9A8F79"
+            android:textSize="10.5sp"
+            android:lineSpacingExtra="2dp" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRestore"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Restore customer"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        app:icon="@drawable/ic_lc_rotate_ccw"
+        app:iconTint="@android:color/white"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <!--
+        Keeps the name already on the account instead of the one just typed.
+        Hidden when the two names match, since the choice would be meaningless.
+    -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnKeepOld"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Keep the saved name"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#0F6E56"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#220F6E56" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
+
+</LinearLayout>

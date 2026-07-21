@@ -367,23 +367,27 @@
         <item name="android:orientation">vertical</item>
     </style>
 
+    <!-- AddFieldLabel / AddInput / AddSeg / AddRow / AddCol are used only by
+         activity_add_import_service.xml, so they carry the champagne tuning
+         for that screen. AddCard and AddSectionLabel are shared with the
+         settings screens and are deliberately left alone. -->
     <style name="AddFieldLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">#6E6A60</item>
+        <item name="android:textColor">#9A8F79</item>
     </style>
 
     <style name="AddInput">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">44dp</item>
-        <item name="android:background">@drawable/bg_add_field</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:background">@drawable/bg_imp_field</item>
         <item name="android:paddingHorizontal">12dp</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textColor">#1A1A18</item>
-        <item name="android:textColorHint">#9CA3AF</item>
+        <item name="android:textColorHint">#A99E88</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -852,5 +856,19 @@
         <item name="android:statusBarColor">@color/champagne_bg</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+
+    <!-- Filter chip on the credit-accounts screen. Selected state is driven by
+         android:selected, so the adapter-free chip row needs no extra code. -->
+    <style name="CreditChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingHorizontal">13dp</item>
+        <item name="android:paddingVertical">6dp</item>
+        <item name="android:background">@drawable/bg_credit_chip</item>
+        <item name="android:textColor">@color/credit_chip_text</item>
+        <item name="android:textSize">11.5sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
     </style>
 </resources>

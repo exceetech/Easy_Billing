@@ -147,22 +147,52 @@ class BillingSettingsActivity : BaseActivity() {
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
 
+            // The GST profile and the printer setting are two unrelated
+            // reads, so they get two separate try blocks.
+            //
+            // Sharing one meant that a shop which hadn't configured GST yet —
+            // where GET /gst/profile answers 404 "GST profile not configured"
+            // — threw before the billing call was ever made, so the printer
+            // layout silently never came down from the server. The catch only
+            // printed a stack trace, so nothing on screen said so.
+
             try {
                 val gstResp = RetrofitClient.api.getGstProfile(token)
 
-                val updatedGst = GstProfile(
-                    gstin = gstResp.gstin ?: "",
-                    legalName = gstResp.legal_name ?: "",
-                    tradeName = gstResp.trade_name ?: "",
-                    gstScheme = gstResp.gst_scheme ?: "REGULAR",
-                    registrationType = gstResp.registration_type ?: "Regular",
-                    stateCode = gstResp.state_code ?: "",
-                    address = gstResp.address ?: "",
-                    syncStatus = "synced",
-                    updatedAt = appNow()
-                )
-                db.gstProfileDao().insert(updatedGst)
+                // Blank-guard, the same rule SyncManager.syncGstProfile uses:
+                // an empty server row must never overwrite a populated local
+                // profile. With no GSTIN there is nothing worth adopting.
+                if (gstResp.gstin.isNotBlank()) {
+                    val updatedGst = GstProfile(
+                        gstin = gstResp.gstin,
+                        legalName = gstResp.legal_name,
+                        tradeName = gstResp.trade_name,
+                        gstScheme = gstResp.gst_scheme,
+                        registrationType = gstResp.registration_type,
+                        stateCode = gstResp.state_code,
+                        address = gstResp.address ?: "",
+                        syncStatus = "synced",
+                        updatedAt = appNow()
+                    )
+                    db.gstProfileDao().insert(updatedGst)
 
+                    withContext(Dispatchers.Main) {
+                        etGstin.setText(updatedGst.gstin)
+                        etLegalName.setText(updatedGst.legalName)
+                        etTradeName.setText(updatedGst.tradeName)
+                        etStateCode.setText(updatedGst.stateCode)
+                        etAddress.setText(updatedGst.address)
+                        applyScheme(updatedGst.gstScheme)
+                        applyRegType(updatedGst.registrationType)
+                    }
+                }
+            } catch (e: Exception) {
+                // Expected on a shop with no GST profile yet (404). The
+                // fields already show the local row loaded above.
+                e.printStackTrace()
+            }
+
+            try {
                 val billingResp = RetrofitClient.api.getBillingSettings(token)
                 val updatedBilling = (billing ?: BillingSettings(
                     defaultGst = 0f,
@@ -171,13 +201,6 @@ class BillingSettingsActivity : BaseActivity() {
                 db.billingSettingsDao().insert(updatedBilling)
 
                 withContext(Dispatchers.Main) {
-                    etGstin.setText(updatedGst.gstin)
-                    etLegalName.setText(updatedGst.legalName)
-                    etTradeName.setText(updatedGst.tradeName)
-                    etStateCode.setText(updatedGst.stateCode)
-                    etAddress.setText(updatedGst.address)
-                    applyScheme(updatedGst.gstScheme)
-                    applyRegType(updatedGst.registrationType)
                     applyPrinter(updatedBilling.printerLayout)
                 }
             } catch (e: Exception) {

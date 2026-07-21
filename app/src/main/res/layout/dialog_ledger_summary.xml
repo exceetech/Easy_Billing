@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Account summary — champagne theme, same shell as the other credit dialogs.
+    Replaces a stock AlertDialog that was built in code with grey dividers and
+    DKGRAY text, and was the last part of this flow not in the app's own style.
+
+    Each line carries its sign, so the column reads as arithmetic: Billed, less
+    Received, less anything written off, arriving at the Balance. That is worth
+    opening now that Billed and Received are already on the screen behind it —
+    a bare list of the same numbers would not be.
+
+    The two adjustment rows appear only when they are non-zero, which for most
+    customers means the dialog is just Billed, Received and Balance.
+
+    Ids bound by CustomerTransactionsActivity.showSummary: tvSummaryName,
+    tvSummaryScope, tvSumBilled, tvSumReceived, rowSumWrittenOff,
+    tvSumWrittenOff, rowSumRefunded, tvSumRefunded, tvSumBalance,
+    tvSumBalanceCaption, tvSumAvgBill, tvSumLastPayment, btnSummaryClose.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_scale"
+            app:tint="#8A6526"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvSummaryName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Account"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="summary"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSummaryScope"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#9A8F79"
+        android:textSize="11.5sp" />
+
+    <!-- ===================== RECONCILIATION ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_credit_compare_card"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="13dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="4dp">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_lc_arrow_up_right"
+                app:tint="#B23A3A"
+                android:background="@drawable/bg_credit_action_tile"
+                android:backgroundTint="#FCEBEB"
+                android:contentDescription="@null" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Billed"
+                android:textSize="12.5sp"
+                android:textColor="#1A1A18" />
+            <TextView
+                android:id="@+id/tvSumBilled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="16sp"
+                android:textColor="#B23A3A"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="4dp">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_lc_arrow_down_left"
+                app:tint="#0F6E56"
+                android:background="@drawable/bg_credit_action_tile"
+                android:backgroundTint="#E1F5EE"
+                android:contentDescription="@null" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Received"
+                android:textSize="12.5sp"
+                android:textColor="#1A1A18" />
+            <TextView
+                android:id="@+id/tvSumReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="16sp"
+                android:textColor="#0F6E56"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowSumWrittenOff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="4dp"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_lucide_check"
+                app:tint="#8A6526"
+                android:background="@drawable/bg_credit_action_tile"
+                android:backgroundTint="#F3ECDD"
+                android:contentDescription="@null" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Written off"
+                    android:textSize="12.5sp"
+                    android:textColor="#1A1A18" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="no cash moved"
+                    android:textSize="10sp"
+                    android:textColor="#A99E88" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tvSumWrittenOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="16sp"
+                android:textColor="#8A6526"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowSumRefunded"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="4dp"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_lc_arrow_up_right"
+                app:tint="#8A6526"
+                android:background="@drawable/bg_credit_action_tile"
+                android:backgroundTint="#F3ECDD"
+                android:contentDescription="@null" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Refunded"
+                    android:textSize="12.5sp"
+                    android:textColor="#1A1A18" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="handed back"
+                    android:textSize="10sp"
+                    android:textColor="#A99E88" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tvSumRefunded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="16sp"
+                android:textColor="#8A6526"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginBottom="8dp"
+            android:background="#EAE2D1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Balance"
+                android:textSize="12.5sp"
+                android:textColor="#9A8F79" />
+            <TextView
+                android:id="@+id/tvSumBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="22sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSumBalanceCaption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:gravity="end"
+            android:text="settled"
+            android:textSize="10sp"
+            android:textColor="#A99E88" />
+    </LinearLayout>
+
+    <!-- ===================== AT A GLANCE ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_imp_field"
+            android:paddingHorizontal="11dp"
+            android:paddingVertical="9dp">
+            <TextView
+                android:id="@+id/tvSumAvgBill"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="15sp"
+                android:textColor="#1A1A18"
+                android:singleLine="true"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="11sp"
+                app:autoSizeMaxTextSize="15sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Average bill"
+                android:textSize="9.5sp"
+                android:textColor="#9A8F79" />
+        </LinearLayout>
+
+        <View android:layout_width="8dp" android:layout_height="1dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_imp_field"
+            android:paddingHorizontal="11dp"
+            android:paddingVertical="9dp">
+            <TextView
+                android:id="@+id/tvSumLastPayment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textSize="15sp"
+                android:textColor="#1A1A18"
+                android:singleLine="true"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="11sp"
+                app:autoSizeMaxTextSize="15sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Last payment"
+                android:textSize="9.5sp"
+                android:textColor="#9A8F79" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSummaryClose"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Close"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+</LinearLayout>

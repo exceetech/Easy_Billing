@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Credit-account row — invoice line-item style: colour-cycled monogram,
-    name + phone, and the balance right-aligned under a small caption.
-    Rows sit on the sheet's white list area, separated by a hairline.
+    Credit-account row. Champagne theme, matching the import-services ledger:
+    a left stripe carrying the balance direction, a monogram tile, name and
+    phone, and the amount right-aligned with a caption saying which way the
+    money goes.
 
-    Bound by CreditAdapter: tvAvatar, tvName, tvPhone, tvDue, tvStatus.
+    The monogram tint follows the balance, not the row position — the old
+    position-cycled colours meant the same customer changed colour whenever the
+    list was filtered.
+
+    Shared with the credit-account picker sheet (CreditAccountPicker), so it has
+    to read well on both.
+
+    Bound by CreditAdapter: viewBalanceStripe, tvAvatar, tvName, tvPhone,
+    tvDue, tvStatus, viewRowDivider.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -18,84 +26,100 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingVertical="12dp">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvAvatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:text="A"
-            android:textStyle="bold"
-            android:textSize="17sp"
-            android:fontFamily="serif"
-            android:includeFontPadding="false"
-            android:textColor="#0F6E56"
-            android:background="@drawable/bg_addp_tile_green"/>
+        <View
+            android:id="@+id/viewBalanceStripe"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="#E4DBC6" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="8dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
 
             <TextView
-                android:id="@+id/tvName"
-                android:layout_width="match_parent"
+                android:id="@+id/tvAvatar"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:gravity="center"
+                android:text="A"
+                android:textSize="16sp"
+                android:textColor="#8A8272"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#F3ECDD"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Customer name"
-                android:textSize="14sp"
-                android:textColor="#18181B"
-                android:fontFamily="@font/googlesans_medium"
-                android:singleLine="true"
-                android:ellipsize="end"/>
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
 
-            <TextView
-                android:id="@+id/tvPhone"
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Customer name"
+                    android:textSize="13.5sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="9876543210"
+                    android:textSize="11sp"
+                    android:textColor="#9A8F79"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="9876543210"
-                android:textSize="11sp"
-                android:textColor="#9A8F79"/>
-        </LinearLayout>
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginStart="10dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
+                <TextView
+                    android:id="@+id/tvDue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹0"
+                    android:textSize="18sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true" />
 
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DUE"
-                android:textSize="9.5sp"
-                android:letterSpacing="0.06"
-                android:textColor="#9A8F79"
-                android:fontFamily="@font/googlesans_semibold"/>
-
-            <TextView
-                android:id="@+id/tvDue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:text="₹0"
-                android:textSize="15sp"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:textColor="#B23A3A"/>
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="settled"
+                    android:textSize="9.5sp"
+                    android:textColor="#A99E88" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
     <View
+        android:id="@+id/viewRowDivider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="52dp"
-        android:background="#F1EBDD"/>
+        android:layout_height="0.5dp"
+        android:layout_marginHorizontal="14dp"
+        android:background="#F1EBDD" />
+
 </LinearLayout>

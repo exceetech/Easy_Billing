@@ -277,6 +277,11 @@ class MainActivity : BaseActivity() {
                     if (oldShopId != -1 && oldShopId != response.shop_id) {
                         // User logged into a different workspace (or a restored one).
                         // Must wipe the database to prevent cross-workspace data merging.
+                        //
+                        // Do not make this conditional or remove it: import_services
+                        // has no shopId column and its queries have no shop filter,
+                        // so this wipe is the only thing keeping one workspace's
+                        // records out of another's list. See db/ImportService.kt.
                         withContext(Dispatchers.IO) {
                             try {
                                 AppDatabase.getDatabase(applicationContext).clearAllTables()

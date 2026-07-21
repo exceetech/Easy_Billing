@@ -466,9 +466,18 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.MONOSPACE
         paint.textSize = 12f
 
-        val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-        val page = document.startPage(pageInfo)
-        val canvas = page.canvas
+        // Page and canvas are mutable because a long ledger spills over.
+        //
+        // The row loop used to call finishPage() when it ran out of room and
+        // then carry on drawing on that same finished page — and finishPage()
+        // was called again at the end. Both are illegal: PdfDocument throws,
+        // the caller catches it, and the user sees "Print failed". Any customer
+        // with roughly two dozen or more entries could never print a statement.
+        var pageNumber = 1
+        var page = document.startPage(
+            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+        )
+        var canvas = page.canvas
 
         var y = 50f
 
@@ -568,7 +577,33 @@ object InvoicePdfGenerator {
 
         // ================= ROWS =================
 
+        /** Closes the current page, opens the next, and repeats the column heads. */
+        fun startNextPage() {
+            document.finishPage(page)
+            pageNumber += 1
+            page = document.startPage(
+                PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            )
+            canvas = page.canvas
+            y = 50f
+
+            paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            paint.textSize = 12f
+            canvas.drawText("Date", colDate, y, paint)
+            canvas.drawText("Type", colType, y, paint)
+            rightText("Dr (₹)", colDrRight, y)
+            rightText("Cr (₹)", colCrRight, y)
+            rightText("Balance (₹)", colBalRight, y)
+            y += 20
+            line()
+            paint.typeface = Typeface.MONOSPACE
+        }
+
         rows.forEach {
+
+            // Checked BEFORE drawing, so a row is never written onto a page
+            // that has already been closed.
+            if (y > pageHeight - 100) startNextPage()
 
             canvas.drawText(it[0], colDate, y, paint)
             canvas.drawText(it[1], colType, y, paint)
@@ -579,11 +614,11 @@ object InvoicePdfGenerator {
             rightText(it[4].replace("₹", ""), colBalRight, y)
 
             y += 18
-
-            if (y > pageHeight - 100) {
-                document.finishPage(page)
-            }
         }
+
+        // The totals block needs about 120pt; move it rather than let it run
+        // off the bottom of the last page.
+        if (y > pageHeight - 160) startNextPage()
 
         line()
 
@@ -627,13 +662,18 @@ object InvoicePdfGenerator {
 
         // ================= SAVE =================
 
-        val fileName = "${phone}_${System.currentTimeMillis()}.pdf"
+        // Anything that isn't a letter, digit, dash or underscore is stripped.
+        // The caller passes "N/A" when a customer has no number, and the slash
+        // in it turns this into a path — the parent folder doesn't exist, so
+        // the write fails on exactly the customers with no phone recorded.
+        val safePhone = phone.replace(Regex("[^A-Za-z0-9_-]"), "").ifBlank { "customer" }
+        val fileName = "${safePhone}_${System.currentTimeMillis()}.pdf"
 
-        val file = File(
-            activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-                ?: activity.filesDir,
-            fileName
-        )
+        val dir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+            ?: activity.filesDir
+        dir.mkdirs()
+
+        val file = File(dir, fileName)
 
         try {
             FileOutputStream(file).use {
@@ -642,19 +682,28 @@ object InvoicePdfGenerator {
             document.close()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(activity, "PDF save failed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                activity,
+                "Couldn't save the PDF: ${e.message ?: e.javaClass.simpleName}",
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
         // ================= PRINT =================
 
         try {
+            // Not every device has a print service — plenty of POS tablets
+            // ship without one — and this returns null there rather than
+            // throwing something descriptive. Checked explicitly so the user
+            // is told what is missing instead of seeing a bare "Print failed".
             val printManager = activity.getSystemService(PrintManager::class.java)
+                ?: throw IllegalStateException("This device has no printing service")
 
             val printAdapter = PdfPrintAdapter(
                 activity,
                 file.absolutePath,
-                "Invoice"
+                "Statement"
             )
 
             val attributes = PrintAttributes.Builder()
@@ -662,11 +711,20 @@ object InvoicePdfGenerator {
                 .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
                 .build()
 
-            printManager.print(fileName, printAdapter, attributes)
+            // The job name is shown in the print dialog, so it should read as
+            // a name — the file name carries a phone number and a timestamp.
+            printManager.print("Statement - $customerName", printAdapter, attributes)
 
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(activity, "Print failed", Toast.LENGTH_SHORT).show()
+            // The message, not just "Print failed" — two different failure
+            // paths used the identical wording, so there was no way to tell
+            // which had fired or why.
+            Toast.makeText(
+                activity,
+                "Couldn't print: ${e.message ?: e.javaClass.simpleName}",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 

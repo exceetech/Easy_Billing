@@ -126,14 +126,26 @@ class PurchaseRepository private constructor(
 
         // 1. Credit Integration
         if (safeHeader.isCredit && safeHeader.creditAccountId != null) {
+            // Refuse rather than half-complete. Defaulting to 1 wrote the debt
+            // into shop 1's books; defaulting to -1 alone would be worse — the
+            // account lookup below returns null, the `if (account != null)`
+            // skips silently, and the purchase saves as credit with no debt
+            // recorded against anyone. Throwing here rolls back the whole
+            // withTransaction block, so the purchase fails visibly instead.
             val shopId = context.getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
-                .getInt("SHOP_ID", 1)
-            
+                .getInt("SHOP_ID", -1)
+
+            check(shopId > 0) {
+                "No shop selected — refusing to save a credit purchase whose debt can't be recorded"
+            }
+
+
             val account = db.creditAccountDao().getById(safeHeader.creditAccountId, shopId)
             if (account != null) {
                 // Increase debt
-                val newDue = account.dueAmount + safeHeader.invoiceValue
-                db.creditAccountDao().updateDue(account.id, newDue, shopId)
+                // Adjustment in SQL rather than a total computed from a read —
+                // see CreditAccountDao.addToDue.
+                db.creditAccountDao().addToDue(account.id, safeHeader.invoiceValue, shopId)
 
                 // Log transaction
                 db.creditTransactionDao().insert(

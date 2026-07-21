@@ -5,12 +5,24 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface CreditAccountDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(account: CreditAccount): Long
+
+    /**
+     * Updates an existing row by primary key.
+     *
+     * [insert] is declared IGNORE-on-conflict, so passing it a row that already
+     * exists does nothing at all — silently. The server pull used insert() to
+     * refresh accounts, which meant a balance changed on another terminal could
+     * never reach this one. Refreshes must go through here.
+     */
+    @Update
+    suspend fun update(account: CreditAccount)
 
     @Query("""
         SELECT * FROM credit_accounts 
@@ -26,12 +38,38 @@ interface CreditAccountDao {
     """)
     suspend fun search(query: String, shopId: Int): List<CreditAccount>
 
+    /**
+     * Sets the balance to an exact figure. Correct only when the new value does
+     * not depend on the old one — settling to zero, or accepting the server's
+     * figure during a pull. For anything that *adjusts* a balance, use
+     * [addToDue] instead.
+     */
     @Query("""
-        UPDATE credit_accounts 
-        SET dueAmount = :amount 
+        UPDATE credit_accounts
+        SET dueAmount = :amount
         WHERE id = :id AND shopId = :shopId AND isActive = 1
     """)
     suspend fun updateDue(id: Int, amount: Double, shopId: Int)
+
+    /**
+     * Applies a change to the balance in the database itself.
+     *
+     * The callers used to read the account, compute `dueAmount ± something` in
+     * Kotlin, and write the total back. In InvoiceActivity the account is
+     * captured when the customer is picked and written when the bill is saved —
+     * minutes apart in a real billing session — so anything that moved the
+     * balance in between was silently overwritten. That became reachable once
+     * the server pull started updating existing accounts.
+     *
+     * Adding the delta in SQL means the database applies it to whatever the
+     * value is at that moment, so no read can go stale.
+     */
+    @Query("""
+        UPDATE credit_accounts
+        SET dueAmount = dueAmount + :delta
+        WHERE id = :id AND shopId = :shopId AND isActive = 1
+    """)
+    suspend fun addToDue(id: Int, delta: Double, shopId: Int)
 
     @Query("""
         UPDATE credit_accounts 

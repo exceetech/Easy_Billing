@@ -70,7 +70,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // purchase_table keeps its own denormalised supplier fields.
         Supplier::class
     ],
-    version = 48
+    version = 50
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1358,6 +1358,99 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Reclassifies historical `SETTLE` rows into `WRITE_OFF` / `REFUND`.
+         *
+         * `SETTLE` meant two opposite events — a debt forgiven and money handed
+         * back — so every reader had to reconstruct which one by replaying the
+         * ledger. Worse, settles written before the amount was recorded stored
+         * 0, so the sum involved was lost from the row entirely.
+         *
+         * This walks each account's history and, for every settle, works out
+         * the balance standing at that moment:
+         *
+         *   • balance positive → the debt was forgiven  → WRITE_OFF
+         *   • balance negative → the advance was returned → REFUND
+         *
+         * The amount is rewritten to that balance, repairing the rows that
+         * stored 0. Amounts become magnitudes; the type carries the direction.
+         *
+         * No schema change — `type` is already a free-text column — so this is
+         * purely a data rewrite. Verified against real SQLite for: a single
+         * write-off, a refund, two settles on one account (the second must
+         * measure only from the first), and a settle that already held the
+         * correct amount.
+         */
+        val MIGRATION_48_49 = object : Migration(48, 49) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                // Balance standing immediately before settle row `r`: the sum
+                // of everything on that account since the previous settle.
+                // The NOT EXISTS clause is what stops an earlier settle's
+                // history leaking into a later one's figure.
+                //
+                // It matches all three type names because rows already
+                // converted by this same statement must still act as
+                // boundaries.
+                val balanceBefore = """
+                    (SELECT COALESCE(SUM(CASE
+                        WHEN t.type IN ('ADD','PURCHASE_CREDIT','PURCHASE_RETURN') THEN t.amount
+                        WHEN t.type = 'PAY' THEN -t.amount
+                        ELSE 0 END), 0)
+                     FROM credit_transactions t
+                     WHERE t.accountId = r.accountId AND t.shopId = r.shopId
+                       AND (t.timestamp < r.timestamp
+                            OR (t.timestamp = r.timestamp AND t.id < r.id))
+                       AND NOT EXISTS (
+                            SELECT 1 FROM credit_transactions s
+                            WHERE s.accountId = r.accountId AND s.shopId = r.shopId
+                              AND s.type IN ('SETTLE','WRITE_OFF','REFUND')
+                              AND (s.timestamp > t.timestamp
+                                   OR (s.timestamp = t.timestamp AND s.id > t.id))
+                              AND (s.timestamp < r.timestamp
+                                   OR (s.timestamp = r.timestamp AND s.id < r.id))))
+                """.trimIndent()
+
+                // Only rows already pushed to the server are re-typed.
+                //
+                // An unsent SETTLE must stay a SETTLE: it will be pushed as
+                // written, and if the app reaches a device before the backend
+                // is updated, a WRITE_OFF would be rejected as an unknown type
+                // — which now holds back every later transaction for that
+                // customer. SETTLE is understood by every backend version.
+                db.execSQL("""
+                    UPDATE credit_transactions AS r
+                       SET type   = CASE WHEN $balanceBefore < 0 THEN 'REFUND' ELSE 'WRITE_OFF' END,
+                           amount = ABS($balanceBefore)
+                     WHERE r.type = 'SETTLE' AND r.isSynced = 1
+                """.trimIndent())
+            }
+        }
+
+        /**
+         * Gives `supplier_table` a real modification time.
+         *
+         * Before this, sync sent `lastUsedAt` as the row's `updated_at`, so
+         * the server's newest-wins rule was comparing *recency of use*, not
+         * recency of edit — a supplier renamed on one device and then left
+         * alone lost to a device that merely bought from them again, and the
+         * rename was silently discarded.
+         *
+         * Existing rows seed `updatedAt` from `lastUsedAt`: it is the only
+         * timestamp on file, and it is exactly what the server already holds
+         * for them, so nothing changes rank on the first sync after upgrade.
+         * Seeding "now" instead would make every local row outrank genuine
+         * edits waiting on other devices.
+         */
+        val MIGRATION_49_50 = object : Migration(49, 50) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE `supplier_table` ADD COLUMN `updatedAt` INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL("UPDATE `supplier_table` SET `updatedAt` = `lastUsedAt`")
+            }
+        }
+
         val MIGRATION_46_47 = object : Migration(46, 47) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -1429,7 +1522,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_41_42, MIGRATION_42_43,
                         MIGRATION_43_44, MIGRATION_44_45,
                         MIGRATION_45_46, MIGRATION_46_47,
-                        MIGRATION_47_48
+                        MIGRATION_47_48, MIGRATION_48_49,
+                        MIGRATION_49_50
                     )
                     .fallbackToDestructiveMigration()
                     .build()

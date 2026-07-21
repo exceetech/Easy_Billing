@@ -1,85 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Delete account — champagne theme, same shell as the other credit dialogs.
 
+    Deletion has to reach the server, so it needs a connection. That used to be
+    handled by hiding both buttons and showing only OK, which read as an error
+    screen. Here it stays the same dialog: the note explains WHY a connection is
+    needed (so the customer goes from every device, not just this one), and
+    offline simply disables the delete button.
+
+    Ids bound by CreditAccountsActivity.deleteAccount: tvDeleteName, tvMessage,
+    layoutOfflineNote, tvOfflineNote, btnRemove, btnCancel, btnOk.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="20dp"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_dialog_premium">
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
 
-    <!-- ICON -->
-    <ImageView
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_delete"
-        app:tint="#DC2626"
-        android:layout_gravity="center"
-        android:layout_marginBottom="12dp"/>
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_red">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_trash"
+            app:tint="#B23A3A"
+            android:contentDescription="@null" />
+    </FrameLayout>
 
-    <!-- TITLE -->
     <TextView
+        android:id="@+id/tvDeleteName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Remove Account"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#111827"
-        android:gravity="center"/>
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="Customer"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true"
+        android:ellipsize="end" />
 
-    <!-- MESSAGE -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete this"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="customer"
+            android:textColor="#B23A3A"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#6B7280"
+        android:layout_marginTop="12dp"
         android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:lineSpacingExtra="2dp"/>
+        android:text="Their account is removed from your list. The balance is already settled, so nothing is owed either way."
+        android:textColor="#8A8272"
+        android:textSize="12.5sp"
+        android:lineSpacingExtra="3dp" />
 
-    <!-- BUTTONS -->
+    <!--
+        Shown only when offline, to explain why Delete is disabled. There is no
+        standing "needs a connection" notice — the requirement is invisible to
+        anyone who is online, so saying it every time is noise.
+    -->
     <LinearLayout
+        android:id="@+id/layoutOfflineNote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="20dp">
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_imp_field"
+        android:padding="12dp"
+        android:visibility="gone">
 
-        <!-- REMOVE -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRemove"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Remove Account"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            android:background="@drawable/bg_premium_red_button"
-            app:cornerRadius="28dp"/>
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_kpi_cloud_off"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
 
-        <!-- CANCEL -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancel"
+        <TextView
+            android:id="@+id/tvOfflineNote"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Cancel"
-            android:textAllCaps="false"
-            android:textColor="#111827"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_premium_outline_button"
-            app:cornerRadius="28dp"/>
-
-        <!-- OK -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOk"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="OK"
-            android:textAllCaps="false"
-            android:textColor="#111827"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_premium_outline_button"
-            app:cornerRadius="28dp"/>
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text=""
+            android:textColor="#9A8F79"
+            android:textSize="11sp"
+            android:lineSpacingExtra="2dp" />
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRemove"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_cta_red"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Delete customer"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
+
+    <!--
+        Kept for the offline path, which previously replaced both buttons with
+        this one. The activity now disables Delete instead and leaves Cancel in
+        place, so this stays hidden — retained because the activity still
+        references it.
+    -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOk"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="OK"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:visibility="gone"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
 
 </LinearLayout>

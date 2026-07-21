@@ -1,112 +1,230 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    "New customer" dialog — champagne theme, same shape as the restore and
+    delete dialogs: soft circle icon, eyebrow, serif accent title.
 
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    Buttons are stacked rather than side by side. Adding is what the user came
+    for; Cancel is the way out. Giving them equal weight in a row made the
+    destructive-ish choice as prominent as the intended one, and made Cancel
+    easy to mis-tap.
+
+    Reached from three places — the credit accounts screen, the billing credit
+    picker, and the purchase picker — so the copy says where the customer will
+    show up rather than assuming.
+
+    Bound by CreditAccountsActivity, CreditAccountPicker and InvoiceActivity:
+    etName, etPhone, btnSave, btnCancel.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="24dp"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="26dp"
+    android:paddingBottom="20dp">
 
-    app:cardCornerRadius="24dp"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="@android:color/white">
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
 
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_user_plus"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:text="KHATA"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.15"
+        android:fontFamily="@font/googlesans_semibold" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="customer"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="They'll appear whenever you take a sale on credit."
+        android:textColor="#8A8272"
+        android:textSize="12sp"
+        android:lineSpacingExtra="2dp" />
+
+    <!-- ===================== NAME ===================== -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="5dp"
+        android:text="Name"
+        android:textColor="#9A8F79"
+        android:textSize="11sp" />
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_imp_field"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical"
+        android:drawableStart="@drawable/ic_lc_user"
+        android:drawableTint="#B8895A"
+        android:drawablePadding="9dp"
+        android:hint="Ramesh Kumar"
+        android:textColor="#1A1A18"
+        android:textColorHint="#A99E88"
+        android:textSize="13sp"
+        android:inputType="textPersonName|textCapWords"
+        android:singleLine="true"
+        android:importantForAutofill="no"
+        android:includeFontPadding="false" />
+
+    <!-- ===================== PHONE ===================== -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
+        android:layout_marginBottom="5dp"
+        android:text="Phone number"
+        android:textColor="#9A8F79"
+        android:textSize="11sp" />
+
+    <EditText
+        android:id="@+id/etPhone"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_imp_field"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical"
+        android:drawableStart="@drawable/ic_lc_phone"
+        android:drawableTint="#B8895A"
+        android:drawablePadding="9dp"
+        android:hint="98765 43210"
+        android:textColor="#1A1A18"
+        android:textColorHint="#A99E88"
+        android:textSize="13sp"
+        android:inputType="phone"
+        android:singleLine="true"
+        android:importantForAutofill="no"
+        android:includeFontPadding="false" />
+
+    <!--
+        The save path rejects a repeated phone with "Customer already exists",
+        but only after the user taps Add. Saying so here explains the rule
+        before they hit it.
+    -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="horizontal"
+        android:layout_marginTop="7dp">
 
-        <!-- TITLE -->
+        <ImageView
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+
         <TextView
-            android:text="Add Customer"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#111827"
-            android:layout_marginBottom="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <!-- NAME FIELD -->
-        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            app:startIconDrawable="@drawable/ic_person"
-            app:startIconTint="#6B7280"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="16dp"
-            app:boxCornerRadiusTopEnd="16dp"
-            app:boxCornerRadiusBottomStart="16dp"
-            app:boxCornerRadiusBottomEnd="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etName"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:hint="Customer Name"
-                android:textColor="#111827"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- PHONE FIELD -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-
-            app:startIconDrawable="@drawable/ic_phone"
-            app:startIconTint="#6B7280"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="16dp"
-            app:boxCornerRadiusTopEnd="16dp"
-            app:boxCornerRadiusBottomStart="16dp"
-            app:boxCornerRadiusBottomEnd="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPhone"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:hint="Phone Number"
-                android:inputType="phone"
-                android:textColor="#111827"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- BUTTONS -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancel"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textColor="#111827"
-                app:cornerRadius="16dp"
-                app:backgroundTint="#E5E7EB"
-                app:iconPadding="6dp"
-                app:iconTint="#111827"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:layout_marginStart="10dp"
-                android:text="Save"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                app:cornerRadius="16dp"
-                app:backgroundTint="#2563EB"
-                app:iconPadding="6dp"
-                app:iconTint="@android:color/white"/>
-        </LinearLayout>
-
+            android:layout_marginStart="6dp"
+            android:text="Used to find this customer later, so one number can't be reused."
+            android:textColor="#9A8F79"
+            android:textSize="10.5sp"
+            android:lineSpacingExtra="2dp" />
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    <!-- ===================== ACTIONS ===================== -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Add customer"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        app:icon="@drawable/ic_lc_user_plus"
+        app:iconTint="@android:color/white"
+        app:iconSize="17dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#22B8895A" />
+
+</LinearLayout>

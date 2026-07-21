@@ -87,6 +87,16 @@ class PurchaseActivity : BaseActivity() {
 
     /** True while the ITC auto-fill writes, so its own writes aren't edits. */
     private var settingItc = false
+
+    /**
+     * Set once the user types their own Cess Paid figure. The per-line
+     * total then stops overwriting it — a supplier invoice can legitimately
+     * state a header cess that doesn't equal the sum of the lines.
+     */
+    private var cessPaidUserSet = false
+
+    /** True while the cess auto-fill writes, so its own write isn't an edit. */
+    private var settingCessPaid = false
     private lateinit var rv: RecyclerView
     private lateinit var btnAddLine: MaterialButton
     private lateinit var btnSave: MaterialButton
@@ -318,6 +328,29 @@ class PurchaseActivity : BaseActivity() {
      * Marks an Availed-ITC field as the user's own the moment they type in
      * it. [settingItc] keeps the auto-fill's own writes from counting.
      */
+    /**
+     * Header "Cess Paid" defaults to the sum of the lines' cess.
+     *
+     * Each line captures its own cess amount, but a line's invoice value is
+     * only taxable + GST — cess is not in it (see PurchaseLineDialog
+     * .invoiceValue). The header field is what carries cess into the invoice
+     * total, so leaving it at 0 understated the total by exactly the cess,
+     * and made the "Availed ITC Cess cannot exceed Cess Paid" check reject
+     * a credit the user was entitled to.
+     *
+     * Nothing about how totals are calculated changes — this only fills in
+     * the number the user would otherwise have to add up by hand. Typing
+     * over it wins, permanently.
+     */
+    private fun syncCessPaidFromLines() {
+        if (cessPaidUserSet) return
+        val total = viewModel.lines.value.sumOf { it.cessAmount }
+        val rounded = "%.2f".format(total)
+        if (etCessPaid.text?.toString() == rounded) return
+        settingCessPaid = true
+        try { etCessPaid.setText(rounded) } finally { settingCessPaid = false }
+    }
+
     private fun setupItcOverrideWatchers() {
         etAvailedItcIntegrated.addTextChangedListener { if (!settingItc) itcIntegratedUserSet = true }
         etAvailedItcCentral.addTextChangedListener { if (!settingItc) itcCentralUserSet = true }
@@ -625,6 +658,7 @@ class PurchaseActivity : BaseActivity() {
         }
 
         etCessPaid.addTextChangedListener {
+            if (!settingCessPaid && etCessPaid.isFocused) cessPaidUserSet = true
             val totals = computeTotals()
             tvInvoiceTotal.text = "%.2f".format(totals.invoice)
             updateAvailedItcValues()
@@ -999,6 +1033,8 @@ class PurchaseActivity : BaseActivity() {
                 launch {
                     viewModel.lines.collect { lines ->
                         adapter.submit(lines)
+                        // Before computeTotals(), which reads etCessPaid.
+                        syncCessPaidFromLines()
                         val totals = computeTotals()
                         tvTaxableTotal.text = "%.2f".format(totals.taxable)
                         tvInvoiceTotal.text = "%.2f".format(totals.invoice)
