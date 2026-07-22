@@ -67,5 +67,16 @@ data class Purchase(
     @ColumnInfo(name = "availed_itc_state_tax") val availedItcStateTax: Double = 0.0,
     @ColumnInfo(name = "availed_itc_cess") val availedItcCess: Double = 0.0,
 
-    @ColumnInfo(name = "purchase_source") val purchaseSource: String = "DOMESTIC"
+    @ColumnInfo(name = "purchase_source") val purchaseSource: String = "DOMESTIC",
+
+    // ── Cancellation (v52) — mirrors the bills table ───────────────────
+    /** True once this purchase has been voided. Excluded from ITC/reports. */
+    @ColumnInfo(name = "is_cancelled") val isCancelled: Boolean = false,
+
+    /** Epoch millis when the cancellation was confirmed. */
+    @ColumnInfo(name = "cancelled_at") val cancelledAt: Long? = null,
+
+    /** True once the void has been acknowledged by the server, so it isn't
+     *  re-pushed on every sync — mirror of Bill.cancelSynced. */
+    @ColumnInfo(name = "cancel_synced") val cancelSynced: Boolean = false
 )

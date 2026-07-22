@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.repository.CreditAdjustmentRepository
+import com.example.easy_billing.util.CreditAdjustmentPrompt
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.viewmodel.PurchaseReturnViewModel
@@ -236,7 +238,28 @@ class PurchaseReturnActivity : BaseActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
-                        finish()
+
+                        // If the purchase was on credit, adjust the supplier's
+                        // balance now — clamped, and asking cash-vs-advance only
+                        // on an overshoot. Skips itself for cash purchases.
+                        // Finish only after the owner has answered.
+                        val adj = result.creditAdjustment
+                        if (adj == null) {
+                            finish()
+                        } else {
+                            val kind = if (adj.isDebitNote)
+                                CreditAdjustmentRepository.Kind.PURCHASE_DEBIT_NOTE
+                            else
+                                CreditAdjustmentRepository.Kind.PURCHASE_CREDIT_NOTE
+                            CreditAdjustmentPrompt.handlePurchase(
+                                activity = this@PurchaseReturnActivity,
+                                purchaseId = adj.purchaseId,
+                                kind = kind,
+                                amount = adj.amount,
+                                documentLocalId = adj.docSeq,
+                                onDone = { finish() }
+                            )
+                        }
                     }
                     is PurchaseReturnViewModel.Result.ValidationError -> {
                         Toast.makeText(

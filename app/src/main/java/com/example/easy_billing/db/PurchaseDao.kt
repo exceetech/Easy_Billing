@@ -32,4 +32,24 @@ interface PurchaseDao {
 
     @Query("UPDATE purchase_table SET is_synced = 1, server_id = :serverId WHERE id = :id")
     suspend fun markSynced(id: Int, serverId: Int?)
+
+    /**
+     * Voids a purchase. Status only — the ITC/inventory unwind is done by the
+     * cancellation's bulk return, not by this flag. cancel_synced starts false
+     * so the void is pushed to the server once (mirror of the bills table).
+     */
+    @Query("""
+        UPDATE purchase_table
+        SET is_cancelled = 1, cancelled_at = :at, cancel_synced = 0, is_synced = 0
+        WHERE id = :id
+    """)
+    suspend fun markPurchaseCancelled(id: Int, at: Long)
+
+    /** Cancelled purchases whose void hasn't been pushed to the server yet. */
+    @Query("SELECT * FROM purchase_table WHERE is_cancelled = 1 AND cancel_synced = 0")
+    suspend fun getCancelledUnsynced(): List<Purchase>
+
+    /** Acknowledged by the server — stop re-pushing this void. */
+    @Query("UPDATE purchase_table SET cancel_synced = 1 WHERE id = :id")
+    suspend fun markPurchaseCancelSynced(id: Int)
 }

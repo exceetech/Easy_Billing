@@ -59,10 +59,50 @@ interface CreditTransactionDao {
 
     // ================= GET BY ACCOUNT =================
     @Query("""
-        SELECT * FROM credit_transactions 
-        WHERE accountId = :id 
+        SELECT * FROM credit_transactions
+        WHERE accountId = :id
         AND shopId = :shopId
         ORDER BY id DESC
     """)
     suspend fun getByAccount(id: Int, shopId: Int): List<CreditTransaction>
+
+
+    /**
+     * Every credit transaction generated from one bill — the original credit
+     * sale plus any adjustments that were put on the account. Used to work out
+     * how much of that bill is still sitting as debt.
+     */
+    @Query("""
+        SELECT * FROM credit_transactions
+        WHERE billId = :billId AND shopId = :shopId
+        ORDER BY id ASC
+    """)
+    suspend fun getByBill(billId: Int, shopId: Int): List<CreditTransaction>
+
+
+    /**
+     * Every credit transaction generated from one purchase — the credit
+     * purchase itself plus any returns / notes / cancellation put on the
+     * supplier account. Mirror of [getByBill] for the purchase side.
+     */
+    @Query("""
+        SELECT * FROM credit_transactions
+        WHERE purchaseId = :purchaseId AND shopId = :shopId
+        ORDER BY id ASC
+    """)
+    suspend fun getByPurchase(purchaseId: Int, shopId: Int): List<CreditTransaction>
+
+
+    /**
+     * How many transactions already exist for one source document.
+     *
+     * Non-zero means this exact credit note / cancellation / debit note has
+     * already been posted to the account, so posting again would double-charge.
+     * The idempotency guard for every bill adjustment.
+     */
+    @Query("""
+        SELECT COUNT(*) FROM credit_transactions
+        WHERE sourceDoc = :sourceDoc AND shopId = :shopId
+    """)
+    suspend fun countForDoc(sourceDoc: String, shopId: Int): Int
 }

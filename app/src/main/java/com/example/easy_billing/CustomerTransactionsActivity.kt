@@ -726,6 +726,17 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                     balance = applyToBalance(balance, it)
                 }
 
+                // A credit note / cancelled bill reverses part of a sale, so it
+                // sits in the debit (Billed) column as a negative — not in the
+                // credit column, which is cash received. Rendering the sign
+                // keeps the debit column's own total equal to the net Billed
+                // figure printed in the footer.
+                val debitStr = when {
+                    debit > 0 -> "₹%.2f".format(debit)
+                    debit < 0 -> "−₹%.2f".format(-debit)
+                    else -> "-"
+                }
+
                 rows.add(
                     listOf(
                         formatter.format(Date(it.timestamp)),
@@ -733,7 +744,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                         // used to print the raw code, so a customer's
                         // statement read "WRITE_OFF" and "PURCHASE_CREDIT".
                         TransactionAdapter.labelFor(shownType),
-                        if (debit > 0) "₹%.2f".format(debit) else "-",
+                        debitStr,
                         if (credit > 0) "₹%.2f".format(credit) else "-",
                         "₹%.2f".format(balance)
                     )
@@ -797,7 +808,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
      *
      *   ADD / PURCHASE_CREDIT   amount is positive → debt rises
      *   PAY                     amount is positive → debt falls
-     *   PURCHASE_RETURN         amount is already negative → adding lowers debt
+     *   PURCHASE_RETURN         magnitude lowers debt (sign-agnostic: old rows
+     *                           are negative, new rows positive)
      *   SETTLE                  balance goes to zero
      *
      * The three views previously each handled only ADD, PAY and SETTLE, so a
@@ -808,7 +820,14 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         when (txn.type) {
             "ADD", "PURCHASE_CREDIT" -> balance + txn.amount
             "PAY" -> balance - txn.amount
-            "PURCHASE_RETURN" -> balance + txn.amount
+            // Sign-agnostic: older rows stored PURCHASE_RETURN negative, newer
+            // ones store a positive magnitude. Either way it lowers the payable.
+            "PURCHASE_RETURN" -> balance - kotlin.math.abs(txn.amount)
+            // Bill adjustments: a debit note raises the debt, a credit note or
+            // a cancelled bill lowers it. Deltas, not resets — the amount was
+            // already clamped to what the bill still owed when it was written.
+            "DEBIT_NOTE" -> balance + txn.amount
+            "SALE_RETURN", "BILL_CANCEL" -> balance - txn.amount
             // All three close the account, so all three go to zero. Treating
             // the new types as deltas would leave a drifted balance drifted;
             // an absolute zero is what re-synchronises it, and it is what
@@ -817,10 +836,22 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             else -> balance
         }
 
-    /** Money leaving the customer's favour — shown in the statement's debit column. */
+    /**
+     * Net effect on the Billed total.
+     *
+     * A debit note adds to what was billed. A credit note or a cancelled bill
+     * *reverses* part of a sale, so they reduce Billed rather than appearing as
+     * money received — no cash came in. Returning them as negative here keeps
+     * the identity billed − received − writtenOff + refunded = balance exact,
+     * with Received untouched.
+     */
     private fun debitOf(txn: CreditTransaction): Double = when (txn.type) {
         "ADD", "PURCHASE_CREDIT" -> txn.amount
-        "PURCHASE_RETURN" -> if (txn.amount > 0) txn.amount else 0.0
+        "DEBIT_NOTE" -> txn.amount
+        "SALE_RETURN", "BILL_CANCEL" -> -txn.amount
+        // A purchase return reduces what's owed to the supplier — it's a
+        // credit, never a debit. (Handled in creditOf, sign-agnostic.)
+        "PURCHASE_RETURN" -> 0.0
         else -> 0.0
     }
 
@@ -833,7 +864,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
      */
     private fun creditOf(txn: CreditTransaction): Double = when (txn.type) {
         "PAY" -> txn.amount
-        "PURCHASE_RETURN" -> if (txn.amount < 0) -txn.amount else 0.0
+        // Sign-agnostic magnitude: lowers what's owed whether the row was
+        // stored negative (old) or positive (new).
+        "PURCHASE_RETURN" -> kotlin.math.abs(txn.amount)
         else -> 0.0
     }
 

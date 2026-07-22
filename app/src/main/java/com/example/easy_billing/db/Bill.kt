@@ -43,5 +43,18 @@ data class Bill(
      * re-pushing every cancelled bill on every sync cycle forever.
      */
     @ColumnInfo(name = "cancel_synced")
-    var cancelSynced: Boolean = false
+    var cancelSynced: Boolean = false,
+
+    // ── Credit link (v51) ─────────────────────────────────────────────
+    /**
+     * Local `credit_accounts.id` this bill was charged to, when it was a
+     * credit sale. Null for cash bills, and for older credit bills created
+     * before this field existed.
+     *
+     * This is what lets a credit note / debit note / cancellation later ask
+     * "was this bill on credit, and to whom?" — which the bill number and the
+     * amount alone can never answer.
+     */
+    @ColumnInfo(name = "credit_account_id")
+    val creditAccountId: Int? = null
 )

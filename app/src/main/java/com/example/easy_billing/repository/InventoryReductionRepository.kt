@@ -255,8 +255,9 @@ class InventoryReductionRepository private constructor(
 
         val (shopIdStr, stateStr) = currentShopAndState()
 
+        var returnRowId = -1
         when (reason) {
-            ClearReason.PURCHASE_RETURN -> db.purchaseReturnDao().insert(
+            ClearReason.PURCHASE_RETURN -> returnRowId = db.purchaseReturnDao().insert(
                 PurchaseReturn(
                     shopId           = shopIdStr,
                     productId        = productId,
@@ -278,7 +279,7 @@ class InventoryReductionRepository private constructor(
                     isCredit         = isCredit,
                     creditAccountId  = creditAccountId
                 )
-            )
+            ).toInt()
             ClearReason.SCRAP -> db.scrapDao().insert(
                 ScrapEntry(
                     shopId         = shopIdStr,
@@ -301,25 +302,11 @@ class InventoryReductionRepository private constructor(
             )
         }
 
-        // Credit Adjustment
-        if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null) {
-            val account = db.creditAccountDao().getById(creditAccountId, shopId)
-            if (account != null) {
-                // Adjustment in SQL — see CreditAccountDao.addToDue.
-                db.creditAccountDao().addToDue(account.id, -invoiceValue, shopId)
-
-                db.creditTransactionDao().insert(
-                    com.example.easy_billing.db.CreditTransaction(
-                        accountId = account.id,
-                        shopId = shopId,
-                        amount = -invoiceValue,
-                        type = "PURCHASE_RETURN",
-                        referenceInvoice = "CLEAR_$productName",
-                        isSynced = false
-                    )
-                )
-            }
-        }
+        // Supplier-balance adjustment lifted OUT — see the note in
+        // PurchaseReturnViewModel. The caller runs it through
+        // CreditAdjustmentPrompt after this returns, so it is clamped to the
+        // account balance and asks cash-vs-advance on an overshoot. The values
+        // needed for that are handed back on ClearStockResult.Cleared.
 
         // Inventory → 0 via the existing InventoryManager.clearStock
         // path so transaction logs stay consistent.
@@ -328,12 +315,32 @@ class InventoryReductionRepository private constructor(
             type = if (reason == ClearReason.PURCHASE_RETURN) "RETURN" else "LOSS"
         )
 
-        ClearStockResult.Cleared(qty, reason)
+        val creditAdj =
+            if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null)
+                CreditReturnInfo(creditAccountId, invoiceValue, returnRowId)
+            else null
+
+        ClearStockResult.Cleared(qty, reason, creditAdj)
     }
+
+    /**
+     * The bits the caller needs to run the supplier-balance adjustment through
+     * CreditAdjustmentPrompt after a return is saved. [documentId] is the
+     * PurchaseReturn row id, used as the idempotency key.
+     */
+    data class CreditReturnInfo(
+        val accountId: Int,
+        val amount: Double,
+        val documentId: Int
+    )
 
     sealed class ClearStockResult {
         object NoStock : ClearStockResult()
-        data class Cleared(val quantity: Double, val reason: ClearReason) : ClearStockResult()
+        data class Cleared(
+            val quantity: Double,
+            val reason: ClearReason,
+            val creditAdjustment: CreditReturnInfo? = null
+        ) : ClearStockResult()
     }
 
     /**
@@ -357,7 +364,8 @@ class InventoryReductionRepository private constructor(
         val totalInvoiceValue: Double,
         val totalCgst: Double,
         val totalSgst: Double,
-        val totalIgst: Double
+        val totalIgst: Double,
+        val creditAdjustment: CreditReturnInfo? = null
     )
 
     data class BatchScrapLine(
@@ -561,24 +569,14 @@ class InventoryReductionRepository private constructor(
             }
         )
 
-        // Optional credit adjustment.
-        if (isCredit && creditAccountId != null) {
-            val account = db.creditAccountDao().getById(creditAccountId, shopId)
-            if (account != null) {
-                // Adjustment in SQL — see CreditAccountDao.addToDue.
-                db.creditAccountDao().addToDue(account.id, -grandTotalInvoiceValue, shopId)
-                db.creditTransactionDao().insert(
-                    com.example.easy_billing.db.CreditTransaction(
-                        accountId = account.id,
-                        shopId = shopId,
-                        amount = -grandTotalInvoiceValue,
-                        type = "PURCHASE_RETURN",
-                        referenceInvoice = "BATCH_RETURN_$productName",
-                        isSynced = false
-                    )
-                )
-            }
-        }
+        // Supplier-balance adjustment lifted OUT — the caller runs it through
+        // CreditAdjustmentPrompt after this returns, so it is clamped to the
+        // account balance and asks cash-vs-advance on an overshoot. The values
+        // needed are handed back on BatchReturnResult.creditAdjustment.
+        val creditAdj =
+            if (isCredit && creditAccountId != null)
+                CreditReturnInfo(creditAccountId, grandTotalInvoiceValue, grandReturnId)
+            else null
 
         BatchReturnResult(
             returnId = grandReturnId,
@@ -587,7 +585,8 @@ class InventoryReductionRepository private constructor(
             totalInvoiceValue = grandTotalInvoiceValue,
             totalCgst = grandTotalCgst,
             totalSgst = grandTotalSgst,
-            totalIgst = grandTotalIgst
+            totalIgst = grandTotalIgst,
+            creditAdjustment = creditAdj
         )
     }
 

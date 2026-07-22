@@ -54,6 +54,18 @@ data class CancelBillRequest(
     val cancelled_at: Long? = null   // epoch millis
 )
 
+/**
+ * Voids a purchase on the server. Same idempotency shape as [CancelBillRequest]:
+ * resolved by server id when known, else by (client_device_id, client_purchase_id).
+ */
+data class CancelPurchaseRequest(
+    val invoice_number: String? = null,
+    val client_purchase_id: Int? = null,
+    val server_purchase_id: Int? = null,
+    val client_device_id: String? = null,
+    val cancelled_at: Long? = null   // epoch millis
+)
+
 data class BillItemRequest(
     val shop_product_id: Int,
     val product_name: String? = null,

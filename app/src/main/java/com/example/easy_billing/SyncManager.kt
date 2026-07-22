@@ -15,6 +15,7 @@ import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.CreateBillRequest
 import com.example.easy_billing.network.CancelBillRequest
+import com.example.easy_billing.network.CancelPurchaseRequest
 import com.example.easy_billing.util.GstEngine
 import kotlinx.coroutines.sync.withLock
 import com.example.easy_billing.network.BillItemRequest
@@ -89,6 +90,7 @@ class SyncManager(private val context: Context) {
         syncGstInvoices()        // push GST-aware invoice batch
         syncGstCancellations()   // push pending GST invoice cancellations
         syncBillCancellations()  // push voided bills to the analytics table
+        syncPurchaseCancellations() // push voided purchases
         syncStoreInfo()          // pull latest
         syncBillingSettings()    // pull settings
 
@@ -2688,6 +2690,51 @@ class SyncManager(private val context: Context) {
             } catch (e: Exception) {
                 Log.e(SYNC_TAG, "syncBillCancellations: failed for bill ${bill.id}", e)
                 // Retried automatically on the next sync cycle
+            }
+        }
+    }
+
+    /**
+     * Pushes purchase cancellations to the server — mirror of
+     * [syncBillCancellations]. Only purchases that already exist on the server
+     * are pushed; a still-unsynced one re-syncs its create first (its
+     * is_cancelled flag rides along), then this catches it next cycle.
+     */
+    suspend fun syncPurchaseCancellations() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: run {
+                Log.w(SYNC_TAG, "syncPurchaseCancellations skipped — no auth token")
+                return
+            }
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val cancelled = db.purchaseDao().getCancelledUnsynced().filter { it.isSynced }
+
+        for (p in cancelled) {
+            try {
+                api.cancelPurchase(
+                    token,
+                    CancelPurchaseRequest(
+                        invoice_number     = p.invoiceNumber.takeIf { it.isNotBlank() },
+                        client_purchase_id = p.id,
+                        server_purchase_id = p.serverId,
+                        client_device_id   = deviceId(),
+                        cancelled_at       = p.cancelledAt ?: appNow()
+                    )
+                )
+                db.purchaseDao().markPurchaseCancelSynced(p.id)
+                Log.d(SYNC_TAG, "syncPurchaseCancellations: purchase ${p.id} voided on server")
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 404) {
+                    // Not on the server — nothing to void. Stop retrying it.
+                    db.purchaseDao().markPurchaseCancelSynced(p.id)
+                    Log.w(SYNC_TAG, "syncPurchaseCancellations: purchase ${p.id} not found (404); marked done")
+                } else {
+                    Log.e(SYNC_TAG, "syncPurchaseCancellations: HTTP ${e.code()} for purchase ${p.id}")
+                }
+            } catch (e: Exception) {
+                Log.e(SYNC_TAG, "syncPurchaseCancellations: failed for purchase ${p.id}", e)
             }
         }
     }

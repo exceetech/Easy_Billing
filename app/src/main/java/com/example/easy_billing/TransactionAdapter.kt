@@ -35,6 +35,10 @@ class TransactionAdapter(private val list: List<TransactionUI>) :
             "PURCHASE_RETURN"  -> "Purchase return"
             "WRITE_OFF"        -> "Written off"
             "REFUND"           -> "Refunded"
+            // Bill adjustments applied to the account.
+            "SALE_RETURN"      -> "Credit note"
+            "BILL_CANCEL"      -> "Bill cancelled"
+            "DEBIT_NOTE"       -> "Debit note"
             // Legacy rows, from before the two events were told apart.
             "SETTLE"           -> "Settled"
             else               -> type
@@ -108,6 +112,19 @@ class TransactionAdapter(private val list: List<TransactionUI>) :
                     stripe = "#0F6E56"; tile = "#E1F5EE"; icon = R.drawable.ic_lc_arrow_down_left
                     holder.tvAmount.text = "− $formatted"
                     holder.tvAmount.setTextColor(Color.parseColor("#0F6E56"))
+                }
+                // Credit note / cancelled bill lower the debt — same green,
+                // downward direction as a payment, but they are not cash in.
+                "SALE_RETURN", "BILL_CANCEL" -> {
+                    stripe = "#0F6E56"; tile = "#E1F5EE"; icon = R.drawable.ic_lc_arrow_down_left
+                    holder.tvAmount.text = "− $formatted"
+                    holder.tvAmount.setTextColor(Color.parseColor("#0F6E56"))
+                }
+                // Debit note raises the debt — same red, upward as a credit sale.
+                "DEBIT_NOTE" -> {
+                    stripe = "#B23A3A"; tile = "#FCEBEB"; icon = R.drawable.ic_lc_arrow_up_right
+                    holder.tvAmount.text = "+ $formatted"
+                    holder.tvAmount.setTextColor(Color.parseColor("#B23A3A"))
                 }
                 // Gold for the two adjustments — neither is a sale or a
                 // payment, and colouring them like one is what made a refund

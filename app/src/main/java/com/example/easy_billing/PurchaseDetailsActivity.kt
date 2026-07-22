@@ -10,6 +10,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
+import com.example.easy_billing.repository.CreditAdjustmentRepository
+import com.example.easy_billing.repository.PurchaseCancelRepository
+import com.example.easy_billing.util.CreditAdjustmentPrompt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
@@ -49,6 +54,7 @@ class PurchaseDetailsActivity : BaseActivity() {
     private lateinit var llPriorReturns:  LinearLayout
     private lateinit var btnRaiseReturn:  MaterialButton
     private lateinit var btnClose:        MaterialButton
+    private lateinit var btnCancelPurchase: MaterialButton
 
     private var purchaseId: Int = -1
     private val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
@@ -75,9 +81,11 @@ class PurchaseDetailsActivity : BaseActivity() {
         llPriorReturns       = findViewById(R.id.llPriorReturns)
         btnRaiseReturn       = findViewById(R.id.btnRaiseReturn)
         btnClose             = findViewById(R.id.btnClose)
+        btnCancelPurchase    = findViewById(R.id.btnCancelPurchase)
 
         btnClose.setOnClickListener { finish() }
         btnRaiseReturn.setOnClickListener { openPurchaseReturn() }
+        btnCancelPurchase.setOnClickListener { confirmCancelPurchase() }
 
         observeViewModel()
         viewModel.loadPurchaseDetail(purchaseId)
@@ -90,6 +98,9 @@ class PurchaseDetailsActivity : BaseActivity() {
             viewModel.selectedPurchase.collectLatest { p ->
                 p ?: return@collectLatest
                 bindHeader(p)
+                // A purchase opened after it was cancelled shows its state and
+                // can't be cancelled or returned again.
+                if (p.isCancelled) applyCancelledState()
             }
         }
 
@@ -214,6 +225,94 @@ class PurchaseDetailsActivity : BaseActivity() {
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             .show()
     }
+
+    /**
+     * Cancel = return everything still on hand from this purchase, in one go.
+     * Refused if any unit has been sold. On confirm, the bulk return runs, the
+     * purchase is flagged cancelled, and the supplier balance is adjusted
+     * through the shared prompt (clamped, cash-vs-advance on overshoot).
+     */
+    private fun confirmCancelPurchase() {
+        btnCancelPurchase.isEnabled = false
+        lifecycleScope.launch {
+            when (val check = PurchaseCancelRepository.canCancel(this@PurchaseDetailsActivity, purchaseId)) {
+                is PurchaseCancelRepository.CancelCheck.NotFound -> {
+                    toast("Purchase not found")
+                    btnCancelPurchase.isEnabled = true
+                }
+                is PurchaseCancelRepository.CancelCheck.AlreadyCancelled -> {
+                    toast("This purchase is already cancelled")
+                    applyCancelledState()
+                }
+                is PurchaseCancelRepository.CancelCheck.Blocked -> {
+                    AlertDialog.Builder(this@PurchaseDetailsActivity)
+                        .setTitle("Can't cancel")
+                        .setMessage(check.reason)
+                        .setPositiveButton("OK") { d, _ -> d.dismiss() }
+                        .setOnDismissListener { btnCancelPurchase.isEnabled = true }
+                        .show()
+                }
+                is PurchaseCancelRepository.CancelCheck.Allowed -> {
+                    AlertDialog.Builder(this@PurchaseDetailsActivity)
+                        .setTitle("Cancel this purchase?")
+                        .setMessage(
+                            "All remaining stock from this purchase will be returned to the " +
+                                "supplier and the purchase marked cancelled. This can't be undone."
+                        )
+                        .setPositiveButton("Cancel Purchase") { d, _ ->
+                            d.dismiss()
+                            runCancel()
+                        }
+                        .setNegativeButton("Keep") { d, _ ->
+                            d.dismiss()
+                            btnCancelPurchase.isEnabled = true
+                        }
+                        .setOnCancelListener { btnCancelPurchase.isEnabled = true }
+                        .show()
+                }
+            }
+        }
+    }
+
+    private fun runCancel() {
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                PurchaseCancelRepository.cancel(this@PurchaseDetailsActivity, purchaseId)
+            }
+            if (result == null) {
+                toast("Couldn't cancel the purchase")
+                btnCancelPurchase.isEnabled = true
+                return@launch
+            }
+            applyCancelledState()
+            toast("Purchase cancelled. Stock returned to supplier.")
+
+            // Push the void, the returns and the balance change.
+            com.example.easy_billing.sync.SyncCoordinator
+                .get(this@PurchaseDetailsActivity).requestSync()
+
+            // Adjust the supplier balance for the swept-back stock — clamped,
+            // asking cash-vs-advance only on an overshoot. No-ops for a cash
+            // purchase. Finish after the owner answers.
+            CreditAdjustmentPrompt.handlePurchase(
+                activity = this@PurchaseDetailsActivity,
+                purchaseId = purchaseId,
+                kind = CreditAdjustmentRepository.Kind.PURCHASE_CANCEL,
+                amount = result.remainingValue,
+                documentLocalId = purchaseId,
+                onDone = { }
+            )
+        }
+    }
+
+    private fun applyCancelledState() {
+        btnCancelPurchase.isEnabled = false
+        btnCancelPurchase.text = "Cancelled"
+        btnRaiseReturn.isEnabled = false
+    }
+
+    private fun toast(msg: String) =
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
 
     private fun formatQty(q: Double) =
         if (q == q.toLong().toDouble()) q.toLong().toString() else "%.2f".format(q)

@@ -11,7 +11,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Bill
+import com.example.easy_billing.repository.CreditAdjustmentRepository
 import com.example.easy_billing.repository.CreditNoteRepository
+import com.example.easy_billing.util.CreditAdjustmentPrompt
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.viewmodel.DebitNoteViewModel
 import com.google.android.material.button.MaterialButton
@@ -128,7 +130,18 @@ class DebitNoteActivity : AppCompatActivity() {
                             } catch (_: Exception) {
                             }
                         }
-                        finish()
+                        // If the original bill was on credit, ask whether this
+                        // extra charge should be added to the customer's
+                        // balance. Skips itself for cash bills.
+                        val note = result.creditNote
+                        CreditAdjustmentPrompt.handle(
+                            activity = this@DebitNoteActivity,
+                            billId = note.originalInvoiceId,
+                            kind = CreditAdjustmentRepository.Kind.DEBIT_NOTE,
+                            amount = note.totalAmount,
+                            documentLocalId = note.id,
+                            onDone = { finish() }
+                        )
                     }
                     is CreditNoteRepository.Result.ValidationError -> {
                         Toast.makeText(

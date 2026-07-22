@@ -70,7 +70,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // purchase_table keeps its own denormalised supplier fields.
         Supplier::class
     ],
-    version = 50
+    version = 52
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1451,6 +1451,58 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Links a bill to the credit account it was charged to, and each
+         * credit transaction to the bill (and the exact document) it came
+         * from. Everything is additive and nullable, so existing rows keep
+         * working untouched — old credit bills simply have a null account
+         * link and are treated as "not linked" by the adjustment flow.
+         *
+         * All columns are added with defaults so no data has to move.
+         */
+        val MIGRATION_50_51 = object : Migration(50, 51) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // bills → which credit account it was charged to (nullable).
+                db.execSQL(
+                    "ALTER TABLE `bills` ADD COLUMN `credit_account_id` INTEGER DEFAULT NULL"
+                )
+                // credit_transactions → originating bill + document.
+                db.execSQL(
+                    "ALTER TABLE `credit_transactions` ADD COLUMN `billId` INTEGER DEFAULT NULL"
+                )
+                db.execSQL(
+                    "ALTER TABLE `credit_transactions` ADD COLUMN `sourceDoc` TEXT DEFAULT NULL"
+                )
+            }
+        }
+
+        /**
+         * Purchase-side of the bill-adjustment feature.
+         *
+         *  - credit_transactions.purchaseId → ties a supplier transaction to
+         *    the purchase it came from (mirror of billId).
+         *  - purchase_table gets cancellation columns so a credit purchase can
+         *    be voided the way a bill can.
+         *
+         * All additive and nullable/defaulted, so existing rows are untouched.
+         */
+        val MIGRATION_51_52 = object : Migration(51, 52) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE `credit_transactions` ADD COLUMN `purchaseId` INTEGER DEFAULT NULL"
+                )
+                db.execSQL(
+                    "ALTER TABLE `purchase_table` ADD COLUMN `is_cancelled` INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE `purchase_table` ADD COLUMN `cancelled_at` INTEGER DEFAULT NULL"
+                )
+                db.execSQL(
+                    "ALTER TABLE `purchase_table` ADD COLUMN `cancel_synced` INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
         val MIGRATION_46_47 = object : Migration(46, 47) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -1523,7 +1575,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_43_44, MIGRATION_44_45,
                         MIGRATION_45_46, MIGRATION_46_47,
                         MIGRATION_47_48, MIGRATION_48_49,
-                        MIGRATION_49_50
+                        MIGRATION_49_50, MIGRATION_50_51,
+                        MIGRATION_51_52
                     )
                     .fallbackToDestructiveMigration()
                     .build()

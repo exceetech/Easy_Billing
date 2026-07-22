@@ -18,6 +18,7 @@ import com.example.easy_billing.db.Product
 import com.example.easy_billing.db.PurchaseBatch
 import com.example.easy_billing.repository.InventoryReductionRepository
 import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.util.CreditAdjustmentPrompt
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.util.InvoiceDatePicker
 import com.google.android.material.button.MaterialButton
@@ -644,6 +645,21 @@ class InventoryActivity : BaseActivity() {
                     Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                 }
                 if (result != null) SyncManager(this@InventoryActivity).syncInventory()
+
+                // Adjust the supplier's balance for a credit return — clamped,
+                // asking cash-vs-advance only on an overshoot. Skips itself for
+                // a cash return. Runs on the main thread (shows a dialog).
+                result?.creditAdjustment?.let { adj ->
+                    withContext(Dispatchers.Main) {
+                        CreditAdjustmentPrompt.handleAccountReturn(
+                            activity = this@InventoryActivity,
+                            accountId = adj.accountId,
+                            amount = adj.amount,
+                            documentLocalId = adj.documentId,
+                            onDone = { }
+                        )
+                    }
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -934,6 +950,21 @@ class InventoryActivity : BaseActivity() {
                             Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                         }
                         SyncManager(this@InventoryActivity).syncInventory()
+
+                        // Supplier-balance adjustment for a credit return —
+                        // clamped, asks cash-vs-advance only on an overshoot.
+                        (result as? InventoryReductionRepository.ClearStockResult.Cleared)
+                            ?.creditAdjustment?.let { adj ->
+                                withContext(Dispatchers.Main) {
+                                    CreditAdjustmentPrompt.handleAccountReturn(
+                                        activity = this@InventoryActivity,
+                                        accountId = adj.accountId,
+                                        amount = adj.amount,
+                                        documentLocalId = adj.documentId,
+                                        onDone = { }
+                                    )
+                                }
+                            }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@InventoryActivity, "Error clearing stock", Toast.LENGTH_SHORT).show()

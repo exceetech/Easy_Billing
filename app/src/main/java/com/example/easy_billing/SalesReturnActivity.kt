@@ -11,7 +11,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Bill
+import com.example.easy_billing.repository.CreditAdjustmentRepository
 import com.example.easy_billing.repository.CreditNoteRepository
+import com.example.easy_billing.util.CreditAdjustmentPrompt
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.viewmodel.SalesReturnViewModel
 import com.google.android.material.button.MaterialButton
@@ -149,7 +151,19 @@ class SalesReturnActivity : AppCompatActivity() {
                                 // and the next background syncAll() will retry.
                             }
                         }
-                        finish()
+                        // If the original bill was on credit, ask whether this
+                        // credit note should come off the customer's balance.
+                        // Skips itself for cash bills. Finish only after the
+                        // owner has answered.
+                        val note = result.creditNote
+                        CreditAdjustmentPrompt.handle(
+                            activity = this@SalesReturnActivity,
+                            billId = note.originalInvoiceId,
+                            kind = CreditAdjustmentRepository.Kind.SALE_RETURN,
+                            amount = note.totalAmount,
+                            documentLocalId = note.id,
+                            onDone = { finish() }
+                        )
                     }
                     is CreditNoteRepository.Result.ValidationError -> {
                         Toast.makeText(

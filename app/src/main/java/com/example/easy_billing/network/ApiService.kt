@@ -106,6 +106,12 @@ interface ApiService {
         @Body request: CancelBillRequest
     ): MessageResponse
 
+    @PUT("purchases/cancel")
+    suspend fun cancelPurchase(
+        @Header("Authorization") token: String,
+        @Body request: CancelPurchaseRequest
+    ): MessageResponse
+
     @GET("bills/since")
     suspend fun getBillsSince(
         @Header("Authorization") token: String,

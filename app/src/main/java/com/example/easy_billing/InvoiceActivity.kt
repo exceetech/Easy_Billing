@@ -1160,6 +1160,13 @@ class InvoiceActivity : AppCompatActivity() {
                     )
                 }
 
+                // Which credit account (if any) this bill is being charged to.
+                // Stored on the bill itself so a later credit note, debit note
+                // or cancellation can find the account — the bill number and
+                // amount alone never could. Only for actual credit sales.
+                val billCreditAccountId =
+                    pendingCreditAccount?.id?.takeIf { getPaymentMethod() == "CREDIT" }
+
                 // 4. Persist legacy `bills` row.
                 val finalBill = Bill(
                     billNumber     = billNumber,
@@ -1176,7 +1183,8 @@ class InvoiceActivity : AppCompatActivity() {
                     cgstAmount     = breakdown.totalCgst,
                     sgstAmount     = breakdown.totalSgst,
                     igstAmount     = breakdown.totalIgst,
-                    isSynced       = false
+                    isSynced       = false,
+                    creditAccountId = billCreditAccountId
                 )
                 val billId = db.billDao().insertBill(finalBill).toInt()
                 val finalBillItems = billItemsTmp.map { it.copy(billId = billId) }
@@ -1208,7 +1216,12 @@ class InvoiceActivity : AppCompatActivity() {
                                 accountId = creditAccount.id,
                                 shopId    = creditShopId,
                                 amount    = total,
-                                type      = "ADD"
+                                type      = "ADD",
+                                // Ties the debt to this bill so an adjustment
+                                // can later find how much of it is on credit.
+                                // sourceDoc marks it as the original sale.
+                                billId    = billId,
+                                sourceDoc = "SALE:$billId"
                             )
                         )
                         SyncManager(this@InvoiceActivity).syncCredit()

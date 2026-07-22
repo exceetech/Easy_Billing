@@ -155,6 +155,11 @@ class PurchaseRepository private constructor(
                         amount = safeHeader.invoiceValue,
                         type = "PURCHASE_CREDIT",
                         referenceInvoice = safeHeader.invoiceNumber,
+                        // Ties the payable to this purchase so a later return,
+                        // debit note or cancellation can find how much of it is
+                        // still owed. sourceDoc marks it as the original buy.
+                        purchaseId = purchaseId,
+                        sourceDoc = "PBUY:$purchaseId",
                         isSynced = false
                     )
                 )

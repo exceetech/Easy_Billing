@@ -40,9 +40,29 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
     val shopStateCode: StateFlow<String> = _shopStateCode.asStateFlow()
 
     sealed class Result {
-        data class Success(val noteNumber: String) : Result()
+        /**
+         * @param creditAdjustment non-null only for a credit purchase — the
+         *        Activity runs it through CreditAdjustmentPrompt after save.
+         */
+        data class Success(
+            val noteNumber: String,
+            val creditAdjustment: CreditAdjustment? = null
+        ) : Result()
         data class ValidationError(val message: String) : Result()
         data class SaveError(val cause: Throwable) : Result()
+
+        /**
+         * What the supplier-balance adjustment for a saved note needs.
+         * [isDebitNote] = true → goods returned, lowers what you owe;
+         * false → supplier charged more, raises it. [docSeq] is the note's
+         * sequence, used to build a stable idempotency key.
+         */
+        data class CreditAdjustment(
+            val purchaseId: Int,
+            val amount: Double,
+            val isDebitNote: Boolean,
+            val docSeq: Int
+        )
     }
 
     private val _result = MutableStateFlow<Result?>(null)
@@ -286,41 +306,16 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         itemsToSave.add(Triple(item, qty, invoice))
                     }
 
-                    // ── Optional Credit/Debit Account Adjustment ───────────────
-                    var creditTxId: Int? = null
-                    if (p.isCredit && p.creditAccountId != null) {
-                        // Refuse rather than half-complete. Defaulting to 1
-                        // adjusted shop 1's books; defaulting to -1 alone would
-                        // make the lookup below return null and the adjustment
-                        // be skipped in silence, leaving a note recorded with
-                        // the supplier's balance untouched. Throwing rolls back
-                        // the withTransaction block so the note fails visibly.
-                        val shopIdInt = getApplication<android.app.Application>()
-                            .getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
-                            .getInt("SHOP_ID", -1)
-
-                        check(shopIdInt > 0) {
-                            "No shop selected — refusing to save a note whose credit adjustment can't be recorded"
-                        }
-
-                        val account = db.creditAccountDao().getById(p.creditAccountId, shopIdInt)
-                        if (account != null) {
-                            val adjustAmount = if (noteType == "D") -totalNoteInvoiceValue else totalNoteInvoiceValue
-                            // Adjustment in SQL — see CreditAccountDao.addToDue.
-                            db.creditAccountDao().addToDue(account.id, adjustAmount, shopIdInt)
-
-                            db.creditTransactionDao().insert(
-                                com.example.easy_billing.db.CreditTransaction(
-                                    accountId = account.id,
-                                    shopId = shopIdInt,
-                                    amount = adjustAmount,
-                                    type = if (noteType == "D") "PURCHASE_RETURN" else "PURCHASE_CREDIT",
-                                    referenceInvoice = noteNumber,
-                                    isSynced = false
-                                )
-                            )
-                        }
-                    }
+                    // ── Supplier-balance adjustment moved OUT of this block ─────
+                    // It used to run here, inside the transaction, always and
+                    // unclamped — the supplier balance could be reduced past
+                    // what was owed, with no confirmation. It is now handled
+                    // after this note is saved, by CreditAdjustmentPrompt, which
+                    // clamps to what is still owed and asks the owner only when a
+                    // return overshoots (cash vs advance). The credit link is
+                    // carried by purchaseId on that later transaction, so the
+                    // PurchaseReturn row no longer needs a creditTransactionId.
+                    val creditTxId: Int? = null
 
                     // Now process the inventory updates and insert the records
                     for ((item, qty, invoice) in itemsToSave) {
@@ -471,7 +466,22 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                             )
                         )
                     }
-                    _result.value = Result.Success(noteNumber)
+                    // Hand the Activity what it needs to run the balance
+                    // adjustment through the shared prompt. Only for credit
+                    // purchases; a cash purchase carries no adjustment and the
+                    // prompt is never shown. docSeq + note direction make the
+                    // idempotency key unique per note.
+                    val adjustment =
+                        if (p.isCredit && p.creditAccountId != null)
+                            Result.CreditAdjustment(
+                                purchaseId = p.id,
+                                amount = totalNoteInvoiceValue,
+                                isDebitNote = (noteType == "D"),
+                                docSeq = nextSeq
+                            )
+                        else null
+
+                    _result.value = Result.Success(noteNumber, adjustment)
                 }
             } catch (e: Exception) {
                 _result.value = Result.SaveError(e)

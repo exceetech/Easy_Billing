@@ -16,6 +16,8 @@ import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.InventoryManager
 import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.repository.CreditAdjustmentRepository
+import com.example.easy_billing.util.CreditAdjustmentPrompt
 import com.example.easy_billing.util.InvoicePdfGenerator
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
@@ -301,6 +303,20 @@ class BillDetailsActivity : AppCompatActivity() {
                         "Invoice voided. Cancellation will sync automatically.",
                         Toast.LENGTH_LONG
                     ).show()
+
+                    // If this was a credit bill, ask whether the void should
+                    // also come off the customer's balance. Skips itself for
+                    // cash bills. localBill is the row we just cancelled.
+                    localBill?.let { b ->
+                        CreditAdjustmentPrompt.handle(
+                            activity = this@BillDetailsActivity,
+                            billId = b.id,
+                            kind = CreditAdjustmentRepository.Kind.BILL_CANCEL,
+                            amount = b.total,
+                            documentLocalId = b.id,
+                            onDone = { }
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
