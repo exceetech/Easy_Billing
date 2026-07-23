@@ -377,10 +377,10 @@ interface ApiService {
         @Path("id") id: Int
     ): Response<Unit>
 
-    @PATCH("credit/reset")
-    suspend fun resetCredit(
-        @Header("Authorization") token: String
-    ): Response<Unit>
+    // resetCredit — REMOVED (Report 5). Called PATCH credit/reset, which
+    // deactivated every credit account for the shop with no balance check.
+    // Never actually called anywhere in the app; removed along with the
+    // backend endpoint.
 
     // ================= INVENTORY =================
 
@@ -617,11 +617,8 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UnitListResponse
 
-    @POST("gst/sales/sync")
-    suspend fun syncGstSales(
-        @Header("Authorization") token: String,
-        @Body body: GstSalesSyncRequest
-    ): GstSyncResponse
+    // syncGstSales (POST gst/sales/sync) REMOVED (Report 3, C3) — pushed the
+    // now-dropped legacy gst_sales_records table on both client and backend.
 
     @GET("gst/reports/gstr1")
     suspend fun getGstr1(
@@ -630,12 +627,8 @@ interface ApiService {
         @Query("end_date") endDate: String
     ): Gstr1Response
 
-    @GET("gst/reports/gstr3b")
-    suspend fun getGstr3b(
-        @Header("Authorization") token: String,
-        @Query("start_date") startDate: String,
-        @Query("end_date") endDate: String
-    ): Gstr3BResponse
+    // getGstr3b (GET gst/reports/gstr3b) REMOVED — GSTR-3B not needed for
+    // this app; endpoint and backend flow removed, this was never called.
 
     @GET("gst/reports/hsn-summary")
     suspend fun getHsnSummary(

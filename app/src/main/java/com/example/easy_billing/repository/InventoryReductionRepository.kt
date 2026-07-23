@@ -37,7 +37,7 @@ class InventoryReductionRepository private constructor(
         val id = db.purchaseReturnDao().insert(toInsert).toInt()
         entry.productId?.let {
             InventoryManager.reduceStock(
-                db = db, productId = it, quantity = entry.quantityReturned, type = "RETURN"
+                db = db, productId = it, quantity = entry.quantityReturned, type = InventoryManager.LogType.PURCHASE_RETURN
             )
         }
         id
@@ -55,7 +55,7 @@ class InventoryReductionRepository private constructor(
         val id = db.scrapDao().insert(toInsert).toInt()
         entry.productId?.let {
             InventoryManager.reduceStock(
-                db = db, productId = it, quantity = entry.quantity, type = "LOSS"
+                db = db, productId = it, quantity = entry.quantity, type = InventoryManager.LogType.LOSS
             )
         }
         id
@@ -72,132 +72,6 @@ class InventoryReductionRepository private constructor(
         val stateCode = GstEngine.getStateCode(rawStateCode)
         val stateName = GstEngine.INDIA_STATES[stateCode] ?: stateCode
         return shopId to stateName
-    }
-
-    /**
-     * Reduces stock for [productId] by a specific [quantity], routing
-     * it to either `purchase_return_table` or `scrap_table`. The
-     * taxable amount and taxes are derived from the current
-     * inventory's average cost.
-     */
-    suspend fun reduceStockByReason(
-        productId: Int,
-        productName: String,
-        variantName: String?,
-        hsnCode: String?,
-        quantity: Double,
-        reason: ClearReason,
-        purchaseTaxCgst: Double = 0.0,
-        purchaseTaxSgst: Double = 0.0,
-        purchaseTaxIgst: Double = 0.0,
-        isCredit: Boolean = false,
-        creditAccountId: Int? = null,
-        shopId: Int = 1
-    ): Boolean = db.withTransaction {
-
-        val inventory = db.inventoryDao().getInventory(productId)
-            ?: return@withTransaction false
-
-        val available = inventory.currentStock
-        if (available < quantity) return@withTransaction false
-
-        val avgCost = inventory.averageCost
-        val taxableAmount = quantity * avgCost
-
-        val store = db.storeInfoDao().get()
-        val gst   = db.gstProfileDao().get()
-        val rawShopStateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
-            ?: store?.gstin
-        val shopStateCode = GstEngine.getStateCode(rawShopStateCode)
-
-        val sameState = if (shopStateCode.isNotBlank()) {
-            purchaseTaxIgst <= 0.0
-        } else {
-            true
-        }
-
-        val cgstAmt = if (sameState) taxableAmount * purchaseTaxCgst / 100.0 else 0.0
-        val sgstAmt = if (sameState) taxableAmount * purchaseTaxSgst / 100.0 else 0.0
-        val igstAmt = if (!sameState) taxableAmount * purchaseTaxIgst / 100.0 else 0.0
-        val invoiceValue = if (sameState) {
-            taxableAmount + cgstAmt + sgstAmt
-        } else {
-            taxableAmount + igstAmt
-        }
-
-        val (shopIdStr, stateStr) = currentShopAndState()
-
-        when (reason) {
-            ClearReason.PURCHASE_RETURN -> db.purchaseReturnDao().insert(
-                PurchaseReturn(
-                    shopId           = shopIdStr,
-                    productId        = productId,
-                    productName      = productName,
-                    variantName      = variantName,
-                    hsnCode          = hsnCode,
-                    quantityReturned = quantity,
-                    taxableAmount    = taxableAmount,
-                    invoiceValue     = invoiceValue,
-                    cgstPercentage   = if (sameState) purchaseTaxCgst else 0.0,
-                    sgstPercentage   = if (sameState) purchaseTaxSgst else 0.0,
-                    igstPercentage   = if (!sameState) purchaseTaxIgst else 0.0,
-                    cgstAmount       = cgstAmt,
-                    sgstAmount       = sgstAmt,
-                    igstAmount       = igstAmt,
-                    state            = stateStr,
-                    isCredit         = isCredit,
-                    creditAccountId  = creditAccountId
-                )
-            )
-            ClearReason.SCRAP -> db.scrapDao().insert(
-                ScrapEntry(
-                    shopId         = shopIdStr,
-                    productId      = productId,
-                    productName    = productName,
-                    variantName    = variantName,
-                    hsnCode        = hsnCode,
-                    quantity       = quantity,
-                    taxableAmount  = taxableAmount,
-                    invoiceValue   = invoiceValue,
-                    cgstPercentage = if (sameState) purchaseTaxCgst else 0.0,
-                    sgstPercentage = if (sameState) purchaseTaxSgst else 0.0,
-                    igstPercentage = if (!sameState) purchaseTaxIgst else 0.0,
-                    cgstAmount     = cgstAmt,
-                    sgstAmount     = sgstAmt,
-                    igstAmount     = igstAmt,
-                    state          = stateStr,
-                    reason         = "Manual reduction"
-                )
-            )
-        }
-
-        // Credit Adjustment
-        if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null) {
-            val account = db.creditAccountDao().getById(creditAccountId, shopId)
-            if (account != null) {
-                // Reduce debt
-                // Adjustment in SQL — see CreditAccountDao.addToDue.
-                db.creditAccountDao().addToDue(account.id, -invoiceValue, shopId)
-
-                // Log transaction
-                db.creditTransactionDao().insert(
-                    com.example.easy_billing.db.CreditTransaction(
-                        accountId = account.id,
-                        shopId = shopId,
-                        amount = -invoiceValue, // Negative for return
-                        type = "PURCHASE_RETURN",
-                        referenceInvoice = "RETURN_$productName",
-                        isSynced = false
-                    )
-                )
-            }
-        }
-
-        InventoryManager.reduceStock(
-            db = db, productId = productId, quantity = quantity,
-            type = if (reason == ClearReason.PURCHASE_RETURN) "RETURN" else "LOSS"
-        )
-        true
     }
 
     /**
@@ -218,8 +92,7 @@ class InventoryReductionRepository private constructor(
         supplierGstin: String? = null,
         supplierName: String? = null,
         isCredit: Boolean = false,
-        creditAccountId: Int? = null,
-        shopId: Int = 1
+        creditAccountId: Int? = null
     ): ClearStockResult = db.withTransaction {
 
         val inventory = db.inventoryDao().getInventory(productId)
@@ -312,7 +185,7 @@ class InventoryReductionRepository private constructor(
         // path so transaction logs stay consistent.
         InventoryManager.clearStock(
             db = db, productId = productId,
-            type = if (reason == ClearReason.PURCHASE_RETURN) "RETURN" else "LOSS"
+            type = if (reason == ClearReason.PURCHASE_RETURN) InventoryManager.LogType.PURCHASE_RETURN else InventoryManager.LogType.LOSS
         )
 
         val creditAdj =
@@ -386,8 +259,7 @@ class InventoryReductionRepository private constructor(
     /**
      * Supplier-return flow with batch precision.
      *
-     * Differs from [reduceStockByReason]+[clearRemainingStock] in
-     * three ways:
+     * Differs from [clearRemainingStock] in three ways:
      *
      *   • Value is computed per-batch at the batch's own unit cost
      *     and GST split — NOT the current weighted average. This is
@@ -413,8 +285,7 @@ class InventoryReductionRepository private constructor(
         supplierGstin: String? = null,
         supplierName: String? = null,
         isCredit: Boolean = false,
-        creditAccountId: Int? = null,
-        shopId: Int = 1
+        creditAccountId: Int? = null
     ): BatchReturnResult? = db.withTransaction {
 
         if (lines.isEmpty()) return@withTransaction null
@@ -554,7 +425,7 @@ class InventoryReductionRepository private constructor(
             db = db,
             productId = productId,
             quantity = grandTotalQuantity,
-            type = "RETURN",
+            type = InventoryManager.LogType.PURCHASE_RETURN,
             skipBatchConsume = true
         )
 
@@ -568,6 +439,20 @@ class InventoryReductionRepository private constructor(
                 InventoryValuation.BatchReduction(batchId = b.id, quantity = qty)
             }
         )
+
+        // INV-3 fix: reduceStock's own callers already self-heal any drift
+        // between currentStock and the batch ledger via reconcileDrift, but
+        // this path debits specific batches directly and was never covered
+        // by that same check — so a mismatch here (e.g. a batch that
+        // couldn't be fully debited) used to persist silently forever.
+        runCatching {
+            InventoryValuation.reconcileDrift(db, productId)
+        }.onFailure {
+            android.util.Log.w(
+                "InventoryReductionRepository",
+                "Drift reconcile failed after purchase return for product=$productId: ${it.message}"
+            )
+        }
 
         // Supplier-balance adjustment lifted OUT — the caller runs it through
         // CreditAdjustmentPrompt after this returns, so it is clamped to the
@@ -595,8 +480,7 @@ class InventoryReductionRepository private constructor(
         productName: String,
         variantName: String?,
         hsnCode: String?,
-        lines: List<BatchScrapLine>,
-        shopId: Int = 1
+        lines: List<BatchScrapLine>
     ): BatchScrapResult? = db.withTransaction {
 
         if (lines.isEmpty()) return@withTransaction null
@@ -730,7 +614,7 @@ class InventoryReductionRepository private constructor(
             db = db,
             productId = productId,
             quantity = grandTotalQuantity,
-            type = "LOSS",
+            type = InventoryManager.LogType.LOSS,
             skipBatchConsume = true
         )
 
@@ -742,6 +626,18 @@ class InventoryReductionRepository private constructor(
                 InventoryValuation.BatchReduction(batchId = b.id, quantity = qty)
             }
         )
+
+        // INV-3 fix: same self-heal as returnToSupplierByBatches — this
+        // path also debits specific batches directly and was never covered
+        // by reduceStock's own drift check.
+        runCatching {
+            InventoryValuation.reconcileDrift(db, productId)
+        }.onFailure {
+            android.util.Log.w(
+                "InventoryReductionRepository",
+                "Drift reconcile failed after scrap for product=$productId: ${it.message}"
+            )
+        }
 
         BatchScrapResult(
             scrapId = grandScrapId,

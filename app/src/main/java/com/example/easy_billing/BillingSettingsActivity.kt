@@ -11,6 +11,7 @@ import com.example.easy_billing.db.BillingSettings
 import com.example.easy_billing.db.GstProfile
 import com.example.easy_billing.network.*
 import com.example.easy_billing.ui.ThemedDropdown
+import com.example.easy_billing.util.GstEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -301,6 +302,36 @@ class BillingSettingsActivity : BaseActivity() {
     }
 
     private fun saveBillingSettings() {
+
+        // ================= STATE CODE VALIDATION =================
+        // This is a free-text field, but its value becomes sellerStateCode
+        // in InvoiceActivity — the ONLY input to intra-vs-inter-state (CGST+SGST
+        // vs IGST) determination on every invoice this shop issues. Unlike the
+        // customer-side state field (a picker constrained to GstEngine.INDIA_STATES),
+        // this had no validation at all, so a typo here silently miscalculated
+        // GST on every bill from that point on. Accept a valid 2-digit code, a
+        // valid state name (normalized to its code), or fall back to deriving
+        // it from the GSTIN — reject anything else rather than save garbage.
+        val typedState = etStateCode.text.toString().trim()
+        val resolvedStateCode = when {
+            typedState.isEmpty() -> GstEngine.getStateCode(etGstin.text.toString())
+            GstEngine.INDIA_STATES.containsKey(typedState) -> typedState
+            GstEngine.getStateCodeFromName(typedState) != null -> GstEngine.getStateCodeFromName(typedState)!!
+            else -> ""
+        }
+        if (resolvedStateCode.isBlank()) {
+            Toast.makeText(
+                this,
+                "Enter a valid state (e.g. \"Kerala\" or its 2-digit GST code \"32\")",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        // Normalize the field to the canonical name so what's displayed always
+        // matches what's stored/sent — typed codes or casing variants collapse
+        // to one consistent value.
+        etStateCode.setText(GstEngine.INDIA_STATES[resolvedStateCode] ?: typedState)
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
@@ -325,7 +356,7 @@ class BillingSettingsActivity : BaseActivity() {
                 tradeName = etTradeName.text.toString(),
                 gstScheme = selectedScheme,
                 registrationType = selectedRegType,
-                stateCode = etStateCode.text.toString(),
+                stateCode = resolvedStateCode,
                 address = etAddress.text.toString(),
                 syncStatus = "pending",
                 updatedAt = appNow()

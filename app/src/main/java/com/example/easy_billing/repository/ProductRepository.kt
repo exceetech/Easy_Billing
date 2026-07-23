@@ -125,7 +125,26 @@ class ProductRepository private constructor(
             shopId = product.shopId.ifBlank { currentShopId() }
         )
         val validShopIds = getValidShopIds()
-        val existing = productDao.getByNameAndVariant(normalized.name, normalized.variant, validShopIds)
+        var existing = productDao.getByNameAndVariant(normalized.name, normalized.variant, validShopIds)
+
+        // [capitalize] only fixes the FIRST letter of each word and leaves the
+        // rest of the casing exactly as typed — so "Potato Chips" and "Potato
+        // CHIPS" (or any other mid-word case difference) are NOT the same
+        // string after normalization and the exact lookup above misses the
+        // match. Without this fallback, restocking an existing product with
+        // even a slightly different capitalization silently created a second
+        // product + a second inventory row instead of adding to the same
+        // one — two tiles for "the same" product, each with its own
+        // separate stock and cost instead of one row with the correct
+        // combined stock and weighted-average cost. AddProductActivity
+        // already guards against exactly this with findConflictIgnoringCase;
+        // this mirrors that same protection here, since this upsert() is the
+        // path Purchases (and everything else) actually use to decide
+        // whether a product already exists.
+        if (existing == null) {
+            existing = productDao.findConflictIgnoringCase(normalized.name, normalized.variant, validShopIds)
+        }
+
         return if (existing == null) {
             productDao.insert(normalized).toInt()
         } else {
@@ -190,6 +209,15 @@ class ProductRepository private constructor(
         // ── Inline backend push ──────────────────────────────────────
         // If this product is already on the server, push the updated
         // fields immediately so the backend table stays in sync.
+        //
+        // Report 5 fix: this used to be truly fire-and-forget — a failed
+        // call here meant the backend kept stale price/tax data forever,
+        // with no retry and no error surfaced to the user (the local write
+        // above already succeeded, so the screen just said "saved"). The
+        // local row was already stamped pending_field_sync = 1 by
+        // updateSalesFields(); we only clear it here on confirmed success,
+        // so a failure leaves it set and SyncManager.syncProductFieldEdits()
+        // picks it up and retries on the next background sync pass.
         val product = productDao.getById(productId) ?: return
         val serverId = product.serverId ?: return
         val token = ContextHolder.app
@@ -221,7 +249,9 @@ class ProductRepository private constructor(
                     is_tax_inclusive = isTaxInclusive
                 )
             )
-        } // fire-and-forget — local write is authoritative; network failure is silent
+        }.onSuccess {
+            productDao.markFieldSynced(productId)
+        } // onFailure: leave pending_field_sync = 1, SyncManager retries it
     }
 
     /**

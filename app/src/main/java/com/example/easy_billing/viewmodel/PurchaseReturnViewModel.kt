@@ -33,6 +33,10 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
     private val _alreadyReturned = MutableStateFlow<Map<Int?, Double>>(emptyMap())
     val alreadyReturned: StateFlow<Map<Int?, Double>> = _alreadyReturned.asStateFlow()
 
+    /** For each productId: qty still remaining in THIS invoice's purchase batch(es). */
+    private val _remainingBatchStock = MutableStateFlow<Map<Int?, Double>>(emptyMap())
+    val remainingBatchStock: StateFlow<Map<Int?, Double>> = _remainingBatchStock.asStateFlow()
+
     private val _isLoading      = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -86,20 +90,32 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
             _purchaseItems.value = items
 
             val map = mutableMapOf<Int?, Double>()
+            val batchMap = mutableMapOf<Int?, Double>()
             for (item in items) {
                 if (item.productId != null) {
                     map[item.productId] = db.purchaseReturnDao()
                         .getTotalReturnedForInvoiceProduct(purchaseId, item.productId)
+
+                    // Only stock still sitting in THIS invoice's own batch(es) is
+                    // eligible to be returned against it — not stock the shop
+                    // happens to have from other purchase batches of the same
+                    // product.
+                    batchMap[item.productId] = db.purchaseBatchDao()
+                        .getRemainingBatches(item.productId)
+                        .filter { it.purchaseInvoiceId == purchaseId }
+                        .sumOf { it.quantityRemaining }
                 }
             }
             _alreadyReturned.value = map
+            _remainingBatchStock.value = batchMap
             _isLoading.value       = false
         }
     }
 
     fun maxReturnableQty(productId: Int?, purchasedQty: Double): Double {
         val returned = _alreadyReturned.value[productId] ?: 0.0
-        return (purchasedQty - returned).coerceAtLeast(0.0)
+        val remainingInBatch = _remainingBatchStock.value[productId] ?: 0.0
+        return minOf(purchasedQty - returned, remainingInBatch).coerceAtLeast(0.0)
     }
 
     /**
@@ -354,7 +370,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                             val qtyToReduceRow = qty - qtyToDebit
                             if (qtyToReduceRow > 0.0) {
                                 InventoryManager.reduceStock(
-                                    db, productId, qtyToReduceRow, "RETURN", skipBatchConsume = true
+                                    db, productId, qtyToReduceRow, InventoryManager.LogType.PURCHASE_RETURN, skipBatchConsume = true
                                 )
                             }
 
@@ -362,11 +378,17 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 InventoryValuation.reduceBatches(db, productId, reductions)
                             }
 
-                            // If the invoice's batch is already exhausted fall back
-                            // to FIFO for the remainder (shouldn't normally happen).
+                            // maxReturnableQty() already clamps the requested qty to
+                            // what's left in THIS invoice's own batch(es), so the
+                            // batches queried above should always cover it. If they
+                            // don't, something raced or the validation was bypassed —
+                            // fail loudly instead of silently debiting an unrelated
+                            // purchase batch (which used to corrupt that batch's cost
+                            // and supplier attribution).
                             if (qtyToDebit > 0.0) {
-                                InventoryManager.reduceStock(
-                                    db, productId, qtyToDebit, "RETURN", skipBatchConsume = false
+                                error(
+                                    "'${item.productName}': only ${qty - qtyToDebit} of $qty " +
+                                        "requested is available in this invoice's batch. Reload and try again."
                                 )
                             }
                         } else {

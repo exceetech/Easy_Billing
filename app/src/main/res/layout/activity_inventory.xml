@@ -367,11 +367,28 @@
             android:text="Sort: Stock ↓" android:textSize="11sp" android:textColor="#9CA3AF"/>
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvInventory"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingBottom="12dp"
-        android:clipToPadding="false"/>
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvInventory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="12dp"
+            android:clipToPadding="false"/>
+
+        <TextView
+            android:id="@+id/tvInventoryEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="No matching products"
+            android:textSize="14sp"
+            android:textColor="#9CA3AF"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>

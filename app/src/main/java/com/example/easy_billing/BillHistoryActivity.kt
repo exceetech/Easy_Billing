@@ -23,6 +23,8 @@ import java.util.*
 
 class BillHistoryActivity : BaseActivity() {
     private lateinit var rvBills: RecyclerView
+    private lateinit var progressBills: android.widget.ProgressBar
+    private lateinit var tvBillsEmpty: TextView
     private lateinit var adapter: BillHistoryAdapter
     private lateinit var etSearch: EditText
 
@@ -60,6 +62,8 @@ class BillHistoryActivity : BaseActivity() {
 
     private fun initViews() {
         rvBills = findViewById(R.id.rvBills)
+        progressBills = findViewById(R.id.progressBills)
+        tvBillsEmpty = findViewById(R.id.tvBillsEmpty)
         etSearch = findViewById(R.id.etSearch)
 
         tvTodaySales = findViewById(R.id.tvTodaySales)
@@ -99,6 +103,9 @@ class BillHistoryActivity : BaseActivity() {
                 return@launch
             }
 
+            progressBills.visibility = android.view.View.VISIBLE
+            tvBillsEmpty.visibility = android.view.View.GONE
+
             try {
                 val bills = RetrofitClient.api.getBills(token)
 
@@ -108,13 +115,28 @@ class BillHistoryActivity : BaseActivity() {
                 allBills = sorted
                 adapter.submitList(sorted)
                 updateSummary(sorted)
+                showListState(sorted)
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@BillHistoryActivity, "Failed to load bills", Toast.LENGTH_SHORT)
-                    .show()
+                // Distinguish "no connection" from a genuine server error so
+                // the shop owner knows whether to check their internet or
+                // just retry — a flat "Failed to load bills" gave no hint.
+                val message = if (!isInternetAvailable())
+                    "No internet — showing bills may be out of date. Reconnect and reopen this screen."
+                else
+                    "Couldn't load bills from the server. Pull down or reopen to retry."
+                Toast.makeText(this@BillHistoryActivity, message, Toast.LENGTH_LONG).show()
+                showListState(allBills)
+            } finally {
+                progressBills.visibility = android.view.View.GONE
             }
         }
+    }
+
+    private fun showListState(bills: List<BillResponse>) {
+        tvBillsEmpty.visibility = if (bills.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+        rvBills.visibility = if (bills.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
     }
 
 // ================= SEARCH =================
@@ -138,6 +160,7 @@ class BillHistoryActivity : BaseActivity() {
 
                     if (query.isEmpty()) {
                         adapter.submitList(baseList)
+                        showListState(baseList)
                         return@Runnable
                     }
 
@@ -149,6 +172,8 @@ class BillHistoryActivity : BaseActivity() {
                     }
 
                     adapter.submitList(filtered)
+                    tvBillsEmpty.text = if (filtered.isEmpty()) "No bills match your search" else "No bills found"
+                    showListState(filtered)
                 }
 
                 handler.postDelayed(searchRunnable!!, 300)
@@ -176,6 +201,8 @@ class BillHistoryActivity : BaseActivity() {
         val result = applyActiveFilter(allBills)
         adapter.submitList(result)
         updateSummary(result)
+        tvBillsEmpty.text = "No bills found"
+        showListState(result)
     }
 
     private fun updateChipUI() {

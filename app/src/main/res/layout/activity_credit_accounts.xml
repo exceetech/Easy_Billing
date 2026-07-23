@@ -263,16 +263,33 @@
         ledger. clipToOutline is set in code so the first and last row follow
         the card's corner radius.
     -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCustomers"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_inv_value_card"
-        android:clipToPadding="false"
-        android:paddingBottom="4dp" />
+        android:layout_marginTop="12dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCustomers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_inv_value_card"
+            android:clipToPadding="false"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvCustomersEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="No customers found"
+            android:textSize="14sp"
+            android:textColor="#8A8272"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddCustomer"

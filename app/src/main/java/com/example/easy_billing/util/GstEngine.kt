@@ -1,11 +1,5 @@
 package com.example.easy_billing.util
 
-import com.example.easy_billing.db.Bill
-import com.example.easy_billing.db.BillItem
-import com.example.easy_billing.db.GstSalesRecord
-import com.example.easy_billing.db.StoreInfo
-import java.util.UUID
-
 object GstEngine {
 
     val INDIA_STATES = mapOf(
@@ -124,83 +118,8 @@ object GstEngine {
         val supplyClassification: String = "TAXABLE"
     )
 
-    fun buildSalesRecords(
-        bill: Bill,
-        items: List<BillItem>,
-        storeInfo: StoreInfo,
-        deviceId: String,
-        // ── GSTR-1 invoice-level extras (v23) ──
-        customerName: String? = null,
-        businessName: String? = null,
-        customerPhone: String? = null,
-        customerState: String? = null,
-        customerStateCode: String? = null,
-        reverseCharge: String = "N",
-        gstrInvoiceType: String = "Regular",
-        ecommerceGstin: String? = null,
-        ecommerceOperatorName: String? = null,
-        // ── New ECO fields (Table 14/15) ──
-        ecoNatureOfSupply: String? = null,
-        ecoDocumentType: String? = null,
-        ecoSupplierGstin: String? = null,
-        ecoSupplierName: String? = null,
-        ecoRecipientGstin: String? = null,
-        ecoRecipientName: String? = null,
-        ecoRole: String? = null,
-        // ── GSTR-1 per-item enrichments (v23) ──
-        enrichments: List<SalesRecordEnrichment> = emptyList()
-    ): List<GstSalesRecord> {
-        val records = mutableListOf<GstSalesRecord>()
-        val invoiceDate = appNow()
-
-        for ((idx, item) in items.withIndex()) {
-            val en = enrichments.getOrNull(idx) ?: SalesRecordEnrichment()
-            records.add(
-                GstSalesRecord(
-                    id                   = UUID.randomUUID().toString(),
-                    invoiceNumber        = bill.billNumber,
-                    invoiceDate          = invoiceDate,
-                    customerType         = bill.customerType,
-                    customerGstin        = bill.customerGstin,
-                    placeOfSupply        = bill.placeOfSupply.ifBlank { storeInfo.stateCode },
-                    supplyType           = bill.supplyType,
-                    hsnCode              = item.hsnCode,
-                    productName          = item.productName,
-                    quantity             = item.quantity,
-                    unit                 = item.unit,
-                    taxableValue         = item.taxableValue,
-                    gstRate              = item.gstRate,
-                    cgstAmount           = item.cgstAmount,
-                    sgstAmount           = item.sgstAmount,
-                    igstAmount           = item.igstAmount,
-                    totalAmount          = item.subTotal,
-                    syncStatus           = "pending",
-                    deviceId             = deviceId,
-                    // GSTR-1 enrichment
-                    customerName         = customerName,
-                    businessName         = businessName,
-                    customerPhone        = customerPhone,
-                    customerState        = customerState,
-                    customerStateCode    = customerStateCode,
-                    reverseCharge        = reverseCharge,
-                    gstrInvoiceType      = gstrInvoiceType,
-                    ecommerceGstin        = ecommerceGstin,
-                    ecommerceOperatorName = ecommerceOperatorName,
-                    cessRate             = en.cessRate,
-                    cessAmount           = en.cessAmount,
-                    uqc                  = en.uqc,
-                    hsnDescription       = en.hsnDescription,
-                    // ── New ECO fields ──
-                    ecoNatureOfSupply    = ecoNatureOfSupply,
-                    ecoDocumentType      = ecoDocumentType,
-                    ecoSupplierGstin     = ecoSupplierGstin,
-                    ecoSupplierName      = ecoSupplierName,
-                    ecoRecipientGstin    = ecoRecipientGstin,
-                    ecoRecipientName     = ecoRecipientName,
-                    ecoRole              = ecoRole
-                )
-            )
-        }
-        return records
-    }
+    // buildSalesRecords() REMOVED (Report 3, C3) — built the now-dropped
+    // legacy GstSalesRecord entity. gst_sales_invoice(+items), populated via
+    // GstBillingCalculator.toInvoiceItems() using SalesRecordEnrichment
+    // above, is the sole GST-sales write path now.
 }

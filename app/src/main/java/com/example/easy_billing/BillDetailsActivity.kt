@@ -38,6 +38,7 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var tvDiscount: TextView
     private lateinit var tvTotal: TextView
     private lateinit var rvBillItems: RecyclerView
+    private lateinit var progressBillDetails: android.widget.ProgressBar
     private lateinit var btnPrint: Button
     private lateinit var btnClose: Button
     private lateinit var btnCancelBill: MaterialButton
@@ -68,6 +69,7 @@ class BillDetailsActivity : AppCompatActivity() {
         tvDiscount       = findViewById(R.id.tvDiscount)
         tvTotal          = findViewById(R.id.tvTotal)
         rvBillItems      = findViewById(R.id.rvBillItems)
+        progressBillDetails = findViewById(R.id.progressBillDetails)
         btnPrint         = findViewById(R.id.btnPrint)
         btnClose         = findViewById(R.id.btnClose)
         btnCancelBill    = findViewById(R.id.btnCancelBill)
@@ -93,12 +95,22 @@ class BillDetailsActivity : AppCompatActivity() {
         btnDebitNote.setOnClickListener { openDebitNote() }
     }
 
+    /** Cheap connectivity check — used only to pick a more useful error message. */
+    private fun isOnline(): Boolean {
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return true
+        val network = cm.activeNetwork ?: return false
+        val caps = cm.getNetworkCapabilities(network) ?: return false
+        return caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
     private fun loadBillDetails() {
 
         lifecycleScope.launch {
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
+
+            progressBillDetails.visibility = View.VISIBLE
 
             try {
 
@@ -157,11 +169,22 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 e.printStackTrace()
 
-                Toast.makeText(
-                    this@BillDetailsActivity,
-                    "Failed to load bill details",
-                    Toast.LENGTH_SHORT
-                ).show()
+                val isHttp404 = (e as? retrofit2.HttpException)?.code() == 404
+                val message = when {
+                    isHttp404 -> "This bill couldn't be found on the server."
+                    !isOnline() -> "No internet connection — check your network and try again."
+                    else -> "Couldn't load bill details. Tap Retry to try again."
+                }
+
+                AlertDialog.Builder(this@BillDetailsActivity)
+                    .setTitle("Couldn't load bill")
+                    .setMessage(message)
+                    .setPositiveButton("Retry") { d, _ -> d.dismiss(); loadBillDetails() }
+                    .setNegativeButton("Close") { d, _ -> d.dismiss(); finish() }
+                    .setCancelable(false)
+                    .show()
+            } finally {
+                progressBillDetails.visibility = View.GONE
             }
         }
     }
@@ -234,9 +257,20 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 // 1. Mark the legacy bills row.
                 val localBill = db.billDao().getByBillNumber(resolvedBillNumber)
-                if (localBill != null) {
-                    db.billDao().markBillCancelled(localBill.id, now)
 
+                // INV-8 fix: markBillCancelled is now a conditional UPDATE
+                // (WHERE is_cancelled = 0) that returns how many rows it
+                // actually changed. 1 means this call is the one genuinely
+                // cancelling the bill for the first time; 0 means someone
+                // already cancelled it (a rotated screen, a process
+                // restart, or two near-simultaneous taps bypassing the
+                // disabled-button guard). Only the former should ever
+                // restock inventory — restocking on a 0 would silently
+                // double-credit stock for a bill that was already voided.
+                val didCancelNow = localBill != null &&
+                    db.billDao().markBillCancelled(localBill.id, now) > 0
+
+                if (localBill != null && didCancelNow) {
                     // 2. Mark gst_sales_invoice_table by bill_id FK.
                     val gstInvoice = db.gstSalesInvoiceDao().getByBillId(localBill.id)
                     if (gstInvoice != null) {
@@ -244,11 +278,13 @@ class BillDetailsActivity : AppCompatActivity() {
                     }
                 }
 
-                // 3. Mark gst_sales_records by invoice_number.
-                db.gstSalesRecordDao().markCancelledByInvoiceNumber(resolvedBillNumber, now)
+                // 3. Legacy gst_sales_records cancel leg — REMOVED (Report 3, C3/D-5).
+                // The table this updated was dropped (MIGRATION_52_53); step 2
+                // above (gst_sales_invoice_table) is the sole cancel signal now.
 
-                // 3.5. Restore inventory stock for cancelled items
-                if (localBill != null) {
+                // 3.5. Restore inventory stock for cancelled items — only
+                // when this call actually performed the cancellation.
+                if (localBill != null && didCancelNow) {
                     val items = db.billItemDao().getItemsForBill(localBill.id)
                     for (bi in items) {
                         val product = db.productDao().getById(bi.productId) ?: continue
@@ -260,6 +296,20 @@ class BillDetailsActivity : AppCompatActivity() {
 
                         if (qtyToRestore > 0.0) {
                             val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+
+                            // Report 1 F-5: the restock batch previously carried
+                            // gstPercent/cgst/sgst/igst = 0, so if these units were
+                            // later returned to the supplier or re-sold, batch-precise
+                            // GST valuation was lost. The bill item that originally
+                            // sold this stock recorded exactly what rate applied to
+                            // it (bi.gstRate + the cgst/sgst/igst split, from the
+                            // billing calculator) — carry that forward rather than
+                            // chasing the original purchase batch(es), which FIFO may
+                            // have drawn this unit from more than one of.
+                            val isInterstate = bi.igstAmount > 0.0
+                            val restockCgstPercent = if (!isInterstate) bi.gstRate / 2.0 else 0.0
+                            val restockSgstPercent = if (!isInterstate) bi.gstRate / 2.0 else 0.0
+                            val restockIgstPercent = if (isInterstate) bi.gstRate else 0.0
 
                             InventoryManager.addStock(
                                 db        = db,
@@ -273,13 +323,13 @@ class BillDetailsActivity : AppCompatActivity() {
                                     invoiceNumber        = null,
                                     batchCode            = "CANCELLED_INVOICE-${localBill.id}",
                                     unitCostExcludingTax = unitCost,
-                                    gstPercent           = 0.0,
-                                    cgstPercent          = 0.0,
-                                    sgstPercent          = 0.0,
-                                    igstPercent          = 0.0,
+                                    gstPercent           = bi.gstRate,
+                                    cgstPercent          = restockCgstPercent,
+                                    sgstPercent          = restockSgstPercent,
+                                    igstPercent          = restockIgstPercent,
                                     invoiceValue         = unitCost * qtyToRestore,
                                     taxableValue         = unitCost * qtyToRestore
-                                ), logType = "CANCEL_RESTOCK"
+                                ), logType = InventoryManager.LogType.CANCEL_RESTOCK
                             )
                         }
                     }
@@ -306,8 +356,11 @@ class BillDetailsActivity : AppCompatActivity() {
 
                     // If this was a credit bill, ask whether the void should
                     // also come off the customer's balance. Skips itself for
-                    // cash bills. localBill is the row we just cancelled.
-                    localBill?.let { b ->
+                    // cash bills. localBill is the row we just cancelled —
+                    // guarded by didCancelNow so an already-cancelled bill
+                    // (see the markBillCancelled fix above) doesn't prompt
+                    // to adjust the customer's balance a second time.
+                    if (didCancelNow) localBill?.let { b ->
                         CreditAdjustmentPrompt.handle(
                             activity = this@BillDetailsActivity,
                             billId = b.id,
@@ -464,12 +517,19 @@ class BillDetailsActivity : AppCompatActivity() {
                     gstInvoice = savedInvoice
                 )
 
+            } catch (e: SecurityException) {
+                e.printStackTrace()
+                Toast.makeText(
+                    this@BillDetailsActivity,
+                    "Couldn't save the invoice — storage permission is needed",
+                    Toast.LENGTH_LONG
+                ).show()
             } catch (e: Exception) {
                 e.printStackTrace()
                 Toast.makeText(
                     this@BillDetailsActivity,
-                    "Failed to generate invoice",
-                    Toast.LENGTH_SHORT
+                    "Couldn't generate the invoice PDF: ${e.message ?: "unknown error"}",
+                    Toast.LENGTH_LONG
                 ).show()
             }
         }

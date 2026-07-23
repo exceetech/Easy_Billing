@@ -229,6 +229,7 @@ class PurchaseActivity : BaseActivity() {
         etSupplierGstin = findViewById(R.id.etSupplierGstin)
         etState         = findViewById(R.id.etState)
         btnPickSupplier = findViewById(R.id.btnPickSupplier)
+        btnPickSupplier.contentDescription = "Choose supplier"
         rv              = findViewById(R.id.rvLines)
         btnAddLine      = findViewById(R.id.btnAddLine)
         btnSave         = findViewById(R.id.btnSavePurchase)

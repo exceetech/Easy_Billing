@@ -24,13 +24,16 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         CreditTransaction::class,
 
         Inventory::class,
-        InventoryTransaction::class,
         InventoryLog::class,
-        LossEntry::class,
+        // InventoryTransaction / LossEntry removed (v57) — write-only dead
+        // tables, never read back anywhere in the app. Dropped via
+        // MIGRATION_56_57.
 
         // GST Entities
         GstProfile::class,
-        GstSalesRecord::class,
+        // GstSalesRecord retired (v53) — table dropped via MIGRATION_52_53.
+        // Superseded by GstSalesInvoice(+Items) below, which is the single
+        // source of truth for GST reporting per Report 3 (audit, A2/C1-C3).
         // GstPurchaseRecord retired (v43) — table dropped via MIGRATION_42_43.
 
         // GST-aware billing (v18) — see [GstSalesInvoice]
@@ -70,7 +73,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // purchase_table keeps its own denormalised supplier fields.
         Supplier::class
     ],
-    version = 52
+    version = 58
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -91,15 +94,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun creditTransactionDao(): CreditTransactionDao
 
     abstract fun inventoryDao(): InventoryDao
-    abstract fun inventoryTransactionDao(): InventoryTransactionDao
-
-    abstract fun lossDao(): LossDao
 
     abstract fun inventoryLogDao(): InventoryLogDao
 
     // GST DAOs
     abstract fun gstProfileDao(): GstProfileDao
-    abstract fun gstSalesRecordDao(): GstSalesRecordDao
+    // gstSalesRecordDao retired (v53) — table dropped via MIGRATION_52_53.
     // gstPurchaseRecordDao retired (v43) — table dropped via MIGRATION_42_43.
 
     // Purchase / inventory ops (v13)
@@ -655,6 +655,28 @@ abstract class AppDatabase : RoomDatabase() {
                     WHERE currentStock > 0
                     """.trimIndent()
                 )
+            }
+        }
+
+        /**
+         * v21 → v22 — no-op.
+         *
+         * No schema change ever landed for v22; the version number was
+         * bumped with nothing behind it, leaving a gap with no migration.
+         * That used to be papered over with a blanket
+         * fallbackToDestructiveMigration(), then narrowed to
+         * fallbackToDestructiveMigrationFrom(21) (Report 1 S-8 / Report 3
+         * D-b) — but Room rejects that combination outright when another
+         * supplied migration (MIGRATION_20_21) ends on the exact version
+         * the fallback starts from: "Inconsistency detected... Start
+         * version: 21" (crash on every launch). An explicit no-op
+         * migration closes the gap for real, needs no fallback at all, and
+         * — unlike the destructive fallback it replaces — never wipes a
+         * user's local database.
+         */
+        val MIGRATION_21_22 = object : Migration(21, 22) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Intentionally empty — no schema change between v21 and v22.
             }
         }
 
@@ -1503,6 +1525,108 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v52 → v53
+         *
+         * Retires the legacy `gst_sales_records` table (Report 3 audit,
+         * fix order C3). It duplicated `gst_sales_invoice`(+items), which
+         * has been the single source of truth read by every GST report —
+         * in-app and backend — since the C1/C2 steps of the same fix. The
+         * client stopped writing/syncing this table in C2; this migration
+         * removes the now-empty-going-forward table itself. Same pattern
+         * as MIGRATION_42_43 (gst_purchase_records retirement).
+         */
+        val MIGRATION_52_53 = object : Migration(52, 53) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS gst_sales_records")
+            }
+        }
+
+        // Report 5 fix: adds the profit-analytics pulse flag so SyncManager
+        // can find and retry any bill whose /sales/create push never landed.
+        val MIGRATION_53_54 = object : Migration(53, 54) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE bills ADD COLUMN sale_pulse_synced INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        // Report 5 fix: adds the product field-edit sync pulse flag so
+        // SyncManager can find and retry any EditProductActivity save whose
+        // backend push never landed.
+        val MIGRATION_54_55 = object : Migration(54, 55) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE products ADD COLUMN pending_field_sync INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        val MIGRATION_55_56 = object : Migration(55, 56) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE products ADD COLUMN pending_deactivate_sync INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        val MIGRATION_56_57 = object : Migration(56, 57) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // InventoryTransaction / LossEntry removed — write-only dead
+                // tables, never read back anywhere in the app.
+                db.execSQL("DROP TABLE IF EXISTS `inventory_transactions`")
+                db.execSQL("DROP TABLE IF EXISTS `loss_table`")
+            }
+        }
+
+        val MIGRATION_57_58 = object : Migration(57, 58) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // INV-4 fix: `inventory` never had a uniqueness guard on
+                // productId — nothing at the schema level stopped a future
+                // bug from creating two inventory rows for the same
+                // product, which InventoryDao.getAll() (unfiltered) would
+                // then surface as two separate stock numbers for what
+                // should be one product. Before adding the constraint,
+                // collapse any duplicates that already exist (should
+                // normally be none — this is defense-in-depth): keep the
+                // most recently-touched row per productId (highest id, as
+                // Room ids are monotonically increasing) and fold any
+                // stock left on the others into it, so no on-hand stock is
+                // silently discarded by the cleanup itself.
+                db.execSQL(
+                    """
+                    UPDATE inventory
+                    SET currentStock = (
+                        SELECT SUM(currentStock) FROM inventory AS dup
+                        WHERE dup.productId = inventory.productId
+                    ),
+                    isSynced = 0
+                    WHERE id = (
+                        SELECT MAX(id) FROM inventory AS dup2
+                        WHERE dup2.productId = inventory.productId
+                    )
+                    AND (
+                        SELECT COUNT(*) FROM inventory AS dup3
+                        WHERE dup3.productId = inventory.productId
+                    ) > 1
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    DELETE FROM inventory
+                    WHERE id NOT IN (
+                        SELECT MAX(id) FROM inventory GROUP BY productId
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_inventory_productId` " +
+                    "ON `inventory` (`productId`)"
+                )
+            }
+        }
+
         val MIGRATION_46_47 = object : Migration(46, 47) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -1553,7 +1677,7 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_18_19,
                         MIGRATION_19_20,
                         MIGRATION_20_21,
-                        // 21→22: no migration defined — fallback handles it
+                        MIGRATION_21_22,
                         MIGRATION_22_23,
                         MIGRATION_23_24,
                         MIGRATION_24_25,
@@ -1576,9 +1700,28 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_45_46, MIGRATION_46_47,
                         MIGRATION_47_48, MIGRATION_48_49,
                         MIGRATION_49_50, MIGRATION_50_51,
-                        MIGRATION_51_52
+                        MIGRATION_51_52,
+                        MIGRATION_52_53,
+                        MIGRATION_53_54,
+                        MIGRATION_54_55,
+                        MIGRATION_55_56,
+                        MIGRATION_56_57,
+                        MIGRATION_57_58
                     )
-                    .fallbackToDestructiveMigration()
+                    // Report 1 S-8 / Report 3 D-b: a blanket
+                    // fallbackToDestructiveMigration() meant any future
+                    // migration mistake would silently wipe
+                    // `easy_billing_db` with no signal to the user or to
+                    // us. The one known gap (v21→v22) now has a real
+                    // no-op migration (MIGRATION_21_22) instead of a
+                    // destructive fallback, so no fallbackToDestructive-
+                    // MigrationFrom() is needed at all — any unmapped
+                    // upgrade path throws IllegalStateException (visible,
+                    // debuggable crash) instead of silently deleting data.
+                    // Downgrades (e.g. a rollback install) are handled
+                    // separately and are expected to lose data either way,
+                    // since older app code can't read a newer schema.
+                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                     .also { INSTANCE = it }
             }

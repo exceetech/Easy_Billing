@@ -251,8 +251,8 @@ class DataSecurityActivity : BaseActivity() {
             val newPin = etNewPin.text.toString().trim()
             val confirmPin = etConfirmPin.text.toString().trim()
 
-            if (newPin.length < 4) {
-                etNewPin.error = "Password must be at least 4 digits"
+            if (newPin.length < 6) {
+                etNewPin.error = "Password must be at least 6 characters"
                 return@setOnClickListener
             }
 

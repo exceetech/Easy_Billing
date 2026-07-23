@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.InventoryItemUI
 
@@ -124,8 +125,29 @@ class InventoryAdapter(
 
     override fun getItemCount() = items.size
 
+    // INV-5 fix: notifyDataSetChanged() rebound every row on every refresh,
+    // even when nothing about a given product had actually changed — every
+    // refresh visually "flickered" the whole list, making it hard to tell
+    // a genuine stock-count change from a harmless re-render. DiffUtil only
+    // rebinds the rows whose values actually differ.
     fun updateData(newItems: List<InventoryItemUI>) {
+        val oldItems = this.items
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = oldItems.size
+            override fun getNewListSize() = newItems.size
+
+            // Identity: same product row.
+            override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean =
+                oldItems[oldPos].productId == newItems[newPos].productId
+
+            // Content: InventoryItemUI is a data class, so structural
+            // equality already compares every field (stock, avgCost,
+            // category, etc.) — a row only gets rebound if something in it
+            // genuinely changed.
+            override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean =
+                oldItems[oldPos] == newItems[newPos]
+        })
         this.items = newItems
-        notifyDataSetChanged()
+        diff.dispatchUpdatesTo(this)
     }
 }

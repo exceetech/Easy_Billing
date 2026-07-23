@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.BatchPickerAdapter
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.InventoryItemUI
-import com.example.easy_billing.db.LossEntry
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.db.PurchaseBatch
 import com.example.easy_billing.repository.InventoryReductionRepository
@@ -38,6 +37,16 @@ class InventoryActivity : BaseActivity() {
     private var currentQuery = ""
     private var currentCategory = ""   // "" = All
     private var currentSort = InvSort.STOCK_HIGH_LOW
+
+    // Random-looking stock count fix (same root cause as Dashboard's
+    // loadProducts()): loadInventory() is triggered from onResume plus
+    // several post-edit call sites, each starting a fresh, uncancelled
+    // load. Two overlapping loads racing meant whichever finished LAST won
+    // and overwrote the list — regardless of which actually had the newer
+    // data — which is what made the stock count look like it was flipping
+    // at random. This counter lets a load recognise it's been superseded
+    // and discard its own (stale) results instead of applying them.
+    private val loadInventoryGeneration = java.util.concurrent.atomic.AtomicInteger(0)
 
     private enum class InvSort {
         A_TO_Z, Z_TO_A, PRICE_LOW_HIGH, PRICE_HIGH_LOW,
@@ -77,15 +86,22 @@ class InventoryActivity : BaseActivity() {
 
     private fun setupHeaderActions() {
 
-        findViewById<View?>(R.id.btnAddProduct)?.setOnClickListener {
-            showAddEditProductChooser()
+        findViewById<View?>(R.id.btnAddProduct)?.apply {
+            contentDescription = "Add product"
+            setOnClickListener { showAddEditProductChooser() }
         }
 
-        findViewById<View?>(R.id.btnEdit)?.setOnClickListener {
-            startActivity(android.content.Intent(this, ManageProductsActivity::class.java))
+        findViewById<View?>(R.id.btnEdit)?.apply {
+            contentDescription = "Manage products"
+            setOnClickListener {
+                startActivity(android.content.Intent(this@InventoryActivity, ManageProductsActivity::class.java))
+            }
         }
 
-        findViewById<View?>(R.id.btnSort)?.setOnClickListener { showSortMenu(it) }
+        findViewById<View?>(R.id.btnSort)?.apply {
+            contentDescription = "Sort inventory"
+            setOnClickListener { showSortMenu(it) }
+        }
 
         updateSortLabel()
     }
@@ -189,6 +205,11 @@ class InventoryActivity : BaseActivity() {
 
     private fun loadInventory() {
 
+        // Claim this load's generation number before anything else so a
+        // slower, superseded call can recognise it's stale once it finally
+        // finishes (see the field doc comment for why this matters).
+        val myGeneration = loadInventoryGeneration.incrementAndGet()
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             try {
@@ -199,24 +220,29 @@ class InventoryActivity : BaseActivity() {
                 val inventoryMap = inventoryList.associateBy { it.productId }
                 val newProductMap = products.associateBy { it.id }
 
-                // Stock value is shown at the GROSS purchase cost (invoice value
-                // incl. GST), not the net taxable cost. We pull a per-product
-                // gross weighted-average from the batch ledger and fall back to
-                // the net averageCost for products that have no batches.
+                // INV-2 fix: stock value is shown at the GROSS purchase cost
+                // (invoice value incl. GST), not the net taxable cost — but
+                // this used to be computed as an entirely separate weighted
+                // average pulled straight from the purchase_batches ledger
+                // (getGrossValuationByProduct), independently of
+                // inventory.averageCost. That meant this screen and
+                // Dashboard (which reads inventory.averageCost directly)
+                // could show two different numbers for the same product
+                // even when nothing was wrong, and diverged further if the
+                // batch ledger ever drifted from currentStock. There is now
+                // exactly ONE canonical average cost — inventory.averageCost
+                // (net) — and the gross figure shown here is simply that
+                // number grossed up by the product's own GST rate, so both
+                // screens always agree on the underlying value.
                 // COGS / profit / returns still use inventory.averageCost (net).
-                val grossCostMap = db.purchaseBatchDao()
-                    .getGrossValuationByProduct()
-                    .associateBy { it.productId }
-
                 val displayList = products
                     .filter { inventoryMap[it.id]?.isActive == true }
                     .map { product ->
 
                         val inv = inventoryMap[product.id]
-                        val grossAvg = grossCostMap[product.id]
-                            ?.takeIf { it.totalQty > 0.0 }
-                            ?.grossAvgCost
-                            ?: (inv?.averageCost ?: 0.0)
+                        val netAvg = inv?.averageCost ?: 0.0
+                        val gstRate = product.defaultGstRate.takeIf { it > 0.0 } ?: 0.0
+                        val grossAvg = netAvg * (1.0 + gstRate / 100.0)
 
                         InventoryItemUI(
                             productName = product.name,
@@ -229,18 +255,26 @@ class InventoryActivity : BaseActivity() {
                     }
 
                 withContext(Dispatchers.Main) {
-                    productMap = newProductMap
-                    fullList = displayList
-                    buildCategoryChips()
-                    applyFilter()
+                    // A newer loadInventory() call has started since this one
+                    // began — discard these now-stale results instead of
+                    // overwriting the screen with older numbers.
+                    if (myGeneration == loadInventoryGeneration.get()) {
+                        productMap = newProductMap
+                        fullList = displayList
+                        buildCategoryChips()
+                        applyFilter()
+                    }
                 }
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    // Stale data staying on screen with no signal it's stale is
+                    // risky for stock decisions — say plainly it didn't refresh
+                    // and offer a retry rather than a flat "failed" toast.
                     Toast.makeText(
                         this@InventoryActivity,
-                        "Failed to load inventory",
-                        Toast.LENGTH_SHORT
+                        "Couldn't refresh inventory (${e.message ?: "unknown error"}) — showing last-known data. Pull down or reopen to retry.",
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -277,6 +311,10 @@ class InventoryActivity : BaseActivity() {
 
         adapter.updateData(sortList(filtered))
         updateKpis()
+
+        val tvEmpty = findViewById<View?>(R.id.tvInventoryEmpty)
+        tvEmpty?.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        rvInventory.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
     // ================= CATEGORY CHIPS =================
@@ -376,6 +414,11 @@ class InventoryActivity : BaseActivity() {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (gst.isNotEmpty() && !GstEngine.isValidGstin(gst)) {
+                etGstin.error = "Enter a valid 15-character GSTIN"
+                Toast.makeText(this, "Enter a valid 15-character GSTIN", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val pickedInvoiceDate = getInvoiceDate()
             if (pickedInvoiceDate == null) {
                 etInvoiceDate.error = "Pick the invoice date"
@@ -432,10 +475,6 @@ class InventoryActivity : BaseActivity() {
         val rbReturn      = view.findViewById<RadioButton>(R.id.rbReturn)
         val rbScrap       = view.findViewById<RadioButton>(R.id.rbScrap)
 
-        // Scrap section
-        val scrapSection  = view.findViewById<LinearLayout>(R.id.scrapSection)
-        val etQty         = view.findViewById<EditText>(R.id.etReduceQty)
-
         // Return section
         val returnSection = view.findViewById<LinearLayout>(R.id.returnSection)
         val rvBatches     = view.findViewById<RecyclerView>(R.id.rvBatches)
@@ -456,10 +495,11 @@ class InventoryActivity : BaseActivity() {
         var selectedAccountForReturn: com.example.easy_billing.db.CreditAccount? = null
         var batchAdapter: BatchPickerAdapter? = null
 
-        // Reason swap: show the right section + credit panel.
+        // Reason swap: both reasons use the same batch-picker section
+        // (scrap and return share the batch flow — see scrapByBatches /
+        // returnToSupplierByBatches); only the label and credit panel differ.
         fun applyReason() {
             val isReturn = rbReturn.isChecked
-            scrapSection.visibility = View.GONE
             returnSection.visibility = View.VISIBLE
             layoutCredit.visibility = if (isReturn) View.VISIBLE else View.GONE
 
@@ -560,13 +600,21 @@ class InventoryActivity : BaseActivity() {
                     return@setOnClickListener
                 }
 
-                dialog.dismiss()
-                runReturnByBatches(
-                    product = product,
-                    lines = lines,
-                    isCredit = isCredit,
-                    creditAccountId = creditAccountId
-                )
+                AlertDialog.Builder(this)
+                    .setTitle("Confirm return to supplier")
+                    .setMessage("Return ${formatStock(total)} ${product.unit ?: "unit(s)"} of ${product.name}? This removes it from stock and can't be undone from here.")
+                    .setPositiveButton("Return") { d, _ ->
+                        d.dismiss()
+                        dialog.dismiss()
+                        runReturnByBatches(
+                            product = product,
+                            lines = lines,
+                            isCredit = isCredit,
+                            creditAccountId = creditAccountId
+                        )
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
                 return@setOnClickListener
             }
 
@@ -600,11 +648,19 @@ class InventoryActivity : BaseActivity() {
                     )
                 }
 
-                dialog.dismiss()
-                runScrapByBatches(
-                    product = product,
-                    lines = scrapLines
-                )
+                AlertDialog.Builder(this)
+                    .setTitle("Confirm scrap")
+                    .setMessage("Scrap ${formatStock(total)} ${product.unit ?: "unit(s)"} of ${product.name}? This is irreversible and removes it from stock permanently.")
+                    .setPositiveButton("Scrap") { d, _ ->
+                        d.dismiss()
+                        dialog.dismiss()
+                        runScrapByBatches(
+                            product = product,
+                            lines = scrapLines
+                        )
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
                 return@setOnClickListener
             }
         }
@@ -621,7 +677,6 @@ class InventoryActivity : BaseActivity() {
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             val repo = InventoryReductionRepository.get(this@InventoryActivity)
-            val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
             try {
                 val result = repo.returnToSupplierByBatches(
                     productId       = product.id,
@@ -632,8 +687,7 @@ class InventoryActivity : BaseActivity() {
                     supplierGstin   = null,
                     supplierName    = null,
                     isCredit        = isCredit,
-                    creditAccountId = creditAccountId,
-                    shopId          = shopId
+                    creditAccountId = creditAccountId
                 )
                 withContext(Dispatchers.Main) {
                     loadInventory()
@@ -678,15 +732,13 @@ class InventoryActivity : BaseActivity() {
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             val repo = InventoryReductionRepository.get(this@InventoryActivity)
-            val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
             try {
                 val result = repo.scrapByBatches(
                     productId       = product.id,
                     productName     = product.name,
                     variantName     = product.variant,
                     hsnCode         = product.hsnCode,
-                    lines           = lines,
-                    shopId          = shopId
+                    lines           = lines
                 )
                 withContext(Dispatchers.Main) {
                     loadInventory()
@@ -925,7 +977,6 @@ class InventoryActivity : BaseActivity() {
                 lifecycleScope.launch(Dispatchers.IO) {
                     try {
                         val repo = InventoryReductionRepository.get(this@InventoryActivity)
-                        val shopId = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", 1)
                         val result = repo.clearRemainingStock(
                             productId   = productId,
                             productName = product.name,
@@ -936,8 +987,7 @@ class InventoryActivity : BaseActivity() {
                             purchaseTaxSgst = product.sgstPercentage,
                             purchaseTaxIgst = product.igstPercentage,
                             isCredit = isCredit,
-                            creditAccountId = creditAccountId,
-                            shopId = shopId
+                            creditAccountId = creditAccountId
                         )
 
                         withContext(Dispatchers.Main) {
@@ -967,7 +1017,11 @@ class InventoryActivity : BaseActivity() {
                             }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@InventoryActivity, "Error clearing stock", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@InventoryActivity,
+                                "Couldn't clear stock: ${e.message ?: "unknown error"}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 }

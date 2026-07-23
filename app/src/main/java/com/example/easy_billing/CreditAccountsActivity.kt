@@ -32,6 +32,7 @@ import kotlinx.coroutines.withContext
 class CreditAccountsActivity : BaseActivity() {
 
     private lateinit var rvCustomers: RecyclerView
+    private lateinit var tvCustomersEmpty: TextView
     private lateinit var etSearch: TextInputEditText
     private lateinit var btnAdd: MaterialButton
 
@@ -71,6 +72,7 @@ class CreditAccountsActivity : BaseActivity() {
 
     private fun initViews() {
         rvCustomers = findViewById(R.id.rvCustomers)
+        tvCustomersEmpty = findViewById(R.id.tvCustomersEmpty)
         etSearch = findViewById(R.id.etSearchCustomer)
         btnAdd = findViewById(R.id.btnAddCustomer)
     }
@@ -209,6 +211,21 @@ class CreditAccountsActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
+            // Digits-only, 10-digit check — matches the format phone lookups
+            // elsewhere (billing, GST) expect. Anything shorter/longer or
+            // containing letters would save fine here but silently fail to
+            // match later, so catch it at entry with a specific message.
+            val digitsOnly = phone.filter { it.isDigit() }
+            if (digitsOnly.length != 10) {
+                Toast.makeText(this, "Enter a valid 10-digit phone number", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Guard against a double-tap firing two creates before the first
+            // round trip finishes.
+            btnSave.isEnabled = false
+            btnSave.text = "Saving…"
+
             lifecycleScope.launch(Dispatchers.IO) {
 
                 val db = AppDatabase.getDatabase(this@CreditAccountsActivity)
@@ -230,6 +247,8 @@ class CreditAccountsActivity : BaseActivity() {
                     } else {
 
                         withContext(Dispatchers.Main) {
+                            btnSave.isEnabled = true
+                            btnSave.text = "Save"
                             Toast.makeText(
                                 this@CreditAccountsActivity,
                                 "Customer already exists",
@@ -843,6 +862,12 @@ class CreditAccountsActivity : BaseActivity() {
         }
 
         adapter.update(filtered)
+
+        val hasQuery = etSearch.text?.isNotBlank() == true
+        tvCustomersEmpty.text = if (hasQuery) "No customers match your search"
+            else "No customers yet — tap \"Add customer\" to get started"
+        tvCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        rvCustomers.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
     /**

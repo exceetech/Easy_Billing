@@ -60,7 +60,12 @@ interface ProductDao {
     )
     suspend fun getAllForShop(shopId: String): List<Product>
 
-    /** Restricted edit — for purchased products we only allow these. */
+    /**
+     * Restricted edit — for purchased products we only allow these.
+     * Report 5 fix: also stamps pending_field_sync = 1, so if the caller's
+     * follow-up push to the backend fails, SyncManager can find this row
+     * and retry it later instead of the edit being lost silently.
+     */
     @Query(
         """
         UPDATE products
@@ -74,7 +79,8 @@ interface ProductDao {
                hsn_description  = :hsnDescription,
                cess_rate        = :cessRate,
                supply_classification = :supplyClassification,
-               isTaxInclusive   = :isTaxInclusive
+               isTaxInclusive   = :isTaxInclusive,
+               pending_field_sync = 1
          WHERE id = :id
         """
     )
@@ -92,6 +98,25 @@ interface ProductDao {
         supplyClassification: String = "TAXABLE",
         isTaxInclusive: Boolean = false
     )
+
+    /* ------------ Field-edit sync pulse (Report 5 fix) ------------ */
+
+    /** Products whose local price/GST/HSN edits haven't reached the backend yet. */
+    @Query("SELECT * FROM products WHERE serverId IS NOT NULL AND pending_field_sync = 1")
+    suspend fun getProductsNeedingFieldSync(): List<Product>
+
+    @Query("UPDATE products SET pending_field_sync = 0 WHERE id = :productId")
+    suspend fun markFieldSynced(productId: Int)
+
+    /**
+     * Marks a product as having a local field edit not yet confirmed on the
+     * backend. Used by callers (e.g. PurchaseRepository.savePurchase) that
+     * push an update out-of-band from updateSalesFields' own stamp, so a
+     * failed push there still gets picked up by
+     * SyncManager.syncProductFieldEdits().
+     */
+    @Query("UPDATE products SET pending_field_sync = 1 WHERE id = :productId")
+    suspend fun markFieldPending(productId: Int)
 
     /**
      * Exact match — this **resolves identity**, so it must be exact.
@@ -142,11 +167,24 @@ interface ProductDao {
 
     /* ------------ Soft delete ------------ */
 
-    @Query("UPDATE products SET isActive = 0 WHERE id = :productId")
+    /**
+     * Local soft-delete. Also stamps pending_deactivate_sync = 1 so
+     * SyncManager.syncProductDeactivations() pushes the removal to the
+     * backend even if this device is offline right now — removing a
+     * product is offline-first like every other write in the app.
+     */
+    @Query("UPDATE products SET isActive = 0, pending_deactivate_sync = 1 WHERE id = :productId")
     suspend fun deactivate(productId: Int)
 
     @Query("UPDATE products SET isActive = 1 WHERE id = :productId")
     suspend fun activate(productId: Int)
+
+    /** Deactivated products whose removal hasn't reached the backend yet. */
+    @Query("SELECT * FROM products WHERE isActive = 0 AND serverId IS NOT NULL AND pending_deactivate_sync = 1")
+    suspend fun getProductsNeedingDeactivateSync(): List<Product>
+
+    @Query("UPDATE products SET pending_deactivate_sync = 0 WHERE id = :productId")
+    suspend fun markDeactivateSynced(productId: Int)
 
     /**
      * Find a deactivated product by exact name + variant. Used by the

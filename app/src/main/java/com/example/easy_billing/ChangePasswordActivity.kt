@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.core.content.edit
 import com.example.easy_billing.network.ChangePasswordRequest
 import com.example.easy_billing.network.RetrofitClient
 import kotlinx.coroutines.launch
@@ -120,21 +121,46 @@ class ChangePasswordActivity : BaseActivity() {
                     btnChangePassword.text = "Updating..."
                     hideCtaArrow()
 
-                    // Retrieve reset token from SharedPreferences
+                    // This screen is reached from two different flows that
+                    // must NOT be treated the same (Report 5 fix):
+                    //   1. Forgot-password (OtpVerificationActivity) — a
+                    //      one-time RESET_TOKEN (scope="password_reset"),
+                    //      must call /auth/reset-password.
+                    //   2. First-login-after-admin-created-account
+                    //      (MainActivity, is_first_login) — the shop is
+                    //      already logged in with a normal session TOKEN,
+                    //      must call /auth/change-password instead.
+                    // Previously both paths stored/read the same "TOKEN" key
+                    // and always called resetPassword() — which meant the
+                    // first-login path was silently broken (a normal login
+                    // token never has scope="password_reset", so the backend
+                    // always rejected it with 403). Fixed by branching on
+                    // which token is actually present.
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-                    val token = prefs.getString("TOKEN", "") ?: ""
+                    val resetToken = prefs.getString("RESET_TOKEN", "") ?: ""
+                    val sessionToken = prefs.getString("TOKEN", "") ?: ""
 
-                    if (token.isEmpty()) {
-                        Toast.makeText(this@ChangePasswordActivity, "Session expired. Please try again.", Toast.LENGTH_LONG).show()
-                        finish()
-                        return@launch
+                    val response = when {
+                        resetToken.isNotEmpty() ->
+                            RetrofitClient.api.resetPassword(resetToken, ChangePasswordRequest(newPass))
+                        sessionToken.isNotEmpty() ->
+                            RetrofitClient.api.changePassword(sessionToken, newPass)
+                        else -> {
+                            Toast.makeText(this@ChangePasswordActivity, "Session expired. Please try again.", Toast.LENGTH_LONG).show()
+                            finish()
+                            return@launch
+                        }
                     }
 
-                    val response = RetrofitClient.api.resetPassword(token, ChangePasswordRequest(newPass))
-                    
                     if (response.isSuccessful) {
                         Toast.makeText(this@ChangePasswordActivity, "Password updated successfully!", Toast.LENGTH_LONG).show()
-                        
+
+                        // Report 5 fix: clear the one-time reset token now
+                        // that it's been used — it's single-purpose and
+                        // shouldn't linger in storage after this point.
+                        // (No-op, harmlessly, on the first-login path.)
+                        prefs.edit { remove("RESET_TOKEN") }
+
                         // Navigate to Login Activity
                         val intent = Intent(this@ChangePasswordActivity, MainActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

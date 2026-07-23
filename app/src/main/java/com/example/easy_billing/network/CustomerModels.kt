@@ -19,7 +19,13 @@ data class CustomerDto(
     val gstin: String? = null,
     val state: String? = null,
     val state_code: String? = null,
-    val updated_at: Long
+    val updated_at: Long,
+    // Report 1 S-6: previously never sent, so the customer's credit-account
+    // link and soft-delete state didn't propagate across devices.
+    // credit_account_id is the account's SERVER id (resolved the same way
+    // as bills — see SyncManager.syncCustomers).
+    val credit_account_id: Int? = null,
+    val is_active: Boolean = true
 )
 
 data class CustomerSyncRequest(

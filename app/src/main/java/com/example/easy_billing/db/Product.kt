@@ -124,6 +124,38 @@ data class Product(
      * Default: TAXABLE
      */
     @ColumnInfo(name = "supply_classification")
-    val supplyClassification: String = "TAXABLE"
+    val supplyClassification: String = "TAXABLE",
+
+    // ── Field-edit sync pulse (v55) ─────────────────────────────────────
+    /**
+     * True when this product's price/GST/HSN fields were edited locally
+     * (via EditProductActivity) after it already had a [serverId], and the
+     * backend hasn't confirmed receiving that edit yet.
+     *
+     * Report 5 fix: edits to an already-uploaded product used to be pushed
+     * with a single fire-and-forget call (ProductRepository.
+     * updateSalesFieldsOnly) with no retry and no local record of failure —
+     * a flaky connection at save time meant the backend silently kept the
+     * OLD price/tax data forever, with the user seeing "saved successfully"
+     * regardless. This flag lets SyncManager find and retry any edit that
+     * never landed. New products (serverId == null) are unaffected — those
+     * already retry via the normal getUnsynced() path.
+     */
+    @ColumnInfo(name = "pending_field_sync", defaultValue = "0")
+    val pendingFieldSync: Boolean = false,
+
+    /**
+     * True when this product was deactivated (removed) locally but the
+     * backend hasn't confirmed the deactivation yet.
+     *
+     * Fix: removing a product used to call the backend deactivateProduct()
+     * endpoint FIRST and only write the local soft-delete if that call
+     * succeeded — the one write flow in the app that wasn't offline-first.
+     * Deactivating while offline silently did nothing at all. Now the local
+     * deactivate always happens immediately; this flag lets SyncManager
+     * retry the backend call until it's confirmed.
+     */
+    @ColumnInfo(name = "pending_deactivate_sync", defaultValue = "0")
+    val pendingDeactivateSync: Boolean = false
 
 ) : Serializable

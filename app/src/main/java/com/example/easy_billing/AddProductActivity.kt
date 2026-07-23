@@ -395,14 +395,26 @@ class AddProductActivity : BaseActivity() {
         }
         val price = etPrice.text.toString().toDoubleOrNull()
         if (price == null || price <= 0) {
-            toast("Enter a valid selling price"); etPrice.requestFocus(); return
+            toast("Enter a selling price greater than 0"); etPrice.requestFocus(); return
         }
 
         val variant = normalizeVariant(etVariant.text.toString())
         val unit = normalizeUnit(etUnit.text.toString())
         val hsnCode = etHsn.text.toString().trim()
-        val cgstPct = etCgst.text.toString().toDoubleOrNull() ?: 0.0
-        val sgstPct = etSgst.text.toString().toDoubleOrNull() ?: 0.0
+
+        // A non-numeric or negative entry here used to silently fall back to
+        // 0% via `?: 0.0` — the product would save with no tax at all and no
+        // error telling the cashier why. Validate instead of defaulting.
+        val cgstRaw = etCgst.text.toString().trim()
+        val sgstRaw = etSgst.text.toString().trim()
+        val cgstPct = if (cgstRaw.isEmpty()) 0.0 else cgstRaw.toDoubleOrNull()
+        val sgstPct = if (sgstRaw.isEmpty()) 0.0 else sgstRaw.toDoubleOrNull()
+        if (cgstPct == null || cgstPct < 0) {
+            toast("Enter a valid CGST % (0 or higher)"); etCgst.requestFocus(); return
+        }
+        if (sgstPct == null || sgstPct < 0) {
+            toast("Enter a valid SGST % (0 or higher)"); etSgst.requestFocus(); return
+        }
         val igstPct = cgstPct + sgstPct
         val isTaxInclusive = switchTaxInclusive.isChecked
         val categoryVal = etCategory.text.toString().trim()

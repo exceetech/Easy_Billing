@@ -16,6 +16,10 @@ data class CreditNoteSyncRequest(
 
 data class CreditNoteDto(
     val local_id: Int,
+    // Stable per-install id (Issue 10) — lets the server tell apart two
+    // devices on the same shop that independently numbered a credit/debit
+    // note the same way, instead of one silently overwriting the other.
+    val client_device_id: String? = null,
     val note_number: String,
     val note_date: Long,
     val note_type: String,                  // "C" or "D"

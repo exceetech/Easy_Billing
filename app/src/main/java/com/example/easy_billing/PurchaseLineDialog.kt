@@ -1166,6 +1166,14 @@ class PurchaseLineDialog(
 
             val existingMatch = withContext(Dispatchers.IO) {
                 db.productDao().getByNameAndVariant(draft.productName, draft.variant, validShopIds)
+                    // Exact match only fixes the first letter of each word, so
+                    // "Potato Chips" vs "Potato CHIPS" (or any other mid-word
+                    // case difference) slips past it as two different
+                    // products. Same fallback as ProductRepository.upsert()
+                    // — without it, a restock typed with slightly different
+                    // capitalization silently created a second product +
+                    // inventory row instead of adding to the existing one.
+                    ?: db.productDao().findConflictIgnoringCase(draft.productName, draft.variant, validShopIds)
             }
 
             withContext(Dispatchers.Main) {

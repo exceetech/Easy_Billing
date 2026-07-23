@@ -280,9 +280,18 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
     )
 
     /**
-     * Creates a Sales Debit Note ("D").
-     * Does NOT restore or move inventory.
-     * Quantity returned is explicitly 0.0.
+     * Creates a Sales Debit Note ("D") for extra quantity that physically
+     * left the shop but wasn't billed at the time of the original sale.
+     *
+     * DOES reduce inventory — the loop below calls [InventoryManager
+     * .reduceStock] with type "SALE" for the additional quantity, same as
+     * a normal sale, because that stock genuinely left the shop. (This
+     * corrects an earlier version of this comment that said the opposite —
+     * deep-dive audit, Issue 2 — the behaviour was always correct, only the
+     * comment was wrong.)
+     *
+     * The backend profit report (`/profit`) treats a debit note's revenue
+     * and cost as an ADDITION, not a subtraction — see profit_routes.py.
      */
     suspend fun createDebitNote(
         billId: Int,
@@ -303,11 +312,34 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
         }
         if (lines.isEmpty()) return Result.ValidationError("No items selected for debit note.")
 
+        // Deep-dive re-check, Issue 6: this only checked for a positive
+        // quantity — the actual stock-availability check happened later,
+        // inside InventoryManager.reduceStock, which throws a plain
+        // "Insufficient stock" exception with no product name or numbers
+        // if there isn't enough on hand. Nothing was ever corrupted (the
+        // transaction still rolled back safely), but the message shown to
+        // the user was generic. Checking up front, the same way
+        // createCreditNote already does for returns, gives a clear,
+        // specific message before anything is attempted.
         for (line in lines) {
             if (line.additionalQty <= 0.0) {
                 return Result.ValidationError(
                     "Additional quantity for '${line.billItem.productName}' must be greater than zero."
                 )
+            }
+            val product = db.productDao().getById(line.billItem.productId)
+            if (product != null && product.trackInventory) {
+                val currentStock = db.inventoryDao().getInventory(product.id)?.currentStock ?: 0.0
+                if (line.additionalQty > currentStock) {
+                    return Result.ValidationError(
+                        "Only %.2f %s of '%s' in stock — can't issue a debit note for %.2f.".format(
+                            currentStock,
+                            product.unit ?: "unit(s)",
+                            line.billItem.productName,
+                            line.additionalQty
+                        )
+                    )
+                }
             }
         }
 

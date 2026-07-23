@@ -78,6 +78,7 @@ class PurchaseRepository private constructor(
      * inside withTransaction.
      */
     private data class PendingProductUpdate(
+        val productId: Int,
         val serverId: Int,
         val line: PurchaseItemDraft
     )
@@ -212,8 +213,18 @@ class PurchaseRepository private constructor(
             // If this product already has a server_id, schedule a backend
             // field-update to run AFTER the transaction commits (network I/O
             // must not run inside withTransaction).
+            //
+            // Report 5 fix: also stamp pending_field_sync = 1 now, in the
+            // same transaction as the local write. This mirrors the fix
+            // already applied to ProductRepository.updateSalesFieldsOnly —
+            // the post-transaction push below is fire-and-forget, and
+            // without this flag a failed push here left the backend with
+            // stale price/GST data forever, with no retry. Setting it here
+            // means SyncManager.syncProductFieldEdits() will pick this
+            // product up and retry if the push below doesn't succeed.
             db.productDao().getById(productId)?.serverId?.let { sid ->
-                pendingUpdates.add(PendingProductUpdate(sid, line))
+                pendingUpdates.add(PendingProductUpdate(productId, sid, line))
+                db.productDao().markFieldPending(productId)
             }
 
             // 2. Insert into purchase_items_table with both tax sets.
@@ -335,7 +346,12 @@ class PurchaseRepository private constructor(
                             is_tax_inclusive = l.isTaxInclusive
                         )
                     )
-                } // fire-and-forget
+                }.onSuccess {
+                    // Report 5 fix: clear the pending flag only on confirmed
+                    // success. A failure leaves it set, so SyncManager
+                    // retries this product on the next background sync.
+                    db.productDao().markFieldSynced(upd.productId)
+                }
             }
         }
 

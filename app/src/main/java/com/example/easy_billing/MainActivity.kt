@@ -12,6 +12,7 @@ import android.view.animation.OvershootInterpolator
 import android.widget.*
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,12 +27,42 @@ import com.google.android.material.card.MaterialCardView
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import com.example.easy_billing.util.applyPremiumClickAnimation
 
 class MainActivity : BaseActivity() {
-    
+
     private var entranceStarted = false
+
+    /**
+     * Report 3 U-1: asks the user to confirm before a workspace switch wipes
+     * [pendingCount] rows that never made it off this device. Returns true
+     * if they chose to proceed anyway, false if they backed out.
+     */
+    private suspend fun confirmDestructiveWorkspaceSwitch(pendingCount: Int): Boolean =
+        suspendCancellableCoroutine { cont ->
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("Unsynced data will be lost")
+                .setMessage(
+                    "This device has $pendingCount unsynced record(s) from your " +
+                        "current workspace. Switching now will permanently delete " +
+                        "them from this device before they reach the server.\n\n" +
+                        "Go back and let them sync first, or continue anyway?"
+                )
+                .setCancelable(false)
+                .setPositiveButton("Switch anyway") { d, _ ->
+                    d.dismiss()
+                    if (cont.isActive) cont.resume(true) {}
+                }
+                .setNegativeButton("Go back") { d, _ ->
+                    d.dismiss()
+                    if (cont.isActive) cont.resume(false) {}
+                }
+                .create()
+            cont.invokeOnCancellation { dialog.dismiss() }
+            dialog.show()
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         // 🔥 Premium Shared Element Transition config
         window.requestFeature(android.view.Window.FEATURE_ACTIVITY_TRANSITIONS)
@@ -282,6 +313,46 @@ class MainActivity : BaseActivity() {
                         // has no shopId column and its queries have no shop filter,
                         // so this wipe is the only thing keeping one workspace's
                         // records out of another's list. See db/ImportService.kt.
+                        //
+                        // Report 3 U-1: previously wiped unconditionally, even with a
+                        // sync mid-flight or rows that never made it off this device —
+                        // that data was destroyed with no warning. Now checked first;
+                        // if anything is unsynced, the user is asked to confirm before
+                        // it's thrown away, instead of it silently vanishing.
+                        val pendingCount = withContext(Dispatchers.IO) {
+                            runCatching {
+                                val oldDb = AppDatabase.getDatabase(applicationContext)
+                                oldDb.billDao().countUnsynced() +
+                                    oldDb.purchaseDao().countUnsynced() +
+                                    oldDb.inventoryLogDao().countUnsynced() +
+                                    oldDb.gstSalesInvoiceDao().countPending() +
+                                    oldDb.creditNoteDao().countPending() +
+                                    oldDb.purchaseReturnDao().countUnsynced() +
+                                    oldDb.scrapDao().countUnsynced() +
+                                    oldDb.importServiceDao().countPending()
+                            }.getOrDefault(0)
+                        }
+
+                        val proceed = if (pendingCount > 0) {
+                            confirmDestructiveWorkspaceSwitch(pendingCount)
+                        } else {
+                            true
+                        }
+
+                        if (!proceed) {
+                            // User chose not to lose unsynced data. Nothing has been
+                            // saved yet (TOKEN/SHOP_ID below), so the old session is
+                            // untouched — just stop here and let them sync first.
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Switch cancelled — sync your pending data first, then try again.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            btnLogin.isEnabled = true
+                            startCtaArrowAnimation(R.id.btnLogin)
+                            return@launch
+                        }
+
                         withContext(Dispatchers.IO) {
                             try {
                                 AppDatabase.getDatabase(applicationContext).clearAllTables()

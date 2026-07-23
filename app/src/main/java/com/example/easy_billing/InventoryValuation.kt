@@ -160,6 +160,85 @@ object InventoryValuation {
     }
 
     /**
+     * Issue 14 fix (now handles both directions — see Issue 16). [consumeFifo]
+     * can come up short of the caller's requested quantity — either because
+     * it threw partway through (a bug, a transient error) or because the
+     * real batches simply didn't have enough remaining to cover the
+     * reduction (drift already present from something earlier). Either way,
+     * `inventory.currentStock` has already been changed by the full amount,
+     * so from this point on SUM(batch.quantityRemaining) can end up either
+     * UNDER or OVER what currentStock says, and the mismatch would
+     * otherwise persist forever: [ensureSyntheticBatch] deliberately
+     * refuses to touch a product that already has a real batch, and it also
+     * never runs at all once currentStock is 0 (see [InventoryManager.clearStock]),
+     * so nothing else can repair either direction on its own.
+     *
+     * Call this right after [consumeFifo] (or anywhere else the ledger
+     * might have drifted):
+     *   • Batches SHORT of currentStock (understating stock) — backfill a
+     *     synthetic correction batch for the shortfall, priced at the
+     *     current average cost (the best estimate available, since we
+     *     don't know which historical batch the missing units really
+     *     belonged to).
+     *   • Batches IN EXCESS of currentStock (overstating stock — e.g.
+     *     [InventoryManager.clearStock]'s drain came up short, leaving
+     *     phantom remaining quantity behind on a product that's actually
+     *     at zero) — drain the excess via FIFO so the ledger can never
+     *     report more stock than the shop actually has.
+     */
+    suspend fun reconcileDrift(db: AppDatabase, productId: Int) {
+        val totals = db.purchaseBatchDao().getValuationTotals(productId)
+        val inventory = db.inventoryDao().getInventory(productId) ?: return
+
+        val drift = inventory.currentStock - totals.totalQty
+        if (kotlin.math.abs(drift) <= 0.001) return  // already reconciled
+
+        if (drift > 0.0) {
+            // Batches understate stock — backfill the shortfall.
+            android.util.Log.w(
+                "InventoryValuation",
+                "Drift correction: product=$productId batches were short by " +
+                    "$drift unit(s) vs currentStock=${inventory.currentStock} — " +
+                    "backfilling at avgCost=${inventory.averageCost}"
+            )
+            db.purchaseBatchDao().insertBatch(
+                PurchaseBatch(
+                    productId = productId,
+                    purchaseInvoiceId = null,
+                    supplierName = null,
+                    supplierGstin = null,
+                    invoiceNumber = null,
+                    batchCode = "DRIFT-CORRECTION",
+                    quantityPurchased = drift,
+                    quantityRemaining = drift,
+                    unitCostExcludingTax = inventory.averageCost,
+                    gstPercent = 0.0,
+                    cgstPercent = 0.0,
+                    sgstPercent = 0.0,
+                    igstPercent = 0.0,
+                    invoiceValue = drift * inventory.averageCost,
+                    taxableValue = drift * inventory.averageCost,
+                    createdAt = 0L,
+                    isSynced = true   // synthetic — never push to backend
+                )
+            )
+        } else {
+            // Batches overstate stock — phantom leftover quantity that
+            // doesn't actually exist. Drain it via FIFO so batch-derived
+            // valuation reports can never show more stock than is real.
+            val excess = -drift
+            android.util.Log.w(
+                "InventoryValuation",
+                "Drift correction: product=$productId batches held $excess " +
+                    "phantom unit(s) beyond currentStock=${inventory.currentStock} — draining"
+            )
+            consumeFifo(db, productId, excess)
+        }
+
+        recomputeAvgFromBatches(db, productId)
+    }
+
+    /**
      * Migration helper. If a product currently has stock but no
      * surviving batches (legacy row, or a stock add that bypassed
      * [recordBatch]), seed one synthetic batch carrying the current

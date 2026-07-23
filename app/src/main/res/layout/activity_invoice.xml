@@ -1868,12 +1868,20 @@
                                 android:layout_height="42dp"
                                 android:background="@drawable/bg_cta_arrow_circle">
                                 <ImageView
+                                    android:id="@+id/ivConfirmArrow"
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_arrow_forward"
                                     app:tint="#0B3B2E"
                                     android:contentDescription="@null"/>
+                                <ProgressBar
+                                    android:id="@+id/progressConfirm"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center"
+                                    android:indeterminateTint="#0B3B2E"
+                                    android:visibility="gone"/>
                             </FrameLayout>
                         </LinearLayout>
                     </FrameLayout>

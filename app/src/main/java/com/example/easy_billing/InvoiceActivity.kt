@@ -523,11 +523,13 @@ class InvoiceActivity : AppCompatActivity() {
         }
 
         // Collapse/expand toggle.
+        tvGstOptionsToggle.contentDescription = "Expand GST options"
         rowGstOptionsHeader.setOnClickListener {
             val expanding = layoutGstOptionsBody.visibility != View.VISIBLE
             // No layout transition here — animating the card resize made the
             // rounded-corner background redraw with a visible lag on collapse.
             layoutGstOptionsBody.visibility = if (expanding) View.VISIBLE else View.GONE
+            tvGstOptionsToggle.contentDescription = if (expanding) "Collapse GST options" else "Expand GST options"
             tvGstOptionsToggle.animate()
                 .rotation(if (expanding) 180f else 0f)
                 .setDuration(200L)
@@ -1002,6 +1004,14 @@ class InvoiceActivity : AppCompatActivity() {
     private fun setCosmeticEnabled(view: View, enabled: Boolean) {
         view.isEnabled = enabled
         view.alpha = if (enabled) 1f else 0.45f
+
+        // btnConfirm specifically swaps its arrow icon for a spinner while
+        // saving — disabling alone gave no feedback that the tap registered,
+        // so on a slow save a cashier could tap again or navigate away.
+        if (view.id == R.id.btnConfirm) {
+            findViewById<View?>(R.id.ivConfirmArrow)?.visibility = if (enabled) View.VISIBLE else View.GONE
+            findViewById<View?>(R.id.progressConfirm)?.visibility = if (enabled) View.GONE else View.VISIBLE
+        }
     }
 
     private fun saveBill() {
@@ -1285,29 +1295,10 @@ class InvoiceActivity : AppCompatActivity() {
                     type         = invoiceType
                 )
 
-                // 6. Existing GstSalesRecord (per-line) — keep intact for legacy reports.
-                if (storeInfo != null && storeInfo.gstin.isNotBlank()) {
-                    val deviceId = getSharedPreferences("auth", MODE_PRIVATE)
-                        .getString("DEVICE_ID", UUID.randomUUID().toString()) ?: ""
-                    val gstRecords = GstEngine.buildSalesRecords(
-                        bill                  = finalBill.copy(id = billId),
-                        items                 = finalBillItems,
-                        storeInfo             = storeInfo,
-                        deviceId              = deviceId,
-                        // ── GSTR-1 v23 enrichment ──
-                        customerName          = customerName,
-                        businessName          = businessName,
-                        customerPhone         = customerPhone,
-                        customerState         = finalStateName,
-                        customerStateCode     = finalStateCode,
-                        reverseCharge         = reverseCharge,
-                        gstrInvoiceType       = gstrInvoiceType,
-                        ecommerceGstin        = ecommerceGstin,
-                        ecommerceOperatorName = ecommerceOperatorName,
-                        enrichments           = enrichments
-                    )
-                    db.gstSalesRecordDao().insertAll(gstRecords)
-                }
+                // 6. Legacy GstSalesRecord (per-line) write — REMOVED (Report 3, C3).
+                // gst_sales_invoice(+items), written just above (step 5), is the
+                // single GST-sales source of truth now; the legacy table and its
+                // build path (GstEngine.buildSalesRecords) have been deleted.
 
                 savedBillId = billId
 
@@ -1346,11 +1337,25 @@ class InvoiceActivity : AppCompatActivity() {
                             token,
                             CreateSaleRequest(
                                 items = saleItems,
-                                bill_number = tempId
+                                bill_number = tempId,
+                                client_bill_id = billId,
+                                client_device_id = deviceId
                             )
                         )
+
+                        // Report 5 fix: mark the pulse as delivered so
+                        // SyncManager.syncSalePulse() doesn't redundantly
+                        // re-push it later. If this call above throws, we
+                        // never reach here — the flag stays false (its
+                        // Room default), and SyncManager will backfill it
+                        // once the bill itself has synced.
+                        db.billDao().markSalePulseSynced(billId)
                     }
                 } catch (e: Exception) {
+                    // Previously: silently dropped. Now the bill's
+                    // sale_pulse_synced flag simply stays false (default),
+                    // and SyncManager.syncSalePulse() retries this on the
+                    // next sync pass instead of losing it forever.
                     e.printStackTrace()
                 }
 

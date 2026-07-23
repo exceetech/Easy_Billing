@@ -56,5 +56,20 @@ data class Bill(
      * amount alone can never answer.
      */
     @ColumnInfo(name = "credit_account_id")
-    val creditAccountId: Int? = null
+    val creditAccountId: Int? = null,
+
+    // ── Profit-analytics pulse (v54) ──────────────────────────────────
+    /**
+     * True once /sales/create has successfully delivered this bill's line
+     * items to the backend's profit-analytics table (SaleItem).
+     *
+     * Report 5 fix: this push used to happen exactly once, fire-and-forget,
+     * inside InvoiceActivity's checkout flow, with no retry on failure and
+     * no local record that it needed to be retried — a flaky connection at
+     * checkout meant that sale silently never counted toward profit
+     * analytics, forever, with no error shown anywhere. This flag lets
+     * SyncManager find and backfill any bill whose pulse never landed.
+     */
+    @ColumnInfo(name = "sale_pulse_synced", defaultValue = "0")
+    var salePulseSynced: Boolean = false
 )

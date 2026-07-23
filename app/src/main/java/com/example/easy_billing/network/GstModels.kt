@@ -43,54 +43,10 @@ data class GstProfileRequest(
     val address: String? = null
 )
 
-data class GstSyncResponse(
-    val success_count: Int,
-    val message: String
-)
-
-data class GstSaleRecordDto(
-    val record_id: String,
-    val invoice_number: String,
-    val invoice_date: Long,
-    val customer_type: String,
-    val customer_gstin: String?,
-    val place_of_supply: String,
-    val supply_type: String,
-    val total_invoice_value: Double,
-    val taxable_value: Double,
-    val cgst_amount: Double,
-    val sgst_amount: Double,
-    val igst_amount: Double,
-    val cess_amount: Double,
-    val hsn_code: String,
-    val gst_rate: Double,
-    val device_id: String,
-    // ── GSTR-1 enrichment (v23) ──
-    val customer_name: String? = null,
-    val business_name: String? = null,
-    val customer_phone: String? = null,
-    val customer_state: String? = null,
-    val customer_state_code: String? = null,
-    val reverse_charge: String = "N",
-    val gstr_invoice_type: String = "Regular",
-    val ecommerce_gstin: String? = null,
-    val ecommerce_operator_name: String? = null,
-    val cess_rate: Double = 0.0,
-    val uqc: String? = null,
-    val hsn_description: String? = null,
-    val is_cancelled: Boolean = false,
-    val eco_nature_of_supply: String? = null,
-    val eco_document_type: String? = null,
-    val eco_supplier_gstin: String? = null,
-    val eco_supplier_name: String? = null,
-    val eco_recipient_gstin: String? = null,
-    val eco_recipient_name: String? = null,
-    val eco_role: String? = null
-)
-
-data class GstSalesSyncRequest(
-    val records: List<GstSaleRecordDto>
-)
+// GstSyncResponse / GstSaleRecordDto / GstSalesSyncRequest REMOVED
+// (Report 3, C3) — payload types for the retired POST gst/sales/sync
+// endpoint. gst_sales_invoice(+items) via CreateGstSalesInvoiceDto /
+// GstSalesSyncBatchRequest is the sync path now.
 
 data class HsnSummaryItem(
     val hsn_code: String,
@@ -296,23 +252,4 @@ data class Gstr2Response(
     val hsnsum: List<Gstr2HsnsumItem>
 )
 
-data class Gstr3BSupplyDetail(
-    val total_taxable_value: Double,
-    val total_cgst: Double,
-    val total_sgst: Double,
-    val total_igst: Double,
-    val total_cess: Double
-)
-
-data class Gstr3BResponse(
-    val period_start: String,
-    val period_end: String,
-    val outward_taxable_supplies: Gstr3BSupplyDetail,
-    val outward_zero_rated: Gstr3BSupplyDetail,
-    val outward_nil_rated: Gstr3BSupplyDetail,
-    val inward_nil_exempt: Gstr3BSupplyDetail,
-    val itc_available: Gstr3BSupplyDetail,
-    val net_tax_payable_cgst: Double,
-    val net_tax_payable_sgst: Double,
-    val net_tax_payable_igst: Double
-)
+// Gstr3BSupplyDetail / Gstr3BResponse REMOVED — GSTR-3B not needed for this app.

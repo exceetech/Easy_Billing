@@ -274,6 +274,25 @@
             android:scrollbars="none"
             android:background="@android:color/white" />
 
+        <ProgressBar
+            android:id="@+id/progressBills"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvBillsEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="No bills found"
+            android:textSize="14sp"
+            android:textColor="#8A8272"
+            android:visibility="gone" />
+
     </FrameLayout>
 
 </LinearLayout>

@@ -139,8 +139,7 @@ object PurchaseCancelRepository {
                     supplierGstin = purchase.supplierGstin,
                     supplierName = purchase.supplierName,
                     isCredit = false,
-                    creditAccountId = null,
-                    shopId = shopId
+                    creditAccountId = null
                 )
                 total += res?.totalInvoiceValue ?: 0.0
             }

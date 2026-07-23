@@ -55,15 +55,31 @@ interface BillDao {
 
     // ===== Cancellation (v23) =====
 
+    // INV-8 fix: conditioned on is_cancelled = 0 and returning the affected
+    // row count turns this into an atomic check-and-set at the data layer.
+    // The previous version unconditionally set is_cancelled = 1 no matter
+    // what it was before, so the only thing standing between a single
+    // cancellation and a double one was BillDetailsActivity disabling its
+    // button — pure UI state, which a rotated screen, a process restart, or
+    // two near-simultaneous taps could all bypass. Now the caller can tell,
+    // from the DB itself, whether this call was the one that actually
+    // cancelled the bill (returns 1) or whether it was already cancelled
+    // (returns 0) — and only restock inventory in the first case.
     @Query("""
         UPDATE bills
         SET is_cancelled = 1, cancelled_at = :cancelledAt
-        WHERE id = :billId
+        WHERE id = :billId AND is_cancelled = 0
     """)
-    suspend fun markBillCancelled(billId: Int, cancelledAt: Long)
+    suspend fun markBillCancelled(billId: Int, cancelledAt: Long): Int
 
     @Query("SELECT is_cancelled FROM bills WHERE id = :billId LIMIT 1")
     suspend fun isCancelled(billId: Int): Boolean?
+
+    // Deep-dive fix, Issue 5: used to exclude a cancelled bill's own
+    // credit/debit notes from the in-app GSTR-1 report — see
+    // Gstr1Repository.fetchForPeriod.
+    @Query("SELECT id FROM bills WHERE is_cancelled = 1")
+    suspend fun getCancelledBillIds(): List<Int>
 
     // N3: only voids the server hasn't acknowledged yet — once
     // cancel_synced is set, the bill drops out of the sync loop.
@@ -72,4 +88,17 @@ interface BillDao {
 
     @Query("UPDATE bills SET cancel_synced = 1 WHERE id = :billId")
     suspend fun markCancelSynced(billId: Int)
+
+    // ===== Profit-analytics pulse (Report 5 fix) =====
+
+    // Only bills that already have a real server bill number (is_synced=1)
+    // AND items (billId join) are eligible — a bill with no number yet will
+    // get its pulse pushed for the first time by syncBills() itself; this
+    // backfill query is for bills whose FIRST attempt (fire-and-forget, in
+    // InvoiceActivity) already failed silently.
+    @Query("SELECT * FROM bills WHERE is_synced = 1 AND sale_pulse_synced = 0")
+    suspend fun getBillsNeedingSalePulse(): List<Bill>
+
+    @Query("UPDATE bills SET sale_pulse_synced = 1 WHERE id = :billId")
+    suspend fun markSalePulseSynced(billId: Int)
 }

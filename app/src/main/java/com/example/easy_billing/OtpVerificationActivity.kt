@@ -83,9 +83,17 @@ class OtpVerificationActivity : BaseActivity() {
                     tvResendOtp.isEnabled = true
                     tvResendOtp.text = "Resend OTP"
 
+                    // Raw exception text (e.g. "Unable to resolve host...")
+                    // isn't meaningful to a non-technical shop owner —
+                    // translate the common case and keep a generic fallback.
+                    val message = if (e is java.io.IOException)
+                        "Couldn't resend OTP — check your internet connection"
+                    else
+                        "Couldn't resend OTP. Please try again"
+
                     Toast.makeText(
                         this@OtpVerificationActivity,
-                        "Error: ${e.message}",
+                        message,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -119,9 +127,18 @@ class OtpVerificationActivity : BaseActivity() {
 
                             val token = body.access_token
 
+                            // Report 5 fix: this used to be stored under the
+                            // SAME "TOKEN" key as the real login session,
+                            // so a password-reset-scoped token (previously
+                            // valid for 24h due to a separate backend bug,
+                            // now fixed) could sit in the normal auth slot
+                            // and get used to authenticate ordinary API
+                            // calls. Kept in its own key so it can only be
+                            // read by the one screen that's supposed to use
+                            // it, and never collides with a real session.
                             getSharedPreferences("auth", MODE_PRIVATE)
                                 .edit {
-                                    putString("TOKEN", token)
+                                    putString("RESET_TOKEN", token)
                                 }
 
                             Toast.makeText(this@OtpVerificationActivity, "OTP Verified", Toast.LENGTH_SHORT).show()

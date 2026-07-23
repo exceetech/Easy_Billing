@@ -137,10 +137,16 @@ class Gstr1Repository(private val context: Context) {
                 InvoiceWithItems(inv, items)
             }
 
-            // Credit / debit notes in the period window (use noteDate)
+            // Credit / debit notes in the period window (use noteDate).
+            // Deep-dive fix, Issue 5: a note issued against a bill that was
+            // LATER cancelled used to keep appearing here indefinitely,
+            // referencing an invoice number that's no longer valid once the
+            // original bill is void. Excluded the same way the backend
+            // profit/GST-email queries already exclude them (Issues 1/3/4).
+            val cancelledBillIds = db.billDao().getCancelledBillIds().toSet()
             val allNotes = db.creditNoteDao().getAll()
             val periodNotes = allNotes.filter { note ->
-                note.noteDate in start..end
+                note.noteDate in start..end && note.originalInvoiceId !in cancelledBillIds
             }
 
             val notesWithItems = periodNotes.map { note ->

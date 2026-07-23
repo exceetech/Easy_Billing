@@ -73,6 +73,10 @@ data class PurchaseSyncRequest(
 
 data class PurchaseDto(
     val local_id: Int,
+    // Stable per-install id (Issue 10) — lets the server tell apart two
+    // devices on the same shop that independently numbered a purchase the
+    // same way, instead of one silently overwriting the other.
+    val client_device_id: String? = null,
     val invoice_number: String,
     val supplier_gstin: String?,
     val supplier_name: String,
@@ -144,6 +148,9 @@ data class PurchaseSyncResponse(
     val success_count: Int = 0,
     val purchase_id_map: Map<String, Int> = emptyMap(),
     val item_id_map: Map<String, Int> = emptyMap(),
+    // Issue 9: purchases the server rejected, so the client can see which
+    // ones are stuck instead of the whole batch failing with no detail.
+    val failed: List<Map<String, Any>> = emptyList(),
     val message: String? = null
 )
 

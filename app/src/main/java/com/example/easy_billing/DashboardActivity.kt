@@ -37,7 +37,6 @@ import com.example.easy_billing.db.Product
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaveTokenRequest
-import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.DeviceUtils
 import com.example.easy_billing.util.NetworkReceiver
@@ -111,6 +110,17 @@ class DashboardActivity : BaseActivity() {
     private var revenueMap: Map<Int, Double> = emptyMap()
     private var profitMap: Map<Int, Double> = emptyMap()
 
+    // Random-looking stock count fix: loadProducts() is triggered from
+    // several places (onResume, twice; after saving a bill; the translate
+    // toggle) and none of them cancelled or waited for a prior in-flight
+    // call. Two overlapping loads racing meant whichever one happened to
+    // finish LAST won and overwrote the tiles — regardless of which one
+    // actually had the newer data — which is exactly what made the stock
+    // count look like it was flipping between values at random. This
+    // counter lets a load recognise it's been superseded by a newer one
+    // and discard its own (stale) results instead of applying them.
+    private val loadProductsGeneration = java.util.concurrent.atomic.AtomicInteger(0)
+
     // ── Filter state (combinable; AND across groups, OR within a group) ──
     private var filterCategories: Set<String> = emptySet()
     private var filterStock: Set<StockStatus> = emptySet()
@@ -150,11 +160,27 @@ class DashboardActivity : BaseActivity() {
                 clearCart()
 
                 lifecycleScope.launch {
-                    val syncManager = SyncManager(this@DashboardActivity)
-                    syncManager.syncBills()
-                    syncManager.pullAccountsFromServer()
-                    syncManager.syncAccounts()
-                    syncManager.syncCredit()
+                    // Issue 17 fix: this used to call SyncManager's push/pull
+                    // steps directly, unguarded by any lock. Returning here
+                    // from the invoice screen also triggers onResume(), which
+                    // runs the same account/credit sync through
+                    // SyncCoordinator at essentially the same moment — two
+                    // unsynchronized passes over credit_accounts /
+                    // credit_transactions racing each other, which is the
+                    // exact "double-push non-idempotent rows" scenario
+                    // SyncCoordinator's single-flight lock exists to prevent
+                    // (see its class doc / Issue 5). Routing through the
+                    // coordinator instead means this call either runs inside
+                    // that same lock or safely coalesces onto onResume's
+                    // in-flight job. force=true guarantees the account pull
+                    // still runs immediately, matching the previous
+                    // unconditional pullAccountsFromServer() call, instead of
+                    // being skipped by the coordinator's normal pull
+                    // throttling.
+                    com.example.easy_billing.sync.SyncCoordinator
+                        .get(this@DashboardActivity)
+                        .flushPending(force = true)
+                        .join()
 
                     // 🔥 ADD THIS
                     loadProducts()
@@ -846,6 +872,13 @@ class DashboardActivity : BaseActivity() {
 
     private suspend fun loadProducts() {
 
+        // Claim this load's generation number. Everything up to and
+        // including the DB writes below (refreshing product rows from the
+        // backend) is safe to let a stale/superseded call finish — but the
+        // final step that overwrites the on-screen tiles must check this
+        // generation is still the newest before applying anything.
+        val myGeneration = loadProductsGeneration.incrementAndGet()
+
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
 
@@ -969,6 +1002,11 @@ class DashboardActivity : BaseActivity() {
         val soldQty  = agg.associate { it.productId to it.qty }
         val revenue  = agg.associate { it.productId to it.revenue }
         val profit   = agg.associate { it.productId to it.profit }
+
+        // A newer loadProducts() call has started since this one began —
+        // its results will supersede ours, so don't let this now-stale
+        // call overwrite the screen with older numbers.
+        if (myGeneration != loadProductsGeneration.get()) return
 
         // Cache everything for the in-memory sorter.
         allProducts = localProducts
@@ -1351,22 +1389,16 @@ class DashboardActivity : BaseActivity() {
 
                     lifecycleScope.launch {
 
-                        val token = getSharedPreferences("auth", MODE_PRIVATE)
-                            .getString("TOKEN", null)
-
                         try {
 
-                            // 🔥 BACKEND
-                            product.serverId?.let { sid ->
-                                if (!token.isNullOrEmpty()) {
-                                    RetrofitClient.api.deactivateProduct(
-                                        token,
-                                        sid
-                                    )
-                                }
-                            }
-
-                            // 🔥 LOCAL SOFT DELETE
+                            // 🔥 LOCAL SOFT DELETE — always happens first and
+                            // unconditionally, like every other write in the
+                            // app. Stamps pending_deactivate_sync = 1, so if
+                            // the immediate backend push below can't run
+                            // (offline) or fails, SyncManager.
+                            // syncProductDeactivations() retries it later —
+                            // removing a product no longer requires being
+                            // online right now.
                             db.productDao().deactivate(product.id)
 
                             // 🔥 ALSO DEACTIVATE INVENTORY
@@ -1385,6 +1417,23 @@ class DashboardActivity : BaseActivity() {
                             // the active sort / filter / view-mode pipeline.
                             allProducts = updatedList
                             applySort()
+
+                            // 🔥 BACKEND — best effort. On success this clears
+                            // the pending flag immediately; on failure (or if
+                            // we're offline) the flag stays set and the retry
+                            // step picks it up on the next sync pass.
+                            try {
+                                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                                    .getString("TOKEN", null)
+                                val serverId = product.serverId
+                                if (!token.isNullOrEmpty() && serverId != null) {
+                                    RetrofitClient.api.deactivateProduct(token, serverId)
+                                    db.productDao().markDeactivateSynced(product.id)
+                                }
+                            } catch (e: Exception) {
+                                // offline / transient failure — retried by
+                                // SyncManager.syncProductDeactivations()
+                            }
 
                         } catch (e: Exception) {
                             Toast.makeText(

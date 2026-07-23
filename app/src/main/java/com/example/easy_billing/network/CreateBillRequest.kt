@@ -28,6 +28,11 @@ data class CreateBillRequest(
     val invoice_type: String = "B2C",
     val is_gst_invoice: Boolean = false,
 
+    // Server-side credit account this bill is charged to (Report 1 S-2).
+    // Null if the bill isn't a credit sale, or if the local credit account
+    // hasn't synced yet and has no server id.
+    val credit_account_id: Int? = null,
+
     // Idempotency key: local Room bill id + device id. The backend
     // refuses to create a second row for the same key, so retried or
     // concurrent syncs can never duplicate a bill.

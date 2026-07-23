@@ -216,6 +216,16 @@ class StoreSettingsActivity : BaseActivity() {
             return
         }
 
+        // GSTIN is optional here, but if entered it must be well-formed —
+        // this shop's own GSTIN drives GstEngine.getStateCode() below, which
+        // feeds sellerStateCode in every invoice's intra/inter-state (CGST+SGST
+        // vs IGST) determination. A typo saved here would silently miscalculate
+        // GST on every bill from then on with no error anywhere in the chain.
+        if (gstin.isNotEmpty() && !GstEngine.isValidGstin(gstin)) {
+            Toast.makeText(this, "Enter a valid 15-character GSTIN", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             val db = AppDatabase.getDatabase(this@StoreSettingsActivity)

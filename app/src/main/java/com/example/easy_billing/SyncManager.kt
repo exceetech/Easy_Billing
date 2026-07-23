@@ -14,6 +14,8 @@ import com.example.easy_billing.db.Inventory
 import com.example.easy_billing.db.StoreInfo
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.CreateBillRequest
+import com.example.easy_billing.network.CreateSaleRequest
+import com.example.easy_billing.network.SaleItemDto
 import com.example.easy_billing.network.CancelBillRequest
 import com.example.easy_billing.network.CancelPurchaseRequest
 import com.example.easy_billing.util.GstEngine
@@ -23,8 +25,6 @@ import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.network.CreditSyncRequest
 import com.example.easy_billing.network.InventoryLogRequest
 import com.example.easy_billing.network.GstProfileRequest
-import com.example.easy_billing.network.GstSalesSyncRequest
-import com.example.easy_billing.network.GstSaleRecordDto
 import com.example.easy_billing.network.CreateGstSalesInvoiceDto
 import com.example.easy_billing.network.CreateGstSalesItemDto
 import com.example.easy_billing.network.GstSalesSyncBatchRequest
@@ -70,33 +70,61 @@ class SyncManager(private val context: Context) {
         // 🔥 ORDER MATTERS — products before anything that references
         // them (purchases, bills, returns, scrap), pulls last.
 
-        syncAccounts()           // account first
-        syncCredit()             // then transactions
-        syncCategories()         // custom categories (string-on-product, no FK)
-        syncShopProducts()       // push unsynced shop_product (and global)
-        syncCustomers()          // customer master (after products, before invoices)
-        syncSuppliers()          // supplier master (autofill index; no FK)
-        syncInventory()          // inventory BEFORE bills
-        syncBills()              // then bills
-        syncPurchases()
-        syncPurchaseBatches()
-        syncPurchaseImportDetails()
-        syncImportServices()     // push import services
-        syncPurchaseReturns()    // push purchase returns (debit notes)
-        syncCreditNotes()        // push sales returns (credit notes)
-        syncScrapEntries()       // push scrap
-        syncGstProfile()
-        syncGstSales()
-        syncGstInvoices()        // push GST-aware invoice batch
-        syncGstCancellations()   // push pending GST invoice cancellations
-        syncBillCancellations()  // push voided bills to the analytics table
-        syncPurchaseCancellations() // push voided purchases
-        syncStoreInfo()          // pull latest
-        syncBillingSettings()    // pull settings
+        // Each step is isolated in its own try/catch (Report 3, SY-4/D-a):
+        // per-row exceptions were already caught inside each sync method,
+        // but a *method-level* throw (auth expiry mid-call, a socket reset,
+        // an uncaught mapping NPE) used to abort this whole flat sequence —
+        // every table after the failing one silently got skipped until the
+        // next sync trigger. runStep() confines a failure to just that
+        // table so the rest of the pass still runs.
+        runStep("syncAccounts") { syncAccounts() }                   // account first
+        runStep("syncCredit") { syncCredit() }                       // then transactions
+        runStep("syncCategories") { syncCategories() }               // custom categories (string-on-product, no FK)
+        runStep("syncShopProducts") { syncShopProducts() }           // push unsynced shop_product (and global)
+        runStep("syncProductFieldEdits") { syncProductFieldEdits() } // backfill missed price/GST edit pushes (Report 5)
+        runStep("syncProductDeactivations") { syncProductDeactivations() } // backfill missed product-removal pushes
+        runStep("syncCustomers") { syncCustomers() }                 // customer master (after products, before invoices)
+        runStep("syncSuppliers") { syncSuppliers() }                 // supplier master (autofill index; no FK)
+        runStep("syncInventory") { syncInventory() }                 // inventory BEFORE bills
+        runStep("syncBills") { syncBills() }                         // then bills
+        runStep("syncSalePulse") { syncSalePulse() }                 // backfill missed profit-analytics pushes (Report 5)
+        runStep("syncPurchases") { syncPurchases() }
+        runStep("syncPurchaseBatches") { syncPurchaseBatches() }
+        runStep("syncPurchaseImportDetails") { syncPurchaseImportDetails() }
+        runStep("syncImportServices") { syncImportServices() }       // push import services
+        runStep("syncPurchaseReturns") { syncPurchaseReturns() }     // push purchase returns (debit notes)
+        runStep("syncCreditNotes") { syncCreditNotes() }             // push sales returns (credit notes)
+        runStep("syncScrapEntries") { syncScrapEntries() }           // push scrap
+        runStep("syncGstProfile") { syncGstProfile() }
+        // syncGstSales() REMOVED (Report 3, C3): pushed the legacy
+        // gst_sales_records table, which has been dropped (MIGRATION_52_53)
+        // — gst_sales_invoice(+items) is the single GST-sales source of
+        // truth now (Report 3, A2/C1/C2).
+        runStep("syncGstInvoices") { syncGstInvoices() }             // push GST-aware invoice batch
+        runStep("syncGstCancellations") { syncGstCancellations() }   // push pending GST invoice cancellations
+        runStep("syncBillCancellations") { syncBillCancellations() } // push voided bills to the analytics table
+        runStep("syncPurchaseCancellations") { syncPurchaseCancellations() } // push voided purchases
+        runStep("syncStoreInfo") { syncStoreInfo() }                 // pull latest
+        runStep("syncBillingSettings") { syncBillingSettings() }     // pull settings
 
         // Recompute the observable sync status so any open screen can
         // reflect what is still pending / failed / blocked (Issue 11).
         refreshSyncStatus()
+    }
+
+    /**
+     * Runs a single sync step in isolation. If [block] throws, the failure
+     * is logged and swallowed here so [syncAll] continues to the next step
+     * instead of aborting the whole pass (Report 3, SY-4/D-a). Per-row
+     * failures inside each sync method are already caught there; this only
+     * guards against a method-level throw.
+     */
+    private suspend fun runStep(name: String, block: suspend () -> Unit) {
+        try {
+            block()
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncAll: step '$name' failed, continuing with remaining steps", e)
+        }
     }
 
     /**
@@ -237,6 +265,99 @@ class SyncManager(private val context: Context) {
     }
 
     /**
+     * Backfills price/GST/HSN edits to already-uploaded products whose
+     * inline push (ProductRepository.updateSalesFieldsOnly, called from
+     * EditProductActivity) failed at save time.
+     *
+     * Report 5 fix: that inline push used to be fire-and-forget with no
+     * retry — a flaky connection at save time meant the backend silently
+     * kept stale price/tax data for that product forever, while the app
+     * told the user "saved successfully". Every such edit now stamps
+     * `pending_field_sync = 1` on the local row; this scans for that flag
+     * and retries the same PUT the inline path would have made. The PUT
+     * endpoint (/products/{server_id}) is a plain field overwrite, so
+     * resending it is naturally safe — no idempotency key needed here,
+     * unlike /sales/create.
+     */
+    suspend fun syncProductFieldEdits() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+
+        val pending = db.productDao().getProductsNeedingFieldSync()
+        if (pending.isEmpty()) return
+
+        for (product in pending) {
+            val serverId = product.serverId ?: continue
+            try {
+                api.updateShopProduct(
+                    token = "Bearer $token",
+                    serverId = serverId,
+                    request = AddProductRequest(
+                        name             = product.name,
+                        variant_name     = product.variant?.ifBlank { null },
+                        unit             = product.unit ?: "piece",
+                        price            = product.price,
+                        track_inventory  = product.trackInventory,
+                        initial_stock    = null,
+                        cost_price       = null,
+                        hsn_code         = product.hsnCode?.takeIf { it.isNotBlank() },
+                        default_gst_rate = product.defaultGstRate,
+                        cgst_percentage  = product.cgstPercentage,
+                        sgst_percentage  = product.sgstPercentage,
+                        igst_percentage  = product.igstPercentage,
+                        official_uqc     = product.officialUqc,
+                        hsn_description  = product.hsnDescription,
+                        cess_rate        = product.cessRate,
+                        supply_classification = product.supplyClassification ?: "TAXABLE",
+                        category         = product.category,
+                        is_purchased     = product.isPurchased,
+                        is_tax_inclusive = product.isTaxInclusive
+                    )
+                )
+                db.productDao().markFieldSynced(product.id)
+            } catch (e: Exception) {
+                Log.w(SYNC_TAG, "syncProductFieldEdits: '${product.name}' failed, will retry next sync", e)
+            }
+        }
+    }
+
+    /**
+     * Backfills product removals whose backend deactivateProduct() push
+     * failed or never had a chance to run (e.g. the device was offline
+     * when the product was removed).
+     *
+     * The local soft-delete (products.isActive = 0) always happens
+     * immediately and unconditionally — removing a product is offline-first
+     * like every other write in the app. This step is what makes that safe:
+     * it retries the backend call until it's confirmed, instead of the old
+     * behaviour where the backend call had to succeed FIRST or the removal
+     * didn't happen at all.
+     */
+    suspend fun syncProductDeactivations() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+
+        val pending = db.productDao().getProductsNeedingDeactivateSync()
+        if (pending.isEmpty()) return
+
+        for (product in pending) {
+            val serverId = product.serverId ?: continue
+            try {
+                api.deactivateProduct("Bearer $token", serverId)
+                db.productDao().markDeactivateSynced(product.id)
+            } catch (e: Exception) {
+                Log.w(SYNC_TAG, "syncProductDeactivations: '${product.name}' failed, will retry next sync", e)
+            }
+        }
+    }
+
+    /**
      * Pushes locally-created custom categories (serverId == null), then
      * pulls the shop's categories so custom entries created on other
      * devices appear in this device's dropdown. Best-effort: categories
@@ -308,7 +429,15 @@ class SyncManager(private val context: Context) {
         Log.d(SYNC_TAG, "syncCustomers: ${pending.size} unsynced customer(s)")
 
         try {
+            val shopId = currentShopIdOrNull()
             val dtos = pending.map {
+                // Resolve the customer's *local* credit account id to the
+                // account's *server* id (Report 1 S-6) — separate id spaces,
+                // same pattern as syncBills(). Null if unlinked or the
+                // account hasn't synced yet.
+                val creditServerAccountId = it.creditAccountId?.let { localAccId ->
+                    shopId?.let { sid -> db.creditAccountDao().getById(localAccId, sid)?.serverId }
+                }
                 CustomerDto(
                     local_id      = it.id,
                     phone         = it.phone,
@@ -318,7 +447,9 @@ class SyncManager(private val context: Context) {
                     gstin         = it.gstin,
                     state         = it.state,
                     state_code    = it.stateCode,
-                    updated_at    = it.updatedAt
+                    updated_at    = it.updatedAt,
+                    credit_account_id = creditServerAccountId,
+                    is_active     = it.isActive
                 )
             }
             val response = api.syncCustomers(token, CustomerSyncRequest(dtos))
@@ -645,6 +776,7 @@ class SyncManager(private val context: Context) {
 
             PurchaseDto(
                 local_id         = p.id,
+                client_device_id = deviceId(),
                 invoice_number   = p.invoiceNumber,
                 supplier_gstin   = p.supplierGstin,
                 supplier_name    = p.supplierName,
@@ -1087,6 +1219,7 @@ class SyncManager(private val context: Context) {
             }
             CreditNoteDto(
                 local_id                = note.id,
+                client_device_id        = deviceId(),
                 note_number             = note.noteNumber,
                 note_date               = note.noteDate,
                 note_type               = note.noteType,
@@ -1293,6 +1426,21 @@ class SyncManager(private val context: Context) {
                     ?.takeIf { it.isNotBlank() }
                     ?: resolvedStateCode?.let { GstEngine.INDIA_STATES[it] }
 
+                // Resolve the bill's *local* credit account id to the
+                // account's *server* id (Report 1 S-2) — these are separate
+                // id spaces (CreditAccount.id vs CreditAccount.serverId).
+                // Sent as null if the account hasn't synced yet; it will
+                // simply be missing on the server until a later sync pass
+                // re-pushes this bill... actually bills aren't re-pushed
+                // once created, so this only back-fills for bills synced
+                // after their credit account. Acceptable per Report 1 S-2 —
+                // this was previously never sent at all.
+                val creditServerAccountId = bill.creditAccountId?.let { localAccId ->
+                    currentShopIdOrNull()?.let { sid ->
+                        db.creditAccountDao().getById(localAccId, sid)?.serverId
+                    }
+                }
+
                 val request = CreateBillRequest(
                     bill_number = "",
                     items = apiItems,
@@ -1322,6 +1470,8 @@ class SyncManager(private val context: Context) {
                     customer_state_code = resolvedStateCode,
                     invoice_type = gstInvoice?.invoiceType ?: bill.customerType,
                     is_gst_invoice = gstInvoice != null,
+
+                    credit_account_id = creditServerAccountId,
 
                     // Idempotency key — backend dedupes on this, so a
                     // retried/concurrent sync can't create two entries.
@@ -1360,6 +1510,101 @@ class SyncManager(private val context: Context) {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                continue
+            }
+        }
+    }
+
+    /**
+     * Backfills the profit-analytics push (SaleItem rows on the backend)
+     * for any bill whose InvoiceActivity checkout call silently failed.
+     *
+     * Report 5 fix: /sales/create used to be called exactly once,
+     * fire-and-forget, at the moment of checkout, wrapped in a try/catch
+     * that just swallowed the error. There was no retry and no local
+     * record that it needed to be retried, so a flaky connection at
+     * checkout meant that sale's revenue/cost/profit permanently never
+     * reached the backend — no error shown, no way to recover it later.
+     * This scans bills marked `sale_pulse_synced = 0` (default for every
+     * bill, flipped true only on a confirmed successful push) and retries.
+     * /sales/create is idempotent on (shop, client_bill_id, client_device_id)
+     * so a bill whose first push actually succeeded server-side but whose
+     * response was lost (e.g. timeout after the server committed) is safe
+     * to resend here — the backend recognizes it and no-ops instead of
+     * duplicating rows.
+     *
+     * Only bills that already synced (`is_synced = 1`, so they carry a real
+     * server bill number and their products are confirmed uploaded) are
+     * considered — a bill that hasn't synced yet will get its first pulse
+     * attempt from InvoiceActivity once it does, or get picked up here on
+     * a later pass regardless.
+     */
+    suspend fun syncSalePulse() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+
+        val bills = db.billDao().getBillsNeedingSalePulse()
+        if (bills.isEmpty()) return
+
+        val productDao = db.productDao()
+
+        for (bill in bills) {
+            try {
+                val items = db.billItemDao().getItemsForBill(bill.id)
+
+                if (items.isEmpty()) {
+                    // Nothing to push (e.g. a legacy/edge-case bill with no
+                    // items) — mark done so it doesn't retry forever.
+                    db.billDao().markSalePulseSynced(bill.id)
+                    continue
+                }
+
+                val saleItems = items.mapNotNull { bi ->
+                    val product = productDao.getById(bi.productId)
+                    val serverId = product?.serverId
+                    if (serverId == null || serverId <= 0) {
+                        // Product not uploaded yet — retry this bill next pass.
+                        null
+                    } else {
+                        // Mirrors the discounted-unit-price logic InvoiceActivity
+                        // used at checkout: net line total ÷ quantity.
+                        val sellingPrice = if (bi.quantity > 0.0) bi.subTotal / bi.quantity else bi.price
+                        SaleItemDto(
+                            product_id = serverId,
+                            quantity = bi.quantity,
+                            selling_price = sellingPrice,
+                            cost_price = bi.costPriceUsed,
+                            product_name = bi.productName,
+                            variant = bi.variant
+                        )
+                    }
+                }
+
+                if (saleItems.size != items.size) {
+                    Log.w(SYNC_TAG, "syncSalePulse: bill ${bill.id} skipped this pass — " +
+                        "a product hasn't uploaded yet; will retry once it does")
+                    continue
+                }
+
+                val tempId = "LOCAL-${deviceId()}-${bill.id}"
+
+                api.createSale(
+                    token,
+                    CreateSaleRequest(
+                        items = saleItems,
+                        bill_number = bill.billNumber.ifBlank { tempId },
+                        client_bill_id = bill.id,
+                        client_device_id = deviceId()
+                    )
+                )
+
+                db.billDao().markSalePulseSynced(bill.id)
+
+            } catch (e: Exception) {
+                Log.w(SYNC_TAG, "syncSalePulse: bill ${bill.id} failed, will retry next sync", e)
                 continue
             }
         }
@@ -1808,6 +2053,21 @@ class SyncManager(private val context: Context) {
                             )
                         )
                         //InventoryValuation.ensureSyntheticBatch(db, product.id)
+
+                        // INV-6 fix: this pull just overwrote currentStock
+                        // with the server's own, independently-computed
+                        // number — which can legitimately land on a value
+                        // that no longer matches this device's own
+                        // purchase_batches total, even though no local
+                        // mutation happened at all. Without this, that
+                        // mismatch would sit there until some other
+                        // reduceStock/clearStock call happened to touch the
+                        // same product and repair it as a side effect.
+                        runCatching {
+                            InventoryValuation.reconcileDrift(db, product.id)
+                        }.onFailure {
+                            Log.w(SYNC_TAG, "pullInventory: drift reconcile failed for productId=${product.id}: ${it.message}")
+                        }
                         Log.d(SYNC_TAG, "✅ Updated inventory for productId=${product.id}")
                     } else {
 
@@ -1821,6 +2081,14 @@ class SyncManager(private val context: Context) {
                             )
                         )
                         //InventoryValuation.ensureSyntheticBatch(db, product.id)
+
+                        // INV-6 fix: same reconciliation for a brand-new
+                        // local inventory row created straight from a pull.
+                        runCatching {
+                            InventoryValuation.reconcileDrift(db, product.id)
+                        }.onFailure {
+                            Log.w(SYNC_TAG, "pullInventory: drift reconcile failed for productId=${product.id}: ${it.message}")
+                        }
 
                         Log.d(SYNC_TAG, "✅ Inserted inventory for productId=${product.id}")
                     }
@@ -2408,65 +2676,8 @@ class SyncManager(private val context: Context) {
         }
     }
 
-    suspend fun syncGstSales() {
-        val db = AppDatabase.getDatabase(context)
-        val api = RetrofitClient.api
-        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
-
-        val unsynced = db.gstSalesRecordDao().getUnsynced()
-        if (unsynced.isEmpty()) return
-
-        val recordsDto = unsynced.map { record ->
-            GstSaleRecordDto(
-                record_id              = record.id,
-                invoice_number         = record.invoiceNumber,
-                invoice_date           = record.invoiceDate,
-                customer_type          = record.customerType,
-                customer_gstin         = record.customerGstin,
-                place_of_supply        = record.placeOfSupply,
-                supply_type            = record.supplyType,
-                total_invoice_value    = record.totalAmount,
-                taxable_value          = record.taxableValue,
-                cgst_amount            = record.cgstAmount,
-                sgst_amount            = record.sgstAmount,
-                igst_amount            = record.igstAmount,
-                cess_amount            = record.cessAmount,
-                hsn_code               = record.hsnCode,
-                gst_rate               = record.gstRate,
-                device_id              = record.deviceId,
-                customer_name          = record.customerName,
-                business_name          = record.businessName,
-                customer_phone         = record.customerPhone,
-                customer_state         = record.customerState,
-                customer_state_code    = record.customerStateCode,
-                reverse_charge         = record.reverseCharge,
-                gstr_invoice_type      = record.gstrInvoiceType,
-                ecommerce_gstin        = record.ecommerceGstin,
-                ecommerce_operator_name = record.ecommerceOperatorName,
-                cess_rate              = record.cessRate,
-                uqc                    = record.uqc,
-                hsn_description        = record.hsnDescription,
-                is_cancelled           = record.isCancelled,
-                eco_nature_of_supply   = record.ecoNatureOfSupply,
-                eco_document_type      = record.ecoDocumentType,
-                eco_supplier_gstin     = record.ecoSupplierGstin,
-                eco_supplier_name      = record.ecoSupplierName,
-                eco_recipient_gstin    = record.ecoRecipientGstin,
-                eco_recipient_name     = record.ecoRecipientName,
-                eco_role               = record.ecoRole
-            )
-        }
-
-        try {
-            val response = api.syncGstSales(token, GstSalesSyncRequest(recordsDto))
-            if (response.success_count > 0) {
-                // For simplicity, mark all as synced. In a robust system, check response.failed_records
-                db.gstSalesRecordDao().markAsSynced(unsynced.map { it.id })
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+    // syncGstSales() REMOVED (Report 3, C3) — pushed the now-dropped
+    // gst_sales_records table. See MIGRATION_52_53 in AppDatabase.kt.
 
     /**
      * Push every pending row from `gst_sales_invoice_table` (with
