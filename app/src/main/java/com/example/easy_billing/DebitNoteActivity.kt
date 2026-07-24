@@ -6,7 +6,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class DebitNoteActivity : AppCompatActivity() {
+class DebitNoteActivity : BaseActivity() {
 
     private val viewModel: DebitNoteViewModel by viewModels()
 
@@ -34,6 +33,9 @@ class DebitNoteActivity : AppCompatActivity() {
     private lateinit var rvDebitItems: RecyclerView
     private lateinit var tvTotalDebitValue: TextView
     private lateinit var tvAdditionalGst: TextView
+    private lateinit var tvTaxableTile: TextView
+    private lateinit var tvGrandTotalTile: TextView
+    private lateinit var tvItemsAdjustedBadge: TextView
     private lateinit var btnConfirmDebit: MaterialButton
     private lateinit var btnCancelDebit: MaterialButton
 
@@ -43,6 +45,8 @@ class DebitNoteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_debit_note)
+
+        setupToolbar(R.id.toolbar)
 
         billId     = intent.getIntExtra("BILL_ID", -1)
         billNumber = intent.getStringExtra("BILL_NUMBER") ?: ""
@@ -58,12 +62,16 @@ class DebitNoteActivity : AppCompatActivity() {
         rvDebitItems    = findViewById(R.id.rvDebitItems)
         tvTotalDebitValue = findViewById(R.id.tvTotalDebitValue)
         tvAdditionalGst    = findViewById(R.id.tvAdditionalGst)
+        tvTaxableTile      = findViewById(R.id.tvTaxableTile)
+        tvGrandTotalTile   = findViewById(R.id.tvGrandTotalTile)
+        tvItemsAdjustedBadge = findViewById(R.id.tvItemsAdjustedBadge)
         btnConfirmDebit = findViewById(R.id.btnConfirmDebit)
         btnCancelDebit  = findViewById(R.id.btnCancelDebit)
 
         tvInvoiceNumber.text = "Invoice #$billNumber"
 
         rvDebitItems.layoutManager = LinearLayoutManager(this)
+        rvDebitItems.clipToOutline = true
 
         btnCancelDebit.setOnClickListener { finish() }
         btnConfirmDebit.setOnClickListener { confirmAndSubmit() }
@@ -93,9 +101,14 @@ class DebitNoteActivity : AppCompatActivity() {
                 val adapter = DebitNoteItemAdapter(
                     items            = items,
                     supplyType       = bill.supplyType,
-                    onTotalChanged   = { total, tax ->
-                        tvTotalDebitValue.text = CurrencyHelper.format(this@DebitNoteActivity, total)
-                        tvAdditionalGst.text      = CurrencyHelper.format(this@DebitNoteActivity, tax)
+                    onTotalChanged   = { total, tax, itemsAdjusted ->
+                        val grandTotal = total + tax
+                        tvTotalDebitValue.text = CurrencyHelper.format(this@DebitNoteActivity, grandTotal)
+                        tvTaxableTile.text     = CurrencyHelper.format(this@DebitNoteActivity, total)
+                        tvAdditionalGst.text   = CurrencyHelper.format(this@DebitNoteActivity, tax)
+                        tvGrandTotalTile.text  = CurrencyHelper.format(this@DebitNoteActivity, grandTotal)
+                        tvItemsAdjustedBadge.text =
+                            if (itemsAdjusted == 1) "1 item adjusted" else "$itemsAdjusted items adjusted"
                     }
                 )
                 rvDebitItems.adapter = adapter

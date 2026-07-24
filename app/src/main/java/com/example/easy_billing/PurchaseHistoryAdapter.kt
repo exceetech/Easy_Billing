@@ -1,5 +1,8 @@
 package com.example.easy_billing
 
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,23 +15,25 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Adapter for the purchase history list.
- *
- * Each row shows the supplier name, invoice number, date, and total
- * invoice value. Tapping a row calls [onItemClick] with the [Purchase].
+ * Purchase-history rows in the champagne / khata language: a left status
+ * stripe, a supplier monogram, name + invoice·date, and a serif amount with a
+ * status caption. Mirrors [R.layout.item_purchase_history_row] / item_credit.
  */
 class PurchaseHistoryAdapter(
     private var items: List<Purchase>,
     private val onItemClick: (Purchase) -> Unit
 ) : RecyclerView.Adapter<PurchaseHistoryAdapter.ViewHolder>() {
 
-    private val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    private val dateFmt = SimpleDateFormat("dd MMM", Locale.getDefault())
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvSupplierName:  TextView = view.findViewById(R.id.tvSupplierName)
-        val tvInvoiceNumber: TextView = view.findViewById(R.id.tvInvoiceNumber)
-        val tvPurchaseDate:  TextView = view.findViewById(R.id.tvPurchaseDate)
-        val tvInvoiceValue:  TextView = view.findViewById(R.id.tvInvoiceValue)
+        val stripe:   View     = view.findViewById(R.id.viewStatusStripe)
+        val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
+        val tvSupplier: TextView = view.findViewById(R.id.tvSupplier)
+        val tvSub:    TextView = view.findViewById(R.id.tvSub)
+        val tvAmount: TextView = view.findViewById(R.id.tvAmount)
+        val tvStatus: TextView = view.findViewById(R.id.tvStatus)
+        val divider:  View     = view.findViewById(R.id.viewRowDivider)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -43,19 +48,72 @@ class PurchaseHistoryAdapter(
         val ctx  = holder.itemView.context
         val item = items[position]
 
-        holder.tvSupplierName.text  = item.supplierName
-        holder.tvInvoiceNumber.text = "Invoice: ${item.invoiceNumber}"
+        holder.tvSupplier.text = item.supplierName
+        holder.tvAvatar.text   = monogram(item.supplierName)
 
         val dateMillis = item.invoiceDate ?: item.createdAt
-        holder.tvPurchaseDate.text = dateFmt.format(Date(dateMillis))
+        holder.tvSub.text = "${item.invoiceNumber} · ${dateFmt.format(Date(dateMillis))}"
 
-        holder.tvInvoiceValue.text = CurrencyHelper.format(ctx, item.invoiceValue)
+        holder.tvAmount.text = CurrencyHelper.format(ctx, item.invoiceValue)
+
+        // Status drives the stripe colour and the caption, exactly as the
+        // credit-account row's balance direction does.
+        val cancelled = item.isCancelled
+        val strike = Paint.STRIKE_THRU_TEXT_FLAG
+        when {
+            cancelled -> {
+                holder.stripe.setBackgroundColor(Color.parseColor("#D8D0C0"))
+                setAvatar(holder, "#F1EBDD", "#A99E88")
+                holder.tvStatus.text = "cancelled"
+                holder.tvStatus.setTextColor(Color.parseColor("#A99E88"))
+                holder.itemView.alpha = 0.55f
+                holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags or strike
+                holder.tvAmount.paintFlags = holder.tvAmount.paintFlags or strike
+            }
+            item.isCredit -> {
+                holder.stripe.setBackgroundColor(Color.parseColor("#B23A3A"))
+                setAvatar(holder, "#FBEDED", "#B23A3A")
+                holder.tvStatus.text = "on credit"
+                holder.tvStatus.setTextColor(Color.parseColor("#B23A3A"))
+                holder.itemView.alpha = 1f
+                holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags and strike.inv()
+                holder.tvAmount.paintFlags = holder.tvAmount.paintFlags and strike.inv()
+            }
+            else -> {
+                holder.stripe.setBackgroundColor(Color.parseColor("#1D6E6E"))
+                setAvatar(holder, "#DDEEEE", "#1D6E6E")
+                holder.tvStatus.text = "paid cash"
+                holder.tvStatus.setTextColor(Color.parseColor("#1D6E6E"))
+                holder.itemView.alpha = 1f
+                holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags and strike.inv()
+                holder.tvAmount.paintFlags = holder.tvAmount.paintFlags and strike.inv()
+            }
+        }
+
+        // Last row in the card must not draw a trailing hairline.
+        holder.divider.visibility = if (position == items.lastIndex) View.GONE else View.VISIBLE
 
         holder.itemView.setOnClickListener { onItemClick(item) }
+    }
+
+    /** Tints the monogram tile and its letters to match the row's status. */
+    private fun setAvatar(holder: ViewHolder, bgHex: String, textHex: String) {
+        holder.tvAvatar.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgHex))
+        holder.tvAvatar.setTextColor(Color.parseColor(textHex))
     }
 
     fun update(newItems: List<Purchase>) {
         items = newItems
         notifyDataSetChanged()
+    }
+
+    /** First letters of the first two words of the supplier name, uppercased. */
+    private fun monogram(name: String): String {
+        val parts = name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        return when {
+            parts.isEmpty() -> "?"
+            parts.size == 1 -> parts[0].take(1).uppercase()
+            else -> (parts[0].take(1) + parts[1].take(1)).uppercase()
+        }
     }
 }

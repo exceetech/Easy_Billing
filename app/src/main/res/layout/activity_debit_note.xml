@@ -1,195 +1,315 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Debit note (additional charge) — champagne theme, same language as
+    purchase details / credit accounts: eyebrow + serif-italic accent header,
+    white bg_inv_value_card summary with tinted tiles, one card of
+    hairline-separated item rows, green CTA.
+
+    Ids bound by DebitNoteActivity: tvInvoiceNumber, tvInvoiceDate,
+    rvDebitItems, tvTotalDebitValue, tvAdditionalGst, btnConfirmDebit,
+    btnCancelDebit.
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3F4F6">
+    android:background="#F3ECDD">
 
-    <!-- HEADER CARD -->
-    <com.google.android.material.card.MaterialCardView
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- ===================== HEADER ===================== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="#2F2E2F">
+        android:orientation="horizontal"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="18dp"
-            android:gravity="center_horizontal">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Additional Charge / Debit Note"
-                android:textColor="#9CA3AF"
-                android:textSize="11sp"
-                android:letterSpacing="0.1"
-                android:textAllCaps="true"/>
+                android:text="ADDITIONAL CHARGE"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold" />
 
-            <TextView
-                android:id="@+id/tvInvoiceNumber"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:text="Invoice #—"/>
+                android:orientation="horizontal"
+                android:layout_marginTop="1dp">
 
-            <View
-                android:layout_width="32dp"
-                android:layout_height="2dp"
-                android:layout_marginVertical="8dp"
-                android:background="#2563EB"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Debit"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:accessibilityHeading="true" />
 
-            <TextView
-                android:id="@+id/tvInvoiceDate"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="note"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <!-- Invoice pill — same pattern as chipHeaderPhone in
+                 activity_customer_transactions.xml. -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#9CA3AF"
-                android:textSize="12sp"
-                android:text="Date: —"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_credit_phone_chip"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:layout_marginTop="5dp">
 
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:src="@drawable/ic_lc_file_text"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/tvInvoiceNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="Invoice #—"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="11sp"
+                    android:singleLine="true" />
+            </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+
+        <!-- Date — top-right aligned with the header. -->
+        <TextView
+            android:id="@+id/tvInvoiceDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="—"
+            android:textColor="#8A8272"
+            android:textSize="11.5sp" />
+    </LinearLayout>
 
     <!-- Section label -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginBottom="4dp"
-        android:textSize="12sp"
-        android:textColor="#6B7280"
-        android:textAllCaps="true"
+        android:layout_marginHorizontal="18dp"
+        android:layout_marginBottom="6dp"
+        android:text="ENTER ADDITIONAL QUANTITY PER ITEM"
+        android:textSize="11sp"
+        android:textColor="#9A8F79"
         android:letterSpacing="0.08"
-        android:text="Enter additional quantity per item"/>
+        android:fontFamily="@font/googlesans_semibold" />
 
-    <!-- Items list -->
+    <!-- Items list — each row draws its own card (see item_debit_note_line.xml)
+         with a left accent stripe, rather than one shared list card. -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDebitItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginBottom="4dp"
         android:clipToPadding="false"
-        android:paddingBottom="8dp"/>
+        android:paddingHorizontal="16dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="6dp"/>
 
-    <!-- BOTTOM SUMMARY + CONFIRM CARD -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- ===================== BOTTOM SUMMARY + CONFIRM ===================== -->
+    <!-- No card here on purpose — this reads as a running footer total
+         rather than another boxed section, unlike every card above it. -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
-        app:cardBackgroundColor="#FFFBFF"
-        app:strokeColor="#E5E7EB"
-        app:strokeWidth="1dp">
+        android:orientation="vertical"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="bottom">
 
-            <!-- Total debit value row -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:text="Total additional value"
+                android:textSize="11.5sp"
+                android:textColor="#9A8F79" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Total Additional Value"
-                    android:textSize="14sp"
-                    android:textColor="#374151"/>
-
-                <TextView
-                    android:id="@+id/tvTotalDebitValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="₹0.00"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#2563EB"/>
-
-            </LinearLayout>
-
-            <!-- Additional GST row -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvTotalDebitValue"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="6dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Additional GST"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"/>
-
-                <TextView
-                    android:id="@+id/tvAdditionalGst"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="₹0.00"
-                    android:textSize="13sp"
-                    android:textColor="#6B7280"/>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="12dp"
-                android:background="#E5E7EB"/>
-
-            <!-- Confirm button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnConfirmDebit"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="Confirm &amp; Issue Debit Note"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textSize="15sp"
-                app:backgroundTint="#2563EB"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_check_circle"
-                app:iconPadding="8dp"
-                app:iconGravity="textStart"
-                app:iconTint="#FFFFFF"/>
-
-            <!-- Cancel button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancelDebit"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:layout_marginTop="8dp"
-                android:text="Cancel"
-                android:textColor="#6B7280"
-                android:textAllCaps="false"
-                app:cornerRadius="14dp"
-                app:strokeColor="#E5E7EB"
-                app:strokeWidth="1dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
+                android:text="₹0"
+                android:textSize="26sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="18sp"
+                app:autoSizeMaxTextSize="26sp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="2dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Taxable "
+                android:textSize="10.5sp"
+                android:textColor="#8A6526" />
+
+            <TextView
+                android:id="@+id/tvTaxableTile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="10.5sp"
+                android:textColor="#8A6526"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="GST "
+                android:textSize="10.5sp"
+                android:textColor="#0F6E56" />
+
+            <TextView
+                android:id="@+id/tvAdditionalGst"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="10.5sp"
+                android:textColor="#0F6E56"
+                android:fontFamily="serif" />
+        </LinearLayout>
+
+        <!-- Kept for the adapter binding; not surfaced in this cardless
+             footer design. -->
+        <TextView
+            android:id="@+id/tvItemsAdjustedBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:text="0 items adjusted"/>
+
+        <TextView
+            android:id="@+id/tvGrandTotalTile"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:text="₹0"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="14dp"
+            android:background="#DDD3BB" />
+
+        <!-- Confirm button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmDebit"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Confirm &amp; issue debit note"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="13.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            app:backgroundTint="@null"
+            android:background="@drawable/bg_login_cta_green"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_lc_check"
+            app:iconTint="#FFFFFF"
+            app:iconSize="17dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp"/>
+
+        <!-- Cancel button — same rose "ghost destructive" treatment as
+             btnCancel in activity_purchase.xml. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelDebit"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="8dp"
+            android:text="Cancel"
+            android:textColor="#9A2E2E"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_inv_action_close"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_close"
+            app:iconTint="#B91C1C"
+            app:iconSize="16dp"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            app:cornerRadius="14dp"
+            app:backgroundTint="@null"
+            app:rippleColor="#F6D8D4"/>
+
+    </LinearLayout>
 
 </LinearLayout>

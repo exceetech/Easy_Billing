@@ -1,86 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!--
+    Debit / credit note row — left status stripe (gold = debit note / return,
+    green = credit note / addition), an icon tile, title + sub, and a signed
+    serif amount with a caption. The container sets clipToOutline so the stripe
+    follows the card corners.
+
+    Bound by PurchaseDetailsActivity.buildPriorReturns: viewNoteStripe,
+    ivNoteIcon, tvNoteNumber, tvProductName, tvReturnedQty, tvNoteDate,
+    tvReturnValue, tvNoteCaption, viewNoteDivider.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
-    app:cardBackgroundColor="#FFF8F8"
-    app:strokeColor="#FECACA"
-    app:strokeWidth="1dp">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="horizontal">
 
-        <!-- Note number + date -->
+        <View
+            android:id="@+id/viewNoteStripe"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="#8A6526" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
 
-            <TextView
-                android:id="@+id/tvNoteNumber"
+            <ImageView
+                android:id="@+id/ivNoteIcon"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_lc_arrow_up_right"
+                android:tint="#8A6526"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#F3ECDD"
+                android:contentDescription="@null" />
+
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#DC2626"
-                android:text="DN-00001"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
 
-            <TextView
-                android:id="@+id/tvNoteDate"
+                <TextView
+                    android:id="@+id/tvNoteNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DN-00001"
+                    android:textSize="13.5sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="2dp">
+
+                    <TextView
+                        android:id="@+id/tvProductName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Product"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxWidth="140dp" />
+
+                    <TextView
+                        android:id="@+id/tvReturnedQty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="· Qty 0"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+
+                    <TextView
+                        android:id="@+id/tvNoteDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="· —"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textColor="#9CA3AF"
-                android:text="—"/>
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginStart="10dp">
 
+                <TextView
+                    android:id="@+id/tvReturnValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹0"
+                    android:textSize="18sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:id="@+id/tvNoteCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="returned"
+                    android:textSize="9.5sp"
+                    android:textColor="#A99E88" />
+            </LinearLayout>
         </LinearLayout>
-
-        <!-- Product + qty + value -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tvProductName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="12sp"
-                android:textColor="#374151"
-                android:text="Product"/>
-
-            <TextView
-                android:id="@+id/tvReturnedQty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                android:textSize="12sp"
-                android:textColor="#6B7280"
-                android:text="Qty: 0"/>
-
-            <TextView
-                android:id="@+id/tvReturnValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#DC2626"
-                android:text="₹0"/>
-
-        </LinearLayout>
-
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    <View
+        android:id="@+id/viewNoteDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginHorizontal="14dp"
+        android:background="#F1EBDD" />
+
+</LinearLayout>

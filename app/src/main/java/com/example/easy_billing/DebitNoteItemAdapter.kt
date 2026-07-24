@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -27,13 +28,28 @@ import com.google.android.material.textfield.TextInputEditText
 class DebitNoteItemAdapter(
     private val items: List<BillItem>,
     private val supplyType: String,
-    private val onTotalChanged: (totalTaxable: Double, totalTax: Double) -> Unit
+    private val onTotalChanged: (totalTaxable: Double, totalTax: Double, itemsAdjusted: Int) -> Unit
 ) : RecyclerView.Adapter<DebitNoteItemAdapter.ViewHolder>() {
 
     /** User-entered additional quantity, keyed by [BillItem.id]. */
     private val additionalQtyMap = mutableMapOf<Int, Double>()
 
+    /**
+     * Per-row accent, cycled by position so each item reads as visually
+     * distinct in the list — stripe, monogram tile, and stepper all share
+     * one accent from the champagne palette (gold / teal / red).
+     */
+    private data class RowAccent(val accent: Int, val tileBg: Int, val tileText: Int)
+
+    private val rowAccents = listOf(
+        RowAccent(Color.parseColor("#8A6526"), Color.parseColor("#F6F0E4"), Color.parseColor("#8A6526")),
+        RowAccent(Color.parseColor("#0F6E56"), Color.parseColor("#E7F1EC"), Color.parseColor("#0F6E56")),
+        RowAccent(Color.parseColor("#A32D2D"), Color.parseColor("#FCEBEB"), Color.parseColor("#A32D2D"))
+    )
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val viewItemStripe:    View               = view.findViewById(R.id.viewItemStripe)
+        val tvAvatar:          TextView           = view.findViewById(R.id.tvAvatar)
         val tvProductName:     TextView           = view.findViewById(R.id.tvProductName)
         val tvAlreadyReturned: TextView           = view.findViewById(R.id.tvAlreadyReturned) // Hide
         val tvHsnVariant:      TextView           = view.findViewById(R.id.tvHsnVariant)
@@ -52,6 +68,9 @@ class DebitNoteItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_debit_note_line, parent, false)
+        // Each row is its own rounded card now — clip so the left stripe
+        // follows the corner radius instead of poking out past it.
+        v.clipToOutline = true
         return ViewHolder(v)
     }
 
@@ -62,6 +81,17 @@ class DebitNoteItemAdapter(
         val item = items[position]
 
         holder.watcher?.let { holder.etAdditionalQty.removeTextChangedListener(it) }
+
+        val accent = rowAccents[position % rowAccents.size]
+        holder.viewItemStripe.setBackgroundColor(accent.accent)
+        holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(accent.tileBg)
+        holder.tvAvatar.setTextColor(accent.tileText)
+        holder.btnDecrement.strokeColor = android.content.res.ColorStateList.valueOf(Color.parseColor("#E1DAC8"))
+        holder.btnDecrement.setTextColor(accent.accent)
+        holder.btnIncrement.backgroundTintList = android.content.res.ColorStateList.valueOf(accent.accent)
+
+        val initial = item.productName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "P"
+        holder.tvAvatar.text = initial
 
         holder.tvProductName.text = item.productName
         holder.tvAlreadyReturned.visibility = View.GONE
@@ -153,6 +183,7 @@ class DebitNoteItemAdapter(
     private fun notifyGrandTotal() {
         var totalTaxable = 0.0
         var totalTax   = 0.0
+        var itemsAdjusted = 0
         for (item in items) {
             val qVal = additionalQtyMap[item.id] ?: 0.0
             if (qVal > 0.0) {
@@ -161,9 +192,10 @@ class DebitNoteItemAdapter(
                 val tax = tVal * (item.gstRate / 100.0)
                 totalTaxable += tVal
                 totalTax   += tax
+                itemsAdjusted += 1
             }
         }
-        onTotalChanged(totalTaxable, totalTax)
+        onTotalChanged(totalTaxable, totalTax, itemsAdjusted)
     }
 
     private fun formatQty(q: Double): String =

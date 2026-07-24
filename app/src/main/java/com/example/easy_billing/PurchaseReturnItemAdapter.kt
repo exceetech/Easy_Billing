@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -38,9 +40,23 @@ class PurchaseReturnItemAdapter(
     /** User-chosen return quantities, keyed by [PurchaseItem.id]. */
     private val returnQtyMap = mutableMapOf<Int, Double>()
 
+    // Champagne accent — cycles per row across a wider palette, each
+    // paired with its own pale monogram tile background.
+    private data class RowAccent(val accent: Int, val tileBg: Int)
+    private val rowAccents = listOf(
+        RowAccent(Color.parseColor("#8A6526"), Color.parseColor("#F3ECDD")),
+        RowAccent(Color.parseColor("#0F6E56"), Color.parseColor("#E4F0EC")),
+        RowAccent(Color.parseColor("#B23A3A"), Color.parseColor("#F7E2E0")),
+        RowAccent(Color.parseColor("#1D6FA5"), Color.parseColor("#E1EEF5")),
+        RowAccent(Color.parseColor("#6B4C9A"), Color.parseColor("#EDE6F5")),
+        RowAccent(Color.parseColor("#B8631F"), Color.parseColor("#F6E7D8"))
+    )
+
     // ─────────────────────────────────────────────────────────────────────────
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val viewItemStripe:    View              = view.findViewById(R.id.viewItemStripe)
+        val tvAvatar:          TextView          = view.findViewById(R.id.tvAvatar)
         val tvProductName:     TextView          = view.findViewById(R.id.tvProductName)
         val tvAlreadyReturned: TextView          = view.findViewById(R.id.tvAlreadyReturned)
         val tvHsnVariant:      TextView          = view.findViewById(R.id.tvHsnVariant)
@@ -48,6 +64,7 @@ class PurchaseReturnItemAdapter(
         val tvCostPrice:       TextView          = view.findViewById(R.id.tvCostPrice)
         val tvGstRate:         TextView          = view.findViewById(R.id.tvGstRate)
         val tvMaxReturn:       TextView          = view.findViewById(R.id.tvMaxReturn)
+        val tvMaxReturnLabel:  TextView          = view.findViewById(R.id.tvMaxReturnLabel)
         val btnDecrement:      MaterialButton    = view.findViewById(R.id.btnDecrement)
         val btnIncrement:      MaterialButton    = view.findViewById(R.id.btnIncrement)
         val etReturnQty:       TextInputEditText = view.findViewById(R.id.etReturnQty)
@@ -63,6 +80,7 @@ class PurchaseReturnItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_purchase_return_row, parent, false)
+        v.clipToOutline = true
         return ViewHolder(v)
     }
 
@@ -75,6 +93,14 @@ class PurchaseReturnItemAdapter(
 
         // Remove stale watcher
         holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
+
+        // ── Accent stripe + monogram (cycles per row) ────────────────────────
+        val rowAccent = rowAccents[position % rowAccents.size]
+        val accentColor = rowAccent.accent
+        holder.viewItemStripe.setBackgroundColor(accentColor)
+        holder.tvAvatar.text = item.productName.trim().firstOrNull()?.uppercase() ?: "P"
+        holder.tvAvatar.setTextColor(accentColor)
+        holder.tvAvatar.backgroundTintList = ColorStateList.valueOf(rowAccent.tileBg)
 
         // ── Static labels ────────────────────────────────────────────────────
         holder.tvProductName.text = buildString {
@@ -91,11 +117,10 @@ class PurchaseReturnItemAdapter(
             holder.tvAlreadyReturned.visibility = View.GONE
         }
 
-        val hsnPart  = if (!item.hsnCode.isNullOrBlank()) "HSN: ${item.hsnCode}" else ""
-        val unitPart = if (!item.unit.isNullOrBlank()) "  ·  ${item.unit}" else ""
-        holder.tvHsnVariant.text = "$hsnPart$unitPart"
+        holder.tvHsnVariant.text = if (!item.hsnCode.isNullOrBlank()) "HSN: ${item.hsnCode}" else "HSN: —"
 
-        holder.tvQtyBought.text  = formatQty(item.quantity)
+        val unitPart = if (!item.unit.isNullOrBlank()) " ${item.unit}" else ""
+        holder.tvQtyBought.text = "Bought ${formatQty(item.quantity)}$unitPart"
         val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
         holder.tvCostPrice.text  = CurrencyHelper.format(ctx, unitTaxable)
 
@@ -115,26 +140,23 @@ class PurchaseReturnItemAdapter(
         }
         holder.tvGstRate.text    = gstStr
         holder.tvMaxReturn.text  = if (noteType == "C") "N/A" else formatQty(max)
+        holder.tvMaxReturn.setTextColor(accentColor)
+        holder.tvMaxReturnLabel.setTextColor(accentColor)
 
         if (noteType == "C") {
             holder.llMaxReturnContainer.visibility = View.GONE
-            holder.tvQtyInputLabel.text = "Receive Quantity"
-            val blueColor = android.graphics.Color.parseColor("#2563EB")
-            holder.btnIncrement.setTextColor(blueColor)
-            holder.btnIncrement.strokeColor = android.content.res.ColorStateList.valueOf(blueColor)
+            holder.tvQtyInputLabel.text = "Receive qty"
         } else {
             holder.llMaxReturnContainer.visibility = View.VISIBLE
-            holder.tvQtyInputLabel.text = "Return Quantity"
-            val redColor = android.graphics.Color.parseColor("#DC2626")
-            holder.btnIncrement.setTextColor(redColor)
-            holder.btnIncrement.strokeColor = android.content.res.ColorStateList.valueOf(redColor)
+            holder.tvQtyInputLabel.text = "Return qty"
         }
+        holder.btnIncrement.backgroundTintList = ColorStateList.valueOf(accentColor)
 
         // ── Current qty ──────────────────────────────────────────────────────
         val currentQty = returnQtyMap[item.id] ?: 0.0
         holder.etReturnQty.setText(if (currentQty > 0.0) formatQty(currentQty) else "")
 
-        updateDebitAmountView(holder, item, currentQty, ctx)
+        updateDebitAmountView(holder, item, currentQty, ctx, accentColor)
 
         // ── Disable row when nothing is returnable ───────────────────────────
         val rowEnabled = noteType == "C" || max > 0.0
@@ -148,7 +170,7 @@ class PurchaseReturnItemAdapter(
             if (noteType == "C" || cur < max) {
                 val step = if (item.unit?.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = if (noteType == "C") cur + step else (cur + step).coerceAtMost(max)
-                setQty(holder, item, next, ctx)
+                setQty(holder, item, next, ctx, accentColor)
             }
         }
 
@@ -158,7 +180,7 @@ class PurchaseReturnItemAdapter(
             if (cur > 0.0) {
                 val step = if (item.unit?.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = (cur - step).coerceAtLeast(0.0)
-                setQty(holder, item, next, ctx)
+                setQty(holder, item, next, ctx, accentColor)
             }
         }
 
@@ -170,7 +192,7 @@ class PurchaseReturnItemAdapter(
                 val typed   = s?.toString()?.toDoubleOrNull() ?: 0.0
                 val clamped = if (noteType == "C") typed else typed.coerceIn(0.0, max)
                 returnQtyMap[item.id] = clamped
-                updateDebitAmountView(holder, item, clamped, ctx)
+                updateDebitAmountView(holder, item, clamped, ctx, accentColor)
                 notifyGrandTotal()
             }
         }
@@ -186,13 +208,14 @@ class PurchaseReturnItemAdapter(
         holder: ViewHolder,
         item: PurchaseItem,
         qty: Double,
-        ctx: android.content.Context
+        ctx: android.content.Context,
+        accentColor: Int
     ) {
         returnQtyMap[item.id] = qty
         holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
         holder.etReturnQty.setText(if (qty > 0.0) formatQty(qty) else "")
         holder.watcher?.let { holder.etReturnQty.addTextChangedListener(it) }
-        updateDebitAmountView(holder, item, qty, ctx)
+        updateDebitAmountView(holder, item, qty, ctx, accentColor)
         notifyGrandTotal()
     }
 
@@ -200,7 +223,8 @@ class PurchaseReturnItemAdapter(
         holder: ViewHolder,
         item: PurchaseItem,
         qty: Double,
-        ctx: android.content.Context
+        ctx: android.content.Context,
+        accentColor: Int
     ) {
         if (qty > 0.0) {
             val unitTaxable = if (item.quantity > 0) item.taxableAmount / item.quantity else 0.0
@@ -222,13 +246,11 @@ class PurchaseReturnItemAdapter(
 
             val total = taxable + gst
             holder.tvDebitAmount.visibility = View.VISIBLE
-            if (noteType == "C") {
-                holder.tvDebitAmount.setTextColor(android.graphics.Color.parseColor("#2563EB"))
-                holder.tvDebitAmount.text = "Credit value: ${CurrencyHelper.format(ctx, total)}"
-            } else {
-                holder.tvDebitAmount.setTextColor(android.graphics.Color.parseColor("#DC2626"))
-                holder.tvDebitAmount.text = "Debit value: ${CurrencyHelper.format(ctx, total)}"
-            }
+            holder.tvDebitAmount.setTextColor(accentColor)
+            holder.tvDebitAmount.text = if (noteType == "C")
+                "Credit value: ${CurrencyHelper.format(ctx, total)}"
+            else
+                "Debit value: ${CurrencyHelper.format(ctx, total)}"
         } else {
             holder.tvDebitAmount.visibility = View.GONE
         }

@@ -23,6 +23,21 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    /** Header figures + chip counts, recomputed whenever the list loads. */
+    data class Summary(
+        val boughtThisMonth: Double = 0.0,
+        val boughtCount: Int = 0,
+        val onCreditThisMonth: Double = 0.0,
+        val cashThisMonth: Double = 0.0,
+        val countAll: Int = 0,
+        val countCredit: Int = 0,
+        val countCash: Int = 0,
+        val countCancelled: Int = 0
+    )
+
+    private val _summary = MutableStateFlow(Summary())
+    val summary: StateFlow<Summary> = _summary.asStateFlow()
+
     private val _shopStateCode = MutableStateFlow("")
     val shopStateCode: StateFlow<String> = _shopStateCode.asStateFlow()
 
@@ -52,9 +67,43 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
     fun loadPurchases(limit: Int = 200) {
         viewModelScope.launch {
             _isLoading.value  = true
-            _purchases.value  = db.purchaseDao().getRecent(limit)
+            val list = db.purchaseDao().getRecent(limit)
+            _purchases.value  = list
+            _summary.value    = computeSummary(list)
             _isLoading.value  = false
         }
+    }
+
+    /** Month figures ignore cancelled invoices; chip counts cover everything. */
+    private fun computeSummary(list: List<Purchase>): Summary {
+        val cal = java.util.Calendar.getInstance()
+        val nowMonth = cal.get(java.util.Calendar.MONTH)
+        val nowYear = cal.get(java.util.Calendar.YEAR)
+
+        fun inThisMonth(p: Purchase): Boolean {
+            val millis = p.invoiceDate ?: p.createdAt
+            cal.timeInMillis = millis
+            return cal.get(java.util.Calendar.MONTH) == nowMonth &&
+                cal.get(java.util.Calendar.YEAR) == nowYear
+        }
+
+        var bought = 0.0; var boughtN = 0; var credit = 0.0; var cash = 0.0
+        var cAll = 0; var cCredit = 0; var cCash = 0; var cCancel = 0
+
+        for (p in list) {
+            cAll++
+            when {
+                p.isCancelled -> cCancel++
+                p.isCredit -> cCredit++
+                else -> cCash++
+            }
+            if (!p.isCancelled && inThisMonth(p)) {
+                bought += p.invoiceValue
+                boughtN++
+                if (p.isCredit) credit += p.invoiceValue else cash += p.invoiceValue
+            }
+        }
+        return Summary(bought, boughtN, credit, cash, cAll, cCredit, cCash, cCancel)
     }
 
     fun loadPurchaseDetail(purchaseId: Int) {

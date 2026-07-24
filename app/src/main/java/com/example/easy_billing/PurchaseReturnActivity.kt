@@ -1,9 +1,11 @@
 package com.example.easy_billing
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
+import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -20,10 +22,8 @@ import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.viewmodel.PurchaseReturnViewModel
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -49,6 +49,7 @@ class PurchaseReturnActivity : BaseActivity() {
 
     private lateinit var tvSupplierName:    TextView
     private lateinit var tvInvoiceRef:      TextView
+    private lateinit var tvHeaderDate:      TextView
     private lateinit var rvReturnItems:     RecyclerView
     private lateinit var tvTotalDebitValue: TextView
     private lateinit var tvItcReclaim:      TextView
@@ -56,16 +57,17 @@ class PurchaseReturnActivity : BaseActivity() {
     private lateinit var btnCancelReturn:   MaterialButton
 
     private lateinit var tvHeaderSubtitle: TextView
+    private lateinit var tvHeaderSubtitleAccent: TextView
     private lateinit var vHeaderDivider:   View
     private lateinit var tvSectionLabel:   TextView
     private lateinit var tvTotalDebitLabel: TextView
 
     // GSTR-2 Fields
-    private lateinit var cvGstr2Container: MaterialCardView
+    private lateinit var cvGstr2Container: LinearLayout
     private lateinit var llGstr2Header: LinearLayout
     private lateinit var llGstr2Details: LinearLayout
     private lateinit var ivGstr2Arrow: ImageView
-    private lateinit var swPreGst: SwitchMaterial
+    private lateinit var swPreGst: MaterialSwitch
     private lateinit var actvDocumentType: AutoCompleteTextView
     private lateinit var actvReason: AutoCompleteTextView
     private lateinit var etVoucherValue: TextInputEditText
@@ -78,13 +80,27 @@ class PurchaseReturnActivity : BaseActivity() {
     private lateinit var actvInvoiceType: AutoCompleteTextView
     private lateinit var actvPlaceOfSupplyCode: AutoCompleteTextView
 
-    private lateinit var tilAvailedItcIntegrated: TextInputLayout
-    private lateinit var tilAvailedItcCentral: TextInputLayout
-    private lateinit var tilAvailedItcState: TextInputLayout
-    private lateinit var tilAvailedItcCess: TextInputLayout
+    private lateinit var tilAvailedItcIntegrated: FrameLayout
+    private lateinit var tilAvailedItcCentral: FrameLayout
+    private lateinit var tilAvailedItcState: FrameLayout
+    private lateinit var tilAvailedItcCess: FrameLayout
+
+    private lateinit var tvLabelDocumentType: TextView
+    private lateinit var tvLabelReason: TextView
+    private lateinit var tvLabelVoucherValue: TextView
+    private lateinit var tvLabelRate: TextView
+    private lateinit var tvLabelEligibility: TextView
+    private lateinit var tvLabelItcIntegrated: TextView
+    private lateinit var tvLabelItcCentral: TextView
+    private lateinit var tvLabelItcState: TextView
+    private lateinit var tvLabelItcCess: TextView
+    private lateinit var tvLabelInvoiceType: TextView
+    private lateinit var tvLabelPlaceOfSupply: TextView
 
     private var purchaseId: Int = -1
     private var noteType: String = "D"
+
+    private val originalFieldHints = mutableMapOf<TextView, CharSequence?>()
 
     private var currentIgstReturn = 0.0
     private var currentCgstReturn = 0.0
@@ -96,6 +112,8 @@ class PurchaseReturnActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase_return)
 
+        setupToolbar(R.id.toolbar)
+
         purchaseId = intent.getIntExtra("PURCHASE_ID", -1)
         noteType = intent.getStringExtra("NOTE_TYPE") ?: "D"
         if (purchaseId == -1) {
@@ -106,6 +124,7 @@ class PurchaseReturnActivity : BaseActivity() {
 
         tvSupplierName    = findViewById(R.id.tvSupplierName)
         tvInvoiceRef      = findViewById(R.id.tvInvoiceRef)
+        tvHeaderDate      = findViewById(R.id.tvHeaderDate)
         rvReturnItems     = findViewById(R.id.rvReturnItems)
         tvTotalDebitValue = findViewById(R.id.tvTotalDebitValue)
         tvItcReclaim      = findViewById(R.id.tvItcReclaim)
@@ -113,6 +132,7 @@ class PurchaseReturnActivity : BaseActivity() {
         btnCancelReturn   = findViewById(R.id.btnCancelReturn)
 
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle)
+        tvHeaderSubtitleAccent = findViewById(R.id.tvHeaderSubtitleAccent)
         vHeaderDivider   = findViewById(R.id.vHeaderDivider)
         tvSectionLabel   = findViewById(R.id.tvSectionLabel)
         tvTotalDebitLabel = findViewById(R.id.tvTotalDebitLabel)
@@ -140,30 +160,41 @@ class PurchaseReturnActivity : BaseActivity() {
         tilAvailedItcState = findViewById(R.id.tilAvailedItcState)
         tilAvailedItcCess = findViewById(R.id.tilAvailedItcCess)
 
+        tvLabelDocumentType = findViewById(R.id.tvLabelDocumentType)
+        tvLabelReason = findViewById(R.id.tvLabelReason)
+        tvLabelVoucherValue = findViewById(R.id.tvLabelVoucherValue)
+        tvLabelRate = findViewById(R.id.tvLabelRate)
+        tvLabelEligibility = findViewById(R.id.tvLabelEligibility)
+        tvLabelItcIntegrated = findViewById(R.id.tvLabelItcIntegrated)
+        tvLabelItcCentral = findViewById(R.id.tvLabelItcCentral)
+        tvLabelItcState = findViewById(R.id.tvLabelItcState)
+        tvLabelItcCess = findViewById(R.id.tvLabelItcCess)
+        tvLabelInvoiceType = findViewById(R.id.tvLabelInvoiceType)
+        tvLabelPlaceOfSupply = findViewById(R.id.tvLabelPlaceOfSupply)
+
         // Adapt UI colors & labels dynamically
         if (noteType == "C") {
-            tvHeaderSubtitle.text = "Receive Credit Note"
-            vHeaderDivider.setBackgroundColor(android.graphics.Color.parseColor("#2563EB"))
-            tvSectionLabel.text = "Select items & quantities to receive credit on"
-            tvTotalDebitLabel.text = "Total Credit Value"
-            tvTotalDebitValue.setTextColor(android.graphics.Color.parseColor("#2563EB"))
-            btnConfirmReturn.text = "Confirm & Save Credit Note"
-            btnConfirmReturn.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2563EB"))
+            tvHeaderSubtitle.text = "Receive credit"
+            tvHeaderSubtitleAccent.text = "note"
+            tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+            tvSectionLabel.text = "SELECT ITEMS & QUANTITIES TO RECEIVE CREDIT ON"
+            tvTotalDebitLabel.text = "Total credit value"
+            btnConfirmReturn.text = "Confirm & save credit note"
             cvGstr2Container.visibility = View.VISIBLE
             setupGstr2Fields()
         } else {
-            tvHeaderSubtitle.text = "Raise Debit Note"
-            vHeaderDivider.setBackgroundColor(android.graphics.Color.parseColor("#DC2626"))
-            tvSectionLabel.text = "Select items & quantities to return"
-            tvTotalDebitLabel.text = "Total Debit Value"
-            tvTotalDebitValue.setTextColor(android.graphics.Color.parseColor("#DC2626"))
-            btnConfirmReturn.text = "Confirm & Issue Debit Note"
-            btnConfirmReturn.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#DC2626"))
+            tvHeaderSubtitle.text = "Raise debit"
+            tvHeaderSubtitleAccent.text = "note"
+            tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+            tvSectionLabel.text = "SELECT ITEMS & QUANTITIES TO RETURN"
+            tvTotalDebitLabel.text = "Total debit value"
+            btnConfirmReturn.text = "Confirm & issue debit note"
             cvGstr2Container.visibility = View.VISIBLE
             setupGstr2Fields()
         }
 
         rvReturnItems.layoutManager = LinearLayoutManager(this)
+        rvReturnItems.clipToOutline = true
 
         btnCancelReturn.setOnClickListener { finish() }
         btnConfirmReturn.setOnClickListener { confirmAndSubmit() }
@@ -180,10 +211,10 @@ class PurchaseReturnActivity : BaseActivity() {
             viewModel.purchase.collectLatest { p ->
                 p ?: return@collectLatest
                 tvSupplierName.text = p.supplierName
+                tvInvoiceRef.text = "Invoice #${p.invoiceNumber}"
                 val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                val dateStr = p.invoiceDate?.let { dateFmt.format(Date(it)) }
+                tvHeaderDate.text = p.invoiceDate?.let { dateFmt.format(Date(it)) }
                     ?: dateFmt.format(Date(p.createdAt))
-                tvInvoiceRef.text = "Invoice #${p.invoiceNumber}  ·  $dateStr"
             }
         }
 
@@ -217,9 +248,9 @@ class PurchaseReturnActivity : BaseActivity() {
                 btnConfirmReturn.text = if (loading)
                     "Processing…"
                 else if (noteType == "C")
-                    "Confirm & Save Credit Note"
+                    "Confirm & save credit note"
                 else
-                    "Confirm & Issue Debit Note"
+                    "Confirm & issue debit note"
             }
         }
 
@@ -296,30 +327,77 @@ class PurchaseReturnActivity : BaseActivity() {
             }
         }
 
-        // Dropdowns setup
+        // Dropdowns setup — uses the same hand-built "chooser sheet" popup
+        // as activity_invoice.xml's GST option pickers (showChooserPopup in
+        // InvoiceActivity), not the native AutoCompleteTextView dropdown.
+        val dropdownLabels = mapOf(
+            actvDocumentType to tvLabelDocumentType,
+            actvReason to tvLabelReason,
+            actvEligibility to tvLabelEligibility,
+            actvInvoiceType to tvLabelInvoiceType,
+            actvPlaceOfSupplyCode to tvLabelPlaceOfSupply
+        )
+        for ((field, label) in dropdownLabels) {
+            field.inputType = android.text.InputType.TYPE_NULL
+            field.setOnFocusChangeListener { _, _ -> updateFloatingLabel(label, field, animate = true) }
+        }
+
+        // Plain amount fields: hint-only when empty & unfocused, label fades/
+        // slides in on focus or once a value is entered — same treatment.
+        val plainFieldLabels = mapOf(
+            etVoucherValue to tvLabelVoucherValue,
+            etRate to tvLabelRate,
+            etAvailedItcIntegrated to tvLabelItcIntegrated,
+            etAvailedItcCentral to tvLabelItcCentral,
+            etAvailedItcState to tvLabelItcState,
+            etAvailedItcCess to tvLabelItcCess
+        )
+        for ((field, label) in plainFieldLabels) {
+            field.setOnFocusChangeListener { _, _ -> updateFloatingLabel(label, field, animate = true) }
+            field.addTextChangedListener(object : android.text.TextWatcher {
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    updateFloatingLabel(label, field, animate = true)
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+        }
+
         val docTypes = arrayOf("Debit Note", "Credit Note", "Refund Voucher")
-        actvDocumentType.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, docTypes))
         if (noteType == "C") {
             actvDocumentType.setText("Credit Note", false)
         } else {
             actvDocumentType.setText("Debit Note", false)
         }
+        actvDocumentType.setOnClickListener {
+            showGstr2ChooserPopup(actvDocumentType, docTypes.toList(), tvLabelDocumentType)
+        }
 
         val reasons = arrayOf("Sales return", "Purchase return", "Post sale discount", "Deficiency in services", "Correction in invoice", "Other")
-        actvReason.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, reasons))
         actvReason.setText("Purchase return", false)
+        actvReason.setOnClickListener {
+            showGstr2ChooserPopup(actvReason, reasons.toList(), tvLabelReason)
+        }
 
         val eligibilities = arrayOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
-        actvEligibility.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, eligibilities))
         actvEligibility.setText("Inputs", false)
+        actvEligibility.setOnClickListener {
+            showGstr2ChooserPopup(actvEligibility, eligibilities.toList(), tvLabelEligibility) { selected ->
+                updateItcFieldsState(selected)
+            }
+        }
 
         val invoiceTypes = arrayOf("Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp")
-        actvInvoiceType.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, invoiceTypes))
         actvInvoiceType.setText("Regular", false)
+        actvInvoiceType.setOnClickListener {
+            showGstr2ChooserPopup(actvInvoiceType, invoiceTypes.toList(), tvLabelInvoiceType)
+        }
 
         // State Codes Dropdown
         val statesList = GstEngine.INDIA_STATES.entries.map { "${it.key} - ${it.value}" }.toTypedArray()
-        actvPlaceOfSupplyCode.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, statesList))
+        actvPlaceOfSupplyCode.setOnClickListener {
+            showGstr2ChooserPopup(actvPlaceOfSupplyCode, statesList.toList(), tvLabelPlaceOfSupply)
+        }
 
         // Pre-select place of supply based on supplier's state if we can match it
         lifecycleScope.launch {
@@ -330,24 +408,138 @@ class PurchaseReturnActivity : BaseActivity() {
                     val matched = statesList.firstOrNull { it.startsWith(code) }
                     if (matched != null) {
                         actvPlaceOfSupplyCode.setText(matched, false)
+                        updateFloatingLabel(tvLabelPlaceOfSupply, actvPlaceOfSupplyCode, animate = true)
                     }
                 }
             }
         }
 
-        // Eligibility change listener to enable/disable and default ITC amount fields
-        actvEligibility.setOnItemClickListener { _, _, position, _ ->
-            val selected = eligibilities[position]
-            updateItcFieldsState(selected)
+        // These four already carry a default selection at this point, so
+        // their label should be visible immediately — no animation, since
+        // this isn't a user-driven focus event.
+        for ((field, label) in dropdownLabels) {
+            updateFloatingLabel(label, field, animate = false)
+        }
+    }
+
+    private fun dpPx(v: Int): Int = (v * resources.displayMetrics.density).toInt()
+
+    /**
+     * The exact "chooser sheet" popup used by activity_invoice.xml's GST
+     * option pickers (InvoiceActivity.showChooserPopup) — a PopupWindow
+     * anchored below the field box, bg_pos_dropdown sheet background,
+     * 44dp rows, and the selected row highlighted with bg_pos_row_selected
+     * + blue text + a check mark.
+     */
+    private fun showGstr2ChooserPopup(
+        anchor: TextView,
+        options: List<String>,
+        label: TextView? = null,
+        onPick: (String) -> Unit = {}
+    ) {
+        val current = anchor.text?.toString()?.trim().orEmpty()
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dpPx(5), dpPx(5), dpPx(5), dpPx(5))
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
+
+        // Anchor to the field BOX (parent) so the sheet drops from the
+        // full-width field, not the inner value view.
+        val box = (anchor.parent as? View) ?: anchor
+
+        val sheetHeight = minOf(options.size * dpPx(44) + dpPx(10), dpPx(320))
+
+        val popup = android.widget.PopupWindow(
+            scroll, box.width, sheetHeight, true
+        ).apply {
+            elevation = dpPx(10).toFloat()
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        }
+
+        options.forEach { opt ->
+            val isSel = opt.equals(current, ignoreCase = true)
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpPx(44))
+                setPadding(dpPx(12), 0, dpPx(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val label = TextView(this).apply {
+                text = opt
+                textSize = 14f
+                setTextColor(Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            row.addView(label)
+            if (isSel) {
+                row.addView(ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(Color.parseColor("#185FA5"))
+                    layoutParams = LinearLayout.LayoutParams(dpPx(16), dpPx(16))
+                })
+            }
+            row.setOnClickListener {
+                anchor.text = opt
+                if (label != null) updateFloatingLabel(label, anchor, animate = true)
+                popup.dismiss()
+                onPick(opt)
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(box, 0, dpPx(6))
+    }
+
+    /**
+     * Hint-only when the field is empty and unfocused; the moment it gains
+     * focus or already holds text, the hint is cleared and [label] fades +
+     * slides in above the box (and reverses on blur if the field is still
+     * empty).
+     */
+    private fun updateFloatingLabel(label: TextView, field: TextView, animate: Boolean) {
+        val hasContent = !field.text.isNullOrEmpty()
+        val shouldShow = field.hasFocus() || hasContent
+
+        val originalHint = originalFieldHints.getOrPut(field) { field.hint }
+
+        if (shouldShow) {
+            field.hint = null
+        } else {
+            field.hint = originalHint
+        }
+
+        val targetAlpha = if (shouldShow) 1f else 0f
+        val targetTranslationY = if (shouldShow) 0f else 6f * resources.displayMetrics.density
+        if (animate) {
+            label.animate().alpha(targetAlpha).translationY(targetTranslationY).setDuration(160).start()
+        } else {
+            label.alpha = targetAlpha
+            label.translationY = targetTranslationY
         }
     }
 
     private fun updateItcFieldsState(eligibility: String) {
         val isEligible = eligibility in listOf("Inputs", "Capital goods", "Input services")
+        val fieldAlpha = if (isEligible) 1f else 0.5f
+
         tilAvailedItcIntegrated.isEnabled = isEligible
+        tilAvailedItcIntegrated.alpha = fieldAlpha
         tilAvailedItcCentral.isEnabled = isEligible
+        tilAvailedItcCentral.alpha = fieldAlpha
         tilAvailedItcState.isEnabled = isEligible
+        tilAvailedItcState.alpha = fieldAlpha
         tilAvailedItcCess.isEnabled = isEligible
+        tilAvailedItcCess.alpha = fieldAlpha
+
+        etAvailedItcIntegrated.isEnabled = isEligible
+        etAvailedItcCentral.isEnabled = isEligible
+        etAvailedItcState.isEnabled = isEligible
+        etAvailedItcCess.isEnabled = isEligible
 
         if (!isEligible) {
             etAvailedItcIntegrated.setText("0.0")
