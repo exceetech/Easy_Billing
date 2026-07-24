@@ -73,7 +73,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // purchase_table keeps its own denormalised supplier fields.
         Supplier::class
     ],
-    version = 58
+    version = 59
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1627,6 +1627,24 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_58_59 = object : Migration(58, 59) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Avg-cost audit, Fix 2: phone and server used to each run
+                // their OWN independent copy of the weighted-average
+                // formula — two separate implementations that had to be
+                // kept in sync by hand, and could silently drift apart
+                // (exactly the class of bug already hit once with the
+                // purchase-return sign mismatch). This column carries the
+                // average cost the phone has ALREADY computed for a given
+                // inventory event, so the server can just store that number
+                // instead of recomputing it independently. There is now
+                // exactly one place average cost math happens: the phone.
+                db.execSQL(
+                    "ALTER TABLE `inventory_log` ADD COLUMN `resultingAverageCost` REAL NOT NULL DEFAULT 0.0"
+                )
+            }
+        }
+
         val MIGRATION_46_47 = object : Migration(46, 47) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -1706,7 +1724,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_54_55,
                         MIGRATION_55_56,
                         MIGRATION_56_57,
-                        MIGRATION_57_58
+                        MIGRATION_57_58,
+                        MIGRATION_58_59
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

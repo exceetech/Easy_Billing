@@ -220,35 +220,40 @@ class InventoryActivity : BaseActivity() {
                 val inventoryMap = inventoryList.associateBy { it.productId }
                 val newProductMap = products.associateBy { it.id }
 
-                // INV-2 fix: stock value is shown at the GROSS purchase cost
-                // (invoice value incl. GST), not the net taxable cost — but
-                // this used to be computed as an entirely separate weighted
-                // average pulled straight from the purchase_batches ledger
-                // (getGrossValuationByProduct), independently of
-                // inventory.averageCost. That meant this screen and
+                // INV-2 fix (original): stock value used to be computed as an
+                // entirely separate weighted average pulled straight from the
+                // purchase_batches ledger (PurchaseBatchDao.getGrossValuationByProduct),
+                // independently of inventory.averageCost — so this screen and
                 // Dashboard (which reads inventory.averageCost directly)
-                // could show two different numbers for the same product
-                // even when nothing was wrong, and diverged further if the
-                // batch ledger ever drifted from currentStock. There is now
-                // exactly ONE canonical average cost — inventory.averageCost
-                // (net) — and the gross figure shown here is simply that
-                // number grossed up by the product's own GST rate, so both
-                // screens always agree on the underlying value.
-                // COGS / profit / returns still use inventory.averageCost (net).
+                // could show two different numbers for the same product even
+                // when nothing was wrong. That was first fixed by deriving
+                // this screen's figure from inventory.averageCost too, but
+                // still displaying it GROSSED UP by the product's GST rate —
+                // which is technically correct (net vs. gross are genuinely
+                // different, valid numbers) but meant this screen and
+                // Dashboard still showed two different-looking figures for
+                // the same product side by side, with nothing on either
+                // screen explaining why. Avg-cost audit, Fix 4: this screen
+                // now shows the exact same NET figure as Dashboard, COGS,
+                // profit, and returns — inventory.averageCost, unmodified.
+                // There is now exactly one average-cost number in the whole
+                // app, and every screen shows the same one. If a GST-inclusive
+                // figure is ever needed again (e.g. "what would it cost to
+                // fully restock at MRP-equivalent"), it should be added as a
+                // clearly-separate, explicitly-labelled figure (e.g. a second
+                // line reading "incl. GST: ₹X") rather than silently
+                // replacing the primary cost figure the way it did before.
                 val displayList = products
                     .filter { inventoryMap[it.id]?.isActive == true }
                     .map { product ->
 
                         val inv = inventoryMap[product.id]
-                        val netAvg = inv?.averageCost ?: 0.0
-                        val gstRate = product.defaultGstRate.takeIf { it > 0.0 } ?: 0.0
-                        val grossAvg = netAvg * (1.0 + gstRate / 100.0)
 
                         InventoryItemUI(
                             productName = product.name,
                             variant = product.variant ?: "",
                             stock = inv?.currentStock ?: 0.0,
-                            avgCost = grossAvg,
+                            avgCost = inv?.averageCost ?: 0.0,
                             productId = product.id,
                             category = product.category
                         )

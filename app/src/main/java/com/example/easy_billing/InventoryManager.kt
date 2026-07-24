@@ -97,13 +97,14 @@ object InventoryManager {
             val isPurchased = product?.isPurchased ?: true
 
             val existing = inventoryDao.getInventoryIncludingInactive(productId)
+            val finalAvg = if (isPurchased) costPrice else 0.0
 
             if (existing == null) {
                 inventoryDao.insert(
                     Inventory(
                         productId = productId,
                         currentStock = quantity,
-                        averageCost = if (isPurchased) costPrice else 0.0,
+                        averageCost = finalAvg,
                         isActive = true,
                         isSynced = false
                     )
@@ -112,7 +113,7 @@ object InventoryManager {
                 inventoryDao.update(
                     existing.copy(
                         currentStock = quantity,
-                        averageCost = if (isPurchased) costPrice else 0.0,
+                        averageCost = finalAvg,
                         isActive = true,
                         isSynced = false
                     )
@@ -127,7 +128,12 @@ object InventoryManager {
                     quantity = quantity,
                     price = costPrice,
                     date = appNow(),
-                    isSynced = false
+                    isSynced = false,
+                    // Avg-cost audit, Fix 2: resetStock's final average cost
+                    // is decided right here, with nothing further mutating
+                    // it in this transaction — so the value written to
+                    // inventory IS the resulting average cost.
+                    resultingAverageCost = finalAvg
                 )
             )
         }
@@ -227,17 +233,6 @@ object InventoryManager {
                 )
             }
 
-            // 🔥 LOG (ONLY PLACE WHERE LOG IS CREATED)
-            db.inventoryLogDao().insert(
-                InventoryLog(
-                    productId = productId,
-                    type = logType,
-                    quantity = quantity,
-                    price = costPrice,
-                    date = appNow()
-                )
-            )
-
             // ── Hybrid batch-based inventory (v21) ──
             // Always record a purchase batch so SUM(quantityRemaining)
             // stays in lockstep with inventory.currentStock and supplier
@@ -285,6 +280,25 @@ object InventoryManager {
                     "Drift reconcile failed for product=$productId: ${it.message}"
                 )
             }
+
+            // 🔥 LOG (ONLY PLACE WHERE LOG IS CREATED)
+            // Avg-cost audit, Fix 2: written LAST, after recordBatch and
+            // reconcileDrift have both had their chance to touch
+            // averageCost — re-reading the row here (instead of using the
+            // newAvg local computed earlier) guarantees resultingAverageCost
+            // is the true final value for this transaction, not a
+            // snapshot from partway through it.
+            val finalAvg = inventoryDao.getInventory(productId)?.averageCost ?: 0.0
+            db.inventoryLogDao().insert(
+                InventoryLog(
+                    productId = productId,
+                    type = logType,
+                    quantity = quantity,
+                    price = costPrice,
+                    date = appNow(),
+                    resultingAverageCost = finalAvg
+                )
+            )
         }
     }
 
@@ -345,17 +359,6 @@ object InventoryManager {
                 )
             )
 
-            // 🔥 LOG (VERY IMPORTANT)
-            db.inventoryLogDao().insert(
-                InventoryLog(
-                    productId = productId,
-                    type = type, // SALE / LOSS / ADJUST
-                    quantity = quantity,
-                    price = avgCost,
-                    date = appNow()
-                )
-            )
-
             // ── Hybrid batch-based inventory (v20) ──
             // Debit the canonical batch ledger so SUM(batch.quantityRemaining)
             // stays in lockstep with inventory.currentStock. consumeFifo walks
@@ -391,6 +394,23 @@ object InventoryManager {
                     )
                 }
             }
+
+            // 🔥 LOG (VERY IMPORTANT)
+            // Avg-cost audit, Fix 2: written LAST, after consumeFifo/
+            // reconcileDrift have had their chance to adjust averageCost —
+            // re-read the row so resultingAverageCost reflects the true
+            // final value, not the pre-FIFO-consume snapshot in `avgCost`.
+            val finalAvg = inventoryDao.getInventory(productId)?.averageCost ?: avgCost
+            db.inventoryLogDao().insert(
+                InventoryLog(
+                    productId = productId,
+                    type = type, // SALE / LOSS / ADJUST
+                    quantity = quantity,
+                    price = avgCost,
+                    date = appNow(),
+                    resultingAverageCost = finalAvg
+                )
+            )
         }
     }
 
@@ -449,13 +469,19 @@ object InventoryManager {
             )
 
             // 🔥 LOG
+            // Avg-cost audit, Fix 2: clearStock always zeroes averageCost
+            // above and nothing after this point can raise it back off
+            // zero (currentStock is 0, so reconcileDrift's own
+            // recompute-from-batches also lands on 0) — so 0.0 is already
+            // the true final value, no re-read needed here.
             db.inventoryLogDao().insert(
                 InventoryLog(
                     productId = productId,
                     type = type,
                     quantity = oldStock,
                     price = avgCost,
-                    date = appNow()
+                    date = appNow(),
+                    resultingAverageCost = 0.0
                 )
             )
 

@@ -1930,7 +1930,10 @@ class SyncManager(private val context: Context) {
                     price = log.price,
                     date = log.date,  // 🔥 REQUIRED
                     // Stable key so a retried push dedupes exactly (Sync audit S2).
-                    client_uid = "${deviceId()}:${log.id}"
+                    client_uid = "${deviceId()}:${log.id}",
+                    // Avg-cost audit, Fix 2: hand the server the already-final
+                    // average cost this device computed for this event.
+                    resulting_average_cost = log.resultingAverageCost
                 )
             )
 
@@ -2395,6 +2398,12 @@ class SyncManager(private val context: Context) {
                     }
 
                     if (!isDuplicate) {
+                        // resultingAverageCost intentionally left at its 0.0
+                        // default here: this is a read-only mirror of another
+                        // device's already-applied history log, not a local
+                        // mutation — it never drives this device's own
+                        // inventory.averageCost, so there's nothing
+                        // meaningful to backfill it with.
                         inventoryLogDao.insert(
                             com.example.easy_billing.db.InventoryLog(
                                 id = 0,

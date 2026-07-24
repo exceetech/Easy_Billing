@@ -366,16 +366,30 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 qtyToDebit -= take
                             }
 
+                            // Avg-cost audit, Fix 2 follow-up: reduceBatches must run
+                            // BEFORE reduceStock, not after. reduceBatches is what
+                            // actually recomputes average cost from what's left in
+                            // the batch ledger (InventoryValuation.recomputeAvgFromBatches);
+                            // reduceStock is what writes this event's InventoryLog,
+                            // stamping it with whatever inventory.averageCost happens
+                            // to be at that instant (Fix 2's resultingAverageCost).
+                            // With reduceStock running first (the original order),
+                            // the log captured the average cost from BEFORE this
+                            // return's batch recompute — a stale snapshot — and that
+                            // stale number is exactly what got pushed to the server
+                            // as the "trusted" final value. Swapping the order means
+                            // the batch ledger is already fully recomputed by the
+                            // time reduceStock reads inventory.averageCost for the log.
+                            if (reductions.isNotEmpty()) {
+                                InventoryValuation.reduceBatches(db, productId, reductions)
+                            }
+
                             // Reduce the inventory row (no second batch pass).
                             val qtyToReduceRow = qty - qtyToDebit
                             if (qtyToReduceRow > 0.0) {
                                 InventoryManager.reduceStock(
                                     db, productId, qtyToReduceRow, InventoryManager.LogType.PURCHASE_RETURN, skipBatchConsume = true
                                 )
-                            }
-
-                            if (reductions.isNotEmpty()) {
-                                InventoryValuation.reduceBatches(db, productId, reductions)
                             }
 
                             // maxReturnableQty() already clamps the requested qty to

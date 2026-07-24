@@ -94,23 +94,24 @@ interface PurchaseBatchDao {
     )
     suspend fun getValuationTotals(productId: Int): ValuationTotals
 
-    /**
-     * Per-product GROSS stock valuation — values remaining stock at the invoice
-     * value (incl. GST) rather than the net taxable cost. Used ONLY for the
-     * inventory "stock value" display; COGS/profit/returns keep using the net
-     * unit_cost_excluding_tax. Gross unit = invoiceValue / quantityPurchased.
-     */
-    @Query(
-        """
-        SELECT productId AS productId,
-               COALESCE(SUM(quantityRemaining), 0.0) AS totalQty,
-               COALESCE(SUM(quantityRemaining * (invoiceValue / quantityPurchased)), 0.0) AS totalValue
-        FROM purchase_batches
-        WHERE quantityRemaining > 0 AND quantityPurchased > 0
-        GROUP BY productId
-        """
-    )
-    suspend fun getGrossValuationByProduct(): List<ProductGrossValuation>
+    // getGrossValuationByProduct() — REMOVED (avg-cost audit, Fix 1).
+    // This computed a GST-inclusive average cost by independently summing
+    // the purchase_batches ledger, completely separately from
+    // inventory.averageCost. It was the exact root cause of a past bug
+    // where InventoryActivity and Dashboard could show two different
+    // average-cost numbers for the same product — fixed by switching
+    // InventoryActivity to derive its gross figure from the single
+    // canonical inventory.averageCost instead (see InventoryActivity.kt,
+    // loadInventory()). This function had no remaining callers (confirmed
+    // by a full-codebase grep before removal) — it was dead code left
+    // behind after that fix, still capable of silently reintroducing the
+    // same divergence if anything ever called it again. There is now
+    // exactly ONE place average cost is calculated for display: the
+    // inventory.averageCost column, grossed up at display time only.
+    // If a batch-ledger-derived valuation is ever genuinely needed again
+    // (e.g. for a GSTR report), write it as a clearly-named, separate
+    // function that does NOT feed InventoryItemUI.avgCost or any other
+    // average-cost display — do not resurrect this one.
 
     /* ─── Sync helpers ─── */
 
@@ -138,15 +139,6 @@ data class ValuationTotals(
         get() = if (totalQty > 0.0) totalValue / totalQty else 0.0
 }
 
-/**
- * Per-product GROSS valuation row for [PurchaseBatchDao.getGrossValuationByProduct].
- */
-data class ProductGrossValuation(
-    val productId: Int,
-    val totalQty: Double,
-    val totalValue: Double
-) {
-    /** GST-inclusive weighted-average unit cost. */
-    val grossAvgCost: Double
-        get() = if (totalQty > 0.0) totalValue / totalQty else 0.0
-}
+// ProductGrossValuation data class — REMOVED alongside getGrossValuationByProduct()
+// above (avg-cost audit, Fix 1). Was the return type of that now-removed,
+// unused, dead-code query — no longer needed.

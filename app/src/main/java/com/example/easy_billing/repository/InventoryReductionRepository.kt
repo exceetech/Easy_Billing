@@ -419,15 +419,17 @@ class InventoryReductionRepository private constructor(
             grandTotalIgst += roundedIgst
         }
 
-        // Inventory row + log + transaction. skipBatchConsume = true
-        // because we will do the per-batch debit below.
-        InventoryManager.reduceStock(
-            db = db,
-            productId = productId,
-            quantity = grandTotalQuantity,
-            type = InventoryManager.LogType.PURCHASE_RETURN,
-            skipBatchConsume = true
-        )
+        // Avg-cost audit, Fix 2 follow-up: the batch debit (and its drift
+        // reconcile) must happen BEFORE InventoryManager.reduceStock(), not
+        // after. reduceBatches/reconcileDrift are what actually recompute
+        // average cost from what's left in the batch ledger; reduceStock is
+        // what writes this event's InventoryLog, stamping it with whatever
+        // inventory.averageCost happens to be at that instant
+        // (resultingAverageCost, the value Fix 2 has the backend trust
+        // outright). With reduceStock running first (the original order),
+        // that log captured a stale pre-recompute average cost, and that
+        // stale number is exactly what got pushed to the server as the
+        // "trusted" final value for this return.
 
         // Debit the specific batches the user picked. This walks each
         // line via PurchaseBatchDao.reduceBatchQuantity which refuses
@@ -453,6 +455,16 @@ class InventoryReductionRepository private constructor(
                 "Drift reconcile failed after purchase return for product=$productId: ${it.message}"
             )
         }
+
+        // Inventory row + log + transaction. skipBatchConsume = true
+        // because the per-batch debit already happened above.
+        InventoryManager.reduceStock(
+            db = db,
+            productId = productId,
+            quantity = grandTotalQuantity,
+            type = InventoryManager.LogType.PURCHASE_RETURN,
+            skipBatchConsume = true
+        )
 
         // Supplier-balance adjustment lifted OUT — the caller runs it through
         // CreditAdjustmentPrompt after this returns, so it is clamped to the
