@@ -96,6 +96,24 @@
                         android:textSize="11sp"
                         android:textColor="#9A8F79" />
                 </LinearLayout>
+
+                <!--
+                    Moving-average redesign, Phase 5: only shown for a Debit
+                    Note whose inventoryValuationVariance is non-zero — the
+                    gap between what left the shelf (at the average cost at
+                    the moment of return) and what the supplier actually
+                    refunded. Positive = loss (amber), negative = gain
+                    (green). Hidden (GONE) for Credit Notes and for zero/
+                    legacy rows so this never clutters the common case.
+                -->
+                <TextView
+                    android:id="@+id/tvValuationVariance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Inventory loss ₹0"
+                    android:textSize="10.5sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

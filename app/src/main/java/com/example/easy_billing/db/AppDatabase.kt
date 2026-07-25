@@ -73,7 +73,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // purchase_table keeps its own denormalised supplier fields.
         Supplier::class
     ],
-    version = 59
+    version = 60
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1645,6 +1645,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_59_60 = object : Migration(59, 60) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Moving-average redesign, Phase 2: a purchase return
+                // (Debit Note) removes inventory VALUE at the current
+                // (frozen) average cost, same as a sale — but the
+                // supplier only refunds what was originally invoiced
+                // for those units. This column stores that gap,
+                // computed once on the phone, so it's never silently
+                // lost or re-derived inconsistently later. Positive =
+                // loss, negative = gain. Zero for Credit Notes and for
+                // every row that predates this column.
+                db.execSQL(
+                    "ALTER TABLE `purchase_return_table` ADD COLUMN `inventory_valuation_variance` REAL NOT NULL DEFAULT 0.0"
+                )
+            }
+        }
+
         val MIGRATION_46_47 = object : Migration(46, 47) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -1725,7 +1742,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_55_56,
                         MIGRATION_56_57,
                         MIGRATION_57_58,
-                        MIGRATION_58_59
+                        MIGRATION_58_59,
+                        MIGRATION_59_60
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

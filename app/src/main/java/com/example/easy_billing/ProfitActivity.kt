@@ -218,8 +218,18 @@ class ProfitActivity : AppCompatActivity() {
 
                     findViewById<TextView>(R.id.tvRevenue).text = "₹${"%.2f".format(summary.revenue)}"
                     findViewById<TextView>(R.id.tvCost).text = "₹${"%.2f".format(summary.cost)}"
-                    findViewById<TextView>(R.id.tvLoss).text = "₹${"%.2f".format(summary.loss)}"
                     findViewById<TextView>(R.id.tvExpense).text = "₹${"%.2f".format(summary.expense)}"
+
+                    // Moving-average redesign, Phase 5: the "Loss" tile now
+                    // includes purchase-return gain/loss alongside scrap
+                    // loss — both are the same thing economically: shelf
+                    // value that didn't come back as revenue. This
+                    // keeps the tile consistent with `summary.profit`,
+                    // which already nets both out. A negative
+                    // purchaseReturnVariance (net gain on returns) reduces
+                    // this figure, same as it reduces the headline loss.
+                    val combinedLoss = summary.loss + summary.purchaseReturnVariance
+                    findViewById<TextView>(R.id.tvLoss).text = "₹${"%.2f".format(combinedLoss)}"
 
                     // Net profit spotlight headline (ink for profit, red for loss).
                     val netTv = findViewById<TextView>(R.id.tvNetProfit)

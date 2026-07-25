@@ -319,6 +319,13 @@ class InventoryReductionRepository private constructor(
         var grandTotalSgst: Double = 0.0
         var grandTotalIgst: Double = 0.0
 
+        // Moving-average redesign, Phase 2: read the average cost ONCE,
+        // before any batch/stock reduction below touches it. Every row
+        // inserted in the forEach below removes value at this same
+        // frozen average (Phase 1 guarantees a purchase return can't
+        // move it), so one read up-front is correct for every line.
+        val avgAtTimeOfReturn = db.inventoryDao().getInventory(productId)?.averageCost ?: 0.0
+
         // Create separate entries for each batch individually
         resolved.forEach { (batch, qty) ->
             val parentPurchase = batch.purchaseInvoiceId?.let { db.purchaseDao().getById(it) }
@@ -406,7 +413,15 @@ class InventoryReductionRepository private constructor(
                     supplierGstin    = batchSupplierGstin,
                     supplierName     = batchSupplierName,
                     isCredit         = isCredit,
-                    creditAccountId  = creditAccountId
+                    creditAccountId  = creditAccountId,
+
+                    // Moving-average redesign, Phase 2: value leaving
+                    // inventory at the frozen current average, minus what
+                    // the supplier refunds at this batch's own original
+                    // cost. Positive = loss, negative = gain.
+                    inventoryValuationVariance = Math.round(
+                        ((qty * avgAtTimeOfReturn) - (qty * batch.unitCostExcludingTax)) * 100.0
+                    ) / 100.0
                 )
             ).toInt()
 

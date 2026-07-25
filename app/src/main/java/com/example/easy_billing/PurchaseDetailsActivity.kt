@@ -347,6 +347,20 @@ class PurchaseDetailsActivity : BaseActivity() {
                 parts += "${CurrencyHelper.format(this, creditTotal)} credited across " +
                     "${creditNotes.size} ${noteWord(creditNotes.size)}"
             }
+
+            // Moving-average redesign, Phase 5: roll up the total inventory
+            // gain/loss across all debit notes on this invoice. Positive =
+            // net loss (removed more shelf value than the supplier
+            // refunded), negative = net gain. Omitted entirely when zero —
+            // true for every Credit Note and for legacy rows that predate
+            // this field, so old purchases show exactly what they always did.
+            val totalVariance = debitNotes.sumOf { it.inventoryValuationVariance }
+            if (kotlin.math.abs(totalVariance) >= 0.01) {
+                val word = if (totalVariance > 0) "loss" else "gain"
+                parts += "${CurrencyHelper.format(this, kotlin.math.abs(totalVariance))} " +
+                    "inventory $word on returns"
+            }
+
             tvNetOriginalAmount.text = parts.joinToString(" · ")
             rowNetReturns.visibility = View.VISIBLE
         }
@@ -390,6 +404,22 @@ class PurchaseDetailsActivity : BaseActivity() {
             }
             card.findViewById<TextView>(R.id.tvNoteCaption).text =
                 if (isReturn) "returned" else "added"
+
+            // Moving-average redesign, Phase 5: per-row inventory gain/loss.
+            // Only meaningful for a Debit Note; zero for Credit Notes and
+            // legacy rows, in which case the view stays hidden.
+            val variance = ret.inventoryValuationVariance
+            val tvVariance = card.findViewById<TextView>(R.id.tvValuationVariance)
+            if (isReturn && kotlin.math.abs(variance) >= 0.01) {
+                val isLoss = variance > 0
+                val varianceHex = if (isLoss) "#B04A3B" else "#0F6E56"
+                tvVariance.text = (if (isLoss) "Inventory loss " else "Inventory gain ") +
+                    CurrencyHelper.format(this@PurchaseDetailsActivity, kotlin.math.abs(variance))
+                tvVariance.setTextColor(Color.parseColor(varianceHex))
+                tvVariance.visibility = View.VISIBLE
+            } else {
+                tvVariance.visibility = View.GONE
+            }
 
             card.findViewById<View>(R.id.viewNoteDivider).visibility =
                 if (index == returns.lastIndex) View.GONE else View.VISIBLE

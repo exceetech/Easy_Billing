@@ -318,7 +318,7 @@ object InventoryManager {
          * inventory row in sync with the batch ledger.
          */
         skipBatchConsume: Boolean = false
-    ) {
+    ): Double {
 
         require(productId > 0) { "Invalid productId" }
         require(quantity > 0) { "Invalid quantity" }
@@ -331,7 +331,7 @@ object InventoryManager {
         // the first — losing one of the two deductions and leaving stock
         // higher than it should be (or, depending on timing, applying only
         // one of two decrements users saw confirmed on screen).
-        db.withTransaction {
+        return db.withTransaction {
             val inventoryDao = db.inventoryDao()
 
             val inventory = inventoryDao.getInventory(productId)
@@ -362,12 +362,31 @@ object InventoryManager {
             // ── Hybrid batch-based inventory (v20) ──
             // Debit the canonical batch ledger so SUM(batch.quantityRemaining)
             // stays in lockstep with inventory.currentStock. consumeFifo walks
-            // oldest-first and calls recomputeAvgFromBatches internally, which
-            // overrides the avgCost we tentatively wrote a few lines above
-            // with the correct value derived from what's actually left on the
-            // shelf. Without this call the batch table fills up but never
-            // decrements — which is the bug this whole hybrid model exists
-            // to fix.
+            // oldest-first purely to track remaining quantity per batch/invoice
+            // (needed for purchase-return validation) — as of the moving-average
+            // redesign (Phase 1), it no longer touches averageCost. The
+            // averageCost written a few lines above (frozen — unchanged unless
+            // stock hit zero) is the real, final value for this sale; nothing
+            // below this point overrides it. Without the FIFO call below the
+            // batch table would still fill up but never decrement, which would
+            // break purchase-return validation (how much of THIS invoice is
+            // still available to return) even though it no longer affects cost.
+            //
+            // Cost basis returned to the caller: `avgCost * quantity` — the
+            // average cost AT THE TIME OF THIS SALE (captured above, before
+            // this transaction's own mutation). A short-lived Phase 3 of the
+            // moving-average redesign tried returning the true per-batch FIFO
+            // cost instead (e.g. 100@10 + 1@15 for a 101-unit sale spanning
+            // two batches), reasoning that it was more "precise." That broke
+            // consistency with Phase 1's own accounting: once a sale is
+            // defined to remove inventory VALUE at exactly avgCost × quantity
+            // (frozen, by definition), that number — not a separately-derived
+            // per-batch figure — has to be what the bill records as cost of
+            // goods sold, or the P&L (bill's cost) and the balance sheet
+            // (inventory value drop) disagree with each other on the very
+            // same sale. Reverted back to the simple, consistent figure.
+            val trueCost = avgCost * quantity
+
             if (!skipBatchConsume) {
                 runCatching {
                     InventoryValuation.consumeFifo(db, productId, quantity)
@@ -396,10 +415,13 @@ object InventoryManager {
             }
 
             // 🔥 LOG (VERY IMPORTANT)
-            // Avg-cost audit, Fix 2: written LAST, after consumeFifo/
-            // reconcileDrift have had their chance to adjust averageCost —
-            // re-read the row so resultingAverageCost reflects the true
-            // final value, not the pre-FIFO-consume snapshot in `avgCost`.
+            // Moving-average redesign (Phase 1): consumeFifo/reconcileDrift
+            // no longer touch averageCost at all (they only track batch
+            // quantity now), so re-reading here just confirms `avgCost`
+            // (the frozen value written above) is still the final value —
+            // kept as a re-read rather than reusing `avgCost` directly so
+            // this stays correct even if a future change ever does need to
+            // adjust cost somewhere in between.
             val finalAvg = inventoryDao.getInventory(productId)?.averageCost ?: avgCost
             db.inventoryLogDao().insert(
                 InventoryLog(
@@ -411,6 +433,8 @@ object InventoryManager {
                     resultingAverageCost = finalAvg
                 )
             )
+
+            trueCost
         }
     }
 

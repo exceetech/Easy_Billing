@@ -351,11 +351,23 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
                         val cessAmt  = if (item.quantity > 0.0) (qty / item.quantity) * item.cessAmount else 0.0
 
+                        var lineValuationVariance = 0.0
+
                         if (noteType == "D") {
                             // ── Debit Note: reduce stock and batch ───────────────────
                             val batches = db.purchaseBatchDao()
                                 .getRemainingBatches(productId)
                                 .filter { it.purchaseInvoiceId == p.id && it.quantityRemaining > 0.0 }
+
+                            // Moving-average redesign, Phase 2: capture the average
+                            // cost BEFORE anything below removes stock. It's frozen
+                            // through this whole operation (Phase 1), so this value
+                            // is what gets removed per unit — EXCEPT if this return
+                            // drains the product to exactly zero stock, in which case
+                            // InventoryManager.reduceStock zeroes averageCost as part
+                            // of its own contract. Reading it now, before that can
+                            // happen, is what makes this correct either way.
+                            val avgAtTimeOfReturn = db.inventoryDao().getInventory(productId)?.averageCost ?: 0.0
 
                             var qtyToDebit = qty
                             val reductions = mutableListOf<InventoryValuation.BatchReduction>()
@@ -363,23 +375,32 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 if (qtyToDebit <= 0.0) break
                                 val take = minOf(b.quantityRemaining, qtyToDebit)
                                 reductions.add(InventoryValuation.BatchReduction(b.id, take))
+                                // Gain/loss for this slice: value actually leaving
+                                // inventory (at the current average) minus what the
+                                // supplier is refunding for it (this batch's own
+                                // original per-unit cost). Positive = loss.
+                                lineValuationVariance += (take * avgAtTimeOfReturn) - (take * b.unitCostExcludingTax)
                                 qtyToDebit -= take
                             }
 
-                            // Avg-cost audit, Fix 2 follow-up: reduceBatches must run
-                            // BEFORE reduceStock, not after. reduceBatches is what
-                            // actually recomputes average cost from what's left in
-                            // the batch ledger (InventoryValuation.recomputeAvgFromBatches);
-                            // reduceStock is what writes this event's InventoryLog,
-                            // stamping it with whatever inventory.averageCost happens
-                            // to be at that instant (Fix 2's resultingAverageCost).
-                            // With reduceStock running first (the original order),
-                            // the log captured the average cost from BEFORE this
-                            // return's batch recompute — a stale snapshot — and that
-                            // stale number is exactly what got pushed to the server
-                            // as the "trusted" final value. Swapping the order means
-                            // the batch ledger is already fully recomputed by the
-                            // time reduceStock reads inventory.averageCost for the log.
+                            // reduceBatches runs before reduceStock so the batch
+                            // ledger's remaining quantity is already updated by the
+                            // time reduceStock touches the inventory row and writes
+                            // this event's log — keeps the two ledgers (batch
+                            // quantities, inventory row) from ever being briefly
+                            // inconsistent mid-transaction. Note: as of the
+                            // moving-average redesign (Phase 1), neither of these
+                            // calls touches averageCost anymore — a purchase return
+                            // removes stock at whatever the average already is,
+                            // same as a sale, which by definition can't move it.
+                            // The order here is about quantity bookkeeping now, not
+                            // cost. The gap between the value removed at the current
+                            // average and what the supplier actually refunds (at
+                            // the original invoice price) is a separate concern —
+                            // tracked as an explicit gain/loss in
+                            // lineValuationVariance above, stored on the
+                            // PurchaseReturn row below — and must never be folded
+                            // back into this average either.
                             if (reductions.isNotEmpty()) {
                                 InventoryValuation.reduceBatches(db, productId, reductions)
                             }
@@ -498,7 +519,13 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 availedItcStateTax    = rowAvailedSgstClamped,
                                 availedItcCess        = rowAvailedCessClamped,
                                 invoiceType           = invoiceType,
-                                placeOfSupplyCode     = placeOfSupplyCode
+                                placeOfSupplyCode     = placeOfSupplyCode,
+
+                                // Moving-average redesign, Phase 2. Zero for
+                                // Credit Notes (the else-branch above never
+                                // touches lineValuationVariance, so it stays
+                                // at its 0.0 initial value).
+                                inventoryValuationVariance = round(lineValuationVariance)
                             )
                         )
                     }

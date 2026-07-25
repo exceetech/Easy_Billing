@@ -110,5 +110,28 @@ data class PurchaseReturn(
     @ColumnInfo(name = "availed_itc_state_tax", defaultValue = "0.0") val availedItcStateTax: Double = 0.0,
     @ColumnInfo(name = "availed_itc_cess", defaultValue = "0.0")     val availedItcCess: Double = 0.0,
     @ColumnInfo(name = "invoice_type", defaultValue = "'Regular'")         val invoiceType: String = "Regular",
-    @ColumnInfo(name = "place_of_supply_code", defaultValue = "''") val placeOfSupplyCode: String = ""
+    @ColumnInfo(name = "place_of_supply_code", defaultValue = "''") val placeOfSupplyCode: String = "",
+
+    // ── Moving-average redesign, Phase 2 ──────────────────────────────
+    /**
+     * Only meaningful for a Debit Note (noteType == "D", stock going back
+     * to a supplier). Under the moving-average system, a purchase return
+     * removes inventory VALUE at the CURRENT average cost (same as a
+     * sale) — that's what keeps average cost mathematically neutral to
+     * every outflow. But the supplier only refunds what was originally
+     * paid for those specific units, per the original purchase invoice —
+     * which is usually a different number once that batch has been
+     * blended with other purchases at other prices.
+     *
+     * This field is that gap: (quantity × average cost at the moment of
+     * this return) − (quantity × the original invoice's unit cost). A
+     * POSITIVE value is a LOSS (inventory value removed exceeds what the
+     * supplier is crediting back). A NEGATIVE value is a GAIN. It is
+     * computed once on the client and stored here — never fed back into
+     * inventory.averageCost itself, and never silently absorbed anywhere.
+     * Zero for a Credit Note (noteType == "C") and for any legacy row
+     * that predates this field.
+     */
+    @ColumnInfo(name = "inventory_valuation_variance", defaultValue = "0.0")
+    val inventoryValuationVariance: Double = 0.0
 )

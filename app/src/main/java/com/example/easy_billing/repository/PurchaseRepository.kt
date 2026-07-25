@@ -273,8 +273,11 @@ class PurchaseRepository private constructor(
             // GST-inclusive (gross) per-unit value used by the inventory log, but
             // the batch's unitCostExcludingTax must be the NET cost
             // (taxableAmount / quantity). That column is "excluding tax" and
-            // drives the weighted-average COGS via recomputeAvgFromBatches, so
-            // storing the gross value there baked tax into valuation.
+            // is what GST-aware reports (GSTR-2 etc.) read per batch — average
+            // cost itself is now driven purely by addStock's own weighted-average
+            // formula (moving-average redesign, Phase 1), not by summing this
+            // ledger, so storing the gross value here would still corrupt GST
+            // reporting even though it no longer affects the displayed average.
             val unitCostGross = if (line.quantity > 0.0) line.invoiceValue / line.quantity
                               else line.costPrice
             val unitCostNet = if (line.quantity > 0.0) line.taxableAmount / line.quantity

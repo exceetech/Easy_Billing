@@ -207,7 +207,10 @@ data class PurchaseReturnDto(
     val availed_itc_state_tax: Double = 0.0,
     val availed_itc_cess: Double = 0.0,
     val invoice_type: String = "Regular",
-    val place_of_supply_code: String = ""
+    val place_of_supply_code: String = "",
+    // Moving-average redesign, Phase 2: gain/loss vs. the supplier's
+    // refund, computed on-device. Zero for Credit Notes and legacy rows.
+    val inventory_valuation_variance: Double = 0.0
 )
 
 /* ---------- Scrap ---------- */

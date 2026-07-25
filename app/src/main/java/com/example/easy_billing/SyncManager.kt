@@ -1150,7 +1150,8 @@ class SyncManager(private val context: Context) {
                 availed_itc_state_tax    = r.availedItcStateTax,
                 availed_itc_cess         = r.availedItcCess,
                 invoice_type            = r.invoiceType,
-                place_of_supply_code    = r.placeOfSupplyCode
+                place_of_supply_code    = r.placeOfSupplyCode,
+                inventory_valuation_variance = r.inventoryValuationVariance
             )
         }
 
@@ -3307,7 +3308,12 @@ class SyncManager(private val context: Context) {
                                 availedItcStateTax = r.availed_itc_state_tax ?: 0.0,
                                 availedItcCess = r.availed_itc_cess ?: 0.0,
                                 invoiceType = r.invoice_type ?: "Regular",
-                                placeOfSupplyCode = r.place_of_supply_code ?: ""
+                                placeOfSupplyCode = r.place_of_supply_code ?: "",
+                                // Read-only mirror of another device's return —
+                                // the variance was already computed and booked
+                                // on the device that created it; just carry it
+                                // through unchanged.
+                                inventoryValuationVariance = r.inventory_valuation_variance ?: 0.0
                             )
                         )
                     }

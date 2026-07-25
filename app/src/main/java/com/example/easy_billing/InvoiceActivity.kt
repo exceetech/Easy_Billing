@@ -1062,6 +1062,47 @@ class InvoiceActivity : AppCompatActivity() {
                     }
                 }
 
+                // 1b. Inventory deduction — moved up from its old "step 8"
+                // position as part of the moving-average redesign. This has
+                // to run BEFORE billItemsTmp is built (step 3) so
+                // InventoryManager.reduceStock can hand back the exact
+                // average cost it used AT THE MOMENT OF THIS SALE, before
+                // its own mutation can touch it (mutation zeroes averageCost
+                // if the sale drains stock to exactly 0 — reading it any
+                // later would silently record ₹0 as the cost of a real
+                // sale). Stock availability was already confirmed in step 1
+                // above, so it's safe to actually mutate here.
+                //
+                // BillItem.costPriceUsed = this average-at-sale value, NOT
+                // a per-batch FIFO cost. Under the moving-average redesign
+                // (Phase 1), a sale is defined to remove inventory VALUE at
+                // exactly averageCost × quantity — that's what "frozen"
+                // means. Recording anything else on the bill (e.g. a
+                // multi-batch sale's blended per-batch cost, which was
+                // tried and reverted) would make the bill's own cost figure
+                // disagree with how much the inventory ledger actually
+                // dropped for that same sale.
+                //
+                // Keyed by cart position, not productId — if the same
+                // product ever appears as two separate cart lines, each
+                // line's own cost must stay attached to that line, not
+                // overwrite the other's.
+                val costAtSaleByIndex = mutableMapOf<Int, Double>()
+                for ((idx, cartItem) in items.withIndex()) {
+                    val product = cartItem.product
+                    if (product.trackInventory) {
+                        val inventory = db.inventoryDao().getInventory(product.id)
+                        if (inventory != null) {
+                            val costRemoved = InventoryManager.reduceStock(
+                                db = db,
+                                productId = product.id,
+                                quantity = cartItem.quantity
+                            )
+                            costAtSaleByIndex[idx] = costRemoved
+                        }
+                    }
+                }
+
                 // 2. Resolve breakdown & customer state.
                 //    Discount is applied PRE-TAX inside the calculator; the
                 //    returned per-line taxable/tax and grandTotal are already
@@ -1139,9 +1180,18 @@ class InvoiceActivity : AppCompatActivity() {
                     val product  = cartItem.product
                     val quantity = cartItem.quantity
                     val line     = breakdown.lines[idx]
-                    val avgCost  = if (product.trackInventory) {
-                        db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
-                    } else 0.0
+                    // Average cost AT THE TIME OF SALE, captured in step 1b
+                    // above (before reduceStock's own mutation could zero it
+                    // out on a stock-to-0 sale). Falls back to a fresh
+                    // averageCost read for a non-tracked product (never
+                    // touched step 1b) or the rare case the map has no
+                    // entry for it.
+                    val lineCost = costAtSaleByIndex[idx] ?: run {
+                        val avgCost = if (product.trackInventory) {
+                            db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+                        } else 0.0
+                        avgCost * quantity
+                    }
 
                     val effectiveRate =
                         line.cgstPercentage + line.sgstPercentage + line.igstPercentage
@@ -1156,8 +1206,8 @@ class InvoiceActivity : AppCompatActivity() {
                             price         = line.sellingPrice,
                             quantity      = quantity,
                             subTotal      = line.taxableAmount,
-                            costPriceUsed = avgCost * quantity,
-                            profit        = line.taxableAmount - (avgCost * quantity),
+                            costPriceUsed = lineCost,
+                            profit        = line.taxableAmount - lineCost,
                             hsnCode       = product.hsnCode ?: "",
                             gstRate       = effectiveRate,
                             cgstAmount    = line.cgstAmount,
@@ -1359,20 +1409,11 @@ class InvoiceActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
 
-                // 8. Inventory deduction — preserve existing flow.
-                for (cartItem in items) {
-                    val product = cartItem.product
-                    if (product.trackInventory) {
-                        val inventory = db.inventoryDao().getInventory(product.id)
-                        if (inventory != null) {
-                            InventoryManager.reduceStock(
-                                db = db,
-                                productId = product.id,
-                                quantity = cartItem.quantity
-                            )
-                        }
-                    }
-                }
+                // 8. Inventory deduction — moved to step 1b (above, before
+                // billItemsTmp is built) as part of the moving-average
+                // redesign, so BillItem.costPriceUsed can record the true
+                // FIFO-consumed cost instead of a stale pre-sale snapshot.
+                // Nothing left to do here.
 
                 // 9. Backend bill creation — single code path.
                 //

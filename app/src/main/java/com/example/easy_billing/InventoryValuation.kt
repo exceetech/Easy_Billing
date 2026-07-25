@@ -7,24 +7,38 @@ import com.example.easy_billing.db.PurchaseBatch
 /**
  * Pure-Kotlin utility behind the hybrid inventory model.
  *
- *   • FIFO consumption        — [consumeFifo]
- *   • Per-batch reductions    — [reduceBatches] (supplier returns)
- *   • Average cost derivation — [recomputeAvgFromBatches]
- *   • Migration back-fill     — [ensureSyntheticBatch]
- *   • Real batch insert       — [recordBatch]
- *
- * Every public function is idempotent at the inventory-row level: it
- * touches `inventory.averageCost` only when the derived value
- * differs, so no spurious sync churn is generated.
+ *   • FIFO consumption (quantity only) — [consumeFifo]
+ *   • Per-batch reductions (quantity only) — [reduceBatches] (supplier returns)
+ *   • Migration back-fill        — [ensureSyntheticBatch]
+ *   • Real batch insert          — [recordBatch]
  *
  * IMPORTANT: This object **never** changes `inventory.currentStock`
  * — that stays under [InventoryManager]'s control so the existing
  * sales / scrap / clear-stock paths keep their behavioural contracts
- * intact. We only ever realign `averageCost` to RULE 3:
+ * intact.
  *
- *     avg = SUM(remainingQty × unitCostExcludingTax) / SUM(remainingQty)
+ * Moving-average redesign (avg-cost audit, Phase 1): average cost is
+ * NO LONGER derived by summing the batch ledger. It used to be —
+ * every function below recomputed `inventory.averageCost` from
+ * SUM(remainingQty × unitCost) / SUM(remainingQty) every time a batch
+ * changed, which meant the displayed average moved on every single
+ * sale, scrap, and purchase return, not just purchases. That's what
+ * caused the average to visibly jump around for reasons that weren't
+ * obvious to whoever was looking at the screen, and — more seriously
+ * — meant a chain of sale + purchase-return + customer-return events
+ * could silently drift the average away from where it should be, with
+ * no single step being individually "wrong."
  *
- * If nothing remains, the avg drops to zero (RULE 4).
+ * The new rule: average cost only ever changes on two events —
+ * a purchase (blended in by [InventoryManager.addStock]'s own
+ * weighted-average formula) and a customer sales-return (blended in
+ * at the rate that was recorded on the original bill). Every OUTFLOW
+ * — a sale, a scrap/loss, or a purchase return — removes stock at
+ * whatever the average currently is, which by definition can never
+ * change that average. The batch ledger below still tracks exactly
+ * how much of each purchase invoice remains (needed to validate
+ * purchase-return quantities against a specific invoice), it just no
+ * longer feeds back into `inventory.averageCost`.
  */
 object InventoryValuation {
 
@@ -76,8 +90,13 @@ object InventoryValuation {
             // Drop zero-qty batches so future FIFO walks stay tight.
             db.purchaseBatchDao().clearEmptyBatches(productId)
 
-            // Recompute average cost from whatever's left.
-            recomputeAvgFromBatches(db, productId)
+            // Moving-average redesign (Phase 1): no average-cost recompute
+            // here anymore. A sale/scrap removes stock at whatever the
+            // average already is — mathematically, that can never change
+            // the average of what's left, so there's nothing to recompute.
+            // The FIFO walk above still exists purely to track remaining
+            // quantity per batch/invoice (needed for purchase-return
+            // validation), not to derive cost anymore.
 
             consumed
         }
@@ -132,14 +151,34 @@ object InventoryValuation {
             }
 
             db.purchaseBatchDao().clearEmptyBatches(productId)
-            recomputeAvgFromBatches(db, productId)
+            // Moving-average redesign (Phase 1): no average-cost recompute
+            // here anymore — a purchase return, like a sale, removes stock
+            // at the current average, which is mathematically neutral to
+            // that average. (The financial gap between "value removed at
+            // the current average" and "what the supplier actually
+            // refunds, at the original invoice price" is booked separately
+            // as an explicit purchase-return gain/loss — see
+            // PurchaseReturnViewModel / InventoryReductionRepository — it
+            // never gets folded back into inventory.averageCost.)
 
             totalReduced
         }
     }
 
     /**
-     * Realigns `inventory.averageCost` to RULE 3.
+     * Realigns `inventory.averageCost` to SUM(remainingQty × unitCost) /
+     * SUM(remainingQty) across the batch ledger.
+     *
+     * NOT called automatically anywhere anymore as of the moving-average
+     * redesign (Phase 1) — average cost is now purely event-driven
+     * (purchase blend, sales-return blend at the bill's recorded rate).
+     * Kept as a manual/diagnostic tool only: useful from a debug menu or
+     * a one-off data-repair script if a product's batches and average
+     * cost are ever found to have drifted apart for some other reason,
+     * but nothing in the normal sale/purchase/return flow should call
+     * this anymore. If you're about to add a new call site, stop and
+     * check whether what you actually want is one of the explicit
+     * formulas in InventoryManager/PurchaseReturnViewModel instead.
      *
      * Never writes if the derived value already matches what's on the
      * row — that keeps `isSynced` from flipping on no-op recomputes.
@@ -235,7 +274,15 @@ object InventoryValuation {
             consumeFifo(db, productId, excess)
         }
 
-        recomputeAvgFromBatches(db, productId)
+        // Moving-average redesign (Phase 1): drift reconciliation now only
+        // ever touches batch QUANTITY (backfilling or draining above) —
+        // never inventory.averageCost. Cost is purely event-driven now
+        // (purchase blend, sales-return blend), so a quantity self-heal
+        // has no reason to move it. The synthetic backfill batch above
+        // still records a cost estimate (the current average, same as
+        // before) purely so the batch ledger has *something* sensible on
+        // that row for invoice/quantity-tracking purposes — that estimate
+        // is never read back into inventory.averageCost.
     }
 
     /**
@@ -296,11 +343,21 @@ object InventoryValuation {
     }
 
     /**
-     * Records a fresh purchase batch and immediately refreshes the
-     * weighted average. Used by [InventoryManager.addStock] and
-     * [com.example.easy_billing.repository.PurchaseRepository] so the
-     * inventory row's `averageCost` always equals what the batch
-     * ledger says it should.
+     * Records a fresh purchase batch (quantity/invoice tracking only).
+     * Used by [InventoryManager.addStock] and
+     * [com.example.easy_billing.repository.PurchaseRepository].
+     *
+     * Moving-average redesign (Phase 1): this used to call
+     * recomputeAvgFromBatches() right after inserting, which meant a
+     * purchase's average cost was actually decided by summing the WHOLE
+     * batch ledger — not by addStock's own weighted-average formula. That
+     * doesn't just look wrong now, it's now built to overwrite
+     * addStock's careful blend the moment a purchase happens on a
+     * product that already has real batches. addStock already writes
+     * the correct new average to the inventory row (its own explicit
+     * formula, using the current — possibly frozen — average as the
+     * starting point) BEFORE calling this function, so this must not
+     * touch averageCost at all anymore, or it would silently undo that.
      *
      * Returns the new batch id.
      */
@@ -312,11 +369,9 @@ object InventoryValuation {
             // Force quantityRemaining == quantityPurchased on insert
             // — callers should not be able to seed a half-spent batch
             // through this entrypoint.
-            val id = db.purchaseBatchDao().insertBatch(
+            db.purchaseBatchDao().insertBatch(
                 batch.copy(quantityRemaining = batch.quantityPurchased)
             )
-            recomputeAvgFromBatches(db, batch.productId)
-            id
         }
     }
 
