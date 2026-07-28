@@ -54,6 +54,10 @@
         <activity
             android:name=".BillHistoryActivity" />
         <activity
+            android:name=".CreditDebitNotesActivity"
+            android:label="Issued notes"
+            android:exported="false" />
+        <activity
             android:name=".DashboardActivity"
             android:exported="false" />
         <activity

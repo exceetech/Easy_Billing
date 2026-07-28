@@ -5,17 +5,25 @@
     separated by a hairline (vDivider, hidden on the last row).
 
     Bound by PurchaseLinesAdapter:
-      tvAvatar — product initials
-      tvName   — product name (+ muted variant)
-      tvMeta   — "20 × ₹460 · GST 5%"
-      tvPrice  — invoice value (line total incl. GST)
-      tvTax    — "+₹460 tax"  (or "no tax")
-      btnRemove — remove the line
+      tvAvatar    — product initials
+      tvName      — product name (+ muted variant)
+      tvReviewTag — amber "Review" flag, shown until the line has been
+                    opened and saved at least once (see reviewed on
+                    PurchaseItemDraft)
+      tvMeta      — "20 × ₹460 · GST 5%"
+      tvPrice     — invoice value (line total incl. GST)
+      tvTax       — "+₹460 tax"  (or "no tax")
+      btnEdit     — open the line for editing (lucide pencil)
+      btnRemove   — remove the line (lucide x)
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -43,16 +51,39 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvName"
-                android:text="Basmati rice"
-                android:textColor="#18181B"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:text="Basmati rice"
+                    android:textColor="#18181B"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvReviewTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="REVIEW"
+                    android:textSize="8.5sp"
+                    android:letterSpacing="0.06"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#854F0B"
+                    android:background="@drawable/bg_credit_tile_amber"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvMeta"
@@ -91,17 +122,28 @@
         </LinearLayout>
 
         <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="4dp"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Edit"
+            android:src="@drawable/ic_lucide_pencil"
+            app:tint="#8A6526"/>
+
+        <ImageButton
             android:id="@+id/btnRemove"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="2dp"
             android:padding="6dp"
             android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Remove"
-            android:src="@drawable/ic_lc_x"
-            app:tint="#C0B49C"
-            xmlns:app="http://schemas.android.com/apk/res-auto"/>
+            android:src="@drawable/ic_lucide_x"
+            app:tint="#C0B49C"/>
     </LinearLayout>
 
     <View

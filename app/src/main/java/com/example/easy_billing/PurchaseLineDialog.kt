@@ -283,7 +283,9 @@ class PurchaseLineDialog(
         prefillName: String? = null,
         prefillVariant: String? = null,
         prefillUnit: String? = null,
-        disableMeta: Boolean = false
+        disableMeta: Boolean = false,
+        existingDraft: PurchaseItemDraft? = null,
+        editIndex: Int? = null
     ) {
         val view = activity.layoutInflater.inflate(R.layout.dialog_purchase_line, null)
 
@@ -381,6 +383,13 @@ class PurchaseLineDialog(
         val btnHelp = view.findViewById<MaterialButton>(R.id.btnHsnHelp)
         val btnAdd = view.findViewById<MaterialButton>(R.id.btnLineAdd)
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnLineCancel)
+
+        // Editing an already-added line reads "Edit item" / "Save changes"
+        // instead of "Add" / "Add item" — same dialog, different verb.
+        if (editIndex != null) {
+            view.findViewById<TextView?>(R.id.tvLineDialogVerb)?.text = "Edit"
+            btnAdd.text = "Save changes"
+        }
 
         // ── GSTR-1 product master fields ──
         val spinnerUqcPurchase = view.findViewById<AutoCompleteTextView>(R.id.spinnerOfficialUqcPurchase)
@@ -751,6 +760,57 @@ class PurchaseLineDialog(
                     }
                     onVariantSettled()
                 }
+
+                // Editing an existing line — restore every value it was
+                // last saved with, on top of whatever the name/variant
+                // settle above may have autofilled or cleared. Wrapped in
+                // applyingAutofill so the HSN/variant lookups this would
+                // otherwise trigger don't fire and clobber these values a
+                // moment later.
+                if (existingDraft != null) {
+                    applyingAutofill = true
+                    try {
+                        etUnit.setText(existingDraft.unit?.takeIf { it.isNotBlank() } ?: "piece", false)
+                        etHsn.setText(existingDraft.hsnCode.orEmpty())
+                        etSelling.setText(existingDraft.sellingPrice?.let { trimNum(it) } ?: "")
+                        switchTaxInclusive.isChecked = existingDraft.isTaxInclusive
+                        etSCgst.setText(trimNum(existingDraft.salesCgst))
+                        etSSgst.setText(trimNum(existingDraft.salesSgst))
+                        etSIgst.setText(trimNum(existingDraft.salesIgst))
+                        spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(existingDraft.officialUqc) ?: "", false)
+                        etHsnDescPurchase.setText(existingDraft.hsnDescription.orEmpty())
+                        etCessRatePurchase.setText(trimNum(existingDraft.cessRate))
+                        spinnerSupplyClassPurchase.setText(existingDraft.supplyClassification, false)
+                        etCategoryPurchase.setText(existingDraft.category, false)
+                    } finally {
+                        applyingAutofill = false
+                    }
+
+                    etQty.setText(trimNum(existingDraft.quantity))
+                    etDiscount.setText(trimNum(existingDraft.discountAmount))
+                    etTax.setText(trimNum(existingDraft.taxableAmount))
+                    etGross.setText(trimNum(existingDraft.taxableAmount + existingDraft.discountAmount))
+
+                    etPCgst.setText(trimNum(existingDraft.purchaseCgst))
+                    etPSgst.setText(trimNum(existingDraft.purchaseSgst))
+                    etPIgst.setText(trimNum(existingDraft.purchaseIgst))
+
+                    etCessAmountPurchase.setText(trimNum(existingDraft.cessAmount))
+                    spinnerEligibilityItemPurchase.setText(
+                        existingDraft.eligibilityForItc.ifBlank { "Inputs" }, false
+                    )
+                    etAvailedItcIgstPurchase.setText(trimNum(existingDraft.availedItcIgst))
+                    etAvailedItcCgstPurchase.setText(trimNum(existingDraft.availedItcCgst))
+                    etAvailedItcSgstPurchase.setText(trimNum(existingDraft.availedItcSgst))
+                    etAvailedItcCessPurchase.setText(trimNum(existingDraft.availedItcCess))
+
+                    // Last write wins over any recompute the fields above
+                    // triggered along the way (e.g. an intra/inter-state
+                    // guess made before the shop's GST state finished
+                    // loading) — the invoice value the line was actually
+                    // saved with is always the one shown.
+                    etInv.setText(trimNum(existingDraft.invoiceValue))
+                }
             }
         }
 
@@ -966,7 +1026,16 @@ class PurchaseLineDialog(
             )
 
             rememberCustomCategory(etCategoryPurchase.text?.toString()?.trim().orEmpty())
-            resolveExistingProductAndAdd(draft, qty, dialog)
+
+            if (editIndex != null) {
+                // Editing a line already in this purchase's list — no
+                // existing-product conflict check needed, it's not a new
+                // product being added, just this draft's values changing.
+                viewModel.replaceLine(editIndex, draft)
+                dialog.dismiss()
+            } else {
+                resolveExistingProductAndAdd(draft, qty, dialog)
+            }
         }
 
         showImmersive(dialog)

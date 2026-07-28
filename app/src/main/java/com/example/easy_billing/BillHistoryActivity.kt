@@ -1,6 +1,8 @@
 package com.example.easy_billing
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,7 +18,6 @@ import com.example.easy_billing.network.BillResponse
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.CurrencyHelper
-import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,17 +32,26 @@ class BillHistoryActivity : BaseActivity() {
     private lateinit var tvTodaySales: TextView
     private lateinit var tvBillsToday: TextView
 
-    private lateinit var chipToday: Chip
-    private lateinit var chipWeek: Chip
-    private lateinit var chipMonth: Chip
-    private lateinit var chipSortAmount: Chip
+    private lateinit var btnFilter: android.view.View
+    private lateinit var btnSort: android.view.View
+    private lateinit var tvFilterBadge: TextView
+    private lateinit var tvResultSummary: TextView
+    private lateinit var btnResetFilters: android.view.View
 
     private val handler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
 
     private var allBills: List<BillResponse> = emptyList()
 
-    private var activeFilter: String? = null
+    // Filter (date range / cancelled) and sort are independent dimensions —
+    // both apply together, rather than one mutually-exclusive chip value.
+    private val filterKeys = listOf("ALL", "TODAY", "WEEK", "MONTH", "CANCELLED")
+    private val filterLabels = listOf("All bills", "Today", "This week", "This month", "Cancelled")
+    private var activeFilter: String = "ALL"
+
+    private val sortKeys = listOf("NEWEST", "OLDEST", "AMOUNT_HIGH", "AMOUNT_LOW", "BILL_NUMBER")
+    private val sortLabels = listOf("Newest first", "Oldest first", "Highest amount", "Lowest amount", "Bill number")
+    private var activeSort: String = "NEWEST"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +63,7 @@ class BillHistoryActivity : BaseActivity() {
         initViews()
         setupRecycler()
         setupSearch()
-        setupFilters()
+        setupFilterAndSort()
 
         loadBills()
     }
@@ -69,10 +79,11 @@ class BillHistoryActivity : BaseActivity() {
         tvTodaySales = findViewById(R.id.tvTodaySales)
         tvBillsToday = findViewById(R.id.tvBillsToday)
 
-        chipToday = findViewById(R.id.btnToday)
-        chipWeek = findViewById(R.id.btnWeek)
-        chipMonth = findViewById(R.id.btnMonth)
-        chipSortAmount = findViewById(R.id.btnSortAmount)
+        btnFilter = findViewById(R.id.btnFilter)
+        btnSort = findViewById(R.id.btnSort)
+        tvFilterBadge = findViewById(R.id.tvFilterBadge)
+        tvResultSummary = findViewById(R.id.tvResultSummary)
+        btnResetFilters = findViewById(R.id.btnResetFilters)
     }
 
 // ================= RECYCLER =================
@@ -87,6 +98,7 @@ class BillHistoryActivity : BaseActivity() {
         }
 
         rvBills.adapter = adapter
+        rvBills.clipToOutline = true
     }
 
 // ================= LOAD =================
@@ -116,6 +128,7 @@ class BillHistoryActivity : BaseActivity() {
                 adapter.submitList(sorted)
                 updateSummary(sorted)
                 showListState(sorted)
+                updateFilterSortIndicators(sorted.size)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -156,11 +169,12 @@ class BillHistoryActivity : BaseActivity() {
 
                 searchRunnable = Runnable {
 
-                    val baseList = applyActiveFilter(allBills)
+                    val baseList = applyFilterAndSort(allBills)
 
                     if (query.isEmpty()) {
                         adapter.submitList(baseList)
                         showListState(baseList)
+                        updateFilterSortIndicators(baseList.size)
                         return@Runnable
                     }
 
@@ -174,6 +188,7 @@ class BillHistoryActivity : BaseActivity() {
                     adapter.submitList(filtered)
                     tvBillsEmpty.text = if (filtered.isEmpty()) "No bills match your search" else "No bills found"
                     showListState(filtered)
+                    updateFilterSortIndicators(filtered.size)
                 }
 
                 handler.postDelayed(searchRunnable!!, 300)
@@ -183,47 +198,133 @@ class BillHistoryActivity : BaseActivity() {
         })
     }
 
-// ================= FILTERS =================
+// ================= FILTER + SORT =================
 
-    private fun setupFilters() {
-        chipToday.setOnClickListener { toggleFilter("TODAY") }
-        chipWeek.setOnClickListener { toggleFilter("WEEK") }
-        chipMonth.setOnClickListener { toggleFilter("MONTH") }
-        chipSortAmount.setOnClickListener { toggleFilter("SORT") }
+    private fun setupFilterAndSort() {
+        btnFilter.setOnClickListener { showFilterPopup() }
+        btnSort.setOnClickListener { showSortPopup() }
+        btnResetFilters.setOnClickListener {
+            activeFilter = "ALL"
+            activeSort = "NEWEST"
+            refreshList()
+        }
     }
 
-    private fun toggleFilter(filter: String) {
+    /** Champagne dropdown popup — same build-a-PopupWindow pattern as
+     * ManageProductsActivity.showSortPopup, reused here for both the filter
+     * and sort buttons since they're the same "pick one of these options"
+     * shape. */
+    private fun showOptionsPopup(
+        anchor: android.view.View,
+        keys: List<String>,
+        labels: List<String>,
+        current: String,
+        onPick: (String) -> Unit
+    ) {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        val accent = Color.parseColor("#0F6E56")
+        val ink = Color.parseColor("#1A1A18")
+        val medium = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+        val currentIndex = keys.indexOf(current).coerceAtLeast(0)
 
-        activeFilter = if (activeFilter == filter) null else filter
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dp(5), dp(5), dp(5), dp(5))
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
 
-        updateChipUI()
+        val popup = android.widget.PopupWindow(
+            scroll, dp(220),
+            minOf(labels.size * dp(44) + dp(10), dp(360)),
+            true
+        ).apply {
+            elevation = dp(10).toFloat()
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
 
-        val result = applyActiveFilter(allBills)
+        labels.forEachIndexed { i, label ->
+            val isSel = i == currentIndex
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dp(44))
+                setPadding(dp(12), 0, dp(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val tv = TextView(this).apply {
+                text = label
+                textSize = 14f
+                typeface = medium
+                setTextColor(if (isSel) accent else ink)
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            row.addView(tv)
+            if (isSel) {
+                row.addView(android.widget.ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(accent)
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dp(16), dp(16))
+                })
+            }
+            row.setOnClickListener {
+                onPick(keys[i])
+                popup.dismiss()
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(anchor, 0, dp(6))
+    }
+
+    private fun showFilterPopup() {
+        showOptionsPopup(btnFilter, filterKeys, filterLabels, activeFilter) { picked ->
+            activeFilter = picked
+            refreshList()
+        }
+    }
+
+    private fun showSortPopup() {
+        showOptionsPopup(btnSort, sortKeys, sortLabels, activeSort) { picked ->
+            activeSort = picked
+            refreshList()
+        }
+    }
+
+    private fun refreshList() {
+        val result = applyFilterAndSort(allBills)
         adapter.submitList(result)
         updateSummary(result)
         tvBillsEmpty.text = "No bills found"
         showListState(result)
+        updateFilterSortIndicators(result.size)
     }
 
-    private fun updateChipUI() {
+    /** Filter icon gets a small red count badge whenever a non-default
+     * filter is active; the result pill always shows "N bills · sort label"
+     * so the current state stays visible without labelled buttons. The
+     * "Reset" action only appears once something's actually non-default,
+     * so there's a one-tap way back to All bills / Newest first. */
+    private fun updateFilterSortIndicators(resultCount: Int) {
+        val hasActiveFilter = activeFilter != "ALL"
+        val hasActiveSort = activeSort != "NEWEST"
 
-        val chips = listOf(chipToday, chipWeek, chipMonth, chipSortAmount)
+        tvFilterBadge.visibility = if (hasActiveFilter) android.view.View.VISIBLE else android.view.View.GONE
+        btnResetFilters.visibility = if (hasActiveFilter || hasActiveSort) android.view.View.VISIBLE else android.view.View.GONE
 
-        chips.forEach { it.isChecked = false }
-
-        when (activeFilter) {
-            "TODAY" -> chipToday.isChecked = true
-            "WEEK" -> chipWeek.isChecked = true
-            "MONTH" -> chipMonth.isChecked = true
-            "SORT" -> chipSortAmount.isChecked = true
-        }
+        val sortLabel = sortLabels[sortKeys.indexOf(activeSort)]
+        tvResultSummary.text = "$resultCount bill${if (resultCount == 1) "" else "s"} · $sortLabel"
     }
 
-    private fun applyActiveFilter(source: List<BillResponse>): List<BillResponse> {
+    private fun applyFilterAndSort(source: List<BillResponse>): List<BillResponse> {
 
         val today = AppTime.todayIso()   // app timezone (matches backend created_at)
 
-        return when (activeFilter) {
+        val filtered = when (activeFilter) {
 
             "TODAY" -> source.filter {
                 it.created_at.startsWith(today)
@@ -251,9 +352,17 @@ class BillHistoryActivity : BaseActivity() {
                 }
             }
 
-            "SORT" -> source.sortedByDescending { it.total_amount }
+            "CANCELLED" -> source.filter { it.is_cancelled }
 
             else -> source
+        }
+
+        return when (activeSort) {
+            "OLDEST" -> filtered.sortedBy { it.created_at }
+            "AMOUNT_HIGH" -> filtered.sortedByDescending { it.total_amount }
+            "AMOUNT_LOW" -> filtered.sortedBy { it.total_amount }
+            "BILL_NUMBER" -> filtered.sortedByDescending { it.bill_number }
+            else -> filtered.sortedByDescending { it.created_at } // NEWEST
         }
     }
 

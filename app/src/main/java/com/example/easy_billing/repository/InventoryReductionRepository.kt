@@ -7,6 +7,7 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.PurchaseReturn
 import com.example.easy_billing.db.ScrapEntry
 import com.example.easy_billing.util.GstEngine
+import com.example.easy_billing.util.appNow
 import androidx.room.withTransaction
 
 /**
@@ -23,25 +24,16 @@ class InventoryReductionRepository private constructor(
 
     enum class ClearReason { PURCHASE_RETURN, SCRAP }
 
-    /**
-     * Records a purchase return for an arbitrary quantity.
-     * Auto-stamps shop_id + state from the local store_info /
-     * gst_profile so the row is push-ready for the backend.
-     */
-    suspend fun recordPurchaseReturn(entry: PurchaseReturn): Int = db.withTransaction {
-        val (shopId, state) = currentShopAndState()
-        val toInsert = entry.copy(
-            shopId = entry.shopId.ifBlank { shopId },
-            state  = entry.state.ifBlank { state }
-        )
-        val id = db.purchaseReturnDao().insert(toInsert).toInt()
-        entry.productId?.let {
-            InventoryManager.reduceStock(
-                db = db, productId = it, quantity = entry.quantityReturned, type = InventoryManager.LogType.PURCHASE_RETURN
-            )
-        }
-        id
-    }
+    // NOTE (Phase 6 cleanup): a `recordPurchaseReturn(entry: PurchaseReturn)`
+    // function used to live here. It had zero call sites anywhere in the app
+    // (dead code) and, worse, was not safe to resurrect: it inserted a bare
+    // PurchaseReturn row with none of the GST/debit-note tagging fields
+    // (note_type, original_invoice_id, place_of_supply, etc.) that
+    // returnToSupplierByBatches() below stamps on every row, and it removed
+    // stock via the generic InventoryManager.reduceStock() instead of the
+    // real per-batch FIFO consumption the return flow depends on for correct
+    // variance and supplier attribution. Deleted rather than fixed in place,
+    // since returnToSupplierByBatches() already covers this need correctly.
 
     /**
      * Records scrap for an arbitrary quantity.
@@ -129,30 +121,188 @@ class InventoryReductionRepository private constructor(
         val (shopIdStr, stateStr) = currentShopAndState()
 
         var returnRowId = -1
+        // Purchase-return-flow audit, Phase 2: sum of the invoice value
+        // across every row this call inserts, for the credit-adjustment
+        // amount handed back below. Only meaningful for PURCHASE_RETURN;
+        // stays 0.0 for SCRAP (which has no supplier balance to adjust).
+        var totalCreditableInvoiceValue = 0.0
+
         when (reason) {
-            ClearReason.PURCHASE_RETURN -> returnRowId = db.purchaseReturnDao().insert(
-                PurchaseReturn(
-                    shopId           = shopIdStr,
-                    productId        = productId,
-                    productName      = productName,
-                    variantName      = variantName,
-                    hsnCode          = hsnCode,
-                    quantityReturned = qty,
-                    taxableAmount    = taxableAmount,
-                    invoiceValue     = invoiceValue,
-                    cgstPercentage   = if (sameState) purchaseTaxCgst else 0.0,
-                    sgstPercentage   = if (sameState) purchaseTaxSgst else 0.0,
-                    igstPercentage   = if (!sameState) purchaseTaxIgst else 0.0,
-                    cgstAmount       = cgstAmt,
-                    sgstAmount       = sgstAmt,
-                    igstAmount       = igstAmt,
-                    state            = stateStr,
-                    supplierGstin    = supplierGstin,
-                    supplierName     = supplierName,
-                    isCredit         = isCredit,
-                    creditAccountId  = creditAccountId
-                )
-            ).toInt()
+            ClearReason.PURCHASE_RETURN -> {
+                // Purchase-return-flow audit, Phase 2: this function used
+                // to insert ONE row for the whole cleared quantity, valued
+                // at the current average and attributed to whatever
+                // supplier the caller happened to pass in — with zero
+                // gain/loss ever computed, since it had no per-batch
+                // knowledge to compute one from. Now it delegates to
+                // [returnToSupplierByBatches], the same per-batch-precise
+                // function the Inventory batch-picker uses, feeding it
+                // EVERY remaining batch for this product. That gives each
+                // row its own correct supplier, its own correct GST rates,
+                // a real gain/loss vs. that batch's own original cost, and
+                // (via Phase 1) proper note/GSTR-2 tagging — all through
+                // one shared implementation instead of a second, simpler
+                // copy of the same logic.
+                val remainingBatches = db.purchaseBatchDao().getRemainingBatches(productId)
+
+                if (remainingBatches.isEmpty()) {
+                    // Legacy/edge case: a product with stock but no batch
+                    // ledger at all (pre-dates the batch system and was
+                    // never back-filled). No per-batch precision is
+                    // possible — fall back to the old aggregate row so
+                    // this still clears the stock and creates SOME record,
+                    // rather than silently doing nothing.
+                    returnRowId = db.purchaseReturnDao().insert(
+                        PurchaseReturn(
+                            shopId           = shopIdStr,
+                            productId        = productId,
+                            productName      = productName,
+                            variantName      = variantName,
+                            hsnCode          = hsnCode,
+                            quantityReturned = qty,
+                            taxableAmount    = taxableAmount,
+                            invoiceValue     = invoiceValue,
+                            cgstPercentage   = if (sameState) purchaseTaxCgst else 0.0,
+                            sgstPercentage   = if (sameState) purchaseTaxSgst else 0.0,
+                            igstPercentage   = if (!sameState) purchaseTaxIgst else 0.0,
+                            cgstAmount       = cgstAmt,
+                            sgstAmount       = sgstAmt,
+                            igstAmount       = igstAmt,
+                            state            = stateStr,
+                            supplierGstin    = supplierGstin,
+                            supplierName     = supplierName,
+                            isCredit         = isCredit,
+                            creditAccountId  = creditAccountId,
+                            noteNumber             = "DN-%05d".format(db.purchaseReturnDao().getMaxDebitNoteSequence() + 1),
+                            noteDate               = appNow(),
+                            noteType               = "D",
+                            placeOfSupply          = GstEngine.INDIA_STATES[shopStateCode] ?: shopStateCode,
+                            placeOfSupplyCode      = shopStateCode,
+                            supplyType             = if (sameState) "intrastate" else "interstate",
+                            documentType           = "Debit Note",
+                            documentNature         = "Debit Note",
+                            documentSeries         = "DN",
+                            preGst                 = "N",
+                            reasonForIssuingDocument = "Purchase return",
+                            noteRefundVoucherValue = Math.round(invoiceValue * 100.0) / 100.0,
+                            rate                   = 0.0,
+                            eligibilityForItc      = "Inputs",
+                            availedItcIntegratedTax = 0.0,
+                            availedItcCentralTax   = 0.0,
+                            availedItcStateTax     = 0.0,
+                            availedItcCess         = 0.0,
+                            invoiceType            = "Regular"
+                            // inventoryValuationVariance stays 0.0 — there's
+                            // no batch to compare the current average against.
+                        )
+                    ).toInt()
+                    totalCreditableInvoiceValue = invoiceValue
+
+                    InventoryManager.clearStock(
+                        db = db, productId = productId,
+                        type = InventoryManager.LogType.PURCHASE_RETURN
+                    )
+                } else {
+                    val batchLines = remainingBatches.map {
+                        BatchReturnLine(batchId = it.id, quantity = it.quantityRemaining)
+                    }
+                    // isCredit/creditAccountId = false/null here: this call
+                    // builds its OWN credit-adjustment info below (summed
+                    // across every row it inserts, plus the leftover row
+                    // if drift leaves anything uncleared), rather than
+                    // letting returnToSupplierByBatches build a separate
+                    // one scoped to just the batch-covered portion.
+                    val batchResult = returnToSupplierByBatches(
+                        productId       = productId,
+                        productName     = productName,
+                        variantName     = variantName,
+                        hsnCode         = hsnCode,
+                        lines           = batchLines,
+                        supplierGstin   = supplierGstin,
+                        supplierName    = supplierName,
+                        isCredit        = false,
+                        creditAccountId = null
+                    )
+                    returnRowId = batchResult?.returnId ?: -1
+                    totalCreditableInvoiceValue = batchResult?.totalInvoiceValue ?: 0.0
+
+                    // Drift safety net: the batch ledger is SUPPOSED to sum
+                    // to inventory.currentStock, but if something has left
+                    // it briefly out of sync, re-check what's actually left
+                    // after the batch-precise pass above and sweep up any
+                    // remainder the same way the old code always did for
+                    // 100% of the quantity — untraceable to one invoice, so
+                    // valued at the current average with zero variance —
+                    // rather than leaving stock behind and breaking this
+                    // function's "clears everything" contract.
+                    val remainingAfterBatches = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
+                    if (remainingAfterBatches > 0.0001) {
+                        val leftoverAvg = db.inventoryDao().getInventory(productId)?.averageCost ?: 0.0
+                        val leftoverTaxable = remainingAfterBatches * leftoverAvg
+                        val leftoverCgst = if (sameState) leftoverTaxable * purchaseTaxCgst / 100.0 else 0.0
+                        val leftoverSgst = if (sameState) leftoverTaxable * purchaseTaxSgst / 100.0 else 0.0
+                        val leftoverIgst = if (!sameState) leftoverTaxable * purchaseTaxIgst / 100.0 else 0.0
+                        val leftoverInvoice = if (sameState) {
+                            leftoverTaxable + leftoverCgst + leftoverSgst
+                        } else {
+                            leftoverTaxable + leftoverIgst
+                        }
+
+                        returnRowId = db.purchaseReturnDao().insert(
+                            PurchaseReturn(
+                                shopId           = shopIdStr,
+                                productId        = productId,
+                                productName      = productName,
+                                variantName      = variantName,
+                                hsnCode          = hsnCode,
+                                quantityReturned = remainingAfterBatches,
+                                taxableAmount    = Math.round(leftoverTaxable * 100.0) / 100.0,
+                                invoiceValue     = Math.round(leftoverInvoice * 100.0) / 100.0,
+                                cgstPercentage   = if (sameState) purchaseTaxCgst else 0.0,
+                                sgstPercentage   = if (sameState) purchaseTaxSgst else 0.0,
+                                igstPercentage   = if (!sameState) purchaseTaxIgst else 0.0,
+                                cgstAmount       = Math.round(leftoverCgst * 100.0) / 100.0,
+                                sgstAmount       = Math.round(leftoverSgst * 100.0) / 100.0,
+                                igstAmount       = Math.round(leftoverIgst * 100.0) / 100.0,
+                                state            = stateStr,
+                                supplierGstin    = supplierGstin,
+                                supplierName     = supplierName,
+                                isCredit         = isCredit,
+                                creditAccountId  = creditAccountId,
+                                noteNumber             = "DN-%05d".format(db.purchaseReturnDao().getMaxDebitNoteSequence() + 1),
+                                noteDate               = appNow(),
+                                noteType               = "D",
+                                placeOfSupply          = GstEngine.INDIA_STATES[shopStateCode] ?: shopStateCode,
+                                placeOfSupplyCode      = shopStateCode,
+                                supplyType             = if (sameState) "intrastate" else "interstate",
+                                documentType           = "Debit Note",
+                                documentNature         = "Debit Note",
+                                documentSeries         = "DN",
+                                preGst                 = "N",
+                                reasonForIssuingDocument = "Purchase return (untraceable balance)",
+                                noteRefundVoucherValue = Math.round(leftoverInvoice * 100.0) / 100.0,
+                                rate                   = 0.0,
+                                eligibilityForItc      = "Inputs",
+                                availedItcIntegratedTax = 0.0,
+                                availedItcCentralTax   = 0.0,
+                                availedItcStateTax     = 0.0,
+                                availedItcCess         = 0.0,
+                                invoiceType            = "Regular"
+                                // No originalInvoiceId/variance — this
+                                // slice isn't traceable to one specific
+                                // batch, so there's nothing to compare
+                                // against.
+                            )
+                        ).toInt()
+                        totalCreditableInvoiceValue += leftoverInvoice
+
+                        InventoryManager.clearStock(
+                            db = db, productId = productId,
+                            type = InventoryManager.LogType.PURCHASE_RETURN
+                        )
+                    }
+                }
+            }
             ClearReason.SCRAP -> db.scrapDao().insert(
                 ScrapEntry(
                     shopId         = shopIdStr,
@@ -181,16 +331,27 @@ class InventoryReductionRepository private constructor(
         // account balance and asks cash-vs-advance on an overshoot. The values
         // needed for that are handed back on ClearStockResult.Cleared.
 
-        // Inventory → 0 via the existing InventoryManager.clearStock
-        // path so transaction logs stay consistent.
-        InventoryManager.clearStock(
-            db = db, productId = productId,
-            type = if (reason == ClearReason.PURCHASE_RETURN) InventoryManager.LogType.PURCHASE_RETURN else InventoryManager.LogType.LOSS
-        )
+        // Purchase-return-flow audit, Phase 2: for PURCHASE_RETURN, stock
+        // is already fully cleared by this point — either by
+        // returnToSupplierByBatches's own reduceStock call (the normal
+        // per-batch path), or by the explicit InventoryManager.clearStock
+        // calls inside the no-batches/leftover branches above. Calling
+        // clearStock a SECOND time here unconditionally, like the old
+        // code did, would be a double-clear (harmless once stock is
+        // already 0, but wasteful and misleading in the log history —
+        // an extra PURCHASE_RETURN-type log entry for zero-effect work).
+        // SCRAP never goes through the branch above, so it still needs
+        // this call exactly as before.
+        if (reason == ClearReason.SCRAP) {
+            InventoryManager.clearStock(
+                db = db, productId = productId,
+                type = InventoryManager.LogType.LOSS
+            )
+        }
 
         val creditAdj =
             if (reason == ClearReason.PURCHASE_RETURN && isCredit && creditAccountId != null)
-                CreditReturnInfo(creditAccountId, invoiceValue, returnRowId)
+                CreditReturnInfo(creditAccountId, totalCreditableInvoiceValue, returnRowId)
             else null
 
         ClearStockResult.Cleared(qty, reason, creditAdj)
@@ -326,9 +487,41 @@ class InventoryReductionRepository private constructor(
         // move it), so one read up-front is correct for every line.
         val avgAtTimeOfReturn = db.inventoryDao().getInventory(productId)?.averageCost ?: 0.0
 
+        // Purchase-return-flow audit, Phase 1: this path used to leave
+        // note_number/note_type/original_invoice_id and every GSTR-2
+        // field at their bare Kotlin defaults (null / 0.0 / ""). Two
+        // consequences of that, both silent: the backend's
+        // validate_gstr2_fields() only runs when note_type == "D", so
+        // it never ran on these rows at all; and /profit's variance sum
+        // filters on note_type == "D" too, so the gain/loss this
+        // function correctly computes below was being computed, saved,
+        // and then invisibly excluded from every profit report. One
+        // note number covers every line/batch in this single return,
+        // same convention PurchaseReturnViewModel uses.
+        val nextSeq = db.purchaseReturnDao().getMaxDebitNoteSequence() + 1
+        val noteNumber = "DN-%05d".format(nextSeq)
+        val noteDate = appNow()
+
         // Create separate entries for each batch individually
         resolved.forEach { (batch, qty) ->
             val parentPurchase = batch.purchaseInvoiceId?.let { db.purchaseDao().getById(it) }
+
+            // Purchase-return-flow audit, Phase 4: when a batch never
+            // recorded its own GST split (legacy/migration/synthetic
+            // batches), this used to fall straight back to the
+            // PRODUCT'S CURRENT tax rate — silently taxing a historical
+            // return at whatever rate applies TODAY, not what actually
+            // applied when the stock was purchased. Before falling that
+            // far, try the actual purchase-item line this batch came
+            // from: it recorded the real rate charged on that specific
+            // invoice, which is a far better answer than "today's rate"
+            // for anything but a brand-new batch.
+            val historicalItem = batch.purchaseInvoiceId?.let { invId ->
+                db.purchaseItemDao().getByPurchase(invId).find { it.productId == productId }
+            }
+            val batchHasNoGstRecorded =
+                batch.cgstPercent == 0.0 && batch.sgstPercent == 0.0 && batch.igstPercent == 0.0
+
             val sameStateForThisBatch: Boolean
             val batchStateName: String
 
@@ -341,11 +534,13 @@ class InventoryReductionRepository private constructor(
                     sameStateForThisBatch = shopStateCode == supplierStateCode
                     batchStateName = GstEngine.INDIA_STATES[supplierStateCode] ?: shopStateName
                 } else {
-                    // Fallback based on batch or product IGST
-                    val igstPct = if (batch.cgstPercent == 0.0 && batch.sgstPercent == 0.0 && batch.igstPercent == 0.0 && product != null) {
-                        product.igstPercentage
-                    } else {
-                        batch.igstPercent
+                    // Fallback based on batch, then the original purchase
+                    // item, then (last resort) the product's current IGST.
+                    val igstPct = when {
+                        !batchHasNoGstRecorded -> batch.igstPercent
+                        historicalItem != null -> historicalItem.purchaseIgstPercentage
+                        product != null -> product.igstPercentage
+                        else -> 0.0
                     }
                     sameStateForThisBatch = igstPct <= 0.0
                     batchStateName = if (sameStateForThisBatch) shopStateName else "Other State"
@@ -354,20 +549,28 @@ class InventoryReductionRepository private constructor(
 
             val taxable = qty * batch.unitCostExcludingTax
 
-            val cgstPct = if (batch.cgstPercent == 0.0 && batch.sgstPercent == 0.0 && batch.igstPercent == 0.0 && product != null) {
-                product.cgstPercentage
-            } else {
-                batch.cgstPercent
+            // Same three-tier fallback for the actual line percentages:
+            // the batch's own recorded rate first, then the rate that
+            // was actually charged on the originating invoice, and only
+            // as a last resort (no batch data, no invoice line found)
+            // today's product rate.
+            val cgstPct = when {
+                !batchHasNoGstRecorded -> batch.cgstPercent
+                historicalItem != null -> historicalItem.purchaseCgstPercentage
+                product != null -> product.cgstPercentage
+                else -> 0.0
             }
-            val sgstPct = if (batch.cgstPercent == 0.0 && batch.sgstPercent == 0.0 && batch.igstPercent == 0.0 && product != null) {
-                product.sgstPercentage
-            } else {
-                batch.sgstPercent
+            val sgstPct = when {
+                !batchHasNoGstRecorded -> batch.sgstPercent
+                historicalItem != null -> historicalItem.purchaseSgstPercentage
+                product != null -> product.sgstPercentage
+                else -> 0.0
             }
-            val igstPct = if (batch.cgstPercent == 0.0 && batch.sgstPercent == 0.0 && batch.igstPercent == 0.0 && product != null) {
-                product.igstPercentage
-            } else {
-                batch.igstPercent
+            val igstPct = when {
+                !batchHasNoGstRecorded -> batch.igstPercent
+                historicalItem != null -> historicalItem.purchaseIgstPercentage
+                product != null -> product.igstPercentage
+                else -> 0.0
             }
 
             val cgst = if (sameStateForThisBatch) taxable * cgstPct / 100.0 else 0.0
@@ -421,7 +624,38 @@ class InventoryReductionRepository private constructor(
                     // cost. Positive = loss, negative = gain.
                     inventoryValuationVariance = Math.round(
                         ((qty * avgAtTimeOfReturn) - (qty * batch.unitCostExcludingTax)) * 100.0
-                    ) / 100.0
+                    ) / 100.0,
+
+                    // Purchase-return-flow audit, Phase 1: same note
+                    // identity for every batch/line in this call — this
+                    // is what makes the row visible to the backend's
+                    // GSTR-2 validation and to /profit's variance sum,
+                    // and what makes "already returned against this
+                    // invoice" queries see it. originalInvoiceId is this
+                    // SPECIFIC batch's own invoice (batches picked in one
+                    // call can legitimately span different invoices).
+                    noteNumber             = noteNumber,
+                    noteDate               = noteDate,
+                    noteType               = "D",
+                    originalInvoiceId      = batch.purchaseInvoiceId,
+                    originalInvoiceNumber  = parentPurchase?.invoiceNumber,
+                    originalInvoiceDate    = parentPurchase?.invoiceDate,
+                    placeOfSupply          = shopStateName,
+                    placeOfSupplyCode      = shopStateCode,
+                    supplyType             = if (sameStateForThisBatch) "intrastate" else "interstate",
+                    documentType           = "Debit Note",
+                    documentNature         = "Debit Note",
+                    documentSeries         = "DN",
+                    preGst                 = "N",
+                    reasonForIssuingDocument = "Purchase return",
+                    noteRefundVoucherValue = roundedInvoice,
+                    rate                   = 0.0,
+                    eligibilityForItc      = "Inputs",
+                    availedItcIntegratedTax = 0.0,
+                    availedItcCentralTax   = 0.0,
+                    availedItcStateTax     = 0.0,
+                    availedItcCess         = 0.0,
+                    invoiceType            = "Regular"
                 )
             ).toInt()
 

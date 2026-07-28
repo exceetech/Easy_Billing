@@ -1093,26 +1093,32 @@
             app:iconPadding="8dp"
             app:cornerRadius="14dp"/>
 
-        <!-- Cancel button — same outlined "cancel purchase" treatment as
-             btnCancelPurchase in activity_purchase_details.xml. -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelReturn"
             android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
             android:text="Cancel"
             android:textColor="#B23A3A"
             android:textAllCaps="false"
-            android:textSize="13sp"
+            android:textSize="13.5sp"
             android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            app:backgroundTint="@null"
+            android:background="@drawable/bg_cta_white_red_outline"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
             app:icon="@drawable/ic_cancel"
             app:iconTint="#B23A3A"
-            app:iconSize="18dp"
-            app:cornerRadius="14dp"
-            app:backgroundTint="#FFFFFF"
-            app:strokeColor="#E7C9C9"
-            app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            app:iconSize="17dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp"/>
 
     </LinearLayout>
 

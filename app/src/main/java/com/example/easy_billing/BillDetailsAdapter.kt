@@ -13,9 +13,11 @@ class BillDetailsAdapter(
 ) : RecyclerView.Adapter<BillDetailsAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val avatar: TextView = view.findViewById(R.id.tvAvatar)
         val name: TextView = view.findViewById(R.id.tvName)
-        val qty: TextView = view.findViewById(R.id.tvQty)
+        val meta: TextView = view.findViewById(R.id.tvMeta)
         val price: TextView = view.findViewById(R.id.tvPrice)
+        val divider: View = view.findViewById(R.id.viewRowDivider)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -26,12 +28,33 @@ class BillDetailsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
+        val context = holder.itemView.context
+
+        // Avatar — first letters of the first two words, uppercased.
+        val words = item.product_name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        val initials = when {
+            words.size >= 2 -> "${words[0].first()}${words[1].first()}"
+            words.size == 1 && words[0].length >= 2 -> words[0].substring(0, 2)
+            words.size == 1 -> words[0]
+            else -> "?"
+        }.uppercase()
+        holder.avatar.text = initials
+
         holder.name.text = item.product_name
-        holder.qty.text = "x${item.quantity}"
+
+        val unitLabel = item.unit?.let { " $it" } ?: ""
+        holder.meta.text = "${qtyLabel(item.quantity)}$unitLabel × ${CurrencyHelper.format(context, item.price)}"
+
         // GROSS line amount (price × qty). The bill discount is shown once,
         // as its own bill-level line — not baked into each row.
-        holder.price.text = CurrencyHelper.format(holder.itemView.context, item.price * item.quantity)
+        holder.price.text = CurrencyHelper.format(context, item.price * item.quantity)
+
+        holder.divider.visibility = if (position == items.lastIndex) View.GONE else View.VISIBLE
     }
 
     override fun getItemCount() = items.size
+
+    private fun qtyLabel(qty: Double): String {
+        return if (qty == qty.toLong().toDouble()) qty.toLong().toString() else qty.toString()
+    }
 }

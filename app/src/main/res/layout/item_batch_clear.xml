@@ -1,69 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Clear-Stock batch row — same card shell as item_batch_pick.xml
+    (left accent stripe, monogram avatar, hairline divider) but with a
+    checkbox instead of a quantity stepper, since Clear Stock removes
+    a batch's entire remaining quantity rather than a partial amount.
+
+    Bound by BatchClearAdapter: viewItemStripe, tvAvatar, tvBatchInvoice,
+    tvBatchMeta, tvBatchRemain, checkBoxSelect, ivCheckMark, tvBatchValue.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingVertical="10dp">
+    android:orientation="horizontal"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_inv_value_card"
+    android:clipToOutline="true"
+    android:clipChildren="true">
+
+    <View
+        android:id="@+id/viewItemStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="#1D6E6E" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:gravity="center"
+            android:text="B"
+            android:textSize="13sp"
+            android:textColor="#1D6E6E"
+            android:fontFamily="@font/googlesans_semibold"
+            android:background="@drawable/bg_credit_avatar"
+            android:backgroundTint="#DDEEEE"
+            android:includeFontPadding="false" />
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
 
             <TextView
                 android:id="@+id/tvBatchInvoice"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
+                android:textSize="13.5sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/googlesans_medium"
+                android:singleLine="true"
+                android:ellipsize="end" />
 
-            <TextView
-                android:id="@+id/tvBatchSupplier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textColor="#D4A574"
-                android:layout_marginTop="2dp" />
-
-            <TextView
+<TextView
                 android:id="@+id/tvBatchMeta"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textColor="#B0FFFFFF"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="1dp"
+                android:textSize="10sp"
+                android:textColor="#9A8F79"
+                android:singleLine="true"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvBatchRemain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                android:textColor="@color/white"
-                android:alpha="0.85"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="2dp"
+                android:textSize="10sp"
+                android:textColor="#9A8F79" />
         </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/cbSelectBatch"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:buttonTint="@color/white" />
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:id="@+id/tvBatchValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="16sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
+            <FrameLayout
+                android:id="@+id/checkBoxSelect"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_check_box_unselected">
+                <ImageView
+                    android:id="@+id/ivCheckMark"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_check"
+                    app:tint="#FFFFFF"
+                    android:visibility="gone"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+        </LinearLayout>
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="10dp"
-        android:background="#33FFFFFF" />
 
 </LinearLayout>

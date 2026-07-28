@@ -20,7 +20,8 @@ import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
  */
 class PurchaseLinesAdapter(
     private var items: List<PurchaseItemDraft>,
-    private val onRemove: (Int) -> Unit
+    private val onRemove: (Int) -> Unit,
+    private val onEdit: (Int) -> Unit = {}
 ) : RecyclerView.Adapter<PurchaseLinesAdapter.VH>() {
 
     fun submit(newItems: List<PurchaseItemDraft>) {
@@ -53,6 +54,11 @@ class PurchaseLinesAdapter(
             holder.tvName.text = item.productName
         }
 
+        // Amber "Review" tag — only on lines added with placeholder
+        // values (Inventory's "Add stock") that haven't been opened +
+        // saved yet.
+        holder.tvReviewTag.visibility = if (item.reviewed) View.GONE else View.VISIBLE
+
         // Derived figures.
         val tax = (item.invoiceValue - item.taxableAmount).coerceAtLeast(0.0)
         val rate = if (item.quantity > 0) item.taxableAmount / item.quantity else 0.0
@@ -79,6 +85,8 @@ class PurchaseLinesAdapter(
             if (position == items.size - 1) View.GONE else View.VISIBLE
 
         holder.btnRemove.setOnClickListener { onRemove(holder.adapterPosition) }
+        holder.btnEdit.setOnClickListener { onEdit(holder.adapterPosition) }
+        holder.itemView.setOnClickListener { onEdit(holder.adapterPosition) }
     }
 
     override fun getItemCount(): Int = items.size
@@ -103,10 +111,12 @@ class PurchaseLinesAdapter(
     class VH(view: View) : RecyclerView.ViewHolder(view) {
         val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         val tvName: TextView = view.findViewById(R.id.tvName)
+        val tvReviewTag: TextView = view.findViewById(R.id.tvReviewTag)
         val tvMeta: TextView = view.findViewById(R.id.tvMeta)
         val tvPrice: TextView = view.findViewById(R.id.tvPrice)
         val tvTax: TextView = view.findViewById(R.id.tvTax)
         val vDivider: View = view.findViewById(R.id.vDivider)
+        val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
         val btnRemove: ImageButton = view.findViewById(R.id.btnRemove)
     }
 }

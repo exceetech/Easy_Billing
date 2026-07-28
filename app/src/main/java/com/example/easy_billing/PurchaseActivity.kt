@@ -204,17 +204,73 @@ class PurchaseActivity : BaseActivity() {
 
         if (singleMode) {
             btnAddLine.visibility = View.GONE
+            val productId = intent.getIntExtra("EXTRA_PRODUCT_ID", -1)
             val prodName = intent.getStringExtra("EXTRA_PRODUCT_NAME")
             val variant = intent.getStringExtra("EXTRA_PRODUCT_VARIANT")
             val unit = intent.getStringExtra("EXTRA_PRODUCT_UNIT")
             if (prodName != null) {
-                showLineDialog(
-                    prefillName = prodName,
-                    prefillVariant = variant,
-                    prefillUnit = unit,
-                    disableMeta = true
-                )
+                // Coming from Inventory's "Add stock" — the product goes
+                // straight into the line-items list as an editable row
+                // (prefilled from its own saved GST/HSN/price and current
+                // average cost) instead of forcing a dialog open first.
+                // Tapping the row later (PurchaseLinesAdapter → editLine)
+                // reopens this same dialog to adjust quantity/cost/tax.
+                addSingleModeLine(productId, prodName, variant, unit)
             }
+        }
+    }
+
+    /** Builds the initial line for the "Add stock" single-product flow
+     *  directly from the product's own saved details, no dialog needed. */
+    private fun addSingleModeLine(productId: Int, name: String, variant: String?, unit: String?) {
+        lifecycleScope.launch {
+            val product = if (productId > 0) {
+                withContext(Dispatchers.IO) { ProductRepository.get(this@PurchaseActivity).getById(productId) }
+            } else null
+
+            val avgCost = if (productId > 0) {
+                withContext(Dispatchers.IO) {
+                    com.example.easy_billing.db.AppDatabase.getDatabase(this@PurchaseActivity)
+                        .inventoryDao().getInventory(productId)?.averageCost
+                }
+            } else null
+
+            val costBasis = (avgCost?.takeIf { it > 0 }) ?: product?.price ?: 0.0
+            val taxable = costBasis
+            val sellingPrice = product?.price?.takeIf { it > 0 } ?: costBasis
+
+            viewModel.addLine(
+                PurchaseItemDraft(
+                    productName = name,
+                    variant = variant?.takeIf { it.isNotBlank() },
+                    hsnCode = product?.hsnCode,
+                    unit = unit?.takeIf { it.isNotBlank() } ?: product?.unit,
+                    quantity = 1.0,
+                    taxableAmount = taxable,
+                    invoiceValue = taxable,
+                    costPrice = taxable,
+                    sellingPrice = sellingPrice,
+                    isTaxInclusive = product?.isTaxInclusive ?: false,
+                    salesCgst = product?.cgstPercentage ?: 0.0,
+                    salesSgst = product?.sgstPercentage ?: 0.0,
+                    salesIgst = product?.igstPercentage ?: 0.0,
+                    officialUqc = product?.officialUqc,
+                    hsnDescription = product?.hsnDescription,
+                    cessRate = product?.cessRate ?: 0.0,
+                    supplyClassification = product?.supplyClassification ?: "TAXABLE",
+                    category = product?.category ?: "",
+                    // Placeholder quantity/cost — flagged until reviewed.
+                    reviewed = false
+                )
+            )
+
+            // Straight into the editor so the common case (review the
+            // number, hit Save) takes one tap instead of "spot the row,
+            // tap it, then edit" — Cancelling out still leaves the amber
+            // "Review" tag on the row and blocks Save Purchase (see
+            // btnSave.setOnClickListener) as a backstop for anyone who
+            // bails without confirming it.
+            editLine(0)
         }
     }
 
@@ -626,8 +682,31 @@ class PurchaseActivity : BaseActivity() {
 
     private fun setupRecycler() {
         rv.layoutManager = LinearLayoutManager(this)
-        adapter = PurchaseLinesAdapter(emptyList()) { idx -> viewModel.removeLine(idx) }
+        adapter = PurchaseLinesAdapter(
+            emptyList(),
+            onRemove = { idx -> viewModel.removeLine(idx) },
+            onEdit = { idx -> editLine(idx) }
+        )
         rv.adapter = adapter
+    }
+
+    /** Reopens the line dialog pre-filled with an already-added line's
+     *  values, so tapping a row in the list lets it be edited instead of
+     *  only removed and re-added from scratch. */
+    private fun editLine(index: Int) {
+        val line = viewModel.lines.value.getOrNull(index) ?: return
+        PurchaseLineDialog(
+            activity = this,
+            viewModel = viewModel,
+            supplierState = { etState.text?.toString()?.trim().orEmpty() }
+        ).show(
+            prefillName = line.productName,
+            prefillVariant = line.variant,
+            prefillUnit = line.unit,
+            disableMeta = true,
+            existingDraft = line,
+            editIndex = index
+        )
     }
 
     private fun wireActions() {
@@ -713,6 +792,19 @@ class PurchaseActivity : BaseActivity() {
             val state = etState.text?.toString()?.trim().orEmpty()
             if (invoice.isEmpty() || supplier.isEmpty() || state.isEmpty()) {
                 Toast.makeText(this, "Fill invoice header first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // Auto-added lines (Inventory's "Add stock") start with
+            // placeholder quantity/cost — block save until each one has
+            // actually been opened and confirmed, so a header filled in
+            // while forgetting the line can't slip through.
+            val unreviewedIndex = viewModel.lines.value.indexOfFirst { !it.reviewed }
+            if (unreviewedIndex != -1) {
+                Toast.makeText(
+                    this, "Review the highlighted line item before saving",
+                    Toast.LENGTH_SHORT
+                ).show()
+                editLine(unreviewedIndex)
                 return@setOnClickListener
             }
             // A malformed GSTIN flows straight into GSTR-2, where it fails

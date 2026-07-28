@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Credit / Debit Note row — same card shell as item_batch_pick.xml
+    / BillHistoryAdapter rows (left accent stripe, monogram avatar,
+    hash-based random row palette). Bound by CreditDebitNoteAdapter:
+    viewItemStripe, tvAvatar, tvNoteNumber, tvNoteMeta, tvNoteDate,
+    tvNoteAmount.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_inv_value_card"
+    android:clipToOutline="true"
+    android:clipChildren="true">
+
+    <View
+        android:id="@+id/viewItemStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="#1D6E6E" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:text="CN"
+            android:textSize="12sp"
+            android:textColor="#1D6E6E"
+            android:fontFamily="@font/googlesans_semibold"
+            android:background="@drawable/bg_credit_avatar"
+            android:backgroundTint="#DDEEEE"
+            android:includeFontPadding="false" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
+
+            <TextView
+                android:id="@+id/tvNoteNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13.5sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/googlesans_medium"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvNoteMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:textSize="10sp"
+                android:textColor="#9A8F79"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvNoteDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="10sp"
+                android:textColor="#8A6526" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNoteAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="₹0"
+            android:textSize="16sp"
+            android:textColor="#791F1F"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"
+            android:singleLine="true" />
+
+    </LinearLayout>
+
+</LinearLayout>

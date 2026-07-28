@@ -194,6 +194,27 @@ class PurchaseReturnItemAdapter(
                 returnQtyMap[item.id] = clamped
                 updateDebitAmountView(holder, item, clamped, ctx, accentColor)
                 notifyGrandTotal()
+
+                // Bug fix: the submitted quantity was already correctly
+                // clamped to `max` above, but the EditText itself was left
+                // showing whatever the user typed — so typing "50" against a
+                // batch with 10 remaining silently submitted 10 while the box
+                // kept showing "50". That looked, from the outside, exactly
+                // like "I can return more than remaining." Rewrite the field
+                // to the clamped value so what's on screen always matches
+                // what gets submitted. Detach/reattach to avoid a recursive
+                // afterTextChanged call, matching setQty()'s own pattern.
+                if (noteType != "C" && typed > max) {
+                    holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
+                    holder.etReturnQty.setText(if (clamped > 0.0) formatQty(clamped) else "")
+                    holder.etReturnQty.setSelection(holder.etReturnQty.text?.length ?: 0)
+                    holder.watcher?.let { holder.etReturnQty.addTextChangedListener(it) }
+                    android.widget.Toast.makeText(
+                        ctx,
+                        "Only ${formatQty(max)} remaining on this batch — capped to that",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
         holder.etReturnQty.addTextChangedListener(watcher)

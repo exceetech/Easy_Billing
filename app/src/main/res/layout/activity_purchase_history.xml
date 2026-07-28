@@ -2,12 +2,13 @@
 <!--
     Purchase history — champagne theme, same language as the credit accounts
     (khata) screen: eyebrow + serif accent header, one summary card with a
-    serif lead number and two tinted tiles, a search field, count-carrying
-    filter chips, and one white card holding hairline-separated rows.
+    serif lead number and two tinted tiles, a search field, icon-only
+    Filter/Sort buttons (same pattern as activity_bill_history.xml), and one
+    white card holding hairline-separated rows.
 
     Ids bound by PurchaseHistoryActivity: toolbar, tvBought, tvBoughtCount,
-    tvOnCredit, tvCash, etSearch, chipAll, chipCredit, chipCash, chipCancelled,
-    rvPurchases, tvEmpty, progressBar.
+    tvOnCredit, tvCash, etSearch, btnFilter, btnSort, tvFilterBadge,
+    tvResultSummary, btnResetFilters, rvPurchases, tvEmpty, progressBar.
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -223,29 +224,136 @@
             android:inputType="text" />
     </LinearLayout>
 
-    <!-- ===================== FILTER CHIPS ===================== -->
-    <HorizontalScrollView
+    <!-- ===================== FILTER + SORT ===================== -->
+    <!-- Icon-only square buttons (same pattern as activity_bill_history.xml)
+         instead of a chip row — Filter carries a red count badge when a
+         non-"All" filter is active, and a result pill shows "N purchases ·
+         sort label" plus a one-tap Reset once anything's non-default. -->
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:paddingHorizontal="16dp"
-        android:clipToPadding="false"
-        android:scrollbars="none">
+        android:layout_marginHorizontal="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <FrameLayout
+            android:id="@+id/btnFilter"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:background="@drawable/bg_credit_phone_chip"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_filter"
+                app:tint="#B8895A"
+                android:contentDescription="Filter" />
+
+            <TextView
+                android:id="@+id/tvFilterBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="1dp"
+                android:minWidth="14dp"
+                android:minHeight="14dp"
+                android:gravity="center"
+                android:paddingHorizontal="3dp"
+                android:background="@drawable/bg_hdr_badge_red"
+                android:text="1"
+                android:textColor="#FFFFFF"
+                android:textSize="8.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnSort"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_credit_phone_chip"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lc_sliders"
+                app:tint="#B8895A"
+                android:contentDescription="Sort" />
+
+        </FrameLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="42dp"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_credit_phone_chip"
+            android:paddingHorizontal="12dp">
 
-            <TextView android:id="@+id/chipAll"       style="@style/CreditChip" android:text="All" />
-            <View android:layout_width="7dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipCredit"    style="@style/CreditChip" android:text="Credit" />
-            <View android:layout_width="7dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipCash"      style="@style/CreditChip" android:text="Cash" />
-            <View android:layout_width="7dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipCancelled" style="@style/CreditChip" android:text="Cancelled" />
+            <TextView
+                android:id="@+id/tvResultSummary"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Newest first"
+                android:textColor="#9A8F79"
+                android:fontFamily="@font/googlesans_medium"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <LinearLayout
+                android:id="@+id/btnResetFilters"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_close"
+                    app:tint="#B23A3A"
+                    android:contentDescription="Reset filters" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Reset"
+                    android:textColor="#B23A3A"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="11.5sp" />
+
+            </LinearLayout>
+
         </LinearLayout>
-    </HorizontalScrollView>
+
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

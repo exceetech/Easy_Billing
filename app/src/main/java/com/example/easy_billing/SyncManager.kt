@@ -1094,6 +1094,7 @@ class SyncManager(private val context: Context) {
         if (pending.isEmpty()) return
 
         val productDao = db.productDao()
+        val purchaseDao = db.purchaseDao()
         val dtos = pending.map { r ->
             val serverProductId = r.productId?.let { productDao.getById(it)?.serverId }
             val shopId = currentShopIdOrNull()
@@ -1102,6 +1103,18 @@ class SyncManager(private val context: Context) {
                     db.creditAccountDao().getById(localId, shopId)?.serverId
                 }
             } else null
+            // Phase 5 fix: originalInvoiceId is a LOCAL Room Purchase.id, which
+            // two different devices can independently reuse (e.g. both have a
+            // local purchase #7). Sending it raw made the backend's
+            // original_invoice_id ambiguous on multi-device shops — unlike
+            // shop_product_id/credit_account_id above, which already translate
+            // to the server id before send. Same treatment here: send the
+            // purchase's serverId (globally unique), or null if that purchase
+            // hasn't synced up yet (server-side code must treat null as "skip
+            // any check that depends on this").
+            val serverOriginalInvoiceId = r.originalInvoiceId?.let { localPurchaseId ->
+                purchaseDao.getById(localPurchaseId)?.serverId
+            }
 
             PurchaseReturnDto(
                 local_id                = r.id,
@@ -1129,7 +1142,7 @@ class SyncManager(private val context: Context) {
                 note_number             = r.noteNumber,
                 note_date               = r.noteDate,
                 note_type               = r.noteType,
-                original_invoice_id     = r.originalInvoiceId,
+                original_invoice_id     = serverOriginalInvoiceId,
                 original_invoice_number = r.originalInvoiceNumber,
                 original_invoice_date   = r.originalInvoiceDate,
                 place_of_supply         = r.placeOfSupply,

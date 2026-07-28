@@ -100,10 +100,14 @@ class DebitNoteItemAdapter(
         val maxReturnParent = holder.tvMaxReturn.parent as? View
         maxReturnParent?.visibility = View.GONE
 
-        val hsnPart = if (item.hsnCode.isNotBlank()) "HSN: ${item.hsnCode}" else ""
-        val varPart = if (!item.variant.isNullOrBlank()) "  ·  ${item.variant}" else ""
-        val unitPart = "  ·  ${item.unit}"
-        holder.tvHsnVariant.text = "$hsnPart$varPart$unitPart"
+        // Join only the parts that actually exist, so a missing HSN doesn't
+        // leave a dangling "· variant · unit" with no leading label, and
+        // every separator gets consistent single-space padding.
+        holder.tvHsnVariant.text = listOfNotNull(
+            item.hsnCode.takeIf { it.isNotBlank() }?.let { "HSN: $it" },
+            item.variant?.takeIf { it.isNotBlank() },
+            item.unit.takeIf { it.isNotBlank() }
+        ).joinToString(" · ")
 
         holder.tvQtySold.text   = formatQty(item.quantity)
         holder.tvUnitPrice.text = CurrencyHelper.format(ctx, item.price)
@@ -175,6 +179,8 @@ class DebitNoteItemAdapter(
             holder.tvAdditionalTax.visibility = View.VISIBLE
             holder.tvAdditionalTax.text =
                 "Taxable: ${CurrencyHelper.format(ctx, taxableVal)} | Tax: ${CurrencyHelper.format(ctx, tax)}"
+            val accent = rowAccents[holder.adapterPosition.coerceAtLeast(0) % rowAccents.size]
+            holder.tvAdditionalTax.setTextColor(accent.accent)
         } else {
             holder.tvAdditionalTax.visibility = View.GONE
         }

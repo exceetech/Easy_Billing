@@ -205,18 +205,32 @@ class DebitNoteActivity : BaseActivity() {
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Issue Debit Note?")
-            .setMessage(
-                "You are issuing a Debit Note for additional value on " +
-                "Invoice #${bill.billNumber}.\n\nThis will generate a GST debit note. Continue?"
-            )
-            .setPositiveButton("Yes, Issue DN") { d, _ ->
-                d.dismiss()
-                submitDebitNote(bill, lines)
-            }
-            .setNegativeButton("Review") { d, _ -> d.dismiss() }
-            .show()
+        // Champagne dialog card (soft-gold circle + file-plus icon) instead
+        // of the plain system alert, matching
+        // dialog_cancel_void_invoice.xml's pattern.
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_debit_note, null)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvConfirmDebitEyebrow).text =
+            "Invoice #${bill.billNumber}"
+        view.findViewById<TextView>(R.id.tvConfirmDebitMessage).text =
+            "You're issuing a debit note for additional value on Invoice #${bill.billNumber}. This will generate a GST debit note."
+        view.findViewById<TextView>(R.id.tvConfirmDebitValue).text = tvTotalDebitValue.text
+
+        view.findViewById<MaterialButton>(R.id.btnConfirmIssueDebit).setOnClickListener {
+            dialog.dismiss()
+            submitDebitNote(bill, lines)
+        }
+        view.findViewById<MaterialButton>(R.id.btnReviewDebit).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun submitDebitNote(

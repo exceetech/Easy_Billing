@@ -95,20 +95,24 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="1dp">
 
+                    <!-- Flexes to fill the remaining row width instead of a
+                         fixed cap, since this now holds HSN + variant + unit
+                         concatenated (was truncating the variant almost
+                         immediately at a fixed 90dp). -->
                     <TextView
                         android:id="@+id/tvHsnVariant"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:textSize="10sp"
                         android:textColor="#9A8F79"
                         android:singleLine="true"
                         android:ellipsize="end"
-                        android:maxWidth="90dp"
                         android:text="HSN: —"/>
 
                     <TextView

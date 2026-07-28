@@ -58,6 +58,11 @@ class SalesReturnActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sales_return)
 
+        findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationIcon(R.drawable.ic_back_arrow)
+            setNavigationOnClickListener { finish() }
+        }
+
         billId     = intent.getIntExtra("BILL_ID", -1)
         billNumber = intent.getStringExtra("BILL_NUMBER") ?: ""
 
@@ -84,6 +89,40 @@ class SalesReturnActivity : AppCompatActivity() {
 
         observeViewModel()
         viewModel.loadBill(billId)
+    }
+
+    // Immersive mode — hide status + navigation bars, matching
+    // activity_debit_note.xml's chromeless look. Applied only here (not via
+    // BaseActivity) to avoid BaseActivity's forced landscape re-orientation,
+    // which was racing with the bill load and causing a spurious
+    // "Bill not loaded yet" error.
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideSystemBars()
+    }
+
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let { controller ->
+                controller.hide(
+                    android.view.WindowInsets.Type.statusBars() or
+                        android.view.WindowInsets.Type.navigationBars()
+                )
+                controller.systemBarsBehavior =
+                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                )
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -127,7 +166,7 @@ class SalesReturnActivity : AppCompatActivity() {
                 btnConfirmReturn.text = if (loading)
                     "Processing…"
                 else
-                    "Confirm Return & Issue Credit Note"
+                    "Confirm and issue credit note"
             }
         }
 
@@ -218,19 +257,33 @@ class SalesReturnActivity : AppCompatActivity() {
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Issue Credit Note?")
-            .setMessage(
-                "You are returning ${lines.sumOf { it.second }.let { "%.2f".format(it) }} unit(s)" +
-                " from Invoice #${bill.billNumber}.\n\nThis will adjust inventory and " +
-                "generate a GST credit note. Continue?"
-            )
-            .setPositiveButton("Yes, Issue CN") { d, _ ->
-                d.dismiss()
-                submitReturn(bill, lines)
-            }
-            .setNegativeButton("Review") { d, _ -> d.dismiss() }
-            .show()
+        // Champagne dialog card (soft-teal circle + return icon) instead of
+        // the plain system alert, matching dialog_cancel_void_invoice.xml's
+        // pattern.
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_credit_note, null)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val unitCount = lines.sumOf { it.second }.let { "%.2f".format(it) }
+        view.findViewById<TextView>(R.id.tvConfirmCreditEyebrow).text =
+            "Invoice #${bill.billNumber}"
+        view.findViewById<TextView>(R.id.tvConfirmCreditMessage).text =
+            "You're returning $unitCount unit(s) from Invoice #${bill.billNumber}. This will adjust inventory and generate a GST credit note."
+        view.findViewById<TextView>(R.id.tvConfirmCreditValue).text = tvTotalReturnValue.text
+
+        view.findViewById<MaterialButton>(R.id.btnConfirmIssueCredit).setOnClickListener {
+            dialog.dismiss()
+            submitReturn(bill, lines)
+        }
+        view.findViewById<MaterialButton>(R.id.btnReviewCredit).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun submitReturn(

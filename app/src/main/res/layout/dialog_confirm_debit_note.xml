@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Issue debit note?" confirmation — champagne theme, same card shell as
+    dialog_cancel_void_invoice.xml but positive/gold instead of destructive:
+    soft-gold circle + file-plus icon, invoice number eyebrow, serif-italic
+    accent title, a gold info strip showing the additional value, solid
+    gold confirm + green tonal review.
+
+    Ids bound by DebitNoteActivity: tvConfirmDebitEyebrow,
+    tvConfirmDebitMessage, tvConfirmDebitValue, btnConfirmIssueDebit,
+    btnReviewDebit.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_gold">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_file_plus"
+            app:tint="#8A6526"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvConfirmDebitEyebrow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="Invoice #—"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Issue debit"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="note?"
+            android:textColor="#8A6526"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvConfirmDebitMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="You're issuing a debit note for additional value on this invoice. This will generate a GST debit note."
+        android:textColor="#8A8272"
+        android:textSize="12.5sp"
+        android:lineSpacingExtra="3dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_dialog_warning_strip"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:layout_marginTop="14dp">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_receipt"
+            app:tint="#8A6526"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Additional value"
+            android:textColor="#8A6526"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/tvConfirmDebitValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹0"
+            android:textColor="#8A6526"
+            android:textSize="13sp"
+            android:fontFamily="serif"
+            android:includeFontPadding="false" />
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmIssueDebit"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Yes, issue debit note"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_lc_check"
+        app:iconTint="@android:color/white"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnReviewDebit"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_cta_green_tonal"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Review"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textColor="#0F6E56"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_edit"
+        app:iconTint="#0F6E56"
+        app:iconSize="15dp"
+        app:iconGravity="textStart"
+        app:iconPadding="6dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#220F6E56" />
+
+</LinearLayout>

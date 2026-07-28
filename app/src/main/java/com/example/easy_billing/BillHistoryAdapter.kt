@@ -22,6 +22,29 @@ class BillHistoryAdapter(
     private var bills = listOf<BillResponse>()
     private var searchQuery: String = ""
 
+    // Random row colours (stripe + avatar tile), champagne-safe palette.
+    // Picked per row from a stable hash of the bill number so colours don't
+    // jump around on scroll/rebind, but still read as "random" across rows —
+    // same pattern the user wants instead of a fixed status-colour mapping.
+    private data class RowColor(val stripe: Int, val avatarBg: Int, val avatarText: Int)
+
+    private val rowPalette = listOf(
+        RowColor(Color.parseColor("#1D6E6E"), Color.parseColor("#DDEEEE"), Color.parseColor("#1D6E6E")), // teal
+        RowColor(Color.parseColor("#B23A3A"), Color.parseColor("#FBEDED"), Color.parseColor("#B23A3A")), // red
+        RowColor(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA"), Color.parseColor("#8A6526")), // gold
+        RowColor(Color.parseColor("#3A5FB2"), Color.parseColor("#E5EBFA"), Color.parseColor("#3A5FB2")), // blue
+        RowColor(Color.parseColor("#7A4FA3"), Color.parseColor("#EFE5F7"), Color.parseColor("#7A4FA3")), // purple
+        RowColor(Color.parseColor("#B2673A"), Color.parseColor("#FAEBE1"), Color.parseColor("#B2673A")), // rust
+        RowColor(Color.parseColor("#3A8F6E"), Color.parseColor("#E1F2EA"), Color.parseColor("#3A8F6E")), // green
+        RowColor(Color.parseColor("#B23A85"), Color.parseColor("#FAE1F0"), Color.parseColor("#B23A85"))  // pink
+    )
+
+    private fun colorFor(bill: BillResponse): RowColor {
+        val key = "${bill.bill_number}${bill.created_at}"
+        val index = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
+        return rowPalette[index]
+    }
+
     fun submitList(list: List<BillResponse>) {
         bills = list
         notifyDataSetChanged()
@@ -33,6 +56,8 @@ class BillHistoryAdapter(
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val stripe: View             = view.findViewById(R.id.viewStatusStripe)
+        val divider: View            = view.findViewById(R.id.viewRowDivider)
         val tvAvatar: TextView       = view.findViewById(R.id.tvAvatar)
         val tvBillNumber: TextView   = view.findViewById(R.id.tvBillNumber)
         val tvBillDate: TextView     = view.findViewById(R.id.tvBillDate)
@@ -53,36 +78,65 @@ class BillHistoryAdapter(
         val bill = bills[position]
         val context = holder.itemView.context
 
-        // Avatar — first character of bill number, uppercased
-        val initial = bill.bill_number.take(1).uppercase()
-        holder.tvAvatar.text = initial
+        // Avatar — last 3 digits of the bill's own running number. Bill
+        // numbers often carry a year prefix (e.g. "2026-045" or "INV/26/045"),
+        // so we take the LAST digit run in the string (the bill number
+        // itself), not just every digit, to avoid the year bleeding in.
+        val lastDigitRun = Regex("\\d+").findAll(bill.bill_number).lastOrNull()?.value.orEmpty()
+        val avatarText = when {
+            lastDigitRun.length >= 3 -> lastDigitRun.takeLast(3)
+            lastDigitRun.isNotEmpty() -> lastDigitRun
+            else -> bill.bill_number.take(1).uppercase()
+        }
+        holder.tvAvatar.text = avatarText
 
         // Invoice number with search highlight
         val invoiceLabel = "Invoice #${bill.bill_number}"
         holder.tvBillNumber.text = highlightText(invoiceLabel)
 
-        // Date — format from ISO string (yyyy-MM-dd'T'HH:mm or yyyy-MM-dd …)
-        holder.tvBillDate.text = formatDate(bill.created_at)
+        // Caption — short date + payment method, e.g. "12 Apr · Cash"
+        val caption = "${formatDate(bill.created_at)} · ${bill.payment_method}"
+        holder.tvBillDate.text = highlightText(caption)
 
         // Amount
         holder.tvBillAmount.text = CurrencyHelper.format(context, bill.total_amount)
 
-        // N1: cancelled (voided) bills stay visible, clearly marked.
-        // Both branches fully reset state — views are recycled.
+        val isCredit = bill.payment_method.contains("credit", ignoreCase = true)
+
+        // Status caption text mirrors purchase-history's plain lowercase style.
+        holder.tvPaymentMethod.text = when {
+            bill.is_cancelled -> "cancelled"
+            isCredit -> "on credit"
+            else -> "paid"
+        }
+
+        // N1: cancelled (voided) bills stay visible, clearly marked, muted grey
+        // regardless of their palette colour. Non-cancelled rows get a random
+        // colour from the palette instead of a fixed status colour.
         if (bill.is_cancelled) {
-            holder.tvPaymentMethod.text = "CANCELLED"
-            holder.tvPaymentMethod.setTextColor(Color.parseColor("#EF4444"))
+            holder.stripe.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#D8D0C0"))
+            holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1EBDD"))
+            holder.tvAvatar.setTextColor(Color.parseColor("#A99E88"))
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#A99E88"))
             holder.tvBillAmount.paintFlags =
                 holder.tvBillAmount.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            holder.itemView.alpha = 0.6f
+            holder.tvBillNumber.paintFlags =
+                holder.tvBillNumber.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.itemView.alpha = 0.55f
         } else {
-            // Payment method with search highlight
-            holder.tvPaymentMethod.text = highlightText(bill.payment_method)
-            holder.tvPaymentMethod.setTextColor(Color.parseColor("#94A3B8"))
+            val rowColor = colorFor(bill)
+            holder.stripe.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.stripe)
+            holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.avatarBg)
+            holder.tvAvatar.setTextColor(rowColor.avatarText)
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#A99E88"))
             holder.tvBillAmount.paintFlags =
                 holder.tvBillAmount.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.tvBillNumber.paintFlags =
+                holder.tvBillNumber.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             holder.itemView.alpha = 1f
         }
+
+        holder.divider.visibility = if (position == bills.lastIndex) View.GONE else View.VISIBLE
 
         // Click
         holder.itemView.setOnClickListener {
@@ -103,7 +157,7 @@ class BillHistoryAdapter(
                 runCatching { fmt.parse(raw.substring(0, minOf(raw.length, 19))) }.getOrNull()
             }
             if (date != null)
-                SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(date)
+                SimpleDateFormat("dd MMM", Locale.getDefault()).format(date)
             else raw.substring(0, minOf(raw.length, 10))
         } catch (e: Exception) {
             raw.substring(0, minOf(raw.length, 10))

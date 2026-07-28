@@ -4,278 +4,346 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="#F3ECDD">
 
-    <!-- ===================== HEADER (Spotlight Hero) ===================== -->
-    <LinearLayout
+    <!-- ===================== TOOLBAR ===================== -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#F4F0E6"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="20dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:navigationIconTint="#1A1A18" />
 
-        <!-- Toolbar (keeps back nav; title empty, custom header below) -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            app:title=""
-            app:titleTextColor="#1A1A18"
-            app:navigationIconTint="#1A1A18" />
-
-        <!-- Eyebrow + subtitle + action buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Inventory"
-                    android:textSize="21sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A1A18"
-                    android:accessibilityHeading="true" />
-
-                <TextView
-                    android:id="@+id/tvHeroSub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="248 active SKUs · updated 2m ago"
-                    android:textSize="12sp"
-                    android:textColor="#6E6A60"
-                    android:singleLine="true"
-                    android:ellipsize="end" />
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/btnEdit"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_imp_filter"
-                android:src="@drawable/ic_edit"
-                android:scaleType="centerInside"
-                android:padding="8dp"
-                app:tint="#1A1A18"
-                android:contentDescription="Edit" />
-
-            <ImageButton
-                android:id="@+id/btnAddProduct"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_inv_a_gold_btn"
-                android:src="@drawable/ic_add_thin"
-                android:scaleType="centerInside"
-                android:padding="8dp"
-                app:tint="#412402"
-                android:contentDescription="Add product" />
-        </LinearLayout>
-
-        <!-- Spotlight amount + trend pill -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="bottom"
-            android:layout_marginTop="18dp">
-
-            <TextView
-                android:id="@+id/tvKpiValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="₹4.82L"
-                android:textSize="40sp"
-                android:textStyle="bold"
-                android:textColor="#1A1A18"
-                android:includeFontPadding="false"
-                android:singleLine="true"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="26sp"
-                app:autoSizeMaxTextSize="40sp" />
-
-            <LinearLayout
-                android:id="@+id/layoutTrendChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/bg_inv_a_trend_pill"
-                android:backgroundTint="#11402F"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp">
-
-                <ImageView
-                    android:id="@+id/ivKpiTrendIcon"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginEnd="3dp"
-                    android:src="@drawable/ic_trending_up"
-                    app:tint="#7DDCB2"
-                    android:contentDescription="@null" />
-
-                <TextView
-                    android:id="@+id/tvKpiTrend"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="+6.2%"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:textColor="#7DDCB2" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Total stock value"
-            android:textSize="12sp"
-            android:textColor="#6E6A60" />
-
-        <!-- KPI color blocks (Units / Low / Out) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_imp_block_blue"
-                android:padding="13dp">
-                <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                    android:src="@drawable/ic_kpi_package" app:tint="#CFE6FF" android:contentDescription="@null"/>
-                <TextView android:id="@+id/tvKpiUnits"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="12,940" android:textSize="18sp" android:textStyle="bold" android:textColor="#FFFFFF"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="Units on hand" android:textSize="10sp" android:textColor="#B5D4F4"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_imp_block_amber"
-                android:padding="13dp">
-                <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                    android:src="@drawable/ic_kpi_alert" app:tint="#FAC775" android:contentDescription="@null"/>
-                <TextView android:id="@+id/tvKpiLow"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="12" android:textSize="18sp" android:textStyle="bold" android:textColor="#FFFFFF"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="Low stock" android:textSize="10sp" android:textColor="#FAC775"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_imp_block_red"
-                android:padding="13dp">
-                <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                    android:src="@drawable/ic_kpi_out" app:tint="#F7C1C1" android:contentDescription="@null"/>
-                <TextView android:id="@+id/tvKpiOut"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="3" android:textSize="18sp" android:textStyle="bold" android:textColor="#FFFFFF"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="Out of stock" android:textSize="10sp" android:textColor="#F7C1C1"/>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- ===================== SEARCH + SORT ===================== -->
+    <!-- ===================== HEADER ===================== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="12dp"
-        android:layout_marginTop="12dp">
+        android:paddingHorizontal="18dp"
+        android:paddingTop="2dp">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="INVENTORY"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Stock"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="room"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- ===================== HERO: STOCK VALUE CARD ===================== -->
+    <!-- Same shape as CreditAccountsActivity's "Net position" card: big
+         label + serif figure with a status caption on the baseline, then
+         two side-by-side tiles below (bg_credit_tile_amber / _red). -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total stock value"
+            android:textSize="11sp"
+            android:textColor="#9A8F79" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:layout_marginTop="2dp"
+            android:baselineAligned="false">
+
+            <TextView
+                android:id="@+id/tvKpiValue"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="30sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="20sp"
+                app:autoSizeMaxTextSize="30sp" />
+
+            <TextView
+                android:id="@+id/tvKpiCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="all in stock"
+                android:textSize="11sp"
+                android:textColor="#8A8272" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_amber"
+                android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvKpiLow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="16sp"
+                    android:textColor="#854F0B"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="Low stock"
+                    android:textSize="9.5sp"
+                    android:textColor="#BA7517" />
+            </LinearLayout>
+
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_red"
+                android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvKpiOut"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="16sp"
+                    android:textColor="#791F1F"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="Out of stock"
+                    android:textSize="9.5sp"
+                    android:textColor="#A32D2D" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvHeroSub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:text="0 active SKUs"
+        android:textSize="11sp"
+        android:textColor="#9A8F79"
+        android:fontFamily="@font/googlesans_medium" />
+
+    <!-- ===================== SEARCH + FILTER + SORT (inline) ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="44dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_search"
+            android:background="@drawable/bg_inv_stat_card"
             android:paddingHorizontal="12dp">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:src="@drawable/ic_search"
-                app:tint="#9CA3AF"
-                android:contentDescription="@null"/>
+                app:tint="#B8895A"
+                android:contentDescription="@null" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSearch"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="44dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
                 android:background="@android:color/transparent"
-                android:gravity="center_vertical"
-                android:includeFontPadding="false"
                 android:hint="@string/search_products"
                 android:inputType="text"
                 android:maxLength="50"
                 android:singleLine="true"
                 android:imeOptions="actionSearch"
                 android:importantForAutofill="no"
-                android:paddingStart="8dp"
-                android:textSize="13sp"
+                android:includeFontPadding="false"
+                android:textSize="12.5sp"
                 android:textColor="#1A1A18"
-                android:textColorHint="#9CA3AF" />
+                android:textColorHint="#9A8F79"
+                android:minHeight="0dp" />
+
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/btnSort"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
+        <FrameLayout
+            android:id="@+id/btnFilter"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:background="@drawable/bg_inv_sort_btn"
-            android:paddingHorizontal="12dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:background="@drawable/bg_inv_stat_card"
             android:clickable="true"
-            android:focusable="true">
-            <ImageView android:layout_width="16dp" android:layout_height="16dp"
-                android:src="@drawable/ic_sort" app:tint="#1A1A18" android:contentDescription="@null"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginStart="5dp" android:text="Sort" android:textSize="12sp" android:textColor="#1A1A18"/>
-        </LinearLayout>
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_filter"
+                app:tint="#B8895A"
+                android:contentDescription="Filter" />
+
+            <TextView
+                android:id="@+id/tvFilterBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="1dp"
+                android:minWidth="13dp"
+                android:minHeight="13dp"
+                android:gravity="center"
+                android:paddingHorizontal="3dp"
+                android:background="@drawable/bg_hdr_badge_red"
+                android:text="1"
+                android:textColor="#FFFFFF"
+                android:textSize="8sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnSort"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_inv_stat_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lc_sliders"
+                app:tint="#B8895A"
+                android:contentDescription="Sort" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnResetFilters"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_credit_tile_red"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_close"
+                app:tint="#B23A3A"
+                android:contentDescription="Reset filters" />
+
+        </FrameLayout>
+
     </LinearLayout>
+
+    <!-- Kept off-screen: InventoryActivity still writes the "N products ·
+         sort label" summary text here for badge/reset bookkeeping, but the
+         pill itself is no longer shown — Reset now lives inline in the
+         search row above as an icon button. -->
+    <TextView
+        android:id="@+id/tvResultSummary"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
 
     <!-- ===================== CATEGORY CHIPS ===================== -->
     <HorizontalScrollView
@@ -296,26 +364,22 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCatAll"
-                android:text="All"
+                android:text="All categories"
                 android:checked="true"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:checkable="true"
-                app:chipBackgroundColor="@color/chip_bg_soft_selector"
-                app:chipStrokeColor="@color/chip_stroke_soft_selector"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="@color/chip_stroke_inv_selector"
                 app:chipStrokeWidth="1.5dp"
                 app:chipCornerRadius="8dp"
-                app:chipIcon="@drawable/ic_chip_dot"
-                app:chipIconSize="8dp"
-                app:chipIconTint="@color/chip_dot_tint_selector"
-                app:chipStartPadding="10dp"
-                app:chipEndPadding="10dp"
-                app:iconStartPadding="0dp"
-                app:iconEndPadding="4dp"
+                app:chipStartPadding="12dp"
+                app:chipEndPadding="12dp"
                 app:checkedIconVisible="false"
                 app:chipMinTouchTargetSize="0dp"
-                android:textColor="@color/chip_text_soft_selector"
-                android:textSize="13sp"/>
+                android:textColor="@color/chip_text_inv_selector"
+                android:fontFamily="@font/googlesans_medium"
+                android:textSize="12sp"/>
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
@@ -363,21 +427,24 @@
         android:layout_marginBottom="8dp">
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:text="ALL PRODUCTS" android:textSize="11sp" android:textColor="#9CA3AF"/>
-        <TextView android:id="@+id/tvSortLabel" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Sort: Stock ↓" android:textSize="11sp" android:textColor="#9CA3AF"/>
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="14dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvInventory"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="12dp"
-            android:clipToPadding="false"/>
+            android:background="@drawable/bg_inv_value_card"
+            android:clipToPadding="false"
+            android:paddingBottom="4dp"
+            android:overScrollMode="never"
+            android:scrollbars="none"/>
 
         <TextView
             android:id="@+id/tvInventoryEmpty"

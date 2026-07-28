@@ -414,7 +414,18 @@ class PurchaseRepository private constructor(
          * a brand-new product row. Used when the user chooses "Create New"
          * on the purchase restore dialog (inactive product found).
          */
-        val forceCreate: Boolean = false
+        val forceCreate: Boolean = false,
+
+        /**
+         * False only for the line PurchaseActivity auto-adds from
+         * Inventory's "Add stock" flow (placeholder qty/cost, not yet
+         * looked at by the user) — everywhere else a line is only ever
+         * created through the line dialog, so it's reviewed by
+         * construction. Drives the amber "Review" tag on the row and
+         * blocks Save Purchase until it's cleared by opening + saving the
+         * line at least once.
+         */
+        val reviewed: Boolean = true
     )
 
     data class PurchaseImportDetailsDraft(

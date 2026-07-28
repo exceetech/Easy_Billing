@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -33,9 +34,34 @@ class SalesReturnItemAdapter(
     /** User-chosen return quantities, keyed by [BillItem.id]. */
     private val returnQtyMap = mutableMapOf<Int, Double>()
 
+    // Random per-row colours (stripe + avatar tile) so every line item
+    // doesn't read as the same flat teal — same palette pattern used for
+    // Bill History's rows, picked deterministically per item so it doesn't
+    // shuffle on rebind/scroll.
+    private data class RowColor(val stripe: Int, val avatarBg: Int, val avatarText: Int)
+
+    private val rowPalette = listOf(
+        RowColor(Color.parseColor("#1D6E6E"), Color.parseColor("#DDEEEE"), Color.parseColor("#1D6E6E")), // teal
+        RowColor(Color.parseColor("#B23A3A"), Color.parseColor("#FBEDED"), Color.parseColor("#B23A3A")), // red
+        RowColor(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA"), Color.parseColor("#8A6526")), // gold
+        RowColor(Color.parseColor("#3A5FB2"), Color.parseColor("#E5EBFA"), Color.parseColor("#3A5FB2")), // blue
+        RowColor(Color.parseColor("#7A4FA3"), Color.parseColor("#EFE5F7"), Color.parseColor("#7A4FA3")), // purple
+        RowColor(Color.parseColor("#B2673A"), Color.parseColor("#FAEBE1"), Color.parseColor("#B2673A")), // rust
+        RowColor(Color.parseColor("#3A8F6E"), Color.parseColor("#E1F2EA"), Color.parseColor("#3A8F6E")), // green
+        RowColor(Color.parseColor("#B23A85"), Color.parseColor("#FAE1F0"), Color.parseColor("#B23A85"))  // pink
+    )
+
+    private fun colorFor(item: BillItem): RowColor {
+        val key = "${item.id}${item.productId}${item.productName}"
+        val index = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
+        return rowPalette[index]
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val viewItemStripe:    View               = view.findViewById(R.id.viewItemStripe)
+        val tvAvatar:          TextView           = view.findViewById(R.id.tvAvatar)
         val tvProductName:     TextView           = view.findViewById(R.id.tvProductName)
         val tvAlreadyReturned: TextView           = view.findViewById(R.id.tvAlreadyReturned)
         val tvHsnVariant:      TextView           = view.findViewById(R.id.tvHsnVariant)
@@ -57,6 +83,10 @@ class SalesReturnItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_sales_return_row, parent, false)
+        // Each row is its own rounded card — clip so the left stripe follows
+        // the corner radius instead of poking out past it, matching
+        // DebitNoteItemAdapter's item_debit_note_line.xml treatment.
+        v.clipToOutline = true
         return ViewHolder(v)
     }
 
@@ -70,7 +100,15 @@ class SalesReturnItemAdapter(
         // ── Remove stale watcher before touching the EditText ────────────────
         holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
 
+        // ── Random row colour ────────────────────────────────────────────────
+        val rowColor = colorFor(item)
+        holder.viewItemStripe.setBackgroundColor(rowColor.stripe)
+        holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.avatarBg)
+        holder.tvAvatar.setTextColor(rowColor.avatarText)
+        holder.btnIncrement.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.stripe)
+
         // ── Static labels ────────────────────────────────────────────────────
+        holder.tvAvatar.text = item.productName.take(1).uppercase()
         holder.tvProductName.text = item.productName
 
         val alreadyReturned = item.quantity - max
@@ -82,15 +120,19 @@ class SalesReturnItemAdapter(
             holder.tvAlreadyReturned.visibility = View.GONE
         }
 
-        val hsnPart = if (item.hsnCode.isNotBlank()) "HSN: ${item.hsnCode}" else ""
-        val varPart = if (!item.variant.isNullOrBlank()) "  ·  ${item.variant}" else ""
-        val unitPart = "  ·  ${item.unit}"
-        holder.tvHsnVariant.text = "$hsnPart$varPart$unitPart"
+        // Join only the parts that actually exist, so a missing HSN doesn't
+        // leave a dangling "· variant · unit" with no leading label, and
+        // every separator gets consistent single-space padding.
+        holder.tvHsnVariant.text = listOfNotNull(
+            item.hsnCode.takeIf { it.isNotBlank() }?.let { "HSN: $it" },
+            item.variant?.takeIf { it.isNotBlank() },
+            item.unit.takeIf { it.isNotBlank() }
+        ).joinToString(" · ")
 
         holder.tvQtySold.text   = formatQty(item.quantity)
         holder.tvUnitPrice.text = CurrencyHelper.format(ctx, item.price)
         holder.tvGstRate.text   = "${item.gstRate.toInt()}%"
-        holder.tvMaxReturn.text = formatQty(max)
+        holder.tvMaxReturn.text = "Max returnable: ${formatQty(max)} ${item.unit}"
 
         // ── Current quantity for this item ───────────────────────────────────
         val currentQty = returnQtyMap[item.id] ?: 0.0
@@ -172,6 +214,7 @@ class SalesReturnItemAdapter(
             holder.tvReturnAmount.visibility = View.VISIBLE
             holder.tvReturnAmount.text =
                 "Return value: ${CurrencyHelper.format(ctx, lineTotal)}"
+            holder.tvReturnAmount.setTextColor(colorFor(item).stripe)
         } else {
             holder.tvReturnAmount.visibility = View.GONE
         }

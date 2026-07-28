@@ -6,5 +6,7 @@ data class InventoryItemUI(
     val stock: Double,
     val avgCost: Double,
     val productId: Int,
-    val category: String = ""
+    val category: String = "",
+    val hsnCode: String? = null,
+    val unit: String? = null
 )

@@ -1,9 +1,14 @@
 package com.example.easy_billing
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -25,14 +30,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.CurrencyHelper
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class BillDetailsActivity : AppCompatActivity() {
 
     private lateinit var tvBillInfo: TextView
+    private lateinit var tvBillDate: TextView
     private lateinit var tvCancelledBadge: TextView
+    private lateinit var viewStatusDot: View
 
     private lateinit var tvStoreName: TextView
+    private lateinit var tvStoreMonogram: TextView
+    private lateinit var tvInvoiceTypeBadge: TextView
+    private lateinit var tvCustomerAvatar: TextView
+    private lateinit var tvCustomerInfo: TextView
+    private lateinit var tvCustomerPhone: TextView
+    private lateinit var tvPaidThrough: TextView
     private lateinit var tvSubTotal: TextView
     private lateinit var tvGst: TextView
     private lateinit var tvDiscount: TextView
@@ -44,6 +59,8 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var btnCancelBill: MaterialButton
     private lateinit var btnCreditNote: MaterialButton
     private lateinit var btnDebitNote: MaterialButton
+    private lateinit var tvBillNotesHeader: View
+    private lateinit var llBillNotes: LinearLayout
 
     /** The server-side bill id (used for API calls). */
     private var billId: Int = -1
@@ -57,13 +74,25 @@ class BillDetailsActivity : AppCompatActivity() {
      */
     private var resolvedBillNumber: String = ""
 
+    private val shopId by lazy {
+        getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", -1)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bill_details)
 
         tvBillInfo       = findViewById(R.id.tvBillInfo)
+        tvBillDate       = findViewById(R.id.tvBillDate)
         tvCancelledBadge = findViewById(R.id.tvCancelledBadge)
+        viewStatusDot    = findViewById(R.id.viewStatusDot)
         tvStoreName      = findViewById(R.id.tvStoreName)
+        tvStoreMonogram  = findViewById(R.id.tvStoreMonogram)
+        tvInvoiceTypeBadge = findViewById(R.id.tvInvoiceTypeBadge)
+        tvCustomerAvatar = findViewById(R.id.tvCustomerAvatar)
+        tvCustomerInfo   = findViewById(R.id.tvCustomerInfo)
+        tvCustomerPhone  = findViewById(R.id.tvCustomerPhone)
+        tvPaidThrough    = findViewById(R.id.tvPaidThrough)
         tvSubTotal       = findViewById(R.id.tvSubTotal)
         tvGst            = findViewById(R.id.tvGst)
         tvDiscount       = findViewById(R.id.tvDiscount)
@@ -75,6 +104,9 @@ class BillDetailsActivity : AppCompatActivity() {
         btnCancelBill    = findViewById(R.id.btnCancelBill)
         btnCreditNote    = findViewById(R.id.btnCreditNote)
         btnDebitNote     = findViewById(R.id.btnDebitNote)
+        tvBillNotesHeader = findViewById(R.id.tvBillNotesHeader)
+        llBillNotes      = findViewById(R.id.llBillNotes)
+        llBillNotes.clipToOutline = true
 
         billId = intent.getIntExtra("BILL_ID", -1)
 
@@ -93,6 +125,40 @@ class BillDetailsActivity : AppCompatActivity() {
         btnCancelBill.setOnClickListener { confirmCancellation() }
         btnCreditNote.setOnClickListener { openSalesReturn() }
         btnDebitNote.setOnClickListener { openDebitNote() }
+    }
+
+    // Immersive mode — hide status + navigation bars, matching the
+    // chromeless look used on the Credit/Debit Note screens. Applied
+    // directly here (not via BaseActivity) to avoid BaseActivity's forced
+    // landscape re-orientation, which previously raced with async loads on
+    // other screens and caused a spurious "not loaded yet" error.
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideSystemBars()
+    }
+
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let { controller ->
+                controller.hide(
+                    android.view.WindowInsets.Type.statusBars() or
+                        android.view.WindowInsets.Type.navigationBars()
+                )
+                controller.systemBarsBehavior =
+                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                )
+        }
     }
 
     /** Cheap connectivity check — used only to pick a more useful error message. */
@@ -127,11 +193,13 @@ class BillDetailsActivity : AppCompatActivity() {
                     val db = AppDatabase.getDatabase(this@BillDetailsActivity)
                     val store = db.storeInfoDao().get()
 
-                    tvStoreName.text = store?.name ?: "My Store"
+                    val storeName = store?.name ?: "My Store"
+                    tvStoreName.text = storeName
+                    tvStoreMonogram.text = storeName.trim().firstOrNull()?.uppercase() ?: "M"
                 }
 
                 val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                val outputFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                val outputFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
                 val cleanDate = try {
                     val raw = bill.created_at.substring(0, 19)
@@ -141,8 +209,11 @@ class BillDetailsActivity : AppCompatActivity() {
                     bill.created_at // fallback
                 }
 
-                tvBillInfo.text = "Invoice: #${bill.bill_number}\nDate: $cleanDate"
+                tvBillInfo.text = "Invoice · #${bill.bill_number}"
+                tvBillDate.text = cleanDate
                 resolvedBillNumber = bill.bill_number
+
+                tvPaidThrough.text = "Paid via ${bill.payment_method}"
 
                 val subtotal = bill.total_amount - bill.gst + bill.discount
 
@@ -164,6 +235,79 @@ class BillDetailsActivity : AppCompatActivity() {
                     bill.is_cancelled || localBill?.isCancelled == true
                 localBillId = localBill?.id ?: -1
                 applyBillCancellationState(alreadyCancelled)
+
+                if (localBillId != -1) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val notes = db.creditNoteDao().getByOriginalInvoice(localBillId)
+                        withContext(Dispatchers.Main) {
+                            buildBillNotes(notes)
+                        }
+                    }
+                }
+
+                // Customer — the GSTR-1 invoice snapshot (gst_sales_invoice)
+                // carries the name/phone/type entered at checkout for EVERY
+                // bill, not just credit sales, so it's the primary source.
+                // The linked credit account (if any) is the fallback for
+                // older bills saved before that snapshot existed.
+                val gstInvoice = if (localBill != null) {
+                    withContext(Dispatchers.IO) {
+                        db.gstSalesInvoiceDao().getByBillId(localBill.id)
+                    }
+                } else null
+
+                val creditAccountId = localBill?.creditAccountId
+                val creditAccount = if (creditAccountId != null) {
+                    withContext(Dispatchers.IO) {
+                        db.creditAccountDao().getById(creditAccountId, shopId)
+                    }
+                } else null
+
+                val customerName = gstInvoice?.customerName?.takeIf { it.isNotBlank() }
+                    ?: creditAccount?.name?.takeIf { it.isNotBlank() }
+                val displayName = customerName ?: "Walk-in customer"
+                tvCustomerInfo.text = displayName
+
+                // Avatar monogram — first letters of the first two words.
+                val words = displayName.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+                tvCustomerAvatar.text = when {
+                    words.size >= 2 -> "${words[0].first()}${words[1].first()}"
+                    words.size == 1 && words[0].length >= 2 -> words[0].substring(0, 2)
+                    words.size == 1 -> words[0]
+                    else -> "?"
+                }.uppercase()
+
+                val customerPhone = gstInvoice?.customerPhone?.takeIf { it.isNotBlank() }
+                    ?: creditAccount?.phone?.takeIf { it.isNotBlank() }
+                if (customerPhone != null) {
+                    tvCustomerPhone.text = customerPhone
+                    tvCustomerPhone.visibility = View.VISIBLE
+                } else {
+                    tvCustomerPhone.visibility = View.GONE
+                }
+
+                val invoiceType = gstInvoice?.invoiceType?.takeIf { it.isNotBlank() }
+                    ?: bill.invoice_type ?: "B2C"
+                tvInvoiceTypeBadge.text = invoiceType
+                if (invoiceType.equals("B2B", ignoreCase = true)) {
+                    tvInvoiceTypeBadge.setTextColor(android.graphics.Color.parseColor("#8A6526"))
+                    tvInvoiceTypeBadge.background = androidx.core.content.ContextCompat.getDrawable(
+                        this@BillDetailsActivity, R.drawable.bg_type_badge_gold
+                    )
+                    tvCustomerAvatar.setTextColor(android.graphics.Color.parseColor("#8A6526"))
+                    tvCustomerAvatar.background = androidx.core.content.ContextCompat.getDrawable(
+                        this@BillDetailsActivity, R.drawable.bg_type_badge_gold
+                    )
+                } else {
+                    tvInvoiceTypeBadge.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+                    tvInvoiceTypeBadge.background = androidx.core.content.ContextCompat.getDrawable(
+                        this@BillDetailsActivity, R.drawable.bg_type_badge_teal
+                    )
+                    tvCustomerAvatar.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+                    tvCustomerAvatar.background = androidx.core.content.ContextCompat.getDrawable(
+                        this@BillDetailsActivity, R.drawable.bg_type_badge_teal
+                    )
+                }
 
             } catch (e: Exception) {
 
@@ -197,7 +341,15 @@ class BillDetailsActivity : AppCompatActivity() {
      * cancel action.
      */
     private fun applyBillCancellationState(cancelled: Boolean) {
-        tvCancelledBadge.visibility = if (cancelled) View.VISIBLE else View.GONE
+        if (cancelled) {
+            tvCancelledBadge.text = "CANCELLED"
+            viewStatusDot.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F09595"))
+        } else {
+            tvCancelledBadge.text = "PAID"
+            viewStatusDot.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#5DCAA5"))
+        }
         btnCancelBill.visibility    = if (cancelled) View.GONE   else View.VISIBLE
         btnCreditNote.isEnabled     = !cancelled
         btnDebitNote.isEnabled      = !cancelled
@@ -225,15 +377,31 @@ class BillDetailsActivity : AppCompatActivity() {
                     "Mark this invoice as cancelled for GST reporting? This will also restore all billed items to your inventory. This cannot be undone."
                 }
 
-                AlertDialog.Builder(this@BillDetailsActivity)
-                    .setTitle("Cancel / Void Invoice")
-                    .setMessage(message)
-                    .setPositiveButton("Yes, Cancel") { d, _ ->
-                        d.dismiss()
-                        performCancellation()
-                    }
-                    .setNegativeButton("No") { d, _ -> d.dismiss() }
-                    .show()
+                // Champagne dialog card (soft-red circle + ban icon) instead
+                // of the plain system alert, matching
+                // dialog_cancel_purchase_confirm.xml's pattern.
+                val view = layoutInflater.inflate(R.layout.dialog_cancel_void_invoice, null)
+
+                val dialog = AlertDialog.Builder(this@BillDetailsActivity)
+                    .setView(view)
+                    .create()
+
+                dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                view.findViewById<TextView>(R.id.tvCancelInvoiceEyebrow).text =
+                    "Invoice #$resolvedBillNumber".takeIf { resolvedBillNumber.isNotBlank() }
+                        ?: "Invoice #—"
+                view.findViewById<TextView>(R.id.tvCancelInvoiceMessage).text = message
+
+                view.findViewById<MaterialButton>(R.id.btnConfirmCancelInvoice).setOnClickListener {
+                    dialog.dismiss()
+                    performCancellation()
+                }
+                view.findViewById<MaterialButton>(R.id.btnKeepInvoice).setOnClickListener {
+                    dialog.dismiss()
+                }
+
+                dialog.show()
             }
         }
     }
@@ -426,6 +594,69 @@ class BillDetailsActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             }
+        }
+    }
+
+    /**
+     * Inline "DEBIT & CREDIT NOTES" list, right under the line items —
+     * same card-list pattern as PurchaseDetailsActivity.buildPriorReturns,
+     * reusing item_debit_note_row.xml. Credit notes ("C") reduce what the
+     * customer owes (gold, minus, "returned" caption); debit notes ("D")
+     * add to it (teal, plus, "issued" caption).
+     */
+    private fun buildBillNotes(notes: List<com.example.easy_billing.db.CreditNote>) {
+        if (notes.isEmpty()) {
+            tvBillNotesHeader.visibility = View.GONE
+            llBillNotes.removeAllViews()
+            llBillNotes.visibility = View.GONE
+            return
+        }
+
+        tvBillNotesHeader.visibility = View.VISIBLE
+        llBillNotes.visibility = View.VISIBLE
+        llBillNotes.removeAllViews()
+
+        val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+
+        for ((index, note) in notes.withIndex()) {
+            val card = LayoutInflater.from(this)
+                .inflate(R.layout.item_debit_note_row, llBillNotes, false)
+
+            val isCredit = note.noteType == "C"
+            val hex = if (isCredit) "#8A6526" else "#0F6E56"
+
+            card.findViewById<TextView>(R.id.tvNoteNumber).text = note.noteNumber
+            card.findViewById<TextView>(R.id.tvProductName).text =
+                note.customerName.ifBlank { "against ${note.originalInvoiceNumber}" }
+            card.findViewById<TextView>(R.id.tvReturnedQty).text = ""
+            card.findViewById<TextView>(R.id.tvNoteDate).text =
+                "· ${dateFmt.format(Date(note.noteDate))}"
+
+            card.findViewById<View>(R.id.viewNoteStripe).setBackgroundColor(Color.parseColor(hex))
+            card.findViewById<ImageView>(R.id.ivNoteIcon).apply {
+                setImageResource(
+                    if (isCredit) R.drawable.ic_lc_arrow_up_right
+                    else R.drawable.ic_lc_arrow_down_left
+                )
+                imageTintList = ColorStateList.valueOf(Color.parseColor(hex))
+                backgroundTintList = ColorStateList.valueOf(
+                    Color.parseColor(if (isCredit) "#F3ECDD" else "#E4F1EC")
+                )
+            }
+            card.findViewById<TextView>(R.id.tvReturnValue).apply {
+                text = (if (isCredit) "− " else "+ ") + CurrencyHelper.format(
+                    this@BillDetailsActivity, note.totalAmount
+                )
+                setTextColor(Color.parseColor(hex))
+            }
+            card.findViewById<TextView>(R.id.tvNoteCaption).text =
+                if (isCredit) "returned" else "issued"
+            card.findViewById<TextView>(R.id.tvValuationVariance).visibility = View.GONE
+
+            card.findViewById<View>(R.id.viewNoteDivider).visibility =
+                if (index == notes.lastIndex) View.GONE else View.VISIBLE
+
+            llBillNotes.addView(card)
         }
     }
 

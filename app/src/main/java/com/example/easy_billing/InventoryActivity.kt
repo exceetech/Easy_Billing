@@ -38,6 +38,18 @@ class InventoryActivity : BaseActivity() {
     private var currentCategory = ""   // "" = All
     private var currentSort = InvSort.STOCK_HIGH_LOW
 
+    // Stock-status quick filter — chosen from the Filter icon button's
+    // popup (same pattern as BillHistoryActivity's Filter+Sort row); the
+    // badge on the Filter icon shows whenever it's off "All".
+    private enum class StockFilter { ALL, LOW, OUT }
+    private var currentStockFilter = StockFilter.ALL
+
+    private lateinit var btnFilter: View
+    private lateinit var btnSortIcon: View
+    private lateinit var tvFilterBadge: TextView
+    private lateinit var tvResultSummary: TextView
+    private lateinit var btnResetFilters: View
+
     // Random-looking stock count fix (same root cause as Dashboard's
     // loadProducts()): loadInventory() is triggered from onResume plus
     // several post-edit call sites, each starting a fresh, uncancelled
@@ -64,6 +76,8 @@ class InventoryActivity : BaseActivity() {
 
         rvInventory = findViewById(R.id.rvInventory)
         rvInventory.layoutManager = LinearLayoutManager(this)
+        // Let the first and last row follow the card's rounded corners.
+        rvInventory.clipToOutline = true
 
         adapter = InventoryAdapter(
             emptyList(),
@@ -78,32 +92,61 @@ class InventoryActivity : BaseActivity() {
 
         rvInventory.adapter = adapter
 
+        btnFilter = findViewById(R.id.btnFilter)
+        btnSortIcon = findViewById(R.id.btnSort)
+        tvFilterBadge = findViewById(R.id.tvFilterBadge)
+        tvResultSummary = findViewById(R.id.tvResultSummary)
+        btnResetFilters = findViewById(R.id.btnResetFilters)
+
         setupSearch()
         setupHeaderActions()
+        setupFilterAndSort()
+    }
+
+    // ================= FILTER + SORT =================
+
+    private fun setupFilterAndSort() {
+        btnFilter.setOnClickListener { showStockFilterPopup() }
+        btnResetFilters.setOnClickListener {
+            currentStockFilter = StockFilter.ALL
+            currentCategory = ""
+            currentSort = InvSort.STOCK_HIGH_LOW
+            findViewById<com.google.android.material.chip.Chip?>(R.id.chipCatAll)?.isChecked = true
+            applyFilter()
+        }
+    }
+
+    private fun showStockFilterPopup() {
+        val options = listOf(
+            StockFilter.ALL to "All products",
+            StockFilter.LOW to "Low stock",
+            StockFilter.OUT to "Out of stock"
+        )
+        val selectedIndex = options.indexOfFirst { it.first == currentStockFilter }.coerceAtLeast(0)
+        com.example.easy_billing.ui.ThemedDropdown.show(
+            btnFilter, options.map { it.second }, selectedIndex,
+            rightAlign = false, minWidthDp = 190
+        ) { idx -> setStockFilter(options[idx].first) }
+    }
+
+    private fun setStockFilter(filter: StockFilter) {
+        currentStockFilter = filter
+        applyFilter()
     }
 
     // ================= HEADER ACTIONS =================
 
     private fun setupHeaderActions() {
 
-        findViewById<View?>(R.id.btnAddProduct)?.apply {
-            contentDescription = "Add product"
-            setOnClickListener { showAddEditProductChooser() }
-        }
-
-        findViewById<View?>(R.id.btnEdit)?.apply {
-            contentDescription = "Manage products"
-            setOnClickListener {
-                startActivity(android.content.Intent(this@InventoryActivity, ManageProductsActivity::class.java))
-            }
-        }
+        // Edit/Add product icons removed from the header's top-right
+        // corner — Add product and Manage products are still reachable
+        // elsewhere (add-product flow / product management), this screen
+        // just no longer shortcuts to them from up here.
 
         findViewById<View?>(R.id.btnSort)?.apply {
             contentDescription = "Sort inventory"
             setOnClickListener { showSortMenu(it) }
         }
-
-        updateSortLabel()
     }
 
     // ================= THEMED SORT DROPDOWN =================
@@ -148,17 +191,35 @@ class InventoryActivity : BaseActivity() {
         dialog.show()
     }
 
+    private fun sortLabelText(): String = when (currentSort) {
+        InvSort.A_TO_Z              -> "Name ↑"
+        InvSort.Z_TO_A              -> "Name ↓"
+        InvSort.PRICE_LOW_HIGH      -> "Price ↑"
+        InvSort.PRICE_HIGH_LOW      -> "Price ↓"
+        InvSort.STOCK_LOW_HIGH      -> "Stock ↑"
+        InvSort.STOCK_HIGH_LOW      -> "Stock ↓"
+        InvSort.STOCK_VALUE_HIGH_LOW -> "Value ↓"
+    }
+
     private fun updateSortLabel() {
-        val label = when (currentSort) {
-            InvSort.A_TO_Z              -> "Name ↑"
-            InvSort.Z_TO_A              -> "Name ↓"
-            InvSort.PRICE_LOW_HIGH      -> "Price ↑"
-            InvSort.PRICE_HIGH_LOW      -> "Price ↓"
-            InvSort.STOCK_LOW_HIGH      -> "Stock ↑"
-            InvSort.STOCK_HIGH_LOW      -> "Stock ↓"
-            InvSort.STOCK_VALUE_HIGH_LOW -> "Value ↓"
-        }
-        findViewById<TextView?>(R.id.tvSortLabel)?.text = "Sort: $label"
+        // The old standalone "Sort: X" label is gone — the sort choice now
+        // rides inside the result-summary pill via updateResultSummary(),
+        // called from applyFilter(). This just keeps the reset-button
+        // logic in sync when sort changes independently of a filter.
+        updateResultSummary(adapter.itemCount)
+    }
+
+    /** "$N products · $sortLabel", with Reset showing whenever category,
+     * stock filter, or sort is non-default — mirrors BillHistoryActivity's
+     * updateFilterSortIndicators. */
+    private fun updateResultSummary(resultCount: Int) {
+        val sortLabel = sortLabelText()
+        tvResultSummary.text = "$resultCount product${if (resultCount == 1) "" else "s"} · $sortLabel"
+        val hasNonDefault = currentStockFilter != StockFilter.ALL ||
+            currentCategory.isNotEmpty() ||
+            currentSort != InvSort.STOCK_HIGH_LOW
+        btnResetFilters.visibility = if (hasNonDefault) View.VISIBLE else View.GONE
+        tvFilterBadge.visibility = if (currentStockFilter != StockFilter.ALL) View.VISIBLE else View.GONE
     }
 
     private fun sortList(list: List<InventoryItemUI>): List<InventoryItemUI> = when (currentSort) {
@@ -175,17 +236,32 @@ class InventoryActivity : BaseActivity() {
 
     private fun updateKpis() {
         val totalValue = fullList.sumOf { it.stock * it.avgCost }
-        val totalUnits = fullList.sumOf { it.stock }
         val lowCount = fullList.count { it.stock in 0.0001..5.0 }
         val outCount = fullList.count { it.stock <= 0.0 }
 
         findViewById<TextView?>(R.id.tvKpiValue)?.text = "₹${formatIndianShort(totalValue)}"
-        findViewById<TextView?>(R.id.tvKpiUnits)?.text =
-            if (totalUnits % 1 == 0.0) "%,d".format(totalUnits.toLong())
-            else "%,.1f".format(totalUnits)
         findViewById<TextView?>(R.id.tvKpiLow)?.text = lowCount.toString()
         findViewById<TextView?>(R.id.tvKpiOut)?.text = outCount.toString()
         findViewById<TextView?>(R.id.tvHeroSub)?.text = "${fullList.size} active SKUs"
+
+        // Caption mirrors CreditAccountsActivity's tvNetCaption pattern —
+        // its text/colour switches with what's actually going on instead
+        // of always reading the same generic subtitle.
+        val tvCaption = findViewById<TextView?>(R.id.tvKpiCaption)
+        when {
+            outCount > 0 -> {
+                tvCaption?.text = "$outCount out of stock"
+                tvCaption?.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
+            }
+            lowCount > 0 -> {
+                tvCaption?.text = "$lowCount running low"
+                tvCaption?.setTextColor(android.graphics.Color.parseColor("#8A6526"))
+            }
+            else -> {
+                tvCaption?.text = "all in stock"
+                tvCaption?.setTextColor(android.graphics.Color.parseColor("#8A8272"))
+            }
+        }
     }
 
     private fun formatIndianShort(value: Double): String = when {
@@ -255,7 +331,9 @@ class InventoryActivity : BaseActivity() {
                             stock = inv?.currentStock ?: 0.0,
                             avgCost = inv?.averageCost ?: 0.0,
                             productId = product.id,
-                            category = product.category
+                            category = product.category,
+                            hsnCode = product.hsnCode,
+                            unit = product.unit
                         )
                     }
 
@@ -311,11 +389,19 @@ class InventoryActivity : BaseActivity() {
                 name.contains(currentQuery) || variant.contains(currentQuery)
             }
 
-            matchesCategory && matchesQuery
+            val matchesStock = when (currentStockFilter) {
+                StockFilter.ALL -> true
+                StockFilter.LOW -> item.stock in 0.0001..5.0
+                StockFilter.OUT -> item.stock <= 0.0
+            }
+
+            matchesCategory && matchesQuery && matchesStock
         }
 
-        adapter.updateData(sortList(filtered))
+        val sorted = sortList(filtered)
+        adapter.updateData(sorted)
         updateKpis()
+        updateResultSummary(sorted.size)
 
         val tvEmpty = findViewById<View?>(R.id.tvInventoryEmpty)
         tvEmpty?.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
@@ -323,6 +409,33 @@ class InventoryActivity : BaseActivity() {
     }
 
     // ================= CATEGORY CHIPS =================
+
+    // Deterministic per-category accent — same hash-and-pick approach as
+    // BillHistoryAdapter/SalesReturnItemAdapter's row palette, so each
+    // category gets its own stable colour (not everyone sharing the same
+    // gold) but a given category always lands on the same colour across
+    // rebinds instead of re-randomising every time the chip row rebuilds.
+    private val categoryChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun applyCategoryChipColor(chip: com.google.android.material.chip.Chip, category: String) {
+        val hex = categoryChipPalette[(category.hashCode() and 0x7FFFFFFF) % categoryChipPalette.size]
+        val accent = Color.parseColor(hex)
+        val states = arrayOf(
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_checked)
+        )
+        chip.chipStrokeColor = android.content.res.ColorStateList(
+            states, intArrayOf(accent, Color.parseColor("#E4DCC8"))
+        )
+        chip.setTextColor(
+            android.content.res.ColorStateList(
+                states, intArrayOf(accent, Color.parseColor("#6E6A60"))
+            )
+        )
+    }
 
     private fun buildCategoryChips() {
 
@@ -347,6 +460,7 @@ class InventoryActivity : BaseActivity() {
             chip.id = View.generateViewId()
             chip.text = cat
             chip.tag = cat
+            applyCategoryChipColor(chip, cat)
             group.addView(chip)
         }
 
@@ -371,10 +485,21 @@ class InventoryActivity : BaseActivity() {
     private fun showAddStockDialog(product: Product) {
 
         // Context-aware routing:
-        //   • Purchased products → Ask for header info, then go to PurchaseActivity.
+        //   • Purchased products → straight to PurchaseActivity (single-
+        //     product mode); invoice number/supplier/GSTIN/state/date are
+        //     entered right there on the record-a-purchase page, so the
+        //     separate header dialog that used to run first is gone —
+        //     it was a redundant extra popup before the same fields.
         //   • Manual products    → EditProductActivity (full product control).
         if (product.isPurchased) {
-            showPurchasedHeaderDialog(product)
+            val intent = android.content.Intent(this, PurchaseActivity::class.java).apply {
+                putExtra("EXTRA_PRODUCT_ID", product.id)
+                putExtra("EXTRA_PRODUCT_NAME", product.name)
+                putExtra("EXTRA_PRODUCT_VARIANT", product.variant)
+                putExtra("EXTRA_PRODUCT_UNIT", product.unit)
+                putExtra("EXTRA_SINGLE_MODE", true)
+            }
+            startActivity(intent)
             return
         } else {
             startActivity(
@@ -383,73 +508,6 @@ class InventoryActivity : BaseActivity() {
             )
             return
         }
-    }
-
-    private fun showPurchasedHeaderDialog(product: Product) {
-        val view = layoutInflater.inflate(R.layout.dialog_purchased_header, null)
-        val dialog = AlertDialog.Builder(this)
-            .setView(view)
-            .create()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        val etInvoice = view.findViewById<EditText>(R.id.etInvoiceNumber)
-        val etSupplier = view.findViewById<EditText>(R.id.etSupplierName)
-        val etGstin = view.findViewById<EditText>(R.id.etSupplierGstin)
-        val etState = view.findViewById<AutoCompleteTextView>(R.id.etState)
-        val etInvoiceDate = view.findViewById<EditText>(R.id.etInvoiceDate)
-        // Reusable picker — opens calendar on tap, blocks keyboard,
-        // formats dd/MM/yyyy, caps at today.
-        val getInvoiceDate = InvoiceDatePicker.bind(etInvoiceDate)
-        val btnContinue = view.findViewById<Button>(R.id.btnContinue)
-        val btnCancel = view.findViewById<Button>(R.id.btnCancel)
-
-        // Setup state suggestions
-        val states = com.example.easy_billing.util.GstEngine.INDIA_STATES.values.toList()
-        etState.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, states))
-        etState.setOnClickListener { etState.showDropDown() }
-
-        btnCancel.setOnClickListener { dialog.dismiss() }
-        btnContinue.setOnClickListener {
-            val inv = etInvoice.text.toString().trim()
-            val sup = etSupplier.text.toString().trim()
-            val gst = etGstin.text.toString().trim()
-            val st = etState.text.toString().trim()
-
-            if (inv.isEmpty() || sup.isEmpty() || st.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (gst.isNotEmpty() && !GstEngine.isValidGstin(gst)) {
-                etGstin.error = "Enter a valid 15-character GSTIN"
-                Toast.makeText(this, "Enter a valid 15-character GSTIN", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            val pickedInvoiceDate = getInvoiceDate()
-            if (pickedInvoiceDate == null) {
-                etInvoiceDate.error = "Pick the invoice date"
-                Toast.makeText(this, "Invoice date is required", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-
-            dialog.dismiss()
-
-            val intent = android.content.Intent(this, PurchaseActivity::class.java).apply {
-                putExtra("EXTRA_INVOICE_NUMBER", inv)
-                putExtra("EXTRA_SUPPLIER_NAME", sup)
-                putExtra("EXTRA_SUPPLIER_GSTIN", gst)
-                putExtra("EXTRA_STATE", st)
-                putExtra("EXTRA_INVOICE_DATE", pickedInvoiceDate)
-                putExtra("EXTRA_PRODUCT_ID", product.id)
-                putExtra("EXTRA_PRODUCT_NAME", product.name)
-                putExtra("EXTRA_PRODUCT_VARIANT", product.variant)
-                putExtra("EXTRA_PRODUCT_UNIT", product.unit)
-                putExtra("EXTRA_SINGLE_MODE", true)
-            }
-            startActivity(intent)
-        }
-
-        dialog.show()
     }
 
     // ================= REDUCE STOCK =================
@@ -466,14 +524,75 @@ class InventoryActivity : BaseActivity() {
      */
     private fun showReduceStockDialog(product: Product, currentStock: Double) {
 
-        val view = layoutInflater.inflate(R.layout.dialog_reduce_stock, null)
-        val dialog = AlertDialog.Builder(this).setView(view).create()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        // Let the keyboard push the dialog up so the per-batch field
+        // Full-screen champagne page (same shell pattern as
+        // PurchaseLineDialog) — replaces the old dark-gradient
+        // MaterialCardView dialog. A plain themed Dialog rather than an
+        // AlertDialog so the window is full-screen from creation.
+        val view = layoutInflater.inflate(R.layout.dialog_reduce_stock_fullscreen, null)
+        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        dialog.setContentView(view)
+        // Let the keyboard push the content up so the per-batch field
         // never sits behind the IME.
         dialog.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
+
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationIcon(R.drawable.ic_back_arrow)
+            setNavigationOnClickListener { dialog.dismiss() }
+        }
+
+        view.findViewById<TextView>(R.id.tvProductAvatar).text = monogramFor(product.name)
+        view.findViewById<TextView>(R.id.tvProductName).text = product.name
+
+        // Variant / category / HSN — one dot-separated muted line, with
+        // the category picked out in teal since it's the one people scan
+        // for first. Hidden entirely if the product has none of these.
+        view.findViewById<TextView>(R.id.tvProductTags).apply {
+            val variant = product.variant?.trim().orEmpty()
+            val category = product.category.trim()
+            val hsn = product.hsnCode?.trim().orEmpty().takeIf { it.isNotEmpty() }?.let { "HSN $it" }.orEmpty()
+
+            val parts = listOf(variant, category, hsn).filter { it.isNotEmpty() }
+            if (parts.isEmpty()) {
+                visibility = View.GONE
+            } else {
+                val separator = "   ·   "
+                val full = parts.joinToString(separator)
+                val spannable = android.text.SpannableString(full)
+                if (category.isNotEmpty()) {
+                    val start = full.indexOf(category)
+                    if (start >= 0) {
+                        spannable.setSpan(
+                            android.text.style.ForegroundColorSpan(Color.parseColor("#0F6E56")),
+                            start, start + category.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        spannable.setSpan(
+                            android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                            start, start + category.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                }
+                text = spannable
+                visibility = View.VISIBLE
+            }
+        }
+
+        val tvStockValue = view.findViewById<TextView>(R.id.tvStockValue)
+        // Stock value = current qty × average cost — averageCost isn't
+        // part of the Product row itself, so it's fetched from the
+        // inventory table the same way PurchaseActivity does for its
+        // single-mode line.
+        lifecycleScope.launch(Dispatchers.IO) {
+            val avgCost = AppDatabase.getDatabase(this@InventoryActivity)
+                .inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+            withContext(Dispatchers.Main) {
+                val value = avgCost * currentStock
+                tvStockValue.text = "₹${"%.0f".format(value)}"
+            }
+        }
 
         val tvCurrent     = view.findViewById<TextView>(R.id.tvCurrentStockLabel)
         val rgReason      = view.findViewById<RadioGroup>(R.id.rgReason)
@@ -485,16 +604,21 @@ class InventoryActivity : BaseActivity() {
         val rvBatches     = view.findViewById<RecyclerView>(R.id.rvBatches)
         val tvBatchesEmpty = view.findViewById<TextView>(R.id.tvBatchesEmpty)
         val tvBatchRunning = view.findViewById<TextView>(R.id.tvBatchRunning)
+        val tvBatchCountSub = view.findViewById<TextView>(R.id.tvBatchCountSub)
 
-        // Credit
+        // Credit — same card + icon row + MaterialSwitch structure as
+        // "Imported goods" in activity_purchase.xml.
         val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
-        val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
+        val cbAdjust = view.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.cbAdjustCredit)
         val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
+        val rowReturnAccount = view.findViewById<View>(R.id.rowReturnAccount)
+        val dividerReturnAccount = view.findViewById<View>(R.id.dividerReturnAccount)
 
-        val btnCancel    = view.findViewById<Button>(R.id.btnReduceCancel)
         val btnConfirm   = view.findViewById<Button>(R.id.btnReduceConfirm)
+        val btnCancel     = view.findViewById<Button>(R.id.btnReduceCancel)
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
-        tvCurrent.text = "Available: ${formatStock(currentStock)} ${product.unit ?: "piece"}"
+        tvCurrent.text = "${formatStock(currentStock)} ${product.unit ?: "piece"}"
         val allowDecimal = isDecimalAllowed(product.unit)
 
         var selectedAccountForReturn: com.example.easy_billing.db.CreditAccount? = null
@@ -514,20 +638,53 @@ class InventoryActivity : BaseActivity() {
         rgReason.setOnCheckedChangeListener { _, _ -> applyReason() }
         applyReason()
 
-        // Credit-adjust picker is identical to the prior dialog.
+        // "Reason" is now a single tappable pill (Option 19) instead of
+        // a visible radio list — rgReason/rbReturn/rbScrap still hold
+        // the actual selection state (hidden 0x0 in the layout) so
+        // applyReason() and every isChecked check below keep working
+        // unchanged; this popup is just the UI that drives them.
+        val tvReasonChoice = view.findViewById<TextView>(R.id.tvReasonChoice)
+        view.findViewById<View>(R.id.btnReasonPicker).setOnClickListener { anchor ->
+            val options = listOf("Return to supplier", "Scrap / damage")
+            val selectedIndex = if (rbReturn.isChecked) 0 else 1
+            com.example.easy_billing.ui.ThemedDropdown.show(
+                anchor, options, selectedIndex,
+                rightAlign = true, minWidthDp = 200
+            ) { idx ->
+                tvReasonChoice.text = options[idx]
+                rgReason.check(if (idx == 0) R.id.rbReturn else R.id.rbScrap)
+            }
+        }
+
+        // Credit-adjust picker — account subtitle pill appears only
+        // once the switch is turned on.
+        fun renderAccountSubtitle() {
+            val account = selectedAccountForReturn
+            val show = cbAdjust.isChecked
+            rowReturnAccount.visibility = if (show) View.VISIBLE else View.GONE
+            dividerReturnAccount.visibility = if (show) View.VISIBLE else View.GONE
+            if (account != null) {
+                tvAccount.text = account.name
+                tvAccount.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+            } else {
+                tvAccount.text = "No account selected"
+                tvAccount.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
+            }
+        }
         cbAdjust.setOnCheckedChangeListener { _, isChecked ->
+            renderAccountSubtitle()
             if (isChecked && selectedAccountForReturn == null) {
                 com.example.easy_billing.util.CreditAccountPicker.show(
                     activity = this,
                     onAccountSelected = { account ->
                         selectedAccountForReturn = account
-                        tvAccount.text = "Account: ${account.name}"
-                        tvAccount.visibility = View.VISIBLE
+                        renderAccountSubtitle()
                     },
                     onDismissedWithoutSelection = {
-                        // No account chosen — don't leave the box ticked.
+                        // No account chosen — don't leave the switch on.
                         if (selectedAccountForReturn == null) {
                             cbAdjust.isChecked = false
+                            renderAccountSubtitle()
                             Toast.makeText(
                                 this,
                                 "Credit needs an account — adjustment turned off",
@@ -536,23 +693,19 @@ class InventoryActivity : BaseActivity() {
                         }
                     }
                 )
-            } else if (!isChecked) {
-                tvAccount.visibility = View.GONE
-            } else if (selectedAccountForReturn != null) {
-                tvAccount.visibility = View.VISIBLE
             }
         }
-        tvAccount.setOnClickListener {
+        rowReturnAccount.setOnClickListener {
             com.example.easy_billing.util.CreditAccountPicker.show(
                 activity = this,
                 onAccountSelected = { account ->
                     selectedAccountForReturn = account
-                    tvAccount.text = "Account: ${account.name}"
+                    if (!cbAdjust.isChecked) cbAdjust.isChecked = true
+                    renderAccountSubtitle()
                 }
             )
         }
-
-        btnCancel.setOnClickListener { dialog.dismiss() }
+        renderAccountSubtitle()
 
         // Load batches in the background and bind the adapter once
         // they arrive. The dialog is already on screen so the user
@@ -571,6 +724,9 @@ class InventoryActivity : BaseActivity() {
                     val adapter = BatchPickerAdapter(batches)
                     adapter.onSelectionChanged = { running ->
                         tvBatchRunning.text = formatStock(running)
+                        val n = adapter.selectedBatchCount()
+                        tvBatchCountSub.text = if (n == 0) "No batches selected"
+                            else "$n ${if (n == 1) "batch" else "batches"} selected"
                     }
                     rvBatches.adapter = adapter
                     batchAdapter = adapter
@@ -789,67 +945,207 @@ class InventoryActivity : BaseActivity() {
     private fun formatStock(value: Double): String =
         if (value % 1.0 == 0.0) value.toInt().toString() else "%.2f".format(value)
 
+    /** Two-letter monogram from a product name — same rule as
+     *  InventoryAdapter.monogramFor, used for the reduce-stock page's
+     *  avatar tile. */
+    private fun monogramFor(name: String): String {
+        val words = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            words.isEmpty() -> "?"
+            words.size == 1 -> words[0].take(2).uppercase()
+            else -> (words[0].take(1) + words[1].take(1)).uppercase()
+        }
+    }
+
     // ================= CLEAR STOCK =================
 
     private fun showClearStockDialog(productId: Int) {
-        val view = layoutInflater.inflate(R.layout.dialog_clear_stock, null)
-        val dialog = AlertDialog.Builder(this).setView(view).create()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        val view = layoutInflater.inflate(R.layout.dialog_clear_stock_fullscreen, null)
+        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        dialog.setContentView(view)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationIcon(R.drawable.ic_back_arrow)
+            setNavigationOnClickListener { dialog.dismiss() }
+        }
 
-        val btnCancel = view.findViewById<Button>(R.id.btnCancel)
-        val btnClear  = view.findViewById<Button>(R.id.btnClear)
+        val tvAvatar  = view.findViewById<TextView>(R.id.tvProductAvatar)
+        val tvName    = view.findViewById<TextView>(R.id.tvProductName)
+        val tvTags    = view.findViewById<TextView>(R.id.tvProductTags)
+        val tvStock   = view.findViewById<TextView>(R.id.tvCurrentStockLabel)
+
         val rgReason  = view.findViewById<RadioGroup>(R.id.rgReason)
         val rbReturn  = view.findViewById<RadioButton>(R.id.rbReturn)
         val rbScrap   = view.findViewById<RadioButton>(R.id.rbScrap)
-        val tvStock   = view.findViewById<TextView>(R.id.tvCurrentStock)
+        val tvReasonChoice = view.findViewById<TextView>(R.id.tvReasonChoice)
 
         // Batches section
         val batchesSection = view.findViewById<LinearLayout>(R.id.batchesSection)
-        val cbSelectAll    = view.findViewById<CheckBox>(R.id.cbSelectAll)
         val rvBatches      = view.findViewById<RecyclerView>(R.id.rvBatches)
         val tvBatchesEmpty = view.findViewById<TextView>(R.id.tvBatchesEmpty)
         val tvBatchRunning = view.findViewById<TextView>(R.id.tvBatchRunning)
+        val tvBatchCountSub = view.findViewById<TextView>(R.id.tvBatchCountSub)
 
-        // Credit Integration
+        // "Select all" — same premium teal-square checkbox as each
+        // batch row (checkBoxSelect/ivCheckMark in item_batch_clear.xml),
+        // instead of the native CheckBox that renders the system green.
+        val rowSelectAll = view.findViewById<View>(R.id.rowSelectAll)
+        val checkBoxSelectAll = view.findViewById<View>(R.id.checkBoxSelectAll)
+        val ivCheckMarkSelectAll = view.findViewById<android.widget.ImageView>(R.id.ivCheckMarkSelectAll)
+        var onSelectAllChanged: ((Any?, Boolean) -> Unit)? = null
+        val cbSelectAll = object {
+            var isChecked: Boolean = true
+                set(value) {
+                    field = value
+                    checkBoxSelectAll.setBackgroundResource(
+                        if (value) R.drawable.bg_check_box_selected else R.drawable.bg_check_box_unselected
+                    )
+                    ivCheckMarkSelectAll.visibility = if (value) View.VISIBLE else View.GONE
+                }
+            var isEnabled: Boolean
+                get() = rowSelectAll.isEnabled
+                set(value) { rowSelectAll.isEnabled = value; rowSelectAll.alpha = if (value) 1f else 0.4f }
+            fun setOnCheckedChangeListener(listener: ((Any?, Boolean) -> Unit)?) {
+                onSelectAllChanged = listener
+            }
+        }
+        rowSelectAll.setOnClickListener {
+            cbSelectAll.isChecked = !cbSelectAll.isChecked
+            onSelectAllChanged?.invoke(null, cbSelectAll.isChecked)
+        }
+        cbSelectAll.isChecked = true
+
+        // Credit — same card + icon row + MaterialSwitch structure as
+        // "Imported goods" in activity_purchase.xml, ported over from
+        // showReduceStockDialog.
         val layoutCredit = view.findViewById<LinearLayout>(R.id.layoutCreditReturn)
-        val cbAdjust     = view.findViewById<CheckBox>(R.id.cbAdjustCredit)
+        val cbAdjust     = view.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.cbAdjustCredit)
         val tvAccount    = view.findViewById<TextView>(R.id.tvReturnAccountName)
+        val rowReturnAccount = view.findViewById<View>(R.id.rowReturnAccount)
+        val dividerReturnAccount = view.findViewById<View>(R.id.dividerReturnAccount)
         var selectedAccountForClear: com.example.easy_billing.db.CreditAccount? = null
+
+        val btnClear  = view.findViewById<Button>(R.id.btnClear)
+        val btnCancel = view.findViewById<Button>(R.id.btnCancel)
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         var batchAdapter: com.example.easy_billing.adapter.BatchClearAdapter? = null
         var isPurchasedProduct = false
         var currentProduct: Product? = null
 
+        fun applyReason() {
+            layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
+        }
+        rgReason.setOnCheckedChangeListener { _, _ -> applyReason() }
+        applyReason()
+
+        view.findViewById<View>(R.id.btnReasonPicker).setOnClickListener { anchor ->
+            val options = listOf("Purchase return", "Scrap / damage")
+            val selectedIndex = if (rbReturn.isChecked) 0 else 1
+            com.example.easy_billing.ui.ThemedDropdown.show(
+                anchor, options, selectedIndex,
+                rightAlign = true, minWidthDp = 200
+            ) { idx ->
+                tvReasonChoice.text = options[idx]
+                rgReason.check(if (idx == 0) R.id.rbReturn else R.id.rbScrap)
+            }
+        }
+
+        fun renderAccountSubtitle() {
+            val account = selectedAccountForClear
+            val show = cbAdjust.isChecked
+            rowReturnAccount.visibility = if (show) View.VISIBLE else View.GONE
+            dividerReturnAccount.visibility = if (show) View.VISIBLE else View.GONE
+            if (account != null) {
+                tvAccount.text = account.name
+                tvAccount.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+            } else {
+                tvAccount.text = "No account selected"
+                tvAccount.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
+            }
+        }
+        cbAdjust.setOnCheckedChangeListener { _, isChecked ->
+            renderAccountSubtitle()
+            if (isChecked && selectedAccountForClear == null) {
+                com.example.easy_billing.util.CreditAccountPicker.show(
+                    activity = this,
+                    onAccountSelected = { account ->
+                        selectedAccountForClear = account
+                        renderAccountSubtitle()
+                    },
+                    onDismissedWithoutSelection = {
+                        if (selectedAccountForClear == null) {
+                            cbAdjust.isChecked = false
+                            renderAccountSubtitle()
+                            Toast.makeText(
+                                this,
+                                "Credit needs an account — adjustment turned off",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
+            }
+        }
+        rowReturnAccount.setOnClickListener {
+            com.example.easy_billing.util.CreditAccountPicker.show(
+                activity = this,
+                onAccountSelected = { account ->
+                    selectedAccountForClear = account
+                    if (!cbAdjust.isChecked) cbAdjust.isChecked = true
+                    renderAccountSubtitle()
+                }
+            )
+        }
+        renderAccountSubtitle()
+
         lifecycleScope.launch(Dispatchers.IO) {
             val product = db.productDao().getById(productId)
             val current = db.inventoryDao().getInventory(productId)?.currentStock ?: 0.0
-            
+
             withContext(Dispatchers.Main) {
                 currentProduct = product
-                tvStock.text = "Remaining: ${formatStock(current)}"
-                
+                tvStock.text = "${formatStock(current)} ${product?.unit ?: "piece"}"
+                if (product != null) {
+                    tvName.text = product.name
+                    tvAvatar.text = monogramFor(product.name)
+                    val tagParts = mutableListOf<String>()
+                    product.variant?.takeIf { it.isNotBlank() }?.let { tagParts.add(it) }
+                    product.category?.takeIf { it.isNotBlank() }?.let { tagParts.add(it) }
+                    product.hsnCode?.takeIf { it.isNotBlank() }?.let { tagParts.add("HSN $it") }
+                    if (tagParts.isNotEmpty()) {
+                        tvTags.text = tagParts.joinToString("  ·  ")
+                        tvTags.visibility = View.VISIBLE
+                    }
+                }
+
                 if (product != null && product.isPurchased) {
                     isPurchasedProduct = true
                     batchesSection.visibility = View.VISIBLE
-                    
-                    // Setup recycler view
+
                     rvBatches.layoutManager = LinearLayoutManager(this@InventoryActivity)
-                    
+
                     lifecycleScope.launch(Dispatchers.IO) {
                         val repo = InventoryReductionRepository.get(this@InventoryActivity)
                         val batches = repo.getRemainingBatchesForProduct(productId)
-                        
+
                         withContext(Dispatchers.Main) {
                             if (batches.isEmpty()) {
                                 tvBatchesEmpty.visibility = View.VISIBLE
                                 rvBatches.visibility = View.GONE
                                 cbSelectAll.isEnabled = false
                                 tvBatchRunning.text = "0"
+                                tvBatchCountSub.text = "No batches selected"
                             } else {
                                 val adapter = com.example.easy_billing.adapter.BatchClearAdapter(batches)
-                                adapter.onSelectionChanged = { running ->
+                                fun renderRunning(running: Double) {
                                     tvBatchRunning.text = formatStock(running)
-                                    // Sync Select All checkbox if all/none are checked
+                                    val n = adapter.selectedCount()
+                                    tvBatchCountSub.text = if (n == 0) "No batches selected"
+                                        else "$n ${if (n == 1) "batch" else "batches"} selected"
+                                }
+                                adapter.onSelectionChanged = { running ->
+                                    renderRunning(running)
                                     val selectedSize = adapter.selectedBatches().size
                                     cbSelectAll.setOnCheckedChangeListener(null)
                                     cbSelectAll.isChecked = selectedSize == batches.size
@@ -859,8 +1155,8 @@ class InventoryActivity : BaseActivity() {
                                 }
                                 rvBatches.adapter = adapter
                                 batchAdapter = adapter
-                                tvBatchRunning.text = formatStock(adapter.totalSelected())
-                                
+                                renderRunning(adapter.totalSelected())
+
                                 cbSelectAll.isChecked = true
                                 cbSelectAll.setOnCheckedChangeListener { _, isChecked ->
                                     adapter.selectAll(isChecked)
@@ -873,51 +1169,6 @@ class InventoryActivity : BaseActivity() {
                 }
             }
         }
-
-        rgReason.setOnCheckedChangeListener { _, checkedId ->
-            layoutCredit.visibility = if (checkedId == R.id.rbReturn) View.VISIBLE else View.GONE
-        }
-        layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
-
-        cbAdjust.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && selectedAccountForClear == null) {
-                com.example.easy_billing.util.CreditAccountPicker.show(
-                    activity = this,
-                    onAccountSelected = { account ->
-                        selectedAccountForClear = account
-                        tvAccount.text = "Account: ${account.name}"
-                        tvAccount.visibility = View.VISIBLE
-                    },
-                    onDismissedWithoutSelection = {
-                        // No account chosen — don't leave the box ticked.
-                        if (selectedAccountForClear == null) {
-                            cbAdjust.isChecked = false
-                            Toast.makeText(
-                                this,
-                                "Credit needs an account — adjustment turned off",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                )
-            } else if (!isChecked) {
-                tvAccount.visibility = View.GONE
-            } else if (selectedAccountForClear != null) {
-                tvAccount.visibility = View.VISIBLE
-            }
-        }
-        
-        tvAccount.setOnClickListener {
-            com.example.easy_billing.util.CreditAccountPicker.show(
-                activity = this,
-                onAccountSelected = { account ->
-                    selectedAccountForClear = account
-                    tvAccount.text = "Account: ${account.name}"
-                }
-            )
-        }
-
-        btnCancel.setOnClickListener { dialog.dismiss() }
 
         btnClear.setOnClickListener {
             val product = currentProduct
@@ -1006,8 +1257,6 @@ class InventoryActivity : BaseActivity() {
                         }
                         SyncManager(this@InventoryActivity).syncInventory()
 
-                        // Supplier-balance adjustment for a credit return —
-                        // clamped, asks cash-vs-advance only on an overshoot.
                         (result as? InventoryReductionRepository.ClearStockResult.Cleared)
                             ?.creditAdjustment?.let { adj ->
                                 withContext(Dispatchers.Main) {
