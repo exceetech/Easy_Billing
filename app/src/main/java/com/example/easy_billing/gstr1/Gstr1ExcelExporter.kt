@@ -38,11 +38,21 @@ object Gstr1ExcelExporter {
         buildHsn(wb, headerStyle, "hsn(b2b)", report.hsnB2B)
         buildHsn(wb, headerStyle, "hsn(b2c)", report.hsnB2C)
         buildDocs(wb, headerStyle, report.docs)
-        buildEco(wb, headerStyle, report.eco)
-        buildEcoB2B(wb, headerStyle, report.ecoB2B)
-        buildEcoB2C(wb, headerStyle, report.ecoB2C)
-        buildEcoUrp2B(wb, headerStyle, report.ecoUrp2B)
-        buildEcoUrp2C(wb, headerStyle, report.ecoUrp2C)
+
+        // Round 2 Phase 1 fix, still correct behavior: only write an ECO
+        // sheet when there's real data, matching Gstr1CsvExporter.write()'s
+        // `if (rows.isEmpty()) return`. (The original comment here said the
+        // backend didn't compute ECO data at all — that was true when this
+        // fix landed, but Round 2 Phase 2 implemented real ECO computation
+        // server-side shortly after, so an empty list here now just means
+        // genuinely no e-commerce-operator sales that period, same as any
+        // other section. The isNotEmpty() guards below stay useful either
+        // way — no reason to write a header-only sheet for a real zero.)
+        if (report.eco.isNotEmpty()) buildEco(wb, headerStyle, report.eco)
+        if (report.ecoB2B.isNotEmpty()) buildEcoB2B(wb, headerStyle, report.ecoB2B)
+        if (report.ecoB2C.isNotEmpty()) buildEcoB2C(wb, headerStyle, report.ecoB2C)
+        if (report.ecoUrp2B.isNotEmpty()) buildEcoUrp2B(wb, headerStyle, report.ecoUrp2B)
+        if (report.ecoUrp2C.isNotEmpty()) buildEcoUrp2C(wb, headerStyle, report.ecoUrp2C)
 
         val dir = File(context.getExternalFilesDir(null),
             "GSTR1_${report.gstin}_${report.financialYear}_${report.period}")

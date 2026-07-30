@@ -38,6 +38,9 @@ data class Gstr2B2burRow(
     @SerializedName("invoiceValue")    val invoiceValue: Double,
     @SerializedName("placeOfSupply")   val placeOfSupply: String,
     @SerializedName("supplyType")      val supplyType: String,
+    // Reverse charge is the defining attribute of a purchase from an
+    // unregistered supplier, yet only the B2B row carried it.
+    @SerializedName("reverseCharge")   val reverseCharge: String = "N",
     @SerializedName("rate")            val rate: Double,
     @SerializedName("taxableValue")    val taxableValue: Double,
     @SerializedName("igstPaid")        val igstPaid: Double,
@@ -141,6 +144,8 @@ data class Gstr2HsnsumRow(
     @SerializedName("hsn")             val hsn: String,
     @SerializedName("description")     val description: String,
     @SerializedName("uqc")             val uqc: String,
+    // Rows group by (hsn, uqc, rate) — the rate has to travel with them.
+    @SerializedName("rate")            val rate: Double = 0.0,
     @SerializedName("totalQuantity")   val totalQuantity: Double,
     @SerializedName("totalValue")      val totalValue: Double,
     @SerializedName("taxableValue")    val taxableValue: Double,
@@ -184,6 +189,17 @@ data class Gstr2Report(
         imps.size + impg.size
 
     val totalCreditNotes: Int get() = cdnr.size + cdnur.size
+
+    // Input tax credit available this period: tax paid on inward supplies, less
+    // the tax reversed by credit/debit notes. Display-only (drives the summary
+    // hero); does not touch report generation or exports.
+    val totalTax: Double get() =
+        b2b.sumOf   { it.igstPaid + it.cgstPaid + it.sgstPaid + it.cessPaid } +
+        b2bur.sumOf { it.igstPaid + it.cgstPaid + it.sgstPaid + it.cessPaid } +
+        imps.sumOf  { it.igstPaid + it.cessPaid } +
+        impg.sumOf  { it.igstPaid + it.cessPaid } -
+        cdnr.sumOf  { it.igstPaid + it.cgstPaid + it.sgstPaid + it.cessPaid } -
+        cdnur.sumOf { it.igstPaid + it.cgstPaid + it.sgstPaid + it.cessPaid }
 
     companion object {
         fun fromJson(json: String): Gstr2Report =

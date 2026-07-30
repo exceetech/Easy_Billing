@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Top Products — Sales design language with a SHARE donut.
-  cream page > white card > header (+ sort chip) · donut (center total) ·
+  Top Products — champagne redesign, matching Sales / Peak hours / Charts / Overview.
+  header (eyebrow+serif title + sort chip) · donut (center total) ·
   legend · product breakdown list.
 -->
 <FrameLayout
@@ -10,7 +10,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1EEE9">
+    android:background="#F4F0E6">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -35,7 +35,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
-                    android:paddingTop="22dp"
+                    android:paddingTop="18dp"
                     android:paddingBottom="110dp">
 
                     <!-- Header -->
@@ -44,37 +44,70 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="14dp">
+                        android:layout_marginBottom="16dp">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Top products"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#14161A"/>
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BREAKDOWN"
+                                android:textColor="#B8895A"
+                                android:textSize="10sp"
+                                android:letterSpacing="0.16"
+                                android:fontFamily="@font/googlesans_semibold"/>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="2dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Top"
+                                    android:textColor="#1A1A18"
+                                    android:textSize="19sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="@font/googlesans_bold"
+                                    android:includeFontPadding="false"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="6dp"
+                                    android:text="products"
+                                    android:textColor="#0F6E56"
+                                    android:textSize="19sp"
+                                    android:fontFamily="serif"
+                                    android:textStyle="italic"
+                                    android:includeFontPadding="false"/>
+                            </LinearLayout>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvSortChip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Fast moving ▾"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="#1B3A8A"
+                            android:textSize="11sp"
+                            android:textColor="#8A6526"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:background="#F3ECDD"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="6dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackground"/>
+                            android:focusable="true"/>
                     </LinearLayout>
 
                     <!-- Donut + center total -->
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:layout_marginBottom="14dp">
+                        android:layout_marginBottom="16dp">
 
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChart"
@@ -93,17 +126,18 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="—"
-                                android:textSize="22sp"
+                                android:textSize="20sp"
+                                android:fontFamily="@font/googlesans_bold"
                                 android:textStyle="bold"
-                                android:textColor="#14161A"/>
+                                android:textColor="#1A1A18"/>
 
                             <TextView
                                 android:id="@+id/tvCenterLbl"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="total"
-                                android:textSize="11sp"
-                                android:textColor="#9AA0A8"/>
+                                android:textSize="10.5sp"
+                                android:textColor="#9A8F79"/>
                         </LinearLayout>
                     </FrameLayout>
 
@@ -119,8 +153,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Product breakdown"
-                        android:textSize="13sp"
-                        android:textColor="#6B7280"
+                        android:textSize="11.5sp"
+                        android:textColor="#9A8F79"
                         android:layout_marginBottom="2dp"/>
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -134,21 +168,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="No products found"
-                        android:textSize="14sp"
-                        android:textColor="#9CA3AF"
+                        android:textSize="13sp"
+                        android:textColor="#9A8F79"
                         android:gravity="center"
                         android:paddingVertical="24dp"
                         android:visibility="gone"/>
 
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
-
-            <!-- Soft top-edge fade (matches Sales) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_gravity="top"
-                android:background="@drawable/bg_scroll_top_fade"/>
 
         </FrameLayout>
     </androidx.cardview.widget.CardView>

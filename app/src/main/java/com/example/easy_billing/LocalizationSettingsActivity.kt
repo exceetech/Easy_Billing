@@ -24,6 +24,8 @@ class LocalizationSettingsActivity : BaseActivity() {
     private lateinit var tvEdit: TextView
     private lateinit var btnSave: Button
 
+    private lateinit var cardPreferences: View
+
     private var isEditMode = false
     private var snapshot: LocaleSnapshot? = null
 
@@ -60,6 +62,7 @@ class LocalizationSettingsActivity : BaseActivity() {
         btnEdit           = findViewById(R.id.btnEdit)
         tvEdit            = findViewById(R.id.tvEdit)
         btnSave           = findViewById(R.id.btnSaveLocalization)
+        cardPreferences   = findViewById(R.id.cardPreferences)
 
         btnEdit.setOnClickListener { toggleEditMode() }
     }
@@ -84,13 +87,15 @@ class LocalizationSettingsActivity : BaseActivity() {
     private fun setEditMode(enabled: Boolean) {
         rowLanguage.isEnabled = enabled
         rowLanguage.isClickable = enabled
-        rowLanguage.alpha = if (enabled) 1f else 0.6f
         icLanguageChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
 
         rowCurrency.isEnabled = enabled
         rowCurrency.isClickable = enabled
-        rowCurrency.alpha = if (enabled) 1f else 0.6f
         icCurrencyChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
+
+        // Faded until Edit is tapped — same locked/unlocked feel as
+        // InvoiceDesignActivity.setEditable() / BillingSettingsActivity.setEditable().
+        cardPreferences.alpha = if (enabled) 1f else 0.6f
 
         tvEdit.text = if (enabled) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enabled) View.VISIBLE else View.GONE
@@ -173,6 +178,20 @@ class LocalizationSettingsActivity : BaseActivity() {
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val ivTogglePassword = dialogView.findViewById<ImageView>(R.id.ivTogglePassword)
+
+        var isPasswordVisible = false
+        ivTogglePassword.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye_off)
+            } else {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye)
+            }
+            etPassword.setSelection(etPassword.text.length)
+        }
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView)

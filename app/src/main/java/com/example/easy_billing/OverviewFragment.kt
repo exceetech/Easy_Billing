@@ -57,15 +57,13 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
     private lateinit var tvCreditAmount: TextView
     private lateinit var tvCreditPct: TextView
 
-    // ── Payment progress bars (fill + spacer pairs) ──────────────────────────
-    private lateinit var vProgCashFill: View
-    private lateinit var vProgCashSpacer: View
-    private lateinit var vProgUpiFill: View
-    private lateinit var vProgUpiSpacer: View
-    private lateinit var vProgCardFill: View
-    private lateinit var vProgCardSpacer: View
-    private lateinit var vProgCreditFill: View
-    private lateinit var vProgCreditSpacer: View
+    // ── Payment split stacked bar ────────────────────────────────────────────
+    private lateinit var tvPaymentTotal: TextView
+    private lateinit var vBarCashFill: View
+    private lateinit var vBarUpiFill: View
+    private lateinit var vBarCardFill: View
+    private lateinit var vBarCreditFill: View
+    private lateinit var vBarSpacer: View
 
     // ── Header ───────────────────────────────────────────────────────────────
     private lateinit var tvDate: TextView
@@ -117,25 +115,17 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         tvCreditAmount = view.findViewById(R.id.tvCreditAmount)
         tvCreditPct    = view.findViewById(R.id.tvCreditPct)
 
-        // Payment progress bars
-        vProgCashFill    = view.findViewById(R.id.vProgCashFill)
-        vProgCashSpacer  = view.findViewById(R.id.vProgCashSpacer)
-        vProgUpiFill     = view.findViewById(R.id.vProgUpiFill)
-        vProgUpiSpacer   = view.findViewById(R.id.vProgUpiSpacer)
-        vProgCardFill    = view.findViewById(R.id.vProgCardFill)
-        vProgCardSpacer  = view.findViewById(R.id.vProgCardSpacer)
-        vProgCreditFill  = view.findViewById(R.id.vProgCreditFill)
-        vProgCreditSpacer = view.findViewById(R.id.vProgCreditSpacer)
+        // Payment split stacked bar
+        tvPaymentTotal  = view.findViewById(R.id.tvPaymentTotal)
+        vBarCashFill    = view.findViewById(R.id.vBarCashFill)
+        vBarUpiFill     = view.findViewById(R.id.vBarUpiFill)
+        vBarCardFill    = view.findViewById(R.id.vBarCardFill)
+        vBarCreditFill  = view.findViewById(R.id.vBarCreditFill)
+        vBarSpacer      = view.findViewById(R.id.vBarSpacer)
 
         // Date pill
         tvDate = view.findViewById(R.id.tvDate)
         tvDate.text = SimpleDateFormat("MMM dd, yyyy", Locale.US).format(Date())
-
-        // Rounded pill fills for progress bars
-        setRoundedFill(vProgCashFill,   R.color.ov_green_cash)
-        setRoundedFill(vProgUpiFill,    R.color.ov_purple)
-        setRoundedFill(vProgCardFill,   R.color.ov_blue)
-        setRoundedFill(vProgCreditFill, R.color.ov_amber)
 
         tvGreeting.text = greeting()
         loadShopName()
@@ -255,7 +245,7 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         tvRevenue.text = CurrencyHelper.format(ctx, data.total_revenue)
         if (data.prev_revenue > 0) {
             tvRevenuePrev.visibility = View.VISIBLE
-            tvRevenuePrev.text = "prev ${CurrencyHelper.format(ctx, data.prev_revenue)}"
+            tvRevenuePrev.text = "vs ${CurrencyHelper.format(ctx, data.prev_revenue)} yesterday"
         } else {
             tvRevenuePrev.visibility = View.GONE
         }
@@ -292,53 +282,49 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
             when (item.method.lowercase().trim()) {
                 "cash" -> {
                     tvCashAmount.text = CurrencyHelper.format(ctx, item.revenue)
-                    tvCashPct.text    = "${item.percent}% of total"
+                    tvCashPct.text    = "${item.percent}%"
                     pctCash           = item.percent.toFloat()
                 }
                 "upi" -> {
                     tvUpiAmount.text = CurrencyHelper.format(ctx, item.revenue)
-                    tvUpiPct.text    = "${item.percent}% of total"
+                    tvUpiPct.text    = "${item.percent}%"
                     pctUpi           = item.percent.toFloat()
                 }
                 "card" -> {
                     tvCardAmount.text = CurrencyHelper.format(ctx, item.revenue)
-                    tvCardPct.text    = "${item.percent}% of total"
+                    tvCardPct.text    = "${item.percent}%"
                     pctCard           = item.percent.toFloat()
                 }
                 "credit" -> {
                     tvCreditAmount.text = CurrencyHelper.format(ctx, item.revenue)
-                    tvCreditPct.text    = "${item.percent}% of total"
+                    tvCreditPct.text    = "${item.percent}%"
                     pctCredit           = item.percent.toFloat()
                 }
             }
         }
 
-        // Update individual progress bars
-        updateProgressBars(pctCash, pctUpi, pctCard, pctCredit)
+        // Redraw the stacked bar with the new split
+        tvPaymentTotal.text = CurrencyHelper.format(ctx, data.total_revenue)
+        renderPaymentBar(pctCash, pctUpi, pctCard, pctCredit)
     }
 
-    /** Assigns a capsule-shaped GradientDrawable so both ends of the fill are rounded. */
-    private fun setRoundedFill(v: View, colorRes: Int) {
-        v.background = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 100f * resources.displayMetrics.density
-            setColor(requireContext().getColor(colorRes))
+    /**
+     * Weights the single stacked bar's 4 segments to match each method's
+     * share of revenue. Any leftover (rounding, or a period with no
+     * payments at all) goes to a transparent spacer so the bar always
+     * fills edge-to-edge instead of stopping short.
+     */
+    private fun renderPaymentBar(cash: Float, upi: Float, card: Float, credit: Float) {
+        fun setWeight(v: View, pct: Float) {
+            (v.layoutParams as LinearLayout.LayoutParams).weight = pct.coerceAtLeast(0f)
+            v.requestLayout()
         }
-    }
-
-    private fun setBarWeight(fill: View, spacer: View, pct: Float) {
-        val safeP = pct.coerceIn(0f, 100f)
-        (fill.layoutParams   as LinearLayout.LayoutParams).weight = safeP
-        (spacer.layoutParams as LinearLayout.LayoutParams).weight = 100f - safeP
-        fill.requestLayout()
-        spacer.requestLayout()
-    }
-
-    private fun updateProgressBars(cash: Float, upi: Float, card: Float, credit: Float) {
-        setBarWeight(vProgCashFill,   vProgCashSpacer,   cash)
-        setBarWeight(vProgUpiFill,    vProgUpiSpacer,    upi)
-        setBarWeight(vProgCardFill,   vProgCardSpacer,   card)
-        setBarWeight(vProgCreditFill, vProgCreditSpacer, credit)
+        val used = (cash + upi + card + credit).coerceIn(0f, 100f)
+        setWeight(vBarCashFill, cash)
+        setWeight(vBarUpiFill, upi)
+        setWeight(vBarCardFill, card)
+        setWeight(vBarCreditFill, credit)
+        setWeight(vBarSpacer, 100f - used)
     }
 
     // ── Growth chip styling ─────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-<!-- dialog_peak_chart.xml -->
+<!-- dialog_peak_chart.xml — champagne redesign: eyebrow+serif header, 2x2 stat cards, cream-inset bubble chart -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#FFFFFF"
@@ -16,205 +16,218 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hour performance"
-            android:textColor="#8A9099"
-            android:textSize="14sp"/>
+            android:text="HOUR PERFORMANCE"
+            android:textColor="#B8895A"
+            android:textSize="10sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold"/>
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Daily pulse"
-            android:textColor="#1A1D21"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="14dp"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Daily"
+                android:textColor="#1A1A18"
+                android:textSize="24sp"
+                android:fontFamily="@font/googlesans_bold"
+                android:textStyle="bold"
+                android:includeFontPadding="false"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="pulse"
+                android:textColor="#0F6E56"
+                android:textSize="24sp"
+                android:fontFamily="serif"
+                android:textStyle="italic"
+                android:includeFontPadding="false"/>
+        </LinearLayout>
 
-        <!-- ═══ KPI stat cards (2 × 2) — matches "Daily pulse" mockup ═══ -->
+        <!-- ═══ KPI stat cards (2 × 2) ═══ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <!-- Peak revenue -->
-            <androidx.cardview.widget.CardView
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#F4F5F7">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_ov_pay_icon"
+                android:backgroundTint="#F3ECDD"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="14dp">
+                    android:text="Peak revenue"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="5dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Peak revenue"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="5dp"/>
-
-                    <TextView
-                        android:id="@+id/tvDlgPeakRevenue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="#1A7F37"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/tvDlgPeakRevenue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="#8A6526"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
 
             <!-- Peak hour -->
-            <androidx.cardview.widget.CardView
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#F4F5F7">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_ov_pay_icon"
+                android:backgroundTint="#DDEEEE"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="14dp">
+                    android:text="Peak hour"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="5dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Peak hour"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="5dp"/>
-
-                    <TextView
-                        android:id="@+id/tvDlgPeakHour"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="#14161A"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/tvDlgPeakHour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="#085041"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="10dp">
 
             <!-- Total bills -->
-            <androidx.cardview.widget.CardView
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="7dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#F4F5F7">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_ov_pay_icon"
+                android:backgroundTint="#DDEEEE"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="14dp">
+                    android:text="Total bills"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="5dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total bills"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="5dp"/>
-
-                    <TextView
-                        android:id="@+id/tvDlgTotalBills"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="#14161A"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/tvDlgTotalBills"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="#085041"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
 
             <!-- Avg bills / hr -->
-            <androidx.cardview.widget.CardView
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#F4F5F7">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_ov_pay_icon"
+                android:backgroundTint="#F3ECDD"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="14dp">
+                    android:text="Avg bills / hr"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="5dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Avg bills / hr"
-                        android:textColor="#6B7280"
-                        android:textSize="13sp"
-                        android:layout_marginBottom="5dp"/>
-
-                    <TextView
-                        android:id="@+id/tvDlgAvgBills"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="—"
-                        android:textColor="#14161A"
-                        android:textSize="24sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/tvDlgAvgBills"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textColor="#8A6526"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
         </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bubble size indicates bill count"
-            android:textColor="#8A9099"
-            android:textSize="13sp"
+            android:textColor="#9A8F79"
+            android:textSize="11.5sp"
             android:layout_marginTop="18dp"
-            android:layout_marginBottom="6dp"/>
+            android:layout_marginBottom="8dp"/>
 
-        <com.github.mikephil.charting.charts.BubbleChart
-            android:id="@+id/chart"
+        <!-- Cream inset panel wrapping the bubble chart -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@drawable/bg_ov_payment_list"
+            android:padding="10dp">
+
+            <com.github.mikephil.charting.charts.BubbleChart
+                android:id="@+id/chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap a bubble to explore that hour ↗"
-            android:textColor="#6B7178"
-            android:textSize="13sp"
-            android:layout_marginTop="6dp"/>
+            android:text="Tap a bubble to explore that hour"
+            android:textColor="#9A8F79"
+            android:textSize="11.5sp"
+            android:layout_marginTop="8dp"/>
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/btnClose"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+    <FrameLayout
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_gravity="top|end"
         android:layout_margin="12dp"
-        android:src="@drawable/ic_close"
-        android:background="?attr/selectableItemBackgroundBorderless"/>
+        android:background="@drawable/bg_ov_pay_icon"
+        android:backgroundTint="#F3ECDD">
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_close"
+            android:scaleType="centerInside"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+    </FrameLayout>
 </FrameLayout>

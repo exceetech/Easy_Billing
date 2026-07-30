@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="#F3ECDD">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -28,24 +28,55 @@
             android:paddingHorizontal="16dp"
             android:paddingBottom="24dp">
 
-            <!-- Title -->
+            <!-- Title — eyebrow + serif accent, matching the rest of the
+                 Profit flow (activity_profit.xml, dialog_product_detail.xml). -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Profit by product"
-                android:textColor="#1A1A18"
-                android:textSize="21sp"
-                android:textStyle="bold"
-                android:accessibilityHeading="true"/>
+                android:text="PROFIT ANALYTICS"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom"
+                android:layout_marginTop="1dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profit "
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:accessibilityHeading="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="chart"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"/>
+            </LinearLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Ranked by net profit"
-                android:textColor="#6E6A60"
+                android:textColor="#9A8F79"
                 android:textSize="12sp"/>
 
-            <!-- Summary chips -->
+            <!-- Summary chips — same tinted-tile language as the Revenue/Cost
+                 row on the main Profit screen (gold for a "gain" figure,
+                 teal for the standout product). -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -58,14 +89,15 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_imp_card"
+                    android:background="@drawable/bg_ov_pay_icon"
+                    android:backgroundTint="#DDEEEE"
                     android:padding="13dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Total profit" android:textSize="11sp" android:textColor="#9A968C"/>
+                        android:text="Total profit" android:textSize="11sp" android:textColor="#9A8F79"/>
                     <TextView android:id="@+id/tvTotalProfit"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="2dp" android:text="₹0"
-                        android:textSize="18sp" android:textStyle="bold" android:textColor="#0F6E56"/>
+                        android:textSize="18sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#085041"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -73,14 +105,15 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_imp_card"
+                    android:background="@drawable/bg_ov_pay_icon"
+                    android:backgroundTint="#FCEBEB"
                     android:padding="13dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Best product" android:textSize="11sp" android:textColor="#9A968C"/>
+                        android:text="Best product" android:textSize="11sp" android:textColor="#9A8F79"/>
                     <TextView android:id="@+id/tvBestProduct"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:layout_marginTop="2dp" android:text="—"
-                        android:textSize="18sp" android:textStyle="bold" android:textColor="#1A1A18"
+                        android:textSize="16sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#B23A3A"
                         android:maxLines="1" android:ellipsize="end"/>
                 </LinearLayout>
             </LinearLayout>
@@ -102,7 +135,8 @@
                     android:layout_marginBottom="4dp">
                     <TextView
                         android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-                        android:text="Profit per product" android:textSize="13sp" android:textStyle="bold"
+                        android:text="Profit per product" android:textSize="13sp"
+                        android:fontFamily="@font/googlesans_bold"
                         android:textColor="#1A1A18"/>
                     <View android:layout_width="8dp" android:layout_height="8dp"
                         android:background="@drawable/bg_bar_fill" android:backgroundTint="#1D9E75"/>
@@ -130,7 +164,7 @@
                     android:gravity="center"
                     android:paddingVertical="24dp"
                     android:text="No profit data for this period"
-                    android:textColor="#9A968C"
+                    android:textColor="#9A8F79"
                     android:textSize="13sp"
                     android:visibility="gone"/>
             </LinearLayout>
@@ -141,7 +175,7 @@
                 android:layout_marginTop="10dp"
                 android:paddingHorizontal="4dp"
                 android:text="Longest bar = highest profit. Loss-making products appear in red at the bottom."
-                android:textColor="#9A968C"
+                android:textColor="#9A8F79"
                 android:textSize="11sp"
                 android:lineSpacingExtra="1dp"/>
 

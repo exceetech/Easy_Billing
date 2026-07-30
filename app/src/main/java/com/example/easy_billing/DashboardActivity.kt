@@ -777,12 +777,17 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnLogout).setOnClickListener {
-            com.example.easy_billing.ui.ThemedDropdown.showConfirm(
-                context = this,
-                title = "Sign out?",
-                message = "You'll need to log in again to access your store.",
-                confirmLabel = "Sign out"
-            ) {
+            // Same dedicated dialog as ProfileFragment.signOut() —
+            // dialog_sign_out.xml: rose icon tile + centered "Sign out?"
+            // title, instead of the generic ThemedDropdown popup.
+            val signOutView = layoutInflater.inflate(R.layout.dialog_sign_out, null)
+            val signOutDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(signOutView)
+                .create()
+            signOutDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            signOutView.findViewById<View>(R.id.btnConfirmSignOut).setOnClickListener {
+                signOutDialog.dismiss()
                 getSharedPreferences("auth", MODE_PRIVATE)
                     .edit {
                         remove("TOKEN")
@@ -792,6 +797,10 @@ class DashboardActivity : BaseActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }
+            signOutView.findViewById<View>(R.id.btnCancelSignOut).setOnClickListener {
+                signOutDialog.dismiss()
+            }
+            signOutDialog.show()
         }
 
         findViewById<View>(R.id.btnGenerateBill).apply {

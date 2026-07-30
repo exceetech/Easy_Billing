@@ -1,34 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Section row — champagne theme (shared by GSTR-1 and GSTR-2).
+     Monogram avatar + primary line + muted secondary line, hairline divider.
+     Ids bound by Gstr1RowAdapter: tvAvatar, tvPrimary, tvSecondary. -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingVertical="6dp"
-    android:paddingHorizontal="4dp">
+    android:orientation="vertical">
 
-    <!-- Primary line: invoice number / note number / key field -->
-    <TextView
-        android:id="@+id/tvPrimary"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:textColor="#212121"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="11dp"
+        android:paddingHorizontal="14dp">
 
-    <!-- Secondary line: rate + taxable value / POS etc. -->
-    <TextView
-        android:id="@+id/tvSecondary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="11sp"
-        android:textColor="#757575"/>
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:text="—"
+            android:textSize="12sp"
+            android:textColor="#3C3489"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_credit_avatar"
+            android:backgroundTint="#EEEDFE" />
 
-    <!-- Divider -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/tvPrimary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13.5sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/googlesans_medium"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:textColor="#9A8F79"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#E0E0E0"
-        android:layout_marginTop="6dp"/>
+        android:layout_marginHorizontal="14dp"
+        android:background="#F0EBDD" />
 
 </LinearLayout>

@@ -81,6 +81,16 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
     // ─────────────────────────────────────────────────────────────────────────
 
     init {
+        // Phase 3 fix: Gstr1ViewModel loads the shop's GST profile here and
+        // uses it to fill `gstin` on the generated report; this ViewModel
+        // declared the same `_gstin` StateFlow but never populated it, so
+        // Gstr2Repository.fetchGstr2() always returned gstin = "" and
+        // Gstr2Validator flagged every single report with a permanent false
+        // "Store GSTIN is invalid or missing" error. Mirror Gstr1's pattern.
+        viewModelScope.launch {
+            val profile = db.gstProfileDao().get()
+            _gstin.value = profile?.gstin ?: ""
+        }
         // Set current FY and period as default
         val cal = java.util.Calendar.getInstance()
         val month = cal.get(java.util.Calendar.MONTH) + 1 // 1-based
@@ -114,6 +124,23 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
             _isLoading.value = true
             _error.value = null
             try {
+                // GSTR-2 is computed on the server from synced data, so anything
+                // still on this phone would be silently missing from the report —
+                // under-claiming input tax credit. Block with a clear message,
+                // matching what GSTR-1 already does. Covers unsynced purchases,
+                // purchase returns/notes, and purchase cancellations.
+                val pending = withContext(Dispatchers.IO) {
+                    db.purchaseDao().countUnsynced() > 0 ||
+                        db.purchaseReturnDao().countUnsynced() > 0 ||
+                        db.purchaseDao().getCancelledUnsynced().isNotEmpty()
+                }
+                if (pending) {
+                    _error.value = "Some purchases, returns or cancellations on this device " +
+                        "haven't synced yet, so the report would be incomplete. " +
+                        "Sync and try again."
+                    return@launch
+                }
+
                 // In a real app we would map `fy` and `p` to `startDate` and `endDate` string formats
                 // Here we assume backend expects YYYY-MM-DD
                 val (startDate, endDate) = resolveDates(fy, p, _returnType.value)
@@ -123,6 +150,7 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                 val report  = repo.fetchGstr2("Bearer $token", startDate, endDate)
 
                 _report.value = report.copy(
+                    gstin = _gstin.value,
                     financialYear = fy,
                     period = p,
                     returnType = _returnType.value
@@ -139,35 +167,47 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
         val startYear = fy.substringBefore("-").toInt()
         val endYear = startYear + 1
 
-        val monthMap = mapOf(
-            "April" to Pair("04-01", "04-30"),
-            "May" to Pair("05-01", "05-31"),
-            "June" to Pair("06-01", "06-30"),
-            "July" to Pair("07-01", "07-31"),
-            "August" to Pair("08-01", "08-31"),
-            "September" to Pair("09-01", "09-30"),
-            "October" to Pair("10-01", "10-31"),
-            "November" to Pair("11-01", "11-30"),
-            "December" to Pair("12-01", "12-31"),
-            "January" to Pair("01-01", "01-31"),
-            "February" to Pair("02-01", "02-28"), // Ignoring leap year for simplicity
-            "March" to Pair("03-01", "03-31")
-        )
-        
-        val quarterMap = mapOf(
-            "Apr-Jun" to Pair("04-01", "06-30"),
-            "Jul-Sep" to Pair("07-01", "09-30"),
-            "Oct-Dec" to Pair("10-01", "12-31"),
-            "Jan-Mar" to Pair("01-01", "03-31")
-        )
-
         val isNextYear = listOf("January", "February", "March", "Jan-Mar").contains(period)
         val y1 = if (isNextYear) endYear else startYear
         val y2 = if (isNextYear) endYear else startYear
 
-        val dates = if (returnType == "Monthly") monthMap[period]!! else quarterMap[period]!!
-        val startDate = "$y1-${dates.first}"
-        val endDate = "$y2-${dates.second}"
+        // Phase 2 fix: February used to be hardcoded "02-01".."02-28",
+        // silently dropping Feb 29 on a leap year (comment used to say
+        // "ignoring leap year for simplicity"). Derive the real last day of
+        // the month from Calendar instead, same approach GSTR-1's
+        // periodRange() already used correctly (getActualMaximum).
+        fun lastDayOfMonth(year: Int, month1Based: Int): Int {
+            val cal = java.util.Calendar.getInstance()
+            cal.set(year, month1Based - 1, 1)
+            return cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+        }
+
+        val monthNumbers = mapOf(
+            "April" to 4, "May" to 5, "June" to 6, "July" to 7,
+            "August" to 8, "September" to 9, "October" to 10,
+            "November" to 11, "December" to 12,
+            "January" to 1, "February" to 2, "March" to 3
+        )
+
+        val quarterMap = mapOf(
+            "Apr-Jun" to Pair(Pair(4, 1), Pair(6, 30)),
+            "Jul-Sep" to Pair(Pair(7, 1), Pair(9, 30)),
+            "Oct-Dec" to Pair(Pair(10, 1), Pair(12, 31)),
+            "Jan-Mar" to Pair(Pair(1, 1), Pair(3, 31))
+        )
+
+        val startDate: String
+        val endDate: String
+        if (returnType == "Monthly") {
+            val m = monthNumbers[period]!!
+            val lastDay = lastDayOfMonth(y2, m)
+            startDate = "$y1-${"%02d".format(m)}-01"
+            endDate   = "$y2-${"%02d".format(m)}-${"%02d".format(lastDay)}"
+        } else {
+            val (from, to) = quarterMap[period]!!
+            startDate = "$y1-${"%02d".format(from.first)}-${"%02d".format(from.second)}"
+            endDate   = "$y2-${"%02d".format(to.first)}-${"%02d".format(to.second)}"
+        }
         return Pair(startDate, endDate)
     }
 

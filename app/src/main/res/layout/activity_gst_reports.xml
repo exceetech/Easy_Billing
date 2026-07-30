@@ -1,419 +1,763 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<!--
+    GST reports — champagne theme, same language as credit accounts, purchase
+    history and purchase details: eyebrow + serif accent header, white cards,
+    serif numerals, tinted tiles, segmented toggle.
+
+    Ids bound by GstReportsActivity (all preserved):
+      toolbar, selectorReturnType, tvSelectorValue, tvGstin,
+      chipGroupReturnType, chipMonthly, chipQuarterly, spinnerFY, spinnerPeriod,
+      btnGenerate, progressGenerate, cardSummary, tvSummaryHeroLabel,
+      tvSummaryTax, tvSummaryTaxable, tvSummaryInvoices, tvSummaryCreditNotes,
+      llValidationBanner, tvValidationStatus, tabLayout, viewPager,
+      btnValidate, btnSaveDraft, btnExportCsv, btnExportExcel,
+      llDraftsSection, rvDrafts.
+-->
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3ECDD"
     tools:context=".GstReportsActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:navigationIcon="@drawable/ic_back_arrow"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- ===================== HEADER ===================== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="4dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="12dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
-            app:titleTextColor="@android:color/white"
-            app:navigationIcon="@drawable/ic_back_arrow"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GST RETURNS"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold" />
 
-    <androidx.core.widget.NestedScrollView
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom"
+                android:layout_marginTop="1dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GST "
+                    android:textColor="#1A1A18"
+                    android:textSize="22sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:accessibilityHeading="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="reports"
+                    android:textColor="#0F6E56"
+                    android:textSize="22sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_history"
+            app:tint="#7A6E57"
+            android:contentDescription="Saved drafts" />
+    </LinearLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="14dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:orientation="vertical">
 
-            <!-- GSTIN info -->
-            <TextView
-                android:id="@+id/tvGstin"
-                android:layout_width="match_parent"
+            <!-- GSTIN pill -->
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:textSize="12sp"
-                android:alpha="0.7"
-                tools:text="GSTIN: 29AABCU9603R1ZX"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_gstin_pill"
+                android:paddingStart="10dp"
+                android:paddingEnd="13dp"
+                android:paddingVertical="6dp"
+                android:layout_marginBottom="12dp">
 
-            
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/toggleReportType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:singleSelection="true"
-                app:checkedButton="@+id/btnGstr1">
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_lc_shield_check"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGstr1"
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="GSTR-1"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                    android:layout_marginStart="6dp"
+                    android:text="GSTIN"
+                    android:textSize="9.5sp"
+                    android:letterSpacing="0.08"
+                    android:textColor="#9A8F79"
+                    android:fontFamily="@font/googlesans_semibold" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGstr2"
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/tvGstin"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="GSTR-2"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+                    android:layout_marginStart="6dp"
+                    android:textSize="12sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.06"
+                    tools:text="33ABCDE1234F1Z5" />
+            </LinearLayout>
 
-            <!-- Selector card -->
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+            <!-- ===================== REPORT TYPE SELECTOR (dropdown chip) ===================== -->
+            <LinearLayout
+                android:id="@+id/selectorReturnType"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="12dp">
+                android:minWidth="210dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_glass_input"
+                android:paddingStart="14dp"
+                android:paddingEnd="12dp"
+                android:paddingVertical="9dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Return Frequency"
-                        android:textSize="11sp"
-                        android:alpha="0.6"
-                        android:layout_marginBottom="4dp"/>
+                        android:text="RETURN"
+                        android:textColor="#B8895A"
+                        android:textSize="9.5sp"
+                        android:letterSpacing="0.14"
+                        android:fontFamily="@font/googlesans_semibold" />
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupReturnType"
+                    <TextView
+                        android:id="@+id/tvSelectorValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginTop="1dp"
+                        android:text="GSTR-1 · Sales"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="serif"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipMonthly"
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="10dp"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="#8A7F68"
+                    android:contentDescription="Change return type" />
+            </LinearLayout>
+
+            <!-- ===================== PERIOD CARD ===================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_inv_value_card"
+                android:padding="16dp">
+
+                <!-- Financial-year stepper -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FINANCIAL YEAR"
+                    android:textSize="10sp"
+                    android:textColor="#9A8F79"
+                    android:letterSpacing="0.06"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="@font/googlesans_semibold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_period_track"
+                    android:padding="4dp"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/btnFyPrev"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:padding="8dp"
+                        android:background="@drawable/bg_stepper_btn"
+                        android:src="@drawable/ic_chevron_left"
+                        app:tint="#8A7F68"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Previous year" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:id="@+id/tvFyValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2025–26"
+                            android:textSize="19sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="serif"
+                            android:includeFontPadding="false" />
+                        <TextView
+                            android:id="@+id/tvFyRange"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Apr 2025 – Mar 2026"
+                            android:textSize="10sp"
+                            android:textColor="#A89E88" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/btnFyNext"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:padding="8dp"
+                        android:background="@drawable/bg_stepper_btn"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="#8A7F68"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Next year" />
+                </LinearLayout>
+
+                <!-- Period label + monthly/quarterly -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="PERIOD"
+                        android:textSize="10sp"
+                        android:textColor="#9A8F79"
+                        android:letterSpacing="0.06"
+                        android:fontFamily="@font/googlesans_semibold" />
+
+                    <LinearLayout
+                        android:id="@+id/segReturnType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_period_track"
+                        android:padding="3dp">
+
+                        <TextView
+                            android:id="@+id/segMonthly"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Monthly"
-                            android:checked="true"
-                            style="@style/Widget.Material3.Chip.Filter"/>
+                            android:textSize="12sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:includeFontPadding="false"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="6dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#1A1A18"
+                            android:textColor="#FFFFFF"
+                            android:clickable="true"
+                            android:focusable="true" />
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipQuarterly"
+                        <TextView
+                            android:id="@+id/segQuarterly"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Quarterly (QRMP)"
-                            style="@style/Widget.Material3.Chip.Filter"/>
-
-                    </com.google.android.material.chip.ChipGroup>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2"
-                        android:layout_marginBottom="16dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginEnd="8dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Financial Year"
-                                android:textSize="11sp"
-                                android:alpha="0.6"
-                                android:layout_marginBottom="4dp"/>
-
-                            <Spinner
-                                android:id="@+id/spinnerFY"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"/>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Period"
-                                android:textSize="11sp"
-                                android:alpha="0.6"
-                                android:layout_marginBottom="4dp"/>
-
-                            <Spinner
-                                android:id="@+id/spinnerPeriod"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"/>
-                        </LinearLayout>
-
+                            android:layout_marginStart="3dp"
+                            android:text="Quarterly"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:includeFontPadding="false"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="6dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#00000000"
+                            android:textColor="#8A7F68"
+                            android:clickable="true"
+                            android:focusable="true" />
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnGenerate"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Generate GSTR-1"
-                            android:textAllCaps="false"/>
-
-                        <com.google.android.material.progressindicator.CircularProgressIndicator
-                            android:id="@+id/progressGenerate"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="12dp"
-                            android:visibility="gone"
-                            app:indicatorSize="28dp"
-                            app:trackThickness="3dp"/>
-
-                    </LinearLayout>
-
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+                <!-- Month / quarter strip -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="14dp">
 
-            <!-- Summary card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSummary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:visibility="gone"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="@color/colorPrimary">
+                    <LinearLayout
+                        android:id="@+id/llPeriodStrip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="14dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="REPORT SUMMARY"
-                        android:textSize="11sp"
-                        android:textColor="@android:color/white"
-                        android:alpha="0.75"
-                        android:letterSpacing="0.1"
-                        android:layout_marginBottom="12dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGenerate"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="52dp"
+                        android:text="Generate report"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="@null"
+                        android:background="@drawable/bg_login_cta_green"
+                        app:icon="@drawable/ic_lc_file_text"
+                        app:iconTint="#FFFFFF"
+                        app:iconSize="18dp"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp"
+                        app:cornerRadius="14dp"
+                        android:stateListAnimator="@null" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="4">
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                            <TextView android:id="@+id/tvSummaryInvoices"
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:textSize="22sp" android:textStyle="bold"
-                                android:textColor="@android:color/white" tools:text="42"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="Invoices" android:textSize="10sp"
-                                android:textColor="@android:color/white" android:alpha="0.75"/>
-                        </LinearLayout>
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                            <TextView android:id="@+id/tvSummaryTaxable"
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:textSize="13sp" android:textStyle="bold"
-                                android:textColor="@android:color/white" tools:text="₹2.3L"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="Taxable" android:textSize="10sp"
-                                android:textColor="@android:color/white" android:alpha="0.75"/>
-                        </LinearLayout>
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                            <TextView android:id="@+id/tvSummaryTax"
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:textSize="13sp" android:textStyle="bold"
-                                android:textColor="@android:color/white" tools:text="₹42K"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="Tax" android:textSize="10sp"
-                                android:textColor="@android:color/white" android:alpha="0.75"/>
-                        </LinearLayout>
-
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                            <TextView android:id="@+id/tvSummaryCreditNotes"
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:textSize="22sp" android:textStyle="bold"
-                                android:textColor="@android:color/white" tools:text="3"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="CDN" android:textSize="10sp"
-                                android:textColor="@android:color/white" android:alpha="0.75"/>
-                        </LinearLayout>
-
-                    </LinearLayout>
-
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressGenerate"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="12dp"
+                        android:visibility="gone"
+                        app:indicatorColor="#0F6E56"
+                        app:indicatorSize="28dp"
+                        app:trackThickness="3dp" />
                 </LinearLayout>
+            </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Validation banner -->
+            <!-- ===================== VALIDATION BANNER ===================== -->
             <LinearLayout
                 android:id="@+id/llValidationBanner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="10dp"
-                android:background="#4CAF50"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="11dp"
                 android:gravity="center_vertical"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#E1F5EE"
                 android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tvValidationStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/white"
-                    tools:text="✓ All checks passed"/>
-
+                    android:textSize="12.5sp"
+                    android:textColor="#0F5943"
+                    android:fontFamily="@font/googlesans_medium"
+                    tools:text="✓ All checks passed — Ready to export" />
             </LinearLayout>
 
-            <!-- Section tabs -->
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
+            <!-- ===================== SUMMARY HERO ===================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                app:tabMode="scrollable"
-                app:tabGravity="start"
-                android:elevation="2dp"
-                android:visibility="gone"/>
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="360dp"
-                android:layout_marginBottom="12dp"
-                android:visibility="gone"/>
-
-            <!-- Action buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#ECE7DA">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <com.google.android.material.button.MaterialButton
+                    <TextView
+                        android:id="@+id/tvSummaryHeroLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total tax this period"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom"
+                        android:layout_marginTop="2dp"
+                        android:baselineAligned="false">
+
+                        <TextView
+                            android:id="@+id/tvSummaryTax"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹0"
+                            android:textSize="30sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="serif"
+                            android:includeFontPadding="false"
+                            android:singleLine="true"
+                            tools:text="₹1,42,380" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryTaxable"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:paddingBottom="4dp"
+                            android:textSize="12sp"
+                            android:textColor="#9A8F79"
+                            android:gravity="end"
+                            android:singleLine="true"
+                            tools:text="on ₹7,91,000 taxable" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="14dp"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_avatar"
+                            android:backgroundTint="#F6F0E4"
+                            android:padding="12dp">
+                            <TextView
+                                android:id="@+id/tvSummaryInvoices"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="20sp"
+                                android:textColor="#3A322A"
+                                android:fontFamily="@font/googlesans_bold"
+                                android:includeFontPadding="false"
+                                tools:text="128" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Invoices"
+                                android:textSize="10.5sp"
+                                android:textColor="#9A8F79" />
+                        </LinearLayout>
+
+                        <View android:layout_width="10dp" android:layout_height="1dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_tile_red"
+                            android:padding="12dp">
+                            <TextView
+                                android:id="@+id/tvSummaryCreditNotes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="20sp"
+                                android:textColor="#791F1F"
+                                android:fontFamily="@font/googlesans_bold"
+                                android:includeFontPadding="false"
+                                tools:text="6" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Credit notes"
+                                android:textSize="10.5sp"
+                                android:textColor="#A32D2D" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== SECTION CHIPS ===================== -->
+            <HorizontalScrollView
+                android:id="@+id/scrollSections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/chipGroupSections"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#ECE7DA">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="360dp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== EXPORT ACTIONS (list rows) ===================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#ECE7DA">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Validate -->
+                    <LinearLayout
                         android:id="@+id/btnValidate"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
-                        android:text="Validate"
-                        android:textAllCaps="false"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
                         android:enabled="false"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveDraft"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        android:text="Save Draft"
-                        android:textAllCaps="false"
-                        android:enabled="false"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#EAF3DE">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_shield_check" app:tint="#3B6D11"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="Validate report" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
 
-                </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:layout_marginHorizontal="14dp" android:background="#F0EBDD" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnExportCsv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
-                        android:text="Export CSV"
-                        android:textAllCaps="false"
-                        android:enabled="false"/>
-
-                    <com.google.android.material.button.MaterialButton
+                    <!-- Export Excel -->
+                    <LinearLayout
                         android:id="@+id/btnExportExcel"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        android:text="Export Excel"
-                        android:textAllCaps="false"
-                        android:enabled="false"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
 
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#E1F5EE">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_bar_chart" app:tint="#0F6E56"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="Export to Excel" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:layout_marginHorizontal="14dp" android:background="#F0EBDD" />
+
+                    <!-- Export CSV -->
+                    <LinearLayout
+                        android:id="@+id/btnExportCsv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#FAEEDA">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_file_text" app:tint="#854F0B"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="Export to CSV" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:layout_marginHorizontal="14dp" android:background="#F0EBDD" />
+
+                    <!-- Save as draft -->
+                    <LinearLayout
+                        android:id="@+id/btnSaveDraft"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#EEEDFE">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_file_plus" app:tint="#3C3489"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="Save as draft" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            </LinearLayout>
-
-            <!-- Drafts section -->
+            <!-- ===================== DRAFTS ===================== -->
             <LinearLayout
                 android:id="@+id/llDraftsSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_marginTop="18dp"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Saved Drafts"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"/>
+                    android:text="SAVED DRAFTS"
+                    android:textSize="11sp"
+                    android:textColor="#9A8F79"
+                    android:letterSpacing="0.08"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/googlesans_semibold" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvDrafts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"/>
-
+                    android:nestedScrollingEnabled="false" />
             </LinearLayout>
 
         </LinearLayout>
+    </ScrollView>
 
-    </androidx.core.widget.NestedScrollView>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

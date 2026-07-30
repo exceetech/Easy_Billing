@@ -52,6 +52,47 @@ class Gstr2SectionFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.report.collectLatest { report ->
+                // Sections with a purpose-built renderer, so the fields that
+                // decide ITC treatment stay visible instead of being flattened
+                // into an anonymous text pair. 0 = B2B. The rest still use the
+                // generic renderer below.
+                val (count, adapter) = when (position) {
+                    0 -> (report?.b2b?.size ?: 0) to
+                            report?.b2b?.let { Gstr2B2bAdapter(it) }
+                    1 -> (report?.b2bur?.size ?: 0) to
+                            report?.b2bur?.let { Gstr2B2burAdapter(it) }
+                    2 -> (report?.imps?.size ?: 0) to
+                            report?.imps?.let { Gstr2ImpsAdapter(it) }
+                    3 -> (report?.impg?.size ?: 0) to
+                            report?.impg?.let { Gstr2ImpgAdapter(it) }
+                    4 -> (report?.cdnr?.size ?: 0) to
+                            report?.cdnr?.let { Gstr2CdnrAdapter(it) }
+                    5 -> (report?.cdnur?.size ?: 0) to
+                            report?.cdnur?.let { Gstr2CdnurAdapter(it) }
+                    // EXEMP arrives as ONE row holding four category totals;
+                    // the adapter splits it into a row per non-zero category,
+                    // so the count comes from the adapter, not the list.
+                    6 -> report?.exemp?.let { Gstr2ExempAdapter(it) }
+                            ?.let { it.itemCount to it } ?: (0 to null)
+                    7 -> (report?.hsnsum?.size ?: 0) to
+                            report?.hsnsum?.let { Gstr2HsnsumAdapter(it) }
+                    else -> 0 to null
+                }
+                if (adapter != null) {
+                    if (count == 0) {
+                        tvEmpty.visibility = View.VISIBLE
+                        rvRows.visibility  = View.GONE
+                        tvEmpty.text = "No records for this period."
+                        tvRowCount.text = "0 ROWS"
+                    } else {
+                        tvEmpty.visibility = View.GONE
+                        rvRows.visibility  = View.VISIBLE
+                        tvRowCount.text    = "$count ROWS"
+                        rvRows.adapter = adapter
+                    }
+                    return@collectLatest
+                }
+
                 val rows = buildRowsFromReport(position, report)
 
                 if (rows.isEmpty()) {

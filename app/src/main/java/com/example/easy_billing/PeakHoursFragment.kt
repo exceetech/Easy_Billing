@@ -1,14 +1,10 @@
 package com.example.easy_billing.fragments
 
-import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
-import android.view.Window
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -24,12 +20,9 @@ import com.example.easy_billing.network.PeakHourResponse
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.BarValueMarker
-import com.example.easy_billing.util.BubbleChartMarker
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.RoundedBarChartRenderer
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
@@ -42,7 +35,6 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     // ── Views ──────────────────────────────────────────────────────────────
     private lateinit var rvPeakHours: RecyclerView
-    private lateinit var btnChart: ImageButton
     private lateinit var barChart: BarChart
 
     private lateinit var tvPeakRevenue: TextView
@@ -61,8 +53,8 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
     private var customEndDate: String?   = null
     private var currentData: List<PeakHourResponse> = emptyList()
 
-    private val blue = Color.parseColor("#378ADD")
-    private val teal = Color.parseColor("#1D9E75")
+    private val blue = Color.parseColor("#B8895A")
+    private val teal = Color.parseColor("#0F6E56")
 
     private val sdf = AppTime.isoDate()   // app timezone (matches backend)
 
@@ -82,7 +74,6 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
         barChart    = view.findViewById(R.id.barChart)
         rvPeakHours = view.findViewById(R.id.rvPeakHours)
-        btnChart    = view.findViewById(R.id.btnChart)
 
         rvPeakHours.layoutManager = LinearLayoutManager(requireContext())
         rvPeakHours.isNestedScrollingEnabled = false
@@ -91,8 +82,6 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         rvPeakHours.adapter = adapter
 
         setupChartChrome()
-
-        btnChart.setOnClickListener { showChartDialog(currentData) }
 
         syncFilterFromActivity()
         loadPeakHours()
@@ -210,9 +199,9 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
             val pct = (best.revenue / totalRev * 100).roundToInt()
             tvDelta.visibility = View.VISIBLE
             tvDelta.text = "$pct% of total"
-            tvDelta.setTextColor(Color.parseColor("#1A7F37"))
+            tvDelta.setTextColor(Color.parseColor("#085041"))
             tvDelta.background = GradientDrawable().apply {
-                cornerRadius = dp(8f); setColor(Color.parseColor("#E6F4EA"))
+                cornerRadius = dp(8f); setColor(Color.parseColor("#DDEEEE"))
             }
         } else {
             tvDelta.visibility = View.GONE
@@ -289,7 +278,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                 setDrawGridLines(false)
                 setDrawAxisLine(false)
                 granularity = 1f
-                textColor = Color.parseColor("#9AA0A8")
+                textColor = Color.parseColor("#9A8F79")
                 textSize = 10f
                 yOffset = 6f
             }
@@ -315,159 +304,4 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         else       -> "${hour - 12}:00 PM"
     }
 
-    // ── Full-screen chart dialog (unchanged) ───────────────────────────────
-
-    private fun showChartDialog(data: List<PeakHourResponse>) {
-        if (data.isEmpty()) return
-
-        val dialog = Dialog(requireContext(), R.style.FullScreenDialog)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_peak_chart)
-        dialog.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-
-        // ── KPI stat cards (Peak revenue / Peak hour / Total bills / Avg bills) ──
-        val best        = data.maxByOrNull { it.revenue }
-        val totalBills  = data.sumOf { it.bills }
-        val avgBillsHr  = if (data.isNotEmpty()) totalBills.toDouble() / data.size else 0.0
-
-        dialog.findViewById<TextView>(R.id.tvDlgPeakRevenue).text =
-            best?.let { CurrencyHelper.format(requireContext(), it.revenue) } ?: "—"
-        dialog.findViewById<TextView>(R.id.tvDlgPeakHour).text =
-            best?.let { formatHour(it.hour) } ?: "—"
-        dialog.findViewById<TextView>(R.id.tvDlgTotalBills).text = "$totalBills"
-        dialog.findViewById<TextView>(R.id.tvDlgAvgBills).text =
-            "%.1f".format(avgBillsHr)
-
-        val chart = dialog.findViewById<com.github.mikephil.charting.charts.BubbleChart>(R.id.chart)
-        chart.clear()
-
-        // Period palette (matches "Daily pulse" design)
-        val morningColor   = Color.parseColor("#2F93E0")  // < 12pm
-        val afternoonColor = Color.parseColor("#D68A1E")  // 12pm – 3pm
-        val eveningColor   = Color.parseColor("#8B5CF6")  // 4pm onward
-
-        fun colorForHour(hour: Int): Int = when {
-            hour < 12  -> morningColor
-            hour <= 15 -> afternoonColor
-            else       -> eveningColor
-        }
-
-        val sorted  = data.sortedBy { it.hour }
-
-        // BubbleEntry(x = hour, y = revenue, size = bill count)
-        val entries = ArrayList<BubbleEntry>()
-        sorted.forEach { item ->
-            entries.add(BubbleEntry(item.hour.toFloat(), item.revenue.toFloat(), item.bills.toFloat()))
-        }
-
-        if (entries.isEmpty()) { chart.setNoDataText("No data available"); return }
-
-        val minHour = sorted.first().hour
-        val maxHour = sorted.last().hour
-        val maxValue = entries.maxOfOrNull { it.y } ?: 0f
-
-        // MPAndroidChart's BubbleChartRenderer picks each bubble's color via
-        // getColor((int) entry.getX()) — i.e. it indexes the color list by the HOUR,
-        // not by entry order. So build a 0..23 list keyed by hour to keep the
-        // Morning / Afternoon / Evening rule correct.
-        val hourColors = IntArray(24) { colorForHour(it) }
-
-        val dataSet = BubbleDataSet(entries, "").apply {
-            setColors(*hourColors)          // per-bubble color by period (indexed by hour)
-            setDrawValues(false)
-            isNormalizeSizeEnabled = true   // bubble area scales to bill count
-            highLightColor = Color.argb(120, 0, 0, 0)
-        }
-
-        chart.data = BubbleData(dataSet)
-
-        chart.xAxis.apply {
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    val hour = value.toInt()
-                    if (hour < 0 || hour > 23) return ""
-                    return when {
-                        hour == 0  -> "12am"
-                        hour < 12  -> "${hour}am"
-                        hour == 12 -> "12pm"
-                        else       -> "${hour - 12}pm"
-                    }
-                }
-            }
-            position = XAxis.XAxisPosition.BOTTOM
-            axisMinimum = (minHour - 1.8f)   // extra room so the first (12am) bubble isn't clipped by the y-axis
-            axisMaximum = (maxHour + 1).toFloat()
-            setDrawAxisLine(true)
-            axisLineColor = Color.parseColor("#D1D5DB")
-            axisLineWidth = 1.5f
-            setDrawGridLines(true)
-            gridColor = Color.argb(40, 156, 163, 175)
-            enableGridDashedLine(6f, 6f, 0f)
-            textColor = Color.parseColor("#9AA0A8")
-            textSize  = 10f
-            granularity = 1f
-        }
-
-        chart.axisLeft.apply {
-            // Push the baseline below 0 so low bubbles sit above the x-axis instead of being clipped
-            axisMinimum = -(maxValue * 0.14f)
-            axisMaximum = maxValue * 1.40f      // extra headroom so top bubble isn't clipped
-            setDrawAxisLine(true)
-            axisLineColor = Color.parseColor("#D1D5DB")
-            axisLineWidth = 1.5f
-            setDrawGridLines(true)
-            gridColor = Color.argb(40, 156, 163, 175)
-            enableGridDashedLine(6f, 6f, 0f)
-            textColor = Color.parseColor("#9AA0A8")
-            textSize  = 11f
-            labelCount = 4
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    if (value < 0f) return ""   // hide the sub-zero padding label
-                    return "₹" + (value / 1000f).let {
-                        if (it == it.toInt().toFloat()) "${it.toInt()}k" else "%.1fk".format(it)
-                    }
-                }
-            }
-        }
-
-        chart.axisRight.isEnabled   = false
-        chart.description.isEnabled = false
-
-        // Custom legend — Morning / Afternoon / Evening
-        chart.legend.apply {
-            isEnabled = true
-            verticalAlignment   = Legend.LegendVerticalAlignment.TOP
-            horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-            orientation         = Legend.LegendOrientation.HORIZONTAL
-            setDrawInside(false)
-            textColor = Color.parseColor("#3A3F45")
-            textSize  = 13f
-            form      = Legend.LegendForm.CIRCLE
-            xEntrySpace = 16f
-            setCustom(listOf(
-                LegendEntry("Morning",   Legend.LegendForm.CIRCLE, 10f, 2f, null, morningColor),
-                LegendEntry("Afternoon", Legend.LegendForm.CIRCLE, 10f, 2f, null, afternoonColor),
-                LegendEntry("Evening",   Legend.LegendForm.CIRCLE, 10f, 2f, null, eveningColor)
-            ))
-        }
-
-        chart.setDrawGridBackground(false)
-        chart.setTouchEnabled(true)
-        chart.setDragEnabled(true)
-        chart.setScaleEnabled(true)
-        chart.setPinchZoom(true)
-        chart.isHighlightPerTapEnabled  = true
-        chart.isHighlightPerDragEnabled = true
-        chart.marker = BubbleChartMarker(requireContext())
-        chart.setExtraOffsets(53.5f, 28f, 8f, 12f) // left padding for "12am"; extra top so the tallest bubble isn't clipped
-        chart.animateY(900)
-        chart.invalidate()
-
-        dialog.findViewById<View>(R.id.btnClose).setOnClickListener { dialog.dismiss() }
-        dialog.show()
-    }
 }

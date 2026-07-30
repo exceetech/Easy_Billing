@@ -9,11 +9,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.ui.ThemedDropdown
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,7 +20,8 @@ import java.util.*
 class ReportsActivity : BaseActivity() {
 
     private lateinit var viewPager: ViewPager2
-    private lateinit var tabLayout: TabLayout
+    private lateinit var btnTabPicker: android.view.View
+    private lateinit var tvTabChoice: android.widget.TextView
 
     // 🔥 H4 FIX: single source of truth for the active filter.
     // ViewPager2 creates fragments lazily — fragments read this in
@@ -51,7 +51,8 @@ class ReportsActivity : BaseActivity() {
 
         // ✅ Views
         viewPager = findViewById(R.id.viewPager)
-        tabLayout = findViewById(R.id.tabLayout)
+        btnTabPicker = findViewById(R.id.btnTabPicker)
+        tvTabChoice = findViewById(R.id.tvTabChoice)
 
         setupViewPager()
         setupFilters()
@@ -72,10 +73,28 @@ class ReportsActivity : BaseActivity() {
     private fun setupViewPager() {
 
         viewPager.adapter = ReportsPagerAdapter(this)
+        tvTabChoice.text = tabTitle(viewPager.currentItem)
 
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = tabTitle(position)
-        }.attach()
+        btnTabPicker.setOnClickListener {
+            val titles = (0 until (viewPager.adapter?.itemCount ?: 5)).map { tabTitle(it) }
+            ThemedDropdown.show(
+                anchor = btnTabPicker,
+                options = titles,
+                selectedIndex = viewPager.currentItem,
+                rightAlign = true
+            ) { idx ->
+                viewPager.setCurrentItem(idx, true)
+                tvTabChoice.text = tabTitle(idx)
+            }
+        }
+
+        // Keep the pill's label in sync if the page changes some other way
+        // (e.g. a fragment programmatically navigating the pager).
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                tvTabChoice.text = tabTitle(position)
+            }
+        })
     }
 
     // ---------------- FILTERS ----------------
@@ -134,18 +153,19 @@ class ReportsActivity : BaseActivity() {
         allChips().forEach { chip -> applyChipStyle(chip, chip == selectedChip) }
     }
 
+    // Outlined pill chips matching InventoryActivity's category chips —
+    // always white, gold stroke + gold text when selected, cream stroke +
+    // muted text otherwise. No chip icon, per that same reference style.
     private fun applyChipStyle(chip: Chip, selected: Boolean) {
+        chip.chipBackgroundColor = ColorStateList.valueOf(Color.WHITE)
+        chip.isChipIconVisible = false
         if (selected) {
-            chip.chipBackgroundColor  = ColorStateList.valueOf(Color.parseColor("#1B3A8A"))
-            chip.chipStrokeColor      = ColorStateList.valueOf(Color.parseColor("#1B3A8A"))
-            chip.setTextColor(Color.WHITE)
-            chip.chipIconTint         = ColorStateList.valueOf(Color.WHITE)
+            chip.chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#B8895A"))
+            chip.setTextColor(Color.parseColor("#8A6526"))
             chip.setTypeface(null, Typeface.BOLD)
         } else {
-            chip.chipBackgroundColor  = ColorStateList.valueOf(Color.WHITE)
-            chip.chipStrokeColor      = ColorStateList.valueOf(Color.parseColor("#E5E7EB"))
-            chip.setTextColor(Color.parseColor("#6B7280"))
-            chip.chipIconTint         = ColorStateList.valueOf(Color.TRANSPARENT)
+            chip.chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#E4DCC8"))
+            chip.setTextColor(Color.parseColor("#6E6A60"))
             chip.setTypeface(null, Typeface.NORMAL)
         }
     }
@@ -252,19 +272,25 @@ class ReportsActivity : BaseActivity() {
                         .getCurrencySymbol(this@ReportsActivity)
                 )
 
-                Toast.makeText(
+                com.example.easy_billing.ui.ThemedDropdown.showResultDialog(
                     this@ReportsActivity,
-                    response.message ?: "Report sent successfully 📧",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    success = true,
+                    titlePlain = "Report",
+                    titleAccent = "sent",
+                    subtitle = response.message
+                        ?: "Your PDF report has been emailed to your registered address."
+                )
 
             } catch (e: Exception) {
 
-                Toast.makeText(
+                com.example.easy_billing.ui.ThemedDropdown.showResultDialog(
                     this@ReportsActivity,
-                    "Failed to send report",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    success = false,
+                    titlePlain = "Send",
+                    titleAccent = "failed",
+                    subtitle = "We couldn't send your report. Please check your connection and try again.",
+                    buttonLabel = "Try again"
+                )
             }
         }
     }

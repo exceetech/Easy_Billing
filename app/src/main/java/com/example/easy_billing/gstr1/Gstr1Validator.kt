@@ -32,8 +32,18 @@ object Gstr1Validator {
         fun isClean(section: String) = issues.none { it.section == section }
     }
 
+    /**
+     * Rates that shouldn't raise an "unusual rate" warning.
+     *
+     * Kept identical to VALID_GST_RATES in the server's gst_service.py — the
+     * two sets had drifted (this one lacked 9 and 14, the server's lacked 1 and
+     * 40), so the same report could be clean on one path and warned on the
+     * other. This is the union: deliberately permissive, because the check is
+     * advisory and a false warning on a legitimate rate is worse than staying
+     * quiet. A genuinely odd rate (13%, 22%, …) is still caught.
+     */
     private val VALID_GST_RATES = setOf(
-        0.0, 0.1, 0.25, 1.0, 1.5, 3.0, 5.0, 6.0, 7.5, 12.0, 18.0, 28.0, 40.0
+        0.0, 0.1, 0.25, 1.0, 1.5, 3.0, 5.0, 6.0, 7.5, 9.0, 12.0, 14.0, 18.0, 28.0, 40.0
     )
 
     private val GSTIN_REGEX = Regex("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$")
@@ -48,7 +58,7 @@ object Gstr1Validator {
         }
 
         validateB2B(report.b2b, issues)
-        validateB2CL(report.b2cl, issues)
+        validateB2CL(report.b2cl, b2clThresholdFor(report), issues)
         validateB2CS(report.b2cs, issues)
         validateCdnr(report.cdnr, issues)
         validateCdnur(report.cdnur, issues)
@@ -93,14 +103,45 @@ object Gstr1Validator {
         }
     }
 
-    private fun validateB2CL(rows: List<B2CLRow>, out: MutableList<ValidationIssue>) {
+    /**
+     * B2CL threshold that applied to the period being validated.
+     *
+     * Notification 12/2024-Central Tax cut it from Rs 2.5 lakh to Rs 1 lakh
+     * with effect from 1 Aug 2024, and the cutover falls MID-way through
+     * FY 2024-25 — so this is resolved per period, not per financial year.
+     * This check used to hardcode Rs 2.5 lakh, which wrongly warned that every
+     * correctly-filed B2CL invoice between Rs 1 lakh and Rs 2.5 lakh "should
+     * be B2CS". Mirrors b2cl_threshold_for() in the server's gst_routes.py.
+     */
+    private fun b2clThresholdFor(report: Gstr1Report): Double {
+        val fyStart = report.financialYear.substringBefore("-").toIntOrNull() ?: return 100_000.0
+        val monthOfPeriod = when (report.period) {
+            "April" -> 4; "May" -> 5; "June" -> 6; "July" -> 7
+            "August" -> 8; "September" -> 9; "October" -> 10
+            "November" -> 11; "December" -> 12
+            "January" -> 1; "February" -> 2; "March" -> 3
+            "Apr-Jun" -> 4; "Jul-Sep" -> 7; "Oct-Dec" -> 10; "Jan-Mar" -> 1
+            else -> return 100_000.0
+        }
+        // Jan/Feb/Mar of a financial year fall in the NEXT calendar year.
+        val year = if (monthOfPeriod <= 3) fyStart + 1 else fyStart
+        val onOrAfterCutover = year > 2024 || (year == 2024 && monthOfPeriod >= 8)
+        return if (onOrAfterCutover) 100_000.0 else 250_000.0
+    }
+
+    private fun validateB2CL(
+        rows: List<B2CLRow>,
+        threshold: Double,
+        out: MutableList<ValidationIssue>
+    ) {
+        val limitLabel = if (threshold >= 250_000.0) "₹2.5L" else "₹1L"
         for (row in rows) {
             if (row.invoiceNumber.isBlank()) {
                 out.add(ValidationIssue("B2CL", Severity.ERROR, "Invoice number is blank.", ""))
             }
-            if (row.invoiceValue <= 250_000.0) {
+            if (row.invoiceValue <= threshold) {
                 out.add(ValidationIssue("B2CL", Severity.WARNING,
-                    "Invoice value ₹${row.invoiceValue} is ≤ ₹2.5L — should this be B2CS?",
+                    "Invoice value ₹${row.invoiceValue} is ≤ $limitLabel — should this be B2CS?",
                     row.invoiceNumber))
             }
             if (row.placeOfSupply.isBlank()) {
@@ -120,9 +161,17 @@ object Gstr1Validator {
                 out.add(ValidationIssue("B2CS", Severity.ERROR,
                     "Place of Supply missing for B2CS row.", ""))
             }
+            // A negative B2CS bucket used to be flagged as an ERROR, which
+            // blocked export. It is now legitimate: Table 7 is reported NET of
+            // credit/debit notes on small B2C sales, so a month where refunds
+            // exceeded sales genuinely nets negative and the portal accepts it.
+            // Kept as an informational warning — worth a second look, but not
+            // a reason to stop filing.
             if (row.taxableValue < 0.0) {
-                out.add(ValidationIssue("B2CS", Severity.ERROR,
-                    "Negative taxable value in B2CS.", row.placeOfSupply))
+                out.add(ValidationIssue("B2CS", Severity.WARNING,
+                    "Negative net for ${row.placeOfSupply} at ${row.rate}% — refunds " +
+                    "exceeded sales this period. Valid, but worth confirming.",
+                    row.placeOfSupply))
             }
         }
     }

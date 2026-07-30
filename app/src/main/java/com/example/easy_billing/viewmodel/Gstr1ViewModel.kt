@@ -121,8 +121,42 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
             _isLoading.value = true
             _error.value = null
             try {
-                val rawData = repo.fetchForPeriod(fy, p)
-                val report  = Gstr1Generator.generate(rawData, fy, p, _returnType.value)
+                // Phase 7: GSTR-1 now runs against the server (Phase 6), so it
+                // can only see what's already synced. Rather than silently
+                // generate a report that's missing whatever's still sitting
+                // unsynced on this phone, block and say so plainly — matching
+                // the plan's stated default of "clear message over silent gap."
+                if (repo.hasPendingSync()) {
+                    _error.value = "Some bills, credit/debit notes or cancellations on this " +
+                        "device haven't synced yet, so the report would be incomplete. " +
+                        "Sync and try again."
+                    return@launch
+                }
+
+                // Same prefs key Gstr2ViewModel already uses successfully for
+                // this call ("token", lowercase) — kept identical rather than
+                // guessing at an alternate casing.
+                val prefs = getApplication<Application>()
+                    .getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
+                val token = prefs.getString("token", "") ?: ""
+
+                val report = try {
+                    repo.fetchGstr1Online(
+                        token = "Bearer $token",
+                        financialYear = fy,
+                        period = p,
+                        returnType = _returnType.value
+                    )
+                } catch (e: java.io.IOException) {
+                    // Network-layer failure (no connection, timeout, DNS, etc.)
+                    // — distinct from a server error, worth a distinct message
+                    // per Phase 7's "offline shows a clear state, not a raw
+                    // exception" requirement.
+                    _error.value = "Couldn't reach the server to generate GSTR-1. " +
+                        "Check your internet connection and try again."
+                    return@launch
+                }
+
                 _report.value = report
                 _validationResult.value = Gstr1Validator.validate(report)
             } catch (e: Exception) {

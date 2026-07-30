@@ -1,50 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!--
+  Print-report confirmation — matches the app's champagne dialog language
+  (centered icon badge, gold eyebrow, bold+italic-serif title, white info
+  card, outlined Cancel / teal CTA), replacing the old blue generic dialog.
+
+  Bound by ProfitActivity.showPrintConfirmDialog(): tvInfo, btnCancel, btnPrint.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:orientation="vertical"
-    android:padding="24dp"
+    android:padding="22dp"
     android:background="@drawable/bg_dialog_rounded"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- ICON -->
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+    <!-- ICON BADGE -->
+    <FrameLayout
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:layout_gravity="center"
         android:layout_marginBottom="12dp"
-        android:src="@drawable/ic_print"
-        app:tint="#3B82F6" />
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_print"
+            app:tint="#8A6526" />
+    </FrameLayout>
 
-    <!-- TITLE -->
+    <!-- EYEBROW -->
     <TextView
-        android:text="Print Report"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#111827"
+        android:text="EXPORT REPORT"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <!-- INFO TEXT -->
+    <!-- TITLE -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="1dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Print "
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="report"
+            android:textColor="#0F6E56"
+            android:textSize="19sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <!-- SUBTITLE -->
     <TextView
-        android:id="@+id/tvInfo"
-        android:text="Print this report?"
-        android:textSize="14sp"
-        android:textColor="#6B7280"
+        android:text="Send this summary to your connected printer."
+        android:textSize="12.5sp"
+        android:textColor="#6E6A60"
         android:gravity="center"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="6dp"
         android:lineSpacingExtra="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <!-- INFO CARD -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="13dp"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:text="PRINTING FOR"
+            android:textSize="10sp"
+            android:letterSpacing="0.06"
+            android:textColor="#9A8F79"
+            android:layout_marginBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <FrameLayout
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:background="@drawable/bg_ov_pay_icon"
+                android:backgroundTint="#DDEEEE">
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#085041" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvInfo"
+                android:text="This month"
+                android:textSize="13.5sp"
+                android:fontFamily="serif"
+                android:textColor="#1A1A18"
+                android:layout_marginStart="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- BUTTONS -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="18dp"
         android:orientation="horizontal">
 
         <!-- CANCEL -->
@@ -52,12 +141,24 @@
             android:id="@+id/btnCancel"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="48dp"
+            android:layout_height="46dp"
             android:text="Cancel"
-            android:textColor="#111827"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#E5E7EB"
-            app:rippleColor="?attr/colorControlHighlight"/>
+            android:textColor="#B23A3A"
+            android:textAllCaps="false"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_cta_rose_tonal"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_close"
+            app:iconTint="#B23A3A"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"/>
 
         <View
             android:layout_width="10dp"
@@ -68,13 +169,23 @@
             android:id="@+id/btnPrint"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="48dp"
+            android:layout_height="46dp"
             android:text="Print"
-            android:textStyle="bold"
             android:textColor="@android:color/white"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#3B82F6"
-            app:rippleColor="#33FFFFFF"/>
+            android:textAllCaps="false"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            app:backgroundTint="#0F6E56"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_print"
+            app:iconTint="@android:color/white"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"/>
     </LinearLayout>
 
 </LinearLayout>

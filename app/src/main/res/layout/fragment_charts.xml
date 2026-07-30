@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- Charts tab — Sales design: cream page + white card + premium line chart -->
+<!-- Charts tab — champagne redesign: cream page + white card + premium line chart -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1EEE9">
+    android:background="#F4F0E6">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -25,23 +25,56 @@
             android:paddingTop="18dp"
             android:paddingBottom="90dp">
 
-            <!-- Header: title + legend box (color key, above the chart) -->
+            <!-- Header: eyebrow + serif-accent title (left) | legend pill (right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:id="@+id/tvTitle"
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Sales trend"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#14161A"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TREND"
+                        android:textColor="#B8895A"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:id="@+id/tvTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sales"
+                            android:textColor="#1A1A18"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="trend"
+                            android:textColor="#0F6E56"
+                            android:textSize="19sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -53,8 +86,8 @@
                     android:paddingVertical="6dp">
 
                     <View
-                        android:layout_width="9dp"
-                        android:layout_height="9dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/dot_green"
                         android:layout_marginEnd="5dp"/>
 
@@ -62,13 +95,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rising"
-                        android:textSize="11sp"
-                        android:textColor="#6B7280"
+                        android:textSize="10.5sp"
+                        android:textColor="#9A8F79"
                         android:layout_marginEnd="12dp"/>
 
                     <View
-                        android:layout_width="9dp"
-                        android:layout_height="9dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/dot_red"
                         android:layout_marginEnd="5dp"/>
 
@@ -76,16 +109,92 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Falling"
-                        android:textSize="11sp"
-                        android:textColor="#6B7280"/>
+                        android:textSize="10.5sp"
+                        android:textColor="#9A8F79"/>
                 </LinearLayout>
             </LinearLayout>
 
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/chartSalesTrend"
+            <!-- Stat cards: this period's total + peak day -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_ov_pay_icon"
+                    android:backgroundTint="#DDEEEE"
+                    android:padding="11dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="This period"
+                        android:textColor="#9A8F79"
+                        android:textSize="9.5sp"/>
+
+                    <TextView
+                        android:id="@+id/tvPeriodTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="₹0"
+                        android:textColor="#085041"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_ov_pay_icon"
+                    android:backgroundTint="#F3ECDD"
+                    android:padding="11dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peak"
+                        android:textColor="#9A8F79"
+                        android:textSize="9.5sp"/>
+
+                    <TextView
+                        android:id="@+id/tvPeakDay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="—"
+                        android:textColor="#8A6526"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:singleLine="true"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Chart panel — cream inset, matching the app's other insets -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/bg_ov_payment_list"
+                android:padding="12dp">
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/chartSalesTrend"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
 
         </LinearLayout>
 

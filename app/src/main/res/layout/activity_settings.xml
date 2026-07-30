@@ -33,28 +33,62 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Settings"
-                android:textColor="#1A1A18"
-                android:textSize="21sp"
-                android:textStyle="bold"
-                android:accessibilityHeading="true"/>
-            <TextView
+                android:text="MANAGE"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"
+                android:layout_marginTop="6dp"/>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="6dp"
-                android:text="Manage your store &amp; app"
-                android:textColor="#6E6A60"
-                android:textSize="12sp"/>
+                android:layout_marginBottom="6dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Settings"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:accessibilityHeading="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="&amp; store"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"/>
+            </LinearLayout>
 
             <!-- ===================== STORE ===================== -->
-            <TextView style="@style/SettingsSection" android:text="STORE"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="STORE"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
             <LinearLayout style="@style/SettingsCard">
 
                 <LinearLayout android:id="@+id/btnStoreSettings" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                        android:src="@drawable/ic_set_store" app:tint="#185FA5"/>
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#F3ECDD"
+                        android:src="@drawable/ic_set_store" app:tint="#B8895A"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/store_information"/>
                         <TextView style="@style/SettingsRowSub" android:text="Name, address, contact"/>
@@ -63,8 +97,8 @@
                 </LinearLayout>
 
                 <LinearLayout android:id="@+id/btnLocalization" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
-                        android:src="@drawable/ic_set_languages" app:tint="#534AB7"/>
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EFE5F7"
+                        android:src="@drawable/ic_set_languages" app:tint="#7A4FA3"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/localization_settings"/>
                         <TextView style="@style/SettingsRowSub" android:text="Language, currency, format"/>
@@ -74,12 +108,24 @@
             </LinearLayout>
 
             <!-- ===================== BILLING ===================== -->
-            <TextView style="@style/SettingsSection" android:text="BILLING"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="BILLING"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
             <LinearLayout style="@style/SettingsCard">
 
                 <LinearLayout android:id="@+id/btnBillingSettings" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
                         android:src="@drawable/ic_set_receipt" app:tint="#0F6E56"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/billing_settings"/>
@@ -90,7 +136,7 @@
 
                 <LinearLayout android:id="@+id/btnInvoiceDesign" style="@style/SettingsRow">
                     <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                        android:src="@drawable/ic_set_file_text" app:tint="#854F0B"/>
+                        android:src="@drawable/ic_set_file_text" app:tint="#8A6526"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/invoice_design"/>
                         <TextView style="@style/SettingsRowSub" android:text="Template &amp; branding"/>
@@ -100,13 +146,25 @@
             </LinearLayout>
 
             <!-- ===================== DATA ===================== -->
-            <TextView style="@style/SettingsSection" android:text="DATA"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="DATA"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
             <LinearLayout style="@style/SettingsCard">
 
                 <LinearLayout android:id="@+id/btnDataManagement" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FCEBEB"
-                        android:src="@drawable/ic_set_shield" app:tint="#A32D2D"/>
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
+                        android:src="@drawable/ic_set_shield" app:tint="#791F1F"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/data_security_management"/>
                         <TextView style="@style/SettingsRowSub" android:text="Backup, workspace, reset"/>

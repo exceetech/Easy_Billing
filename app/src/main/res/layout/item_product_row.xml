@@ -8,8 +8,8 @@
     <View
         android:id="@+id/vDivider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#1A9CA3AF"/>
+        android:layout_height="0.5dp"
+        android:background="#EFE9DA"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:text="#1"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:textColor="#CBD5E1"/>
+            android:textColor="#D9CBA3"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:text="★"
                     android:textSize="13sp"
-                    android:textColor="#E0921A"
+                    android:textColor="#B8895A"
                     android:layout_marginEnd="5dp"
                     android:visibility="gone"/>
 
@@ -60,8 +60,8 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#14161A"/>
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#1A1A18"/>
             </LinearLayout>
 
             <TextView
@@ -69,8 +69,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="—"
-                android:textSize="12sp"
-                android:textColor="#9AA0A8"
+                android:textSize="11sp"
+                android:textColor="#9A8F79"
                 android:layout_marginTop="1dp"/>
         </LinearLayout>
 
@@ -80,8 +80,8 @@
             android:layout_height="wrap_content"
             android:text="—"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#14161A"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#1A1A18"
             android:minWidth="56dp"
             android:gravity="end"
             android:layout_marginStart="8dp"/>

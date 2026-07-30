@@ -1,54 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    "Change login password" dialog — champagne redesign, matching
+    dialog_verify_password.xml's card shell, cream inset fields with
+    Lucide-style lock icons + eye toggles, and solid teal Save button.
+
+    Ids unchanged: etNewPin, etConfirmPin, btnSavePin, btnCancel — the
+    only ones DataSecurityActivity.showChangePinDialog() binds.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="24dp"
+    android:layout_margin="20dp"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:background="@drawable/bg_dialog"
+    android:background="@drawable/bg_dialog_card"
     android:paddingHorizontal="22dp"
-    android:paddingTop="26dp"
+    android:paddingTop="24dp"
     android:paddingBottom="20dp">
 
-    <!-- Icon badge: outer ring + inner disc + key -->
     <FrameLayout
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:background="@drawable/bg_badge_ring">
-
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_teal">
         <ImageView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center"
-            android:background="@drawable/bg_badge_disc"
-            android:padding="11dp"
             android:src="@drawable/ic_si_key"
-            app:tint="#185FA5"
-            android:contentDescription="@null"/>
+            app:tint="#0F6E56"
+            android:contentDescription="@null" />
     </FrameLayout>
 
-    <!-- Title -->
-    <TextView
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="center"
-        android:text="@string/change_login_password"
-        android:textSize="19sp"
-        android:textStyle="bold"
-        android:textColor="#1A1A18"/>
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change"
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="password"
+            android:textColor="#0F6E56"
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
 
-    <!-- Description -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="4dp"
         android:gravity="center"
         android:text="Set a new login PIN for your account"
-        android:textSize="12.5sp"
-        android:textColor="#6E6A60"/>
+        android:textSize="12sp"
+        android:textColor="#9A8F79" />
 
     <!-- New password -->
     <TextView
@@ -58,111 +75,138 @@
         android:layout_marginStart="2dp"
         android:text="@string/new_password"
         android:textSize="11sp"
-        android:textColor="#6E6A60"/>
+        android:textColor="#9A8F79"
+        android:fontFamily="@font/googlesans_semibold" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutNewPin"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        app:hintEnabled="false"
-        app:boxBackgroundColor="#FBFAF7"
-        app:boxStrokeColor="@color/til_stroke"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="1.5dp"
-        app:boxCornerRadiusTopStart="13dp"
-        app:boxCornerRadiusTopEnd="13dp"
-        app:boxCornerRadiusBottomStart="13dp"
-        app:boxCornerRadiusBottomEnd="13dp"
-        app:startIconDrawable="@drawable/ic_si_lock"
-        app:startIconTint="#9A968C"
-        app:endIconMode="password_toggle"
-        app:endIconDrawable="@drawable/ic_si_eye_toggle"
-        app:endIconTint="#C9C3B4">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_gstin_box"
+        android:paddingHorizontal="12dp"
+        android:layout_marginTop="6dp">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_lucide_lock"
+            android:contentDescription="@null" />
+
+        <EditText
             android:id="@+id/etNewPin"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:background="@android:color/transparent"
             android:hint="@string/new_password"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textColor="#1A1A18"
-            android:textColorHint="#9A968C"
-            android:inputType="textPassword"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:textColorHint="#9A8F79"
+            android:inputType="textPassword" />
+
+        <ImageView
+            android:id="@+id/ivToggleNewPin"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_lucide_eye"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/new_password" />
+    </LinearLayout>
 
     <!-- Confirm password -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="13dp"
+        android:layout_marginTop="14dp"
         android:layout_marginStart="2dp"
         android:text="@string/confirm_password"
         android:textSize="11sp"
-        android:textColor="#6E6A60"/>
+        android:textColor="#9A8F79"
+        android:fontFamily="@font/googlesans_semibold" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutConfirmPin"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        app:hintEnabled="false"
-        app:boxBackgroundColor="#FBFAF7"
-        app:boxStrokeColor="@color/til_stroke"
-        app:boxStrokeWidth="1dp"
-        app:boxStrokeWidthFocused="1.5dp"
-        app:boxCornerRadiusTopStart="13dp"
-        app:boxCornerRadiusTopEnd="13dp"
-        app:boxCornerRadiusBottomStart="13dp"
-        app:boxCornerRadiusBottomEnd="13dp"
-        app:startIconDrawable="@drawable/ic_si_lock_check"
-        app:startIconTint="#9A968C"
-        app:endIconMode="password_toggle"
-        app:endIconDrawable="@drawable/ic_si_eye_toggle"
-        app:endIconTint="#C9C3B4">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_gstin_box"
+        android:paddingHorizontal="12dp"
+        android:layout_marginTop="6dp">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_lucide_lock"
+            android:contentDescription="@null" />
+
+        <EditText
             android:id="@+id/etConfirmPin"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:background="@android:color/transparent"
             android:hint="@string/confirm_password"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textColor="#1A1A18"
-            android:textColorHint="#9A968C"
-            android:inputType="textPassword"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:textColorHint="#9A8F79"
+            android:inputType="textPassword" />
+
+        <ImageView
+            android:id="@+id/ivToggleConfirmPin"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_lucide_eye"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/confirm_password" />
+    </LinearLayout>
 
     <!-- Save -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSavePin"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="48dp"
         android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
         android:text="@string/save_changes"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:textSize="14sp"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
         app:icon="@drawable/ic_lucide_check"
         app:iconTint="#FFFFFF"
+        app:iconSize="16dp"
         app:iconGravity="textStart"
-        app:iconPadding="8dp"
-        app:backgroundTint="#1B3A8A"
-        app:cornerRadius="13dp"
-        android:stateListAnimator="@null"
-        android:elevation="0dp"/>
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
 
     <!-- Cancel -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCancel"
-        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="46dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:text="@string/cancel"
-        android:textColor="#6E6A60"
+        android:textColor="#9A8F79"
         android:textAllCaps="false"
-        android:textSize="13.5sp"/>
+        android:textSize="13sp"
+        android:fontFamily="@font/googlesans_medium"
+        android:includeFontPadding="false"
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#14000000" />
 
 </LinearLayout>

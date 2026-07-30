@@ -239,12 +239,40 @@ class DataSecurityActivity : BaseActivity() {
         val etConfirmPin = dialogView.findViewById<EditText>(R.id.etConfirmPin)
         val btnSave = dialogView.findViewById<Button>(R.id.btnSavePin)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val ivToggleNewPin = dialogView.findViewById<ImageView>(R.id.ivToggleNewPin)
+        val ivToggleConfirmPin = dialogView.findViewById<ImageView>(R.id.ivToggleConfirmPin)
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        var isNewPinVisible = false
+        ivToggleNewPin.setOnClickListener {
+            isNewPinVisible = !isNewPinVisible
+            if (isNewPinVisible) {
+                etNewPin.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivToggleNewPin.setImageResource(R.drawable.ic_lucide_eye_off)
+            } else {
+                etNewPin.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivToggleNewPin.setImageResource(R.drawable.ic_lucide_eye)
+            }
+            etNewPin.setSelection(etNewPin.text.length)
+        }
+
+        var isConfirmPinVisible = false
+        ivToggleConfirmPin.setOnClickListener {
+            isConfirmPinVisible = !isConfirmPinVisible
+            if (isConfirmPinVisible) {
+                etConfirmPin.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivToggleConfirmPin.setImageResource(R.drawable.ic_lucide_eye_off)
+            } else {
+                etConfirmPin.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivToggleConfirmPin.setImageResource(R.drawable.ic_lucide_eye)
+            }
+            etConfirmPin.setSelection(etConfirmPin.text.length)
+        }
 
         btnSave.setOnClickListener {
 
@@ -318,6 +346,20 @@ class DataSecurityActivity : BaseActivity() {
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val ivTogglePassword = dialogView.findViewById<ImageView>(R.id.ivTogglePassword)
+
+        var isPasswordVisible = false
+        ivTogglePassword.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye_off)
+            } else {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye)
+            }
+            etPassword.setSelection(etPassword.text.length)
+        }
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)

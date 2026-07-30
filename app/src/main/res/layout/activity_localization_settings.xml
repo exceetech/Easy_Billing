@@ -45,30 +45,52 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Language &amp; currency"
-                        android:textColor="#1A1A18"
-                        android:textSize="21sp"
-                        android:textStyle="bold"
-                        android:accessibilityHeading="true"/>
-                    <TextView
+                        android:text="REGION"
+                        android:textColor="#B8895A"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Display language and currency symbol"
-                        android:textColor="#6E6A60"
-                        android:textSize="12sp"/>
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Language"
+                            android:textColor="#1A1A18"
+                            android:textSize="21sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"
+                            android:accessibilityHeading="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="&amp; currency"
+                            android:textColor="#0F6E56"
+                            android:textSize="21sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Edit pill (toggles edit mode) -->
+                <!-- Edit pill (toggles edit mode) — gold gradient, matching
+                     the Unlock/Edit pills elsewhere. -->
                 <LinearLayout
                     android:id="@+id/btnEdit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_edit_pill"
+                    android:background="@drawable/bg_inv_seg_selected"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="7dp"
+                    android:paddingVertical="8dp"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -87,15 +109,29 @@
                         android:text="@string/edit"
                         android:textColor="#1A1A18"
                         android:textSize="13sp"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
                         android:includeFontPadding="false"/>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== PREFERENCES ===================== -->
-            <TextView style="@style/AddSectionLabel" android:text="PREFERENCES"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="PREFERENCES"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
-            <LinearLayout style="@style/AddCard">
+            <!-- cardPreferences: faded (alpha 0.6) until Edit is tapped,
+                 same locked/unlocked feel as the other settings screens. -->
+            <LinearLayout android:id="@+id/cardPreferences" style="@style/AddCard">
 
                 <!-- Language -->
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
@@ -132,7 +168,7 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground">
                         <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_si_currency" app:tint="#BA7517"/>
+                            android:src="@drawable/ic_si_currency" app:tint="#8A6526"/>
                         <TextView
                             android:id="@+id/tvCurrency"
                             style="@style/SiValue"
@@ -153,7 +189,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="12dp"
                 android:paddingHorizontal="4dp">
                 <ImageView
                     android:layout_width="14dp"
@@ -167,17 +203,37 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="The app restarts to apply a new language or currency."
-                    android:textColor="#9A968C"
+                    android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:lineSpacingExtra="1dp"/>
             </LinearLayout>
 
-            <!-- Save -->
+            <!-- Save — solid teal CTA matching the app's other confirm
+                 buttons, instead of SiSavePill's navy. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveLocalization"
-                style="@style/SiSavePill"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
                 android:text="@string/save_changes"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:background="@drawable/bg_login_cta_green"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
                 app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#33FFFFFF"
                 android:visibility="gone"/>
 
         </LinearLayout>

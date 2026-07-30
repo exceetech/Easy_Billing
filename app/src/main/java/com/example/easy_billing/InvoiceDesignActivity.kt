@@ -25,6 +25,9 @@ class InvoiceDesignActivity : BaseActivity() {
     private lateinit var btnSave: Button
     private lateinit var prefs: android.content.SharedPreferences
 
+    private lateinit var cardFooter: View
+    private lateinit var cardShowOnReceipt: View
+
     private var isEditMode = false
     private var snapshot: DesignSnapshot? = null
 
@@ -62,6 +65,9 @@ class InvoiceDesignActivity : BaseActivity() {
         btnEdit = findViewById(R.id.btnEdit)
         tvEdit  = findViewById(R.id.tvEdit)
         btnSave = findViewById(R.id.btnSaveDesign)
+
+        cardFooter        = findViewById(R.id.cardFooter)
+        cardShowOnReceipt = findViewById(R.id.cardShowOnReceipt)
 
         btnEdit.setOnClickListener { toggleEditMode() }
 
@@ -117,6 +123,12 @@ class InvoiceDesignActivity : BaseActivity() {
         switchDiscount.isEnabled = enable
         switchRoundOff.isEnabled = enable
 
+        // Faded until Edit is tapped — same locked/unlocked feel as
+        // DataSecurityActivity.setLocked().
+        val alpha = if (enable) 1f else 0.55f
+        cardFooter.alpha = alpha
+        cardShowOnReceipt.alpha = alpha
+
         tvEdit.text = if (enable) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enable) View.VISIBLE else View.GONE
     }
@@ -134,6 +146,20 @@ class InvoiceDesignActivity : BaseActivity() {
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
         val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val ivTogglePassword = dialogView.findViewById<ImageView>(R.id.ivTogglePassword)
+
+        var isPasswordVisible = false
+        ivTogglePassword.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye_off)
+            } else {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye)
+            }
+            etPassword.setSelection(etPassword.text.length)
+        }
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView)

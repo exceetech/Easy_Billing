@@ -42,6 +42,9 @@ class BillingSettingsActivity : BaseActivity() {
     private lateinit var tvEdit: TextView
     private lateinit var btnSave: Button
 
+    private lateinit var cardGstProfile: View
+    private lateinit var cardPrinter: View
+
     private var isEditMode = false
     private var snapshot: BillingSnapshot? = null
 
@@ -91,6 +94,9 @@ class BillingSettingsActivity : BaseActivity() {
         btnEdit = findViewById(R.id.btnEdit)
         tvEdit  = findViewById(R.id.tvEdit)
         btnSave = findViewById(R.id.btnSaveBilling)
+
+        cardGstProfile = findViewById(R.id.cardGstProfile)
+        cardPrinter    = findViewById(R.id.cardPrinter)
 
         btnEdit.setOnClickListener { toggleEditMode() }
     }
@@ -250,18 +256,22 @@ class BillingSettingsActivity : BaseActivity() {
             it.isFocusableInTouchMode = enable
             it.isClickable = enable
             it.isCursorVisible = enable
-            it.alpha = if (enable) 1f else 0.6f
         }
 
         fun controlRow(row: View, chevron: View) {
             row.isEnabled = enable
             row.isClickable = enable
-            row.alpha = if (enable) 1f else 0.6f
             chevron.visibility = if (enable) View.VISIBLE else View.INVISIBLE
         }
         controlRow(rowScheme, icSchemeChevron)
         controlRow(rowRegType, icRegTypeChevron)
         controlRow(rowPrinter, icPrinterChevron)
+
+        // Faded until Edit is tapped — same locked/unlocked feel as
+        // InvoiceDesignActivity.setEditable() / DataSecurityActivity.setLocked().
+        val alpha = if (enable) 1f else 0.6f
+        cardGstProfile.alpha = alpha
+        cardPrinter.alpha = alpha
 
         tvEdit.text = if (enable) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enable) View.VISIBLE else View.GONE
@@ -281,6 +291,20 @@ class BillingSettingsActivity : BaseActivity() {
         val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
         val btnVerify  = dialogView.findViewById<Button>(R.id.btnVerify)
         val btnCancel  = dialogView.findViewById<Button>(R.id.btnCancel)
+        val ivTogglePassword = dialogView.findViewById<ImageView>(R.id.ivTogglePassword)
+
+        var isPasswordVisible = false
+        ivTogglePassword.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye_off)
+            } else {
+                etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_lucide_eye)
+            }
+            etPassword.setSelection(etPassword.text.length)
+        }
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView).create()

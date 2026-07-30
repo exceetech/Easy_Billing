@@ -1,25 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    "What's the audit score?" info dialog — champagne redesign, matching
+    the card shell used by dialog_verify_password.xml / dialog_sign_out.xml,
+    with the band dots recolored to the app's teal/gold/red palette.
+
+    Id unchanged: btnScoreInfoGotIt — the only one AiDashboardActivity binds.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_pos_dropdown"
-    android:padding="18dp">
+    android:background="@drawable/bg_dialog_card"
+    android:padding="20dp">
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="What's the audit score?"
-        android:textColor="#1A1A18"
-        android:textSize="15sp"
-        android:textStyle="bold"/>
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="What's the audit"
+            android:textColor="#1A1A18"
+            android:textSize="16sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="score?"
+            android:textColor="#0F6E56"
+            android:textSize="16sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="A quick health check of your shop, from 0 to 100. It starts at 100 and goes down for every urgent issue or money leak we find — so a higher score means fewer problems to fix."
-        android:textColor="#6E6A60"
+        android:textColor="#9A8F79"
         android:textSize="13sp"
         android:lineSpacingMultiplier="1.4"/>
 
@@ -31,12 +55,13 @@
         android:gravity="center_vertical"
         android:layout_marginTop="14dp">
         <View android:layout_width="10dp" android:layout_height="10dp"
-            android:background="@drawable/bg_imp_dot" android:backgroundTint="#0F6E56"/>
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#085041"/>
         <TextView android:layout_width="80dp" android:layout_height="wrap_content"
             android:layout_marginStart="9dp" android:text="Healthy"
-            android:textColor="#1A1A18" android:textSize="12sp" android:textStyle="bold"/>
+            android:textColor="#1A1A18" android:textSize="12sp"
+            android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="78–100 · few or no issues" android:textColor="#6E6A60" android:textSize="12sp"/>
+            android:text="78–100 · few or no issues" android:textColor="#9A8F79" android:textSize="12sp"/>
     </LinearLayout>
 
     <!-- Fair -->
@@ -45,14 +70,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="9dp">
         <View android:layout_width="10dp" android:layout_height="10dp"
-            android:background="@drawable/bg_imp_dot" android:backgroundTint="#BA7517"/>
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#8A6526"/>
         <TextView android:layout_width="80dp" android:layout_height="wrap_content"
             android:layout_marginStart="9dp" android:text="Fair"
-            android:textColor="#1A1A18" android:textSize="12sp" android:textStyle="bold"/>
+            android:textColor="#1A1A18" android:textSize="12sp"
+            android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="66–77 · a few things to watch" android:textColor="#6E6A60" android:textSize="12sp"/>
+            android:text="66–77 · a few things to watch" android:textColor="#9A8F79" android:textSize="12sp"/>
     </LinearLayout>
 
     <!-- Needs work -->
@@ -61,29 +87,38 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="9dp">
         <View android:layout_width="10dp" android:layout_height="10dp"
-            android:background="@drawable/bg_imp_dot" android:backgroundTint="#A32D2D"/>
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#791F1F"/>
         <TextView android:layout_width="80dp" android:layout_height="wrap_content"
             android:layout_marginStart="9dp" android:text="Needs work"
-            android:textColor="#1A1A18" android:textSize="12sp" android:textStyle="bold"/>
+            android:textColor="#1A1A18" android:textSize="12sp"
+            android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="below 66 · act on the alerts" android:textColor="#6E6A60" android:textSize="12sp"/>
+            android:text="below 66 · act on the alerts" android:textColor="#9A8F79" android:textSize="12sp"/>
     </LinearLayout>
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnScoreInfoGotIt"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="42dp"
         android:layout_gravity="end"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
         android:text="Got it"
-        android:textColor="#412402"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
         android:textSize="13sp"
-        android:textStyle="bold"
-        android:background="@drawable/bg_inv_a_gold_btn"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
         android:paddingHorizontal="18dp"
-        android:paddingVertical="9dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:cornerRadius="12dp"
+        app:rippleColor="#33FFFFFF"
         android:clickable="true"
         android:focusable="true"/>
 </LinearLayout>

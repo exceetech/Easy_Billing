@@ -5,9 +5,11 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
@@ -82,8 +84,11 @@ object ThemedDropdown {
     }
 
     /**
-     * Theme-matched centred selection card (for action pickers like "Send report").
-     * Same rounded card + row styling as [show]; shown as a centred dialog with a title.
+     * Champagne-themed centred action sheet (for "Send report"): matches the
+     * app's standard confirm-dialog shell (dialog_verify_password / dialog_change_pin)
+     * — centered teal icon badge, serif-accent title, muted subtitle, a single
+     * bordered list of options, and a quiet Cancel text link. Exclusive to the
+     * Send-report flow — does not share bg_pos_dropdown with [show]/[showConfirm].
      */
     fun showActionSheet(
         context: Context,
@@ -96,19 +101,61 @@ object ThemedDropdown {
 
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.bg_pos_dropdown)
-            setPadding(dp(8), dp(14), dp(8), dp(8))
+            gravity = Gravity.CENTER_HORIZONTAL
+            background = GradientDrawable().apply {
+                cornerRadius = dp(20).toFloat()
+                setColor(Color.WHITE)
+            }
+            setPadding(dp(20), dp(22), dp(20), dp(14))
         }
 
+        card.addView(FrameLayout(context).apply {
+            setBackgroundResource(R.drawable.bg_circle_soft_teal)
+            layoutParams = LinearLayout.LayoutParams(dp(56), dp(56)).apply { bottomMargin = dp(12) }
+            addView(ImageView(context).apply {
+                setImageResource(R.drawable.ic_lucide_send_teal)
+                layoutParams = FrameLayout.LayoutParams(dp(26), dp(26)).apply { gravity = Gravity.CENTER }
+            })
+        })
+
         card.addView(TextView(context).apply {
-            text = title
-            textSize = 15f
-            setTypeface(typeface, Typeface.BOLD)
+            val spannable = android.text.SpannableStringBuilder("Send ")
+            val italicStart = spannable.length
+            spannable.append("report")
+            spannable.setSpan(
+                android.text.style.StyleSpan(Typeface.ITALIC),
+                italicStart, spannable.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(Color.parseColor("#0F6E56")),
+                italicStart, spannable.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            text = spannable
+            textSize = 18f
+            gravity = Gravity.CENTER
             setTextColor(Color.parseColor("#1A1A18"))
-            setPadding(dp(8), 0, dp(8), dp(10))
+        })
+        card.addView(TextView(context).apply {
+            text = "Choose a period to email as a PDF"
+            textSize = 12.5f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#9A8F79"))
+            setPadding(0, dp(4), 0, dp(16))
         })
 
         val dialog = Dialog(context)
+
+        val list = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                cornerRadius = dp(14).toFloat()
+                setColor(Color.WHITE)
+                setStroke(dp(1), Color.parseColor("#EFE9DA"))
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
 
         options.forEachIndexed { i, label ->
             val row = LinearLayout(context).apply {
@@ -117,20 +164,48 @@ object ThemedDropdown {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, dp(48)
                 )
-                setPadding(dp(12), 0, dp(12), 0)
+                setPadding(dp(14), 0, dp(14), 0)
                 isClickable = true
             }
             row.addView(TextView(context).apply {
                 text = label
-                textSize = 14f
+                textSize = 13.5f
                 setTextColor(Color.parseColor("#1A1A18"))
                 layoutParams = LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
                 )
             })
+            row.addView(ImageView(context).apply {
+                setImageResource(R.drawable.ic_chevron_down)
+                rotation = -90f
+                setColorFilter(Color.parseColor("#9A8F79"))
+                layoutParams = LinearLayout.LayoutParams(dp(14), dp(14))
+            })
             row.setOnClickListener { onSelect(i); dialog.dismiss() }
-            card.addView(row)
+            list.addView(row)
+            if (i != options.lastIndex) {
+                list.addView(View(context).apply {
+                    setBackgroundColor(Color.parseColor("#EFE9DA"))
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, dp(1) / 2
+                    )
+                })
+            }
         }
+        card.addView(list)
+
+        card.addView(TextView(context).apply {
+            text = "Cancel"
+            textSize = 14f
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#9A8F79"))
+            isClickable = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(48)
+            ).apply { topMargin = dp(6) }
+            setOnClickListener { dialog.dismiss() }
+        })
 
         dialog.setContentView(card)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -220,6 +295,107 @@ object ThemedDropdown {
             (context.resources.displayMetrics.widthPixels * 0.92f).toInt(),
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        dialog.show()
+    }
+
+    /**
+     * Champagne-themed result dialog for async actions (e.g. "Report sent" /
+     * "Send failed"): same confirm-dialog shell as [showActionSheet] — a
+     * centred icon badge, serif-accent title, muted subtitle, and a single
+     * solid CTA button.
+     */
+    fun showResultDialog(
+        context: Context,
+        success: Boolean,
+        titlePlain: String,
+        titleAccent: String,
+        subtitle: String,
+        buttonLabel: String = "Done",
+        onDismiss: () -> Unit = {}
+    ) {
+        val density = context.resources.displayMetrics.density
+        fun dp(v: Int): Int = (v * density).toInt()
+
+        val accentColor = if (success) "#0F6E56" else "#791F1F"
+        val badgeBg      = if (success) "#DDEEEE" else "#FBEDED"
+        val buttonBg     = if (success) "#0F6E56" else "#791F1F"
+        val icon         = if (success) R.drawable.ic_lc_circle_check else R.drawable.ic_lucide_circle_x
+
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            background = GradientDrawable().apply {
+                cornerRadius = dp(20).toFloat()
+                setColor(Color.WHITE)
+            }
+            setPadding(dp(20), dp(24), dp(20), dp(20))
+        }
+
+        card.addView(FrameLayout(context).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor(badgeBg))
+            }
+            layoutParams = LinearLayout.LayoutParams(dp(56), dp(56)).apply { bottomMargin = dp(14) }
+            addView(ImageView(context).apply {
+                setImageResource(icon)
+                setColorFilter(Color.parseColor(accentColor))
+                layoutParams = FrameLayout.LayoutParams(dp(28), dp(28)).apply { gravity = Gravity.CENTER }
+            })
+        })
+
+        card.addView(TextView(context).apply {
+            val spannable = android.text.SpannableStringBuilder("$titlePlain ")
+            val italicStart = spannable.length
+            spannable.append(titleAccent)
+            spannable.setSpan(
+                android.text.style.StyleSpan(Typeface.ITALIC),
+                italicStart, spannable.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(Color.parseColor(accentColor)),
+                italicStart, spannable.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            text = spannable
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#1A1A18"))
+        })
+        card.addView(TextView(context).apply {
+            text = subtitle
+            textSize = 12.5f
+            gravity = Gravity.CENTER
+            setLineSpacing(dp(2).toFloat(), 1f)
+            setTextColor(Color.parseColor("#9A8F79"))
+            setPadding(0, dp(6), 0, dp(20))
+        })
+
+        val dialog = Dialog(context)
+
+        card.addView(TextView(context).apply {
+            text = buttonLabel
+            textSize = 14f
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            isClickable = true
+            background = GradientDrawable().apply {
+                cornerRadius = dp(14).toFloat()
+                setColor(Color.parseColor(buttonBg))
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(48)
+            )
+            setOnClickListener { dialog.dismiss(); onDismiss() }
+        })
+
+        dialog.setContentView(card)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val width = minOf(
+            (context.resources.displayMetrics.widthPixels * 0.86f).toInt(),
+            dp(330)
+        )
+        dialog.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
         dialog.show()
     }
 }

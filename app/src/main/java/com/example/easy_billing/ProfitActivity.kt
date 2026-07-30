@@ -87,14 +87,10 @@ class ProfitActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.rvProducts)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Hairline dividers between product rows, matching the themed list cards.
-        val divider = androidx.recyclerview.widget.DividerItemDecoration(
-            this, androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
-        )
-        androidx.core.content.ContextCompat
-            .getDrawable(this, R.drawable.divider_hairline)
-            ?.let { divider.setDrawable(it) }
-        recyclerView.addItemDecoration(divider)
+        // No ItemDecoration here — item_profit_simple.xml already draws its
+        // own hairline divider per row (viewRowDivider), same as Inventory's
+        // rows. An extra DividerItemDecoration on top of that was adding a
+        // redundant gap between cards.
 
         profitAdapter = ProfitAdapter { item ->
             showProductDialog(item)
@@ -242,7 +238,7 @@ class ProfitActivity : AppCompatActivity() {
                         layoutMarginPill.visibility = android.view.View.VISIBLE
                         val growthPct = summary.growth.profit_percentage
                         val positive = growthPct >= 0
-                        val pillFg = if (positive) "#7DDCB2" else "#F0A3A3"
+                        val pillFg = if (positive) "#085041" else "#791F1F"
                         val sign = if (positive) "+" else ""
 
                         findViewById<TextView>(R.id.tvMargin).apply {
@@ -251,7 +247,7 @@ class ProfitActivity : AppCompatActivity() {
                         }
                         layoutMarginPill.backgroundTintList =
                             android.content.res.ColorStateList.valueOf(
-                                Color.parseColor(if (positive) "#11402F" else "#5A1E1E")
+                                Color.parseColor(if (positive) "#DDEEEE" else "#FBEDED")
                             )
                         findViewById<ImageView>(R.id.ivMarginTrend).apply {
                             setColorFilter(Color.parseColor(pillFg))
@@ -318,65 +314,33 @@ class ProfitActivity : AppCompatActivity() {
         val netPositive = netProfit >= 0
 
         // ---- Header ----
-        // Initials from the product NAME only (ignore the "(variant)" so we never pick
-        // up a "(" — e.g. "Bisleri (1ltr)" → "BI", "Aashirvaad Atta" → "AA").
-        val words = item.productName.trim().split(" ")
-            .filter { it.isNotBlank() && it.first().isLetterOrDigit() }
-        val initials = when {
-            words.size >= 2 -> "${words[0].first()}${words[1].first()}".uppercase()
-            words.isNotEmpty() -> words[0].filter { it.isLetterOrDigit() }.take(2).uppercase()
-            else -> "#"
-        }
-        view.findViewById<TextView>(R.id.tvAvatar).text = initials
         view.findViewById<TextView>(R.id.tvName).text = name
+        val insight = getInsight(item, netProfit)
         view.findViewById<TextView>(R.id.tvNameSub).text =
-            "${qtyFormat(item.sold)} sold · ${item.unit}"
+            "${qtyFormat(item.sold)} sold · ${item.unit} · $insight"
 
-        // ---- Net profit + margin pill ----
+        // ---- Reconciliation card → net profit hero ----
+        view.findViewById<TextView>(R.id.tvRevenue).text = money(item.revenue)
+        view.findViewById<TextView>(R.id.tvCost).text = money(item.cost)
+        view.findViewById<TextView>(R.id.tvLoss).text = money(item.lossAmount)
+        view.findViewById<TextView>(R.id.tvLossCaption).text =
+            if (item.lossAmount > 0) "adds to loss" else "no shrinkage"
+
         view.findViewById<TextView>(R.id.tvNetProfit).apply {
             text = money(netProfit)
             setTextColor(Color.parseColor(if (netPositive) "#0F6E56" else "#A32D2D"))
         }
         val margin = if (item.revenue != 0.0) item.profit / item.revenue * 100 else 0.0
-        val pillFg = if (netPositive) "#7DDCB2" else "#F0A3A3"
+        val pillFg = if (netPositive) "#085041" else "#791F1F"
         view.findViewById<TextView>(R.id.tvMargin).apply {
             text = "${Math.round(margin)}% margin"; setTextColor(Color.parseColor(pillFg))
         }
-        view.findViewById<android.view.View>(R.id.layoutMarginPill).backgroundTintList =
-            android.content.res.ColorStateList.valueOf(
-                Color.parseColor(if (netPositive) "#11402F" else "#5A1E1E")
-            )
-        view.findViewById<ImageView>(R.id.ivMargin).apply {
-            setColorFilter(Color.parseColor(pillFg))
-            setImageResource(if (netPositive) R.drawable.ic_si_trend_up else R.drawable.ic_si_trend_down)
-        }
 
-        // ---- Financial grid ----
-        view.findViewById<TextView>(R.id.tvRevenue).text = money(item.revenue)
-        view.findViewById<TextView>(R.id.tvCost).text = money(item.cost)
-        view.findViewById<TextView>(R.id.tvProfit).apply {
-            text = money(item.profit)
-            setTextColor(Color.parseColor(if (item.profit < 0) "#A32D2D" else "#0F6E56"))
-        }
-        view.findViewById<TextView>(R.id.tvLoss).text = money(item.lossAmount)
-
-        // ---- Insight chip ----
-        val insight = getInsight(item, netProfit)
-        val (chipBg, chipInk, chipIcon) = when (insight) {
-            "Loss product" -> Triple(R.drawable.bg_chip_high, "#A32D2D", R.drawable.ic_si_alert)
-            "Dead stock", "High wastage" -> Triple(R.drawable.bg_chip_med, "#854F0B", R.drawable.ic_si_alert)
-            else -> Triple(R.drawable.bg_chip_low, "#3B6D11", R.drawable.ic_check_circle)
-        }
-        view.findViewById<android.view.View>(R.id.chipInsight).setBackgroundResource(chipBg)
-        view.findViewById<TextView>(R.id.tvInsight).apply {
-            text = insight; setTextColor(Color.parseColor(chipInk))
-        }
-        view.findViewById<ImageView>(R.id.ivInsight).apply {
-            setImageResource(chipIcon); setColorFilter(Color.parseColor(chipInk))
-        }
+        // ---- At a glance ----
+        view.findViewById<TextView>(R.id.tvRemainingStock).text = qtyFormat(item.remaining)
+        view.findViewById<TextView>(R.id.tvAdded).text = qtyFormat(item.added)
 
         // ---- Stock flow ----
-        view.findViewById<TextView>(R.id.tvAdded).text = "Added ${item.added.toInt()}"
         view.findViewById<TextView>(R.id.tvSold).text = "● Sold ${item.sold.toInt()}"
         view.findViewById<TextView>(R.id.tvLossQty).text = "● Loss ${item.lossQty.toInt()}"
         view.findViewById<TextView>(R.id.tvRemaining).text = "● Remaining ${item.remaining.toInt()}"
@@ -488,7 +452,7 @@ class ProfitActivity : AppCompatActivity() {
             else -> "All Time"
         }
 
-        tvInfo.text = "Print report for:\n$filterText"
+        tvInfo.text = filterText
 
         val dialog = AlertDialog.Builder(this)
             .setView(view)

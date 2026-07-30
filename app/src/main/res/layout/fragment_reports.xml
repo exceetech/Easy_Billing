@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Sales — redesigned (bar-chart layout).
-  NestedScrollView > white card >
-    header (Sales + period chip) · Daily/Monthly toggle · total + growth delta
-    · legend · bar chart · 2 metric cards · breakdown list
+  Sales — champagne redesign, matching Peak hours / Charts / Overview.
+  header (eyebrow+serif title + period chip) · Daily/Monthly toggle
+    · total + growth delta · legend · cream-inset bar chart · 2 stat cards
+    · breakdown list.
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1EEE9">
+    android:background="#F4F0E6">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingTop="22dp"
+            android:paddingTop="18dp"
             android:paddingBottom="110dp">
 
             <!-- Header -->
@@ -46,30 +46,63 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="16dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Sales"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#14161A"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="REVENUE"
+                        android:textColor="#B8895A"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sales"
+                            android:textColor="#1A1A18"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="report"
+                            android:textColor="#0F6E56"
+                            android:textSize="19sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvPeriodChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="This week"
-                    android:textSize="13sp"
-                    android:textColor="#1B3A8A"
-                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:background="#F3ECDD"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="6dp"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground"/>
+                    android:focusable="true"/>
             </LinearLayout>
 
             <!-- Daily / Monthly toggle -->
@@ -89,8 +122,8 @@
                     android:text="Daily"
                     android:gravity="center"
                     android:paddingVertical="7dp"
-                    android:textSize="13sp"
-                    android:textStyle="bold"/>
+                    android:textSize="12.5sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
 
                 <TextView
                     android:id="@+id/segMonthly"
@@ -100,7 +133,7 @@
                     android:text="Monthly"
                     android:gravity="center"
                     android:paddingVertical="7dp"
-                    android:textSize="13sp"/>
+                    android:textSize="12.5sp"/>
             </LinearLayout>
 
             <!-- Total revenue + growth delta -->
@@ -109,8 +142,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total revenue"
-                android:textSize="13sp"
-                android:textColor="#6B7280"
+                android:textSize="11.5sp"
+                android:textColor="#9A8F79"
                 android:layout_marginBottom="2dp"/>
 
             <LinearLayout
@@ -125,9 +158,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="—"
-                    android:textSize="30sp"
-                    android:textStyle="bold"
-                    android:textColor="#14161A"
+                    android:textSize="28sp"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
                     android:layout_marginEnd="10dp"/>
 
                 <TextView
@@ -135,8 +168,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="—"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_semibold"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="3dp"
                     android:visibility="gone"/>
@@ -148,12 +181,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="6dp">
+                android:layout_marginBottom="10dp">
 
                 <View
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@drawable/bg_sales_fill"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:background="#B8895A"
                     android:layout_marginEnd="5dp"/>
 
                 <TextView
@@ -161,14 +194,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Daily revenue"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"
-                    android:layout_marginEnd="16dp"/>
+                    android:textSize="11sp"
+                    android:textColor="#9A8F79"
+                    android:layout_marginEnd="14dp"/>
 
                 <View
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@drawable/bg_sales_fill_best"
+                    android:layout_width="9dp"
+                    android:layout_height="9dp"
+                    android:background="#0F6E56"
                     android:layout_marginEnd="5dp"/>
 
                 <TextView
@@ -176,112 +209,107 @@
                     android:layout_height="wrap_content"
                     android:text="Best day"
                     android:id="@+id/tvLegendBest"
-                    android:textSize="12sp"
-                    android:textColor="#6B7280"/>
+                    android:textSize="11sp"
+                    android:textColor="#9A8F79"/>
             </LinearLayout>
 
-            <!-- Bar chart -->
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/barChart"
+            <!-- Bar chart — cream inset panel -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginBottom="18dp"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_ov_payment_list"
+                android:padding="10dp"
+                android:layout_marginBottom="16dp">
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/barChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"/>
+            </LinearLayout>
 
             <!-- Metric cards -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="18dp">
+                android:baselineAligned="false"
+                android:layout_marginBottom="16dp">
 
-                <androidx.cardview.widget.CardView
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#F1EEE9">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_ov_pay_icon"
+                    android:backgroundTint="#F3ECDD"
+                    android:padding="12dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvBestLabel"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="12dp">
+                        android:text="Best day"
+                        android:textColor="#9A8F79"
+                        android:textSize="9.5sp"/>
 
-                        <TextView
-                            android:id="@+id/tvBestLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Best day"
-                            android:textSize="12sp"
-                            android:textColor="#6B7280"
-                            android:layout_marginBottom="4dp"/>
+                    <TextView
+                        android:id="@+id/tvBestValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="—"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#8A6526"/>
 
-                        <TextView
-                            android:id="@+id/tvBestValue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#14161A"/>
+                    <TextView
+                        android:id="@+id/tvBestSub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79"
+                        android:layout_marginTop="1dp"/>
+                </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/tvBestSub"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="12sp"
-                            android:textColor="#9AA0A8"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#F1EEE9">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_ov_pay_icon"
+                    android:backgroundTint="#DDEEEE"
+                    android:padding="12dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvAvgLabel"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="12dp">
+                        android:text="Avg / day"
+                        android:textColor="#9A8F79"
+                        android:textSize="9.5sp"/>
 
-                        <TextView
-                            android:id="@+id/tvAvgLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Avg / day"
-                            android:textSize="12sp"
-                            android:textColor="#6B7280"
-                            android:layout_marginBottom="4dp"/>
+                    <TextView
+                        android:id="@+id/tvAvgValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="—"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#085041"/>
 
-                        <TextView
-                            android:id="@+id/tvAvgValue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#14161A"/>
-
-                        <TextView
-                            android:id="@+id/tvAvgSub"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="12sp"
-                            android:textColor="#9AA0A8"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:id="@+id/tvAvgSub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79"
+                        android:layout_marginTop="1dp"/>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Breakdown list -->
@@ -290,8 +318,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Daily breakdown"
-                android:textSize="13sp"
-                android:textColor="#6B7280"
+                android:textSize="11.5sp"
+                android:textColor="#9A8F79"
                 android:layout_marginBottom="2dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -302,14 +330,6 @@
 
         </LinearLayout>
         </androidx.core.widget.NestedScrollView>
-
-        <!-- Soft top-edge fade: content dissolves into the card top while
-             scrolling (no hard line). Sits over the scroll, not touchable. -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_gravity="top"
-            android:background="@drawable/bg_scroll_top_fade"/>
 
         </FrameLayout>
     </androidx.cardview.widget.CardView>

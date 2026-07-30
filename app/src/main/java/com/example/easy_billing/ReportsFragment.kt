@@ -44,8 +44,8 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
 
     private enum class SalesView { DAILY, MONTHLY }
 
-    private val blue = Color.parseColor("#378ADD")
-    private val teal = Color.parseColor("#1D9E75")
+    private val blue = Color.parseColor("#B8895A")
+    private val teal = Color.parseColor("#0F6E56")
 
     // Views
     private lateinit var tvPeriodChip: TextView
@@ -102,7 +102,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
         rvSales.adapter = adapter
 
         segContainer.background = GradientDrawable().apply {
-            cornerRadius = dp(12f); setColor(Color.parseColor("#F1EEE9"))
+            cornerRadius = dp(12f); setColor(Color.parseColor("#F3ECDD"))
         }
         segDaily.setOnClickListener { switchTo(SalesView.DAILY) }
         segMonthly.setOnClickListener { switchTo(SalesView.MONTHLY) }
@@ -143,8 +143,8 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
         val daily = currentView == SalesView.DAILY
         segDaily.background   = if (daily) pill() else null
         segMonthly.background = if (!daily) pill() else null
-        segDaily.setTextColor(Color.parseColor(if (daily) "#14161A" else "#6B7280"))
-        segMonthly.setTextColor(Color.parseColor(if (!daily) "#14161A" else "#6B7280"))
+        segDaily.setTextColor(Color.parseColor(if (daily) "#1A1A18" else "#9A8F79"))
+        segMonthly.setTextColor(Color.parseColor(if (!daily) "#1A1A18" else "#9A8F79"))
     }
 
     private fun pill() = GradientDrawable().apply { cornerRadius = dp(9f); setColor(Color.WHITE) }
@@ -297,9 +297,9 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
             val up  = pct >= 0
             tvDelta.visibility = View.VISIBLE
             tvDelta.text = (if (up) "↑ " else "↓ ") + "${abs(pct)}% $deltaText"
-            tvDelta.setTextColor(Color.parseColor(if (up) "#1A7F37" else "#B42318"))
+            tvDelta.setTextColor(Color.parseColor(if (up) "#085041" else "#791F1F"))
             tvDelta.background = GradientDrawable().apply {
-                cornerRadius = dp(8f); setColor(Color.parseColor(if (up) "#E6F4EA" else "#FEECEC"))
+                cornerRadius = dp(8f); setColor(Color.parseColor(if (up) "#DDEEEE" else "#FBEDED"))
             }
         } else {
             tvDelta.visibility = View.GONE
@@ -364,7 +364,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
                 setDrawGridLines(false)
                 setDrawAxisLine(false)
                 granularity = 1f
-                textColor = Color.parseColor("#9AA0A8")
+                textColor = Color.parseColor("#9A8F79")
                 textSize = 11f
                 yOffset = 6f
             }

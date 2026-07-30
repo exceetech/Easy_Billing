@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Profile — champagne redesign, matching Bill Details / Inventory /
+    Reduce Stock: gold accent-bar section labels, white bordered cards
+    (bg_inv_value_card), serif GSTIN figure in an inset box, gold
+    gradient avatar tile, teal/gold status chips, and the app-wide rose
+    ghost "destructive" button style for Sign out.
+
+    All ids are unchanged from the previous version — ProfileFragment.kt
+    binds them exactly the same way.
+-->
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="#F3ECDD">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -24,20 +34,41 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/profile"
-                android:textColor="#1A1A18"
-                android:textSize="21sp"
-                android:textStyle="bold"
-                android:accessibilityHeading="true"/>
+                android:text="ACCOUNT"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="14dp"
-                android:text="@string/profile_subtitle"
-                android:textColor="#6E6A60"
-                android:textSize="12sp"/>
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Store"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="profile"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
 
             <!-- =================== HERO CARD =================== -->
             <LinearLayout
@@ -45,18 +76,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_imp_card"
-                android:padding="16dp">
+                android:background="@drawable/bg_inv_value_card"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
 
                 <TextView
                     android:id="@+id/tvAvatar"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:gravity="center"
-                    android:background="@drawable/bg_imp_block_blue"
+                    android:background="@drawable/bg_profile_avatar_ring"
                     android:text="ST"
-                    android:textColor="#FFFFFF"
-                    android:textSize="21sp"
+                    android:textColor="#8A6526"
+                    android:textSize="19sp"
+                    android:fontFamily="serif"
                     android:textStyle="bold"/>
 
                 <LinearLayout
@@ -72,8 +105,8 @@
                         android:layout_height="wrap_content"
                         android:text="—"
                         android:textColor="#1A1A18"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        android:textSize="17sp"
+                        android:fontFamily="@font/googlesans_bold"
                         android:singleLine="true"
                         android:ellipsize="end"/>
 
@@ -81,10 +114,10 @@
                         android:id="@+id/tvOwnerLine"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="1dp"
                         android:text="Owner"
-                        android:textColor="#6E6A60"
-                        android:textSize="12sp"
+                        android:textColor="#9A8F79"
+                        android:textSize="11.5sp"
                         android:singleLine="true"
                         android:ellipsize="end"/>
 
@@ -101,14 +134,15 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:background="@drawable/bg_imp_badge"
-                            android:backgroundTint="#EAF3DE"
+                            android:backgroundTint="#DDEEEE"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="3dp">
+                            android:paddingVertical="4dp">
                             <ImageView android:layout_width="12dp" android:layout_height="12dp"
-                                android:layout_marginEnd="4dp" android:src="@drawable/ic_check_circle"
-                                app:tint="#27500A" android:contentDescription="@null"/>
+                                android:layout_marginEnd="4dp" android:src="@drawable/ic_lucide_badge_check"
+                                app:tint="#085041" android:contentDescription="@null"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="GST registered" android:textSize="10sp" android:textStyle="bold" android:textColor="#27500A"/>
+                                android:text="GST registered" android:textSize="9.5sp"
+                                android:fontFamily="@font/googlesans_semibold" android:textColor="#085041"/>
                         </LinearLayout>
 
                         <LinearLayout
@@ -119,14 +153,15 @@
                             android:gravity="center_vertical"
                             android:layout_marginStart="6dp"
                             android:background="@drawable/bg_imp_badge"
-                            android:backgroundTint="#E6F1FB"
+                            android:backgroundTint="#FAEEDA"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="3dp">
-                            <ImageView android:layout_width="12dp" android:layout_height="12dp"
+                            android:paddingVertical="4dp">
+                            <ImageView android:layout_width="11dp" android:layout_height="11dp"
                                 android:layout_marginEnd="4dp" android:src="@drawable/ic_phone"
-                                app:tint="#0C447C" android:contentDescription="@null"/>
+                                app:tint="#8A6526" android:contentDescription="@null"/>
                             <TextView android:id="@+id/tvPhoneChip" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="—" android:textSize="10sp" android:textStyle="bold" android:textColor="#0C447C"/>
+                                android:text="—" android:textSize="9.5sp"
+                                android:fontFamily="@font/googlesans_semibold" android:textColor="#8A6526"/>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -138,30 +173,40 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="18dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="4dp">
-                <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                    android:background="@drawable/bg_imp_badge" android:backgroundTint="#E6F1FB"
-                    android:padding="5dp" android:src="@drawable/ic_store" app:tint="#185FA5"
-                    android:contentDescription="@null"/>
+                android:layout_marginBottom="8dp">
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="14dp"
+                    android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" android:text="STORE INFORMATION"
-                    android:textSize="11sp" android:letterSpacing="0.05" android:textColor="#9A968C"/>
+                    android:layout_marginStart="9dp" android:text="STORE INFORMATION"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
             </LinearLayout>
 
+            <!-- Option F: alternating cream/white tint rows, no dividers —
+                 each row's own background carries the zebra stripe since
+                 <include> doesn't forward android:background from here. -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_imp_card"
-                android:paddingHorizontal="14dp"
-                android:divider="@drawable/divider_hairline"
-                android:showDividers="middle">
-                <include android:id="@+id/rowStoreName" layout="@layout/item_profile_row"/>
-                <include android:id="@+id/rowOwner" layout="@layout/item_profile_row"/>
-                <include android:id="@+id/rowPhone" layout="@layout/item_profile_row"/>
-                <include android:id="@+id/rowAddress" layout="@layout/item_profile_row"/>
+                android:background="@drawable/bg_inv_value_card"
+                android:clipToOutline="true"
+                android:clipChildren="true"
+                android:layout_marginBottom="20dp">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FBF7EC">
+                    <include android:id="@+id/rowStoreName" layout="@layout/item_profile_row"/>
+                </FrameLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF">
+                    <include android:id="@+id/rowOwner" layout="@layout/item_profile_row"/>
+                </FrameLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FBF7EC">
+                    <include android:id="@+id/rowPhone" layout="@layout/item_profile_row"/>
+                </FrameLayout>
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF">
+                    <include android:id="@+id/rowAddress" layout="@layout/item_profile_row"/>
+                </FrameLayout>
             </LinearLayout>
 
             <!-- =================== GST PROFILE =================== -->
@@ -170,97 +215,125 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="18dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="4dp">
-                <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                    android:background="@drawable/bg_imp_badge" android:backgroundTint="#EAF3DE"
-                    android:padding="5dp" android:src="@drawable/ic_receipt_tax" app:tint="#0F6E56"
-                    android:contentDescription="@null"/>
+                android:layout_marginBottom="8dp">
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="14dp"
+                    android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" android:text="GST PROFILE"
-                    android:textSize="11sp" android:letterSpacing="0.05" android:textColor="#9A968C"/>
+                    android:layout_marginStart="9dp" android:text="GST PROFILE"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_imp_card"
-                android:padding="14dp">
+                android:background="@drawable/bg_inv_value_card"
+                android:clipToOutline="true"
+                android:clipChildren="true"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="20dp">
 
                 <!-- GSTIN inset box -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="14dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_add_field"
+                    android:background="@drawable/bg_gstin_box"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="11dp">
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="GSTIN" android:textSize="10sp" android:letterSpacing="0.05" android:textColor="#9A968C"/>
+                            android:text="GSTIN" android:textSize="9.5sp" android:letterSpacing="0.05" android:textColor="#9A8F79"/>
                         <TextView android:id="@+id/tvGstinValue" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="2dp" android:text="—"
-                            android:textSize="15sp" android:textStyle="bold" android:textColor="#1A1A18" android:letterSpacing="0.04"/>
+                            android:textSize="15sp" android:fontFamily="serif" android:textColor="#1A1A18" android:letterSpacing="0.04"/>
                     </LinearLayout>
-                    <ImageButton android:id="@+id/btnCopyGstin"
-                        android:layout_width="34dp" android:layout_height="34dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_copy" android:scaleType="centerInside"
-                        app:tint="#185FA5" android:contentDescription="Copy GSTIN"/>
+                    <FrameLayout
+                        android:id="@+id/btnCopyGstin"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_credit_tile_teal"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <ImageView
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_copy"
+                            app:tint="#085041"
+                            android:contentDescription="Copy GSTIN"/>
+                    </FrameLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginTop="4dp"
-                    android:paddingHorizontal="2dp"
-                    android:divider="@drawable/divider_hairline"
-                    android:showDividers="middle">
+                    android:layout_marginTop="10dp">
 
-                    <include android:id="@+id/rowLegalName" layout="@layout/item_profile_row"/>
-                    <include android:id="@+id/rowTradeName" layout="@layout/item_profile_row"/>
+                    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FBF7EC">
+                        <include android:id="@+id/rowLegalName" layout="@layout/item_profile_row"/>
+                    </FrameLayout>
+                    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF">
+                        <include android:id="@+id/rowTradeName" layout="@layout/item_profile_row"/>
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
+                        android:background="#FBF7EC"
+                        android:paddingHorizontal="14dp"
                         android:paddingVertical="11dp">
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="Registration" android:textColor="#6E6A60" android:textSize="13sp"/>
+                            android:text="Registration" android:textColor="#9A8F79" android:textSize="12.5sp"/>
                         <TextView android:id="@+id/tvRegTypeBadge"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="—" android:textSize="12sp" android:textStyle="bold" android:textColor="#0C447C"
-                            android:background="@drawable/bg_imp_badge" android:backgroundTint="#E6F1FB"
-                            android:paddingHorizontal="9dp" android:paddingVertical="3dp"/>
+                            android:text="—" android:textSize="11sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#085041"
+                            android:background="@drawable/bg_imp_badge" android:backgroundTint="#DDEEEE"
+                            android:paddingHorizontal="9dp" android:paddingVertical="4dp"/>
                     </LinearLayout>
 
-                    <include android:id="@+id/rowScheme" layout="@layout/item_profile_row"/>
-                    <include android:id="@+id/rowState" layout="@layout/item_profile_row"/>
+                    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF">
+                        <include android:id="@+id/rowScheme" layout="@layout/item_profile_row"/>
+                    </FrameLayout>
+                    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FBF7EC">
+                        <include android:id="@+id/rowState" layout="@layout/item_profile_row"/>
+                    </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- =================== SIGN OUT =================== -->
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignOut"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
-                android:orientation="horizontal"
+                android:text="Sign out"
+                android:textColor="#9A2E2E"
+                android:textAllCaps="false"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
                 android:gravity="center"
-                android:layout_marginTop="18dp"
-                android:background="@drawable/bg_imp_filter"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                    android:layout_marginEnd="7dp" android:src="@drawable/ic_logout" app:tint="#A32D2D"
-                    android:contentDescription="@null"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Sign out" android:textSize="14sp" android:textStyle="bold" android:textColor="#A32D2D"/>
-            </LinearLayout>
+                android:includeFontPadding="false"
+                android:background="@drawable/bg_inv_action_close"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
+                app:icon="@drawable/ic_logout"
+                app:iconTint="#B91C1C"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#F6D8D4"/>
 
         </LinearLayout>
     </ScrollView>

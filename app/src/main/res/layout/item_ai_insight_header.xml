@@ -21,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
         android:text="NEEDS ATTENTION"
-        android:textColor="#9A968C"
+        android:textColor="#9A8F79"
         android:textSize="11sp"
+        android:fontFamily="@font/googlesans_semibold"
         android:letterSpacing="0.05" />
 </LinearLayout>

@@ -613,7 +613,12 @@ class InvoiceActivity : AppCompatActivity() {
 
         tilBusinessName.visibility  = if (isB2B) View.VISIBLE else View.GONE
         tilCustomerGst.visibility   = if (isB2B) View.VISIBLE else View.GONE
-        tilCustomerState.visibility = if (isB2B) View.VISIBLE else View.GONE
+        // State stays available on B2C as well. Without it a B2C bill is
+        // stamped with the shop's own state (see finalStateCode in saveBill),
+        // so a genuine inter-state sale is filed as local — it lands in B2CS
+        // and can never reach GSTR-1 Table 5 (B2CL). Optional on B2C, but it
+        // has to be *possible* to enter.
+        tilCustomerState.visibility = View.VISIBLE
 
         tvCustomerRequirement.text = if (isB2B) "Required" else "Optional"
         tvCustomerRequirement.setBackgroundResource(
@@ -626,7 +631,8 @@ class InvoiceActivity : AppCompatActivity() {
         tvInvoiceTypeHint.text = if (isB2B)
             "B2B — Customer Name, Business Name, Phone, GST and State are mandatory."
         else
-            "B2C — quick sale (customer details optional)"
+            "B2C — quick sale. Add the state for out-of-state customers, " +
+            "otherwise the sale is filed as local."
 
         // Pop the active chip so the selection feels tactile.
         val activeChip = if (isB2B) chipB2B else chipB2C
@@ -925,6 +931,22 @@ class InvoiceActivity : AppCompatActivity() {
     }
 
     /**
+     * B2CL threshold applicable to a bill written right now.
+     *
+     * Notification 12/2024-Central Tax (10 Jul 2024) cut the inter-state B2C
+     * invoice-reporting limit from Rs 2.5 lakh to Rs 1 lakh with effect from
+     * 1 Aug 2024. Mirrors b2cl_threshold_for() in the server's gst_routes.py —
+     * date-aware rather than hardcoded so a back-dated bill still gets the
+     * limit that actually applied to it.
+     */
+    private fun b2clThresholdNow(): Double {
+        val cutover = java.util.Calendar.getInstance().apply {
+            clear(); set(2024, java.util.Calendar.AUGUST, 1)
+        }.timeInMillis
+        return if (appNow() >= cutover) 100_000.0 else 250_000.0
+    }
+
+    /**
      * Pick the buyer state in this priority:
      *   1. Customer-state text input (B2B field).
      *   2. First two characters of the customer's GSTIN.
@@ -1031,6 +1053,30 @@ class InvoiceActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
             return
+        }
+
+        // A B2C bill above the B2CL threshold has to be reported invoice-wise
+        // in GSTR-1 Table 5, which needs the buyer identified. Left blank, the
+        // state falls back to the shop's own (see finalStateCode below), so a
+        // genuine inter-state sale is filed as local and can never reach B2CL.
+        // Block here, while the bill is still open and editable.
+        if (invoiceType != "B2B" && (lastBreakdown?.grandTotal ?: 0.0) > b2clThresholdNow()) {
+            val missingName  = etCustomerName.text?.toString()?.trim().isNullOrBlank()
+            val missingState = resolveBuyerStateCode().orEmpty().isBlank()
+            if (missingName || missingState) {
+                val needed = when {
+                    missingName && missingState -> "the customer's name and state"
+                    missingName                 -> "the customer's name"
+                    else                        -> "the customer's state"
+                }
+                Toast.makeText(
+                    this,
+                    "Bills above ₹${"%,.0f".format(b2clThresholdNow())} need $needed for GST filing.",
+                    Toast.LENGTH_LONG
+                ).show()
+                if (missingName) etCustomerName.requestFocus() else etCustomerState.requestFocus()
+                return
+            }
         }
 
         isBillSaved = true
@@ -1528,10 +1574,14 @@ class InvoiceActivity : AppCompatActivity() {
                 // Type already matches the selection; B2C rows carry only a
                 // name, B2B rows carry the full details.
                 if (c.name.isNotBlank()) etCustomerName.setText(c.name)
+                // State is filled for B2C too. The customer master already
+                // stores it for every type, and a B2C bill without it gets
+                // stamped with the shop's own state — filing a genuine
+                // inter-state sale as local (it can never reach B2CL).
+                c.state?.takeIf { it.isNotBlank() }?.let { etCustomerState.setText(it) }
                 if (type.equals("B2B", true)) {
                     c.businessName?.takeIf { it.isNotBlank() }?.let { etBusinessName.setText(it) }
                     c.gstin?.takeIf { it.isNotBlank() }?.let { etCustomerGst.setText(it) }
-                    c.state?.takeIf { it.isNotBlank() }?.let { etCustomerState.setText(it) }
                 }
             }
         }

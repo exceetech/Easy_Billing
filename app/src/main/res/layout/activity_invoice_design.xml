@@ -45,30 +45,52 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/invoice_design"
-                        android:textColor="#1A1A18"
-                        android:textSize="21sp"
-                        android:textStyle="bold"
-                        android:accessibilityHeading="true"/>
-                    <TextView
+                        android:text="PRINT LAYOUT"
+                        android:textColor="#B8895A"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Receipt footer &amp; printed fields"
-                        android:textColor="#6E6A60"
-                        android:textSize="12sp"/>
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Invoice"
+                            android:textColor="#1A1A18"
+                            android:textSize="21sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"
+                            android:accessibilityHeading="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="design"
+                            android:textColor="#0F6E56"
+                            android:textSize="21sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Edit pill (toggles edit mode) -->
+                <!-- Edit pill (toggles edit mode) — gold gradient, same
+                     as the Unlock pill in activity_data_security.xml. -->
                 <LinearLayout
                     android:id="@+id/btnEdit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_edit_pill"
+                    android:background="@drawable/bg_inv_seg_selected"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="7dp"
+                    android:paddingVertical="8dp"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -87,20 +109,35 @@
                         android:text="@string/edit"
                         android:textColor="#1A1A18"
                         android:textSize="13sp"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
                         android:includeFontPadding="false"/>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== RECEIPT FOOTER ===================== -->
-            <TextView style="@style/AddSectionLabel" android:text="RECEIPT FOOTER"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="RECEIPT FOOTER"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
-            <LinearLayout style="@style/AddCard">
+            <!-- cardFooter/cardShowOnReceipt: faded (alpha 0.55) until
+                 Edit is tapped, same locked/unlocked feel as
+                 activity_data_security.xml's protected rows. -->
+            <LinearLayout android:id="@+id/cardFooter" style="@style/AddCard">
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
                     <TextView style="@style/SiFieldLabel" android:text="@string/footer_message"/>
                     <LinearLayout style="@style/SiFieldBox">
                         <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_si_message" app:tint="#185FA5"/>
+                            android:src="@drawable/ic_si_message" app:tint="#0F6E56"/>
                         <EditText
                             android:id="@+id/etFooter"
                             style="@style/SiEdit"
@@ -113,80 +150,113 @@
                         android:layout_marginTop="6dp"
                         android:layout_marginStart="2dp"
                         android:text="Printed at the bottom of every receipt"
-                        android:textColor="#9A968C"
+                        android:textColor="#9A8F79"
                         android:textSize="11sp"/>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== SHOW ON RECEIPT ===================== -->
-            <TextView style="@style/AddSectionLabel" android:text="SHOW ON RECEIPT"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="SHOW ON RECEIPT"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/cardShowOnReceipt"
                 style="@style/SettingsCard">
 
                 <!-- Store logo -->
                 <LinearLayout android:id="@+id/rowLogo" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
-                        android:src="@drawable/ic_si_image" app:tint="#534AB7"/>
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EFE5F7"
+                        android:src="@drawable/ic_si_image" app:tint="#7A4FA3"/>
                     <LinearLayout style="@style/IdToggleText">
                         <TextView style="@style/IdToggleTitle" android:text="@string/show_store_logo"/>
                     </LinearLayout>
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowLogo" style="@style/SettingsSwitch"/>
+                        android:id="@+id/switchShowLogo" style="@style/EpSwitch"/>
                 </LinearLayout>
 
                 <!-- GSTIN -->
                 <LinearLayout android:id="@+id/rowGstin" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FCEBEB"
-                        android:src="@drawable/ic_si_tax" app:tint="#A32D2D"/>
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
+                        android:src="@drawable/ic_si_tax" app:tint="#791F1F"/>
                     <LinearLayout style="@style/IdToggleText">
                         <TextView style="@style/IdToggleTitle" android:text="@string/show_gstin"/>
                     </LinearLayout>
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowGstin" style="@style/SettingsSwitch"/>
+                        android:id="@+id/switchShowGstin" style="@style/EpSwitch"/>
                 </LinearLayout>
 
                 <!-- Phone number -->
                 <LinearLayout android:id="@+id/rowPhone" style="@style/IdToggleRow">
                     <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                        android:src="@drawable/ic_si_phone" app:tint="#BA7517"/>
+                        android:src="@drawable/ic_si_phone" app:tint="#8A6526"/>
                     <LinearLayout style="@style/IdToggleText">
                         <TextView style="@style/IdToggleTitle" android:text="@string/show_phone_number"/>
                     </LinearLayout>
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowPhone" style="@style/SettingsSwitch"/>
+                        android:id="@+id/switchShowPhone" style="@style/EpSwitch"/>
                 </LinearLayout>
 
                 <!-- Discount section -->
                 <LinearLayout android:id="@+id/rowDiscount" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
                         android:src="@drawable/ic_si_percent" app:tint="#0F6E56"/>
                     <LinearLayout style="@style/IdToggleText">
                         <TextView style="@style/IdToggleTitle" android:text="@string/show_discount_section"/>
                     </LinearLayout>
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowDiscount" style="@style/SettingsSwitch"/>
+                        android:id="@+id/switchShowDiscount" style="@style/EpSwitch"/>
                 </LinearLayout>
 
                 <!-- Round off total -->
                 <LinearLayout android:id="@+id/rowRoundOff" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                        android:src="@drawable/ic_si_calc" app:tint="#185FA5"/>
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#F3ECDD"
+                        android:src="@drawable/ic_si_calc" app:tint="#B8895A"/>
                     <LinearLayout style="@style/IdToggleText">
                         <TextView style="@style/IdToggleTitle" android:text="@string/enable_round_off"/>
                         <TextView style="@style/IdToggleSub" android:text="Round the grand total to nearest rupee"/>
                     </LinearLayout>
                     <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchRoundOff" style="@style/SettingsSwitch"/>
+                        android:id="@+id/switchRoundOff" style="@style/EpSwitch"/>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Save -->
+            <!-- Save — solid teal CTA matching the app's confirm buttons
+                 (bg_login_cta_green), instead of SiSavePill's navy. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveDesign"
-                style="@style/SiSavePill"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
                 android:text="@string/save_design_settings"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:background="@drawable/bg_login_cta_green"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
                 app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#33FFFFFF"
                 android:visibility="gone"/>
 
         </LinearLayout>

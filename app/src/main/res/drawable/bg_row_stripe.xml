@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Inset rounded stripe for section rows. Rounded + inset so it sits cleanly
+     inside the card's 18dp corners instead of butting against the edge.
+     Colour is applied from the adapter via backgroundTintList. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#1D6E6E"/>
-    <corners android:radius="2dp"/>
+    <solid android:color="#0F6E56" />
+    <corners android:radius="2dp" />
 </shape>

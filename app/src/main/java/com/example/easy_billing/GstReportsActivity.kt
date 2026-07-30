@@ -1,6 +1,8 @@
 package com.example.easy_billing
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -27,14 +29,11 @@ import com.example.easy_billing.gstr2.Gstr2SheetTabAdapter
 import com.example.easy_billing.gstr2.Gstr2Validator
 import com.example.easy_billing.gstr2.Gstr2DraftsAdapter
 import com.example.easy_billing.viewmodel.Gstr2ViewModel
-import com.google.android.material.button.MaterialButtonToggleGroup
 
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.card.MaterialCardView
+import android.widget.ImageView
 import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -58,24 +57,42 @@ class GstReportsActivity : AppCompatActivity() {
     private val viewModel1: Gstr1ViewModel by viewModels()
     private val viewModel2: Gstr2ViewModel by viewModels()
     private var isGstr1 = true
-    private lateinit var toggleReportType: MaterialButtonToggleGroup
+    private lateinit var selectorReturnType: View
+    private lateinit var tvSelectorValue: TextView
     private lateinit var tabAdapter2: Gstr2SheetTabAdapter
 
 
     // ── Header selectors ──────────────────────────────────────────────────────
-    private lateinit var spinnerFY: Spinner
-    private lateinit var spinnerPeriod: Spinner
-    private lateinit var chipGroupReturnType: ChipGroup
-    private lateinit var chipMonthly: Chip
-    private lateinit var chipQuarterly: Chip
+    private lateinit var btnFyPrev: View
+    private lateinit var btnFyNext: View
+    private lateinit var tvFyValue: TextView
+    private lateinit var tvFyRange: TextView
+    private lateinit var llPeriodStrip: android.widget.LinearLayout
+    private lateinit var segMonthly: TextView
+    private lateinit var segQuarterly: TextView
     private lateinit var btnGenerate: MaterialButton
     private lateinit var progressGenerate: CircularProgressIndicator
+
+    private var fyIndex = 0
+    private var periodIndex = 0
+    private var isMonthly = true
+
+    // Per-month pill colours (lightFill, stroke, ink) — cycled by position.
+    private val periodPalette = listOf(
+        Triple("#EEEDFE", "#7F77DD", "#3C3489"), // purple
+        Triple("#E1F5EE", "#1D9E75", "#0F6E56"), // teal
+        Triple("#FAECE7", "#D85A30", "#993C1D"), // coral
+        Triple("#FBEAF0", "#D4537E", "#72243E"), // pink
+        Triple("#FAEEDA", "#BA7517", "#854F0B"), // amber
+        Triple("#E6F1FB", "#378ADD", "#0C447C")  // blue
+    )
 
     // ── GSTIN display ─────────────────────────────────────────────────────────
     private lateinit var tvGstin: TextView
 
     // ── Summary card ──────────────────────────────────────────────────────────
     private lateinit var cardSummary: View
+    private lateinit var tvSummaryHeroLabel: TextView
     private lateinit var tvSummaryInvoices: TextView
     private lateinit var tvSummaryTaxable: TextView
     private lateinit var tvSummaryTax: TextView
@@ -85,16 +102,18 @@ class GstReportsActivity : AppCompatActivity() {
     private lateinit var llValidationBanner: LinearLayout
     private lateinit var tvValidationStatus: TextView
 
-    // ── Sheet tabs ────────────────────────────────────────────────────────────
-    private lateinit var tabLayout: TabLayout
+    // ── Section chips + pages ─────────────────────────────────────────────────
+    private lateinit var scrollSections: View
+    private lateinit var chipGroupSections: android.widget.LinearLayout
+    private lateinit var cardSection: View
     private lateinit var viewPager: ViewPager2
     private lateinit var tabAdapter: Gstr1SheetTabAdapter
 
     // ── Action buttons ────────────────────────────────────────────────────────
-    private lateinit var btnValidate: MaterialButton
-    private lateinit var btnSaveDraft: MaterialButton
-    private lateinit var btnExportCsv: MaterialButton
-    private lateinit var btnExportExcel: MaterialButton
+    private lateinit var btnValidate: View
+    private lateinit var btnSaveDraft: View
+    private lateinit var btnExportCsv: View
+    private lateinit var btnExportExcel: View
 
     // ── Drafts ────────────────────────────────────────────────────────────────
     private lateinit var llDraftsSection: LinearLayout
@@ -108,57 +127,149 @@ class GstReportsActivity : AppCompatActivity() {
 
         bindViews()
         setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.title = "GSTR-1 Report"
+        supportActionBar?.title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupSelectors()
 
-        toggleReportType.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                isGstr1 = checkedId == R.id.btnGstr1
-                supportActionBar?.title = if (isGstr1) "GSTR-1 Report" else "GSTR-2 Report"
-                setupTabs() // recreate tabs
-                refreshPeriodSpinner()
-                // Reset UI
-                cardSummary.visibility = View.GONE
-                llValidationBanner.visibility = View.GONE
-                tabLayout.visibility = View.GONE
-                viewPager.visibility = View.GONE
-                llDraftsSection.visibility = View.GONE
-                setActionButtonsEnabled(false)
-            }
-        }
+        selectorReturnType.setOnClickListener { showReturnTypeDropdown() }
+        tvSelectorValue.text = "GSTR-1 · Sales"
 
         setupTabs()
         setupButtons()
         observeViewModel()
+
+        // Keep the section chips in sync when pages change (registered once;
+        // chip children map 1:1 with pages, so this survives chip rebuilds).
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                if (position < chipGroupSections.childCount) selectSection(position)
+            }
+        })
     }
 
     override fun onSupportNavigateUp(): Boolean { finish(); return true }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Report-type card selector
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun dpPx(v: Int) = (v * resources.displayMetrics.density).toInt()
+
+    /** Return-type picker — styled dropdown matching the Invoice field popups. */
+    private fun showReturnTypeDropdown() {
+        val box = selectorReturnType
+        val options = listOf("GSTR-1 · Sales", "GSTR-2 · Purchases")
+        val currentIdx = if (isGstr1) 0 else 1
+
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dpPx(5), dpPx(5), dpPx(5), dpPx(5))
+        }
+
+        val popup = android.widget.PopupWindow(
+            container, box.width.coerceAtLeast(dpPx(210)),
+            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, true
+        ).apply {
+            elevation = dpPx(10).toFloat()
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        }
+
+        val font = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+        options.forEachIndexed { idx, opt ->
+            val isSel = idx == currentIdx
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dpPx(46)
+                )
+                setPadding(dpPx(12), 0, dpPx(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            row.addView(TextView(this).apply {
+                text = opt
+                textSize = 14f
+                typeface = font
+                setTextColor(Color.parseColor(if (isSel) "#0F6E56" else "#1A1A18"))
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
+            })
+            if (isSel) {
+                row.addView(ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(Color.parseColor("#0F6E56"))
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dpPx(16), dpPx(16))
+                })
+            }
+            row.setOnClickListener {
+                switchReport(idx == 0)
+                popup.dismiss()
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(box, 0, dpPx(6))
+    }
+
+    /** Switch the visible return and reset the screen. */
+    private fun switchReport(toGstr1: Boolean) {
+        isGstr1 = toGstr1
+        tvSelectorValue.text = if (isGstr1) "GSTR-1 · Sales" else "GSTR-2 · Purchases"
+
+        setupTabs() // recreate section chips + pages for the chosen return
+
+        // Reset FY stepper + period strip for the new return (current FY / month),
+        // keeping the Monthly/Quarterly choice in sync with the target ViewModel.
+        if (isGstr1) viewModel1.setReturnType(if (isMonthly) "Monthly" else "Quarterly")
+        else viewModel2.setReturnType(if (isMonthly) "Monthly" else "Quarterly")
+        fyIndex = defaultFyIndex()
+        renderFy()
+        periodIndex = defaultPeriodIndex()
+        buildPeriodStrip()
+
+        // Reset UI
+        cardSummary.visibility = View.GONE
+        llValidationBanner.visibility = View.GONE
+        scrollSections.visibility = View.GONE
+        cardSection.visibility = View.GONE
+        viewPager.visibility = View.GONE
+        llDraftsSection.visibility = View.GONE
+        setActionButtonsEnabled(false)
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     //  View binding
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun bindViews() {
-        
-        toggleReportType        = findViewById(R.id.toggleReportType)
 
-        spinnerFY               = findViewById(R.id.spinnerFY)
-        spinnerPeriod           = findViewById(R.id.spinnerPeriod)
-        chipGroupReturnType     = findViewById(R.id.chipGroupReturnType)
-        chipMonthly             = findViewById(R.id.chipMonthly)
-        chipQuarterly           = findViewById(R.id.chipQuarterly)
+        selectorReturnType      = findViewById(R.id.selectorReturnType)
+        tvSelectorValue         = findViewById(R.id.tvSelectorValue)
+
+        btnFyPrev               = findViewById(R.id.btnFyPrev)
+        btnFyNext               = findViewById(R.id.btnFyNext)
+        tvFyValue               = findViewById(R.id.tvFyValue)
+        tvFyRange               = findViewById(R.id.tvFyRange)
+        llPeriodStrip           = findViewById(R.id.llPeriodStrip)
+        segMonthly              = findViewById(R.id.segMonthly)
+        segQuarterly            = findViewById(R.id.segQuarterly)
         btnGenerate             = findViewById(R.id.btnGenerate)
         progressGenerate        = findViewById(R.id.progressGenerate)
         tvGstin                 = findViewById(R.id.tvGstin)
         cardSummary             = findViewById(R.id.cardSummary)
+        tvSummaryHeroLabel      = findViewById(R.id.tvSummaryHeroLabel)
         tvSummaryInvoices       = findViewById(R.id.tvSummaryInvoices)
         tvSummaryTaxable        = findViewById(R.id.tvSummaryTaxable)
         tvSummaryTax            = findViewById(R.id.tvSummaryTax)
         tvSummaryCreditNotes    = findViewById(R.id.tvSummaryCreditNotes)
         llValidationBanner      = findViewById(R.id.llValidationBanner)
         tvValidationStatus      = findViewById(R.id.tvValidationStatus)
-        tabLayout               = findViewById(R.id.tabLayout)
+        scrollSections          = findViewById(R.id.scrollSections)
+        chipGroupSections       = findViewById(R.id.chipGroupSections)
+        cardSection             = findViewById(R.id.cardSection)
         viewPager               = findViewById(R.id.viewPager)
         btnValidate             = findViewById(R.id.btnValidate)
         btnSaveDraft            = findViewById(R.id.btnSaveDraft)
@@ -173,68 +284,144 @@ class GstReportsActivity : AppCompatActivity() {
     // ─────────────────────────────────────────────────────────────────────────
 
 
+    private fun currentFys() = if (isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
+    private fun currentPeriods() = if (isGstr1) viewModel1.availablePeriods else viewModel2.availablePeriods
+
     private fun setupSelectors() {
-        toggleReportType.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                isGstr1 = checkedId == R.id.btnGstr1
-                supportActionBar?.title = if (isGstr1) "GSTR-1 Report" else "GSTR-2 Report"
-                setupTabs() // recreate tabs
-                refreshPeriodSpinner()
-                
-                // Re-bind FY spinner adapter
-                val fys = if(isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
-                val fyAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, fys)
-                fyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerFY.adapter = fyAdapter
-                spinnerFY.setSelection(0)
+        // FY stepper — list is newest-first, so ‹ steps to older, › to newer.
+        // Default to the current financial year.
+        fyIndex = defaultFyIndex()
+        renderFy()
+        btnFyPrev.setOnClickListener { if (fyIndex < currentFys().size - 1) { fyIndex++; renderFy() } }
+        btnFyNext.setOnClickListener { if (fyIndex > 0) { fyIndex--; renderFy() } }
 
-                // Reset UI
-                cardSummary.visibility = android.view.View.GONE
-                llValidationBanner.visibility = android.view.View.GONE
-                tabLayout.visibility = android.view.View.GONE
-                viewPager.visibility = android.view.View.GONE
-                llDraftsSection.visibility = android.view.View.GONE
-                setActionButtonsEnabled(false)
-            }
-        }
+        // Period strip — default to the current month / quarter.
+        periodIndex = defaultPeriodIndex()
+        buildPeriodStrip()
 
-        // FY spinner (initial)
-        val initialFys = if(isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
-        val fyAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, initialFys)
-        fyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerFY.adapter = fyAdapter
-        spinnerFY.setSelection(0)
-        spinnerFY.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p: android.widget.AdapterView<*>?, v: android.view.View?, pos: Int, id: Long) {
-                val fys = if(isGstr1) viewModel1.availableFYs else viewModel2.availableFYs
-                if (isGstr1) viewModel1.setFinancialYear(fys[pos]) else viewModel2.setFinancialYear(fys[pos])
-            }
-            override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
-        }
-
-        // Period spinner
-        refreshPeriodSpinner()
-
-        // Return type chips
-        chipGroupReturnType.setOnCheckedStateChangeListener { _, _ ->
-            val isMonthly = chipMonthly.isChecked
-            if (isGstr1) viewModel1.setReturnType(if (isMonthly) "Monthly" else "Quarterly") 
-            else viewModel2.setReturnType(if (isMonthly) "Monthly" else "Quarterly")
-            refreshPeriodSpinner()
-        }
+        // Monthly / Quarterly segmented toggle
+        paintReturnType()
+        segMonthly.setOnClickListener { setReturnMode(true) }
+        segQuarterly.setOnClickListener { setReturnMode(false) }
     }
 
-    private fun refreshPeriodSpinner() {
-        val periods = if(isGstr1) viewModel1.availablePeriods else viewModel2.availablePeriods
-        val adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, periods)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerPeriod.adapter = adapter
-        spinnerPeriod.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p: android.widget.AdapterView<*>?, v: android.view.View?, pos: Int, id: Long) {
-                val pds = if(isGstr1) viewModel1.availablePeriods else viewModel2.availablePeriods
-                if (isGstr1) viewModel1.setPeriod(pds[pos]) else viewModel2.setPeriod(pds[pos])
+    private fun setReturnMode(monthly: Boolean) {
+        if (monthly == isMonthly) return
+        isMonthly = monthly
+        paintReturnType()
+        if (isGstr1) viewModel1.setReturnType(if (monthly) "Monthly" else "Quarterly")
+        else viewModel2.setReturnType(if (monthly) "Monthly" else "Quarterly")
+        periodIndex = defaultPeriodIndex()
+        buildPeriodStrip()
+    }
+
+    /** Paint the Monthly / Quarterly segments — active is the dark pill. */
+    private fun paintReturnType() {
+        val active = if (isMonthly) segMonthly else segQuarterly
+        val idle = if (isMonthly) segQuarterly else segMonthly
+        active.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1A1A18"))
+        active.setTextColor(Color.parseColor("#FFFFFF"))
+        idle.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+        idle.setTextColor(Color.parseColor("#8A7F68"))
+    }
+
+    /** Index of the current financial year within the available list. */
+    private fun defaultFyIndex(): Int {
+        val cal = java.util.Calendar.getInstance()
+        val month = cal.get(java.util.Calendar.MONTH) + 1        // 1-based
+        val year = cal.get(java.util.Calendar.YEAR)
+        val fyStart = if (month >= 4) year else year - 1
+        val currentFy = "$fyStart-${(fyStart + 1).toString().takeLast(2)}"
+        return currentFys().indexOf(currentFy).coerceAtLeast(0)
+    }
+
+    /** Index of the current month (monthly) or current quarter (quarterly). */
+    private fun defaultPeriodIndex(): Int {
+        val cal = java.util.Calendar.getInstance()
+        val month = cal.get(java.util.Calendar.MONTH) + 1
+        val fiscalIdx = if (month >= 4) month - 4 else month + 8  // Apr = 0 … Mar = 11
+        val size = currentPeriods().size
+        if (size == 0) return 0
+        val idx = if (isMonthly) fiscalIdx else fiscalIdx / 3
+        return idx.coerceIn(0, size - 1)
+    }
+
+    /** Paint the FY value + date range and push the selection to the ViewModel. */
+    private fun renderFy() {
+        val fys = currentFys()
+        if (fys.isEmpty()) return
+        fyIndex = fyIndex.coerceIn(0, fys.size - 1)
+        val fy = fys[fyIndex]                       // raw "2025-26" for the ViewModel
+        tvFyValue.text = fy.replace("-", "–")       // en-dash for display only
+        val start = fy.substringBefore("-").toIntOrNull()
+        tvFyRange.text = if (start != null) "Apr $start – Mar ${start + 1}" else ""
+        if (isGstr1) viewModel1.setFinancialYear(fy) else viewModel2.setFinancialYear(fy)
+    }
+
+    /** Rebuild the month / quarter pill strip for the current return type. */
+    private fun buildPeriodStrip() {
+        llPeriodStrip.removeAllViews()
+        val periods = currentPeriods()
+        if (periods.isEmpty()) return
+        periodIndex = periodIndex.coerceIn(0, periods.size - 1)
+        val d = resources.displayMetrics.density
+        val font = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+        periods.forEachIndexed { index, label ->
+            val pill = TextView(this).apply {
+                text = label
+                textSize = 12f
+                includeFontPadding = false
+                typeface = font
+                setPadding((14 * d).toInt(), (7 * d).toInt(), (14 * d).toInt(), (7 * d).toInt())
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginEnd = (8 * d).toInt() }
+                setOnClickListener { selectPeriod(index) }
             }
-            override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
+            llPeriodStrip.addView(pill)
+        }
+        selectPeriod(periodIndex)
+    }
+
+    private fun selectPeriod(index: Int) {
+        periodIndex = index
+        // Outlined pills, one colour per month; the selected pill is filled with
+        // its own tint, the rest stay white with a coloured outline + text.
+        val d = resources.displayMetrics.density
+        for (i in 0 until llPeriodStrip.childCount) {
+            val pill = llPeriodStrip.getChildAt(i) as TextView
+            if (i == index) {
+                // Selected: its own colour (varies per month) — filled tint + outline.
+                val (fill, stroke, ink) = periodPalette[i % periodPalette.size]
+                pill.background = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                    cornerRadius = 8f * d
+                    setColor(Color.parseColor(fill))
+                    setStroke((1.5f * d).toInt(), Color.parseColor(stroke))
+                }
+                pill.setTextColor(Color.parseColor(ink))
+            } else {
+                // Idle: neutral white pill with a tan outline.
+                pill.background = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                    cornerRadius = 8f * d
+                    setColor(Color.parseColor("#FFFFFF"))
+                    setStroke((1.5f * d).toInt(), Color.parseColor("#E4DCC8"))
+                }
+                pill.setTextColor(Color.parseColor("#6E6A60"))
+            }
+        }
+        val periods = currentPeriods()
+        if (periods.isNotEmpty()) {
+            if (isGstr1) viewModel1.setPeriod(periods[index]) else viewModel2.setPeriod(periods[index])
+        }
+
+        // Bring the selected pill into view (default may sit mid-strip).
+        val selected = llPeriodStrip.getChildAt(index) ?: return
+        (llPeriodStrip.parent as? android.widget.HorizontalScrollView)?.post {
+            (llPeriodStrip.parent as? android.widget.HorizontalScrollView)
+                ?.smoothScrollTo((selected.left - 40).coerceAtLeast(0), 0)
         }
     }
 
@@ -248,15 +435,97 @@ class GstReportsActivity : AppCompatActivity() {
         if (isGstr1) {
             tabAdapter = Gstr1SheetTabAdapter(this)
             viewPager.adapter = tabAdapter
-            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-                tab.text = Gstr1SheetTabAdapter.TAB_LABELS[position]
-            }.attach()
+            buildSectionChips(Gstr1SheetTabAdapter.TAB_LABELS.toList())
         } else {
             tabAdapter2 = Gstr2SheetTabAdapter(this)
             viewPager.adapter = tabAdapter2
-            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-                tab.text = Gstr2SheetTabAdapter.TAB_LABELS[position]
-            }.attach()
+            buildSectionChips(Gstr2SheetTabAdapter.TAB_LABELS.toList())
+        }
+    }
+
+    /** Build the champagne section chips that drive the ViewPager. Selected chip
+     *  is the green pill with a gold count badge. Chip index == page index. */
+    private fun buildSectionChips(labels: List<String>) {
+        chipGroupSections.removeAllViews()
+        val d = resources.displayMetrics.density
+        val font = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
+        val counts = sectionCounts()
+
+        labels.forEachIndexed { index, label ->
+            val chip = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding((13 * d).toInt(), (6 * d).toInt(), (8 * d).toInt(), (6 * d).toInt())
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginEnd = (8 * d).toInt() }
+                isClickable = true
+                setOnClickListener { viewPager.setCurrentItem(index, false); selectSection(index) }
+            }
+            chip.addView(TextView(this).apply {
+                text = label
+                textSize = 12.5f
+                typeface = font
+                includeFontPadding = false
+            })
+            chip.addView(TextView(this).apply {
+                text = counts.getOrNull(index)?.toString() ?: "0"
+                textSize = 11f
+                typeface = font
+                includeFontPadding = false
+                gravity = android.view.Gravity.CENTER
+                minWidth = (22 * d).toInt()
+                setPadding((6 * d).toInt(), (1 * d).toInt(), (6 * d).toInt(), (1 * d).toInt())
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginStart = (7 * d).toInt() }
+            })
+            chipGroupSections.addView(chip)
+        }
+        selectSection(0)
+    }
+
+    /** Row count per section, in the same order as the tab labels. */
+    private fun sectionCounts(): List<Int> {
+        if (isGstr1) {
+            val r = viewModel1.report.value ?: return List(13) { 0 }
+            return listOf(
+                r.b2b.size, r.b2cl.size, r.b2cs.size, r.cdnr.size, r.cdnur.size,
+                r.hsnB2B.size, r.hsnB2C.size, r.docs.size,
+                r.eco.size, r.ecoB2B.size, r.ecoB2C.size, r.ecoUrp2B.size, r.ecoUrp2C.size
+            )
+        }
+        val r = viewModel2.report.value ?: return List(8) { 0 }
+        return listOf(
+            r.b2b.size, r.b2bur.size, r.imps.size, r.impg.size,
+            r.cdnr.size, r.cdnur.size, r.exemp.size, r.hsnsum.size
+        )
+    }
+
+    /** Paint the section chips — active is the green pill with a gold count badge. */
+    private fun selectSection(index: Int) {
+        val d = resources.displayMetrics.density
+        for (i in 0 until chipGroupSections.childCount) {
+            val chip = chipGroupSections.getChildAt(i) as android.widget.LinearLayout
+            val label = chip.getChildAt(0) as TextView
+            val badge = chip.getChildAt(1) as TextView
+            val selected = i == index
+
+            chip.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 9f * d
+                setColor(Color.parseColor(if (selected) "#0F6E56" else "#F1EFE8"))
+            }
+            label.setTextColor(Color.parseColor(if (selected) "#FFFFFF" else "#6E6A60"))
+
+            badge.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 8f * d
+                setColor(Color.parseColor(if (selected) "#E8B04B" else "#E4DCC8"))
+            }
+            badge.setTextColor(Color.parseColor(if (selected) "#1A1A18" else "#6E6A60"))
         }
     }
 
@@ -276,10 +545,10 @@ class GstReportsActivity : AppCompatActivity() {
 
 
     private fun setActionButtonsEnabled(enabled: Boolean) {
-        btnValidate.isEnabled = enabled
-        btnSaveDraft.isEnabled = enabled
-        btnExportCsv.isEnabled = enabled
-        btnExportExcel.isEnabled = enabled
+        for (v in listOf<View>(btnValidate, btnExportExcel, btnExportCsv, btnSaveDraft)) {
+            v.isEnabled = enabled
+            v.alpha = if (enabled) 1f else 0.45f
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -291,7 +560,7 @@ class GstReportsActivity : AppCompatActivity() {
         // GSTR-1
         lifecycleScope.launch {
             viewModel1.gstin.collectLatest { gstin ->
-                if (isGstr1) tvGstin.text = if (gstin.isNotBlank()) "GSTIN: $gstin" else "GST Profile not configured"
+                if (isGstr1) tvGstin.text = if (gstin.isNotBlank()) gstin else "Not configured"
             }
         }
         lifecycleScope.launch {
@@ -308,7 +577,7 @@ class GstReportsActivity : AppCompatActivity() {
         // GSTR-2
         lifecycleScope.launch {
             viewModel2.gstin.collectLatest { gstin ->
-                if (!isGstr1) tvGstin.text = if (gstin.isNotBlank()) "GSTIN: $gstin" else "GST Profile not configured"
+                if (!isGstr1) tvGstin.text = if (gstin.isNotBlank()) gstin else "Not configured"
             }
         }
         lifecycleScope.launch {
@@ -325,7 +594,7 @@ class GstReportsActivity : AppCompatActivity() {
     private fun handleLoading(loading: Boolean) {
         progressGenerate.visibility = if (loading) View.VISIBLE else View.GONE
         btnGenerate.isEnabled = !loading
-        btnGenerate.text = if (loading) "Generating…" else "Generate"
+        btnGenerate.text = if (loading) "Generating…" else "Generate report"
     }
 
 
@@ -334,15 +603,18 @@ class GstReportsActivity : AppCompatActivity() {
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun bindReport1(report: Gstr1Report) {
-        // Summary card
+        // Summary hero
         cardSummary.visibility = View.VISIBLE
+        tvSummaryHeroLabel.text   = "Total tax this period"
+        tvSummaryTax.text         = "₹%,.0f".format(report.totalTax)
+        tvSummaryTaxable.text     = "on ₹%,.0f taxable".format(report.totalTaxable)
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
-        tvSummaryTaxable.text     = "₹%,.2f".format(report.totalTaxable)
-        tvSummaryTax.text         = "₹%,.2f".format(report.totalTax)
         tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
 
-        // Tabs
-        tabLayout.visibility = View.VISIBLE
+        // Section chips + pages (rebuild so the count badges pick up this report)
+        buildSectionChips(Gstr1SheetTabAdapter.TAB_LABELS.toList())
+        scrollSections.visibility = View.VISIBLE
+        cardSection.visibility = View.VISIBLE
         viewPager.visibility = View.VISIBLE
 
         setActionButtonsEnabled(true)
@@ -351,20 +623,28 @@ class GstReportsActivity : AppCompatActivity() {
     private fun bindValidation1(result: Gstr1Validator.ValidationResult) {
         llValidationBanner.visibility = View.VISIBLE
 
+        // The banner background is a rounded pill drawable; tint it (keeps the
+        // corners) rather than setBackgroundColor (which would flatten them),
+        // and match the text colour to the champagne tile palette.
+        fun paint(bg: String, fg: String) {
+            llValidationBanner.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bg))
+            tvValidationStatus.setTextColor(Color.parseColor(fg))
+        }
+
         when {
             result.hasErrors -> {
                 tvValidationStatus.text =
                     "⚠ ${result.errorCount} error(s), ${result.warningCount} warning(s) — Fix errors before filing"
-                llValidationBanner.setBackgroundColor(getColor(R.color.error_banner_bg))
+                paint("#FBEDED", "#A32D2D")
             }
             result.hasWarnings -> {
                 tvValidationStatus.text =
                     "⚡ ${result.warningCount} warning(s) — Review before filing"
-                llValidationBanner.setBackgroundColor(getColor(R.color.warning_banner_bg))
+                paint("#FAEEDA", "#8A6526")
             }
             else -> {
                 tvValidationStatus.text = "✓ All checks passed — Ready to export"
-                llValidationBanner.setBackgroundColor(getColor(R.color.success_banner_bg))
+                paint("#E1F5EE", "#0F5943")
             }
         }
     }
@@ -444,12 +724,16 @@ class GstReportsActivity : AppCompatActivity() {
 
     private fun bindReport2(report: Gstr2Report) {
         cardSummary.visibility = View.VISIBLE
+        tvSummaryHeroLabel.text   = "Input tax credit"
+        tvSummaryTax.text         = "₹%,.0f".format(report.totalTax)
+        tvSummaryTaxable.text     = "on ₹%,.0f taxable".format(report.totalTaxable)
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
-        tvSummaryTaxable.text     = "₹%,.2f".format(report.totalTaxable)
-        tvSummaryTax.text         = "N/A"
         tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
 
-        tabLayout.visibility = View.VISIBLE
+        // Section chips + pages (rebuild so the count badges pick up this report)
+        buildSectionChips(Gstr2SheetTabAdapter.TAB_LABELS.toList())
+        scrollSections.visibility = View.VISIBLE
+        cardSection.visibility = View.VISIBLE
         viewPager.visibility = View.VISIBLE
 
         setActionButtonsEnabled(true)

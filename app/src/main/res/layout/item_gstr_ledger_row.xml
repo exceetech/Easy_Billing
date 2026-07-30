@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Shared GSTR section row — champagne. Compact ledger line: a left accent
+    stripe, a title, a mono meta line (identity · date · rate), and the
+    taxable value in serif with its tax underneath.
+
+    Used by Gstr1B2bAdapter, Gstr1B2clAdapter and the section adapters that
+    follow. Each adapter decides what the stripe colour and meta line mean.
+
+    Ids: vStripe, tvTitle, tvMeta, tvAmount, tvTax.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <View
+            android:id="@+id/vStripe"
+            android:layout_width="3dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_row_stripe"
+            android:backgroundTint="#0F6E56" />
+
+        <!-- Optional leading quantity column (HSN uses it for qty + UQC).
+             Hidden by default so the other section adapters are unaffected. -->
+        <LinearLayout
+            android:id="@+id/boxQty"
+            android:layout_width="42dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginStart="10dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvQty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="#3C3489"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/tvUqc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="8.5sp"
+                android:textColor="#A89E88"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <!-- Optional leading badge (CDNR uses it for CREDIT / DEBIT).
+             Hidden by default so the other section adapters are unaffected. -->
+        <TextView
+            android:id="@+id/tvBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:textSize="9.5sp"
+            android:letterSpacing="0.04"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_period_pill"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:paddingVertical="11dp">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/googlesans_medium"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="10sp"
+                android:textColor="#A89E88"
+                android:fontFamily="monospace"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <!-- Optional third line (B2CS uses it for the CGST/SGST vs IGST
+                 split). Hidden by default so other adapters are unaffected. -->
+            <TextView
+                android:id="@+id/tvExtra"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textSize="10sp"
+                android:textColor="#A89E88"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="14dp">
+
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/tvTax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:textSize="10sp"
+                android:textColor="#0F6E56"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
+            <!-- Optional total-including-tax line. Hidden by default. -->
+            <TextView
+                android:id="@+id/tvSubAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="9.5sp"
+                android:textColor="#A89E88"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:background="#F0EBDD" />
+
+</LinearLayout>

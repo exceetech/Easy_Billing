@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,31 @@ class ProfitAdapter(
     private val onClick: (ProductProfitRaw) -> Unit
 ) : ListAdapter<ProductProfitRaw, ProfitAdapter.VH>(Diff()) {
 
+    // Same stable, random-looking per-row accent as InventoryAdapter's
+    // rowPalette — stripe and avatar tile share one hash-picked color
+    // instead of a profit/loss-status color.
+    private data class RowColor(val stripe: Int, val avatarBg: Int, val avatarText: Int)
+
+    private val rowPalette = listOf(
+        RowColor(Color.parseColor("#0F6E56"), Color.parseColor("#E1F5EE"), Color.parseColor("#085041")), // teal
+        RowColor(Color.parseColor("#B23A3A"), Color.parseColor("#FCEBEB"), Color.parseColor("#791F1F")), // red
+        RowColor(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA"), Color.parseColor("#633806")), // gold
+        RowColor(Color.parseColor("#185FA5"), Color.parseColor("#E6F1FB"), Color.parseColor("#0C447C")), // blue
+        RowColor(Color.parseColor("#534AB7"), Color.parseColor("#EEEDFE"), Color.parseColor("#3C3489")), // purple
+        RowColor(Color.parseColor("#D85A30"), Color.parseColor("#FAECE7"), Color.parseColor("#993C1D")), // rust
+        RowColor(Color.parseColor("#3B6D11"), Color.parseColor("#EAF3DE"), Color.parseColor("#27500A")), // green
+        RowColor(Color.parseColor("#993556"), Color.parseColor("#FBEAF0"), Color.parseColor("#72243E"))  // pink
+    )
+
+    private fun colorFor(item: ProductProfitRaw): RowColor {
+        val key = "${item.productName}${item.variant ?: ""}"
+        val idx = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
+        return rowPalette[idx]
+    }
+
     class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val stripe: View = v.findViewById(R.id.viewStripe)
+        val avatar: TextView = v.findViewById(R.id.tvAvatar)
         val name: TextView = v.findViewById(R.id.tvName)
         val qty: TextView = v.findViewById(R.id.tvQty)
         val profit: TextView = v.findViewById(R.id.tvProfit)
@@ -29,12 +54,27 @@ class ProfitAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
 
         val item = getItem(position)
+        val netPositive = item.profit >= 0
+        val rowColor = colorFor(item)
+
+        val profitColor = if (netPositive) "#085041" else "#791F1F"
 
         // ================= NAME =================
-        holder.name.text =
+        val fullName =
             if (item.variant.isNullOrBlank())
                 item.productName
             else "${item.productName} (${item.variant})"
+        holder.name.text = fullName
+
+        // ================= AVATAR INITIALS =================
+        val words = item.productName.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        holder.avatar.text = when {
+            words.size >= 2 -> "${words[0].first()}${words[1].first()}".uppercase()
+            words.isNotEmpty() -> words[0].filter { it.isLetterOrDigit() }.take(2).uppercase()
+            else -> "#"
+        }
+        holder.avatar.setTextColor(rowColor.avatarText)
+        holder.avatar.backgroundTintList = ColorStateList.valueOf(rowColor.avatarBg)
 
         // ================= QTY + UNIT =================
         val qtyFormatted = if (item.totalQty % 1 == 0.0) {
@@ -44,19 +84,14 @@ class ProfitAdapter(
                 .trimEnd('0')
                 .trimEnd('.')
         }
-
-        holder.qty.text = "$qtyFormatted ${item.unit}"
+        holder.qty.text = "$qtyFormatted ${item.unit ?: ""} sold".trim()
 
         // ================= PROFIT =================
-        val profitFormatted = "₹%.2f".format(item.profit)
-        holder.profit.text = profitFormatted
+        holder.profit.text = "₹%.2f".format(item.profit)
+        holder.profit.setTextColor(Color.parseColor(profitColor))
 
-        holder.profit.setTextColor(
-            if (item.profit < 0)
-                Color.parseColor("#A32D2D") // theme red
-            else
-                Color.parseColor("#0F6E56") // theme green
-        )
+        // ================= STRIPE =================
+        holder.stripe.setBackgroundColor(rowColor.stripe)
 
         // ================= CLICK =================
         holder.itemView.setOnClickListener {

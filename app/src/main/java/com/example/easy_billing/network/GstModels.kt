@@ -57,7 +57,12 @@ data class HsnSummaryItem(
     val cgst_amount: Double,
     val sgst_amount: Double,
     val igst_amount: Double,
-    val total_tax: Double
+    val total_tax: Double,
+    // Table 12 columns the server port used to drop. Defaulted so an older
+    // server still parses (values then fall back to the previous behaviour).
+    val total_value: Double = 0.0,
+    val cess_amount: Double = 0.0,
+    val rate: Double = 0.0
 )
 
 data class Gstr1B2BInvoice(
@@ -71,7 +76,14 @@ data class Gstr1B2BInvoice(
     val gst_rate: Double,
     val cgst: Double,
     val sgst: Double,
-    val igst: Double
+    val igst: Double,
+    // GSTR-1 Table 4 attributes. Defaulted so a server that predates this
+    // change still parses (the values simply fall back to the old behaviour).
+    val receiver_name: String = "",
+    val reverse_charge: String = "N",
+    val invoice_type: String = "Regular",
+    val ecom_gstin: String = "",
+    val cess_amount: Double = 0.0
 )
 
 data class Gstr1B2CItem(
@@ -84,12 +96,134 @@ data class Gstr1B2CItem(
     val igst: Double
 )
 
+data class Gstr1B2CLItem(
+    val invoice_number: String,
+    val invoice_date: String,
+    val invoice_value: Double,
+    val place_of_supply: String,
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0,
+    val ecom_gstin: String = ""
+)
+
+data class Gstr1B2CSItem(
+    val type: String = "OE",
+    val place_of_supply: String,
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0,
+    val ecom_gstin: String = ""
+)
+
+data class Gstr1CdnrItem(
+    val customer_gstin: String,
+    val receiver_name: String = "",
+    val note_number: String,
+    val note_date: String,
+    val note_type: String,
+    val place_of_supply: String,
+    val reverse_charge: String = "N",
+    val note_supply_type: String = "",
+    val note_value: Double,
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0
+)
+
+data class Gstr1CdnurItem(
+    val ur_type: String = "",
+    val note_number: String,
+    val note_date: String,
+    val note_type: String,
+    val place_of_supply: String,
+    val note_value: Double,
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0
+)
+
+data class Gstr1DocsItem(
+    val nature_of_document: String,
+    val sr_from: String,
+    val sr_to: String,
+    val total_number: Int,
+    val cancelled: Int = 0
+)
+
+data class Gstr1EcoItem(
+    val nature_of_supply: String,
+    val eco_gstin: String = "",
+    val eco_name: String = "",
+    val net_value: Double,
+    val igst: Double = 0.0,
+    val cgst: Double = 0.0,
+    val sgst: Double = 0.0,
+    val cess: Double = 0.0
+)
+
+data class Gstr1EcoB2BItem(
+    val supplier_gstin: String = "",
+    val supplier_name: String = "",
+    val recipient_gstin: String,
+    val recipient_name: String = "",
+    val doc_number: String,
+    val doc_date: String,
+    val supply_value: Double,
+    val place_of_supply: String,
+    val doc_type: String = "Invoice",
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0
+)
+
+data class Gstr1EcoB2CItem(
+    val supplier_gstin: String = "",
+    val supplier_name: String = "",
+    val place_of_supply: String,
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0
+)
+
+data class Gstr1EcoUrp2BItem(
+    val recipient_gstin: String,
+    val recipient_name: String = "",
+    val doc_number: String,
+    val doc_date: String,
+    val supply_value: Double,
+    val place_of_supply: String,
+    val doc_type: String = "Invoice",
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0
+)
+
+data class Gstr1EcoUrp2CItem(
+    val place_of_supply: String,
+    val rate: Double,
+    val taxable_value: Double,
+    val cess_amount: Double = 0.0
+)
+
 data class Gstr1Response(
     val period_start: String,
     val period_end: String,
     val b2b: List<Gstr1B2BInvoice>,
-    val b2c: List<Gstr1B2CItem>,
-    val hsn_summary: List<HsnSummaryItem>,
+    val b2c: List<Gstr1B2CItem> = emptyList(),
+    val b2cl: List<Gstr1B2CLItem> = emptyList(),
+    val b2cs: List<Gstr1B2CSItem> = emptyList(),
+    val cdnr: List<Gstr1CdnrItem> = emptyList(),
+    val cdnur: List<Gstr1CdnurItem> = emptyList(),
+    val docs: List<Gstr1DocsItem> = emptyList(),
+    val eco: List<Gstr1EcoItem> = emptyList(),
+    val eco_b2b: List<Gstr1EcoB2BItem> = emptyList(),
+    val eco_b2c: List<Gstr1EcoB2CItem> = emptyList(),
+    val eco_urp2b: List<Gstr1EcoUrp2BItem> = emptyList(),
+    val eco_urp2c: List<Gstr1EcoUrp2CItem> = emptyList(),
+    val hsn_summary: List<HsnSummaryItem> = emptyList(),
+    val hsn_b2b: List<HsnSummaryItem> = emptyList(),
+    val hsn_b2c: List<HsnSummaryItem> = emptyList(),
     val total_taxable_value: Double,
     val total_cgst: Double,
     val total_sgst: Double,
@@ -127,6 +261,8 @@ data class Gstr2B2burItem(
     val invoice_value: Double,
     val place_of_supply: String,
     val supply_type: String,
+    // Defaulted so an older server (which didn't send it) still parses.
+    val reverse_charge: String = "N",
     val rate: Double,
     val taxable_value: Double,
     val igst: Double,
@@ -230,6 +366,8 @@ data class Gstr2HsnsumItem(
     val hsn: String,
     val description: String,
     val uqc: String,
+    // Rows group by (hsn, uqc, rate); defaulted so an older server still parses.
+    val rate: Double = 0.0,
     val total_quantity: Double,
     val total_value: Double,
     val taxable_value: Double,

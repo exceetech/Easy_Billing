@@ -4,6 +4,7 @@ import com.example.easy_billing.db.CreditNote
 import com.example.easy_billing.db.CreditNoteItem
 import com.example.easy_billing.db.GstSalesInvoice
 import com.example.easy_billing.db.GstSalesInvoiceItem
+import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.gstr1.Gstr1Repository.InvoiceWithItems
 import com.example.easy_billing.gstr1.Gstr1Repository.CreditNoteWithItems
 import com.example.easy_billing.gstr1.Gstr1Repository.RawGstr1Data
@@ -60,10 +61,32 @@ object Gstr1Generator {
         val b2bInvoices  = activeInvoices.filter { it.invoice.invoiceType == "B2B" }
         val b2cInvoices  = activeInvoices.filter { it.invoice.invoiceType != "B2B" }
 
-        val b2clInvoices = b2cInvoices.filter { iw ->
+        /**
+         * Is this supply inter-state (the B2CL / Table 5 test)?
+         *
+         * Two bugs used to live in the old one-liner
+         * `placeCode.isNotBlank() && placeCode != shopState`:
+         *
+         *  1. [shopState] falls back to "" when the store's GST profile has no
+         *     state code. Every customer state code then compared "different",
+         *     so local B2C sales above the threshold were filed as inter-state
+         *     B2CL. A blank shop state now means "can't tell" — we don't guess.
+         *  2. It ignored the tax actually charged. An invoice carrying IGST is
+         *     inter-state by definition even if customerStateCode was never
+         *     captured; those used to slide into B2CS instead.
+         *
+         * Kept byte-for-byte equivalent to is_interstate_invoice() in the
+         * server's gst_routes.py so both report paths classify identically.
+         */
+        fun isInterState(iw: InvoiceWithItems): Boolean {
+            if (iw.items.any { it.igstAmount > 0.0 }) return true
+            if (shopState.isBlank()) return false
             val placeCode = iw.invoice.customerStateCode ?: ""
-            val isInterState = placeCode.isNotBlank() && placeCode != shopState
-            isInterState && iw.invoice.grandTotal > B2CL_THRESHOLD
+            return placeCode.isNotBlank() && placeCode != shopState
+        }
+
+        val b2clInvoices = b2cInvoices.filter { iw ->
+            isInterState(iw) && iw.invoice.grandTotal > B2CL_THRESHOLD
         }
         val b2clNumbers  = b2clInvoices.map { it.invoice.invoiceNumber }.toSet()
         val b2csInvoices = b2cInvoices.filter { it.invoice.invoiceNumber !in b2clNumbers }
@@ -126,26 +149,58 @@ object Gstr1Generator {
                 b2csAgg[key] = Triple(prevTax + item.taxableAmount, prevCess + item.cessAmount, ecom.isNotBlank())
             }
         }
-        val b2csRows = b2csAgg.map { (key, v) ->
-            B2CSRow(
-                type          = if (v.third) "E" else "OE",
-                placeOfSupply = key.pos,
-                rate          = key.rate,
-                applicableRate = "",
-                taxableValue  = v.first,
-                cessAmount    = v.second,
-                ecomGstin     = key.ecomGstin
-            )
-        }
+        // NOTE: b2csRows are built after the notes loop below — Table 7 must be
+        // reported NET of credit/debit notes issued against small B2C supplies,
+        // so those notes subtract from b2csAgg before it is frozen into rows.
 
         // ── CDNR / CDNUR ────────────────────────────────────────────────────
         val cdnrRows  = mutableListOf<CdnrRow>()
         val cdnurRows = mutableListOf<CdnurRow>()
 
+        // Originals behind unregistered notes, for the CDNUR decision below.
+        // Keyed across ALL invoices the shop has, not just this period's — a
+        // note's original sale is usually from an earlier period. Falls back to
+        // this period's invoices if the caller didn't supply the full map.
+        val originalsByNumber: Map<String, GstSalesInvoice> =
+            data.allInvoicesByNumber.ifEmpty {
+                activeInvoices.associate { it.invoice.invoiceNumber.trim() to it.invoice }
+            }
+
+        /**
+         * The CDNUR urType for an unregistered note, or null when the note does
+         * not belong in Table 9B at all (net it into Table 7 instead).
+         *
+         * Deliberately does NOT trust urType == "B2CS": the app only ever
+         * writes "B2CS" (unregistered) or "B2B" (registered) and never "B2CL",
+         * so believing it would misfile every note raised against a genuine
+         * B2CL sale. The original invoice decides, and the threshold applies to
+         * the ORIGINAL invoice value — a small partial refund against a large
+         * B2CL sale is still a B2CL note. Mirrors cdnur_type_for() in the
+         * server's gst_routes.py.
+         */
+        fun cdnurTypeFor(nw: CreditNoteWithItems): String? {
+            val ut = nw.note.urType.trim().uppercase()
+            if (ut in setOf("EXPWP", "EXPWOP", "EXPORT", "DEXP", "SEZWP", "SEZWOP")) return ut
+
+            val orig = originalsByNumber[nw.note.originalInvoiceNumber.trim()]
+            if (orig != null) {
+                val wasInter = orig.totalIgst > 0.0 ||
+                    (shopState.isNotBlank() &&
+                        !orig.customerStateCode.isNullOrBlank() &&
+                        orig.customerStateCode != shopState)
+                return if (wasInter && orig.grandTotal > B2CL_THRESHOLD) "B2CL" else null
+            }
+
+            val isInter = nw.note.supplyType.trim().lowercase() == "interstate" ||
+                nw.items.any { it.igstAmount > 0.0 }
+            return if (isInter && kotlin.math.abs(nw.note.totalAmount) > B2CL_THRESHOLD) "B2CL" else null
+        }
+
         for (nw in data.creditNotes) {
             val note = nw.note
             val noteDate = formatDate(note.noteDate)
-            val pos = note.placeOfSupply
+            // Portal form "NN-State Name"; notes store only the bare code.
+            val pos = normPos(note.placeOfSupply)
 
             if (!note.customerGstin.isNullOrBlank()) {
                 // Registered — group by rate
@@ -167,12 +222,15 @@ object Gstr1Generator {
                         cessAmount     = items.sumOf { it.cessAmount }
                     ))
                 }
-            } else {
-                // Unregistered — group by rate
+            } else if (cdnurTypeFor(nw) != null) {
+                // Unregistered, against a B2CL / export / SEZ supply — group by rate
+                val urType = cdnurTypeFor(nw)!!
                 val byRate = nw.items.groupBy { it.gstRate }
                 for ((rate, items) in byRate) {
                     cdnurRows.add(CdnurRow(
-                        urType        = note.urType,
+                        // Derived, not copied: the stored urType is only ever
+                        // "B2CS"/"B2B", neither valid as a CDNUR category.
+                        urType        = urType,
                         noteNumber    = note.noteNumber,
                         noteDate      = noteDate,
                         noteType      = note.noteType,
@@ -184,7 +242,36 @@ object Gstr1Generator {
                         cessAmount    = items.sumOf { it.cessAmount }
                     ))
                 }
+            } else {
+                // Note against a SMALL B2C supply — net it into Table 7, which
+                // carries no invoice detail to adjust. Credit notes reduce the
+                // bucket, debit notes add to it; a bucket may legitimately go
+                // negative in a month of heavy refunds.
+                val sign = if (note.noteType.uppercase() == "C") -1.0 else 1.0
+                for (item in nw.items) {
+                    val key = B2CSKey(pos, item.gstRate, "")
+                    val (prevTax, prevCess, wasEcom) =
+                        b2csAgg.getOrDefault(key, Triple(0.0, 0.0, false))
+                    b2csAgg[key] = Triple(
+                        prevTax + sign * item.taxableValue,
+                        prevCess + sign * item.cessAmount,
+                        wasEcom
+                    )
+                }
             }
+        }
+
+        // ── B2CS rows — built here, now that notes have been netted in ──────
+        val b2csRows = b2csAgg.map { (key, v) ->
+            B2CSRow(
+                type          = if (v.third) "E" else "OE",
+                placeOfSupply = key.pos,
+                rate          = key.rate,
+                applicableRate = "",
+                taxableValue  = v.first,
+                cessAmount    = v.second,
+                ecomGstin     = key.ecomGstin
+            )
         }
 
         // ── HSN rows ─────────────────────────────────────────────────────────
@@ -298,10 +385,14 @@ object Gstr1Generator {
             a.igst += inv.totalIgst
             a.cgst += inv.totalCgst
             a.sgst += inv.totalSgst
+            // Cess used to be hardcoded to 0.0 on the row below even though the
+            // line items carry it. The invoice has no cess total, so sum it
+            // from the items the way the detail tables do.
+            a.cess += iw.items.sumOf { it.cessAmount }
         }
         val ecoRows = ecoAgg.map { (k, v) ->
             EcoRow(natureOfSupply = k.nature, ecoGstin = k.ecoGstin, ecoName = k.ecoName,
-                netValue = v.net, igst = v.igst, cgst = v.cgst, sgst = v.sgst, cess = 0.0)
+                netValue = v.net, igst = v.igst, cgst = v.cgst, sgst = v.sgst, cess = v.cess)
         }
 
         // ECO B2B / B2C / URP
@@ -338,7 +429,14 @@ object Gstr1Generator {
                             cessAmount     = cess
                         ))
                     }
-                    role.contains("B2C", ignoreCase = true) && !inv.customerGst.isNullOrBlank() -> {
+                    // No GSTIN requirement — and there must not be one. This
+                    // used to read `... && !inv.customerGst.isNullOrBlank()`,
+                    // which is self-contradictory: B2C means the RECIPIENT is
+                    // unregistered, so a customer GSTIN never exists. The
+                    // branch was unreachable and every registered-supplier B2C
+                    // sale fell through to URP2C — a table that declares the
+                    // SUPPLIER unregistered. Role alone decides, like URP2C.
+                    role.contains("B2C", ignoreCase = true) -> {
                         ecoB2CRows.add(EcoB2CRow(
                             supplierGstin = inv.ecoSupplierGstin ?: "",
                             supplierName  = inv.ecoSupplierName ?: "",
@@ -422,6 +520,29 @@ object Gstr1Generator {
             return "$stateCode-$placeOfSupply"
         }
         return placeOfSupply
+    }
+
+    /**
+     * Normalise a credit/debit note's place of supply to the portal's
+     * "NN-State Name" form.
+     *
+     * Notes copy Bill.placeOfSupply, which holds only the bare 2-digit state
+     * code ("33"), while the invoice tables go through [formatPos] and emit
+     * "33-Tamil Nadu". That left CDNR/CDNUR inconsistent with the rest of the
+     * report. Normalised on output, so existing notes are corrected without a
+     * migration. Mirrors norm_pos() in the server's gst_routes.py.
+     */
+    private fun normPos(raw: String?): String {
+        val pos = raw?.trim().orEmpty()
+        if (pos.isEmpty() || pos.contains("-")) return pos
+        if (pos.all { it.isDigit() }) {
+            val code = pos.padStart(2, '0')
+            val name = GstEngine.INDIA_STATES[code]
+            return if (name != null) "$code-$name" else code
+        }
+        // Stored as a bare state name — recover the code from the name.
+        val code = GstEngine.getStateCodeFromName(pos)
+        return if (code != null) "$code-${GstEngine.INDIA_STATES[code]}" else pos
     }
 
     /** Maps internal gstrInvoiceType to the CSV value expected by the portal. */

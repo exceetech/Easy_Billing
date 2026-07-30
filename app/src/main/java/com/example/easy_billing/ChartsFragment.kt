@@ -13,6 +13,7 @@ import com.example.easy_billing.ReportFilter
 import com.example.easy_billing.network.*
 import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.ChartMarkerView
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GlowLineChartRenderer
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.*
@@ -25,6 +26,8 @@ import java.util.*
 class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
 
     private lateinit var chart: LineChart
+    private lateinit var tvPeriodTotal: android.widget.TextView
+    private lateinit var tvPeakDay: android.widget.TextView
 
     private var currentFilter = ReportFilter.TODAY
     private var customStartDate: String? = null
@@ -37,6 +40,8 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         super.onViewCreated(view, savedInstanceState)
 
         chart = view.findViewById(R.id.chartSalesTrend)
+        tvPeriodTotal = view.findViewById(R.id.tvPeriodTotal)
+        tvPeakDay = view.findViewById(R.id.tvPeakDay)
         // BlurMaskFilter (line glow) only renders on a software layer
         chart.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 
@@ -310,10 +315,24 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         if (entries.isEmpty()) {
             chart.clear()
             chart.setNoDataText("No chart data available")
+            tvPeriodTotal.text = CurrencyHelper.format(requireContext(), 0.0)
+            tvPeakDay.text = "—"
             return
         }
 
         chart.clear()
+
+        // ================= STAT CARDS =================
+        val periodTotal = entries.sumOf { it.y.toDouble() }
+        tvPeriodTotal.text = CurrencyHelper.format(requireContext(), periodTotal)
+
+        val peak = entries.maxByOrNull { it.y }
+        tvPeakDay.text = if (peak != null && peak.y > 0f) {
+            val label = labels.getOrNull(peak.x.toInt()) ?: "—"
+            "$label · ${CurrencyHelper.format(requireContext(), peak.y.toDouble())}"
+        } else {
+            "—"
+        }
 
         // ================= TREND LOGIC =================
         // Compare LAST value with PREVIOUS value
@@ -326,9 +345,9 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         }
 
         val lineColor = if (isUpTrend)
-            Color.parseColor("#22C55E") // 🟢 green
+            Color.parseColor("#0F6E56") // teal — rising
         else
-            Color.parseColor("#EF4444") // 🔴 red
+            Color.parseColor("#791F1F") // red — falling
 
         val fillDrawable = if (isUpTrend)
             requireContext().getDrawable(R.drawable.chart_fill_green)
@@ -352,13 +371,18 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         set.lineWidth = 3.6f
         set.mode = LineDataSet.Mode.CUBIC_BEZIER
         set.cubicIntensity = 0.18f
-        set.setDrawCircles(false)
+        set.setDrawCircles(true)
+        set.setCircleColor(lineColor)
+        set.circleRadius = 6.5f
+        set.setDrawCircleHole(true)
+        set.circleHoleColor = Color.WHITE
+        set.circleHoleRadius = 3.2f
         set.setDrawValues(false)
         set.setDrawFilled(true)
         set.fillDrawable = fillDrawable
 
         // ================= HIGHLIGHT (clean, vertical guide only) =================
-        set.highLightColor = Color.parseColor("#C9CDD4")
+        set.highLightColor = Color.parseColor("#C9C3B4")
         set.highlightLineWidth = 1.2f
         set.setDrawVerticalHighlightIndicator(true)
         set.setDrawHorizontalHighlightIndicator(false)
@@ -377,7 +401,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             setDrawAxisLine(false)
             setDrawGridLines(false)
 
-            textColor = Color.parseColor("#9AA0A8")
+            textColor = Color.parseColor("#9A8F79")
             textSize = 10f
 
             granularity = 1f
@@ -391,7 +415,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             setDrawLabels(false)
 
             setDrawGridLines(true)
-            gridColor = Color.parseColor("#ECEFF3")
+            gridColor = Color.parseColor("#EFE9DA")
             gridLineWidth = 1f
 
             labelCount = 4

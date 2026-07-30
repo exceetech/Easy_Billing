@@ -23,6 +23,7 @@ class ProfitChartAdapter(
     private val maxAbs = (items.maxOfOrNull { abs(it.profit) } ?: 1.0).coerceAtLeast(1.0)
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val rank: TextView = v.findViewById(R.id.tvRank)
         val name: TextView = v.findViewById(R.id.tvName)
         val value: TextView = v.findViewById(R.id.tvValue)
         val fill: View = v.findViewById(R.id.barFill)
@@ -39,6 +40,16 @@ class ProfitChartAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val item = items[position]
+
+        // Rank badge — gold-tinted for the #1 spot, neutral gray otherwise.
+        holder.rank.text = "${position + 1}"
+        if (position == 0) {
+            holder.rank.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FAEEDA"))
+            holder.rank.setTextColor(Color.parseColor("#8A6526"))
+        } else {
+            holder.rank.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1EFE8"))
+            holder.rank.setTextColor(Color.parseColor("#5F5E5A"))
+        }
 
         holder.name.text =
             if (item.variant.isNullOrBlank()) item.productName

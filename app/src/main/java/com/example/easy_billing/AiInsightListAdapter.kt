@@ -34,10 +34,10 @@ class AiInsightListAdapter(
     )
 
     private fun styleFor(type: String): TypeStyle = when (type.lowercase()) {
-        "fire" -> TypeStyle("NEEDS ATTENTION", "#FCEBEB", "#A32D2D", "#A32D2D", R.drawable.ic_kpi_alert)
-        "leak" -> TypeStyle("PLUGGING LEAKS", "#FAEEDA", "#854F0B", "#BA7517", R.drawable.ic_trending_down)
-        "gold" -> TypeStyle("WHAT'S WORKING", "#EAF3DE", "#0F6E56", "#0F6E56", R.drawable.ic_kpi_badge_check)
-        else -> TypeStyle("INSIGHTS", "#F1EFE8", "#5F5E5A", "#888780", R.drawable.ic_kpi_badge_check)
+        "fire" -> TypeStyle("NEEDS ATTENTION", "#FBEDED", "#791F1F", "#791F1F", R.drawable.ic_kpi_alert)
+        "leak" -> TypeStyle("PLUGGING LEAKS", "#FAEEDA", "#8A6526", "#8A6526", R.drawable.ic_trending_down)
+        "gold" -> TypeStyle("WHAT'S WORKING", "#DDEEEE", "#0F6E56", "#0F6E56", R.drawable.ic_kpi_badge_check)
+        else -> TypeStyle("INSIGHTS", "#F1EFE8", "#9A8F79", "#C9C3B4", R.drawable.ic_kpi_badge_check)
     }
 
     private var rows: List<Row> = emptyList()
@@ -96,6 +96,7 @@ class AiInsightListAdapter(
     }
 
     private inner class ItemVH(v: View) : RecyclerView.ViewHolder(v) {
+        private val accent: View = v.findViewById(R.id.viewInsightAccent)
         private val icon: ImageView = v.findViewById(R.id.ivInsightIcon)
         private val title: TextView = v.findViewById(R.id.tvInsightTitle)
         private val desc: TextView = v.findViewById(R.id.tvInsightDescription)
@@ -112,6 +113,7 @@ class AiInsightListAdapter(
             icon.setImageResource(style.icon)
             icon.setColorFilter(ink)
             icon.backgroundTintList = ColorStateList.valueOf(Color.parseColor(style.square))
+            accent.setBackgroundColor(ink)
 
             val hasAction = !insight.actionText.isNullOrEmpty() &&
                 !insight.actionType.isNullOrEmpty() && insight.actionType != "NONE"

@@ -42,18 +42,18 @@
     <color name="gray">#6B7280</color>
     <color name="light_gray">#E5E7EB</color>
 
-    <!-- Overview light-theme text colors (metric card growth chips) -->
-    <color name="ov_green">#3B6D11</color>
-    <color name="ov_red">#A32D2D</color>
-    <!-- Hero card growth chip text (on navy bg) -->
-    <color name="ov_hero_growth_pos">#86EFAC</color>
-    <color name="ov_hero_growth_neg">#FCA5A5</color>
+    <!-- Overview light-theme text colors (metric card growth chips) — champagne redesign -->
+    <color name="ov_green">#085041</color>
+    <color name="ov_red">#791F1F</color>
+    <!-- Hero card growth chip text (on teal bg) -->
+    <color name="ov_hero_growth_pos">#9FE1CB</color>
+    <color name="ov_hero_growth_neg">#F0C4C4</color>
     <!-- Per-method accent colors -->
     <color name="ov_blue">#185FA5</color>
     <color name="ov_purple">#534AB7</color>
-    <color name="ov_amber">#854F0B</color>
-    <color name="ov_red_cancel">#A32D2D</color>
-    <color name="ov_green_cash">#3B6D11</color>
+    <color name="ov_amber">#8A6526</color>
+    <color name="ov_red_cancel">#791F1F</color>
+    <color name="ov_green_cash">#0F6E56</color>
 
     <!-- Aliases used by GSTR-1 UI -->
     <color name="colorPrimary">#2563AB</color>
@@ -65,23 +65,23 @@
     <color name="warning_banner_bg">#F59E0B</color>
     <color name="success_banner_bg">#10B981</color>
 
-    <!-- AI Insights screen (theme tokens used from code) -->
-    <color name="ai_row_alt">#FBFAF7</color>
+    <!-- AI Insights screen (theme tokens used from code) — champagne redesign -->
+    <color name="ai_row_alt">#FBF7EC</color>
     <color name="ai_text_primary">#1A1A18</color>
-    <color name="ai_text_muted">#6E6A60</color>
+    <color name="ai_text_muted">#9A8F79</color>
     <color name="ai_green">#0F6E56</color>
-    <color name="band_green_bg">#EAF3DE</color>
-    <color name="band_green_ink">#27500A</color>
+    <color name="band_green_bg">#DDEEEE</color>
+    <color name="band_green_ink">#085041</color>
     <color name="band_amber_bg">#FAEEDA</color>
-    <color name="band_amber_ink">#633806</color>
-    <color name="band_red_bg">#FCEBEB</color>
+    <color name="band_amber_ink">#8A6526</color>
+    <color name="band_red_bg">#FBEDED</color>
     <color name="band_red_ink">#791F1F</color>
 
     <!-- Solid fills for the audit-score color-block tile (tinted by health band) -->
-    <color name="band_green_strong">#0F6E56</color>
-    <color name="band_amber_strong">#BA7517</color>
-    <color name="band_red_strong">#A32D2D</color>
-    <color name="ai_neutral">#5F5E5A</color>
+    <color name="band_green_strong">#085041</color>
+    <color name="band_amber_strong">#8A6526</color>
+    <color name="band_red_strong">#791F1F</color>
+    <color name="ai_neutral">#9A8F79</color>
 
     <color name="champagne_bg">#F3ECDD</color>
 </resources>

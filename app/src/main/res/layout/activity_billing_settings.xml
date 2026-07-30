@@ -45,30 +45,52 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/billing_settings"
-                        android:textColor="#1A1A18"
-                        android:textSize="21sp"
-                        android:textStyle="bold"
-                        android:accessibilityHeading="true"/>
-                    <TextView
+                        android:text="TAX &amp; FORMAT"
+                        android:textColor="#B8895A"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="GST profile &amp; print layout"
-                        android:textColor="#6E6A60"
-                        android:textSize="12sp"/>
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Billing"
+                            android:textColor="#1A1A18"
+                            android:textSize="21sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"
+                            android:accessibilityHeading="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="settings"
+                            android:textColor="#0F6E56"
+                            android:textSize="21sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Edit pill (toggles edit mode) -->
+                <!-- Edit pill (toggles edit mode) — gold gradient, matching
+                     the Unlock/Edit pills elsewhere. -->
                 <LinearLayout
                     android:id="@+id/btnEdit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_edit_pill"
+                    android:background="@drawable/bg_inv_seg_selected"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="7dp"
+                    android:paddingVertical="8dp"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -87,15 +109,29 @@
                         android:text="@string/edit"
                         android:textColor="#1A1A18"
                         android:textSize="13sp"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
                         android:includeFontPadding="false"/>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== GST PROFILE ===================== -->
-            <TextView style="@style/AddSectionLabel" android:text="GST PROFILE"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="GST PROFILE"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
-            <LinearLayout style="@style/AddCard">
+            <!-- cardGstProfile: faded (alpha 0.6) until Edit is tapped, same
+                 locked/unlocked feel as Invoice Design & Data & Security. -->
+            <LinearLayout android:id="@+id/cardGstProfile" style="@style/AddCard">
 
                 <!-- GSTIN (locked) -->
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
@@ -103,7 +139,7 @@
                     <LinearLayout style="@style/SiFieldBox"
                         android:background="@drawable/bg_add_field_locked">
                         <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_si_tax" app:tint="#A32D2D"/>
+                            android:src="@drawable/ic_si_tax" app:tint="#791F1F"/>
                         <EditText
                             android:id="@+id/etGstin"
                             style="@style/SiEdit"
@@ -124,7 +160,7 @@
                         android:layout_marginTop="6dp"
                         android:layout_marginStart="2dp"
                         android:text="Set in Store Information"
-                        android:textColor="#9A968C"
+                        android:textColor="#9A8F79"
                         android:textSize="11sp"/>
                 </LinearLayout>
 
@@ -219,7 +255,7 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground">
                         <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_si_badge" app:tint="#BA7517"/>
+                            android:src="@drawable/ic_si_badge" app:tint="#8A6526"/>
                         <TextView
                             android:id="@+id/tvRegType"
                             style="@style/SiValue"
@@ -249,9 +285,21 @@
             </LinearLayout>
 
             <!-- ===================== PRINTER ===================== -->
-            <TextView style="@style/AddSectionLabel" android:text="PRINTER"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp" android:text="PRINTER"
+                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
+                    android:letterSpacing="0.08"/>
+            </LinearLayout>
 
-            <LinearLayout style="@style/AddCard">
+            <LinearLayout android:id="@+id/cardPrinter" style="@style/AddCard">
 
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
                     <TextView style="@style/SiFieldLabel" android:text="Print layout"/>
@@ -278,12 +326,32 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Save -->
+            <!-- Save — solid teal CTA matching the app's other confirm
+                 buttons, instead of SiSavePill's navy. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveBilling"
-                style="@style/SiSavePill"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
                 android:text="@string/save_billing_settings"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:background="@drawable/bg_login_cta_green"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
                 app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#33FFFFFF"
                 android:visibility="gone"/>
 
         </LinearLayout>

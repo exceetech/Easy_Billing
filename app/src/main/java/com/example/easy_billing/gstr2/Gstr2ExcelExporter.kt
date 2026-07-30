@@ -16,14 +16,32 @@ object Gstr2ExcelExporter {
         val wb = XSSFWorkbook()
         val headerStyle = createHeaderStyle(wb)
 
-        buildB2B(wb, headerStyle, report.b2b)
-        buildB2BUR(wb, headerStyle, report.b2bur)
-        buildIMPS(wb, headerStyle, report.imps)
-        buildIMPG(wb, headerStyle, report.impg)
-        buildCDNR(wb, headerStyle, report.cdnr)
-        buildCDNUR(wb, headerStyle, report.cdnur)
-        buildEXEMP(wb, headerStyle, report.exemp)
-        buildHSNSUM(wb, headerStyle, report.hsnsum)
+        // Round 3 fix: these 8 calls used to run unconditionally, always
+        // writing a header-only sheet for a section with zero rows — the
+        // same "always visible, permanently empty" habit the GSTR-1 Excel
+        // exporter had before it was fixed to skip empty sections, and
+        // inconsistent with Gstr2CsvExporter, which already skips a
+        // section entirely via `if (rows.isEmpty()) return`. Now
+        // conditional, matching the CSV exporter's behavior.
+        var wroteAnySheet = false
+        if (report.b2b.isNotEmpty())    { buildB2B(wb, headerStyle, report.b2b); wroteAnySheet = true }
+        if (report.b2bur.isNotEmpty())  { buildB2BUR(wb, headerStyle, report.b2bur); wroteAnySheet = true }
+        if (report.imps.isNotEmpty())   { buildIMPS(wb, headerStyle, report.imps); wroteAnySheet = true }
+        if (report.impg.isNotEmpty())   { buildIMPG(wb, headerStyle, report.impg); wroteAnySheet = true }
+        if (report.cdnr.isNotEmpty())   { buildCDNR(wb, headerStyle, report.cdnr); wroteAnySheet = true }
+        if (report.cdnur.isNotEmpty())  { buildCDNUR(wb, headerStyle, report.cdnur); wroteAnySheet = true }
+        if (report.exemp.isNotEmpty())  { buildEXEMP(wb, headerStyle, report.exemp); wroteAnySheet = true }
+        if (report.hsnsum.isNotEmpty()) { buildHSNSUM(wb, headerStyle, report.hsnsum); wroteAnySheet = true }
+
+        // A workbook needs at least one sheet or POI throws on write() —
+        // if every section was genuinely empty this period, say so
+        // explicitly instead of crashing the export.
+        if (!wroteAnySheet) {
+            val sheet = wb.createSheet("summary")
+            header(sheet, headerStyle, listOf("Note"))
+            row(sheet, 1, "No purchase records found for this period.")
+            autoSize(sheet, 1)
+        }
 
         val dir = File(context.getExternalFilesDir(null),
             "GSTR2_${report.gstin}_${report.financialYear}_${report.period}")
@@ -59,17 +77,19 @@ object Gstr2ExcelExporter {
         val sheet = wb.createSheet("b2bur")
         header(sheet, hs, listOf(
             "Supplier Name", "Invoice Number", "Invoice date", "Invoice Value", "Place Of Supply",
-            "Supply Type", "Rate", "Taxable Value", "Integrated Tax Paid", "Central Tax Paid",
+            "Supply Type", "Reverse Charge", "Rate", "Taxable Value", "Integrated Tax Paid",
+            "Central Tax Paid",
             "State/UT Tax Paid", "Cess Paid", "Eligibility For ITC", "Availed ITC Integrated Tax",
             "Availed ITC Central Tax", "Availed ITC State/UT Tax", "Availed ITC Cess"
         ))
         rows.forEachIndexed { i, r ->
             row(sheet, i + 1, r.supplierName, r.invoiceNumber, r.invoiceDate, r.invoiceValue,
-                r.placeOfSupply, r.supplyType, r.rate, r.taxableValue, r.igstPaid, r.cgstPaid,
+                r.placeOfSupply, r.supplyType, r.reverseCharge,
+                r.rate, r.taxableValue, r.igstPaid, r.cgstPaid,
                 r.sgstPaid, r.cessPaid, r.eligibilityForItc, r.availedItcIgst, r.availedItcCgst,
                 r.availedItcSgst, r.availedItcCess)
         }
-        autoSize(sheet, 17)
+        autoSize(sheet, 18)
     }
 
     private fun buildIMPS(wb: Workbook, hs: CellStyle, rows: List<Gstr2ImpsRow>) {
@@ -159,14 +179,14 @@ object Gstr2ExcelExporter {
     private fun buildHSNSUM(wb: Workbook, hs: CellStyle, rows: List<Gstr2HsnsumRow>) {
         val sheet = wb.createSheet("hsnsum")
         header(sheet, hs, listOf(
-            "HSN", "Description", "UQC", "Total Quantity", "Total Value", "Taxable Value",
+            "HSN", "Description", "UQC", "Rate", "Total Quantity", "Total Value", "Taxable Value",
             "Integrated Tax Amount", "Central Tax Amount", "State/UT Tax Amount", "Cess Amount"
         ))
         rows.forEachIndexed { i, r ->
-            row(sheet, i + 1, r.hsn, r.description, r.uqc, r.totalQuantity, r.totalValue,
+            row(sheet, i + 1, r.hsn, r.description, r.uqc, r.rate, r.totalQuantity, r.totalValue,
                 r.taxableValue, r.igstAmount, r.cgstAmount, r.sgstAmount, r.cessAmount)
         }
-        autoSize(sheet, 10)
+        autoSize(sheet, 11)
     }
 
     private fun header(sheet: Sheet, style: CellStyle, cols: List<String>) {

@@ -169,12 +169,23 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun signOut() {
-        com.example.easy_billing.ui.ThemedDropdown.showConfirm(
-            context = requireContext(),
-            title = "Sign out?",
-            message = "You'll need to log in again to access your store.",
-            confirmLabel = "Sign out"
-        ) { performSignOut() }
+        // Dedicated dialog (dialog_sign_out.xml) — same champagne card
+        // shell as dialog_confirm_credit_note.xml, rose instead of teal
+        // since this ends the session, with a centered icon + title.
+        val view = layoutInflater.inflate(R.layout.dialog_sign_out, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<View>(R.id.btnConfirmSignOut).setOnClickListener {
+            dialog.dismiss()
+            performSignOut()
+        }
+        view.findViewById<View>(R.id.btnCancelSignOut).setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
     private fun performSignOut() {

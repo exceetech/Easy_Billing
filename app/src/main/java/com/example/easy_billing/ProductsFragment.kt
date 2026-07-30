@@ -52,7 +52,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
     private var sortBy = "quantity"   // quantity | revenue | frequency | smart
 
     private val sdf = AppTime.isoDate()
-    private val sliceColors = listOf("#378ADD", "#1D9E75", "#E0921A", "#7F77DD", "#D85A30", "#B4B2A9")
+    private val sliceColors = listOf("#0F6E56", "#B8895A", "#791F1F", "#D9CBA3", "#5DCAA5", "#8A6526")
         .map { Color.parseColor(it) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -276,12 +276,12 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
             layoutParams = LinearLayout.LayoutParams(dp(9), dp(9)).apply { marginEnd = dp(7) }
         }
         val name = TextView(ctx).apply {
-            text = label; textSize = 13f; setTextColor(Color.parseColor("#14161A"))
+            text = label; textSize = 12f; setTextColor(Color.parseColor("#1A1A18"))
             maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         val pctTv = TextView(ctx).apply {
-            text = "$pct%"; textSize = 13f; setTextColor(Color.parseColor("#14161A"))
+            text = "$pct%"; textSize = 12f; setTextColor(Color.parseColor("#1A1A18"))
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT

@@ -57,12 +57,84 @@ class Gstr1SectionFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.report.collectLatest { report ->
+                // Sections with a purpose-built renderer, so the fields that
+                // decide GST treatment stay visible instead of being flattened
+                // into an anonymous text pair. 0 = B2B (Table 4), 1 = B2CL
+                // (Table 5), 2 = B2CS (Table 7). The rest still use the
+                // generic renderer below.
+                val (count, adapter) = when (position) {
+                    0 -> (report?.b2b?.size ?: 0) to
+                            report?.b2b?.let { Gstr1B2bAdapter(it) }
+                    1 -> (report?.b2cl?.size ?: 0) to
+                            report?.b2cl?.let { Gstr1B2clAdapter(it) }
+                    // The shop's own state code is the first 2 digits of its
+                    // GSTIN — B2CS needs it to tell intra-state from inter.
+                    2 -> (report?.b2cs?.size ?: 0) to
+                            report?.b2cs?.let {
+                                Gstr1B2csAdapter(it, report.gstin.take(2))
+                            }
+                    3 -> (report?.cdnr?.size ?: 0) to
+                            report?.cdnr?.let { Gstr1CdnrAdapter(it) }
+                    4 -> (report?.cdnur?.size ?: 0) to
+                            report?.cdnur?.let { Gstr1CdnurAdapter(it) }
+                    // 5 = HSN(B2B), 6 = HSN(B2C) — same Table 12 row shape,
+                    // differing only in which invoices fed them.
+                    5 -> (report?.hsnB2B?.size ?: 0) to
+                            report?.hsnB2B?.let { Gstr1HsnAdapter(it) }
+                    6 -> (report?.hsnB2C?.size ?: 0) to
+                            report?.hsnB2C?.let { Gstr1HsnAdapter(it) }
+                    7 -> (report?.docs?.size ?: 0) to
+                            report?.docs?.let { Gstr1DocsAdapter(it) }
+                    // 8-12 = the e-commerce-operator family (Tables 14 & 15).
+                    8 -> (report?.eco?.size ?: 0) to
+                            report?.eco?.let { Gstr1EcoAdapter(it) }
+                    9 -> (report?.ecoB2B?.size ?: 0) to
+                            report?.ecoB2B?.let { Gstr1EcoB2bAdapter(it) }
+                    10 -> (report?.ecoB2C?.size ?: 0) to
+                            report?.ecoB2C?.let { Gstr1EcoB2cAdapter(it) }
+                    11 -> (report?.ecoUrp2B?.size ?: 0) to
+                            report?.ecoUrp2B?.let { Gstr1EcoUrp2bAdapter(it) }
+                    12 -> (report?.ecoUrp2C?.size ?: 0) to
+                            report?.ecoUrp2C?.let { Gstr1EcoUrp2cAdapter(it) }
+                    else -> 0 to null
+                }
+                if (adapter != null) {
+                    if (count == 0) {
+                        tvEmpty.visibility = View.VISIBLE
+                        rvRows.visibility  = View.GONE
+                        tvEmpty.text = "No records for this period."
+                        tvRowCount.text = "0 ROWS"
+                    } else {
+                        tvEmpty.visibility = View.GONE
+                        rvRows.visibility  = View.VISIBLE
+                        tvRowCount.text    = "$count ROWS"
+                        rvRows.adapter = adapter
+                    }
+                    return@collectLatest
+                }
+
                 val rows: List<Pair<String, String>> = report?.let { buildRows(it, position) } ?: emptyList()
 
                 if (rows.isEmpty()) {
                     tvEmpty.visibility = View.VISIBLE
                     rvRows.visibility  = View.GONE
-                    tvRowCount.text    = "0 rows"
+                    // Round 2 Phase 1 originally showed a special "not
+                    // available yet" warning on the 5 ECO tabs here,
+                    // because at that point the backend genuinely didn't
+                    // compute e-commerce-operator data and an empty ECO tab
+                    // was indistinguishable from "not supported." Round 2
+                    // Phase 2 then implemented real ECO computation
+                    // server-side (see Gstr1Repository.fetchGstr1Online),
+                    // so an empty ECO tab today means the ordinary thing —
+                    // no e-commerce-operator sales that period — the same
+                    // as any other empty section. The special-cased warning
+                    // was reverted here (Round 3) because it had become
+                    // actively wrong: it told the user a working feature
+                    // was unavailable. isEcoTab() is kept (unused for now)
+                    // as a documented marker of which positions are the
+                    // ECO family, in case a future regression needs it.
+                    tvEmpty.text = "No records for this period."
+                    tvRowCount.text = "0 rows"
                 } else {
                     tvEmpty.visibility = View.GONE
                     rvRows.visibility  = View.VISIBLE
@@ -72,6 +144,9 @@ class Gstr1SectionFragment : Fragment() {
             }
         }
     }
+
+    /** Positions 8-12 are the ECO / ECO-B2B / ECO-B2C / ECOURP-B2B / ECOURP-B2C tabs. */
+    private fun isEcoTab(position: Int): Boolean = position in 8..12
 
     /**
      * Returns list of (primary, secondary) string pairs for display.

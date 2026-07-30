@@ -54,14 +54,16 @@ object Gstr2CsvExporter {
         if (report.b2bur.isNotEmpty()) {
             val headers = arrayOf(
                 "Supplier Name", "Invoice Number", "Invoice date", "Invoice Value", "Place Of Supply",
-                "Supply Type", "Rate", "Taxable Value", "Integrated Tax Paid", "Central Tax Paid",
+                "Supply Type", "Reverse Charge", "Rate", "Taxable Value", "Integrated Tax Paid",
+                "Central Tax Paid",
                 "State/UT Tax Paid", "Cess Paid", "Eligibility For ITC", "Availed ITC Integrated Tax",
                 "Availed ITC Central Tax", "Availed ITC State/UT Tax", "Availed ITC Cess"
             )
             val rows = report.b2bur.map {
                 arrayOf(
                     it.supplierName, it.invoiceNumber, it.invoiceDate, it.invoiceValue.toString(),
-                    it.placeOfSupply, it.supplyType, it.rate.toString(), it.taxableValue.toString(),
+                    it.placeOfSupply, it.supplyType, it.reverseCharge,
+                    it.rate.toString(), it.taxableValue.toString(),
                     it.igstPaid.toString(), it.cgstPaid.toString(), it.sgstPaid.toString(),
                     it.cessPaid.toString(), it.eligibilityForItc, it.availedItcIgst.toString(),
                     it.availedItcCgst.toString(), it.availedItcSgst.toString(), it.availedItcCess.toString()
@@ -172,12 +174,14 @@ object Gstr2CsvExporter {
         // HSNSUM
         if (report.hsnsum.isNotEmpty()) {
             val headers = arrayOf(
-                "HSN", "Description", "UQC", "Total Quantity", "Total Value", "Taxable Value",
+                "HSN", "Description", "UQC", "Rate", "Total Quantity", "Total Value",
+                "Taxable Value",
                 "Integrated Tax Amount", "Central Tax Amount", "State/UT Tax Amount", "Cess Amount"
             )
             val rows = report.hsnsum.map {
                 arrayOf(
-                    it.hsn, it.description, it.uqc, it.totalQuantity.toString(),
+                    it.hsn, it.description, it.uqc, it.rate.toString(),
+                    it.totalQuantity.toString(),
                     it.totalValue.toString(), it.taxableValue.toString(), it.igstAmount.toString(),
                     it.cgstAmount.toString(), it.sgstAmount.toString(), it.cessAmount.toString()
                 )
