@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1024dp"
+    android:height="1024dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <!-- Cart body: open trapezoid outline, rounded, teal -->
+    <path
+        android:fillColor="#1E4B41"
+        android:pathData="M300,398C300,398 470,392 550,398C610,403 660,428 700,478L705,530C705,570 700,610 690,650C675,700 645,725 590,730L400,730C355,730 335,715 320,675L232,455C222,428 240,405 275,400C283,399 292,398 300,398ZM355,458C340,458 332,470 338,486L400,650C408,668 420,676 440,676L585,676C610,676 622,665 630,640C640,608 645,575 645,540C645,510 635,485 610,468C585,452 550,452 500,452L355,458Z"/>
+
+    <!-- Wheels -->
+    <path
+        android:fillColor="#1E4B41"
+        android:pathData="M405,800m-42,0a42,42 0,1 1,84 0a42,42 0,1 1,-84 0"/>
+    <path
+        android:fillColor="#1E4B41"
+        android:pathData="M615,800m-42,0a42,42 0,1 1,84 0a42,42 0,1 1,-84 0"/>
+
+    <!-- Growth arrow, gold -->
+    <path
+        android:fillColor="#BC9B59"
+        android:pathData="M330,660C420,650 500,610 555,540L640,435L720,510L800,195L665,255L730,300L645,410C580,495 495,545 400,558Z"/>
+
+</vector>

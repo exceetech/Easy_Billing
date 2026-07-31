@@ -27,7 +27,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_print"
+            android:src="@drawable/ic_si_printer"
             app:tint="#8A6526" />
     </FrameLayout>
 
@@ -113,7 +113,7 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_calendar"
+                    android:src="@drawable/ic_lc_calendar"
                     app:tint="#085041" />
             </FrameLayout>
 
@@ -154,7 +154,7 @@
             android:insetBottom="0dp"
             android:stateListAnimator="@null"
             app:cornerRadius="14dp"
-            app:icon="@drawable/ic_close"
+            app:icon="@drawable/ic_lc_x"
             app:iconTint="#B23A3A"
             app:iconSize="15dp"
             app:iconGravity="textStart"
@@ -181,7 +181,7 @@
             android:insetBottom="0dp"
             android:stateListAnimator="@null"
             app:cornerRadius="14dp"
-            app:icon="@drawable/ic_print"
+            app:icon="@drawable/ic_si_printer"
             app:iconTint="@android:color/white"
             app:iconSize="15dp"
             app:iconGravity="textStart"

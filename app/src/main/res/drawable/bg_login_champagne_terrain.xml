@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login screen background: champagne gradient base + the "terrain
+     blobs" layered wave pattern on top. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_login_champagne"/>
+    <item android:drawable="@drawable/bg_terrain_champagne"/>
+</layer-list>

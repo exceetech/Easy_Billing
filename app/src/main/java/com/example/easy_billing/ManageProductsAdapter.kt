@@ -73,6 +73,7 @@ class ManageProductsAdapter(
         holder.avatarTile.setBackgroundResource(tileBg[slot])
         holder.tvAvatar.setTextColor(tileText[slot])
         holder.tvAvatar.text = item.name.trim().firstOrNull()?.uppercase() ?: "?"
+        holder.vStripe.setBackgroundColor(tileText[slot])
 
         // Name + muted variant.
         val variant = item.variant?.takeIf { it.isNotBlank() }
@@ -157,6 +158,7 @@ class ManageProductsAdapter(
     ).toInt()
 
     class VH(view: View) : RecyclerView.ViewHolder(view) {
+        val vStripe: View = view.findViewById(R.id.vStripe)
         val avatarTile: View = view.findViewById(R.id.avatarTile)
         val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         val tvName: TextView = view.findViewById(R.id.tvName)

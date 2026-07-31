@@ -1,0 +1,8 @@
+<!-- Adaptive-icon-safe wrapper: small inset keeps the emblem clear of the
+     circular/squircle launcher mask crop zone on all OEM launcher shapes. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/expos_emblem_foreground"
+    android:insetLeft="6%"
+    android:insetTop="6%"
+    android:insetRight="6%"
+    android:insetBottom="6%"/>

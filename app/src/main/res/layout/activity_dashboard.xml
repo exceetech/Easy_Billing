@@ -91,8 +91,7 @@
                         android:text="@string/welcome"
                         android:textColor="#1A1A18"
                         android:textSize="20sp"
-                        android:letterSpacing="-0.02"
-                        android:fontFamily="@font/googlesans_bold"
+                        android:fontFamily="@font/marcellus"
                         android:includeFontPadding="false"
                         android:singleLine="true"
                         android:ellipsize="end"/>
@@ -364,90 +363,16 @@
 
         <!-- ================= PRODUCTS ================= -->
 
-        <!-- List-view column header (shown only in List mode). Weights
-             mirror item_product_list.xml so columns line up. -->
-        <LinearLayout
-            android:id="@+id/llListHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="30dp"
-            android:paddingEnd="32dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="8dp"
-            android:background="@android:color/transparent"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="46dp"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:text="ITEM"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#0F6E56"
-                android:letterSpacing="0.06"/>
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3.0"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.8"
-                android:paddingStart="6dp"
-                android:text="CATEGORY"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#0F6E56"
-                android:letterSpacing="0.06"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.4"
-                android:paddingStart="4dp"
-                android:text="UNIT"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#0F6E56"
-                android:letterSpacing="0.06"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2.0"
-                android:gravity="end"
-                android:text="PRICE"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#0F6E56"
-                android:letterSpacing="0.06"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.8"
-                android:gravity="end"
-                android:text="STOCK"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#0F6E56"
-                android:letterSpacing="0.06"/>
-        </LinearLayout>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvProducts"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="16dp"
+            android:layout_marginHorizontal="16dp"
+            android:paddingTop="20dp"
             android:paddingBottom="84dp"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false"
+            android:clipToOutline="true"/>
 
         <!-- ============================================================
               AI TICKER BAR — slim, edge-to-edge, no card chrome.
@@ -1022,24 +947,8 @@
                 android:paddingHorizontal="16dp"
                 android:paddingBottom="20dp">
 
-                <!-- Auto Translate (Settings-style row with switch) -->
-                <LinearLayout style="@style/SettingsCard" android:layout_marginTop="12dp">
-                    <LinearLayout style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_set_languages" app:tint="#185FA5"/>
-                        <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="@string/auto_translation"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Translate product names"/>
-                        </LinearLayout>
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switchTranslate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-                    </LinearLayout>
-                </LinearLayout>
-
                 <!-- ===================== CORE OPERATIONS ===================== -->
-                <TextView style="@style/SettingsSection" android:text="CORE OPERATIONS"/>
+                <TextView style="@style/SettingsSection" android:text="CORE OPERATIONS" android:layout_marginTop="12dp"/>
                 <LinearLayout style="@style/SettingsCard">
 
                     <LinearLayout android:id="@+id/btnAdmin" style="@style/SettingsRow">
@@ -1062,57 +971,12 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnPurchaseHistory" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                            android:src="@drawable/ic_drawer_purchase_history" app:tint="#854F0B"/>
-                        <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Purchase History"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Past stock batches"/>
-                        </LinearLayout>
-                        <ImageView style="@style/SettingsChevron"/>
-                    </LinearLayout>
-
-                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
-                            android:src="@drawable/ic_drawer_import" app:tint="#534AB7"/>
-                        <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Import Services"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Bulk service import"/>
-                        </LinearLayout>
-                        <ImageView style="@style/SettingsChevron"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- ===================== ANALYTICS & REPORTS ===================== -->
-                <TextView style="@style/SettingsSection" android:text="ANALYTICS &amp; REPORTS"/>
-                <LinearLayout style="@style/SettingsCard">
-
                     <LinearLayout android:id="@+id/btnInventory" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
                             android:src="@drawable/ic_drawer_inventory" app:tint="#185FA5"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="Inventory"/>
                             <TextView style="@style/SettingsRowSub" android:text="Stock levels &amp; alerts"/>
-                        </LinearLayout>
-                        <ImageView style="@style/SettingsChevron"/>
-                    </LinearLayout>
-
-                    <LinearLayout android:id="@+id/btnProfit" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
-                            android:src="@drawable/ic_drawer_profit" app:tint="#0F6E56"/>
-                        <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Profit Analytics"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Margins &amp; trends"/>
-                        </LinearLayout>
-                        <ImageView style="@style/SettingsChevron"/>
-                    </LinearLayout>
-
-                    <LinearLayout android:id="@+id/btnPreviousBills" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                            android:src="@drawable/ic_set_receipt" app:tint="#854F0B"/>
-                        <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="@string/bill_history"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Invoice history"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1127,9 +991,54 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnGstReports" style="@style/SettingsRow">
+                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_drawer_import" app:tint="#854F0B"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Import Services"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Bulk service import"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ===================== ANALYTICS & REPORTS ===================== -->
+                <TextView style="@style/SettingsSection" android:text="ANALYTICS &amp; REPORTS"/>
+                <LinearLayout style="@style/SettingsCard">
+
+                    <LinearLayout android:id="@+id/btnPurchaseHistory" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_drawer_purchase_history" app:tint="#854F0B"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Purchase History"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Past stock batches"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnPreviousBills" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
+                            android:src="@drawable/ic_set_receipt" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/bill_history"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Invoice history"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnProfit" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_set_file_text" app:tint="#185FA5"/>
+                            android:src="@drawable/ic_drawer_profit" app:tint="#185FA5"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="Profit Analytics"/>
+                            <TextView style="@style/SettingsRowSub" android:text="Margins &amp; trends"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnGstReports" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                            android:src="@drawable/ic_set_file_text" app:tint="#534AB7"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="GST Reports"/>
                             <TextView style="@style/SettingsRowSub" android:text="Tax filings"/>
@@ -1138,8 +1047,8 @@
                     </LinearLayout>
 
                     <LinearLayout android:id="@+id/btnReports" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
-                            android:src="@drawable/ic_drawer_reports" app:tint="#0F6E56"/>
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_drawer_reports" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/reports"/>
                             <TextView style="@style/SettingsRowSub" android:text="Sales summary"/>
@@ -1148,8 +1057,8 @@
                     </LinearLayout>
 
                     <LinearLayout android:id="@+id/btnAiInsights" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
-                            android:src="@drawable/ic_drawer_ai" app:tint="#534AB7"/>
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                            android:src="@drawable/ic_drawer_ai" app:tint="#185FA5"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/ai_insights"/>
                             <TextView style="@style/SettingsRowSub" android:text="Smart recommendations"/>

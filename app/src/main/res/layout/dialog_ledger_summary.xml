@@ -51,7 +51,7 @@
         android:text=""
         android:textColor="#B8895A"
         android:textSize="10sp"
-        android:letterSpacing="0.14"
+        android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
         android:singleLine="true"
         android:ellipsize="end" />

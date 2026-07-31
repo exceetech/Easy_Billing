@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Applied to individual elevated views (e.g. product tile cards) to
+         stop Material from compositing its tonal "elevation overlay" tint
+         on top of the card's background — that overlay is what was making
+         white cards look grey once they had elevation/shadow. -->
+    <style name="ThemeOverlay.NoElevationOverlay" parent="">
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
     <style name="QtyButton">
         <item name="android:textSize">18sp</item>
         <item name="android:layout_margin">4dp</item>
@@ -459,7 +467,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/googlesans_medium</item>
         <item name="android:textColor">#1A1A18</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>

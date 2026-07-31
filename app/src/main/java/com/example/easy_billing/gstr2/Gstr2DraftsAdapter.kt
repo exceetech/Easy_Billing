@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
-import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -21,9 +20,10 @@ class Gstr2DraftsAdapter(
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvDraftTitle)
+        val tvType: TextView = view.findViewById(R.id.tvDraftType)
         val tvSubtitle: TextView = view.findViewById(R.id.tvDraftSubtitle)
-        val btnOpen: MaterialButton = view.findViewById(R.id.btnOpen)
-        val btnDelete: MaterialButton = view.findViewById(R.id.btnDeleteDraft)
+        val btnOpen: View = view.findViewById(R.id.btnOpen)
+        val btnDelete: View = view.findViewById(R.id.btnDeleteDraft)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,7 +35,8 @@ class Gstr2DraftsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val d = drafts[position]
         holder.tvTitle.text = "${d.period} ${d.financialYear}"
-        holder.tvSubtitle.text = "Saved: ${df.format(Date(d.updatedAt))} • ${d.returnType}"
+        holder.tvType.text = "· ${d.returnType}"
+        holder.tvSubtitle.text = "Saved ${df.format(Date(d.updatedAt))}"
         holder.btnOpen.setOnClickListener { onOpen(d) }
         holder.btnDelete.setOnClickListener { onDelete(d) }
     }

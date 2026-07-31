@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Faceted low-poly pattern (adapted from the colorCode project's
+     DashboardBackdrop wireframe) re-tinted in champagne shades: each
+     polygon facet filled with a different shade from the palette, with
+     bright white edge lines on top for the "cut glass" look. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1280dp"
+    android:height="720dp"
+    android:viewportWidth="1600"
+    android:viewportHeight="900">
+
+    <path android:pathData="M0,40 L140,10 L330,190 L120,260 L0,300 Z" android:fillColor="#99F6EEDF"/>
+    <path android:pathData="M140,10 L470,0 L560,120 L330,190 Z" android:fillColor="#99F2E8D6"/>
+    <path android:pathData="M330,190 L560,120 L640,400 L470,520 Z" android:fillColor="#99E9DABE"/>
+    <path android:pathData="M120,260 L330,190 L470,520 L260,620 L0,560 Z" android:fillColor="#8CE2CFAD"/>
+    <path android:pathData="M470,520 L640,400 L900,430 L760,700 L470,750 Z" android:fillColor="#8CDCC79E"/>
+    <path android:pathData="M0,560 L260,620 L470,750 L200,900 Z" android:fillColor="#8CF2E8D6"/>
+    <path android:pathData="M470,750 L760,700 L820,900 Z" android:fillColor="#80E9DABE"/>
+    <path android:pathData="M900,430 L1120,200 L1300,260 L1180,470 L960,560 L760,700 Z" android:fillColor="#8CD3B98A"/>
+    <path android:pathData="M1120,200 L1250,40 L1440,30 L1300,260 Z" android:fillColor="#99F6EEDF"/>
+    <path android:pathData="M1300,260 L1180,470 L1420,520 L1600,380 Z" android:fillColor="#8CE2CFAD"/>
+    <path android:pathData="M1440,30 L1600,60 L1600,300 L1420,520 L1300,260 Z" android:fillColor="#8CE9DABE"/>
+    <path android:pathData="M1180,470 L960,560 L1080,780 L1420,520 Z" android:fillColor="#80F2E8D6"/>
+    <path android:pathData="M960,560 L760,700 L820,900 L1080,780 Z" android:fillColor="#80DCC79E"/>
+    <path android:pathData="M1080,780 L1420,520 L1600,700 L1300,900 Z" android:fillColor="#80D3B98A"/>
+
+    <path
+        android:pathData="M0,40 L140,10 L330,190 L120,260 L0,300 M140,10 L470,0 L560,120 L330,190 M330,190 L560,120 L640,400 L470,520 M120,260 L330,190 L470,520 L260,620 L0,560 M470,520 L640,400 L900,430 L760,700 L470,750 M0,560 L260,620 L470,750 L200,900 M470,750 L760,700 L820,900 M900,430 L1120,200 L1300,260 L1180,470 L960,560 L760,700 M1120,200 L1250,40 L1440,30 L1300,260 M1300,260 L1180,470 L1420,520 L1600,380 M1440,30 L1600,60 L1600,300 L1420,520 L1300,260 M1180,470 L960,560 L1080,780 L1420,520 M960,560 L760,700 L820,900 L1080,780 M1080,780 L1420,520 L1600,700 L1300,900"
+        android:strokeColor="#B3FFFFFF"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"/>
+
+</vector>

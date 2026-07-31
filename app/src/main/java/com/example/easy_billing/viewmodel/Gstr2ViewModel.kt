@@ -240,6 +240,25 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun loadDraft(draft: Gstr2DraftEntity) {
+        // The row already hands us the full entity (unlike GSTR-1, which only
+        // passes an id and re-queries) — the JSON blob is right there, so this
+        // is a synchronous parse, no repo round-trip needed.
+        _isLoading.value = true
+        try {
+            val r = Gstr2Report.fromJson(draft.reportJson)
+            _report.value = r
+            _financialYear.value = draft.financialYear
+            _period.value = draft.period
+            _returnType.value = draft.returnType
+            _gstin.value = draft.gstin
+        } catch (e: Exception) {
+            _error.value = "Failed to open draft: ${e.message}"
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
     
     fun exportCsv() {
         val r = _report.value ?: run {

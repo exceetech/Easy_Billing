@@ -30,10 +30,70 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import com.example.easy_billing.util.applyPremiumClickAnimation
+import retrofit2.HttpException
 
 class MainActivity : BaseActivity() {
 
     private var entranceStarted = false
+
+    private enum class SessionCheckResult { VALID, INVALID_TOKEN, WORKSPACE_CHANGED }
+
+    /**
+     * Formerly SplashActivity's job: if a token is already saved, verify it
+     * against the server and route straight to Dashboard (or wipe it and
+     * let the user log in normally if it's stale). No dedicated splash
+     * screen anymore — this just runs quietly on top of the login screen.
+     */
+    /**
+     * @param onStayingOnLogin called if (and only if) the check concludes the
+     * user genuinely needs to see the login screen (no token, or a token
+     * that turned out to be invalid) — the caller uses this to reveal the
+     * form, which it hides up front so a still-valid session never flashes
+     * the login screen before this redirects to Dashboard.
+     */
+    private fun checkExistingSession(onStayingOnLogin: () -> Unit) {
+        val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+        val token = prefs.getString("TOKEN", null)
+        if (token.isNullOrEmpty()) {
+            onStayingOnLogin()
+            return
+        }
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    RetrofitClient.api.getProfile(token)
+                    SessionCheckResult.VALID
+                } catch (e: HttpException) {
+                    when (e.code()) {
+                        401 -> SessionCheckResult.INVALID_TOKEN
+                        409 -> SessionCheckResult.WORKSPACE_CHANGED
+                        else -> SessionCheckResult.VALID // network/server hiccup → let through
+                    }
+                } catch (e: Exception) {
+                    SessionCheckResult.VALID // offline → let user into cached Dashboard
+                }
+            }
+
+            when (result) {
+                SessionCheckResult.VALID -> {
+                    startActivity(Intent(this@MainActivity, DashboardActivity::class.java))
+                    finish()
+                }
+                SessionCheckResult.INVALID_TOKEN -> {
+                    prefs.edit { remove("TOKEN") }
+                    // stale token cleared — stay put, let the user log in normally
+                    onStayingOnLogin()
+                }
+                SessionCheckResult.WORKSPACE_CHANGED -> {
+                    val intent = Intent(this@MainActivity, WorkspaceChangedActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
+            }
+        }
+    }
 
     /**
      * Report 3 U-1: asks the user to confirm before a workspace switch wipes
@@ -91,6 +151,23 @@ class MainActivity : BaseActivity() {
         
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // If a token is already saved, hide the login screen immediately —
+        // before the very first frame — so it never flashes on screen while
+        // checkExistingSession() verifies it and (usually) redirects
+        // straight to Dashboard. Only revealed if the check concludes the
+        // user genuinely needs to log in (no token, or a stale one).
+        val rootView = findViewById<View>(android.R.id.content)
+        val hasStoredToken = !getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("TOKEN", null).isNullOrEmpty()
+        if (hasStoredToken) {
+            rootView.visibility = View.INVISIBLE
+        }
+
+        checkExistingSession {
+            rootView.visibility = View.VISIBLE
+        }
+
               // Cinematic Entrance choreography: Focus on branding and form headings
         val animatedItems = listOf(
             // Branding Side

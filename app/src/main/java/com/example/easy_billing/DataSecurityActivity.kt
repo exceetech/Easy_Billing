@@ -202,7 +202,8 @@ class DataSecurityActivity : BaseActivity() {
                 getSharedPreferences("sync_cursors", MODE_PRIVATE).edit().clear().apply()
 
                 // ── STEP 6: Restart into fresh workspace ────────────────────────
-                // SplashActivity validates the new token, then routes to Dashboard.
+                // SplashActivity → MainActivity's checkExistingSession() validates
+                // the new token, then routes to Dashboard.
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@DataSecurityActivity,

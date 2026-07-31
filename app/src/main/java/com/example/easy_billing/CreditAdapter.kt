@@ -55,25 +55,26 @@ class CreditAdapter(
         when {
             item.dueAmount > 0 -> {
                 stripe = "#B23A3A"; tile = "#FCEBEB"; ink = "#791F1F"
-                holder.status.text = "owes you"
+                holder.status.text = "Owes you"
                 holder.due.text = money(item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
             }
             item.dueAmount < 0 -> {
                 stripe = "#0F6E56"; tile = "#E1F5EE"; ink = "#0F6E56"
-                holder.status.text = "in advance"
+                holder.status.text = "In advance"
                 holder.due.text = money(-item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             }
             else -> {
                 stripe = "#E4DBC6"; tile = "#F3ECDD"; ink = "#8A8272"
-                holder.status.text = "settled"
+                holder.status.text = "Settled"
                 holder.due.text = money(0.0)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#8A8272"))
             }
         }
 
         holder.stripe.setBackgroundColor(android.graphics.Color.parseColor(stripe))
+        holder.status.setTextColor(android.graphics.Color.parseColor(stripe))
         holder.tvAvatar.backgroundTintList =
             android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(tile))
         holder.tvAvatar.setTextColor(android.graphics.Color.parseColor(ink))

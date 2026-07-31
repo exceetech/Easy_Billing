@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.gstr1.Gstr1DraftEntity
-import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,13 +16,14 @@ class Gstr1DraftsAdapter(
     private val onDelete: (Gstr1DraftEntity) -> Unit
 ) : RecyclerView.Adapter<Gstr1DraftsAdapter.VH>() {
 
-    private val dateFmt = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    private val dateFmt = SimpleDateFormat("dd MMM, h:mm a", Locale.getDefault())
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitle: TextView   = view.findViewById(R.id.tvDraftTitle)
-        val tvSub: TextView     = view.findViewById(R.id.tvDraftSubtitle)
-        val btnOpen: MaterialButton   = view.findViewById(R.id.btnOpen)
-        val btnDelete: MaterialButton = view.findViewById(R.id.btnDeleteDraft)
+        val tvTitle: TextView = view.findViewById(R.id.tvDraftTitle)
+        val tvType: TextView  = view.findViewById(R.id.tvDraftType)
+        val tvSub: TextView   = view.findViewById(R.id.tvDraftSubtitle)
+        val btnOpen: View     = view.findViewById(R.id.btnOpen)
+        val btnDelete: View   = view.findViewById(R.id.btnDeleteDraft)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -33,8 +33,9 @@ class Gstr1DraftsAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val draft = drafts[position]
-        holder.tvTitle.text = "${draft.period} ${draft.financialYear}  (${draft.returnType})"
-        holder.tvSub.text   = "Saved: ${dateFmt.format(Date(draft.updatedAt))}"
+        holder.tvTitle.text = "${draft.period} ${draft.financialYear}"
+        holder.tvType.text  = "· ${draft.returnType}"
+        holder.tvSub.text   = "Saved ${dateFmt.format(Date(draft.updatedAt))}"
         holder.btnOpen.setOnClickListener { onOpen(draft) }
         holder.btnDelete.setOnClickListener { onDelete(draft) }
     }

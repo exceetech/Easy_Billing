@@ -1,62 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<!--
+  Saved-draft row — champagne card matching the app's list-row language:
+  gold-tinted document icon tile, serif period title + return-type tag,
+  "Saved <date>" caption, and two small square icon buttons (teal Open,
+  red-tint Delete), replacing the old generic gray MaterialCardView with
+  text buttons.
+
+  Bound by Gstr1DraftsAdapter: tvDraftTitle, tvDraftType, tvDraftSubtitle,
+  btnOpen, btnDeleteDraft.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp"
-    app:cardElevation="1dp"
-    app:cardCornerRadius="8dp">
+    android:layout_marginBottom="8dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_inv_value_card"
+    android:padding="12dp">
+
+    <FrameLayout
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="@drawable/bg_ov_pay_icon"
+        android:backgroundTint="#FAEEDA">
+        <ImageView
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_file_text"
+            app:tint="#8A6526" />
+    </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center_vertical">
+        android:orientation="vertical"
+        android:layout_marginStart="10dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
+            android:orientation="horizontal"
+            android:gravity="bottom">
             <TextView
                 android:id="@+id/tvDraftTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textColor="#212121"/>
-
+                android:textSize="13.5sp"
+                android:fontFamily="serif"
+                android:textColor="#1A1A18"
+                android:maxLines="1"
+                android:ellipsize="end"/>
             <TextView
-                android:id="@+id/tvDraftSubtitle"
+                android:id="@+id/tvDraftType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
                 android:textSize="11sp"
-                android:textColor="#757575"/>
-
+                android:textColor="#9A8F79"/>
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOpen"
+        <TextView
+            android:id="@+id/tvDraftSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open"
-            android:textAllCaps="false"
+            android:layout_marginTop="2dp"
             android:textSize="11sp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteDraft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Delete"
-            android:textAllCaps="false"
-            android:textSize="11sp"
-            android:textColor="#F44336"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            android:textColor="#9A8F79"/>
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    <FrameLayout
+        android:id="@+id/btnOpen"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/bg_ov_pay_icon"
+        android:backgroundTint="#DDEEEE"
+        android:foreground="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_chevron_right"
+            app:tint="#085041" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/btnDeleteDraft"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/bg_ov_pay_icon"
+        android:backgroundTint="#FCEBEB"
+        android:foreground="?attr/selectableItemBackground">
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_trash"
+            app:tint="#B23A3A" />
+    </FrameLayout>
+
+</LinearLayout>

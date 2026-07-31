@@ -11,7 +11,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingHorizontal="22dp"
     android:background="@android:color/transparent"
     android:clickable="true"
     android:focusable="true"
@@ -20,96 +19,112 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingVertical="17dp">
+        android:orientation="horizontal">
 
-        <!-- Avatar tile -->
-        <FrameLayout
-            android:id="@+id/avatarTile"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:background="@drawable/bg_addp_tile_green">
-            <TextView
-                android:id="@+id/tvAvatar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textColor="#0F6E56"
-                android:textSize="19sp"
-                android:textStyle="bold"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                tools:text="B"/>
-        </FrameLayout>
+        <!-- Accent stripe — same per-row colour as the avatar, matching
+             Inventory's row skeleton. -->
+        <View
+            android:id="@+id/vStripe"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#0F6E56"/>
 
-        <!-- Name + meta line -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
 
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="match_parent"
+            <!-- Avatar tile -->
+            <FrameLayout
+                android:id="@+id/avatarTile"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_addp_tile_green">
+                <TextView
+                    android:id="@+id/tvAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="#0F6E56"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:includeFontPadding="false"
+                    tools:text="B"/>
+            </FrameLayout>
+
+            <!-- Name + meta line -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#18181B"
-                android:textSize="14sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:singleLine="true"
-                android:ellipsize="end"
-                tools:text="Basmati Rice   ·   5 kg"/>
+                android:orientation="vertical"
+                android:layout_marginStart="11dp">
 
-            <TextView
-                android:id="@+id/tvMeta"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:textColor="#9A8F79"
-                android:textSize="11sp"
-                android:fontFamily="@font/googlesans_medium"
-                android:singleLine="true"
-                android:ellipsize="end"
-                tools:text="Groceries · HSN 1006 · GST 18% · Purchased"/>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#1A1A18"
+                    android:textSize="13.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="Basmati Rice   ·   5 kg"/>
 
-        <!-- Price + sub-note -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:orientation="vertical"
-            android:gravity="end">
+                <TextView
+                    android:id="@+id/tvMeta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:textColor="#9A8F79"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="Groceries · HSN 1006 · GST 18% · Purchased"/>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvPrice"
+            <!-- Price + sub-note -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#18181B"
-                android:textSize="14sp"
-                android:fontFamily="@font/googlesans_semibold"
-                tools:text="₹480"/>
+                android:layout_marginStart="8dp"
+                android:orientation="vertical"
+                android:gravity="end">
 
-            <TextView
-                android:id="@+id/tvSubNote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="4dp"
-                android:textSize="10.5sp"
-                android:fontFamily="@font/googlesans_medium"
-                tools:text="42 in stock"/>
+                <TextView
+                    android:id="@+id/tvPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#0F6E56"
+                    android:textSize="16sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    tools:text="₹480"/>
+
+                <TextView
+                    android:id="@+id/tvSubNote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="4dp"
+                    android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    tools:text="42 in stock"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_lc_chevron_right"
+                app:tint="#C7A15A"
+                android:contentDescription="@null"/>
         </LinearLayout>
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_lc_chevron_right"
-            app:tint="#C7A15A"
-            android:contentDescription="@null"/>
     </LinearLayout>
 
     <!-- Divider — inset under the text (not full width), hidden on the

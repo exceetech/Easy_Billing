@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login screen background: champagne gradient base + drifting teal/gold
+     arcs on top, scaled to fill so the arcs stay visible on any device size. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_login_champagne"/>
+    <item android:drawable="@drawable/bg_login_arcs"/>
+</layer-list>

@@ -19,8 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyBilling"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:screenOrientation="sensorLandscape">
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <service
             android:name=".MyFirebaseService"
@@ -37,78 +36,109 @@
             android:value="easy_billing_channel"/>
 
         <activity
-            android:name=".ReportsActivity"/>
+            android:name=".ReportsActivity"
+            android:screenOrientation="sensorLandscape"/>
         <activity
             android:name=".BillDetailsActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false" />
         <activity
-            android:name=".ChangePasswordActivity" />
+            android:name=".ChangePasswordActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".ForgotPasswordActivity" />
+            android:name=".ForgotPasswordActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
             android:name=".InvoiceActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false" />
         <activity
             android:name=".AddProductActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false" />
         <activity
-            android:name=".BillHistoryActivity" />
+            android:name=".BillHistoryActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
             android:name=".CreditDebitNotesActivity"
+            android:screenOrientation="sensorLandscape"
             android:label="Issued notes"
             android:exported="false" />
         <activity
             android:name=".DashboardActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
+            android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.EasyBilling.Auth"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity" />
+            android:name=".SettingsActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".StoreSettingsActivity" />
+            android:name=".StoreSettingsActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".BillingSettingsActivity" />
+            android:name=".BillingSettingsActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".ProfileActivity" />
+            android:name=".ProfileActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".PurchaseActivity" />
+            android:name=".PurchaseActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".ManageProductsActivity" />
+            android:name=".ManageProductsActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".EditProductActivity" />
+            android:name=".EditProductActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".InvoiceDesignActivity" />
+            android:name=".InvoiceDesignActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".DataSecurityActivity" />
+            android:name=".DataSecurityActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".AiDashboardActivity"/>
+            android:name=".AiDashboardActivity"
+            android:screenOrientation="sensorLandscape"/>
         <activity
-            android:name=".InventoryActivity"/>
+            android:name=".InventoryActivity"
+            android:screenOrientation="sensorLandscape"/>
         <activity
-            android:name=".GstReportsActivity"/>
+            android:name=".GstReportsActivity"
+            android:screenOrientation="sensorLandscape"/>
 
         <activity
-            android:name=".ProfitActivity"/>
+            android:name=".ProfitActivity"
+            android:screenOrientation="sensorLandscape"/>
         <activity
-            android:name=".LocalizationSettingsActivity"/>
+            android:name=".LocalizationSettingsActivity"
+            android:screenOrientation="sensorLandscape"/>
 
         <activity
-            android:name=".OtpVerificationActivity" />
+            android:name=".OtpVerificationActivity"
+            android:screenOrientation="sensorLandscape" />
 
         <activity
-            android:name=".SubscriptionActivity"/>
+            android:name=".SubscriptionActivity"
+            android:screenOrientation="sensorLandscape"/>
         <activity
-            android:name=".CreditAccountsActivity"/>
+            android:name=".CreditAccountsActivity"
+            android:screenOrientation="sensorLandscape"/>
 
         <activity
-            android:name=".CustomerTransactionsActivity" />
+            android:name=".CustomerTransactionsActivity"
+            android:screenOrientation="sensorLandscape" />
         <activity
-            android:name=".ProfitChartActivity"/>
+            android:name=".ProfitChartActivity"
+            android:screenOrientation="sensorLandscape"/>
 
         <activity
             android:name=".SplashActivity"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.EasyBilling.Splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -117,11 +147,13 @@
         </activity>
 
         <activity android:name=".MainActivity"
+            android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.EasyBilling.Auth"/>
 
         <!-- ── Workspace Rotation ────────────────────────────────────────── -->
         <activity
             android:name=".WorkspaceChangedActivity"
+            android:screenOrientation="sensorLandscape"
             android:exported="false"
             android:label="Workspace Updated"
             android:windowSoftInputMode="stateHidden"/>
@@ -140,12 +172,14 @@
         <!-- ── Return Management (v25) ───────────────────────────────────── -->
         <activity
             android:name=".SalesReturnActivity"
+            android:screenOrientation="sensorLandscape"
             android:label="Issue Credit Note"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity
             android:name=".DebitNoteActivity"
+            android:screenOrientation="sensorLandscape"
             android:label="Issue Debit Note"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>

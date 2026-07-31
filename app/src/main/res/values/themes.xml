@@ -52,6 +52,24 @@
         <item name="android:windowActivityTransitions">true</item>
     </style>
 
+    <!-- ================= SPLASH THEME ================= -->
+    <!-- A windowIsTranslucent theme (like Auth above) never gets the
+         Android 12+ system splash screen at all — the OS intentionally
+         skips it for translucent/overlay-style windows, which is why the
+         icon splash "wasn't shown" while MainActivity was the launcher.
+         This opaque theme is only for the tiny redirector SplashActivity,
+         so the system splash actually appears before handoff to
+         MainActivity. -->
+    <style name="Theme.EasyBilling.Splash" parent="Theme.EasyBilling">
+        <item name="android:windowSplashScreenBackground">#F8F4EA</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#F8F4EA</item>
+        <item name="android:windowBackground">#F8F4EA</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">#F8F4EA</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
     <!-- ================= BUTTON STYLE ================= -->
     <style name="Widget.EasyBilling.Button" parent="Widget.Material3.Button">
 

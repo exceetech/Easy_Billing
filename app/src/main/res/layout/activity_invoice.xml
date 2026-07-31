@@ -822,13 +822,12 @@
                                     android:layout_height="wrap_content"/>
                             </LinearLayout>
 
-                            <com.google.android.material.switchmaterial.SwitchMaterial
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/switchReverseCharge"
+                                style="@style/EpSwitch"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:checked="false"
-                                app:thumbTint="@color/inv_switch_thumb"
-                                app:trackTint="@color/inv_switch_track"/>
+                                android:checked="false"/>
                         </LinearLayout>
 
                         <!-- GSTR invoice type -->
@@ -919,13 +918,12 @@
                                     android:layout_height="wrap_content"/>
                             </LinearLayout>
 
-                            <com.google.android.material.switchmaterial.SwitchMaterial
+                            <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/switchEcommerce"
+                                style="@style/EpSwitch"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:checked="false"
-                                app:thumbTint="@color/inv_switch_thumb"
-                                app:trackTint="@color/inv_switch_track"/>
+                                android:checked="false"/>
                         </LinearLayout>
 
                         <!-- E-commerce details -->
@@ -1784,7 +1782,8 @@
                             android:background="@drawable/bg_inv_pay_seg_item"
                             android:textColor="@color/inv_pay_seg_text"
                             android:textSize="11sp"
-                            android:paddingVertical="6dp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:paddingVertical="8dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
@@ -1794,7 +1793,8 @@
                             android:background="@drawable/bg_inv_pay_seg_item"
                             android:textColor="@color/inv_pay_seg_text"
                             android:textSize="11sp"
-                            android:paddingVertical="6dp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:paddingVertical="8dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
@@ -1804,7 +1804,8 @@
                             android:background="@drawable/bg_inv_pay_seg_item"
                             android:textColor="@color/inv_pay_seg_text"
                             android:textSize="11sp"
-                            android:paddingVertical="6dp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:paddingVertical="8dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
@@ -1814,7 +1815,8 @@
                             android:background="@drawable/bg_inv_pay_seg_item"
                             android:textColor="@color/inv_pay_seg_text"
                             android:textSize="11sp"
-                            android:paddingVertical="6dp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:paddingVertical="8dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Validation-results popup — replaces the old plain toast. Champagne shell
+  (icon badge, gold eyebrow, bold+italic-serif title) with a scrollable
+  card listing each error/warning when issues exist, or a clean "All
+  clear" message when the report passes.
+
+  Bound by GstReportsActivity.showValidationDialog(): badgeFrame, ivBadge,
+  tvEyebrow, tvTitleBold, tvTitleAccent, tvMessage, cardIssues,
+  scrollIssues, llIssuesList, btnClose.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:padding="22dp"
+    android:background="@drawable/bg_dialog_rounded"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:id="@+id/badgeFrame"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_circle_soft_teal">
+        <ImageView
+            android:id="@+id/ivBadge"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_circle_check"
+            app:tint="#085041" />
+    </FrameLayout>
+
+    <TextView
+        android:text="VALIDATION"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="1dp">
+        <View
+            android:layout_width="3dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/bg_mp_title_tick"/>
+        <TextView
+            android:id="@+id/tvTitleBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All "
+            android:textColor="#1A1A18"
+            android:textSize="25sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:letterSpacing="-0.02"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:id="@+id/tvTitleAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="clear"
+            android:textColor="#0F6E56"
+            android:textSize="25sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:text="No issues found. This report is ready to export."
+        android:textSize="12.5sp"
+        android:textColor="#6E6A60"
+        android:gravity="center"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- ISSUES CARD -->
+    <LinearLayout
+        android:id="@+id/cardIssues"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:layout_marginTop="14dp"
+        android:visibility="gone">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollIssues"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="4dp"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:id="@+id/llIssuesList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="18dp"
+        android:text="Got it"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"/>
+
+</LinearLayout>

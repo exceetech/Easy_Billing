@@ -71,10 +71,39 @@ class ManageProductsActivity : BaseActivity() {
         viewModel.reload()
     }
 
+    // Same per-category accent palette used by the Dashboard's category rail,
+    // so filter chips read consistently across screens.
+    private val railChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun railChipColor(category: String): Int =
+        Color.parseColor(
+            railChipPalette[(category.hashCode() and 0x7FFFFFFF) % railChipPalette.size]
+        )
+
+    private fun applyRailChipColors(chip: com.google.android.material.chip.Chip, accent: Int) {
+        val stroke = android.content.res.ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(accent, Color.parseColor("#E4DCC8"))
+        )
+        val text = android.content.res.ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(accent, Color.parseColor("#6E6A60"))
+        )
+        chip.chipStrokeColor = stroke
+        chip.setTextColor(text)
+    }
+
     private fun bindViews() {
         rv        = findViewById(R.id.rvProducts)
         etSearch  = findViewById(R.id.etSearch)
         chipGroup = findViewById(R.id.chipFilter)
+        applyRailChipColors(
+            findViewById(R.id.chipCatAll),
+            Color.parseColor("#0F6E56")
+        )
         tvCount           = findViewById(R.id.tvCount)
         tvAllCount        = findViewById(R.id.tvAllCount)
         tvPurchasedCount  = findViewById(R.id.tvPurchasedCount)
@@ -239,6 +268,7 @@ class ManageProductsActivity : BaseActivity() {
                             chip.id = android.view.View.generateViewId()
                             chip.text = cat
                             chip.tag = cat
+                            applyRailChipColors(chip, railChipColor(cat))
                             chipGroup.addView(chip)
                             if (cat == currentCheckedTag) {
                                 chipGroup.check(chip.id)

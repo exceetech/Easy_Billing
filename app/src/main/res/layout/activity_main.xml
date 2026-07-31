@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_champagne"
+    android:background="@drawable/bg_login_champagne_faceted"
     android:focusable="true"
     android:focusableInTouchMode="true">
 
@@ -16,8 +16,8 @@
         android:layout_marginVertical="24dp"
         app:cardCornerRadius="22dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#94FFFFFF"
-        app:strokeColor="#CCFFFFFF"
+        app:cardBackgroundColor="#FFFFFF"
+        app:strokeColor="#ECE7DA"
         app:strokeWidth="1dp"
         app:layout_constraintWidth_max="640dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +70,7 @@
                         android:text="Ex"
                         android:textColor="#1A1A18"
                         android:textSize="30sp"
-                        android:fontFamily="serif"
+                        android:fontFamily="@font/marcellus"
                         android:textStyle="bold"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -78,7 +78,7 @@
                         android:text="POS"
                         android:textColor="#B8895A"
                         android:textSize="30sp"
-                        android:fontFamily="serif"
+                        android:fontFamily="@font/marcellus"
                         android:textStyle="bold"/>
                 </LinearLayout>
 

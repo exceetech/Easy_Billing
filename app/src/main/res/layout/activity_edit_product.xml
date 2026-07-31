@@ -15,7 +15,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6"
+    android:background="#F3ECDD"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -27,23 +27,18 @@
         app:title=""
         app:navigationIconTint="#1A1A18"/>
 
-    <!-- ══ Title row — matches Manage Products ══ -->
+    <!-- ══ Header — same design as Inventory ══ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="22dp"
-        android:paddingBottom="2dp">
-
-        <View
-            android:layout_width="3dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="11dp"
-            android:background="@drawable/bg_mp_title_tick"/>
+        android:paddingHorizontal="18dp"
+        android:paddingTop="2dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
@@ -59,12 +54,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="1dp">
+                android:layout_marginTop="2dp">
                 <TextView
                     android:text="Edit"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
-                    android:letterSpacing="-0.02"
+                    android:textStyle="bold"
                     android:fontFamily="@font/googlesans_bold"
                     android:includeFontPadding="false"
                     android:layout_width="wrap_content"
@@ -696,7 +691,7 @@
                         android:layout_width="12dp"
                         android:layout_height="12dp"
                         android:layout_marginEnd="5dp"
-                        android:layout_marginTop="1dp"
+                        android:layout_marginTop="2dp"
                         android:src="@drawable/ic_lc_lock"
                         app:tint="#9A968C"
                         android:contentDescription="@null"/>

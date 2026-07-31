@@ -13,15 +13,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.util.CurrencyHelper
-import com.example.easy_billing.util.GoogleTranslator
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.*
 
 class ProductAdapter(
     private val onItemClick: (Product) -> Unit,
-    private val onItemLongClick: (Product) -> Unit,
-    private val language: String,
-    private val translationEnabled: Boolean
+    private val onItemLongClick: (Product) -> Unit
 ) : ListAdapter<ProductAdapter.Row, RecyclerView.ViewHolder>(RowDiff()) {
 
     /** A row is either a category header or a product tile. */
@@ -42,7 +39,6 @@ class ProductAdapter(
     private var currentQuery: String = ""
 
     private var inventoryMap: Map<Int, Double> = emptyMap()
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     // Premium card palette (High-contrast pastels) - Optimized for light theme
     private val cardPastels = listOf(
@@ -132,10 +128,6 @@ class ProductAdapter(
         return rows
     }
 
-    fun cancelScope() {
-        scope.cancel()
-    }
-
     override fun getItemViewType(position: Int): Int = when {
         getItem(position) is Row.Header -> TYPE_HEADER
         asList -> TYPE_LIST
@@ -175,7 +167,6 @@ class ProductAdapter(
     inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val card: MaterialCardView = view.findViewById(R.id.cardView)
         private val name: TextView         = view.findViewById(R.id.tvProductName)
-        private val translated: TextView   = view.findViewById(R.id.tvTranslatedName)
         private val variant: TextView      = view.findViewById(R.id.tvVariantName)
         private val price: TextView        = view.findViewById(R.id.tvProductPrice)
         private val stockDot: View         = view.findViewById(R.id.viewStockDot)
@@ -186,10 +177,9 @@ class ProductAdapter(
         private val overlay: FrameLayout   = view.findViewById(R.id.flOutOfStockOverlay)
         private val monogram: TextView     = view.findViewById(R.id.tvProductMonogram)
         private val monogramBg: View       = view.findViewById(R.id.viewProductMonogramBg)
+        private val accentStripe: View     = view.findViewById(R.id.viewAccentStripe)
         // Category chip (now shown in the grid tile too).
         private val category: TextView?    = view.findViewById(R.id.tvListCategory)
-
-        private var boundName: String = ""
 
         fun bind(product: Product) {
             val context = itemView.context
@@ -201,8 +191,8 @@ class ProductAdapter(
             overlay.visibility  = View.GONE
             addBtn.backgroundTintList = null
 
-            // ── Frosted glass: translucent white over the aurora bg ──────
-            card.setCardBackgroundColor(Color.parseColor("#99FFFFFF"))
+            // ── Solid white card ──────────────────────────────────────────
+            card.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
 
             // ── Monogram Styling ─────────────────────────────────────────
             val firstLetter = product.name.take(1).uppercase()
@@ -211,8 +201,9 @@ class ProductAdapter(
                 Color.parseColor(cardPastels[colorIdx])
             )
             monogram.setTextColor(Color.parseColor(monogramAccents[colorIdx]))
+            accentStripe.backgroundTintList =
+                ColorStateList.valueOf(Color.parseColor(monogramAccents[colorIdx]))
 
-            boundName = product.name
             name.text = product.name
 
             val variantText = product.variant?.takeIf { it.isNotBlank() }
@@ -224,20 +215,6 @@ class ProductAdapter(
                 val c = product.category.takeIf { c -> c.isNotBlank() }
                 it.text = c ?: ""
                 it.visibility = if (c != null) View.VISIBLE else View.GONE
-            }
-
-            if (translationEnabled && language != "en") {
-                translated.visibility = View.VISIBLE
-                translated.text       = "…"
-                val snapshot = product.name
-                scope.launch {
-                    val result = withContext(Dispatchers.IO) {
-                        GoogleTranslator.translate(snapshot, language)
-                    }
-                    if (boundName == snapshot) translated.text = result
-                }
-            } else {
-                translated.visibility = View.GONE
             }
 
             val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
@@ -303,8 +280,6 @@ class ProductAdapter(
         private val row: View          = view.findViewById(R.id.listRow)
         private val name: TextView     = view.findViewById(R.id.tvListName)
         private val variant: TextView  = view.findViewById(R.id.tvListVariant)
-        private val category: TextView = view.findViewById(R.id.tvListCategory)
-        private val unit: TextView     = view.findViewById(R.id.tvListUnit)
         private val price: TextView    = view.findViewById(R.id.tvListPrice)
         private val stock: TextView    = view.findViewById(R.id.tvListStock)
         private val monogram: TextView = view.findViewById(R.id.tvListMonogram)
@@ -315,33 +290,33 @@ class ProductAdapter(
 
             name.text = product.name
 
+            // Same avatar treatment as the grid tile: single-letter
+            // monogram on a pastel tile, coloured to match.
             val colorIdx = getStableIndex(product.name)
+            val accent = monogramAccents[colorIdx]
             monogram.text = product.name.take(1).uppercase()
             monogramBg.backgroundTintList =
                 ColorStateList.valueOf(Color.parseColor(cardPastels[colorIdx]))
-            monogram.setTextColor(Color.parseColor(monogramAccents[colorIdx]))
+            monogram.setTextColor(Color.parseColor(accent))
 
             val variantText = product.variant?.takeIf { it.isNotBlank() }
-            variant.text = variantText ?: ""
             variant.visibility = if (variantText != null) View.VISIBLE else View.GONE
+            variant.text = variantText ?: ""
 
-            category.text = product.category.ifBlank { "—" }
             price.text = CurrencyHelper.format(context, product.price)
 
-            val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
-            unit.text = unitLabel
             val stockEntry = if (product.trackInventory) inventoryMap[product.id] else null
 
             row.alpha = 1f
             when {
                 stockEntry == null -> {
-                    stock.text = "—"
-                    stock.setTextColor(0xFF9CA3AF.toInt())
+                    stock.text = "Service item"
+                    stock.setTextColor(0xFF9A8F79.toInt())
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {
-                    stock.text = "Out"
-                    stock.setTextColor(0xFFB91C1C.toInt())
+                    stock.text = "Out of stock"
+                    stock.setTextColor(0xFFA32D2D.toInt())
                     row.alpha = 0.6f
                     itemView.setOnClickListener {
                         Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
@@ -349,13 +324,13 @@ class ProductAdapter(
                     itemView.setOnLongClickListener { onItemLongClick(product); true }
                 }
                 stockEntry <= 5 -> {
-                    stock.text = fmtQty(stockEntry)
-                    stock.setTextColor(0xFFB45309.toInt())
+                    stock.text = "Low · ${fmtQty(stockEntry)} left"
+                    stock.setTextColor(0xFF854F0B.toInt())
                     setClickListeners(product)
                 }
                 else -> {
-                    stock.text = fmtQty(stockEntry)
-                    stock.setTextColor(0xFF047857.toInt())
+                    stock.text = "${fmtQty(stockEntry)} units in stock"
+                    stock.setTextColor(0xFF3B6D11.toInt())
                     setClickListeners(product)
                 }
             }
@@ -366,6 +341,9 @@ class ProductAdapter(
             itemView.setOnLongClickListener { onItemLongClick(product); true }
         }
     }
+
+    private fun dpToPx(context: android.content.Context, dp: Int): Int =
+        (dp * context.resources.displayMetrics.density).toInt()
 
     /** Stock quantity without a trailing ".0" (24.0 -> "24", 2.5 -> "2.5"). */
     private fun fmtQty(q: Double): String =

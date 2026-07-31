@@ -28,21 +28,15 @@
         app:titleTextColor="#1A1A18"
         app:navigationIconTint="#1A1A18" />
 
-    <!-- ============ HEADER ============ -->
+    <!-- ============ HEADER — same design as Inventory ============ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="20dp"
+        android:paddingHorizontal="18dp"
         android:paddingTop="2dp"
         android:paddingBottom="12dp">
-
-        <View
-            android:layout_width="3dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="11dp"
-            android:background="@drawable/bg_mp_title_tick"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -61,24 +55,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="1dp">
+                android:layout_marginTop="2dp">
                 <TextView
                     android:id="@+id/tvLineDialogVerb"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Add"
                     android:textColor="#1A1A18"
-                    android:textSize="23sp"
-                    android:letterSpacing="-0.02"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
                     android:fontFamily="@font/googlesans_bold"
                     android:includeFontPadding="false"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="7dp"
+                    android:layout_marginStart="6dp"
                     android:text="item"
                     android:textColor="#0F6E56"
-                    android:textSize="23sp"
+                    android:textSize="21sp"
                     android:fontFamily="serif"
                     android:textStyle="italic"
                     android:includeFontPadding="false"/>
@@ -86,20 +80,28 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- ============ BODY ============ -->
-    <ScrollView
+    <!-- ============ BODY — two independently scrolling columns ============ -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:clipToPadding="false">
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:paddingHorizontal="24dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="20dp">
+        <!-- ======== LEFT COLUMN (scrolls) ======== -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
             <!-- ======== PRODUCT ======== -->
             <LinearLayout
@@ -408,6 +410,24 @@
                 </LinearLayout>
             </LinearLayout>
 
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ======== RIGHT COLUMN (scrolls) ======== -->
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
             <!-- ======== YOU WILL SELL AT ======== -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -415,7 +435,7 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_inv_card_cream"
                 android:padding="14dp"
-                android:layout_marginTop="12dp">
+                >
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -844,8 +864,9 @@
                         android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
     <!-- ============ FOOTER ============ -->
     <View

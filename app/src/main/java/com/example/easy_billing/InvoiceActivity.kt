@@ -164,9 +164,9 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var rowGstOptionsHeader: View
     private lateinit var tvGstOptionsToggle: android.widget.ImageView
     private lateinit var layoutGstOptionsBody: View
-    private lateinit var switchReverseCharge: SwitchMaterial
+    private lateinit var switchReverseCharge: com.google.android.material.materialswitch.MaterialSwitch
     private lateinit var spinnerGstrInvoiceType: AutoCompleteTextView
-    private lateinit var switchEcommerce: SwitchMaterial
+    private lateinit var switchEcommerce: com.google.android.material.materialswitch.MaterialSwitch
     private lateinit var layoutEcommerceFields: View
     private lateinit var etEcommerceGstin: EditText
     private lateinit var etEcommerceOperatorName: EditText

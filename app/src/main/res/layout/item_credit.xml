@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Credit-account row. Champagne theme, matching the import-services ledger:
-    a left stripe carrying the balance direction, a monogram tile, name and
-    phone, and the amount right-aligned with a caption saying which way the
-    money goes.
+    Credit-account row — same skeleton as Inventory's product row
+    (item_inventory.xml): a plain 4dp left stripe carrying the balance
+    direction, a 36dp monogram tile, name + a muted detail line, a
+    colour-coded status caption, and a serif price on the right with a
+    hairline divider inset under the text.
 
-    The monogram tint follows the balance, not the row position — the old
-    position-cycled colours meant the same customer changed colour whenever the
-    list was filtered.
+    The monogram/stripe tint follows the balance, not the row position —
+    the old position-cycled colours meant the same customer changed
+    colour whenever the list was filtered.
 
-    Shared with the credit-account picker sheet (CreditAccountPicker), so it has
-    to read well on both.
+    Shared with the credit-account picker sheet (CreditAccountPicker), so
+    it has to read well on both.
 
     Bound by CreditAdapter: viewBalanceStripe, tvAvatar, tvName, tvPhone,
     tvDue, tvStatus, viewRowDivider.
@@ -30,12 +31,13 @@
 
         <View
             android:id="@+id/viewBalanceStripe"
-            android:layout_width="3dp"
+            android:layout_width="4dp"
             android:layout_height="match_parent"
-            android:background="#E4DBC6" />
+            android:background="#0F6E56" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
@@ -44,15 +46,15 @@
 
             <TextView
                 android:id="@+id/tvAvatar"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:gravity="center"
                 android:text="A"
-                android:textSize="16sp"
-                android:textColor="#8A8272"
+                android:textSize="11.5sp"
                 android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#085041"
                 android:background="@drawable/bg_credit_avatar"
-                android:backgroundTint="#F3ECDD"
+                android:backgroundTint="#E1F5EE"
                 android:includeFontPadding="false" />
 
             <LinearLayout
@@ -60,7 +62,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:layout_marginStart="11dp">
 
                 <TextView
                     android:id="@+id/tvName"
@@ -68,58 +70,56 @@
                     android:layout_height="wrap_content"
                     android:text="Customer name"
                     android:textSize="13.5sp"
-                    android:textColor="#1A1A18"
                     android:fontFamily="@font/googlesans_medium"
-                    android:singleLine="true"
+                    android:textColor="#1A1A18"
+                    android:maxLines="1"
                     android:ellipsize="end" />
 
                 <TextView
                     android:id="@+id/tvPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="3dp"
                     android:text="9876543210"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="#9A8F79"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:ellipsize="end" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:layout_marginStart="10dp">
-
-                <TextView
-                    android:id="@+id/tvDue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="₹0"
-                    android:textSize="18sp"
-                    android:textColor="#1A1A18"
-                    android:fontFamily="serif"
-                    android:includeFontPadding="false"
-                    android:singleLine="true" />
 
                 <TextView
                     android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="settled"
-                    android:textSize="9.5sp"
-                    android:textColor="#A99E88" />
+                    android:layout_marginTop="5dp"
+                    android:text="Settled"
+                    android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#3B6D11"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvDue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="₹0"
+                android:textSize="17sp"
+                android:fontFamily="serif"
+                android:textColor="#1A1A18"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
         </LinearLayout>
+
     </LinearLayout>
 
     <View
         android:id="@+id/viewRowDivider"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginHorizontal="14dp"
+        android:layout_marginStart="18dp"
         android:background="#F1EBDD" />
 
 </LinearLayout>

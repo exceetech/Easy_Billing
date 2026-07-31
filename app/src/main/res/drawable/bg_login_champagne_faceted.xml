@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auth-screen background: champagne gradient base + the faceted
+     low-poly pattern (colorCode-inspired) on top. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_login_champagne"/>
+    <item android:drawable="@drawable/bg_faceted_champagne"/>
+</layer-list>

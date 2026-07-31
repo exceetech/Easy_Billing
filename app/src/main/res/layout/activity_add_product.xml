@@ -18,66 +18,54 @@
         app:titleTextColor="#1A1A18"
         app:navigationIconTint="#1A1A18" />
 
-    <!-- ══ Header — same title treatment as Manage Products ══ -->
+    <!-- ══ Header — same design as Inventory ══ -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="22dp"
+        android:paddingHorizontal="18dp"
         android:paddingTop="2dp">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="30dp"
-                android:layout_marginEnd="11dp"
-                android:background="@drawable/bg_mp_title_tick"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="INVENTORY"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="INVENTORY"
-                    android:textColor="#B8895A"
-                    android:textSize="10sp"
-                    android:letterSpacing="0.16"
-                    android:fontFamily="@font/googlesans_semibold"/>
-
-                <LinearLayout
+                    android:text="Add"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"/>
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="1dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add"
-                        android:textColor="#1A1A18"
-                        android:textSize="23sp"
-                        android:letterSpacing="-0.02"
-                        android:fontFamily="@font/googlesans_bold"
-                        android:includeFontPadding="false"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="7dp"
-                        android:text="product"
-                        android:textColor="#0F6E56"
-                        android:textSize="23sp"
-                        android:fontFamily="serif"
-                        android:textStyle="italic"
-                        android:includeFontPadding="false"/>
-                </LinearLayout>
+                    android:layout_marginStart="6dp"
+                    android:text="product"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -119,7 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="22dp">
+            android:paddingHorizontal="18dp">
 
             <!-- Row: PRODUCT DETAILS + PRICING & TAX -->
             <LinearLayout
@@ -720,7 +708,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="14dp"
-        android:paddingHorizontal="22dp"
+        android:paddingHorizontal="18dp"
         android:baselineAligned="false">
 
         <LinearLayout

@@ -43,7 +43,6 @@ import com.example.easy_billing.util.NetworkReceiver
 import com.example.easy_billing.util.applyPremiumClickAnimation
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.switchmaterial.SwitchMaterial
 import android.widget.EditText
 import com.example.easy_billing.util.ProductCategories
 import kotlinx.coroutines.launch
@@ -139,7 +138,6 @@ class DashboardActivity : BaseActivity() {
     private val GRID_SPAN = 5
     private lateinit var productGridManager: GridLayoutManager
 
-    private lateinit var switchTranslate: SwitchMaterial
 
     private val noticeRunnable = object : Runnable {
         override fun run() {
@@ -219,27 +217,6 @@ class DashboardActivity : BaseActivity() {
 
         // ✅ Language
         currentLanguage = prefs.getString("app_language", "en") ?: "en"
-
-        // ✅ Translation toggle
-        switchTranslate.isChecked =
-            prefs.getBoolean("translation_enabled", true)
-
-        switchTranslate.setOnCheckedChangeListener { _, isChecked ->
-
-            prefs.edit { putBoolean("translation_enabled", isChecked) }
-
-            Toast.makeText(
-                this,
-                if (isChecked) "Translation ON" else "Translation OFF",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            setupRecyclerViews()
-
-            lifecycleScope.launch {
-                loadProducts() // ✅ safe coroutine call
-            }
-        }
 
         // ✅ Notification permission
         if (Build.VERSION.SDK_INT >= 33) {
@@ -435,8 +412,6 @@ class DashboardActivity : BaseActivity() {
             updateNotifyBadge()
         }
 
-        switchTranslate = findViewById(R.id.switchTranslate)
-
         // Drawer footer: app version
         try {
             val ver = packageManager.getPackageInfo(packageName, 0).versionName
@@ -624,15 +599,8 @@ class DashboardActivity : BaseActivity() {
         productGridManager = gridManager
         rvCart.layoutManager = LinearLayoutManager(this)
 
-        val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
-
-        val translationEnabled =
-            prefs.getBoolean("translation_enabled", true)
-
         // Initialize productAdapter HERE
         productAdapter = ProductAdapter(
-            language = currentLanguage,
-            translationEnabled = translationEnabled,
             onItemClick = { showQuantityDialog(it) },
             onItemLongClick = { showDeleteDialog(it) }
         )
@@ -1739,6 +1707,19 @@ class DashboardActivity : BaseActivity() {
      */
     private var railCategories: List<String> = emptyList()
 
+    // Same deterministic per-category accent palette used by the Inventory
+    // screen's chip row, so a category lands on the same colour in both
+    // places instead of dashboard using a single flat black/white pill.
+    private val railChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun railChipColor(category: String): Int =
+        android.graphics.Color.parseColor(
+            railChipPalette[(category.hashCode() and 0x7FFFFFFF) % railChipPalette.size]
+        )
+
     private fun buildCategoryRail() {
         val rail = findViewById<android.widget.LinearLayout>(R.id.categoryRail) ?: return
         val cats = allProducts
@@ -1754,16 +1735,18 @@ class DashboardActivity : BaseActivity() {
             labels.forEachIndexed { i, label ->
                 val pill = TextView(this).apply {
                     text = label
-                    textSize = 12.5f
+                    textSize = 12f
                     typeface = medium
-                    setPadding(dp(15), dp(8), dp(15), dp(8))
+                    setPadding(dp(12), dp(0), dp(12), dp(0))
+                    height = dp(34)
+                    gravity = android.view.Gravity.CENTER
                     isClickable = true
                     isFocusable = true
                     includeFontPadding = false
                     tag = if (i == 0) "" else label
                     layoutParams = android.widget.LinearLayout.LayoutParams(
                         android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                        dp(34)
                     ).also { it.marginEnd = dp(8) }
                     setOnClickListener {
                         filterCategories = if (i == 0) emptySet() else setOf(label)
@@ -1780,18 +1763,28 @@ class DashboardActivity : BaseActivity() {
 
     private fun refreshRailSelection() {
         val rail = findViewById<android.widget.LinearLayout>(R.id.categoryRail) ?: return
+        val d = resources.displayMetrics.density
         for (i in 0 until rail.childCount) {
             val pill = rail.getChildAt(i) as? TextView ?: continue
             val tag = pill.tag as? String ?: ""
             val selected = if (tag.isEmpty()) filterCategories.isEmpty()
                            else filterCategories == setOf(tag)
-            pill.setBackgroundResource(
-                if (selected) R.drawable.bg_rail_pill_on else R.drawable.bg_rail_pill_off
-            )
-            pill.setTextColor(
-                if (selected) android.graphics.Color.WHITE
-                else android.graphics.Color.parseColor("#5A554C")
-            )
+
+            // "All" has no natural accent colour — treat it like Inventory's
+            // teal-accented "All" chip. Real categories get their stable
+            // per-category colour from the shared palette.
+            val accent = if (tag.isEmpty()) android.graphics.Color.parseColor("#0F6E56")
+                         else railChipColor(tag)
+            val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#E4DCC8")
+            val textColor = if (selected) accent else android.graphics.Color.parseColor("#6E6A60")
+
+            pill.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                setColor(android.graphics.Color.WHITE)
+                cornerRadius = 8f * d
+                setStroke((1.5f * d).toInt(), strokeColor)
+            }
+            pill.setTextColor(textColor)
         }
     }
 
@@ -1866,9 +1859,13 @@ class DashboardActivity : BaseActivity() {
                 // categorized = full span (categorized adds section headers).
                 productGridManager.spanCount = if (viewMode == ViewMode.LIST) 1 else GRID_SPAN
                 productGridManager.spanSizeLookup.invalidateSpanIndexCache()
-                // Column header only makes sense in List view.
-                findViewById<LinearLayout>(R.id.llListHeader).visibility =
-                    if (viewMode == ViewMode.LIST) View.VISIBLE else View.GONE
+                // List rows have no card of their own (they're flat rows with
+                // a hairline divider, like Inventory's), so the whole list
+                // needs a single white rounded card behind it — otherwise
+                // the rows just float on the cream dashboard background.
+                rvProducts.background = if (viewMode == ViewMode.LIST) {
+                    androidx.core.content.ContextCompat.getDrawable(this@DashboardActivity, R.drawable.bg_inv_value_card)
+                } else null
                 productAdapter.setProducts(
                     sorted,
                     grouped = viewMode == ViewMode.CATEGORIZED,
@@ -1951,13 +1948,12 @@ class DashboardActivity : BaseActivity() {
             rows.add(row)
         }
 
-        val tall = options.size > 7
-        val content: View = if (tall) androidx.core.widget.NestedScrollView(this).apply { addView(list) } else list
+        val content: View = list
 
         val popup = android.widget.PopupWindow(
             content,
             dp(230),
-            if (tall) dp(360) else android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
             true
         )
         popup.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))

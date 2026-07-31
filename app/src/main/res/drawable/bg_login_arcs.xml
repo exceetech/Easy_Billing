@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Ribbon weave" background for the login/auth screens: two soft
+     interlaced flowing lines (teal + gold) layered over the champagne
+     gradient, low-opacity so the glass login card stays the focus. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1280dp"
+    android:height="680dp"
+    android:viewportWidth="640"
+    android:viewportHeight="340">
+
+    <path
+        android:pathData="M -40,300 C 160,180 260,380 460,260 S 700,120 760,200"
+        android:strokeColor="#240F6E56"
+        android:strokeWidth="46"
+        android:fillColor="#00000000"/>
+
+    <path
+        android:pathData="M -40,260 C 160,140 260,340 460,220 S 700,80 760,160"
+        android:strokeColor="#24B8895A"
+        android:strokeWidth="26"
+        android:fillColor="#00000000"/>
+
+</vector>

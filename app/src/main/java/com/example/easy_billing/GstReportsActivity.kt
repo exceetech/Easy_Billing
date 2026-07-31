@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
@@ -14,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -120,6 +122,38 @@ class GstReportsActivity : AppCompatActivity() {
     private lateinit var rvDrafts: RecyclerView
 
     // ─────────────────────────────────────────────────────────────────────────
+
+    // Deliberately NOT a BaseActivity (avoids BaseActivity's forced landscape
+    // re-orientation), so the system bars are hidden locally here instead —
+    // same immersive treatment every other screen in the app gets.
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideSystemBars()
+    }
+
+    private fun hideSystemBars() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let { controller ->
+                controller.hide(
+                    android.view.WindowInsets.Type.statusBars() or
+                        android.view.WindowInsets.Type.navigationBars()
+                )
+                controller.systemBarsBehavior =
+                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                )
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -537,7 +571,30 @@ class GstReportsActivity : AppCompatActivity() {
     
     private fun setupButtons() {
         btnGenerate.setOnClickListener { if (isGstr1) viewModel1.generateReport() else viewModel2.generateReport() }
-        btnValidate.setOnClickListener { if (isGstr1) viewModel1.validateReport() else Unit } // No manual validate for GSTR-2 yet
+        btnValidate.setOnClickListener {
+            if (isGstr1) {
+                if (viewModel1.report.value == null) {
+                    // validateReport() no-ops when no report exists yet — without
+                    // this the button feels dead when tapped too early.
+                    Toast.makeText(this, "Generate the report first, then validate.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                // validationResult is a StateFlow of a data class — if the report
+                // hasn't changed since the last check, the recomputed result is
+                // equal to the stored one and StateFlow drops the emission, so
+                // collectLatest() never re-fires and the banner looks frozen.
+                // Bind directly here so every tap gives visible feedback, and
+                // toast the outcome too in case the banner is scrolled off-screen.
+                viewModel1.validateReport()
+                val result = viewModel1.validationResult.value
+                if (result != null) {
+                    bindValidation1(result)
+                    showValidationDialog(result)
+                }
+            } else {
+                Toast.makeText(this, "Validation isn't available for GSTR-2 yet.", Toast.LENGTH_SHORT).show()
+            }
+        }
         btnSaveDraft.setOnClickListener { if (isGstr1) viewModel1.saveDraft() else viewModel2.saveDraft() }
         btnExportCsv.setOnClickListener { if (isGstr1) viewModel1.exportCsv() else viewModel2.exportCsv() }
         btnExportExcel.setOnClickListener { if (isGstr1) viewModel1.exportExcel() else viewModel2.exportExcel() }
@@ -663,12 +720,166 @@ class GstReportsActivity : AppCompatActivity() {
     }
 
     private fun confirmDeleteDraft(draft: Gstr1DraftEntity) {
-        AlertDialog.Builder(this)
-            .setTitle("Delete Draft?")
-            .setMessage("Delete GSTR-1 draft for ${draft.period} ${draft.financialYear}?")
-            .setPositiveButton("Delete") { _, _ -> viewModel1.deleteDraft(draft.id) }
-            .setNegativeButton("Cancel", null)
-            .show()
+        showGstConfirmDialog(
+            eyebrow = "REMOVE DRAFT",
+            titleBold = "Delete ",
+            titleAccent = "draft",
+            message = "GSTR-1 draft for ${draft.period} ${draft.financialYear} will be permanently removed.",
+            positiveLabel = "Delete"
+        ) { viewModel1.deleteDraft(draft.id) }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Champagne-themed dialog helpers, reused for every GST confirm/export popup
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun showGstConfirmDialog(
+        eyebrow: String,
+        titleBold: String,
+        titleAccent: String,
+        message: String,
+        positiveLabel: String = "Delete",
+        onPositive: () -> Unit
+    ) {
+        val view = layoutInflater.inflate(R.layout.dialog_gst_confirm, null)
+        view.findViewById<TextView>(R.id.tvEyebrow).text = eyebrow
+        view.findViewById<TextView>(R.id.tvTitleBold).text = titleBold
+        view.findViewById<TextView>(R.id.tvTitleAccent).text = titleAccent
+        view.findViewById<TextView>(R.id.tvMessage).text = message
+        view.findViewById<MaterialButton>(R.id.btnPositive).text = positiveLabel
+
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<MaterialButton>(R.id.btnNegative).setOnClickListener { dialog.dismiss() }
+        view.findViewById<MaterialButton>(R.id.btnPositive).setOnClickListener {
+            dialog.dismiss()
+            onPositive()
+        }
+        dialog.show()
+    }
+
+    private fun showGstSuccessDialog(
+        eyebrow: String,
+        titleBold: String,
+        titleAccent: String,
+        message: String,
+        infoLabel: String? = null,
+        infoValue: String? = null,
+        primaryLabel: String,
+        onPrimary: () -> Unit
+    ) {
+        val view = layoutInflater.inflate(R.layout.dialog_gst_success, null)
+        view.findViewById<TextView>(R.id.tvEyebrow).text = eyebrow
+        view.findViewById<TextView>(R.id.tvTitleBold).text = titleBold
+        view.findViewById<TextView>(R.id.tvTitleAccent).text = titleAccent
+        view.findViewById<TextView>(R.id.tvMessage).text = message
+
+        if (infoValue != null) {
+            view.findViewById<LinearLayout>(R.id.cardInfo).visibility = View.VISIBLE
+            infoLabel?.let { view.findViewById<TextView>(R.id.tvInfoLabel).text = it }
+            view.findViewById<TextView>(R.id.tvInfoValue).text = infoValue
+        }
+
+        view.findViewById<MaterialButton>(R.id.btnPrimary).text = primaryLabel
+
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<MaterialButton>(R.id.btnSecondary).setOnClickListener { dialog.dismiss() }
+        view.findViewById<MaterialButton>(R.id.btnPrimary).setOnClickListener {
+            dialog.dismiss()
+            onPrimary()
+        }
+        dialog.show()
+    }
+
+    private fun showValidationDialog(result: Gstr1Validator.ValidationResult) {
+        val view = layoutInflater.inflate(R.layout.dialog_gst_validation, null)
+
+        val badgeFrame  = view.findViewById<FrameLayout>(R.id.badgeFrame)
+        val ivBadge     = view.findViewById<ImageView>(R.id.ivBadge)
+        val tvTitleBold = view.findViewById<TextView>(R.id.tvTitleBold)
+        val tvTitleAcc  = view.findViewById<TextView>(R.id.tvTitleAccent)
+        val tvMessage   = view.findViewById<TextView>(R.id.tvMessage)
+        val cardIssues  = view.findViewById<LinearLayout>(R.id.cardIssues)
+        val scrollIssues = view.findViewById<View>(R.id.scrollIssues)
+        val llIssuesList = view.findViewById<LinearLayout>(R.id.llIssuesList)
+
+        when {
+            result.hasErrors -> {
+                badgeFrame.background = ContextCompat.getDrawable(this, R.drawable.bg_circle_soft_red)
+                ivBadge.setImageResource(R.drawable.ic_lucide_circle_x)
+                ivBadge.imageTintList = ColorStateList.valueOf(Color.parseColor("#A32D2D"))
+                tvTitleBold.text = "Report "
+                tvTitleAcc.text = "issues"
+                tvMessage.text = "${result.errorCount} error(s), ${result.warningCount} warning(s) — fix errors before filing"
+            }
+            result.hasWarnings -> {
+                badgeFrame.background = ContextCompat.getDrawable(this, R.drawable.bg_circle_soft_gold)
+                ivBadge.setImageResource(R.drawable.ic_lc_alert_triangle)
+                ivBadge.imageTintList = ColorStateList.valueOf(Color.parseColor("#8A6526"))
+                tvTitleBold.text = "Review "
+                tvTitleAcc.text = "warnings"
+                tvMessage.text = "${result.warningCount} warning(s) — worth a look before filing"
+            }
+            else -> {
+                badgeFrame.background = ContextCompat.getDrawable(this, R.drawable.bg_circle_soft_teal)
+                ivBadge.setImageResource(R.drawable.ic_lc_circle_check)
+                ivBadge.imageTintList = ColorStateList.valueOf(Color.parseColor("#085041"))
+                tvTitleBold.text = "All "
+                tvTitleAcc.text = "clear"
+                tvMessage.text = "No issues found. This report is ready to export."
+            }
+        }
+
+        if (result.issues.isNotEmpty()) {
+            cardIssues.visibility = View.VISIBLE
+            llIssuesList.removeAllViews()
+
+            result.issues.forEachIndexed { index, issue ->
+                val row = layoutInflater.inflate(R.layout.item_validation_issue, llIssuesList, false)
+                val tileBg = row.findViewById<FrameLayout>(R.id.ivTileBg)
+                val icon   = row.findViewById<ImageView>(R.id.ivIcon)
+                row.findViewById<TextView>(R.id.tvSection).text = issue.section
+                row.findViewById<TextView>(R.id.tvMessage).text =
+                    if (issue.rowHint.isNotBlank()) "${issue.message} (${issue.rowHint})" else issue.message
+
+                if (issue.severity == Gstr1Validator.Severity.ERROR) {
+                    tileBg.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FCEBEB"))
+                    icon.setImageResource(R.drawable.ic_lucide_circle_x)
+                    icon.imageTintList = ColorStateList.valueOf(Color.parseColor("#A32D2D"))
+                } else {
+                    tileBg.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FAEEDA"))
+                    icon.setImageResource(R.drawable.ic_lc_alert_triangle)
+                    icon.imageTintList = ColorStateList.valueOf(Color.parseColor("#8A6526"))
+                }
+
+                llIssuesList.addView(row)
+
+                if (index != result.issues.lastIndex) {
+                    val divider = View(this).apply {
+                        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
+                        setBackgroundColor(Color.parseColor("#F0EBDD"))
+                    }
+                    llIssuesList.addView(divider)
+                }
+            }
+
+            // Cap the scroll area's height once there are enough rows to need
+            // scrolling, so the dialog doesn't grow past the screen.
+            if (result.issues.size > 4) {
+                scrollIssues.layoutParams.height = (220 * resources.displayMetrics.density).toInt()
+                scrollIssues.requestLayout()
+            }
+        } else {
+            cardIssues.visibility = View.GONE
+        }
+
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        view.findViewById<MaterialButton>(R.id.btnClose).setOnClickListener { dialog.dismiss() }
+        dialog.show()
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -681,42 +892,45 @@ class GstReportsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
             }
             is Gstr1ViewModel.ExportEvent.CsvExported -> {
-                AlertDialog.Builder(this)
-                    .setTitle("CSV Export Complete")
-                    .setMessage(
-                        "${event.files.size} CSV file(s) written to:\n${event.directory}\n\n" +
-                        "Sections: ${event.files.keys.joinToString(", ")}"
-                    )
-                    .setPositiveButton("Share All") { _, _ ->
-                        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                            type = "text/csv"
-                            val uriList = ArrayList(event.files.values)
-                            putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        startActivity(Intent.createChooser(intent, "Share GSTR-1 CSVs"))
+                showGstSuccessDialog(
+                    eyebrow = "CSV EXPORT",
+                    titleBold = "Export ",
+                    titleAccent = "complete",
+                    message = "${event.files.size} CSV file(s) ready · ${event.files.keys.joinToString(", ")}",
+                    infoLabel = "SAVED TO",
+                    infoValue = event.directory,
+                    primaryLabel = "Share all"
+                ) {
+                    val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                        type = "text/csv"
+                        val uriList = ArrayList(event.files.values)
+                        putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    .setNegativeButton("OK", null)
-                    .show()
+                    startActivity(Intent.createChooser(intent, "Share GSTR-1 CSVs"))
+                }
             }
             is Gstr1ViewModel.ExportEvent.ExcelExported -> {
-                AlertDialog.Builder(this)
-                    .setTitle("Excel Export Complete")
-                    .setMessage("Workbook saved to:\n${event.path}")
-                    .setPositiveButton("Open") { _, _ ->
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(event.uri,
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        try {
-                            startActivity(intent)
-                        } catch (e: Exception) {
-                            Toast.makeText(this, "No app found to open .xlsx files.", Toast.LENGTH_SHORT).show()
-                        }
+                showGstSuccessDialog(
+                    eyebrow = "EXCEL EXPORT",
+                    titleBold = "Export ",
+                    titleAccent = "complete",
+                    message = "Your GSTR-1 workbook is ready.",
+                    infoLabel = "SAVED TO",
+                    infoValue = event.path,
+                    primaryLabel = "Open"
+                ) {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(event.uri,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    .setNegativeButton("OK", null)
-                    .show()
+                    try {
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "No app found to open .xlsx files.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -743,14 +957,15 @@ class GstReportsActivity : AppCompatActivity() {
         llDraftsSection.visibility = if (drafts.isEmpty()) View.GONE else View.VISIBLE
         rvDrafts.layoutManager = LinearLayoutManager(this)
         rvDrafts.adapter = Gstr2DraftsAdapter(drafts,
-            onOpen   = { /* viewModel2.loadDraftById(it.id) */ },
+            onOpen   = { viewModel2.loadDraft(it) },
             onDelete = {
-                AlertDialog.Builder(this)
-                    .setTitle("Delete Draft?")
-                    .setMessage("Delete GSTR-2 draft?")
-                    .setPositiveButton("Delete") { _, _ -> viewModel2.deleteDraft(it) }
-                    .setNegativeButton("Cancel", null)
-                    .show()
+                showGstConfirmDialog(
+                    eyebrow = "REMOVE DRAFT",
+                    titleBold = "Delete ",
+                    titleAccent = "draft",
+                    message = "This GSTR-2 draft will be permanently removed.",
+                    positiveLabel = "Delete"
+                ) { viewModel2.deleteDraft(it) }
             }
         )
     }
@@ -759,31 +974,39 @@ class GstReportsActivity : AppCompatActivity() {
         when (event) {
             is Gstr2ViewModel.ExportEvent.DraftSaved -> Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
             is Gstr2ViewModel.ExportEvent.CsvExported -> {
-                AlertDialog.Builder(this)
-                    .setTitle("CSV Export Complete")
-                    .setMessage("${event.files.size} CSV file(s) written to:\n${event.directory}")
-                    .setPositiveButton("Share All") { _, _ ->
-                        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                            type = "text/csv"
-                            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(event.files.values))
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        startActivity(Intent.createChooser(intent, "Share GSTR-2 CSVs"))
+                showGstSuccessDialog(
+                    eyebrow = "CSV EXPORT",
+                    titleBold = "Export ",
+                    titleAccent = "complete",
+                    message = "${event.files.size} CSV file(s) are ready.",
+                    infoLabel = "SAVED TO",
+                    infoValue = event.directory,
+                    primaryLabel = "Share all"
+                ) {
+                    val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                        type = "text/csv"
+                        putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(event.files.values))
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    .setNegativeButton("OK", null).show()
+                    startActivity(Intent.createChooser(intent, "Share GSTR-2 CSVs"))
+                }
             }
             is Gstr2ViewModel.ExportEvent.ExcelExported -> {
-                AlertDialog.Builder(this)
-                    .setTitle("Excel Export Complete")
-                    .setMessage("Workbook saved to:\n${event.path}")
-                    .setPositiveButton("Open") { _, _ ->
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(event.uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        try { startActivity(intent) } catch (e: Exception) { Toast.makeText(this, "No app found.", Toast.LENGTH_SHORT).show() }
+                showGstSuccessDialog(
+                    eyebrow = "EXCEL EXPORT",
+                    titleBold = "Export ",
+                    titleAccent = "complete",
+                    message = "Your GSTR-2 workbook is ready.",
+                    infoLabel = "SAVED TO",
+                    infoValue = event.path,
+                    primaryLabel = "Open"
+                ) {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(event.uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    .setNegativeButton("OK", null).show()
+                    try { startActivity(intent) } catch (e: Exception) { Toast.makeText(this, "No app found.", Toast.LENGTH_SHORT).show() }
+                }
             }
         }
     }

@@ -145,7 +145,6 @@ class PurchaseActivity : BaseActivity() {
         setContentView(R.layout.activity_purchase)
 
         setupToolbar(R.id.toolbar)
-        supportActionBar?.title = getString(R.string.purchase_title)
 
         bindViews()
         setupRecycler()

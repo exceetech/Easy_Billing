@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Generic destructive-confirm dialog (delete draft, etc.) in the app's
+  champagne dialog language — red circular icon badge, gold eyebrow,
+  bold+italic-serif title, plain message, neutral Cancel + red-tint action.
+
+  Reused across GstReportsActivity's "Delete Draft?" prompts.
+  Bound programmatically: tvEyebrow, tvTitleBold, tvTitleAccent, tvMessage,
+  btnNegative, btnPositive.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:padding="22dp"
+    android:background="@drawable/bg_dialog_rounded"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_circle_soft_red">
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_trash"
+            app:tint="#B23A3A" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvEyebrow"
+        android:text="REMOVE DRAFT"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="1dp">
+        <View
+            android:layout_width="3dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/bg_mp_title_tick"/>
+        <TextView
+            android:id="@+id/tvTitleBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete "
+            android:textColor="#1A1A18"
+            android:textSize="25sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:letterSpacing="-0.02"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:id="@+id/tvTitleAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="draft"
+            android:textColor="#0F6E56"
+            android:textSize="25sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:text="This draft will be permanently removed."
+        android:textSize="12.5sp"
+        android:textColor="#6E6A60"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:lineSpacingExtra="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNegative"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="46dp"
+            android:text="Cancel"
+            android:textColor="#1A1A18"
+            android:textAllCaps="false"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_cta_champagne_outline"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"/>
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="1dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPositive"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="46dp"
+            android:text="Delete"
+            android:textColor="#B23A3A"
+            android:textAllCaps="false"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_cta_rose_tonal"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_lc_trash"
+            app:iconTint="#B23A3A"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"/>
+    </LinearLayout>
+
+</LinearLayout>

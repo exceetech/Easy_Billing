@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Downloadable Google Font (Marcellus) — fetched via Google Play
+     Services at runtime instead of a bundled .ttf, so the wordmark can
+     use it without shipping the font file in the app. Requires
+     res/values/font_certs.xml. -->
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fontProviderAuthority="com.google.android.gms.fonts"
+    app:fontProviderPackage="com.google.android.gms"
+    app:fontProviderQuery="Marcellus"
+    app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
+</font-family>
