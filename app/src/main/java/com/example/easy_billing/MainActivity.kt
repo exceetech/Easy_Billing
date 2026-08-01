@@ -29,14 +29,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import com.example.easy_billing.util.applyPremiumClickAnimation
 import retrofit2.HttpException
 
 class MainActivity : BaseActivity() {
 
     private var entranceStarted = false
-
-    private enum class SessionCheckResult { VALID, INVALID_TOKEN, WORKSPACE_CHANGED }
 
     /**
      * Formerly SplashActivity's job: if a token is already saved, verify it
@@ -60,32 +57,29 @@ class MainActivity : BaseActivity() {
         }
 
         lifecycleScope.launch {
+            // Shared with SplashActivity — see SessionCheck's doc comment
+            // for why this used to be two hand-copied implementations
+            // that drifted (this one was missing the BackendHealthStatus
+            // calls Splash's had).
             val result = withContext(Dispatchers.IO) {
-                try {
-                    RetrofitClient.api.getProfile(token)
-                    SessionCheckResult.VALID
-                } catch (e: HttpException) {
-                    when (e.code()) {
-                        401 -> SessionCheckResult.INVALID_TOKEN
-                        409 -> SessionCheckResult.WORKSPACE_CHANGED
-                        else -> SessionCheckResult.VALID // network/server hiccup → let through
-                    }
-                } catch (e: Exception) {
-                    SessionCheckResult.VALID // offline → let user into cached Dashboard
-                }
+                com.example.easy_billing.util.SessionCheck.run(this@MainActivity, token)
             }
 
             when (result) {
-                SessionCheckResult.VALID -> {
+                com.example.easy_billing.util.SessionCheck.Result.VALID -> {
                     startActivity(Intent(this@MainActivity, DashboardActivity::class.java))
                     finish()
                 }
-                SessionCheckResult.INVALID_TOKEN -> {
+                com.example.easy_billing.util.SessionCheck.Result.ONBOARDING_INCOMPLETE -> {
+                    startActivity(Intent(this@MainActivity, OnboardingActivity::class.java))
+                    finish()
+                }
+                com.example.easy_billing.util.SessionCheck.Result.INVALID_TOKEN -> {
                     prefs.edit { remove("TOKEN") }
                     // stale token cleared — stay put, let the user log in normally
                     onStayingOnLogin()
                 }
-                SessionCheckResult.WORKSPACE_CHANGED -> {
+                com.example.easy_billing.util.SessionCheck.Result.WORKSPACE_CHANGED -> {
                     val intent = Intent(this@MainActivity, WorkspaceChangedActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
@@ -470,10 +464,22 @@ class MainActivity : BaseActivity() {
                     android.util.Log.d("SESSION", "Session initialized")
 
                     // NAVIGATION
+                    // Onboarding gate (plan §2.2): LoginResponse doesn't
+                    // carry onboarding status itself (it only has
+                    // is_first_login, a narrower, pre-existing signal
+                    // about the forced password change) — rather than
+                    // widen that response schema, route every
+                    // non-first-login success through OnboardingActivity
+                    // unconditionally. It self-resolves straight to
+                    // Dashboard on its own next onResume if onboarding is
+                    // already complete (see OnboardingActivity's fast
+                    // path), so this costs one extra Activity frame on an
+                    // already-onboarded login, not an extra gate a user
+                    // can get stuck behind.
                     val next = if (response.is_first_login) {
                         ChangePasswordActivity::class.java
                     } else {
-                        DashboardActivity::class.java
+                        OnboardingActivity::class.java
                     }
 
                     startActivity(Intent(this@MainActivity, next))

@@ -71,56 +71,152 @@
 
         </LinearLayout>
 
-        <!-- QR CARD -->
+        <!-- FREE TRIAL -->
+        <!-- Hidden entirely once the shop has already used its trial —
+             see SubscriptionActivity.renderTrialCard(). Trial length is
+             never hardcoded here; the actual duration comes from the
+             backend (app_config.trial_duration_days) and is only shown
+             for display after start-trial succeeds. -->
         <LinearLayout
+            android:id="@+id/cardTrial"
             android:orientation="vertical"
-            android:gravity="center"
             android:padding="16dp"
             android:layout_marginTop="20dp"
+            android:background="@drawable/bg_card_selected"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Try Premium free"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#0F6E56"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvTrialDescription"
+                android:text="Unlock GST reports, profit insights, and AI insights free for a limited time."
+                android:textSize="13sp"
+                android:textColor="#6B7280"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btnStartTrial"
+                android:text="Start free trial"
+                android:textAllCaps="false"
+                android:textSize="14sp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_button_primary"
+                android:textColor="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"/>
+
+        </LinearLayout>
+
+        <!-- PLAN SELECTION -->
+        <!-- Populated at runtime, one card per plan returned by
+             GET /subscription/plans (SubscriptionActivity.renderPlans()) —
+             never hardcoded here, so a price/plan change is a backend-only
+             edit, not an app release. -->
+        <LinearLayout
+            android:id="@+id/llPlans"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!-- COUPON -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/etCoupon"
+                    android:hint="Coupon code (optional)"
+                    android:textSize="14sp"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"/>
+
+                <Button
+                    android:id="@+id/btnApplyCoupon"
+                    android:text="Apply"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_button_secondary"
+                    android:textColor="#111827"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:paddingHorizontal="16dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvCouponResult"
+                android:textSize="13sp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <!-- PRICE SUMMARY + PAY -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/bg_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="@string/scan_and_pay"
+                android:id="@+id/tvFinalPrice"
+                android:text="Select a plan to continue"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textSize="16sp"
                 android:textColor="#111827"
-                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btnPay"
+                android:text="Pay"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:enabled="false"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_button_primary"
+                android:textColor="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"/>
+
+            <ProgressBar
+                android:id="@+id/progressPayment"
+                android:visibility="gone"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <ImageView
-                android:id="@+id/imgQR"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:background="#FFFFFF"
-                android:padding="10dp"/>
-
         </LinearLayout>
-
-        <!-- BUTTONS -->
-        <Button
-            android:id="@+id/btnMonthly"
-            android:text="@string/pay_monthly_999"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/bg_button_primary"
-            android:textColor="#FFFFFF"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"/>
-
-        <Button
-            android:id="@+id/btnYearly"
-            android:text="@string/pay_yearly_9999"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_button_secondary"
-            android:textColor="#111827"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"/>
 
     </LinearLayout>
 

@@ -51,9 +51,19 @@ class StoreSettingsActivity : BaseActivity() {
     private var snapshot: StoreSnapshot? = null
     private var isEditMode = false
 
+    // Set when launched from OnboardingActivity — re-verifying a
+    // password the user set thirty seconds earlier (during the forced
+    // first-login password change) is pure friction with no real
+    // security benefit in that specific context, so the wizard skips it.
+    // Outside onboarding (a returning user editing live settings),
+    // re-verification still applies as normal. See plan §2.3.
+    private var isOnboardingFlow = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_store_settings)
+
+        isOnboardingFlow = intent.getBooleanExtra(EXTRA_ONBOARDING, false)
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = ""
@@ -63,6 +73,27 @@ class StoreSettingsActivity : BaseActivity() {
         setupShopTypeDropdown()
         loadStoreSettings()
         setupSave()
+
+        // Fields start empty for a brand-new shop — don't make the user
+        // tap "Edit" on blank required fields before they can type.
+        //
+        // Enter edit mode directly (not via toggleEditMode()) so no
+        // snapshot is taken here — loadStoreSettings() above is still
+        // in flight and hasn't populated the fields yet, so a snapshot
+        // taken now would be empty. If it were taken, tapping "Discard"
+        // after the async load finishes would revert freshly-loaded data
+        // back to blank. The Edit/Discard button is hidden entirely
+        // below instead, since onboarding has no "discard and view
+        // read-only" state to return to.
+        if (isOnboardingFlow) {
+            isEditMode = true
+            setEditMode(true)
+            btnEdit.visibility = View.GONE
+        }
+    }
+
+    companion object {
+        const val EXTRA_ONBOARDING = "extra_onboarding"
     }
 
     /* ------------------------------------------------------------------
@@ -207,7 +238,11 @@ class StoreSettingsActivity : BaseActivity() {
 
     private fun setupSave() {
         btnSave.setOnClickListener {
-            showPasswordVerificationDialog { saveStoreSettings() }
+            if (isOnboardingFlow) {
+                saveStoreSettings()
+            } else {
+                showPasswordVerificationDialog { saveStoreSettings() }
+            }
         }
     }
 
@@ -300,6 +335,13 @@ class StoreSettingsActivity : BaseActivity() {
                 Toast.makeText(this@StoreSettingsActivity, msg, Toast.LENGTH_SHORT).show()
                 setEditMode(false)
                 isEditMode = false
+
+                // Reached from the onboarding hub — return to it
+                // automatically instead of leaving the user stranded on
+                // this screen needing a manual back press.
+                if (isOnboardingFlow) {
+                    finish()
+                }
             }
         }
     }

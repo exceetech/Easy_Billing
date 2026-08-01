@@ -329,6 +329,7 @@ class DashboardActivity : BaseActivity() {
         NetworkReceiver(this).startListening()
         checkSubscription()
         observeBackendHealth()
+        applyTierGatingUi()
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
@@ -700,7 +701,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnGstReports).setOnClickListener {
-            startActivity(Intent(this, GstReportsActivity::class.java))
+            launchIfPremium(GstReportsActivity::class.java)
             drawerLayout.closeDrawers()
         }
 
@@ -730,7 +731,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnProfit).setOnClickListener {
-            startActivity(Intent(this, ProfitActivity::class.java))
+            launchIfPremium(ProfitActivity::class.java)
             drawerLayout.closeDrawers()
         }
 
@@ -740,11 +741,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnAiInsights).setOnClickListener {
-
-            startActivity(
-                Intent(this, AiDashboardActivity::class.java)
-            )
-
+            launchIfPremium(AiDashboardActivity::class.java)
             drawerLayout.closeDrawers()
         }
 
@@ -1604,8 +1601,14 @@ class DashboardActivity : BaseActivity() {
 
                 val res = RetrofitClient.api.getSubscription(token)
 
-                // 🔴 If not active → block user
-                if (res.status != "active") {
+                // 🔴 If not active/trial → block user
+                // "trial" is a genuinely usable, active status (see
+                // onboarding/subscription plan §4.4) — this used to check
+                // `!= "active"` only, which would show the blocking
+                // "Subscription Required" dialog to every trialing shop
+                // the moment they opened Dashboard. Same class of bug as
+                // the one fixed in the backend's get_current_shop().
+                if (res.status != "active" && res.status != "trial") {
                     showSubscriptionDialog()
                 }
 
@@ -1623,6 +1626,58 @@ class DashboardActivity : BaseActivity() {
                     "Unable to verify subscription",
                     Toast.LENGTH_SHORT
                 ).show()
+            }
+        }
+    }
+
+    // ================= TIER-GATED FEATURES (GST reports, Profit, AI Insights) =================
+    // See onboarding/subscription plan §5.1-5.3. This is the UI-side
+    // convenience gate only — every one of these screens' backing
+    // endpoints already refuses a Base-tier shop server-side
+    // (require_premium_tier, backend/app/dependencies.py) regardless of
+    // whether this check runs at all. The point of gating here too is
+    // just to avoid opening a screen the server is about to refuse
+    // anyway, and to show an upgrade prompt at the moment of tap instead
+    // of after a failed network call inside the target Activity.
+
+    private fun <T> launchIfPremium(activityClass: Class<T>) {
+        lifecycleScope.launch {
+            val info = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
+            if (info?.tier == "premium") {
+                startActivity(Intent(this@DashboardActivity, activityClass))
+            } else {
+                showUpgradePrompt()
+            }
+        }
+    }
+
+    private fun showUpgradePrompt() {
+        AlertDialog.Builder(this)
+            .setTitle("Premium feature")
+            .setMessage("This feature requires a Premium subscription. Upgrade to unlock GST reports, profit insights, and AI insights.")
+            .setPositiveButton("Upgrade") { _, _ ->
+                startActivity(Intent(this@DashboardActivity, SubscriptionActivity::class.java))
+            }
+            .setNegativeButton("Not now", null)
+            .show()
+    }
+
+    /**
+     * Best-effort visual dim on the three Premium-gated drawer entries,
+     * so a Base-tier shop sees they're locked before tapping rather than
+     * only finding out via the upgrade dialog. Purely cosmetic — never
+     * the actual gate (see launchIfPremium above) — so it fails silently
+     * and simply leaves buttons at full opacity if the tier check can't
+     * complete (e.g. fully offline with no cache yet).
+     */
+    private fun applyTierGatingUi() {
+        lifecycleScope.launch {
+            val info = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
+            val isPremium = info?.tier == "premium"
+            val alpha = if (isPremium) 1.0f else 0.5f
+
+            listOf(R.id.btnGstReports, R.id.btnProfit, R.id.btnAiInsights).forEach { id ->
+                findViewById<View>(id)?.alpha = alpha
             }
         }
     }

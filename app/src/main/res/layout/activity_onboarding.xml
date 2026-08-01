@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    First-time setup wizard shell. This does NOT re-implement the four
+    steps' forms — it's an orchestrator that launches the existing,
+    already-working Activities (SubscriptionActivity, StoreSettingsActivity,
+    BillingSettingsActivity, TermsActivity) in a fixed, non-skippable
+    order, and re-checks GET /auth/me on every resume to know which step
+    is next. See OnboardingActivity.kt.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3ECDD">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingBottom="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- No navigation icon set — onboarding can't be backed out of. -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
+            app:titleTextColor="#1A1A18"
+            app:navigationIconTint="#1A1A18" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+            android:text="GETTING STARTED"
+            android:textSize="10sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#B8895A"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Set up your"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="#1A1A18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:text=" shop"
+                android:textSize="21sp"
+                android:textStyle="italic"
+                android:fontFamily="serif"
+                android:textColor="#0F6E56"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:text="A few quick steps before you start billing."
+            android:textSize="13sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:textColor="#8A8474"
+            android:layout_marginTop="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- Node stepper: built in code (OnboardingActivity.renderStepper) since
+             the connector lines need to size themselves between nodes. -->
+        <LinearLayout
+            android:id="@+id/llOnboardStepper"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tvOnboardStepCount"
+            android:text="Step 1 of 4"
+            android:textSize="11sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:textColor="#9C9482"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:id="@+id/llSteps"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="Tap the highlighted step to continue"
+            android:textSize="11sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:textColor="#9C9482"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <ProgressBar
+            android:id="@+id/progressOnboarding"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

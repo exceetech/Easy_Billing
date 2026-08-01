@@ -286,7 +286,11 @@
             app:iconGravity="textStart"
             app:iconPadding="6dp"
             app:cornerRadius="13dp"
-            app:backgroundTint="@null"/>
+            app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnApplyDiscount"
@@ -308,7 +312,11 @@
             app:iconGravity="textStart"
             app:iconPadding="7dp"
             app:cornerRadius="13dp"
-            app:backgroundTint="@null"/>
+            app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
     </LinearLayout>
 
 </LinearLayout>

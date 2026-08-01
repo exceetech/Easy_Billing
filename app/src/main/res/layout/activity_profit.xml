@@ -512,7 +512,10 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:stateListAnimator="@null"
-            android:elevation="0dp"/>
+            android:elevation="0dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
     </LinearLayout>
 
 </LinearLayout>

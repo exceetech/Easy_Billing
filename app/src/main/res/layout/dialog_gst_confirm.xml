@@ -137,7 +137,10 @@
             app:iconTint="#B23A3A"
             app:iconSize="15dp"
             app:iconGravity="textStart"
-            app:iconPadding="6dp"/>
+            app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
     </LinearLayout>
 
 </LinearLayout>

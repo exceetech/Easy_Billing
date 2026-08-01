@@ -297,7 +297,11 @@
                         android:insetTop="0dp" android:insetBottom="0dp"
                         android:padding="0dp"
                         app:icon="@drawable/ic_lc_help_circle" app:iconSize="18dp"
-                        app:iconTint="#B8895A" app:iconGravity="textStart" app:iconPadding="0dp"/>
+                        app:iconTint="#B8895A" app:iconGravity="textStart" app:iconPadding="0dp"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
                 </LinearLayout>
 
                 <!-- UQC (required) -->
@@ -903,7 +907,11 @@
             app:iconGravity="textStart"
             app:iconPadding="8dp"
             app:cornerRadius="14dp"
-            app:backgroundTint="@null"/>
+            app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLineAdd"
@@ -925,6 +933,10 @@
             app:iconGravity="textStart"
             app:iconPadding="7dp"
             app:cornerRadius="13dp"
-            app:backgroundTint="@null"/>
+            app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
     </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3ECDD">
+
+    <!-- No navigation icon — this is onboarding step 4, non-skippable. -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="FINAL STEP"
+            android:textSize="10sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#B8895A"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Terms and"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="#1A1A18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:text=" conditions"
+                android:textSize="21sp"
+                android:textStyle="italic"
+                android:fontFamily="serif"
+                android:textColor="#0F6E56"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <!-- Premium trust badge -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_onboard_step_card"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="12dp"
+            android:layout_marginTop="14dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_circle_soft_amber">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_shield_check"
+                    app:tint="#854F0B"
+                    android:contentDescription="@null"/>
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginStart="12dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="Your data stays yours"
+                    android:textSize="12.5sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#1A1A18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Encrypted, private, never sold"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#8A8474"
+                    android:layout_marginTop="1dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Live reading-progress bar -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="14dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Reading progress"
+                android:textSize="10.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#9C9482"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="6dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_terms_progress_track">
+
+                <View
+                    android:id="@+id/viewTermsProgress"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_terms_progress_fill"/>
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvTermsProgressPct"
+                android:text="0%"
+                android:textSize="10.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#0F6E56"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Terms document card, fades at the bottom to hint there's more -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="18dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="@drawable/bg_onboard_step_card"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:id="@+id/scrollTerms"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:clipToPadding="false">
+
+                <LinearLayout
+                    android:id="@+id/llTermsSections"
+                    android:orientation="vertical"
+                    android:paddingBottom="28dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/viewTermsFade"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/fade_terms_bottom"/>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/llScrollHint"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="↓"
+                android:textSize="13sp"
+                android:textColor="#B8895A"
+                android:fontFamily="@font/googlesans_semibold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvScrollHint"
+                android:text="Scroll to the end to continue"
+                android:textSize="11sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#B8895A"
+                android:layout_marginStart="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAcceptTerms"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="I agree and continue"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#8A8474"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:enabled="false"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:backgroundTint="#D8D0BC"
+            app:rippleColor="#2E9C5B"
+            app:icon="@drawable/ic_lc_lock"
+            app:iconTint="#8A8474"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            app:cornerRadius="13dp"/>
+
+        <TextView
+            android:id="@+id/tvTermsUnlockHint"
+            android:text="Unlocks once you've read the full terms"
+            android:textSize="10.5sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:textColor="#9C9482"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</LinearLayout>

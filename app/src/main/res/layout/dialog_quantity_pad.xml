@@ -197,7 +197,11 @@
             app:icon="@drawable/ic_drawer_purchase"
             app:iconGravity="textStart"
             app:iconPadding="10dp"
-            app:iconTint="@android:color/white"/>
+            app:iconTint="@android:color/white"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
     </LinearLayout>
 

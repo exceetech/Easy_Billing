@@ -945,7 +945,11 @@
                                     android:text="Remove account" android:textAllCaps="false"
                                     android:textSize="12sp" android:textColor="#B3413B"
                                     app:icon="@drawable/ic_lc_x" app:iconSize="15dp" app:iconTint="#B3413B"
-                                    app:iconGravity="textStart" app:iconPadding="6dp"/>
+                                    app:iconGravity="textStart" app:iconPadding="6dp"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
@@ -1022,7 +1026,11 @@
                             app:iconGravity="textStart"
                             app:iconPadding="8dp"
                             app:cornerRadius="14dp"
-                            app:backgroundTint="@null"/>
+                            app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnSavePurchase"
@@ -1044,7 +1052,11 @@
                             app:iconGravity="textStart"
                             app:iconPadding="7dp"
                             app:cornerRadius="13dp"
-                            app:backgroundTint="@null"/>
+                            app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </ScrollView>

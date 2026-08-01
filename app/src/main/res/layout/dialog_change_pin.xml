@@ -189,7 +189,10 @@
         app:iconGravity="textStart"
         app:iconPadding="7dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#33FFFFFF" />
+        app:rippleColor="#33FFFFFF" 
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
     <!-- Cancel -->
     <com.google.android.material.button.MaterialButton

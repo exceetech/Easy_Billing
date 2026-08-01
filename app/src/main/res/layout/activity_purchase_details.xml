@@ -433,7 +433,9 @@
                 app:iconGravity="textStart"
                 app:iconPadding="6dp"
                 app:cornerRadius="14dp"
-                android:stateListAnimator="@null" />
+                android:stateListAnimator="@null" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCreditNote"
@@ -459,7 +461,9 @@
                 app:backgroundTint="#FFFFFF"
                 app:strokeColor="#CDE0D8"
                 app:strokeWidth="1dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -485,7 +489,9 @@
             app:backgroundTint="#FFFFFF"
             app:strokeColor="#E7C9C9"
             app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         <!-- Legacy id kept so existing click wiring compiles; hidden. -->
         <com.google.android.material.button.MaterialButton

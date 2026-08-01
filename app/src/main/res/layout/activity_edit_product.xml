@@ -356,7 +356,11 @@
                     app:iconGravity="textStart"
                     app:iconSize="13dp"
                     app:iconPadding="4dp"
-                    app:backgroundTint="@android:color/transparent"/>
+                    app:backgroundTint="@android:color/transparent"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
             </LinearLayout>
 
             <TextView
@@ -813,7 +817,11 @@
                     app:iconGravity="textStart"
                     app:iconPadding="8dp"
                     app:cornerRadius="14dp"
-                    app:backgroundTint="@null"/>
+                    app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
@@ -835,7 +843,11 @@
                     app:iconGravity="textStart"
                     app:iconPadding="7dp"
                     app:cornerRadius="13dp"
-                    app:backgroundTint="@null"/>
+                    app:backgroundTint="@null"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
             </LinearLayout>
 
         </LinearLayout>

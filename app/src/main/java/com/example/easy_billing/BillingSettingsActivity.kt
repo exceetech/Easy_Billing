@@ -48,6 +48,10 @@ class BillingSettingsActivity : BaseActivity() {
     private var isEditMode = false
     private var snapshot: BillingSnapshot? = null
 
+    // Set when launched from OnboardingActivity — see the matching flag
+    // in StoreSettingsActivity for the full reasoning (plan §2.3).
+    private var isOnboardingFlow = false
+
     private val schemeOptions  = listOf("REGULAR", "COMPOSITION")
     private val regTypeOptions = listOf("Regular", "Composition", "Casual", "SEZ", "Non-Resident")
     private val printerOptions = listOf("80mm", "A4")
@@ -60,6 +64,8 @@ class BillingSettingsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_billing_settings)
 
+        isOnboardingFlow = intent.getBooleanExtra(EXTRA_ONBOARDING, false)
+
         setupToolbar(R.id.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
@@ -68,6 +74,21 @@ class BillingSettingsActivity : BaseActivity() {
         loadData()
         setEditable(false)
         setupSave()
+
+        if (isOnboardingFlow) {
+            isEditMode = true
+            setEditable(true)
+            // No read-only state to fall back to during onboarding, so
+            // there's nothing for "Discard" to meaningfully do — hide it
+            // rather than leave a dead-end tap that hides Save with no
+            // way back (toggleEditMode() would flip isEditMode off and
+            // hit an empty snapshot since one was never taken here).
+            btnEdit.visibility = View.GONE
+        }
+    }
+
+    companion object {
+        const val EXTRA_ONBOARDING = "extra_onboarding"
     }
 
     // ---------------- BIND ----------------
@@ -281,7 +302,11 @@ class BillingSettingsActivity : BaseActivity() {
 
     private fun setupSave() {
         btnSave.setOnClickListener {
-            showPasswordVerificationDialog { saveBillingSettings() }
+            if (isOnboardingFlow) {
+                saveBillingSettings()
+            } else {
+                showPasswordVerificationDialog { saveBillingSettings() }
+            }
         }
     }
 
@@ -432,6 +457,13 @@ class BillingSettingsActivity : BaseActivity() {
 
                 setEditable(false)
                 isEditMode = false
+
+                // Reached from the onboarding hub — return to it
+                // automatically instead of leaving the user stranded on
+                // this screen needing a manual back press.
+                if (isOnboardingFlow) {
+                    finish()
+                }
             }
         }
     }

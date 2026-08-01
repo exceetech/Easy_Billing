@@ -405,7 +405,9 @@
             android:includeFontPadding="false"
             android:stateListAnimator="@null"
             app:cornerRadius="14dp"
-            app:rippleColor="#22B8895A" />
+            app:rippleColor="#22B8895A" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         <View android:layout_width="8dp" android:layout_height="1dp" />
 
@@ -436,7 +438,9 @@
             android:includeFontPadding="false"
             android:stateListAnimator="@null"
             app:cornerRadius="14dp"
-            app:rippleColor="#33FFFFFF" />
+            app:rippleColor="#33FFFFFF" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
     </LinearLayout>
 
 </LinearLayout>

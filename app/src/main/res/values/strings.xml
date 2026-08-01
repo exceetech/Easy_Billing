@@ -284,4 +284,14 @@
     <string name="reason_purchase_return">Purchase return</string>
     <string name="reason_scrap">Scrap</string>
 
+    <!--
+        PLACEHOLDER — this is NOT reviewed legal text. Replace with real
+        Terms and Conditions drafted or reviewed by a lawyer before this
+        screen is shown to real users; ship-blocking, not cosmetic.
+        terms_version in AppConfig (backend) must be bumped whenever this
+        text materially changes, to force re-acceptance from users who
+        already agreed to an older version.
+    -->
+    <string name="terms_and_conditions_body">Easy Billing — Terms and Conditions (Draft)\n\n1. Acceptance of Terms\nBy creating an account and using Easy Billing, you agree to these Terms and Conditions.\n\n2. Subscription and Billing\nCertain features (GST reports, profit insights, AI insights) require an active Premium subscription or trial. Subscription fees are billed as described on the Subscription screen at the time of purchase. Prices and plans may change; changes will not affect an already-paid current billing period.\n\n3. Free Trial\nA free trial, where offered, is available once per shop account. Trial length and eligibility are determined by Easy Billing and may change at any time.\n\n4. Data and Privacy\nYour business data (bills, inventory, customer records) is stored to provide the service. We do not sell your data to third parties.\n\n5. Refunds\nRefund requests are handled on a case-by-case basis; contact support for assistance.\n\n6. Changes to These Terms\nWe may update these Terms from time to time. Material changes may require you to re-accept before continuing to use the app.\n\n7. Contact\nFor questions about these Terms, contact support@expos.com.</string>
+
 </resources>

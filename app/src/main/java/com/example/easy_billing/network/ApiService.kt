@@ -344,6 +344,51 @@ interface ApiService {
         @Query("plan") plan: String
     ): MessageResponse
 
+    // ================= RAZORPAY SUBSCRIPTION PAYMENT =================
+    // See app/services/razorpay_service.py and subscription_payment_routes.py
+    // on the backend. Client never sends a price — the server always
+    // recomputes it from plan_code + coupon_code.
+
+    @GET("subscription/plans")
+    suspend fun getPlans(
+        @Header("Authorization") token: String
+    ): List<PlanResponse>
+
+    @POST("subscription/validate-coupon")
+    suspend fun validateCoupon(
+        @Header("Authorization") token: String,
+        @Body request: ValidateCouponRequest
+    ): ValidateCouponResponse
+
+    @POST("subscription/create-order")
+    suspend fun createSubscriptionOrder(
+        @Header("Authorization") token: String,
+        @Body request: CreateOrderRequest
+    ): CreateOrderResponse
+
+    @POST("subscription/verify-payment")
+    suspend fun verifySubscriptionPayment(
+        @Header("Authorization") token: String,
+        @Body request: VerifyPaymentRequest
+    ): SubscriptionActionResponse
+
+    @POST("subscription/start-trial")
+    suspend fun startTrial(
+        @Header("Authorization") token: String
+    ): SubscriptionActionResponse
+
+    // ================= ONBOARDING =================
+
+    @POST("auth/accept-terms")
+    suspend fun acceptTerms(
+        @Header("Authorization") token: String
+    ): MessageResponse
+
+    @POST("auth/complete-onboarding")
+    suspend fun completeOnboarding(
+        @Header("Authorization") token: String
+    ): MessageResponse
+
     // ================= CREDIT =================
 
     @POST("credit/sync")

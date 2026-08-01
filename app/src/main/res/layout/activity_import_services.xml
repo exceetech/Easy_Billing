@@ -524,7 +524,9 @@
             android:lineSpacingExtra="0dp"
             android:stateListAnimator="@null"
             app:cornerRadius="14dp"
-            app:rippleColor="#33FFFFFF" />
+            app:rippleColor="#33FFFFFF" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
     </LinearLayout>
 
     <ProgressBar

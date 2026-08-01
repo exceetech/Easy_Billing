@@ -125,6 +125,12 @@
             android:name=".SubscriptionActivity"
             android:screenOrientation="sensorLandscape"/>
         <activity
+            android:name=".OnboardingActivity"
+            android:screenOrientation="sensorLandscape"/>
+        <activity
+            android:name=".TermsActivity"
+            android:screenOrientation="sensorLandscape"/>
+        <activity
             android:name=".CreditAccountsActivity"
             android:screenOrientation="sensorLandscape"/>
 

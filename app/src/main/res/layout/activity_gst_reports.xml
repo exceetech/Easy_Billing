@@ -386,7 +386,9 @@
                         app:iconGravity="textStart"
                         app:iconPadding="8dp"
                         app:cornerRadius="14dp"
-                        android:stateListAnimator="@null" />
+                        android:stateListAnimator="@null" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
                     <com.google.android.material.progressindicator.CircularProgressIndicator
                         android:id="@+id/progressGenerate"

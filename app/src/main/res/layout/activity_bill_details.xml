@@ -549,7 +549,10 @@
                 app:iconTint="#1A1A18"
                 app:iconSize="15dp"
                 app:iconGravity="textStart"
-                app:iconPadding="6dp"/>
+                app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClose"
@@ -572,7 +575,10 @@
                 app:iconTint="#B23A3A"
                 app:iconSize="15dp"
                 app:iconGravity="textStart"
-                app:iconPadding="6dp"/>
+                app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -596,7 +602,10 @@
             app:iconTint="#0F6E56"
             app:iconSize="15dp"
             app:iconGravity="textStart"
-            app:iconPadding="6dp"/>
+            app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDebitNote"
@@ -619,7 +628,10 @@
             app:iconTint="#8A6526"
             app:iconSize="15dp"
             app:iconGravity="textStart"
-            app:iconPadding="6dp"/>
+            app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelBill"
@@ -642,7 +654,10 @@
             app:iconTint="#B23A3A"
             app:iconSize="16dp"
             app:iconGravity="textStart"
-            app:iconPadding="6dp"/>
+            app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
     </LinearLayout>
 

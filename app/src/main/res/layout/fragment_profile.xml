@@ -333,7 +333,9 @@
                 app:iconGravity="textStart"
                 app:iconPadding="7dp"
                 app:cornerRadius="14dp"
-                app:rippleColor="#F6D8D4"/>
+                app:rippleColor="#F6D8D4"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
         </LinearLayout>
     </ScrollView>

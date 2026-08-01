@@ -147,7 +147,10 @@
         app:iconGravity="textStart"
         app:iconPadding="7dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#33FFFFFF" />
+        app:rippleColor="#33FFFFFF" 
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReviewCredit"
@@ -172,6 +175,9 @@
         app:iconGravity="textStart"
         app:iconPadding="6dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#220F6E56" />
+        app:rippleColor="#220F6E56" 
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
 
 </LinearLayout>
