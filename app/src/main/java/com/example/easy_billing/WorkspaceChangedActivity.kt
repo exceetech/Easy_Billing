@@ -28,6 +28,18 @@ import kotlinx.coroutines.withContext
  * Per spec: forceLogout() is NOT called here — it clears prefs which
  * is what we do manually below, but we do NOT want it to run in other
  * scenarios (offline timeout) and wipe data incorrectly.
+ *
+ * This screen is also deliberately EXEMPT from SessionTimeoutGuard/
+ * BaseActivity's offline-session-timeout, same as MainActivity — this is
+ * a confirmed decision, not an oversight (flagged and reviewed in the
+ * offline-session-timeout audit). Wiring the guard in here would let its
+ * forceLogout() race against reloadWorkspace()'s own manual DB-clear +
+ * prefs-clear + navigation sequence above — exactly the double-wipe/
+ * double-navigation scenario this class's own forceLogout() ban already
+ * exists to prevent. A user is only ever on this screen briefly, with a
+ * single forced action (Reload Workspace) and no way to navigate away,
+ * so there is no real 12-hour-offline exposure window here to protect
+ * against in the first place.
  */
 class WorkspaceChangedActivity : AppCompatActivity() {
 

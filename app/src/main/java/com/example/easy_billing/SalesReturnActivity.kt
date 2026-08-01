@@ -91,6 +91,25 @@ class SalesReturnActivity : AppCompatActivity() {
         viewModel.loadBill(billId)
     }
 
+    // Offline-session-timeout coverage (see SessionTimeoutGuard for why this
+    // isn't done via extending BaseActivity instead).
+    override fun onResume() {
+        super.onResume()
+        com.example.easy_billing.util.SessionTimeoutGuard.start(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+    }
+
+    // Defensive backstop in case onPause is ever skipped by a future edit —
+    // stop() is safe to call even if the guard was already stopped.
+    override fun onDestroy() {
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+        super.onDestroy()
+    }
+
     // Immersive mode — hide status + navigation bars, matching
     // activity_debit_note.xml's chromeless look. Applied only here (not via
     // BaseActivity) to avoid BaseActivity's forced landscape re-orientation,

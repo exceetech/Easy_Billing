@@ -458,9 +458,15 @@ class MainActivity : BaseActivity() {
                         .get(this@MainActivity)
                         .flushPending(force = true)
 
-                    android.util.Log.d("TOKEN_DEBUG", "Saved Token: $token")
-
                     updateLastOnlineTime()
+                    // A successful login just proved the server is reachable
+                    // and the new token is valid — stamp that directly rather
+                    // than leaving a stale pre-login UNAUTHORIZED/UNREACHABLE
+                    // verdict cached, which could otherwise get handed back
+                    // out on the very next offline-timeout tick and force
+                    // the user straight back out (see BackendHealthStatus.
+                    // markVerifiedNow() for the full explanation).
+                    com.example.easy_billing.util.BackendHealthStatus.markVerifiedNow()
                     android.util.Log.d("SESSION", "Session initialized")
 
                     // NAVIGATION

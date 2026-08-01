@@ -44,15 +44,39 @@ class SplashActivity : BaseActivity() {
             val result = withContext(Dispatchers.IO) {
                 try {
                     RetrofitClient.api.getProfile(token)
+                    // markVerifiedNow(), not just report(true) — this call just
+                    // proved the token is genuinely valid AND the server is
+                    // reachable, so it should also reset the shared
+                    // checkIfDue() throttle clock. Otherwise a stale
+                    // UNAUTHORIZED/UNREACHABLE verdict cached from before this
+                    // cold start (e.g. the app was killed and reopened shortly
+                    // after a forced logout) could get handed back out by the
+                    // very next offline-timeout tick on Dashboard, immediately
+                    // logging the user right back out despite this successful
+                    // check. See BackendHealthStatus.markVerifiedNow().
+                    com.example.easy_billing.util.BackendHealthStatus.markVerifiedNow()
                     SessionCheckResult.VALID
                 } catch (e: HttpException) {
                     when (e.code()) {
                         401 -> SessionCheckResult.INVALID_TOKEN
                         409 -> SessionCheckResult.WORKSPACE_CHANGED
-                        else -> SessionCheckResult.VALID // network/server hiccup → let through
+                        else -> {
+                            // Server responded — it's reachable, just errored (5xx etc.).
+                            // Still let the user through to cached Dashboard; only the
+                            // banner state changes here, not the routing decision.
+                            com.example.easy_billing.util.BackendHealthStatus.report(true)
+                            SessionCheckResult.VALID
+                        }
                     }
                 } catch (e: Exception) {
-                    SessionCheckResult.VALID // offline → let user into cached Dashboard
+                    // Could be "device offline" (SessionTimeoutGuard/BaseActivity's
+                    // concern, not ours) or "our server specifically didn't respond."
+                    // Only report the latter — checking device connectivity here keeps
+                    // this consistent with NetworkReceiver.checkBackend()'s same split.
+                    if (com.example.easy_billing.util.NetworkUtils.isOnline(this@SplashActivity)) {
+                        com.example.easy_billing.util.BackendHealthStatus.report(false)
+                    }
+                    SessionCheckResult.VALID // offline or server hiccup → let user into cached Dashboard
                 }
             }
 

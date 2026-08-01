@@ -97,4 +97,23 @@ class ProfitChartActivity : AppCompatActivity() {
         onBackPressedDispatcher.onBackPressed()
         return true
     }
+
+    // Offline-session-timeout coverage (see SessionTimeoutGuard for why this
+    // isn't done via extending BaseActivity instead). onDestroy is a
+    // defensive backstop in case onPause is ever skipped by a future edit —
+    // stop() is safe to call even if the guard was already stopped.
+    override fun onResume() {
+        super.onResume()
+        com.example.easy_billing.util.SessionTimeoutGuard.start(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+    }
+
+    override fun onDestroy() {
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+        super.onDestroy()
+    }
 }

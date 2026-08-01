@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Server Unavailable" — offline-timeout warning shown when the DEVICE has
+    real internet (NET_CAPABILITY_VALIDATED passed) but OUR backend
+    specifically didn't answer (BackendReachabilityChecker.Status.UNREACHABLE).
+
+    Distinct from dialog_session_expiring.xml, which is shown for the
+    device-has-no-internet-at-all case. Same card shell (bg_dialog_card,
+    circle icon badge, title/subtitle, countdown pill, warning strip, "Got
+    it" button) so it still feels like the same design family, but the icon
+    and copy make clear the problem is on our end, not the user's
+    connection — so "reconnect your wifi" isn't a useful instruction here.
+
+    tvServerUnavailableCountdown holds JUST the number of seconds (e.g.
+    "15s"), set from code each time the dialog is shown. Ids bound from
+    BaseActivity/SessionTimeoutGuard: tvServerUnavailableCountdown,
+    btnServerUnavailableOk.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_red">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_cloud_up"
+            app:tint="#9A2E2E"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:text="Server Unavailable"
+        android:textColor="#1A1A18"
+        android:textSize="20sp"
+        android:fontFamily="@font/googlesans_bold"
+        android:includeFontPadding="false" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="Your internet is fine — we can't reach our servers"
+        android:textColor="#8A8272"
+        android:textSize="12.5sp"
+        android:lineSpacingExtra="3dp" />
+
+    <TextView
+        android:id="@+id/tvServerUnavailableCountdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_pill_red"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:text="Logging out in 15s"
+        android:textColor="#9A2E2E"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_dialog_warning_strip_red"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_lc_alert_triangle"
+            app:tint="#9A2E2E"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="This is on our end, not your connection. Your work is saved locally and will sync once we're back."
+            android:textColor="#9A2E2E"
+            android:textSize="11sp"
+            android:lineSpacingExtra="2dp"
+            android:fontFamily="@font/googlesans_medium" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnServerUnavailableOk"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="Got it"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_check"
+        app:iconTint="@android:color/white"
+        app:iconSize="15dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF" />
+
+</LinearLayout>

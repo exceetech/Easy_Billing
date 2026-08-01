@@ -28,7 +28,16 @@ object NetworkUtils {
             as? ConnectivityManager ?: return false
         val network = cm.activeNetwork ?: return false
         val caps = cm.getNetworkCapabilities(network) ?: return false
+        // Also require NET_CAPABILITY_VALIDATED (real, reachable internet —
+        // not just "connected to an access point"), matching
+        // BaseActivity.isInternetAvailable() / SessionTimeoutGuard's check.
+        // Without this, the LIVE pill could show LIVE on a Wi-Fi network with
+        // no actual internet (captive portal, dead router WAN) — a different
+        // answer to "am I online?" than the code that actually enforces the
+        // offline logout, which is exactly the kind of drift that made this
+        // worth flagging.
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     fun applyStatus(container: View?, label: TextView?, online: Boolean) {
@@ -71,7 +80,10 @@ object NetworkUtils {
             override fun onAvailable(network: Network) = onChange(true)
             override fun onLost(network: Network) = onChange(isOnline(context))
             override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
-                onChange(caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
+                onChange(
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                        caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                )
             }
         }
         runCatching { cm.registerDefaultNetworkCallback(cb) }

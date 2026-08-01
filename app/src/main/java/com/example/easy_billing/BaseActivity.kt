@@ -6,36 +6,31 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.core.content.edit
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.VerifyPasswordRequest
 import com.example.easy_billing.util.AppClock
+import com.example.easy_billing.util.BackendHealthStatus
 import com.example.easy_billing.util.NtpClient
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class BaseActivity : AppCompatActivity() {
 
-    private val handler = Handler(Looper.getMainLooper())
     private var warningShown = false
-
-    private val sessionRunnable = object : Runnable {
-        override fun run() {
-            checkOfflineSession()
-            handler.postDelayed(this, 5000) // every 5 sec
-        }
-    }
+    private var sessionLoopStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -207,7 +202,7 @@ open class BaseActivity : AppCompatActivity() {
         prefs.edit { putLong("LAST_ONLINE", System.currentTimeMillis()) }
     }
 
-    fun checkOfflineSession() {
+    suspend fun checkOfflineSession() {
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
 
@@ -220,19 +215,61 @@ open class BaseActivity : AppCompatActivity() {
 
         val warningTime = limit - (15 * 1000L)
 
-        // 🔍 DEBUG (optional)
-        android.util.Log.d("SESSION_DEBUG", "diff=$diff lastOnline=$lastOnline")
+        // Two-stage check, as originally intended: device internet FIRST,
+        // THEN the actual server — only when BOTH are confirmed do we treat
+        // the session as alive and reset the offline countdown. Previously
+        // this only checked device internet and refreshed LAST_ONLINE off
+        // that alone, so a permanently-dead backend never actually expired a
+        // session as long as the device had generic internet from any
+        // source (NET_CAPABILITY_VALIDATED just confirms Android's own
+        // connectivity check, not that OUR server is reachable) — someone
+        // could keep the app "logged in" forever with the backend gone.
+        // BackendHealthStatus.checkIfDue() is throttled app-wide (at most
+        // one real server probe every 20s across every guarded screen), so
+        // this 5-second tick doesn't turn into a server-hammering loop.
+        // Which case is driving this countdown — device has no internet at
+        // all, or the device is online but OUR server specifically isn't
+        // answering. Defaults to NO_INTERNET (the isInternetAvailable()
+        // check below failing is the common case); only flipped to
+        // SERVER_UNREACHABLE when the device passed the internet check but
+        // the server probe came back UNREACHABLE. Threaded through to
+        // showSessionWarning() so the two situations render visually
+        // distinct dialogs instead of one generic "Session Expiring" card
+        // regardless of which one is actually true.
+        var offlineReason = OfflineReason.NO_INTERNET
 
-        // ✅ REAL INTERNET CHECK
         if (isInternetAvailable()) {
-            warningShown = false
-            updateLastOnlineTime()   // 🔥 KEEP SESSION ALIVE
-            return
+            when (BackendHealthStatus.checkIfDue(this)) {
+                com.example.easy_billing.util.BackendReachabilityChecker.Status.OK -> {
+                    warningShown = false
+                    updateLastOnlineTime()   // 🔥 KEEP SESSION ALIVE
+                    return
+                }
+                com.example.easy_billing.util.BackendReachabilityChecker.Status.UNAUTHORIZED -> {
+                    // The server responded and rejected the token — this is
+                    // not a reachability problem, it's a real "you are not
+                    // logged in anymore." Checking this as a plain reachable
+                    // boolean used to treat a revoked token exactly like a
+                    // healthy session and never expire it. Log out now,
+                    // don't wait for the offline countdown.
+                    forceLogout()
+                    return
+                }
+                else -> {
+                    // UNREACHABLE (or NO_INTERNET, which shouldn't occur
+                    // here since isInternetAvailable() already passed) — the
+                    // server specifically isn't answering even though the
+                    // device is online. Fall through to the same
+                    // warning/logout timer as "no internet at all," but tag
+                    // it so the warning dialog can say the right thing.
+                    offlineReason = OfflineReason.SERVER_UNREACHABLE
+                }
+            }
         }
 
         // ⚠️ SHOW WARNING ONCE
         if (!warningShown && diff in warningTime until limit) {
-            showSessionWarning((limit - diff) / 1000)
+            showSessionWarning((limit - diff) / 1000, offlineReason)
             warningShown = true
         }
 
@@ -246,10 +283,16 @@ open class BaseActivity : AppCompatActivity() {
 
     fun forceLogout() {
 
-        val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-        prefs.edit().clear().apply()
-        // Drop delta-pull cursors so the next workspace starts fresh (R6).
-        getSharedPreferences("sync_cursors", MODE_PRIVATE).edit().clear().apply()
+        // DashboardActivity runs TWO independent loops on the same instance
+        // (BaseActivity's own 5s checkOfflineSession() loop and its own 20s
+        // startBackendHealthPolling() loop), and both can independently reach
+        // an UNAUTHORIZED result and both call this function. SessionClearGate
+        // is a JVM-monitor-backed choke point (not just a coroutine Mutex),
+        // so it stays correct even against SessionTimeoutWorker's background
+        // executor thread, not just other Main-dispatcher callers. If it
+        // returns false, someone else already cleared the session — nothing
+        // left to do (DEVICE_ID preservation is handled inside the gate).
+        if (!com.example.easy_billing.util.SessionClearGate.clearIfNeeded(this)) return
 
         Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show()
 
@@ -272,33 +315,85 @@ open class BaseActivity : AppCompatActivity() {
 
     // ---------------- WARNING ----------------
 
-    private fun showSessionWarning(seconds: Long) {
+    /** Which condition is driving the offline-timeout countdown — used to
+     *  pick between dialog_session_expiring.xml (no internet at all) and
+     *  dialog_server_unavailable.xml (device online, our backend down). */
+    enum class OfflineReason { NO_INTERNET, SERVER_UNREACHABLE }
+
+    private fun showSessionWarning(seconds: Long, reason: OfflineReason = OfflineReason.NO_INTERNET) {
 
         if (isFinishing) return
 
-        AlertDialog.Builder(this)
-            .setTitle("Session Expiring")
-            .setMessage("No internet. You will be logged out in $seconds seconds.")
-            .setPositiveButton("OK", null)
-            .show()
+        // Custom card dialog matching the app's design language (same shell
+        // as dialog_sign_out.xml), instead of the plain default AlertDialog.
+        // Which layout gets inflated depends on WHY the countdown started —
+        // see OfflineReason above.
+        val layoutRes: Int
+        val countdownId: Int
+        val okButtonId: Int
+        when (reason) {
+            OfflineReason.NO_INTERNET -> {
+                layoutRes = R.layout.dialog_session_expiring
+                countdownId = R.id.tvSessionExpiringCountdown
+                okButtonId = R.id.btnSessionExpiringOk
+            }
+            OfflineReason.SERVER_UNREACHABLE -> {
+                layoutRes = R.layout.dialog_server_unavailable
+                countdownId = R.id.tvServerUnavailableCountdown
+                okButtonId = R.id.btnServerUnavailableOk
+            }
+        }
+
+        val view = layoutInflater.inflate(layoutRes, null)
+        view.findViewById<android.widget.TextView>(countdownId).text =
+            "Logging out in ${seconds}s"
+
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<View>(okButtonId).setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
     }
 
     // ---------------- LIFECYCLE ----------------
 
     override fun onResume() {
         super.onResume()
-        handler.post(sessionRunnable)
+        startSessionLoop()
     }
 
-    override fun onPause() {
-        super.onPause()
-        handler.removeCallbacks(sessionRunnable)
+    /**
+     * Replaces the old Handler.postDelayed loop — checkOfflineSession() is
+     * now suspend (it can make a real network call via
+     * BackendHealthStatus.checkIfDue()), so the tick needs a coroutine.
+     * Guarded by sessionLoopStarted so onResume firing more than once
+     * doesn't stack duplicate loops; repeatOnLifecycle(STARTED) means the
+     * loop body naturally stops running once the Activity drops below
+     * STARTED (e.g. onStop) and this single long-lived coroutine resumes it
+     * automatically next time the Activity re-enters STARTED, instead of
+     * needing a matching manual onPause() call the way the old Handler did.
+     */
+    private fun startSessionLoop() {
+        if (sessionLoopStarted) return
+        sessionLoopStarted = true
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    checkOfflineSession()
+                    delay(5000)
+                }
+            }
+        }
     }
 
     companion object {
         /** Max allowed device-clock vs internet-time drift before billing is blocked. */
         const val CLOCK_TOLERANCE_MS = 5 * 60 * 1000L        // 5 minutes
         /** How long an offline session is allowed before forced logout. */
-        const val SESSION_OFFLINE_LIMIT_MS = 12 * 60 * 60 * 1000L // 12 hours (PROD)
+        // PROD value. See SessionTimeoutGuard.kt and SessionTimeoutWorker.kt
+        // for the other two places this same constant is duplicated and must
+        // be changed together.
+        const val SESSION_OFFLINE_LIMIT_MS = 12 * 60 * 60 * 1000L // 12 hours
     }
 }

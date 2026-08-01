@@ -25,6 +25,7 @@ class EasyBillingApp : Application() {
         com.example.easy_billing.util.AppTime.init(this)
         startPeriodicSyncRetry()
         scheduleDurableSync()
+        scheduleSessionTimeoutCheck()
     }
 
     /**
@@ -47,6 +48,31 @@ class EasyBillingApp : Application() {
 
             androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "easybilling-durable-sync",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                request
+            )
+        }
+    }
+
+    /**
+     * Closes the "app minimized (not killed) offline for 12+ hours" gap:
+     * BaseActivity/SessionTimeoutGuard's timer only runs while a screen is
+     * actually onResume()'d, so it never fires while the app just sits in
+     * the background. Deliberately NO network constraint here — unlike
+     * scheduleDurableSync() this job's whole job is to notice the device has
+     * been offline, so it must still run while offline. WorkManager enforces
+     * a 15-minute floor on periodic work; this runs hourly, which is fine
+     * against a 12-hour timeout.
+     */
+    private fun scheduleSessionTimeoutCheck() {
+        runCatching {
+            val request = androidx.work.PeriodicWorkRequestBuilder<
+                com.example.easy_billing.sync.SessionTimeoutWorker>(
+                1, java.util.concurrent.TimeUnit.HOURS
+            ).build()
+
+            androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "easybilling-session-timeout-check",
                 androidx.work.ExistingPeriodicWorkPolicy.KEEP,
                 request
             )

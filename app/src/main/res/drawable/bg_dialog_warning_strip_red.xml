@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Red variant of bg_dialog_warning_strip.xml, for dialogs using the red
+     "session ending" warning language (dialog_session_expiring.xml) instead
+     of the amber informational one. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FCEBEB"/>
+    <stroke android:width="0.5dp" android:color="#F3C9C9"/>
+    <corners android:radius="12dp"/>
+</shape>

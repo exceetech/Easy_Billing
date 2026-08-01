@@ -25,6 +25,7 @@ import androidx.core.content.edit
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -56,6 +57,8 @@ class DashboardActivity : BaseActivity() {
 
     // Reactive LIVE / OFFLINE status for the drawer pills.
     private var liveStatusCb: android.net.ConnectivityManager.NetworkCallback? = null
+    private var backendHealthObserverStarted = false
+    private var backendHealthPollingStarted = false
     private var navDotAnim: android.animation.ObjectAnimator? = null
     private var liveDotAnim: android.animation.ObjectAnimator? = null
 
@@ -325,6 +328,7 @@ class DashboardActivity : BaseActivity() {
 
         NetworkReceiver(this).startListening()
         checkSubscription()
+        observeBackendHealth()
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
@@ -2286,6 +2290,75 @@ class DashboardActivity : BaseActivity() {
         liveDotAnim = com.example.easy_billing.util.NetworkUtils.blinkDot(
             findViewById(R.id.viewLiveDot), liveDotAnim, online
         )
+    }
+
+    /**
+     * Shows/hides bannerBackendUnreachable based on BackendHealthStatus —
+     * the persistent replacement for the old one-shot "Server not reachable"
+     * Toast, which was easy to miss and gave no ongoing indication that the
+     * problem was still happening. Started once per Activity instance (guarded
+     * by backendHealthObserverStarted, same pattern as liveStatusCb) using
+     * repeatOnLifecycle so the collector auto-pauses on STOP and resumes on
+     * START instead of accumulating a new collector on every onResume().
+     */
+    private fun observeBackendHealth() {
+        if (backendHealthObserverStarted) return
+        backendHealthObserverStarted = true
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                com.example.easy_billing.util.BackendHealthStatus.isReachable.collect { reachable ->
+                    findViewById<View>(R.id.bannerBackendUnreachable)?.visibility =
+                        if (reachable) View.GONE else View.VISIBLE
+                }
+            }
+        }
+        startBackendHealthPolling()
+    }
+
+    /**
+     * Periodically probes the backend while Dashboard is in the foreground.
+     *
+     * Without this, "server unreachable" was ONLY ever detected inside
+     * NetworkReceiver's onAvailable() — which fires when the DEVICE's network
+     * reconnects, not when the backend server itself goes down while the
+     * device stays connected. Turning off just the server (Wi-Fi/data left
+     * on) never triggers onAvailable, so the app never noticed — exactly the
+     * "I turned off my server and the app just kept working" gap. This polls
+     * BackendReachabilityChecker.check() every 20s while Dashboard is started,
+     * using repeatOnLifecycle so it automatically stops when the app is
+     * backgrounded (no battery/data cost while not in use) and resumes when
+     * it's foregrounded again — same lifecycle-safety pattern as
+     * observeBackendHealth() above. A discovered UNAUTHORIZED here reuses
+     * BaseActivity's own forceLogout() (DashboardActivity already extends
+     * BaseActivity), so it behaves identically to every other logout path.
+     */
+    private fun startBackendHealthPolling() {
+        if (backendHealthPollingStarted) return
+        backendHealthPollingStarted = true
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                while (true) {
+                    // Routed through BackendHealthStatus.checkIfDue() instead of
+                    // calling BackendReachabilityChecker.check() directly — this
+                    // Activity also extends BaseActivity, whose own
+                    // checkOfflineSession() loop calls checkIfDue() every 5s on
+                    // this same instance. Calling check() directly here used to
+                    // run on its own independent 20s clock, unsynchronized with
+                    // that other loop's throttle — meaning two real server probes
+                    // could fire within moments of each other on this exact
+                    // screen, defeating the whole point of the shared throttle.
+                    // checkIfDue() is a no-op (no network call) if another caller
+                    // — including this Activity's own BaseActivity loop —
+                    // already checked within the last 20s.
+                    when (com.example.easy_billing.util.BackendHealthStatus.checkIfDue(this@DashboardActivity)) {
+                        com.example.easy_billing.util.BackendReachabilityChecker.Status.UNAUTHORIZED ->
+                            forceLogout()
+                        else -> { /* banner reacts to BackendHealthStatus.isReachable on its own */ }
+                    }
+                    kotlinx.coroutines.delay(20_000)
+                }
+            }
+        }
     }
 
     private fun startLiveStatusAnimation() {

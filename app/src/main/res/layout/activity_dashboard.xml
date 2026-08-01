@@ -332,6 +332,46 @@
 
         </LinearLayout>
 
+        <!-- ================= BACKEND UNREACHABLE BANNER =================
+             Persistent (not a one-shot Toast) indicator that the app's own
+             server couldn't be reached on the last check — distinct from the
+             offline-session-timeout dialog, which is about the DEVICE having
+             no internet. Shown/hidden from DashboardActivity by observing
+             BackendHealthStatus.isReachable. Uses the same red warning
+             language as dialog_session_expiring.xml for visual consistency. -->
+        <LinearLayout
+            android:id="@+id/bannerBackendUnreachable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_dialog_warning_strip_red"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="10dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_lc_alert_triangle"
+                app:tint="#9A2E2E"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/tvBackendUnreachable"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Can't reach our servers right now. Your changes are saved locally and will sync automatically."
+                android:textColor="#9A2E2E"
+                android:textSize="11sp"
+                android:lineSpacingExtra="2dp"
+                android:fontFamily="@font/googlesans_medium" />
+        </LinearLayout>
+
         <!-- ================= CATEGORY RAIL ================= -->
         <HorizontalScrollView
             android:layout_width="match_parent"

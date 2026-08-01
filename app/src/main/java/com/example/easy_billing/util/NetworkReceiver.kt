@@ -6,7 +6,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.widget.Toast
 import com.example.easy_billing.MainActivity
-import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.sync.SyncManager
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -45,22 +44,38 @@ class NetworkReceiver(context: Context) {
                         try {
                             delay(1500)
 
-                            when (checkBackend()) {
-                                BackendStatus.UNAUTHORIZED -> {
+                            when (BackendReachabilityChecker.check(appCtx)) {
+                                BackendReachabilityChecker.Status.UNAUTHORIZED -> {
                                     // Token is genuinely invalid (401/403) → log out.
                                     forceLogout("Session expired")
                                     return@launch
                                 }
-                                BackendStatus.UNREACHABLE -> {
-                                    // Transient: server slow/down, timeout, or no real
-                                    // connectivity. Do NOT log out — pending rows stay
-                                    // put and are retried on the next sync trigger.
+                                BackendReachabilityChecker.Status.UNREACHABLE -> {
+                                    // The device HAS internet (checked inside
+                                    // BackendReachabilityChecker.check()) but OUR server specifically
+                                    // didn't respond OK across 2 attempts. Do NOT log
+                                    // out — pending rows stay put and are retried on
+                                    // the next sync trigger. BackendHealthStatus was
+                                    // already updated inside BackendReachabilityChecker.check(); the
+                                    // persistent dashboard banner picks that up, so
+                                    // this Toast is just an immediate nudge, not the
+                                    // only signal (that used to be the only signal,
+                                    // and easy to miss).
                                     withContext(Dispatchers.Main) {
                                         Toast.makeText(appCtx, "Server not reachable", Toast.LENGTH_SHORT).show()
                                     }
                                     return@launch
                                 }
-                                BackendStatus.OK -> { /* proceed to sync below */ }
+                                BackendReachabilityChecker.Status.NO_INTERNET -> {
+                                    // Device itself has no real internet — a different
+                                    // concern (SessionTimeoutGuard/BaseActivity's
+                                    // offline-session-timeout already owns this). Don't
+                                    // report it as a backend problem and don't touch
+                                    // BackendHealthStatus; the server was never the
+                                    // thing that failed here.
+                                    return@launch
+                                }
+                                BackendReachabilityChecker.Status.OK -> { /* proceed to sync below */ }
                             }
 
                             // ✅ BACKEND OK → SYNC
@@ -71,6 +86,19 @@ class NetworkReceiver(context: Context) {
                                 .get(appCtx)
                                 .flushPending()
                                 .join()
+
+                            // Deliberately NOT calling BackendHealthStatus.report(true)
+                            // here. flushPending() wraps its push/pull calls in
+                            // runCatching internally (SyncCoordinator.kt) and never
+                            // rethrows, so this line is reached whether the sync
+                            // actually succeeded or silently failed against a down
+                            // server — an earlier version of this fix called
+                            // report(true) unconditionally right here, which could
+                            // clobber the correct report(false) that BackendReachabilityChecker.check()
+                            // just made moments earlier with a false "all clear."
+                            // BackendReachabilityChecker.check()'s own direct getSubscription() call above
+                            // is what actually verifies reachability; this line has no
+                            // reliable signal to add to that.
 
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -83,11 +111,19 @@ class NetworkReceiver(context: Context) {
                                     forceLogout("Session expired")
                                 // Anything else (timeout, 5xx, parse, offline) is transient:
                                 // never log the user out for it. Unsynced rows remain pending
-                                // and retry on the next trigger.
-                                else -> android.util.Log.w(
-                                    "NetworkReceiver",
-                                    "Transient sync error, will retry: ${e.message}"
-                                )
+                                // and retry on the next trigger. Only report this to
+                                // BackendHealthStatus if the device genuinely has internet —
+                                // otherwise this is the device-offline case, not a server
+                                // problem, and reporting it here would mislabel it.
+                                else -> {
+                                    android.util.Log.w(
+                                        "NetworkReceiver",
+                                        "Transient sync error, will retry: ${e.message}"
+                                    )
+                                    if (NetworkUtils.isOnline(appCtx)) {
+                                        BackendHealthStatus.report(false)
+                                    }
+                                }
                             }
                         } finally {
                             isSyncing.set(false)
@@ -98,43 +134,24 @@ class NetworkReceiver(context: Context) {
         )
     }
 
-    // ================= BACKEND CHECK =================
-
-    /** Distinguishes a real auth failure (→ logout) from mere unreachability (→ retry later). */
-    private enum class BackendStatus { OK, UNREACHABLE, UNAUTHORIZED }
-
-    private suspend fun checkBackend(): BackendStatus {
-        val token = appCtx.getSharedPreferences("auth", Context.MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return BackendStatus.UNAUTHORIZED
-
-        return try {
-            withTimeout(3000) {
-                RetrofitClient.api.getSubscription(token)
-            }
-            BackendStatus.OK
-        } catch (e: retrofit2.HttpException) {
-            if (e.code() == 401 || e.code() == 403) BackendStatus.UNAUTHORIZED
-            else BackendStatus.UNREACHABLE
-        } catch (e: Exception) {
-            // Timeout, no connection, parse error, etc. — not an auth problem.
-            BackendStatus.UNREACHABLE
-        }
-    }
-
     // ================= FORCE LOGOUT =================
 
     private fun forceLogout(reason: String) {
 
-        val prefs = appCtx.getSharedPreferences("auth", Context.MODE_PRIVATE)
-        // Preserve the stable per-install device id — it is the bill idempotency
-        // key (client_device_id), not a credential. Wiping it would let retried
-        // bills be re-created as duplicates on the server after the next login.
-        val deviceId = prefs.getString("DEVICE_ID", null)
-        prefs.edit().clear().apply()
-        deviceId?.let { prefs.edit().putString("DEVICE_ID", it).apply() }
-        // Drop delta-pull cursors so a different/restored workspace starts fresh
-        // and can't skip rows behind a stale cursor (R6).
-        appCtx.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE).edit().clear().apply()
+        // This ran on its own raw clear+restore pattern, missed when
+        // BaseActivity/SessionTimeoutGuard/SessionTimeoutWorker were migrated
+        // to SessionClearGate. That migration's whole point was closing races
+        // between logout paths running on different thread contexts —
+        // BaseActivity/SessionTimeoutGuard on Main, SessionTimeoutWorker on
+        // WorkManager's background executor, and THIS class on its own
+        // `CoroutineScope(SupervisorJob() + Dispatchers.IO)` (a fourth,
+        // independent thread context). Leaving this one on the old unguarded
+        // pattern reopened exactly that race: a network-regain event here and
+        // the offline-session-timeout loop discovering the same invalid token
+        // at nearly the same moment could both clear+restore DEVICE_ID and
+        // both fire a toast/navigate. SessionClearGate's `synchronized` gate
+        // is what actually closes this across all four contexts.
+        if (!SessionClearGate.clearIfNeeded(appCtx)) return
 
         scope.launch(Dispatchers.Main) {
             Toast.makeText(appCtx, reason, Toast.LENGTH_LONG).show()

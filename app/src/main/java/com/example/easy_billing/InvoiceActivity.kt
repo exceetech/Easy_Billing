@@ -700,6 +700,7 @@ class InvoiceActivity : AppCompatActivity() {
     /** Brief "pop" animation to call attention to the active chip. */
     override fun onResume() {
         super.onResume()
+        com.example.easy_billing.util.SessionTimeoutGuard.start(this)
         updateLiveStatus()
         // Reflect the "Round off" toggle from Invoice Design (may have changed).
         roundOffEnabled = getSharedPreferences("app_settings", MODE_PRIVATE)
@@ -724,8 +725,16 @@ class InvoiceActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
         com.example.easy_billing.util.NetworkUtils.unregister(this, liveStatusCb)
         liveStatusCb = null
+    }
+
+    // Defensive backstop in case onPause is ever skipped by a future edit —
+    // stop() is safe to call even if the guard was already stopped.
+    override fun onDestroy() {
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+        super.onDestroy()
     }
 
     /** Paints the header pill LIVE (internet) or OFFLINE. */
