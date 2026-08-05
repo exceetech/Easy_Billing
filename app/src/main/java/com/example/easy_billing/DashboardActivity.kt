@@ -701,7 +701,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnGstReports).setOnClickListener {
-            launchIfPremium(GstReportsActivity::class.java)
+            launchIfPremium(GstReportsActivity::class.java, "GST reports")
             drawerLayout.closeDrawers()
         }
 
@@ -731,7 +731,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnProfit).setOnClickListener {
-            launchIfPremium(ProfitActivity::class.java)
+            launchIfPremium(ProfitActivity::class.java, "profit analytics")
             drawerLayout.closeDrawers()
         }
 
@@ -741,7 +741,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnAiInsights).setOnClickListener {
-            launchIfPremium(AiDashboardActivity::class.java)
+            launchIfPremium(AiDashboardActivity::class.java, "AI insights")
             drawerLayout.closeDrawers()
         }
 
@@ -1450,6 +1450,22 @@ class DashboardActivity : BaseActivity() {
                     return@launch
                 }
 
+                // GET /analytics/ai-report is premium-gated server-side
+                // (require_premium_tier) — a Base-tier shop would just get
+                // a 403 here. Skipping the call entirely for non-premium
+                // shops avoids that pointless round trip AND keeps the
+                // bell/notification panel's empty state consistent with
+                // the drawer's "Upgrade to unlock" treatment, instead of
+                // silently failing into a blank panel with no explanation.
+                val tierInfo = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
+                if (tierInfo?.tier != "premium") {
+                    allInsights = emptyList()
+                    vpAiInsights.visibility = View.GONE
+                    fabAiInsights.visibility = View.GONE
+                    updateNotifyBadge()
+                    return@launch
+                }
+
                 // Auth header is attached by AuthInterceptor, not passed here.
                 val response = RetrofitClient.api.getAiReport()
 
@@ -1471,6 +1487,21 @@ class DashboardActivity : BaseActivity() {
     // ───────────────────────── AI notification sheet ─────────────────────────
 
     private fun openNotifications() {
+        lifecycleScope.launch {
+            val info = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
+            if (info?.tier != "premium") {
+                // Same gate as loadAiNoticeBoard() — AI insights are a
+                // Premium feature end to end (server, drawer, and now the
+                // bell), so a Base-tier shop gets the same upgrade prompt
+                // here instead of a panel that can only ever be empty.
+                showUpgradePrompt("AI insights")
+                return@launch
+            }
+            openNotificationsPanel()
+        }
+    }
+
+    private fun openNotificationsPanel() {
         refreshNotifications()
         val w = panelWidthPx()
         notifScrim.visibility = View.VISIBLE
@@ -1640,26 +1671,54 @@ class DashboardActivity : BaseActivity() {
     // anyway, and to show an upgrade prompt at the moment of tap instead
     // of after a failed network call inside the target Activity.
 
-    private fun <T> launchIfPremium(activityClass: Class<T>) {
+    private fun <T> launchIfPremium(activityClass: Class<T>, featureName: String) {
         lifecycleScope.launch {
             val info = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
             if (info?.tier == "premium") {
                 startActivity(Intent(this@DashboardActivity, activityClass))
             } else {
-                showUpgradePrompt()
+                showUpgradePrompt(featureName)
             }
         }
     }
 
-    private fun showUpgradePrompt() {
-        AlertDialog.Builder(this)
-            .setTitle("Premium feature")
-            .setMessage("This feature requires a Premium subscription. Upgrade to unlock GST reports, profit insights, and AI insights.")
-            .setPositiveButton("Upgrade") { _, _ ->
-                startActivity(Intent(this@DashboardActivity, SubscriptionActivity::class.java))
-            }
-            .setNegativeButton("Not now", null)
-            .show()
+    /**
+     * Themed replacement for the old plain AlertDialog.Builder title/
+     * message/two-buttons prompt — a custom-inflated card matching the
+     * rest of the app's champagne/teal/gold design (icon tile, feature
+     * checklist, solid "Upgrade to Premium" button). [featureName] fills
+     * in the headline ("Unlock GST reports") so the dialog names the
+     * specific thing that was tapped, not just a generic "Premium
+     * feature" message; the checklist below it always lists all three
+     * Premium perks regardless, since upgrading unlocks all of them
+     * together, not just the one that triggered this prompt.
+     */
+    private fun showUpgradePrompt(featureName: String = "premium features") {
+        val view = layoutInflater.inflate(R.layout.dialog_premium_upgrade, null)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        // Heading is now the fixed themed "Unlock premium" split-style
+        // title (matches "Confirm and pay" / "Your subscription"
+        // elsewhere) rather than naming the specific feature — featureName
+        // is still used in the body message below so the dialog stays
+        // contextual without needing a dynamic heading.
+        val featureLabel = featureName.replaceFirstChar { it.uppercase() }
+        view.findViewById<TextView>(R.id.tvUpgradeMessage).text =
+            "$featureLabel is part of Premium. Upgrade to get instant access."
+
+        view.findViewById<View>(R.id.btnUpgradeNow).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this@DashboardActivity, SubscriptionActivity::class.java))
+        }
+        view.findViewById<View>(R.id.btnUpgradeLater).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     /**
@@ -1674,10 +1733,37 @@ class DashboardActivity : BaseActivity() {
         lifecycleScope.launch {
             val info = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
             val isPremium = info?.tier == "premium"
-            val alpha = if (isPremium) 1.0f else 0.5f
 
-            listOf(R.id.btnGstReports, R.id.btnProfit, R.id.btnAiInsights).forEach { id ->
-                findViewById<View>(id)?.alpha = alpha
+            // Row itself stays at full opacity now — only the icon tile
+            // dims and gets a small lock badge on its corner, and the
+            // subtitle swaps to an "Upgrade to unlock" nudge in the same
+            // gold as the badge. Replaces the old flat 50%-alpha fade on
+            // the whole row, which read as "broken/disabled" rather than
+            // "premium feature, tap to learn more".
+            data class GatedRow(
+                val rowId: Int, val iconId: Int, val lockId: Int,
+                val subId: Int, val defaultSub: String
+            )
+
+            val gatedRows = listOf(
+                GatedRow(R.id.btnGstReports, R.id.iconGstReports, R.id.lockGstReports, R.id.subGstReports, "Tax filings"),
+                GatedRow(R.id.btnProfit, R.id.iconProfit, R.id.lockProfit, R.id.subProfit, "Margins & trends"),
+                GatedRow(R.id.btnAiInsights, R.id.iconAiInsights, R.id.lockAiInsights, R.id.subAiInsights, "Smart recommendations"),
+            )
+
+            gatedRows.forEach { row ->
+                findViewById<View>(row.rowId)?.alpha = 1.0f
+                findViewById<ImageView>(row.iconId)?.alpha = if (isPremium) 1.0f else 0.55f
+                findViewById<View>(row.lockId)?.visibility = if (isPremium) View.GONE else View.VISIBLE
+                findViewById<TextView>(row.subId)?.apply {
+                    if (isPremium) {
+                        text = row.defaultSub
+                        setTextColor(0xFF9A968C.toInt())
+                    } else {
+                        text = "Upgrade to unlock"
+                        setTextColor(0xFFB8895A.toInt())
+                    }
+                }
             }
         }
     }

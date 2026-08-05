@@ -1,0 +1,213 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/bg_confirm_popup_card"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="22dp"
+    android:paddingBottom="18dp"
+    android:gravity="center_horizontal"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_premium_dialog_icon">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_sparkles"
+            app:tint="#FCF3E5"
+            android:contentDescription="@null"/>
+
+    </FrameLayout>
+
+    <TextView
+        android:text="PREMIUM FEATURE"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
+        android:layout_marginTop="14dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="Unlock"
+            android:textSize="19sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/googlesans_bold"
+            android:textColor="#1A1A18"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text=" premium"
+            android:textSize="19sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:textColor="#0F6E56"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvUpgradeMessage"
+        android:text="This feature is part of Premium. Upgrade to get instant access."
+        android:textSize="12sp"
+        android:fontFamily="@font/googlesans_medium"
+        android:textColor="#8A8474"
+        android:gravity="center"
+        android:lineSpacingMultiplier="1.3"
+        android:layout_marginTop="6dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/bg_terms_icon_teal">
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lucide_check"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            <TextView
+                android:text="GST reports &amp; filings"
+                android:textSize="12sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#374151"
+                android:layout_marginStart="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/bg_terms_icon_teal">
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lucide_check"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            <TextView
+                android:text="Profit analytics &amp; trends"
+                android:textSize="12sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#374151"
+                android:layout_marginStart="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/bg_terms_icon_teal">
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lucide_sparkles"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            <TextView
+                android:text="AI-powered insights"
+                android:textSize="12sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#374151"
+                android:layout_marginStart="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUpgradeNow"
+        android:text="Upgrade to Premium"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#FCF3E5"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:backgroundTint="#0F6E56"
+        app:rippleColor="#085041"
+        app:cornerRadius="14dp"
+        android:layout_marginTop="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"/>
+
+    <TextView
+        android:id="@+id/btnUpgradeLater"
+        android:text="Not now"
+        android:textSize="12.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#8A8474"
+        android:gravity="center"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginTop="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

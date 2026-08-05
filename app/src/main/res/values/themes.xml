@@ -70,6 +70,27 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
+    <!-- ================= CONFIRM PAYMENT (POPUP) THEME ================= -->
+    <!-- ConfirmPaymentActivity is launched as a floating popup over
+         SubscriptionActivity rather than a full-screen page — the
+         underlying Activity/Intent/ActivityResult plumbing is unchanged,
+         only the window presentation. No windowMinWidthMajor/Minor here
+         deliberately — those are a PERCENTAGE-of-screen floor, which on
+         this landscape-locked app would force the window wide regardless
+         of content. The card's actual on-screen size instead comes
+         entirely from activity_confirm_payment.xml's own fixed
+         width/height (a portrait-proportioned card, not a landscape-wide
+         one), so it looks the same on every device. -->
+    <style name="Theme.EasyBilling.Dialog" parent="Theme.EasyBilling">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
     <!-- ================= BUTTON STYLE ================= -->
     <style name="Widget.EasyBilling.Button" parent="Widget.Material3.Button">
 

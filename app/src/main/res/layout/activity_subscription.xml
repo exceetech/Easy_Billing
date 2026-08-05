@@ -1,220 +1,373 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#F5F7FA">
+    android:background="#F3ECDD">
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="20dp"
+        android:paddingBottom="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- TITLE -->
-        <!-- Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
             android:elevation="0dp"
-            app:titleTextColor="@color/textPrimary"
-            app:navigationIconTint="@color/textPrimary" />
+            app:titleTextColor="#1A1A18"
+            app:navigationIconTint="#1A1A18" />
 
-        <!-- CARD -->
         <LinearLayout
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/bg_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!-- STATUS -->
-            <TextView
-                android:id="@+id/tvStatus"
-                android:text="@string/checking"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary"
-                android:layout_marginBottom="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <!-- PLAN -->
-            <TextView
-                android:id="@+id/tvPlan"
-                android:text="@string/plan"
-                android:textSize="16sp"
-                android:textColor="#374151"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <!-- EXPIRY -->
-            <TextView
-                android:id="@+id/tvExpiry"
-                android:text="@string/expiry"
-                android:textSize="16sp"
-                android:textColor="#374151"
-                android:layout_marginTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <!-- DAYS -->
-            <TextView
-                android:id="@+id/tvDaysLeft"
-                android:text="@string/days_left"
-                android:textSize="16sp"
-                android:textColor="#374151"
-                android:layout_marginTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
-
-        <!-- FREE TRIAL -->
-        <!-- Hidden entirely once the shop has already used its trial —
-             see SubscriptionActivity.renderTrialCard(). Trial length is
-             never hardcoded here; the actual duration comes from the
-             backend (app_config.trial_duration_days) and is only shown
-             for display after start-trial succeeds. -->
-        <LinearLayout
-            android:id="@+id/cardTrial"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/bg_card_selected"
-            android:visibility="gone"
+            android:paddingHorizontal="18dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="Try Premium free"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="#0F6E56"
+                android:text="ACCOUNT"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#B8895A"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvTrialDescription"
-                android:text="Unlock GST reports, profit insights, and AI insights free for a limited time."
-                android:textSize="13sp"
-                android:textColor="#6B7280"
-                android:layout_marginTop="4dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <Button
-                android:id="@+id/btnStartTrial"
-                android:text="Start free trial"
-                android:textAllCaps="false"
-                android:textSize="14sp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_button_primary"
-                android:textColor="#FFFFFF"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"/>
-
-        </LinearLayout>
-
-        <!-- PLAN SELECTION -->
-        <!-- Populated at runtime, one card per plan returned by
-             GET /subscription/plans (SubscriptionActivity.renderPlans()) —
-             never hardcoded here, so a price/plan change is a backend-only
-             edit, not an app release. -->
-        <LinearLayout
-            android:id="@+id/llPlans"
-            android:orientation="vertical"
-            android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <!-- COUPON -->
-        <LinearLayout
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_width="match_parent"
+                android:layout_marginTop="2dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <EditText
-                    android:id="@+id/etCoupon"
-                    android:hint="Coupon code (optional)"
-                    android:textSize="14sp"
-                    android:inputType="textCapCharacters"
-                    android:maxLines="1"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="48dp"/>
-
-                <Button
-                    android:id="@+id/btnApplyCoupon"
-                    android:text="Apply"
-                    android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_button_secondary"
-                    android:textColor="#111827"
+                <TextView
+                    android:text="Your"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
                     android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:paddingHorizontal="16dp"/>
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text=" subscription"
+                    android:textSize="21sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:textColor="#0F6E56"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvCouponResult"
-                android:textSize="13sp"
-                android:layout_marginTop="8dp"
+            <!-- STATUS CARD -->
+            <!-- One shared template, four color states swapped at runtime
+                 in SubscriptionActivity.applyStatusCardState() — teal
+                 (active), amber (ending soon), coral (no plan), purple
+                 (trial). Only the background/icon-tile/pill drawables and
+                 text colors change; layout stays fixed. -->
+            <LinearLayout
+                android:id="@+id/cardStatus"
+                android:orientation="vertical"
+                android:background="@drawable/bg_status_card_teal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:id="@+id/statusIconBadge"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:background="@drawable/bg_status_icon_teal">
+
+                        <ImageView
+                            android:id="@+id/ivStatusIcon"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lucide_badge_check"
+                            app:tint="#E1F5EE"
+                            android:contentDescription="@null"/>
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvPlan"
+                        android:text="@string/plan"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#E1F5EE"
+                        android:layout_marginStart="10dp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:text="@string/checking"
+                        android:textSize="9.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#E1F5EE"
+                        android:background="@drawable/bg_status_pill_teal"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="3dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvExpiry"
+                    android:text="@string/expiry"
+                    android:textSize="11.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#9FE1CB"
+                    android:layout_marginTop="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvDaysLeft"
+                    android:text="@string/days_left"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#E1F5EE"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <!-- FREE TRIAL -->
+            <!-- Hidden entirely once the shop has already used its trial —
+                 see SubscriptionActivity.loadSubscription(). Trial length
+                 is never hardcoded here; the actual duration comes from
+                 the backend and is only shown for display after
+                 start-trial succeeds. Dashed-teal card with a gold
+                 "LIMITED OFFER" ribbon strip on top, then a feature
+                 checklist instead of a single description line. -->
+            <LinearLayout
+                android:id="@+id/cardTrial"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_trial_card"
+                android:layerType="software"
                 android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_trial_ribbon"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-        <!-- PRICE SUMMARY + PAY -->
-        <LinearLayout
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:src="@drawable/ic_lucide_sparkles"
+                        app:tint="#FCF3E5"
+                        android:contentDescription="@null"/>
 
-            <TextView
-                android:id="@+id/tvFinalPrice"
-                android:text="Select a plan to continue"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#111827"
+                    <TextView
+                        android:text="LIMITED OFFER"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.06"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#FCF3E5"
+                        android:layout_marginStart="6dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvTrialDescription"
+                        android:text="Try Premium free for 7 days"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textSize="14sp"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_lucide_check"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+
+                            <TextView
+                                android:text="GST reports"
+                                android:textSize="11.5sp"
+                                android:fontFamily="@font/googlesans_medium"
+                                android:textColor="#374151"
+                                android:layout_marginStart="6dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="5dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_lucide_check"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+
+                            <TextView
+                                android:text="Profit analytics"
+                                android:textSize="11.5sp"
+                                android:fontFamily="@font/googlesans_medium"
+                                android:textColor="#374151"
+                                android:layout_marginStart="6dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="5dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_lucide_check"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+
+                            <TextView
+                                android:text="AI insights"
+                                android:textSize="11.5sp"
+                                android:fontFamily="@font/googlesans_medium"
+                                android:textColor="#374151"
+                                android:layout_marginStart="6dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStartTrial"
+                        android:text="Start free trial"
+                        android:textAllCaps="false"
+                        android:textSize="13.5sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:layout_marginTop="14dp"
+                        android:textColor="#FCF3E5"
+                        android:includeFontPadding="false"
+                        android:gravity="center"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        app:backgroundTint="#B8895A"
+                        app:rippleColor="#8A6526"
+                        app:cornerRadius="14dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- BILLING CYCLE -->
+            <!-- Segmented chips (1/3/6/12 months), built in code since the
+                 set of cycles actually offered comes from whichever
+                 duration_days values GET /subscription/plans returns, not
+                 a hardcoded list — see SubscriptionActivity.renderBillingCycles(). -->
+            <LinearLayout
+                android:id="@+id/llBillingCycle"
+                android:orientation="horizontal"
+                android:layout_marginTop="18dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
-            <Button
-                android:id="@+id/btnPay"
-                android:text="Pay"
+            <!-- PLAN SELECTION -->
+            <!-- Populated at runtime, one card per plan matching the
+                 selected billing cycle (SubscriptionActivity.renderPlans())
+                 — never hardcoded here, so a price/plan change is a
+                 backend-only edit, not an app release. -->
+            <LinearLayout
+                android:id="@+id/llPlans"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnContinue"
+                android:text="Continue"
                 android:textAllCaps="false"
-                android:textSize="16sp"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_semibold"
                 android:enabled="false"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_button_primary"
-                android:textColor="#FFFFFF"
+                android:layout_marginTop="18dp"
+                android:textColor="#FCF3E5"
+                android:includeFontPadding="false"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:backgroundTint="#0F6E56"
+                app:rippleColor="#085041"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FCF3E5"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"/>
-
-            <ProgressBar
-                android:id="@+id/progressPayment"
-                android:visibility="gone"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="12dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="52dp"/>
 
         </LinearLayout>
 

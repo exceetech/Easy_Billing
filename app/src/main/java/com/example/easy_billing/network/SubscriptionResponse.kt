@@ -16,9 +16,17 @@ data class SubscriptionResponse(
     val expiry_ms: Long? = null,
     val remaining_days: Int,
     val status: String,
-    // Drives whether SubscriptionActivity shows the "Start free trial"
-    // card — server-side truth (Shop.has_used_trial), never inferred or
-    // cached locally, since it must not be resettable by clearing app
-    // data (plan §4.3).
-    val has_used_trial: Boolean = false
+    // Kept for display/analytics only — do NOT use this alone to decide
+    // whether to show the "Start free trial" card. Use
+    // is_trial_offerable below instead (it's what actually accounts for
+    // an active Base/Premium subscription blocking a trial too).
+    val has_used_trial: Boolean = false,
+    // Single source of truth for whether the trial card/button should
+    // be shown — computed server-side by
+    // subscription_entitlement_service.is_trial_offerable(), which
+    // returns false whenever the shop already has a live active_base or
+    // active_premium subscription, not just when has_used_trial is true.
+    // This is what fixes the trial card showing for a shop already on a
+    // paid Base plan.
+    val is_trial_offerable: Boolean = false
 )

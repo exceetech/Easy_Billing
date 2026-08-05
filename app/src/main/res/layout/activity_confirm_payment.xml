@@ -1,0 +1,491 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="340dp"
+    android:layout_height="540dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/bg_confirm_popup_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:text="CHECKOUT"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#B8895A"
+                android:layout_marginTop="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:paddingEnd="30dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="Confirm"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text=" and"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text=" pay"
+                    android:textSize="21sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:textColor="#0F6E56"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <!-- PLAN SUMMARY CARD -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_onboard_step_card"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <FrameLayout
+                    android:id="@+id/planIconBadge"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_onboard_avatar_current">
+
+                    <ImageView
+                        android:id="@+id/ivPlanIcon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lucide_badge_check"
+                        app:tint="#085041"
+                        android:contentDescription="@null"/>
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvPlanName"
+                        android:text="Premium"
+                        android:textSize="14.5sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvPlanCycle"
+                        android:text="1 Month billing cycle"
+                        android:textSize="11.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#8A8474"
+                        android:layout_marginTop="2dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- PRICE BREAKDOWN -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:background="@drawable/bg_onboard_step_card"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Plan price"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#8A8474"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvPlanPrice"
+                        android:text="₹999"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowDiscount"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvDiscountLabel"
+                        android:text="Cycle discount"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvDiscountAmount"
+                        android:text="-₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowCoupon"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Coupon discount"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvCouponDiscountAmount"
+                        android:text="-₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvBonusDays"
+                    android:visibility="gone"
+                    android:text="+15 days free"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#B8791A"
+                    android:background="@drawable/bg_bonus_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <View
+                    android:background="#E5DFCB"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Service charge (2%)"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#8A8474"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvServiceCharge"
+                        android:text="₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="GST (18%)"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#8A8474"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvGst"
+                        android:text="₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <View
+                    android:background="#E5DFCB"
+                    android:layout_marginVertical="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Total"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvFinalPrice"
+                        android:text="₹999"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- COUPON ENTRY -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/etCoupon"
+                    android:hint="Coupon code"
+                    android:textSize="13sp"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#8A8474"
+                    android:textCursorDrawable="@drawable/cursor_coupon_thin"
+                    android:background="@drawable/bg_onboard_step_card"
+                    android:paddingHorizontal="14dp"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:paddingVertical="0dp"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="46dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApplyCoupon"
+                    android:text="Apply"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#FCF3E5"
+                    android:includeFontPadding="false"
+                    android:gravity="center"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:backgroundTint="#0F6E56"
+                    app:rippleColor="#085041"
+                    app:cornerRadius="14dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:paddingHorizontal="18dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvCouponResult"
+                android:visibility="gone"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:layout_marginTop="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!-- TRUST LINE -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_lucide_shield_check"
+                    app:tint="#8A8474"
+                    android:contentDescription="@null"/>
+
+                <TextView
+                    android:text="Secured by Razorpay — cards, UPI and netbanking"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#8A8474"
+                    android:layout_marginStart="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    <!-- STICKY PAY BUTTON -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/bg_confirm_popup_bottom_bar"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="16dp"
+        android:elevation="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPay"
+                android:text="Pay ₹999 securely"
+                android:textAllCaps="false"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#FCF3E5"
+                android:includeFontPadding="false"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:backgroundTint="#0F6E56"
+                app:rippleColor="#085041"
+                app:cornerRadius="14dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <ProgressBar
+                android:id="@+id/progressPayment"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:indeterminateTint="#FCF3E5"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- CLOSE BUTTON -->
+    <!-- Floating circular close button, top-right, overlapping the card —
+         replaces the old toolbar back arrow now that this screen is a
+         popup rather than a full page. -->
+    <FrameLayout
+        android:id="@+id/btnClose"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="14dp"
+        android:background="@drawable/bg_confirm_close_button"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_x"
+            app:tint="#1A1A18"
+            android:contentDescription="@string/close"/>
+
+    </FrameLayout>
+
+</FrameLayout>

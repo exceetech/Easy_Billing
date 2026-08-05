@@ -125,6 +125,11 @@
             android:name=".SubscriptionActivity"
             android:screenOrientation="sensorLandscape"/>
         <activity
+            android:name=".ConfirmPaymentActivity"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/Theme.EasyBilling.Dialog"
+            android:exported="false"/>
+        <activity
             android:name=".OnboardingActivity"
             android:screenOrientation="sensorLandscape"/>
         <activity

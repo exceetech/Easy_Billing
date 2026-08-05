@@ -1,64 +1,80 @@
 package com.example.easy_billing
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.*
 import com.razorpay.Checkout
-import com.razorpay.PaymentData
-import com.razorpay.PaymentResultWithDataListener
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Subscription purchase flow — plan selection, optional coupon, Razorpay
- * checkout, and server-side payment verification.
- *
- * TRUST BOUNDARY: this Activity's job is to collect payment and report
- * identifiers back. It must never treat Razorpay's local success
- * callback (onPaymentSuccess) as the actual confirmation — that's only
- * shown to the user AFTER verifySubscriptionPayment() on the backend
- * confirms the payment signature. See subscription_payment_routes.py's
- * module docstring for the matching backend-side explanation.
- *
- * Replaces the old static-QR-code "pay and contact admin" flow entirely.
+ * Subscription plan picker — status card, trial offer, billing-cycle
+ * chips, and plan cards. Selecting a plan and tapping Continue hands off
+ * to ConfirmPaymentActivity, which owns the coupon entry, Razorpay
+ * checkout, and server-side payment verification (trust boundary lives
+ * there now, not here — see that class's doc comment).
  */
-class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
+class SubscriptionActivity : BaseActivity() {
 
+    private lateinit var cardStatus: LinearLayout
+    private lateinit var statusIconBadge: FrameLayout
+    private lateinit var ivStatusIcon: ImageView
     private lateinit var tvPlan: TextView
     private lateinit var tvExpiry: TextView
     private lateinit var tvDaysLeft: TextView
     private lateinit var tvStatus: TextView
 
+    // Below this many remaining days, an otherwise-active plan switches
+    // the status card to the amber "ending soon" state instead of teal.
+    private val endingSoonThresholdDays = 7
+
     private lateinit var cardTrial: LinearLayout
     private lateinit var btnStartTrial: Button
 
+    private lateinit var llBillingCycle: LinearLayout
     private lateinit var llPlans: LinearLayout
-    private lateinit var etCoupon: EditText
-    private lateinit var btnApplyCoupon: Button
-    private lateinit var tvCouponResult: TextView
-    private lateinit var tvFinalPrice: TextView
-    private lateinit var btnPay: Button
-    private lateinit var progressPayment: ProgressBar
+    private lateinit var btnContinue: com.google.android.material.button.MaterialButton
 
     private var plans: List<PlanResponse> = emptyList()
     private var selectedPlan: PlanResponse? = null
     private var planCardViews: MutableMap<String, LinearLayout> = mutableMapOf()
+    private var planSelectedPillViews: MutableMap<String, TextView> = mutableMapOf()
 
-    // Only set once validate-coupon has actually succeeded for the
-    // CURRENT plan + coupon text combination — cleared on any edit to
-    // either, so a stale discount can never silently apply to a
-    // different selection than the one it was validated against.
-    private var validatedCouponCode: String? = null
-    private var lastComputedFinalPaise: Int? = null
+    // Which duration_days bucket is currently shown (30/90/195/395 —
+    // 1/3/6/12 months). Drives both the chip row's selected state and
+    // which two plan cards (Base + Premium) are visible at a time,
+    // instead of listing all eight plans in one long scroll.
+    private var selectedCycleDays: Int = 30
+    private var cycleChipViews: MutableMap<Int, TextView> = mutableMapOf()
 
-    // Set right before Checkout.open(); read back in onPaymentSuccess to
-    // know which Order row to verify against.
-    private var pendingOrderDbId: Int? = null
+    // Current subscription snapshot from the last loadSubscription() call —
+    // used only to give an immediate, friendly explanation when tapping
+    // Continue on a Base plan while already on a paid Premium period,
+    // instead of letting the user go through the whole payment popup only
+    // to be rejected by create-order's downgrade block at the very end.
+    // The backend remains the actual source of truth/enforcement here —
+    // this is purely a same-explanation-earlier UX shortcut.
+    private var currentTier: String? = null
+    private var currentStatus: String? = null
+    private var currentExpiryLabel: String? = null
+
+    // Launches ConfirmPaymentActivity and, on RESULT_OK (payment verified
+    // there), finishes this screen too — mirrors the auto-return pattern
+    // used elsewhere (StoreSettings/BillingSettings) during onboarding.
+    private val confirmPaymentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            loadSubscription()
+            if (result.resultCode == Activity.RESULT_OK) {
+                finish()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +83,13 @@ class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
 
+        // Preloading here (instead of only in ConfirmPaymentActivity) keeps
+        // the Razorpay SDK warm by the time the user reaches checkout.
         Checkout.preload(applicationContext)
 
+        cardStatus = findViewById(R.id.cardStatus)
+        statusIconBadge = findViewById(R.id.statusIconBadge)
+        ivStatusIcon = findViewById(R.id.ivStatusIcon)
         tvPlan = findViewById(R.id.tvPlan)
         tvExpiry = findViewById(R.id.tvExpiry)
         tvDaysLeft = findViewById(R.id.tvDaysLeft)
@@ -77,32 +98,12 @@ class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
         cardTrial = findViewById(R.id.cardTrial)
         btnStartTrial = findViewById(R.id.btnStartTrial)
 
+        llBillingCycle = findViewById(R.id.llBillingCycle)
         llPlans = findViewById(R.id.llPlans)
-        etCoupon = findViewById(R.id.etCoupon)
-        btnApplyCoupon = findViewById(R.id.btnApplyCoupon)
-        tvCouponResult = findViewById(R.id.tvCouponResult)
-        tvFinalPrice = findViewById(R.id.tvFinalPrice)
-        btnPay = findViewById(R.id.btnPay)
-        progressPayment = findViewById(R.id.progressPayment)
+        btnContinue = findViewById(R.id.btnContinue)
 
-        btnApplyCoupon.setOnClickListener { onApplyCouponClicked() }
-        btnPay.setOnClickListener { onPayClicked() }
         btnStartTrial.setOnClickListener { onStartTrialClicked() }
-
-        // Any edit to the coupon field invalidates a previously-validated
-        // coupon — prevents paying at a stale discounted price after the
-        // user changes the code without re-applying.
-        etCoupon.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                if (validatedCouponCode != null && validatedCouponCode != s?.toString()?.trim()?.uppercase()) {
-                    validatedCouponCode = null
-                    tvCouponResult.visibility = View.GONE
-                    updatePriceSummary()
-                }
-            }
-        })
+        btnContinue.setOnClickListener { onContinueClicked() }
 
         loadSubscription()
         loadPlans()
@@ -126,46 +127,73 @@ class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
             try {
                 val res = RetrofitClient.api.getSubscription(token)
 
-                val planLabel = if (res.tier != null) "${res.plan ?: "None"} (${res.tier})" else (res.plan ?: "None")
-                tvPlan.text = "Plan: $planLabel"
+                // No tier at all means the shop has never had a plan (or a
+                // past one lapsed with nothing on file) — this is a
+                // distinct "no plan yet" state, not the same as "Expired"
+                // (which implies there WAS a plan with a real expiry date).
+                val hasPlan = res.tier != null
 
-                tvExpiry.text = when {
+                currentTier = res.tier
+                currentStatus = res.status
+                currentExpiryLabel = when {
                     res.expiry_ms != null ->
-                        "Expiry: ${com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy").format(java.util.Date(res.expiry_ms))}"
-                    res.expiry_date != null -> "Expiry: ${formatDate(res.expiry_date)}"
-                    else -> "Expiry: -"
+                        com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy").format(java.util.Date(res.expiry_ms))
+                    res.expiry_date != null -> formatDate(res.expiry_date)
+                    else -> null
                 }
 
-                tvDaysLeft.text = "Days left: ${res.remaining_days}"
+                tvPlan.text = if (hasPlan) "${res.plan ?: res.tier}" else "No active plan"
+
+                tvExpiry.text = when {
+                    !hasPlan -> "Choose a plan to get started"
+                    res.expiry_ms != null ->
+                        "Renews ${com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy").format(java.util.Date(res.expiry_ms))}"
+                    res.expiry_date != null -> "Renews ${formatDate(res.expiry_date)}"
+                    else -> "Renews -"
+                }
+
+                tvDaysLeft.text = if (hasPlan) "${res.remaining_days} days left" else "Pick a plan below"
 
                 // "trial" is a genuinely usable, active status — must not
                 // fall into the same visual bucket as "expired" the way a
                 // naive `if (status == "active")` check would (see the
                 // backend fix in dependencies.get_current_shop for the
                 // same class of bug on the enforcement side).
-                when (res.status) {
-                    "active" -> {
-                        tvStatus.text = "Active ✅"
-                        tvStatus.setTextColor(getColor(R.color.green))
+                val statusLabel: String
+                val cardState: StatusCardState
+                when {
+                    !hasPlan -> {
+                        statusLabel = "Get started"
+                        cardState = StatusCardState.NO_PLAN
                     }
-                    "trial" -> {
-                        tvStatus.text = "Trial — ${res.remaining_days} day(s) left"
-                        tvStatus.setTextColor(getColor(R.color.primary))
+                    res.status == "trial" -> {
+                        statusLabel = "Trial"
+                        cardState = StatusCardState.TRIAL
+                    }
+                    res.status == "active" && res.remaining_days <= endingSoonThresholdDays -> {
+                        statusLabel = "Ending soon"
+                        cardState = StatusCardState.ENDING_SOON
+                    }
+                    res.status == "active" -> {
+                        statusLabel = "Active"
+                        cardState = StatusCardState.ACTIVE
                     }
                     else -> {
-                        tvStatus.text = "Expired ❌"
-                        tvStatus.setTextColor(getColor(R.color.red))
+                        statusLabel = "Expired"
+                        cardState = StatusCardState.NO_PLAN
                     }
                 }
+                tvStatus.text = statusLabel
+                applyStatusCardState(cardState)
 
-                // Trial card only makes sense to offer when the shop
-                // hasn't already burned its one trial (plan §4.3, server-
-                // enforced — this is just matching the UI to that truth,
-                // not a second enforcement point) AND isn't already on
-                // Premium right now (no point offering a trial on top of
-                // an active Premium subscription).
-                cardTrial.visibility =
-                    if (!res.has_used_trial && res.tier != "premium") View.VISIBLE else View.GONE
+                // Trial card visibility now comes straight from the
+                // server's is_trial_offerable — computed by
+                // subscription_entitlement_service against the shop's
+                // real current state, not just has_used_trial. Fixes the
+                // trial card showing while the shop is already on a paid
+                // Base subscription (it used to only check tier !=
+                // "premium", which let Base slip through).
+                cardTrial.visibility = if (res.is_trial_offerable) View.VISIBLE else View.GONE
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -176,6 +204,68 @@ class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
                 ).setAction("Retry") { loadSubscription() }.show()
             }
         }
+    }
+
+    /** Color states the shared status-card template can render as — one
+     * bordered-tint layout, four palettes swapped at runtime. */
+    private enum class StatusCardState { ACTIVE, ENDING_SOON, NO_PLAN, TRIAL }
+
+    private fun applyStatusCardState(state: StatusCardState) {
+        val cardBg: Int
+        val iconBg: Int
+        val pillBg: Int
+        val icon: Int
+        // Now that the card itself is a solid, dark ramp-600 fill, title
+        // text goes light (ramp-50) and the subtitle a shade deeper
+        // (ramp-100) for hierarchy — the reverse of the old pale-tint
+        // card, which used dark text on a light fill.
+        val titleText: Int
+        val subtitleText: Int
+
+        when (state) {
+            StatusCardState.ACTIVE -> {
+                cardBg = R.drawable.bg_status_card_teal
+                iconBg = R.drawable.bg_status_icon_teal
+                pillBg = R.drawable.bg_status_pill_teal
+                icon = R.drawable.ic_lucide_badge_check
+                titleText = 0xFFE1F5EE.toInt()
+                subtitleText = 0xFF9FE1CB.toInt()
+            }
+            StatusCardState.ENDING_SOON -> {
+                cardBg = R.drawable.bg_status_card_amber
+                iconBg = R.drawable.bg_status_icon_amber
+                pillBg = R.drawable.bg_status_pill_amber
+                icon = R.drawable.ic_lc_clock
+                titleText = 0xFFFAEEDA.toInt()
+                subtitleText = 0xFFFAC775.toInt()
+            }
+            StatusCardState.NO_PLAN -> {
+                cardBg = R.drawable.bg_status_card_coral
+                iconBg = R.drawable.bg_status_icon_coral
+                pillBg = R.drawable.bg_status_pill_coral
+                icon = R.drawable.ic_lucide_alert
+                titleText = 0xFFFAECE7.toInt()
+                subtitleText = 0xFFF5C4B3.toInt()
+            }
+            StatusCardState.TRIAL -> {
+                cardBg = R.drawable.bg_status_card_purple
+                iconBg = R.drawable.bg_status_icon_purple
+                pillBg = R.drawable.bg_status_pill_purple
+                icon = R.drawable.ic_lucide_sparkles
+                titleText = 0xFFEEEDFE.toInt()
+                subtitleText = 0xFFCECBF6.toInt()
+            }
+        }
+
+        cardStatus.setBackgroundResource(cardBg)
+        statusIconBadge.setBackgroundResource(iconBg)
+        ivStatusIcon.setImageResource(icon)
+        ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(titleText)
+        tvStatus.setBackgroundResource(pillBg)
+        tvStatus.setTextColor(titleText)
+        tvPlan.setTextColor(titleText)
+        tvDaysLeft.setTextColor(titleText)
+        tvExpiry.setTextColor(subtitleText)
     }
 
     // ================= TRIAL =================
@@ -218,12 +308,36 @@ class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
 
     // ================= PLANS =================
 
+    // Only these cycles are ever intentionally offered (1/3/6/12 months,
+    // including the 15/30 bonus days baked into the 6- and 12-month
+    // durations). Any other duration_days value on a plan row — e.g. a
+    // stale legacy row still sitting in the DB with its old duration —
+    // is filtered out client-side rather than rendered as its own chip,
+    // so a DB-side cleanup isn't a prerequisite for the picker to look
+    // right.
+    private val knownCycleDays = setOf(30, 90, 195, 395)
+
     private fun loadPlans() {
         lifecycleScope.launch {
             val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null) ?: return@launch
             try {
-                plans = RetrofitClient.api.getPlans(token)
+                plans = RetrofitClient.api.getPlans(token).filter { it.duration_days in knownCycleDays }
+                // Default to the longest cycle available (12 months, i.e.
+                // 395 days with its bonus month baked in) rather than the
+                // shortest — it's the best-value option and the one we
+                // want to nudge users toward. Falls back to whatever the
+                // longest available cycle actually is if 395 isn't present
+                // for some reason, rather than assuming it always exists.
+                selectedCycleDays = plans.map { it.duration_days }.maxOrNull() ?: 30
+                renderBillingCycles()
                 renderPlans()
+                // Premium is the default highlighted tier on first load —
+                // renderPlans() just rebuilt the cards for selectedCycleDays,
+                // so pick the premium one among them (if present) as the
+                // initial selection instead of leaving nothing selected.
+                selectedPlan = plans.firstOrNull { it.duration_days == selectedCycleDays && it.tier == "premium" }
+                applyPlanSelectionStyles()
+                updateContinueButton()
             } catch (e: Exception) {
                 e.printStackTrace()
                 Toast.makeText(this@SubscriptionActivity, "Couldn't load plans", Toast.LENGTH_SHORT).show()
@@ -231,276 +345,358 @@ class SubscriptionActivity : BaseActivity(), PaymentResultWithDataListener {
         }
     }
 
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    /** "1 Month" / "3 Months" / "6 Months" / "12 Months" for a duration_days bucket. */
+    private fun cycleLabel(days: Int): String = when (days) {
+        30 -> "1 Month"
+        90 -> "3 Months"
+        195 -> "6 Months"
+        395 -> "12 Months"
+        else -> "$days days"
+    }
+
+    /**
+     * Segmented chip row — one per distinct duration_days value the
+     * backend actually returned, sorted shortest to longest. Selecting a
+     * chip filters the plan cards below down to just that cycle (Base +
+     * Premium), instead of showing all eight plans in one long list.
+     */
+    private fun renderBillingCycles() {
+        llBillingCycle.removeAllViews()
+        cycleChipViews.clear()
+
+        val cycles = plans.map { it.duration_days }.distinct().sorted()
+
+        cycles.forEachIndexed { index, days ->
+            val chip = TextView(this).apply {
+                text = cycleLabel(days)
+                textSize = 12.5f
+                gravity = Gravity.CENTER
+                setPadding(0, dp(10), 0, dp(10))
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                isClickable = true
+                isFocusable = true
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    if (index != 0) marginStart = dp(6)
+                }
+                setOnClickListener { onBillingCycleSelected(days) }
+            }
+            llBillingCycle.addView(chip)
+            cycleChipViews[days] = chip
+        }
+
+        updateCycleChipStyles()
+    }
+
+    private fun updateCycleChipStyles() {
+        for ((days, chip) in cycleChipViews) {
+            val selected = days == selectedCycleDays
+            chip.setBackgroundResource(if (selected) R.drawable.bg_cycle_chip_selected else R.drawable.bg_cycle_chip_unselected)
+            chip.setTextColor(if (selected) 0xFF0F6E56.toInt() else 0xFF374151.toInt())
+        }
+    }
+
+    private fun onBillingCycleSelected(days: Int) {
+        if (days == selectedCycleDays) return
+        selectedCycleDays = days
+        updateCycleChipStyles()
+
+        // A different cycle means a different price for every plan —
+        // any in-flight selection belonged to the old cycle's card and
+        // can't carry over.
+        selectedPlan = null
+        renderPlans()
+        updateContinueButton()
+    }
+
+    /** Core commitment length a cycle represents, ignoring bonus days
+     * (195 days = "6 months" + 15 bonus, 395 = "12 months" + 30 bonus) —
+     * used so the savings percentage reflects only the price discount,
+     * not double-counting the free bonus days as if they too would have
+     * cost money at the monthly rate. */
+    private fun coreMonths(days: Int): Int = when (days) {
+        30 -> 1
+        90 -> 3
+        195 -> 6
+        395 -> 12
+        else -> (days / 30).coerceAtLeast(1)
+    }
+
+    /**
+     * Monthly price for [plan]'s tier, used as the baseline "Save X%" is
+     * computed against — i.e. what this plan's core month count would
+     * have cost at the plain monthly rate, not the discounted
+     * longer-cycle price.
+     */
+    private fun monthlyBaselinePaise(plan: PlanResponse): Int? {
+        val monthly = plans.firstOrNull { it.tier == plan.tier && it.duration_days == 30 } ?: return null
+        return monthly.price_paise * coreMonths(plan.duration_days)
+    }
+
+    /** "/mo" / "/3mo" / "/6mo" / "/12mo" — short price suffix for the
+     * side-by-side tier cards, where there's no room for the full
+     * "699 rupees per 1 Month" phrasing. */
+    private fun priceSuffix(days: Int): String = when (days) {
+        30 -> "/mo"
+        90 -> "/3mo"
+        195 -> "/6mo"
+        395 -> "/12mo"
+        else -> "/${coreMonths(days)}mo"
+    }
+
     private fun renderPlans() {
         llPlans.removeAllViews()
         planCardViews.clear()
+        planSelectedPillViews.clear()
 
-        for (plan in plans) {
+        val visiblePlans = plans.filter { it.duration_days == selectedCycleDays }
+
+        // Two vertical tier cards side by side (Base | Premium) instead of
+        // a stacked list — same information, denser layout since there
+        // are only ever two tiers per cycle. Extra top padding on the row
+        // itself (rather than on each card) leaves room for the
+        // "Selected" pill to float above the selected card's top-left
+        // corner, overlapping its border, without being clipped.
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            clipChildren = false
+            clipToPadding = false
+            setPadding(0, dp(9), 0, 0)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = dp(10) }
+        }
+
+        visiblePlans.forEachIndexed { index, plan ->
+            val isPremium = plan.tier == "premium"
+
+            // Each tier is a FrameLayout wrapper (card + floating pill)
+            // rather than the card itself, so the pill can sit above the
+            // card's own top edge without needing a negative margin that
+            // could get clipped by the parent.
+            val wrapper = FrameLayout(this).apply {
+                clipChildren = false
+                clipToPadding = false
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    if (index != 0) marginStart = dp(10)
+                }
+            }
+
             val card = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
-                setPadding(32, 28, 32, 28)
-                setBackgroundResource(R.drawable.bg_card)
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { topMargin = 16 }
+                setPadding(dp(12), dp(11), dp(12), dp(11))
+                setBackgroundResource(R.drawable.bg_plan_tier_card_unselected)
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = dp(9) }
                 isClickable = true
                 isFocusable = true
             }
 
+            val iconBadge = FrameLayout(this).apply {
+                layoutParams = LinearLayout.LayoutParams(dp(28), dp(28))
+                setBackgroundResource(if (isPremium) R.drawable.bg_terms_icon_amber else R.drawable.bg_terms_icon_teal)
+            }
+            val icon = ImageView(this).apply {
+                layoutParams = FrameLayout.LayoutParams(dp(13), dp(13)).apply { gravity = Gravity.CENTER }
+                setImageResource(if (isPremium) R.drawable.ic_lucide_sparkles else R.drawable.ic_lucide_badge_check)
+                imageTintList = android.content.res.ColorStateList.valueOf(
+                    if (isPremium) 0xFF854F0B.toInt() else 0xFF085041.toInt()
+                )
+            }
+            iconBadge.addView(icon)
+            card.addView(iconBadge)
+
             val title = TextView(this).apply {
-                text = plan.name
-                textSize = 16f
+                text = if (isPremium) "Premium" else "Base"
+                textSize = 13.5f
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
-                setTextColor(0xFF111827.toInt())
+                setTextColor(0xFF1A1A18.toInt())
+                setPadding(0, dp(7), 0, 0)
             }
-
-            val price = TextView(this).apply {
-                text = if (plan.price_paise == 0) "Free" else "₹${plan.price_paise / 100} / ${plan.duration_days} days"
-                textSize = 14f
-                setTextColor(0xFF6B7280.toInt())
-                setPadding(0, 8, 0, 0)
-            }
-
             card.addView(title)
-            card.addView(price)
-            card.setOnClickListener { onPlanSelected(plan) }
 
-            llPlans.addView(card)
+            val priceRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.BOTTOM
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = dp(1) }
+            }
+            priceRow.addView(TextView(this).apply {
+                text = "₹${plan.price_paise / 100}"
+                textSize = 16.5f
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextColor(if (isPremium) 0xFF1A1A18.toInt() else 0xFF0F6E56.toInt())
+            })
+            priceRow.addView(TextView(this).apply {
+                text = priceSuffix(plan.duration_days)
+                textSize = 10f
+                setTextColor(0xFF8A8474.toInt())
+                setPadding(dp(2), 0, 0, dp(2))
+            })
+            card.addView(priceRow)
+
+            // Reminder that the price above is before service charge + GST
+            // — the real, authoritative breakdown (and final total) only
+            // appears on the Confirm and pay screen, computed there from
+            // the backend's response, never duplicated here.
+            val blurb = TextView(this).apply {
+                text = "+ GST + service charges"
+                textSize = 10.5f
+                setTextColor(0xFF8A8474.toInt())
+                setPadding(0, dp(3), 0, 0)
+            }
+            card.addView(blurb)
+
+            // Badges — savings % (past the monthly cycle) and bonus days
+            // (6/12-month cycles), stacked below the blurb.
+            if (selectedCycleDays != 30) {
+                val baseline = monthlyBaselinePaise(plan)
+                if (baseline != null && baseline > plan.price_paise) {
+                    val savedPaise = baseline - plan.price_paise
+                    val savedPct = Math.round(savedPaise * 100.0 / baseline).toInt()
+                    card.addView(TextView(this).apply {
+                        text = "Save $savedPct%"
+                        textSize = 10f
+                        setTypeface(typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(0xFF0F6E56.toInt())
+                        setPadding(dp(7), dp(3), dp(7), dp(3))
+                        setBackgroundResource(R.drawable.bg_savings_badge)
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply { topMargin = dp(6) }
+                    })
+                }
+            }
+
+            val bonusDays = when (selectedCycleDays) {
+                195 -> 15
+                395 -> 30
+                else -> 0
+            }
+            if (bonusDays > 0) {
+                card.addView(TextView(this).apply {
+                    text = if (bonusDays == 30) "+1 month free" else "+$bonusDays days free"
+                    textSize = 10f
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                    setTextColor(0xFFB8791A.toInt())
+                    setPadding(dp(7), dp(3), dp(7), dp(3))
+                    setBackgroundResource(R.drawable.bg_bonus_badge)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = dp(4) }
+                })
+            }
+
+            card.setOnClickListener { onPlanSelected(plan) }
+            wrapper.addView(card)
+
+            // Floating "Selected" pill — sits at the wrapper's actual top
+            // (y=0), while the card itself starts dp(9) lower, so the pill
+            // visually overlaps the card's top-left border corner.
+            val selectedPill = TextView(this).apply {
+                text = "Selected"
+                textSize = 9f
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextColor(0xFFFCF3E5.toInt())
+                setPadding(dp(8), dp(3), dp(8), dp(3))
+                setBackgroundResource(R.drawable.bg_plan_selected_pill)
+                visibility = View.GONE
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                    marginStart = dp(12)
+                }
+            }
+            wrapper.addView(selectedPill)
+
+            row.addView(wrapper)
             planCardViews[plan.plan_code] = card
+            planSelectedPillViews[plan.plan_code] = selectedPill
         }
+
+        llPlans.addView(row)
+
+        // Preserve selection across a re-render (e.g. coming back from
+        // ConfirmPaymentActivity) if the previously-selected plan is
+        // still among the visible ones for this cycle.
+        val stillVisible = selectedPlan?.let { sp -> visiblePlans.firstOrNull { it.plan_code == sp.plan_code } }
+        selectedPlan = stillVisible
+        applyPlanSelectionStyles()
     }
 
     private fun onPlanSelected(plan: PlanResponse) {
         selectedPlan = plan
-        // Selecting a different plan invalidates any coupon validated
-        // against the previous one — validate-coupon's discount is
-        // plan-specific (percentage-of-price), so it can't just carry over.
-        validatedCouponCode = null
-        tvCouponResult.visibility = View.GONE
+        applyPlanSelectionStyles()
+        updateContinueButton()
+    }
 
+    private fun applyPlanSelectionStyles() {
+        val plan = selectedPlan
         for ((code, view) in planCardViews) {
-            view.setBackgroundResource(if (code == plan.plan_code) R.drawable.bg_card_selected else R.drawable.bg_card)
-        }
-
-        updatePriceSummary()
-    }
-
-    // ================= COUPON =================
-
-    private fun onApplyCouponClicked() {
-        val plan = selectedPlan
-        if (plan == null) {
-            Toast.makeText(this, "Select a plan first", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val code = etCoupon.text.toString().trim().uppercase()
-        if (code.isEmpty()) {
-            Toast.makeText(this, "Enter a coupon code", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        lifecycleScope.launch {
-            val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null) ?: return@launch
-            try {
-                val res = RetrofitClient.api.validateCoupon(token, ValidateCouponRequest(plan.plan_code, code))
-                validatedCouponCode = code
-                lastComputedFinalPaise = res.final_amount_paise
-
-                tvCouponResult.visibility = View.VISIBLE
-                tvCouponResult.setTextColor(getColor(R.color.green))
-                tvCouponResult.text = if (res.discount_amount_paise > 0)
-                    "Coupon applied — you save ₹${res.discount_amount_paise / 100}"
-                else
-                    "Coupon applied"
-
-                updatePriceSummary()
-            } catch (e: retrofit2.HttpException) {
-                validatedCouponCode = null
-                tvCouponResult.visibility = View.VISIBLE
-                tvCouponResult.setTextColor(getColor(R.color.red))
-                tvCouponResult.text = parseErrorDetail(e) ?: "Invalid coupon"
-                updatePriceSummary()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(this@SubscriptionActivity, "Couldn't validate coupon", Toast.LENGTH_SHORT).show()
-            }
+            val selected = code == plan?.plan_code
+            view.setBackgroundResource(if (selected) R.drawable.bg_plan_tier_card_selected else R.drawable.bg_plan_tier_card_unselected)
+            planSelectedPillViews[code]?.visibility = if (selected) View.VISIBLE else View.GONE
         }
     }
 
-    private fun updatePriceSummary() {
-        val plan = selectedPlan
-        if (plan == null) {
-            tvFinalPrice.text = "Select a plan to continue"
-            btnPay.isEnabled = false
-            return
-        }
-
-        val finalPaise = if (validatedCouponCode != null) (lastComputedFinalPaise ?: plan.price_paise) else plan.price_paise
-
-        tvFinalPrice.text = if (finalPaise == 0) "Total: Free" else "Total: ₹${finalPaise / 100}"
-        btnPay.isEnabled = true
-        btnPay.text = if (finalPaise == 0) "Activate" else "Pay ₹${finalPaise / 100}"
+    private fun updateContinueButton() {
+        val enabled = selectedPlan != null
+        btnContinue.isEnabled = enabled
+        // MaterialButton is colored via backgroundTint (set in XML as
+        // app:backgroundTint), not a background drawable — swapping the
+        // ColorStateList here is the equivalent of the old
+        // setBackgroundResource() toggle between enabled/disabled art.
+        btnContinue.backgroundTintList = android.content.res.ColorStateList.valueOf(
+            if (enabled) 0xFF0F6E56.toInt() else 0xFFD8D0BC.toInt()
+        )
     }
 
-    // ================= PAY =================
+    // ================= CONTINUE =================
 
-    private fun onPayClicked() {
+    private fun onContinueClicked() {
         val plan = selectedPlan ?: return
 
-        setPaymentInProgress(true)
-
-        lifecycleScope.launch {
-            val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
-            if (token.isNullOrEmpty()) {
-                setPaymentInProgress(false)
-                Toast.makeText(this@SubscriptionActivity, "Not logged in", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            try {
-                val order = RetrofitClient.api.createSubscriptionOrder(
-                    token,
-                    CreateOrderRequest(plan.plan_code, validatedCouponCode)
-                )
-
-                if (order.is_free) {
-                    // Backend already activated the subscription directly
-                    // (zero-amount coupon) — nothing left to do here except
-                    // reflect the new state.
-                    setPaymentInProgress(false)
-                    Toast.makeText(this@SubscriptionActivity, "Subscription activated", Toast.LENGTH_LONG).show()
-                    loadSubscription()
-                    finish()
-                    return@launch
-                }
-
-                pendingOrderDbId = order.order_db_id
-                openRazorpayCheckout(order)
-
-            } catch (e: Exception) {
-                setPaymentInProgress(false)
-                e.printStackTrace()
-                Toast.makeText(this@SubscriptionActivity, "Couldn't start payment. Please try again.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun openRazorpayCheckout(order: CreateOrderResponse) {
-        val checkout = Checkout()
-        checkout.setKeyID(order.razorpay_key_id)
-
-        val shopName = getSharedPreferences("auth", MODE_PRIVATE).getString("SHOP_NAME", "") ?: ""
-
-        try {
-            val options = JSONObject().apply {
-                put("name", "Easy Billing")
-                put("description", "Subscription")
-                put("order_id", order.razorpay_order_id)
-                put("currency", order.currency)
-                put("amount", order.amount_paise)
-                put("prefill", JSONObject().apply {
-                    put("name", shopName)
-                })
-                // Retry lets the user fix a declined card without losing
-                // the order — Razorpay reopens checkout against the same
-                // order_id rather than requiring a fresh create-order call.
-                put("retry", JSONObject().apply { put("enabled", true) })
-            }
-            // Checkout.open() requires an Activity implementing
-            // PaymentResultWithDataListener — this class does, so
-            // onPaymentSuccess/onPaymentError below receive the result.
-            checkout.open(this, options)
-        } catch (e: Exception) {
-            setPaymentInProgress(false)
-            e.printStackTrace()
-            Toast.makeText(this, "Couldn't open payment screen", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    // ================= RAZORPAY CALLBACKS =================
-
-    override fun onPaymentSuccess(razorpayPaymentId: String?, data: PaymentData?) {
-        // IMPORTANT: this is Razorpay's LOCAL callback, not proof of
-        // payment on its own — see the trust-boundary note in the class
-        // doc comment. The success state is only shown to the user after
-        // verifySubscriptionPayment() below confirms it server-side.
-        val orderDbId = pendingOrderDbId
-        val razorpayOrderId = data?.orderId
-        val razorpaySignature = data?.signature
-
-        if (orderDbId == null || razorpayPaymentId == null || razorpayOrderId == null || razorpaySignature == null) {
-            setPaymentInProgress(false)
-            showPendingVerificationState()
+        // Mirrors the backend's downgrade block (create-order rejects a
+        // Base purchase while an active_premium subscription is running,
+        // to avoid discarding paid Premium time) — same rule, applied
+        // here so the explanation shows immediately on tap instead of
+        // after filling out the whole payment popup. The backend is
+        // still the actual enforcement; this is only a same-message-
+        // earlier shortcut, not a second source of truth.
+        if (currentTier == "premium" && currentStatus == "active" && plan.tier == "base") {
+            val untilSuffix = currentExpiryLabel?.let { " ($it)" } ?: ""
+            com.google.android.material.snackbar.Snackbar.make(
+                btnContinue,
+                "You're on Premium — switching to Base isn't available until your current period ends$untilSuffix.",
+                com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+            ).show()
             return
         }
 
-        lifecycleScope.launch {
-            val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
-            if (token.isNullOrEmpty()) {
-                setPaymentInProgress(false)
-                showPendingVerificationState()
-                return@launch
-            }
-
-            try {
-                RetrofitClient.api.verifySubscriptionPayment(
-                    token,
-                    VerifyPaymentRequest(orderDbId, razorpayOrderId, razorpayPaymentId, razorpaySignature)
-                )
-                setPaymentInProgress(false)
-                Toast.makeText(this@SubscriptionActivity, "Payment successful — subscription activated", Toast.LENGTH_LONG).show()
-                loadSubscription()
-                finish()
-            } catch (e: Exception) {
-                // Network drop right after Razorpay's success callback —
-                // the exact case the webhook (razorpay-webhook, backend)
-                // exists to catch independently. Don't tell the user the
-                // payment failed; it may well have gone through.
-                e.printStackTrace()
-                setPaymentInProgress(false)
-                showPendingVerificationState()
-            }
+        val intent = Intent(this, ConfirmPaymentActivity::class.java).apply {
+            putExtra(ConfirmPaymentActivity.EXTRA_PLAN_CODE, plan.plan_code)
+            putExtra(ConfirmPaymentActivity.EXTRA_PLAN_TIER, plan.tier)
+            putExtra(ConfirmPaymentActivity.EXTRA_PLAN_DURATION_DAYS, plan.duration_days)
+            putExtra(ConfirmPaymentActivity.EXTRA_PLAN_PRICE_PAISE, plan.price_paise)
+            monthlyBaselinePaise(plan)?.let { putExtra(ConfirmPaymentActivity.EXTRA_BASELINE_PAISE, it) }
         }
-    }
-
-    override fun onPaymentError(code: Int, response: String?, data: PaymentData?) {
-        setPaymentInProgress(false)
-        // Razorpay uses a specific code for user-initiated cancellation;
-        // avoid scaring the user with "payment failed" language for a
-        // simple back-button cancel.
-        if (code == Checkout.PAYMENT_CANCELED) {
-            Toast.makeText(this, "Payment cancelled", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "Payment failed. Please try again.", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun showPendingVerificationState() {
-        Toast.makeText(
-            this,
-            "Verifying your payment — this can take a moment. Pull to refresh shortly if it doesn't update.",
-            Toast.LENGTH_LONG
-        ).show()
-        // A brief re-check rather than leaving the screen stale — if the
-        // webhook lands in the meantime, this will pick up the activated
-        // subscription without the user needing to do anything.
-        lifecycleScope.launch {
-            kotlinx.coroutines.delay(4000)
-            loadSubscription()
-        }
-    }
-
-    private fun setPaymentInProgress(inProgress: Boolean) {
-        btnPay.isEnabled = !inProgress && selectedPlan != null
-        btnApplyCoupon.isEnabled = !inProgress
-        progressPayment.visibility = if (inProgress) View.VISIBLE else View.GONE
+        confirmPaymentLauncher.launch(intent)
     }
 
     private fun parseErrorDetail(e: retrofit2.HttpException): String? {
         return try {
             val body = e.response()?.errorBody()?.string() ?: return null
-            JSONObject(body).optString("detail", null)
+            org.json.JSONObject(body).optString("detail", null)
         } catch (ex: Exception) {
             null
         }

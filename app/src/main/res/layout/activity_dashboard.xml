@@ -1066,22 +1066,42 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnProfit" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_drawer_profit" app:tint="#185FA5"/>
+                    <LinearLayout android:id="@+id/btnProfit" style="@style/SettingsRow"
+                        android:clipChildren="false" android:clipToPadding="false">
+                        <FrameLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:clipChildren="false" android:clipToPadding="false">
+                            <ImageView android:id="@+id/iconProfit" style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                                android:src="@drawable/ic_drawer_profit" app:tint="#185FA5"/>
+                            <ImageView android:id="@+id/lockProfit" android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="bottom|end" android:layout_marginEnd="-3dp" android:layout_marginBottom="-3dp"
+                                android:background="@drawable/bg_premium_lock_badge" android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_lucide_lock" app:tint="#FFFFFF" android:visibility="gone"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="Profit Analytics"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Margins &amp; trends"/>
+                            <TextView android:id="@+id/subProfit" style="@style/SettingsRowSub" android:text="Margins &amp; trends"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnGstReports" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
-                            android:src="@drawable/ic_set_file_text" app:tint="#534AB7"/>
+                    <LinearLayout android:id="@+id/btnGstReports" style="@style/SettingsRow"
+                        android:clipChildren="false" android:clipToPadding="false">
+                        <FrameLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:clipChildren="false" android:clipToPadding="false">
+                            <ImageView android:id="@+id/iconGstReports" style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
+                                android:src="@drawable/ic_set_file_text" app:tint="#534AB7"/>
+                            <ImageView android:id="@+id/lockGstReports" android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="bottom|end" android:layout_marginEnd="-3dp" android:layout_marginBottom="-3dp"
+                                android:background="@drawable/bg_premium_lock_badge" android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_lucide_lock" app:tint="#FFFFFF" android:visibility="gone"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="GST Reports"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Tax filings"/>
+                            <TextView android:id="@+id/subGstReports" style="@style/SettingsRowSub" android:text="Tax filings"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1096,12 +1116,22 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnAiInsights" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_drawer_ai" app:tint="#185FA5"/>
+                    <LinearLayout android:id="@+id/btnAiInsights" style="@style/SettingsRow"
+                        android:clipChildren="false" android:clipToPadding="false">
+                        <FrameLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:clipChildren="false" android:clipToPadding="false">
+                            <ImageView android:id="@+id/iconAiInsights" style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
+                                android:src="@drawable/ic_drawer_ai" app:tint="#185FA5"/>
+                            <ImageView android:id="@+id/lockAiInsights" android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="bottom|end" android:layout_marginEnd="-3dp" android:layout_marginBottom="-3dp"
+                                android:background="@drawable/bg_premium_lock_badge" android:padding="4dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_lucide_lock" app:tint="#FFFFFF" android:visibility="gone"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/ai_insights"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Smart recommendations"/>
+                            <TextView android:id="@+id/subAiInsights" style="@style/SettingsRowSub" android:text="Smart recommendations"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>

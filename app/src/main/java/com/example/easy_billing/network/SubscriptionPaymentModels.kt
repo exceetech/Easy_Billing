@@ -20,6 +20,12 @@ data class ValidateCouponResponse(
     val valid: Boolean,
     val original_amount_paise: Int,
     val discount_amount_paise: Int,
+    // Plan price minus coupon discount, before service charge/GST.
+    val subtotal_after_discount_paise: Int,
+    val service_charge_paise: Int,
+    val gst_paise: Int,
+    // The true charged amount — subtotal + service charge + GST. Always
+    // display this as "Total", never original/discount alone.
     val final_amount_paise: Int
 )
 
@@ -33,6 +39,9 @@ data class CreateOrderResponse(
     val razorpay_order_id: String,
     val razorpay_key_id: String,
     val amount_paise: Int,
+    val subtotal_after_discount_paise: Int,
+    val service_charge_paise: Int,
+    val gst_paise: Int,
     val currency: String,
     // True when a 100%-off coupon reduced the price to zero — the
     // backend already activated the subscription directly in this case
