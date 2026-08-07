@@ -26,32 +26,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
-                <View android:layout_width="3dp" android:layout_height="12dp" android:background="#D4A574"/>
+                android:baselineAligned="true">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="INVENTORY"
-                    android:textColor="#8A6526"
-                    android:textSize="10sp"
-                    android:letterSpacing="0.14"
-                    android:fontFamily="@font/googlesans_semibold"/>
+                    android:text="Add or "
+                    android:textColor="#1A1A18"
+                    android:textSize="20sp"
+                    android:fontFamily="serif"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="edit"
+                    android:textColor="#0F6E56"
+                    android:textSize="20sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" products"
+                    android:textColor="#1A1A18"
+                    android:textSize="20sp"
+                    android:fontFamily="serif"/>
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Add or edit products"
-                android:textColor="#1A1A18"
-                android:textSize="20sp"
-                android:fontFamily="serif"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:text="Pick what you'd like to do"
                 android:textColor="#8A8272"
                 android:textSize="12sp"/>
@@ -59,18 +62,18 @@
 
         <FrameLayout
             android:id="@+id/btnChooserCancel"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_disc_close_circle"
+            android:background="@drawable/bg_confirm_close_button"
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_lc_x"
-                app:tint="#8A8272"
+                android:src="@drawable/ic_lucide_x"
+                app:tint="#1A1A18"
                 android:contentDescription="Close"/>
         </FrameLayout>
     </LinearLayout>

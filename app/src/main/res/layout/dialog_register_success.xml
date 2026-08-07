@@ -6,17 +6,18 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:background="@drawable/bg_dialog_card"
-    android:paddingHorizontal="26dp"
-    android:paddingTop="28dp"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="30dp"
     android:paddingBottom="22dp">
 
     <FrameLayout
-        android:layout_width="66dp"
-        android:layout_height="66dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/bg_success_circle">
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_lc_check"
             app:tint="#0F6E56"
@@ -26,33 +27,81 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
         android:text="ACCOUNT CREATED"
         android:textColor="#B8895A"
         android:textSize="10sp"
         android:letterSpacing="0.14"
         android:fontFamily="@font/googlesans_semibold"/>
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="You're all set"
-        android:textColor="#1A1A18"
-        android:textSize="20sp"
-        android:fontFamily="serif"
-        android:textStyle="bold"/>
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You're all "
+            android:textColor="#1A1A18"
+            android:textSize="21sp"
+            android:fontFamily="serif"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="set"
+            android:textColor="#0F6E56"
+            android:textSize="21sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"/>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvDialogMsg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="We've sent a verification code (OTP) to your email."
-        android:textColor="#6E6A60"
-        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:textSize="12.5sp"
         android:lineSpacingExtra="3dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="18dp"
+        android:background="#EAE2D1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="top">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_lc_mail"
+            app:tint="#B8895A"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="Code expires in 10 minutes. Check spam if it doesn't arrive."
+            android:textColor="#9A8F79"
+            android:textSize="11.5sp"
+            android:lineSpacingExtra="2dp"/>
+
+    </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnContinue"

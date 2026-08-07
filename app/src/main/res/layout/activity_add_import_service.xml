@@ -129,42 +129,64 @@
             android:paddingBottom="16dp">
 
             <!-- ===================== INVOICE ===================== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginBottom="7dp"
-                android:text="INVOICE"
-                android:textSize="9.5sp"
-                android:letterSpacing="0.14"
-                android:textColor="#A99E88"
-                android:fontFamily="@font/googlesans_semibold" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_value_card"
-                android:padding="14dp">
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="INVOICE"
+                        android:textColor="#8A6526" android:textSize="12sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
 
                 <TextView style="@style/AddFieldLabel" android:text="Invoice number" />
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etInvoiceNumber"
-                    style="@style/AddInput"
-                    android:hint="INV-2026-041"
-                    android:inputType="textCapCharacters" />
+                <FrameLayout
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:background="@drawable/bg_glass_input">
+                    <ImageView
+                        android:layout_width="19dp" android:layout_height="19dp"
+                        android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                        android:src="@drawable/ic_lc_file_text" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etInvoiceNumber"
+                        style="@style/AddInput"
+                        android:hint="As printed on invoice"
+                        android:inputType="textCapCharacters" />
+                </FrameLayout>
 
                 <LinearLayout style="@style/AddRow">
                     <LinearLayout style="@style/AddCol">
                         <TextView style="@style/AddFieldLabel" android:text="Invoice date" />
-                        <TextView
-                            android:id="@+id/tvInvoiceDate"
-                            style="@style/AddInput"
-                            android:drawableEnd="@drawable/ic_calendar"
-                            android:drawableTint="#B8895A"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:text="Select date" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_glass_input">
+                            <ImageView
+                                android:layout_width="19dp" android:layout_height="19dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_calendar" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <ImageView
+                                android:layout_width="18dp" android:layout_height="18dp"
+                                android:layout_gravity="center_vertical|end" android:layout_marginEnd="14dp"
+                                android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                            <TextView
+                                android:id="@+id/tvInvoiceDate"
+                                style="@style/AddInput"
+                                android:paddingEnd="40dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:text="Select date" />
+                        </FrameLayout>
                     </LinearLayout>
 
                     <View android:layout_width="10dp" android:layout_height="1dp" />
@@ -180,7 +202,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Invoice value"
-                                android:textSize="11sp"
+                                android:textSize="12.5sp"
                                 android:textColor="#9A8F79" />
                             <TextView
                                 android:layout_width="wrap_content"
@@ -195,14 +217,21 @@
                                 android:textColor="#8A6526"
                                 android:fontFamily="@font/googlesans_semibold" />
                         </LinearLayout>
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etInvoiceValue"
-                            style="@style/AddInput"
-                            android:background="@drawable/bg_imp_field_auto"
-                            android:fontFamily="serif"
-                            android:textSize="15sp"
-                            android:hint="0.00"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_imp_field_auto">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etInvoiceValue"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:fontFamily="serif"
+                                android:hint="Auto-calculated"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -210,35 +239,49 @@
                     style="@style/AddFieldLabel"
                     android:layout_marginTop="13dp"
                     android:text="Place of supply" />
-                <TextView
-                    android:id="@+id/tvPos"
-                    style="@style/AddInput"
-                    android:drawableEnd="@drawable/ic_chevron_down"
-                    android:drawableTint="#9A8F79"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:text="97 - Other Territory" />
+                <FrameLayout
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:background="@drawable/bg_glass_input">
+                    <ImageView
+                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                        android:src="@drawable/ic_lc_map_pin" app:tint="#B8895A" android:contentDescription="@null"/>
+                    <ImageView
+                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_gravity="center_vertical|end" android:layout_marginEnd="14dp"
+                        android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                    <TextView
+                        android:id="@+id/tvPos"
+                        style="@style/AddInput"
+                        android:paddingEnd="40dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="97 - Other Territory" />
+                </FrameLayout>
             </LinearLayout>
 
             <!-- ===================== TAX ===================== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="7dp"
-                android:text="TAX"
-                android:textSize="9.5sp"
-                android:letterSpacing="0.14"
-                android:textColor="#A99E88"
-                android:fontFamily="@font/googlesans_semibold" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_value_card"
-                android:padding="14dp">
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="15dp"
+                android:layout_marginTop="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="TAX"
+                        android:textColor="#8A6526" android:textSize="12sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -246,22 +289,40 @@
                     android:orientation="horizontal">
                     <LinearLayout style="@style/AddCol">
                         <TextView style="@style/AddFieldLabel" android:text="GST rate (%)" />
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etRate"
-                            style="@style/AddInput"
-                            android:hint="18"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_glass_input">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etRate"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:hint="Applicable rate"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                     </LinearLayout>
 
                     <View android:layout_width="10dp" android:layout_height="1dp" />
 
                     <LinearLayout style="@style/AddCol">
                         <TextView style="@style/AddFieldLabel" android:text="Taxable value (₹)" />
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etTaxableValue"
-                            style="@style/AddInput"
-                            android:hint="0.00"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_glass_input">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etTaxableValue"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:hint="Value before tax"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -277,7 +338,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="IGST paid (₹)"
-                                android:textSize="11sp"
+                                android:textSize="12.5sp"
                                 android:textColor="#9A8F79" />
                             <TextView
                                 android:layout_width="wrap_content"
@@ -292,24 +353,41 @@
                                 android:textColor="#8A6526"
                                 android:fontFamily="@font/googlesans_semibold" />
                         </LinearLayout>
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etIgstPaid"
-                            style="@style/AddInput"
-                            android:background="@drawable/bg_imp_field_auto"
-                            android:textColor="#185FA5"
-                            android:hint="0.00"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_imp_field_auto">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etIgstPaid"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:textColor="#185FA5"
+                                android:hint="Auto-calculated"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                     </LinearLayout>
 
                     <View android:layout_width="10dp" android:layout_height="1dp" />
 
                     <LinearLayout style="@style/AddCol">
                         <TextView style="@style/AddFieldLabel" android:text="Cess paid (₹)" />
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etCessPaid"
-                            style="@style/AddInput"
-                            android:hint="0.00"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_glass_input">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCessPaid"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:hint="If any"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -343,24 +421,27 @@
             </LinearLayout>
 
             <!-- ===================== INPUT TAX CREDIT ===================== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="7dp"
-                android:text="INPUT TAX CREDIT"
-                android:textSize="9.5sp"
-                android:letterSpacing="0.14"
-                android:textColor="#A99E88"
-                android:fontFamily="@font/googlesans_semibold" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_value_card"
-                android:padding="14dp">
+                android:background="@drawable/bg_inv_card_cream"
+                android:padding="15dp"
+                android:layout_marginTop="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="INPUT TAX CREDIT"
+                        android:textColor="#8A6526" android:textSize="12sp"
+                        android:textStyle="bold" android:letterSpacing="0.13"/>
+                </LinearLayout>
 
                 <TextView style="@style/AddFieldLabel" android:text="Eligibility" />
                 <LinearLayout
@@ -399,11 +480,20 @@
                 <LinearLayout style="@style/AddRow">
                     <LinearLayout style="@style/AddCol">
                         <TextView style="@style/AddFieldLabel" android:text="Availed ITC IGST (₹)" />
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etAvailedItcIgst"
-                            style="@style/AddInput"
-                            android:hint="0.00"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_glass_input">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAvailedItcIgst"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:hint="Up to tax paid"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvAvailedIgstCap"
                             android:layout_width="wrap_content"
@@ -418,11 +508,20 @@
 
                     <LinearLayout style="@style/AddCol">
                         <TextView style="@style/AddFieldLabel" android:text="Availed ITC Cess (₹)" />
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etAvailedItcCess"
-                            style="@style/AddInput"
-                            android:hint="0.00"
-                            android:inputType="numberDecimal" />
+                        <FrameLayout
+                            android:layout_width="match_parent" android:layout_height="50dp"
+                            android:background="@drawable/bg_glass_input">
+                            <ImageView
+                                android:layout_width="17dp" android:layout_height="17dp"
+                                android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp"
+                                android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAvailedItcCess"
+                                style="@style/AddInput"
+                                android:paddingStart="42dp"
+                                android:hint="Up to tax paid"
+                                android:inputType="numberDecimal" />
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvAvailedCessCap"
                             android:layout_width="wrap_content"
@@ -440,7 +539,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="14dp"
@@ -453,8 +552,17 @@
         android:textSize="13.5sp"
         android:textColor="@android:color/white"
         android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
         android:stateListAnimator="@null"
+        app:icon="@drawable/ic_lc_check"
+        app:iconTint="#FFFFFF"
+        app:iconSize="18dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#33FFFFFF" />
+        app:rippleColor="#33FFFFFF"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp" />
 
 </LinearLayout>

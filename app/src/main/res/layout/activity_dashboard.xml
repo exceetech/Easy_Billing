@@ -33,7 +33,12 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- ── ROW 1: Menu + Wordmark + Action cluster ── -->
+            <!-- ── ROW 1 (phone): Menu + Wordmark + Notifications only.
+                 View/Filter/Sort moved to a horizontally-scrollable chip
+                 row below Search (see phone_compatibility_plan.md Phase 10)
+                 so the wordmark isn't squeezed by 4 stacked 44dp icon
+                 buttons on a narrow screen. Same IDs as before, just
+                 relocated — no Kotlin changes needed. ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,138 +102,103 @@
                         android:ellipsize="end"/>
                 </LinearLayout>
 
-                <!-- Action cluster -->
-                <LinearLayout
+                <!-- ── Notifications (AI insights) ── -->
+                <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:layout_marginStart="10dp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
                     <LinearLayout
-                        android:id="@+id/btnViewContainer"
+                        android:id="@+id/btnNotifyContainer"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
                         android:gravity="center"
                         android:background="@drawable/bg_hdr_tile"
-                        android:layout_marginStart="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless">
                         <ImageView
-                            android:id="@+id/ivViewMode"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
-                            android:src="@drawable/ic_hdr_view_grid"
+                            android:src="@drawable/ic_hdr_bell"
                             app:tint="#3A3733"
                             android:contentDescription="@null"/>
                     </LinearLayout>
 
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false">
+                    <TextView
+                        android:id="@+id/tvNotifyBadge"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-5dp"
+                        android:layout_marginEnd="-5dp"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_hdr_badge_red"
+                        android:elevation="12dp"
+                        android:visibility="gone"/>
+                </FrameLayout>
 
-                        <LinearLayout
-                            android:id="@+id/btnFilterContainer"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:gravity="center"
-                            android:background="@drawable/bg_hdr_tile"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackgroundBorderless">
-                            <ImageView
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:src="@drawable/ic_hdr_filter"
-                                app:tint="#3A3733"
-                                android:contentDescription="@null"/>
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvFilterBadge"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="top|end"
-                            android:layout_marginTop="-5dp"
-                            android:layout_marginEnd="-5dp"
-                            android:gravity="center"
-                            android:text="0"
-                            android:textColor="#FFFFFF"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:background="@drawable/bg_hdr_badge_red"
-                            android:elevation="12dp"
-                            android:visibility="gone"/>
-                    </FrameLayout>
+                <!-- Cart — moved right after the bell icon (was down in
+                     Row 2 next to Search). Compact icon-square style here
+                     instead of the tablet's labeled pill, to fit the
+                     action cluster; same id/badge id so Kotlin's click
+                     listener and badge updates are untouched. -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
                     <LinearLayout
-                        android:id="@+id/btnSortContainer"
+                        android:id="@+id/btnCartContainer"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
                         android:gravity="center"
-                        android:background="@drawable/bg_hdr_tile"
-                        android:layout_marginStart="10dp"
+                        android:background="@drawable/bg_hdr_cart_pill"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless">
                         <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_hdr_sort"
-                            app:tint="#3A3733"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_drawer_purchase"
+                            app:tint="#FFFFFF"
                             android:contentDescription="@null"/>
                     </LinearLayout>
 
-                    <!-- ── Notifications (AI insights) ── -->
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:clipChildren="false"
-                        android:clipToPadding="false">
+                    <TextView
+                        android:id="@+id/tvCartBadge"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="-5dp"
+                        android:layout_marginEnd="-5dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_hdr_badge_red"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:elevation="12dp"/>
+                </FrameLayout>
 
-                        <LinearLayout
-                            android:id="@+id/btnNotifyContainer"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:gravity="center"
-                            android:background="@drawable/bg_hdr_tile"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackgroundBorderless">
-                            <ImageView
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:src="@drawable/ic_hdr_bell"
-                                app:tint="#3A3733"
-                                android:contentDescription="@null"/>
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvNotifyBadge"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="top|end"
-                            android:layout_marginTop="-5dp"
-                            android:layout_marginEnd="-5dp"
-                            android:gravity="center"
-                            android:text="0"
-                            android:textColor="#FFFFFF"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:background="@drawable/bg_hdr_badge_red"
-                            android:elevation="12dp"
-                            android:visibility="gone"/>
-                    </FrameLayout>
-                </LinearLayout>
             </LinearLayout>
 
-            <!-- ── ROW 2: Search + Cart ── -->
+            <!-- ── ROW 2 (phone): Search inline with View / Filter / Sort.
+                 Same three widgets that used to sit in Row 1's action
+                 cluster (btnViewContainer/ivViewMode, btnFilterContainer/
+                 tvFilterBadge, btnSortContainer) — unchanged IDs, sizes,
+                 and backgrounds, now placed right after the search field
+                 instead of a separate row/chip strip. Icons shrunk to
+                 40dp so all three plus a usable search field fit on a
+                 narrow phone without wrapping. ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -242,14 +212,13 @@
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="46dp"
                     android:layout_weight="1"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:background="@drawable/bg_hdr_search"
                     android:paddingStart="14dp"
-                    android:paddingEnd="12dp"
-                    android:layout_marginEnd="10dp">
+                    android:paddingEnd="12dp">
 
                     <ImageView
                         android:layout_width="18dp"
@@ -276,58 +245,83 @@
                         android:importantForAutofill="no"/>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/btnViewContainer"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_hdr_tile"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+                    <ImageView
+                        android:id="@+id/ivViewMode"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_hdr_view_grid"
+                        app:tint="#3A3733"
+                        android:contentDescription="@null"/>
+                </LinearLayout>
+
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
                     <LinearLayout
-                        android:id="@+id/btnCartContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_hdr_cart_pill"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="18dp"
+                        android:id="@+id/btnFilterContainer"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_hdr_tile"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless">
-
                         <ImageView
-                            android:layout_width="19dp"
-                            android:layout_height="19dp"
-                            android:src="@drawable/ic_drawer_purchase"
-                            app:tint="#FFFFFF"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_hdr_filter"
+                            app:tint="#3A3733"
                             android:contentDescription="@null"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="Cart"
-                            android:textColor="#FFFFFF"
-                            android:textSize="13sp"
-                            android:letterSpacing="0.02"
-                            android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/tvCartBadge"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:id="@+id/tvFilterBadge"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_gravity="top|end"
-                        android:layout_marginTop="-6dp"
-                        android:layout_marginEnd="-6dp"
+                        android:layout_marginTop="-4dp"
+                        android:layout_marginEnd="-4dp"
                         android:gravity="center"
-                        android:background="@drawable/bg_hdr_badge_red"
                         android:text="0"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="9sp"
                         android:textStyle="bold"
-                        android:elevation="8dp"/>
+                        android:background="@drawable/bg_hdr_badge_red"
+                        android:elevation="12dp"
+                        android:visibility="gone"/>
                 </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnSortContainer"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_hdr_tile"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_hdr_sort"
+                        app:tint="#3A3733"
+                        android:contentDescription="@null"/>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
@@ -378,7 +372,7 @@
             android:layout_height="wrap_content"
             android:scrollbars="none"
             android:overScrollMode="never"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="4dp"
             android:clipToPadding="false">
@@ -737,57 +731,168 @@
                     android:background="?attr/selectableItemBackground"/>
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvNotifications"
+            <!-- List and empty state are alternate contents of the same
+                 remaining space (same "one card, swapped contents" pattern
+                 as bill/purchase history, inventory, credit accounts, profit
+                 and import services) — here there's no separate card
+                 background since the whole sliding panel already is one. -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:paddingHorizontal="14dp"
-                android:paddingBottom="16dp"
-                android:clipToPadding="false"
-                android:overScrollMode="never"/>
+                android:layout_weight="1">
 
-            <!-- Empty state -->
-            <LinearLayout
-                android:id="@+id/llNotifyEmpty"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:paddingBottom="72dp"
-                android:visibility="gone">
-                <FrameLayout
-                    android:layout_width="84dp"
-                    android:layout_height="84dp">
-                    <View
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvNotifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingHorizontal="14dp"
+                    android:paddingBottom="16dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"/>
+
+                <!-- ===================== EMPTY STATE =====================
+                     Same design as bill/purchase history, inventory, credit
+                     accounts and profit: 72dp icon circle, centred title
+                     with the italic serif accent word, centred body copy,
+                     hairline, then two tip rows. -->
+                <ScrollView
+                    android:id="@+id/llNotifyEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fillViewport="true"
+                    android:visibility="gone">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_notify_empty_circle"/>
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_hdr_bell"
-                        app:tint="#B8AE9A"
-                        android:contentDescription="@null"/>
-                </FrameLayout>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:text="You're all caught up"
-                    android:textColor="#1A1A18"
-                    android:textSize="15sp"
-                    android:fontFamily="@font/googlesans_semibold"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="No new notifications right now"
-                    android:textColor="#9A968C"
-                    android:textSize="12sp"/>
-            </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:paddingHorizontal="26dp"
+                        android:paddingTop="30dp"
+                        android:paddingBottom="26dp">
+
+                        <FrameLayout
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:background="@drawable/bg_notify_empty_circle">
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_hdr_bell"
+                                app:tint="#B8895A"
+                                android:contentDescription="@null" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="All caught"
+                                android:textSize="19sp"
+                                android:textColor="#1A1A18"
+                                android:fontFamily="@font/googlesans_bold"
+                                android:includeFontPadding="false" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="up"
+                                android:textSize="19sp"
+                                android:textColor="#0F6E56"
+                                android:fontFamily="serif"
+                                android:textStyle="italic"
+                                android:includeFontPadding="false" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:gravity="center"
+                            android:text="No new notifications right now. Stock alerts, sales insights and tips will show up here as they happen."
+                            android:textSize="12.5sp"
+                            android:textColor="#8A8272"
+                            android:lineSpacingExtra="3dp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0.5dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="#E1D9C4" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="11dp">
+                            <ImageView
+                                android:layout_width="17dp"
+                                android:layout_height="17dp"
+                                android:layout_marginTop="1dp"
+                                android:src="@drawable/ic_hdr_bell"
+                                app:tint="#B8895A"
+                                android:contentDescription="@null" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginStart="10dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="You'll be notified automatically"
+                                    android:textSize="12sp"
+                                    android:textColor="#1A1A18" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="Low stock, big sales and unusual activity"
+                                    android:textSize="11sp"
+                                    android:textColor="#9A8F79" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <ImageView
+                                android:layout_width="17dp"
+                                android:layout_height="17dp"
+                                android:layout_marginTop="1dp"
+                                android:src="@drawable/ic_notify_close"
+                                app:tint="#B8895A"
+                                android:contentDescription="@null" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginStart="10dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Dismissed ones stay gone"
+                                    android:textSize="12sp"
+                                    android:textColor="#1A1A18" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="Clear all or swipe away one at a time"
+                                    android:textSize="11sp"
+                                    android:textColor="#9A8F79" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </ScrollView>
+            </FrameLayout>
 
         </LinearLayout>
 
@@ -829,6 +934,7 @@
                     android:background="@drawable/bg_drawer_avatar_ring">
 
                     <TextView
+                        android:id="@+id/tvDrawerAvatar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="2dp"

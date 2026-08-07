@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circular wax-seal-style badge ring for the "Powered by" emblem. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="18dp"
+        android:centerColor="#FBF6EC"
+        android:endColor="#F2E8D4"/>
+    <stroke
+        android:width="1dp"
+        android:color="#D8C3A0"/>
+</shape>

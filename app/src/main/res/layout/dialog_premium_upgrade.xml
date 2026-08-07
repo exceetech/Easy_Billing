@@ -1,17 +1,24 @@
+<!--
+    Root width here is a placeholder — the real on-screen width is set in
+    DashboardActivity.showUpgradePrompt() via dialog.window.setLayout(),
+    same percentage-of-screen-width + capped-max technique used
+    everywhere else in the app (ui/ThemedDropdown.kt). Used to be a flat
+    300dp — see phone_compatibility_plan.md Phase 2.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@drawable/bg_confirm_popup_card"
-    android:paddingHorizontal="20dp"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
     android:paddingTop="22dp"
-    android:paddingBottom="18dp"
+    android:paddingBottom="20dp"
     android:gravity="center_horizontal"
-    android:layout_width="300dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <FrameLayout
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
         android:background="@drawable/bg_premium_dialog_icon">
 
         <ImageView

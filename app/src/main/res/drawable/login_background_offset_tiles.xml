@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Scalable "Offset tiles" login background. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="640dp"
+    android:viewportWidth="360"
+    android:viewportHeight="640">
+
+    <path
+        android:fillColor="#FBF3E5"
+        android:pathData="M0,0H360V640H0Z" />
+
+    <!-- Upper tile pair -->
+    <path
+        android:fillColor="#F0D7A6"
+        android:fillAlpha="0.49"
+        android:pathData="M-22,126L91,54L185,151L72,228Z" />
+    <path
+        android:fillColor="#E8C476"
+        android:fillAlpha="0.39"
+        android:pathData="M188,44L302,-22L386,93L270,168Z" />
+
+    <!-- Middle tile pair -->
+    <path
+        android:fillColor="#E7C47A"
+        android:fillAlpha="0.45"
+        android:pathData="M-33,365L72,278L175,373L66,470Z" />
+    <path
+        android:fillColor="#F8EACD"
+        android:fillAlpha="0.80"
+        android:pathData="M180,274L285,187L390,284L277,385Z" />
+
+    <!-- Lower tile pair -->
+    <path
+        android:fillColor="#F7E3B5"
+        android:fillAlpha="0.84"
+        android:pathData="M-23,601L85,517L185,611L151,657H-23Z" />
+    <path
+        android:fillColor="#E5BC69"
+        android:fillAlpha="0.48"
+        android:pathData="M185,514L286,422L388,521L331,657L184,657Z" />
+
+    <!-- Overlapping translucent planes create the offset depth. -->
+    <path
+        android:fillColor="#FFF9EC"
+        android:fillAlpha="0.56"
+        android:pathData="M91,54L185,151L175,373L72,278Z" />
+    <path
+        android:fillColor="#F0D8A4"
+        android:fillAlpha="0.46"
+        android:pathData="M285,187L277,385L286,422L390,284Z" />
+    <path
+        android:fillColor="#F0D4A0"
+        android:fillAlpha="0.38"
+        android:pathData="M72,278L175,373L185,514L85,517Z" />
+</vector>

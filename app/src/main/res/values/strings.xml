@@ -3,6 +3,7 @@
 
     <!-- App -->
     <string name="app_name">ExPOS</string>
+    <string name="powered_by_scalancer">Scalancer</string>
 
     <!-- Authentication -->
     <string name="phone_number">Phone Number</string>

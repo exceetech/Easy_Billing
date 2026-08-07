@@ -29,6 +29,11 @@ import kotlinx.coroutines.withContext
 class InventoryActivity : BaseActivity() {
 
     private lateinit var rvInventory: RecyclerView
+    private lateinit var cardInventory: View
+    private lateinit var layoutInventoryEmpty: View
+    private lateinit var tvInventoryEmptyTitle: TextView
+    private lateinit var tvInventoryEmptyTitleAccent: TextView
+    private lateinit var tvInventoryEmptyBody: TextView
     private lateinit var adapter: InventoryAdapter
     private lateinit var db: AppDatabase
 
@@ -75,9 +80,16 @@ class InventoryActivity : BaseActivity() {
         db = AppDatabase.getDatabase(this)
 
         rvInventory = findViewById(R.id.rvInventory)
+        cardInventory = findViewById(R.id.cardInventory)
+        layoutInventoryEmpty = findViewById(R.id.layoutInventoryEmpty)
+        tvInventoryEmptyTitle = findViewById(R.id.tvInventoryEmptyTitle)
+        tvInventoryEmptyTitleAccent = findViewById(R.id.tvInventoryEmptyTitleAccent)
+        tvInventoryEmptyBody = findViewById(R.id.tvInventoryEmptyBody)
         rvInventory.layoutManager = LinearLayoutManager(this)
         // Let the first and last row follow the card's rounded corners.
-        rvInventory.clipToOutline = true
+        // Applied to the shared card container rather than rvInventory
+        // directly, since the rounded background lives on cardInventory.
+        cardInventory.clipToOutline = true
 
         adapter = InventoryAdapter(
             emptyList(),
@@ -403,9 +415,23 @@ class InventoryActivity : BaseActivity() {
         updateKpis()
         updateResultSummary(sorted.size)
 
-        val tvEmpty = findViewById<View?>(R.id.tvInventoryEmpty)
-        tvEmpty?.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        layoutInventoryEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         rvInventory.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
+
+        // A search, category chip, or stock-status filter is what emptied
+        // the list, not that nothing was ever stocked — same card, different
+        // copy for the two situations.
+        val isSearchOrFilter = currentQuery.isNotEmpty() ||
+            currentCategory.isNotEmpty() || currentStockFilter != StockFilter.ALL
+        if (isSearchOrFilter) {
+            tvInventoryEmptyTitle.text = "No matches"
+            tvInventoryEmptyTitleAccent.text = "found"
+            tvInventoryEmptyBody.text = "No product matches your search or filter. Try a different name, category, or reset the filter."
+        } else {
+            tvInventoryEmptyTitle.text = "No products"
+            tvInventoryEmptyTitleAccent.text = "yet"
+            tvInventoryEmptyBody.text = "Products you add will show up here — search, filter by category and sort them once you have a few."
+        }
     }
 
     // ================= CATEGORY CHIPS =================

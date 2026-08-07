@@ -115,23 +115,24 @@
             </LinearLayout>
 
             <!-- ===================== PREFERENCES ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="PREFERENCES"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
             <!-- cardPreferences: faded (alpha 0.6) until Edit is tapped,
                  same locked/unlocked feel as the other settings screens. -->
-            <LinearLayout android:id="@+id/cardPreferences" style="@style/AddCard">
+            <LinearLayout android:id="@+id/cardPreferences" style="@style/AddCard"
+                android:layout_marginTop="16dp"
+                android:paddingTop="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="PREFERENCES"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
 
                 <!-- Language -->
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">

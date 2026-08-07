@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login background: cream doodle wallpaper (WhatsApp-style), tinted
+     to match bg_dialog_rounded_cream (#FCF3E5). Solid cream base underneath
+     guards against any transparent edges in the tile. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/champagne_bg"/>
+    <item android:drawable="@drawable/bg_login_doodle_tile"/>
+</layer-list>

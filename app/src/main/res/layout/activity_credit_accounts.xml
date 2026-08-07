@@ -14,8 +14,9 @@
 
     Ids bound by CreditAccountsActivity: toolbar, etSearchCustomer,
     tvNetBalance, tvNetCaption, tvTotalDue, tvDueCount, tvTotalAdvance,
-    tvAdvanceCount, chipAll, chipDue, chipAdvance, chipSettled, rvCustomers,
-    btnAddCustomer.
+    tvAdvanceCount, chipAll, chipDue, chipAdvance, chipSettled, cardCustomers,
+    rvCustomers, layoutCustomersEmpty, tvCustomersEmptyTitle,
+    tvCustomersEmptyTitleAccent, tvCustomersEmptyBody, btnAddCustomer.
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -248,47 +249,197 @@
             android:orientation="horizontal">
 
             <!-- Chip text carries its own count — set in updateSummary. -->
-            <TextView android:id="@+id/chipAll"      style="@style/CreditChip" android:text="All" />
-            <View android:layout_width="7dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipDue"      style="@style/CreditChip" android:text="Due" />
-            <View android:layout_width="7dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipAdvance"  style="@style/CreditChip" android:text="Advance" />
-            <View android:layout_width="7dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipSettled"  style="@style/CreditChip" android:text="Settled" />
+            <TextView android:id="@+id/chipAll"      style="@style/CreditChip" android:text="All"
+                android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+            <TextView android:id="@+id/chipDue"      style="@style/CreditChip" android:text="Due"
+                android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+            <TextView android:id="@+id/chipAdvance"  style="@style/CreditChip" android:text="Advance"
+                android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+            <TextView android:id="@+id/chipSettled"  style="@style/CreditChip" android:text="Settled"
+                android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
         </LinearLayout>
     </HorizontalScrollView>
 
     <!--
-        One card holding hairline-separated rows, like the import-services
-        ledger. clipToOutline is set in code so the first and last row follow
-        the card's corner radius.
+        One card, one background — the list and the empty state are both
+        inside it as alternate contents (same structure as bill/purchase
+        history, inventory, and the GSTR-2 import-services records card).
+        clipToOutline is set in code on cardCustomers so the first and last
+        row follow the card's corner radius.
     -->
     <FrameLayout
+        android:id="@+id/cardCustomers"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp">
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_inv_value_card">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCustomers"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_inv_value_card"
             android:clipToPadding="false"
             android:paddingBottom="4dp" />
 
-        <TextView
-            android:id="@+id/tvCustomersEmpty"
+        <!-- ===================== EMPTY STATE =====================
+             Same design as bill/purchase history, inventory and import
+             services: 72dp icon circle, centred title with the italic serif
+             accent word, centred body copy, hairline, then two tip rows.
+             Title/accent/body switch between "no customers at all" and
+             "search/filter found nothing" via Kotlin. -->
+        <ScrollView
+            android:id="@+id/layoutCustomersEmpty"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="No customers found"
-            android:textSize="14sp"
-            android:textColor="#8A8272"
-            android:visibility="gone" />
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="26dp"
+                android:paddingTop="30dp"
+                android:paddingBottom="26dp">
+
+                <FrameLayout
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_imp_empty_circle">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_user_plus"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp">
+                    <TextView
+                        android:id="@+id/tvCustomersEmptyTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No customers"
+                        android:textSize="19sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false" />
+                    <TextView
+                        android:id="@+id/tvCustomersEmptyTitleAccent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="yet"
+                        android:textSize="19sp"
+                        android:textColor="#0F6E56"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvCustomersEmptyBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:gravity="center"
+                    android:text="Customers you add will show up here — track what they owe or have paid in advance."
+                    android:textSize="12.5sp"
+                    android:textColor="#8A8272"
+                    android:lineSpacingExtra="3dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#F1EBDD" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="11dp">
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:src="@drawable/ic_lc_user_plus"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Add your first customer"
+                            android:textSize="12sp"
+                            android:textColor="#1A1A18" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Name and phone number"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:src="@drawable/ic_search"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Then find any customer fast"
+                            android:textSize="12sp"
+                            android:textColor="#1A1A18" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Search by name or phone, or filter by status"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </FrameLayout>
 
     <com.google.android.material.button.MaterialButton

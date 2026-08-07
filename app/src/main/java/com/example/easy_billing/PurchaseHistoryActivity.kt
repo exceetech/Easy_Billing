@@ -29,8 +29,12 @@ class PurchaseHistoryActivity : BaseActivity() {
     private val viewModel: PurchaseHistoryViewModel by viewModels()
 
     private lateinit var rvPurchases: RecyclerView
+    private lateinit var cardPurchases: View
     private lateinit var progressBar: ProgressBar
-    private lateinit var tvEmpty: TextView
+    private lateinit var layoutPurchasesEmpty: View
+    private lateinit var tvPurchasesEmptyTitle: TextView
+    private lateinit var tvPurchasesEmptyTitleAccent: TextView
+    private lateinit var tvPurchasesEmptyBody: TextView
     private lateinit var adapter: PurchaseHistoryAdapter
 
     private lateinit var tvBought: TextView
@@ -64,8 +68,12 @@ class PurchaseHistoryActivity : BaseActivity() {
         setupToolbar(R.id.toolbar)
 
         rvPurchases   = findViewById(R.id.rvPurchases)
+        cardPurchases = findViewById(R.id.cardPurchases)
         progressBar   = findViewById(R.id.progressBar)
-        tvEmpty       = findViewById(R.id.tvEmpty)
+        layoutPurchasesEmpty       = findViewById(R.id.layoutPurchasesEmpty)
+        tvPurchasesEmptyTitle       = findViewById(R.id.tvPurchasesEmptyTitle)
+        tvPurchasesEmptyTitleAccent = findViewById(R.id.tvPurchasesEmptyTitleAccent)
+        tvPurchasesEmptyBody        = findViewById(R.id.tvPurchasesEmptyBody)
         tvBought      = findViewById(R.id.tvBought)
         tvBoughtCount = findViewById(R.id.tvBoughtCount)
         tvOnCredit    = findViewById(R.id.tvOnCredit)
@@ -87,7 +95,10 @@ class PurchaseHistoryActivity : BaseActivity() {
         rvPurchases.layoutManager = LinearLayoutManager(this)
         rvPurchases.adapter = adapter
         // Let the first and last row follow the card's rounded corners.
-        rvPurchases.clipToOutline = true
+        // Applied to the shared card container, since the rounded
+        // background lives on cardPurchases rather than on rvPurchases
+        // directly — that's the view whose outline actually clips.
+        cardPurchases.clipToOutline = true
 
         btnFilter.setOnClickListener { showFilterPopup() }
         btnSort.setOnClickListener { showSortPopup() }
@@ -250,7 +261,23 @@ class PurchaseHistoryActivity : BaseActivity() {
         }
 
         adapter.update(result)
-        tvEmpty.visibility = if (result.isEmpty()) View.VISIBLE else View.GONE
+
+        layoutPurchasesEmpty.visibility = if (result.isEmpty()) View.VISIBLE else View.GONE
+        rvPurchases.visibility = if (result.isEmpty()) View.GONE else View.VISIBLE
+
+        // A non-default filter or a search query is what emptied the list,
+        // not that nothing was ever recorded — same card, different copy.
+        val isSearchOrFilter = query.isNotEmpty() || activeFilter != "ALL"
+        if (isSearchOrFilter) {
+            tvPurchasesEmptyTitle.text = "No matches"
+            tvPurchasesEmptyTitleAccent.text = "found"
+            tvPurchasesEmptyBody.text = "No purchase matches your search or filter. Try a different supplier, invoice number, or reset the filter."
+        } else {
+            tvPurchasesEmptyTitle.text = "No purchases"
+            tvPurchasesEmptyTitleAccent.text = "yet"
+            tvPurchasesEmptyBody.text = "Purchases you record will show up here — search, filter and sort them once you have a few."
+        }
+
         updateFilterSortIndicators(result.size)
     }
 

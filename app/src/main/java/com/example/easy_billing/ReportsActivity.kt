@@ -153,15 +153,26 @@ class ReportsActivity : BaseActivity() {
         allChips().forEach { chip -> applyChipStyle(chip, chip == selectedChip) }
     }
 
-    // Outlined pill chips matching InventoryActivity's category chips —
-    // always white, gold stroke + gold text when selected, cream stroke +
-    // muted text otherwise. No chip icon, per that same reference style.
+    // Same hashed-accent-per-chip concept as the dashboard's category rail —
+    // each chip's label hashes to a stable color from this palette instead
+    // of every selected chip looking identically gold.
+    private val dateChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun dateChipColor(label: CharSequence?): Int =
+        Color.parseColor(
+            dateChipPalette[((label?.toString() ?: "").hashCode() and 0x7FFFFFFF) % dateChipPalette.size]
+        )
+
     private fun applyChipStyle(chip: Chip, selected: Boolean) {
         chip.chipBackgroundColor = ColorStateList.valueOf(Color.WHITE)
         chip.isChipIconVisible = false
         if (selected) {
-            chip.chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#B8895A"))
-            chip.setTextColor(Color.parseColor("#8A6526"))
+            val accent = dateChipColor(chip.text)
+            chip.chipStrokeColor = ColorStateList.valueOf(accent)
+            chip.setTextColor(accent)
             chip.setTypeface(null, Typeface.BOLD)
         } else {
             chip.chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#E4DCC8"))

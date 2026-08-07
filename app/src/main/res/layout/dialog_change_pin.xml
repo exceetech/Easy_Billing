@@ -78,43 +78,46 @@
         android:textColor="#9A8F79"
         android:fontFamily="@font/googlesans_semibold" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_gstin_box"
-        android:paddingHorizontal="12dp"
-        android:layout_marginTop="6dp">
+        android:layout_height="50dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_glass_input">
 
         <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
             android:src="@drawable/ic_lucide_lock"
             android:contentDescription="@null" />
 
         <EditText
             android:id="@+id/etNewPin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp"
-            android:layout_marginStart="10dp"
-            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:paddingStart="44dp"
+            android:paddingEnd="46dp"
             android:hint="@string/new_password"
             android:textSize="14sp"
             android:textColor="#1A1A18"
-            android:textColorHint="#9A8F79"
+            android:textColorHint="#A99E88"
+            android:singleLine="true"
             android:inputType="textPassword" />
 
         <ImageView
             android:id="@+id/ivToggleNewPin"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="14dp"
             android:src="@drawable/ic_lucide_eye"
             android:clickable="true"
             android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/new_password" />
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Confirm password -->
     <TextView
@@ -127,43 +130,46 @@
         android:textColor="#9A8F79"
         android:fontFamily="@font/googlesans_semibold" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_gstin_box"
-        android:paddingHorizontal="12dp"
-        android:layout_marginTop="6dp">
+        android:layout_height="50dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_glass_input">
 
         <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
             android:src="@drawable/ic_lucide_lock"
             android:contentDescription="@null" />
 
         <EditText
             android:id="@+id/etConfirmPin"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp"
-            android:layout_marginStart="10dp"
-            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:paddingStart="44dp"
+            android:paddingEnd="46dp"
             android:hint="@string/confirm_password"
             android:textSize="14sp"
             android:textColor="#1A1A18"
-            android:textColorHint="#9A8F79"
+            android:textColorHint="#A99E88"
+            android:singleLine="true"
             android:inputType="textPassword" />
 
         <ImageView
             android:id="@+id/ivToggleConfirmPin"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="14dp"
             android:src="@drawable/ic_lucide_eye"
             android:clickable="true"
             android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/confirm_password" />
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Save -->
     <com.google.android.material.button.MaterialButton
@@ -201,15 +207,27 @@
         android:layout_height="46dp"
         android:layout_marginTop="8dp"
         android:text="@string/cancel"
-        android:textColor="#9A8F79"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
         android:textAllCaps="false"
-        android:textSize="13sp"
-        android:fontFamily="@font/googlesans_medium"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
-        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
         android:stateListAnimator="@null"
         app:elevation="0dp"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#14000000" />
+        app:rippleColor="#F6D8D4" />
 
 </LinearLayout>

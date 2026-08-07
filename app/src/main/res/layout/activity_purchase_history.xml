@@ -8,7 +8,9 @@
 
     Ids bound by PurchaseHistoryActivity: toolbar, tvBought, tvBoughtCount,
     tvOnCredit, tvCash, etSearch, btnFilter, btnSort, tvFilterBadge,
-    tvResultSummary, btnResetFilters, rvPurchases, tvEmpty, progressBar.
+    tvResultSummary, btnResetFilters, cardPurchases, rvPurchases,
+    layoutPurchasesEmpty, tvPurchasesEmptyTitle, tvPurchasesEmptyTitleAccent,
+    tvPurchasesEmptyBody, progressBar.
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -355,19 +357,23 @@
 
     </LinearLayout>
 
+    <!-- One card, one background — the list and the empty state are both
+         inside it as alternate contents (same structure as bill history and
+         the GSTR-2 import-services records card). -->
     <FrameLayout
+        android:id="@+id/cardPurchases"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="14dp">
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_inv_value_card">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPurchases"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_inv_value_card"
             android:clipToPadding="false"
             android:paddingBottom="4dp" />
 
@@ -378,17 +384,152 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvEmpty"
+        <!-- ===================== EMPTY STATE =====================
+             Same design as bill history / import services: 72dp icon
+             circle, centred title with the italic serif accent word, centred
+             body copy, hairline, then two tip rows. Title/accent/body are
+             updated from Kotlin to switch between "nothing recorded at all"
+             and "search/filter found nothing". -->
+        <ScrollView
+            android:id="@+id/layoutPurchasesEmpty"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="No purchases found"
-            android:textSize="14sp"
-            android:textColor="#8A8272"
-            android:visibility="gone" />
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="26dp"
+                android:paddingTop="30dp"
+                android:paddingBottom="26dp">
+
+                <FrameLayout
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_imp_empty_circle">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_receipt"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp">
+                    <TextView
+                        android:id="@+id/tvPurchasesEmptyTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No purchases"
+                        android:textSize="19sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false" />
+                    <TextView
+                        android:id="@+id/tvPurchasesEmptyTitleAccent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="yet"
+                        android:textSize="19sp"
+                        android:textColor="#0F6E56"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPurchasesEmptyBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:gravity="center"
+                    android:text="Purchases you record will show up here — search, filter and sort them once you have a few."
+                    android:textSize="12.5sp"
+                    android:textColor="#8A8272"
+                    android:lineSpacingExtra="3dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#F1EBDD" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="11dp">
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:src="@drawable/ic_receipt"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Record your first purchase"
+                            android:textSize="12sp"
+                            android:textColor="#1A1A18" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Supplier, invoice number and value"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:src="@drawable/ic_search"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Then find any purchase fast"
+                            android:textSize="12sp"
+                            android:textColor="#1A1A18" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Search by supplier name or invoice number"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </FrameLayout>
 
 </LinearLayout>

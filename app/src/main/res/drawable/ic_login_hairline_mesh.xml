@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hairline diagonal mesh overlay for the login background — thin gold
+     lines converging from each corner toward the mid-points, plus a
+     single accent dot per corner. Transparent canvas so it layers on
+     top of a solid gradient base (see bg_login_hairline_mesh.xml). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="640dp"
+    android:viewportWidth="360"
+    android:viewportHeight="640">
+
+    <path
+        android:strokeColor="#D9C69A"
+        android:strokeWidth="1.2"
+        android:strokeAlpha="0.35"
+        android:fillColor="#00000000"
+        android:pathData="M0,0 L360,320 M0,43 L312,320 M0,85 L264,320 M360,320 L0,640 M360,363 L48,640 M360,405 L96,640" />
+
+    <path
+        android:fillColor="#B8895A"
+        android:fillAlpha="0.4"
+        android:pathData="M48,42.67 m-4,0 a4,4 0,1 1,8 0 a4,4 0,1 1,-8 0" />
+    <path
+        android:fillColor="#B8895A"
+        android:fillAlpha="0.4"
+        android:pathData="M312,597.33 m-4,0 a4,4 0,1 1,8 0 a4,4 0,1 1,-8 0" />
+
+</vector>

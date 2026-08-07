@@ -89,6 +89,37 @@
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- windowIsFloating pulls in the platform's default floating-
+             window drop shadow (windowElevation) unless overridden here —
+             that's the shadow around the Confirm and pay card. Zeroed out
+             so the card reads as flat, matching the rest of the app's
+             flat-card design language instead of a raised/elevated look. -->
+        <item name="android:windowElevation">0dp</item>
+    </style>
+
+    <!-- ================= RAZORPAY CHECKOUT THEME ================= -->
+    <!-- com.razorpay.CheckoutActivity picks up its window theme from
+         this Manifest (Razorpay's own docs: "This activity picks up the
+         theme from the Manifest file") rather than from whatever Activity
+         called checkout.open() — so without an explicit override here it
+         was falling back to the app default, which on this screen chain
+         (ConfirmPaymentActivity's own translucent Dialog theme) let
+         SubscriptionActivity/ConfirmPaymentActivity show through behind
+         Razorpay's window instead of a solid backdrop. Deliberately
+         opaque + fully solid white, not @color/background (the app's
+         champagne page tint) — Razorpay's own checkout UI is designed
+         against a plain white surface, and this activity is entirely
+         outside our control to re-skin (see the "can I re-theme
+         Razorpay's UI" answer), so it should sit on a neutral white
+         backdrop rather than clash with the app's warm page color.
+         windowIsTranslucent must be true for windowBackground's alpha to
+         actually render — with it false, the system forces the window
+         fully opaque regardless of the background drawable's own alpha
+         channel. #CCFFFFFF = white at 80% opacity (CC = 204/255 ≈ 80%). -->
+    <style name="Theme.EasyBilling.RazorpayCheckout" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">#CCFFFFFF</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 
     <!-- ================= BUTTON STYLE ================= -->

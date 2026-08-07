@@ -70,115 +70,126 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Date-range chips — outlined pills matching InventoryActivity's
-         category chips (white bg, gold stroke + text when selected, cream
-         stroke + muted text otherwise). Colors are driven programmatically
-         by ReportsActivity.applyChipStyle(); these are just initial states. -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipDateFilter"
+    <!-- Date-range chips — same hashed-accent-per-chip concept as the
+         dashboard's category rail (white bg, colored stroke + text when
+         selected, cream stroke + muted text otherwise). Colors are driven
+         programmatically by ReportsActivity.applyChipStyle(); these are
+         just initial states. Wrapped in a HorizontalScrollView + singleLine
+         so all 5 chips stay on one scrollable row on phone. -->
+    <HorizontalScrollView
+        android:id="@+id/scrollDateFilter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="14dp"
         android:layout_marginEnd="14dp"
         android:layout_marginBottom="4dp"
-        app:singleSelection="true"
-        app:chipSpacingHorizontal="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/headerRow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipDateFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:singleLine="true"
+        app:singleSelection="true"
+        app:chipSpacingHorizontal="8dp">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipToday"
             android:text="Today"
             android:checked="true"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="30dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#B8895A"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
-            app:chipStartPadding="12dp"
-            app:chipEndPadding="12dp"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
             app:checkedIconVisible="false"
             app:chipMinTouchTargetSize="0dp"
             android:textColor="#8A6526"
             android:fontFamily="@font/googlesans_medium"
-            android:textSize="12sp"/>
+            android:textSize="11sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipWeek"
             android:text="Week"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="30dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#E4DCC8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
-            app:chipStartPadding="12dp"
-            app:chipEndPadding="12dp"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
             app:checkedIconVisible="false"
             app:chipMinTouchTargetSize="0dp"
             android:textColor="#6E6A60"
             android:fontFamily="@font/googlesans_medium"
-            android:textSize="12sp"/>
+            android:textSize="11sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipMonth"
             android:text="Month"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="30dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#E4DCC8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
-            app:chipStartPadding="12dp"
-            app:chipEndPadding="12dp"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
             app:checkedIconVisible="false"
             app:chipMinTouchTargetSize="0dp"
             android:textColor="#6E6A60"
             android:fontFamily="@font/googlesans_medium"
-            android:textSize="12sp"/>
+            android:textSize="11sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipYear"
             android:text="Year"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="30dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#E4DCC8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
-            app:chipStartPadding="12dp"
-            app:chipEndPadding="12dp"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
             app:checkedIconVisible="false"
             app:chipMinTouchTargetSize="0dp"
             android:textColor="#6E6A60"
             android:fontFamily="@font/googlesans_medium"
-            android:textSize="12sp"/>
+            android:textSize="11sp"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipCustom"
             android:text="Custom"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="30dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#E4DCC8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
-            app:chipStartPadding="12dp"
-            app:chipEndPadding="12dp"
+            app:chipStartPadding="10dp"
+            app:chipEndPadding="10dp"
             app:checkedIconVisible="false"
             app:chipMinTouchTargetSize="0dp"
             android:textColor="#6E6A60"
             android:fontFamily="@font/googlesans_medium"
-            android:textSize="12sp"/>
+            android:textSize="11sp"/>
 
     </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <!-- Fragment selector — same tappable-pill pattern as the Reason
          picker in Inventory's Clear Stock dialog: muted label on the left,
@@ -197,7 +208,7 @@
         android:paddingVertical="6dp"
         android:paddingStart="14dp"
         android:paddingEnd="6dp"
-        app:layout_constraintTop_toBottomOf="@id/chipDateFilter"
+        app:layout_constraintTop_toBottomOf="@id/scrollDateFilter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

@@ -110,42 +110,41 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="6dp"
         android:text="Amount received"
-        android:textColor="#9A8F79"
-        android:textSize="11sp" />
+        android:textSize="12.5sp"
+        android:textColor="#9A968C"
+        android:fontFamily="@font/googlesans_regular" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_imp_field"
-        android:paddingHorizontal="14dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="₹"
-            android:textColor="#B8895A"
-            android:textSize="20sp"
-            android:fontFamily="serif"
-            android:includeFontPadding="false" />
+        android:background="@drawable/bg_glass_input">
+        <ImageView
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
+            android:src="@drawable/ic_lc_indian_rupee"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etAmount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
             android:background="@android:color/transparent"
             android:gravity="center_vertical"
+            android:paddingStart="44dp"
+            android:paddingEnd="14dp"
             android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
             android:textSize="20sp"
             android:fontFamily="serif"
             android:includeFontPadding="false"
             android:inputType="numberDecimal"
             android:singleLine="true"
             android:importantForAutofill="no" />
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Quick amounts -->
     <LinearLayout
@@ -161,9 +160,11 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingVertical="7dp"
-            android:background="@drawable/bg_credit_quick_chip"
-            android:textColor="#8A6526"
-            android:textSize="11sp"
+            android:background="@drawable/bg_payment_quick_chip"
+            android:textColor="#8A7F68"
+            android:textSize="12sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:includeFontPadding="false"
             android:clickable="true"
             android:focusable="true" />
         <View android:layout_width="7dp" android:layout_height="1dp" />
@@ -174,9 +175,11 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingVertical="7dp"
-            android:background="@drawable/bg_credit_quick_chip"
-            android:textColor="#8A6526"
-            android:textSize="11sp"
+            android:background="@drawable/bg_payment_quick_chip"
+            android:textColor="#8A7F68"
+            android:textSize="12sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:includeFontPadding="false"
             android:clickable="true"
             android:focusable="true" />
         <View android:layout_width="7dp" android:layout_height="1dp" />
@@ -187,9 +190,11 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingVertical="7dp"
-            android:background="@drawable/bg_credit_quick_chip_full"
+            android:background="@drawable/bg_payment_quick_chip_full"
             android:textColor="#0F6E56"
-            android:textSize="11sp"
+            android:textSize="12sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:includeFontPadding="false"
             android:clickable="true"
             android:focusable="true" />
     </LinearLayout>
@@ -235,13 +240,21 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
         android:text="Record payment"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="@android:color/white"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
+        android:gravity="center"
         android:stateListAnimator="@null"
+        app:icon="@drawable/ic_lc_check"
+        app:iconTint="@android:color/white"
+        app:iconSize="18dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
         app:cornerRadius="14dp"
         app:rippleColor="#33FFFFFF" />
 
@@ -254,14 +267,23 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
         android:text="Cancel"
         android:textAllCaps="false"
-        android:textSize="13sp"
-        android:textColor="#8A8272"
-        android:fontFamily="@font/googlesans_medium"
+        android:textSize="13.5sp"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
+        android:gravity="center"
         android:stateListAnimator="@null"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#22B8895A" />
+        app:rippleColor="#F6D8D4" />
 
 </LinearLayout>

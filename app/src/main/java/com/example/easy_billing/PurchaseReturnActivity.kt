@@ -100,8 +100,6 @@ class PurchaseReturnActivity : BaseActivity() {
     private var purchaseId: Int = -1
     private var noteType: String = "D"
 
-    private val originalFieldHints = mutableMapOf<TextView, CharSequence?>()
-
     private var currentIgstReturn = 0.0
     private var currentCgstReturn = 0.0
     private var currentSgstReturn = 0.0
@@ -496,31 +494,15 @@ class PurchaseReturnActivity : BaseActivity() {
     }
 
     /**
-     * Hint-only when the field is empty and unfocused; the moment it gains
-     * focus or already holds text, the hint is cleared and [label] fades +
-     * slides in above the box (and reverses on blur if the field is still
-     * empty).
+     * Labels are now static and always visible (matching the rest of the
+     * app's form pages) — this used to fade/slide [label] in on focus or
+     * content and null out the field's hint while it did. Kept as a no-op
+     * function rather than removed, since call sites throughout this file
+     * still invoke it after every dropdown pick / focus change.
      */
     private fun updateFloatingLabel(label: TextView, field: TextView, animate: Boolean) {
-        val hasContent = !field.text.isNullOrEmpty()
-        val shouldShow = field.hasFocus() || hasContent
-
-        val originalHint = originalFieldHints.getOrPut(field) { field.hint }
-
-        if (shouldShow) {
-            field.hint = null
-        } else {
-            field.hint = originalHint
-        }
-
-        val targetAlpha = if (shouldShow) 1f else 0f
-        val targetTranslationY = if (shouldShow) 0f else 6f * resources.displayMetrics.density
-        if (animate) {
-            label.animate().alpha(targetAlpha).translationY(targetTranslationY).setDuration(160).start()
-        } else {
-            label.alpha = targetAlpha
-            label.translationY = targetTranslationY
-        }
+        label.alpha = 1f
+        label.translationY = 0f
     }
 
     private fun updateItcFieldsState(eligibility: String) {
@@ -695,42 +677,67 @@ class PurchaseReturnActivity : BaseActivity() {
 
         val totalUnits = lines.values.sum()
 
-        val title = if (noteType == "C") "Receive Credit Note?" else "Issue Debit Note?"
-        val msg = if (noteType == "C") {
+        val isCredit = noteType == "C"
+        val eyebrow = "${p.invoiceNumber} · ${p.supplierName}".uppercase()
+        val titleAccent = if (isCredit) "credit note?" else "debit note?"
+        val msg = if (isCredit) {
             "You are receiving ${"%.2f".format(totalUnits)} additional unit(s) from ${p.supplierName}" +
-            " (Invoice: ${p.invoiceNumber}).\n\n" +
-            "Stock will be increased and a Credit Note will be generated. Continue?"
+            " (Invoice: ${p.invoiceNumber}). Stock will be increased and a credit note will be generated."
         } else {
             "You are returning ${"%.2f".format(totalUnits)} unit(s) to ${p.supplierName}" +
-            " (Invoice: ${p.invoiceNumber}).\n\n" +
-            "Stock will be reduced from the exact purchase batch and a " +
-            "Debit Note will be generated. Continue?"
+            " (Invoice: ${p.invoiceNumber}). Stock will be reduced from the exact purchase batch and a " +
+            "debit note will be generated."
         }
-        val posBtn = if (noteType == "C") "Yes, Receive CN" else "Yes, Issue DN"
+        val posBtn = if (isCredit) "Yes, receive CN" else "Yes, issue DN"
 
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(msg)
-            .setPositiveButton(posBtn) { d, _ ->
-                d.dismiss()
-                viewModel.submitReturn(
-                    lines = lines,
-                    noteType = noteType,
-                    preGst = preGst,
-                    documentType = docTypeVal,
-                    reasonForIssuingDocument = reasonVal,
-                    noteRefundVoucherValue = voucherValueVal,
-                    rate = rateVal,
-                    eligibilityForItc = eligibilityVal,
-                    availedItcIntegratedTax = availedIntegratedVal,
-                    availedItcCentralTax = availedCentralVal,
-                    availedItcStateTax = availedStateVal,
-                    availedItcCess = availedCessVal,
-                    invoiceType = invoiceTypeVal,
-                    placeOfSupplyCode = placeOfSupplyCodeVal
-                )
-            }
-            .setNegativeButton("Review") { d, _ -> d.dismiss() }
-            .show()
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_purchase_note, null)
+
+        view.findViewById<TextView>(R.id.tvNoteEyebrow).text = eyebrow
+        view.findViewById<TextView>(R.id.tvNoteTitleLead).text = if (isCredit) "Receive" else "Issue"
+        view.findViewById<TextView>(R.id.tvNoteTitleAccent).text = titleAccent
+        view.findViewById<TextView>(R.id.tvNoteMessage).text = msg
+
+        val badgeFrame = view.findViewById<FrameLayout>(R.id.badgeNoteFrame)
+        val badgeIcon = view.findViewById<ImageView>(R.id.ivNoteBadge)
+        val confirmBtn = view.findViewById<MaterialButton>(R.id.btnConfirmNote)
+        val reviewBtn = view.findViewById<MaterialButton>(R.id.btnReviewNote)
+
+        if (isCredit) {
+            badgeFrame.setBackgroundResource(R.drawable.bg_circle_soft_teal)
+            badgeIcon.setImageResource(R.drawable.ic_lc_check)
+            badgeIcon.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#0F6E56"))
+            confirmBtn.setBackgroundResource(R.drawable.bg_login_cta_green)
+            confirmBtn.icon = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_lc_check)
+        }
+        confirmBtn.text = posBtn
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .setCancelable(true)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        confirmBtn.setOnClickListener {
+            dialog.dismiss()
+            viewModel.submitReturn(
+                lines = lines,
+                noteType = noteType,
+                preGst = preGst,
+                documentType = docTypeVal,
+                reasonForIssuingDocument = reasonVal,
+                noteRefundVoucherValue = voucherValueVal,
+                rate = rateVal,
+                eligibilityForItc = eligibilityVal,
+                availedItcIntegratedTax = availedIntegratedVal,
+                availedItcCentralTax = availedCentralVal,
+                availedItcStateTax = availedStateVal,
+                availedItcCess = availedCessVal,
+                invoiceType = invoiceTypeVal,
+                placeOfSupplyCode = placeOfSupplyCodeVal
+            )
+        }
+        reviewBtn.setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
     }
 }

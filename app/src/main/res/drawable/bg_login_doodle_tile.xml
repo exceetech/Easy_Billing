@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tiled bakery/POS doodle pattern, cream-tinted to match the app's
+     dialog surface color (#FCF3E5). Sourced from the user-provided
+     Firefly doodle sheet and repeated seamlessly across the login screen. -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/bg_login_doodle_pattern"
+    android:tileMode="repeat"
+    android:gravity="fill"/>

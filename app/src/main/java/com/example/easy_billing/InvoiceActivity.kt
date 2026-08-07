@@ -1501,7 +1501,11 @@ class InvoiceActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     // Invoice generated → enable Print, lock Generate + Discount.
                     setCosmeticEnabled(btnPrint, true)
-                    setCosmeticEnabled(btnConfirm, false)
+                    // Restore the arrow (clears the spinner) before re-locking
+                    // the button, so "locked" reads as disabled, not stuck loading.
+                    setCosmeticEnabled(btnConfirm, true)
+                    btnConfirm.isEnabled = false
+                    btnConfirm.alpha = 0.45f
                     setCosmeticEnabled(etDiscount, false)
                     Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()
                 }
@@ -1740,11 +1744,22 @@ class InvoiceActivity : AppCompatActivity() {
         }
     }
 
+    // Matches the drawer avatar's initials logic (DashboardActivity.storeInitials)
+    // so the monogram is identical everywhere it appears.
+    private fun storeInitials(name: String): String {
+        val words = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            words.isEmpty() -> "EB"
+            words.size == 1 -> words[0].take(2).uppercase()
+            else -> (words[0].take(1) + words[1].take(1)).uppercase()
+        }
+    }
+
     private fun applyStoreInfo(store: StoreInfo) {
         runOnUiThread {
             val resolvedName = store.name.ifBlank { "My Store" }
             tvStoreName.text = resolvedName
-            tvStoreMonogram.text = resolvedName.trim().firstOrNull()?.uppercase() ?: "M"
+            tvStoreMonogram.text = storeInitials(resolvedName)
             if (sellerName.isBlank()) sellerName = resolvedName
             sellerStateCode = store.stateCode.ifBlank {
                 GstEngine.getStateCode(store.gstin)
@@ -1911,8 +1926,15 @@ class InvoiceActivity : AppCompatActivity() {
         v.findViewById<View>(R.id.btnCloseDiscount).setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        // Same percentage-of-screen-width + capped-max sizing used
+        // everywhere else in the app (ui/ThemedDropdown.kt) — this used
+        // to be a flat 430dp regardless of phone width. See
+        // phone_compatibility_plan.md Phase 2.
         dialog.window?.setLayout(
-            (resources.displayMetrics.density * 430).toInt(),
+            minOf(
+                (resources.displayMetrics.widthPixels * 0.92f).toInt(),
+                (430 * resources.displayMetrics.density).toInt()
+            ),
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
     }

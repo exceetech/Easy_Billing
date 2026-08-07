@@ -55,6 +55,24 @@
                     android:singleLine="true"
                     android:ellipsize="end" />
 
+                <!-- Refused/Queued state, alongside eligibility rather than
+                     replacing it — both facts matter and neither should hide
+                     the other. Gone for a synced record. -->
+                <TextView
+                    android:id="@+id/tvStatusBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:background="@drawable/bg_imp_badge"
+                    android:backgroundTint="#FCEBEB"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="3dp"
+                    android:text="Refused"
+                    android:textSize="9.5sp"
+                    android:textColor="#791F1F"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/tvItcEligibility"
                     android:layout_width="wrap_content"

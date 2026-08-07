@@ -851,9 +851,6 @@ class PurchaseLineDialog(
         val dialog = Dialog(activity, R.style.PurchaseLineFullScreen)
         dialog.setContentView(view)
 
-        // Field names float up out of the box once it has content.
-        com.example.easy_billing.util.FloatingLabels.bind(view)
-
         // Usual toolbar back arrow (BaseActivity.setupToolbar can't be used
         // here — this is a Dialog, not an Activity — so wire it directly).
         view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {

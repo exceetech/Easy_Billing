@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Soft horizontal fade — tan at the center, transparent at both ends —
+     used above the "Powered by" footer. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="0"
+        android:startColor="#00D8C3A0"
+        android:centerColor="#D8C3A0"
+        android:endColor="#00D8C3A0"
+        android:type="linear"/>
+</shape>

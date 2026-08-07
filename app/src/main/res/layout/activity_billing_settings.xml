@@ -115,23 +115,24 @@
             </LinearLayout>
 
             <!-- ===================== GST PROFILE ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="GST PROFILE"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
             <!-- cardGstProfile: faded (alpha 0.6) until Edit is tapped, same
                  locked/unlocked feel as Invoice Design & Data & Security. -->
-            <LinearLayout android:id="@+id/cardGstProfile" style="@style/AddCard">
+            <LinearLayout android:id="@+id/cardGstProfile" style="@style/AddCard"
+                android:layout_marginTop="16dp"
+                android:paddingTop="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="GST PROFILE"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
 
                 <!-- GSTIN (locked) -->
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
@@ -285,21 +286,22 @@
             </LinearLayout>
 
             <!-- ===================== PRINTER ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+            <LinearLayout android:id="@+id/cardPrinter" style="@style/AddCard"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="PRINTER"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
+                android:paddingTop="18dp">
 
-            <LinearLayout android:id="@+id/cardPrinter" style="@style/AddCard">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="PRINTER"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
 
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
                     <TextView style="@style/SiFieldLabel" android:text="Print layout"/>

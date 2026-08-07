@@ -95,58 +95,82 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="6dp"
         android:text="Name"
-        android:textColor="#9A8F79"
-        android:textSize="11sp" />
+        android:textSize="12.5sp"
+        android:textColor="#9A968C"
+        android:fontFamily="@font/googlesans_regular" />
 
-    <EditText
-        android:id="@+id/etName"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:background="@drawable/bg_imp_field"
-        android:paddingHorizontal="12dp"
-        android:gravity="center_vertical"
-        android:drawableStart="@drawable/ic_lc_user"
-        android:drawableTint="#B8895A"
-        android:drawablePadding="9dp"
-        android:hint="Ramesh Kumar"
-        android:textColor="#1A1A18"
-        android:textColorHint="#A99E88"
-        android:textSize="13sp"
-        android:inputType="textPersonName|textCapWords"
-        android:singleLine="true"
-        android:importantForAutofill="no"
-        android:includeFontPadding="false" />
+        android:layout_height="50dp"
+        android:background="@drawable/bg_glass_input">
+        <ImageView
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
+            android:src="@drawable/ic_lc_user"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:paddingStart="44dp"
+            android:paddingEnd="14dp"
+            android:gravity="center_vertical"
+            android:hint="Ramesh Kumar"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
+            android:textSize="14sp"
+            android:inputType="textPersonName|textCapWords"
+            android:singleLine="true"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false" />
+    </FrameLayout>
 
     <!-- ===================== PHONE ===================== -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="13dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginBottom="6dp"
         android:text="Phone number"
-        android:textColor="#9A8F79"
-        android:textSize="11sp" />
+        android:textSize="12.5sp"
+        android:textColor="#9A968C"
+        android:fontFamily="@font/googlesans_regular" />
 
-    <EditText
-        android:id="@+id/etPhone"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:background="@drawable/bg_imp_field"
-        android:paddingHorizontal="12dp"
-        android:gravity="center_vertical"
-        android:drawableStart="@drawable/ic_lc_phone"
-        android:drawableTint="#B8895A"
-        android:drawablePadding="9dp"
-        android:hint="98765 43210"
-        android:textColor="#1A1A18"
-        android:textColorHint="#A99E88"
-        android:textSize="13sp"
-        android:inputType="phone"
-        android:singleLine="true"
-        android:importantForAutofill="no"
-        android:includeFontPadding="false" />
+        android:layout_height="50dp"
+        android:background="@drawable/bg_glass_input">
+        <ImageView
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
+            android:src="@drawable/ic_lc_phone"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:paddingStart="44dp"
+            android:paddingEnd="14dp"
+            android:gravity="center_vertical"
+            android:hint="98765 43210"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
+            android:textSize="14sp"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false" />
+    </FrameLayout>
 
     <!--
         The save path rejects a repeated phone with "Customer already exists",
@@ -206,9 +230,9 @@
         android:lineSpacingExtra="0dp"
         android:stateListAnimator="@null"
         app:cornerRadius="14dp"
-        app:rippleColor="#33FFFFFF" 
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+        app:rippleColor="#33FFFFFF"
+        android:insetLeft="0dp"
+        android:insetRight="0dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCancel"
@@ -219,14 +243,23 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
         android:text="Cancel"
         android:textAllCaps="false"
-        android:textSize="13sp"
-        android:textColor="#8A8272"
-        android:fontFamily="@font/googlesans_medium"
+        android:textSize="13.5sp"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
+        android:gravity="center"
         android:stateListAnimator="@null"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
         app:cornerRadius="14dp"
-        app:rippleColor="#22B8895A" />
+        app:rippleColor="#F6D8D4" />
 
 </LinearLayout>

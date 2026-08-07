@@ -302,13 +302,21 @@
 
     <!-- Period filters — outlined pills matching ReportsActivity's date chips
          (white bg, gold stroke + text when selected, cream stroke + muted
-         text otherwise). -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipDateFilter"
+         text otherwise). Horizontally scrollable so all 5 chips stay on one
+         row on phone instead of wrapping to a second line. -->
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:paddingHorizontal="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipDateFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:singleLine="true"
         app:singleSelection="true"
         app:selectionRequired="true"
         app:chipSpacingHorizontal="8dp">
@@ -404,6 +412,7 @@
             android:fontFamily="@font/googlesans_medium"
             android:textSize="12sp"/>
     </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <!-- ===================== SEARCH + CHART (icon buttons, Inventory style) ===================== -->
     <LinearLayout
@@ -470,17 +479,169 @@
         android:textSize="11sp"
         android:textColor="#9CA3AF"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvProducts"
+    <!-- One card, one background — the list and the empty state are both
+         inside it as alternate contents (same structure as bill/purchase
+         history, inventory, credit accounts, and the GSTR-2 import-services
+         records card). wrap_content here rather than weight=1, since this
+         whole screen scrolls as one NestedScrollView rather than fixing the
+         list to the remaining screen height. -->
+    <FrameLayout
+        android:id="@+id/cardProfitProducts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_inv_value_card"
-        android:clipToOutline="true"
-        android:paddingBottom="4dp"
-        android:nestedScrollingEnabled="false"
-        android:overScrollMode="never"/>
+        android:background="@drawable/bg_inv_value_card">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"/>
+
+        <!-- ===================== EMPTY STATE =====================
+             Same design as bill/purchase history, inventory and import
+             services: 72dp icon circle, centred title with the italic serif
+             accent word, centred body copy, hairline, then two tip rows.
+             Title/accent/body switch between "nothing sold yet" and
+             "search found nothing" via Kotlin. -->
+        <LinearLayout
+            android:id="@+id/layoutProfitEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="26dp"
+            android:paddingTop="30dp"
+            android:paddingBottom="26dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_imp_empty_circle">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_si_chart_columns"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+                <TextView
+                    android:id="@+id/tvProfitEmptyTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No products"
+                    android:textSize="19sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false" />
+                <TextView
+                    android:id="@+id/tvProfitEmptyTitleAccent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="yet"
+                    android:textSize="19sp"
+                    android:textColor="#0F6E56"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvProfitEmptyBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:gravity="center"
+                android:text="Sell something in this period and its revenue, cost and profit will break down here by product."
+                android:textSize="12.5sp"
+                android:textColor="#8A8272"
+                android:lineSpacingExtra="3dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
+                android:background="#F1EBDD" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="11dp">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_marginTop="1dp"
+                    android:src="@drawable/ic_si_chart_columns"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Every sale updates this"
+                        android:textSize="12sp"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="Revenue, cost and margin per product"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_marginTop="1dp"
+                    android:src="@drawable/ic_si_search"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Then find any product fast"
+                        android:textSize="12sp"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="Search by product name or variant"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
 
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -489,7 +489,7 @@
             app:backgroundTint="#FFFFFF"
             app:strokeColor="#E7C9C9"
             app:strokeWidth="1dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" 
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:insetLeft="0dp"
             android:insetRight="0dp"/>
 

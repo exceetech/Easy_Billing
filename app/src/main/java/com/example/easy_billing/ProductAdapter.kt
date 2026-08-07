@@ -191,15 +191,15 @@ class ProductAdapter(
             overlay.visibility  = View.GONE
             addBtn.backgroundTintList = null
 
-            // ── Solid white card ──────────────────────────────────────────
-            card.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
+            // ── Random pastel card (stable per product, just a try) ────────
+            card.setCardBackgroundColor(Color.parseColor(cardPastels[colorIdx]))
 
             // ── Monogram Styling ─────────────────────────────────────────
+            // Monogram circle stays white so it still pops against the
+            // colored card instead of blending into it.
             val firstLetter = product.name.take(1).uppercase()
             monogram.text = firstLetter
-            monogramBg.backgroundTintList = ColorStateList.valueOf(
-                Color.parseColor(cardPastels[colorIdx])
-            )
+            monogramBg.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
             monogram.setTextColor(Color.parseColor(monogramAccents[colorIdx]))
             accentStripe.backgroundTintList =
                 ColorStateList.valueOf(Color.parseColor(monogramAccents[colorIdx]))

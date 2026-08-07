@@ -12,14 +12,14 @@
 
     android:orientation="vertical"
     android:padding="22dp"
-    android:background="@drawable/bg_dialog_rounded"
+    android:background="@drawable/bg_dialog_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <!-- ICON BADGE -->
     <FrameLayout
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
         android:layout_gravity="center"
         android:layout_marginBottom="12dp"
         android:background="@drawable/bg_dialog_soft_amber_circle">
@@ -129,69 +129,59 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- BUTTONS -->
-    <LinearLayout
+    <!-- PRINT -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPrint"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:orientation="horizontal">
+        android:text="Print"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:icon="@drawable/ic_si_printer"
+        app:iconTint="@android:color/white"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
 
-        <!-- CANCEL -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancel"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="46dp"
-            android:text="Cancel"
-            android:textColor="#B23A3A"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@drawable/bg_cta_rose_tonal"
-            app:backgroundTint="@null"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_lc_x"
-            app:iconTint="#B23A3A"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
-
-        <View
-            android:layout_width="10dp"
-            android:layout_height="1dp"/>
-
-        <!-- PRINT -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPrint"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="46dp"
-            android:text="Print"
-            android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            app:backgroundTint="#0F6E56"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_si_printer"
-            app:iconTint="@android:color/white"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
-    </LinearLayout>
+    <!-- CANCEL -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="8dp"
+        android:text="Cancel"
+        android:textColor="#9A2E2E"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#F6D8D4"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
 
 </LinearLayout>

@@ -4,105 +4,152 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_dialog_rounded"
+    android:padding="22dp"
+    android:background="@drawable/bg_dialog_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- ICON -->
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+    <!-- ICON BADGE -->
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
         android:layout_gravity="center"
         android:layout_marginBottom="12dp"
-        android:src="@android:drawable/ic_dialog_info"
-        app:tint="#3B82F6" />
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_package"
+            app:tint="#8A6526" />
+    </FrameLayout>
 
-    <!-- TITLE -->
+    <!-- EYEBROW -->
     <TextView
-        android:text="Product Exists"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#111827"
+        android:text="DUPLICATE FOUND"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <!-- TITLE -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="3dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product "
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="exists"
+            android:textColor="#8A6526"
+            android:textSize="19sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
 
     <!-- MESSAGE -->
     <TextView
         android:id="@+id/tvMessage"
         android:text="Update existing or replace with new?"
-        android:textSize="14sp"
-        android:textColor="#6B7280"
+        android:textSize="12.5sp"
+        android:textColor="#8A8272"
         android:gravity="center"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <!-- 🔥 PRODUCT DETAILS -->
+    <!-- PRODUCT DETAILS -->
     <TextView
         android:id="@+id/tvDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:padding="12dp"
-        android:background="@drawable/bg_dialog_rounded_inner"
+        android:layout_marginTop="14dp"
+        android:padding="13dp"
+        android:background="@drawable/bg_inv_value_card"
         android:text="Price: ₹0\nVariant: -\nUnit: -\nStock: 0"
-        android:textSize="13sp"
-        android:textColor="#374151"
+        android:textSize="12.5sp"
+        android:fontFamily="serif"
+        android:textColor="#1A1A18"
         android:lineSpacingExtra="2dp"/>
 
     <!-- BUTTONS -->
-    <LinearLayout
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUpdate"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal">
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:text="Restore"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
 
-        <!-- CANCEL -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancel"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="48dp"
-            android:text="Cancel"
-            android:textColor="#111827"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#E5E7EB"
-            app:rippleColor="?attr/colorControlHighlight"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnReplace"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="8dp"
+        android:text="Create new instead"
+        android:textColor="#1A1A18"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:background="@drawable/bg_cta_champagne_outline"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
 
-        <View
-            android:layout_width="8dp"
-            android:layout_height="1dp"/>
-
-        <!-- CREATE NEW -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnReplace"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="48dp"
-            android:text="Create New"
-            android:textColor="@android:color/white"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#EF4444"
-            app:rippleColor="#33FFFFFF"/>
-
-        <View
-            android:layout_width="8dp"
-            android:layout_height="1dp"/>
-
-        <!-- RESTORE -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnUpdate"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="48dp"
-            android:text="Restore"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#3B82F6"
-            app:rippleColor="#33FFFFFF"/>
-    </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="8dp"
+        android:text="Cancel"
+        android:textColor="#9A2E2E"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
 
 </LinearLayout>

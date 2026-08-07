@@ -32,7 +32,11 @@ import kotlinx.coroutines.withContext
 class CreditAccountsActivity : BaseActivity() {
 
     private lateinit var rvCustomers: RecyclerView
-    private lateinit var tvCustomersEmpty: TextView
+    private lateinit var cardCustomers: android.view.View
+    private lateinit var layoutCustomersEmpty: android.view.View
+    private lateinit var tvCustomersEmptyTitle: TextView
+    private lateinit var tvCustomersEmptyTitleAccent: TextView
+    private lateinit var tvCustomersEmptyBody: TextView
     private lateinit var etSearch: TextInputEditText
     private lateinit var btnAdd: MaterialButton
 
@@ -72,7 +76,11 @@ class CreditAccountsActivity : BaseActivity() {
 
     private fun initViews() {
         rvCustomers = findViewById(R.id.rvCustomers)
-        tvCustomersEmpty = findViewById(R.id.tvCustomersEmpty)
+        cardCustomers = findViewById(R.id.cardCustomers)
+        layoutCustomersEmpty = findViewById(R.id.layoutCustomersEmpty)
+        tvCustomersEmptyTitle = findViewById(R.id.tvCustomersEmptyTitle)
+        tvCustomersEmptyTitleAccent = findViewById(R.id.tvCustomersEmptyTitleAccent)
+        tvCustomersEmptyBody = findViewById(R.id.tvCustomersEmptyBody)
         etSearch = findViewById(R.id.etSearchCustomer)
         btnAdd = findViewById(R.id.btnAddCustomer)
     }
@@ -86,8 +94,10 @@ class CreditAccountsActivity : BaseActivity() {
 
         // Rows draw square, so the first and last would overhang the list
         // card's rounded corners — most visibly the coloured balance stripe.
-        // Set in code because android:clipToOutline is API 31+.
-        rvCustomers.clipToOutline = true
+        // Set in code because android:clipToOutline is API 31+. Applied to
+        // the shared card container rather than rvCustomers directly, since
+        // the rounded background lives on cardCustomers.
+        cardCustomers.clipToOutline = true
     }
 
     /**
@@ -608,9 +618,28 @@ class CreditAccountsActivity : BaseActivity() {
         val chip2 = view.findViewById<TextView>(R.id.chipQuick2)
         val chipFull = view.findViewById<TextView>(R.id.chipFull)
 
+        // Selected chip gets a green outline; tapping another chip or typing
+        // a custom amount clears the highlight back to the idle pill style.
+        fun resetChips() {
+            chip1.setBackgroundResource(R.drawable.bg_payment_quick_chip)
+            chip1.setTextColor(Color.parseColor("#8A7F68"))
+            chip2.setBackgroundResource(R.drawable.bg_payment_quick_chip)
+            chip2.setTextColor(Color.parseColor("#8A7F68"))
+            chipFull.setBackgroundResource(R.drawable.bg_payment_quick_chip_full)
+            chipFull.setTextColor(Color.parseColor("#0F6E56"))
+        }
+        fun selectChip(chip: TextView) {
+            resetChips()
+            chip.setBackgroundResource(R.drawable.bg_payment_quick_chip_selected)
+            chip.setTextColor(Color.parseColor("#0F6E56"))
+        }
+
+        var fillingProgrammatically = false
         fun fill(amount: Double) {
+            fillingProgrammatically = true
             etAmount.setText(if (amount % 1.0 == 0.0) amount.toLong().toString() else "%.2f".format(amount))
             etAmount.setSelection(etAmount.text?.length ?: 0)
+            fillingProgrammatically = false
         }
 
         if (owed > 0) {
@@ -622,11 +651,11 @@ class CreditAccountsActivity : BaseActivity() {
 
             chip1.visibility = if (suggestions.isNotEmpty()) View.VISIBLE else View.GONE
             chip2.visibility = if (suggestions.size > 1) View.VISIBLE else View.GONE
-            suggestions.getOrNull(0)?.let { a -> chip1.text = money(a); chip1.setOnClickListener { fill(a) } }
-            suggestions.getOrNull(1)?.let { a -> chip2.text = money(a); chip2.setOnClickListener { fill(a) } }
+            suggestions.getOrNull(0)?.let { a -> chip1.text = money(a); chip1.setOnClickListener { fill(a); selectChip(chip1) } }
+            suggestions.getOrNull(1)?.let { a -> chip2.text = money(a); chip2.setOnClickListener { fill(a); selectChip(chip2) } }
 
             chipFull.text = "Full ${money(owed)}"
-            chipFull.setOnClickListener { fill(owed) }
+            chipFull.setOnClickListener { fill(owed); selectChip(chipFull) }
         } else {
             // Nothing outstanding — any payment here just builds an advance,
             // so there is no "full" amount to offer.
@@ -638,7 +667,10 @@ class CreditAccountsActivity : BaseActivity() {
         etAmount.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-            override fun afterTextChanged(s: Editable?) = refreshAfter()
+            override fun afterTextChanged(s: Editable?) {
+                if (!fillingProgrammatically) resetChips()
+                refreshAfter()
+            }
         })
         refreshAfter()
 
@@ -863,10 +895,20 @@ class CreditAccountsActivity : BaseActivity() {
 
         adapter.update(filtered)
 
+        // A search or a non-"ALL" filter chip is what emptied the list, not
+        // that there are no customers at all — same card, different copy.
         val hasQuery = etSearch.text?.isNotBlank() == true
-        tvCustomersEmpty.text = if (hasQuery) "No customers match your search"
-            else "No customers yet — tap \"Add customer\" to get started"
-        tvCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        val isSearchOrFilter = hasQuery || currentFilter != "ALL"
+        if (isSearchOrFilter) {
+            tvCustomersEmptyTitle.text = "No matches"
+            tvCustomersEmptyTitleAccent.text = "found"
+            tvCustomersEmptyBody.text = "No customer matches your search or filter. Try a different name or phone number, or reset the filter."
+        } else {
+            tvCustomersEmptyTitle.text = "No customers"
+            tvCustomersEmptyTitleAccent.text = "yet"
+            tvCustomersEmptyBody.text = "Customers you add will show up here — track what they owe or have paid in advance."
+        }
+        layoutCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         rvCustomers.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
@@ -905,8 +947,45 @@ class CreditAccountsActivity : BaseActivity() {
             "SETTLED" -> R.id.chipSettled
             else -> R.id.chipAll
         }
-        listOf(R.id.chipAll, R.id.chipDue, R.id.chipAdvance, R.id.chipSettled)
-            .forEach { findViewById<View>(it).isSelected = (it == selectedId) }
+        listOf(
+            R.id.chipAll to "All",
+            R.id.chipDue to "Due",
+            R.id.chipAdvance to "Advance",
+            R.id.chipSettled to "Settled"
+        ).forEach { (id, label) ->
+            findViewById<TextView?>(id)?.let { chip ->
+                chip.isSelected = (id == selectedId)
+                styleFilterChip(chip, selected = id == selectedId, label = label)
+            }
+        }
+    }
+
+    // Same hashed-accent-per-chip concept as the dashboard's category rail and
+    // Import services' status chips — each chip gets a stable color from this
+    // palette instead of every selected chip looking identically teal.
+    private val filterChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun filterChipColor(label: String): Int =
+        Color.parseColor(
+            filterChipPalette[(label.hashCode() and 0x7FFFFFFF) % filterChipPalette.size]
+        )
+
+    private fun styleFilterChip(chip: TextView, selected: Boolean, label: String) {
+        val d = resources.displayMetrics.density
+        val accent = filterChipColor(label)
+        val strokeColor = if (selected) accent else Color.parseColor("#E4DCC8")
+        val textColor = if (selected) accent else Color.parseColor("#6E6A60")
+
+        chip.background = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            setColor(Color.WHITE)
+            cornerRadius = 8f * d
+            setStroke((1.5f * d).toInt(), strokeColor)
+        }
+        chip.setTextColor(textColor)
     }
 
     private fun deleteAccount(account: CreditAccount) {

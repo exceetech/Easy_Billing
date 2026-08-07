@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<!--
+    Wrapped in a ScrollView (was a plain centered LinearLayout with no
+    scroll fallback) so this can't run off the bottom of a short/narrow
+    phone screen or with larger system text size — see
+    phone_compatibility_plan.md Phase 8. fillViewport="true" keeps the
+    same centered look when content fits, while still allowing scroll
+    when it doesn't. Icon size and padding also trimmed slightly so this
+    fits comfortably on smaller phones without needing to scroll at all
+    in the common case.
+-->
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="32dp"
-    android:background="@android:color/white">
+    android:padding="24dp">
 
     <!-- Icon -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="🔄"
-        android:textSize="64sp"
-        android:layout_marginBottom="24dp"/>
+        android:textSize="48sp"
+        android:layout_marginBottom="20dp"/>
 
     <!-- Title -->
     <TextView
@@ -47,3 +62,4 @@
         android:textSize="16sp"/>
 
 </LinearLayout>
+</ScrollView>

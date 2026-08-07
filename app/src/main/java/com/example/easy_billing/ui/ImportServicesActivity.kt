@@ -5,13 +5,10 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
@@ -45,7 +42,8 @@ class ImportServicesActivity : BaseActivity() {
      *  later year than any before it, without fighting the user's own choice. */
     private var lastKnownNewestFy: Int? = null
 
-    private var searchQuery: String = ""
+    /** null = all statuses; else one of "synced" / "pending" / "rejected". */
+    private var selectedStatus: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,25 +71,32 @@ class ImportServicesActivity : BaseActivity() {
         // the background's outline makes the rows follow the card's radius.
         // Set here rather than in XML: android:clipToOutline is API 31+, this
         // works from API 21.
-        rvImportServices.clipToOutline = true
-        layoutEmpty.clipToOutline = true
+        //
+        // Applied to the card container rather than the recycler view
+        // directly, since the rounded background lives on cardRecords.
+        findViewById<View>(R.id.cardRecords).clipToOutline = true
 
         findViewById<View>(R.id.fabAdd).setOnClickListener {
             startActivity(Intent(this, AddImportServiceActivity::class.java))
         }
 
-        findViewById<View>(R.id.btnFyFilter).setOnClickListener { showFyMenu(it) }
+        // FY switching moved off its own dropdown button and onto the hero
+        // count line, which already read "14 records · FY 25–26" — tapping
+        // the fact opens the same themed menu that used to live behind
+        // btnFyFilter.
+        findViewById<View>(R.id.tvHeroCount).setOnClickListener { showFyMenu(it) }
 
-        findViewById<EditText>(R.id.etSearch).addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-                override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    searchQuery = s?.toString().orEmpty()
-                    applyFilter()
-                }
+        listOf(
+            R.id.chipAll to null,
+            R.id.chipSynced to "synced",
+            R.id.chipQueued to "pending",
+            R.id.chipRefused to "rejected"
+        ).forEach { (id, status) ->
+            findViewById<View>(id).setOnClickListener {
+                selectedStatus = status
+                applyFilter()
             }
-        )
+        }
 
         // Observed once, here — not in onResume. LiveData already re-delivers
         // on every resume, so observing there registered an extra observer each
@@ -135,16 +140,15 @@ class ImportServicesActivity : BaseActivity() {
     }
 
     private fun applyFilter() {
-        var filtered = selectedFyStart?.let { fy ->
+        val fyScoped = selectedFyStart?.let { fy ->
             allRecords.filter { fyStartYear(it.invoiceDate) == fy }
         } ?: allRecords
 
-        // The search field existed in the layout but was never read, so typing
-        // in it did nothing at all.
-        val query = searchQuery.trim()
-        if (query.isNotEmpty()) {
-            filtered = filtered.filter { it.invoiceNumber.contains(query, ignoreCase = true) }
-        }
+        // Status chips filter within the FY scope, not the search box that
+        // used to live here — invoice-number search is gone in this design.
+        var filtered = selectedStatus?.let { status ->
+            fyScoped.filter { it.syncStatus == status }
+        } ?: fyScoped
 
         // Refused records first — they need someone to act, and burying them in
         // date order is how they stay unnoticed. Everything else newest first,
@@ -156,27 +160,81 @@ class ImportServicesActivity : BaseActivity() {
 
         adapter.updateData(filtered)
 
-        // The empty state now takes the list's place in the layout rather than
-        // floating over it, so the two swap.
+        // Empty state swaps in for the recycler inside the same card
+        // (cardRecords) rather than a separate card taking its place.
         val isEmpty = filtered.isEmpty()
         layoutEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
         rvImportServices.visibility = if (isEmpty) View.GONE else View.VISIBLE
 
-        // Hide search and the FY chip when there is nothing at all to filter.
-        // Kept visible when a search or filter is what emptied the list —
-        // otherwise the user loses the control they need to undo it.
+        // Chips stay visible even with nothing recorded — each reads "· 0"
+        // and still lets the user see the status breakdown at a glance,
+        // instead of disappearing along with the list. Only the RECORDS
+        // label (which introduces a list that no longer has anything under
+        // it) hides.
         val nothingRecorded = allRecords.isEmpty()
-        findViewById<View?>(R.id.layoutFilters)?.visibility =
-            if (nothingRecorded) View.GONE else View.VISIBLE
-        findViewById<View?>(R.id.tvRecordsLabel)?.visibility =
-            if (nothingRecorded) View.GONE else View.VISIBLE
+        findViewById<View?>(R.id.layoutFilters)?.visibility = View.VISIBLE
+        findViewById<View?>(R.id.tvRecordsLabel)?.visibility = View.VISIBLE
 
         findViewById<MaterialButton?>(R.id.fabAdd)?.text =
             if (nothingRecorded) "Add your first record" else "Add record"
 
-        findViewById<TextView?>(R.id.tvFyLabel)?.text =
-            selectedFyStart?.let { fyLabel(it) } ?: "All FY"
+        // Chip counts and selected state, counted within the FY scope so a
+        // chip's number always matches what tapping it will show.
+        findViewById<TextView?>(R.id.chipAll)?.text = "All · ${fyScoped.size}"
+        findViewById<TextView?>(R.id.chipSynced)?.text =
+            "Synced · ${fyScoped.count { it.syncStatus == "synced" }}"
+        findViewById<TextView?>(R.id.chipQueued)?.text =
+            "Queued · ${fyScoped.count { it.syncStatus == "pending" }}"
+        findViewById<TextView?>(R.id.chipRefused)?.text =
+            "Refused · ${fyScoped.count { it.syncStatus == "rejected" }}"
+
+        val selectedChipId = when (selectedStatus) {
+            "synced"   -> R.id.chipSynced
+            "pending"  -> R.id.chipQueued
+            "rejected" -> R.id.chipRefused
+            else       -> R.id.chipAll
+        }
+        listOf(
+            R.id.chipAll to "All",
+            R.id.chipSynced to "Synced",
+            R.id.chipQueued to "Queued",
+            R.id.chipRefused to "Refused"
+        ).forEach { (id, label) ->
+            findViewById<TextView?>(id)?.let { chip ->
+                chip.isSelected = (id == selectedChipId)
+                styleFilterChip(chip, selected = id == selectedChipId, label = label)
+            }
+        }
+
         updateHeroKpis(filtered)
+    }
+
+    // Same hashed-accent-per-chip concept as the dashboard's category rail —
+    // each status chip gets a stable color from this palette instead of
+    // every selected chip looking identically teal.
+    private val filterChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun filterChipColor(label: String): Int =
+        android.graphics.Color.parseColor(
+            filterChipPalette[(label.hashCode() and 0x7FFFFFFF) % filterChipPalette.size]
+        )
+
+    private fun styleFilterChip(chip: TextView, selected: Boolean, label: String) {
+        val d = resources.displayMetrics.density
+        val accent = filterChipColor(label)
+        val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#E4DCC8")
+        val textColor = if (selected) accent else android.graphics.Color.parseColor("#6E6A60")
+
+        chip.background = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            setColor(android.graphics.Color.WHITE)
+            cornerRadius = 8f * d
+            setStroke((1.5f * d).toInt(), strokeColor)
+        }
+        chip.setTextColor(textColor)
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
@@ -293,6 +351,7 @@ class ImportServiceAdapter(
         val tvInvoiceNumber: TextView = view.findViewById(R.id.tvInvoiceNumber)
         val tvInvoiceValue: TextView = view.findViewById(R.id.tvInvoiceValue)
         val tvItcEligibility: TextView = view.findViewById(R.id.tvItcEligibility)
+        val tvStatusBadge: TextView = view.findViewById(R.id.tvStatusBadge)
         val tvIgst: TextView = view.findViewById(R.id.tvIgst)
         val tvCess: TextView = view.findViewById(R.id.tvCess)
         val layoutCess: View = view.findViewById(R.id.layoutCess)
@@ -343,12 +402,21 @@ class ImportServiceAdapter(
             )
         )
 
-        // A refused record's badge says so. Its eligibility is not the useful
-        // fact about it — that it needs correcting is.
+        // Eligibility always shows on its own badge now. A refused or queued
+        // record gets a second badge alongside it instead of losing the
+        // eligibility fact — both matter, and hiding one to show the other
+        // was the old row's compromise.
+        bindEligibility(holder.tvItcEligibility, item.eligibilityForItc)
         when (item.syncStatus) {
-            "rejected" -> bindBadge(holder.tvItcEligibility, "#FCEBEB", "#791F1F", "Needs fixing")
-            "pending"  -> bindBadge(holder.tvItcEligibility, "#FAEEDA", "#633806", "Queued")
-            else       -> bindEligibility(holder.tvItcEligibility, item.eligibilityForItc)
+            "rejected" -> {
+                holder.tvStatusBadge.visibility = View.VISIBLE
+                bindBadge(holder.tvStatusBadge, "#FCEBEB", "#791F1F", "Refused")
+            }
+            "pending" -> {
+                holder.tvStatusBadge.visibility = View.VISIBLE
+                bindBadge(holder.tvStatusBadge, "#FAEEDA", "#633806", "Queued")
+            }
+            else -> holder.tvStatusBadge.visibility = View.GONE
         }
 
         // Rows sit inside one card, so the last one must not draw a hairline

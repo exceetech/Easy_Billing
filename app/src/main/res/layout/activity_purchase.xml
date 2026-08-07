@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Record a purchase — tablet (sw600dp) two-column layout.
-    Same invoice cards, glass inputs and header as the phone layout.
-    Left column: invoice details, supplier, imported goods, GST compliance.
-    Right column: line items, payment option, totals, save.
-    Every id referenced by PurchaseActivity is preserved.
+    Record a purchase — phone layout (single column, stacked).
+
+    This is the DEFAULT (phone) version. The original two-column tablet
+    design lives unchanged in layout-sw600dp/activity_purchase.xml — tablets
+    load that version automatically via Android's screen-width resource
+    qualifier, phones load this one. See phone_compatibility_plan.md Phase 5.
+
+    Body (stacked, top to bottom): invoice details, supplier, imported
+    goods, GST compliance, line items, payment option, totals, save —
+    same cards as the tablet version, just one column instead of two.
+    Every id referenced by PurchaseActivity is preserved exactly, so
+    findViewById keeps working identically on both form factors.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -85,27 +92,12 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- ============ TWO SCROLLABLE COLUMNS ============ -->
+            <!-- ============ BODY (single column, stacked) ============ -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_marginTop="14dp"
-                android:baselineAligned="false">
-
-                <!-- ======== LEFT COLUMN (scrolls) ======== -->
-                <ScrollView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:fillViewport="true"
-                    android:clipToPadding="false"
-                    android:paddingBottom="14dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp">
 
                     <!-- INVOICE DETAILS -->
                     <LinearLayout
@@ -123,7 +115,7 @@
                             <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                             <TextView
                                 android:text="INVOICE DETAILS"
-                                android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.13"
+                                android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.13"
                                 android:layout_marginStart="9dp"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -131,9 +123,9 @@
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="12dp" android:layout_marginBottom="5dp"
-                            android:text="@string/invoice_number" android:textColor="#9A8F79" android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:tag="floatlabel" android:visibility="invisible"/>
+                            android:text="@string/invoice_number" android:textColor="#9A8F79" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
+                            />
                         <FrameLayout
                             android:layout_width="match_parent" android:layout_height="50dp"
                             android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -145,16 +137,16 @@
                                 android:id="@+id/etInvoiceNumber"
                                 android:layout_width="match_parent" android:layout_height="match_parent"
                                 android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                android:hint="@string/invoice_number" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                android:inputType="text" android:singleLine="true" android:textSize="14sp"/>
+                                android:hint="As printed on the bill" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="text" android:singleLine="true" android:textSize="15sp"/>
                         </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                            android:text="Invoice date" android:textColor="#9A8F79" android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:tag="floatlabel" android:visibility="invisible"/>
+                            android:text="Invoice date" android:textColor="#9A8F79" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
+                            />
                         <FrameLayout
                             android:layout_width="match_parent" android:layout_height="50dp"
                             android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -170,9 +162,9 @@
                                 android:id="@+id/etInvoiceDate"
                                 android:layout_width="match_parent" android:layout_height="match_parent"
                                 android:background="@null" android:paddingStart="44dp" android:paddingEnd="40dp"
-                                android:hint="Invoice date" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                 android:focusable="false" android:cursorVisible="false" android:longClickable="false"
-                                android:inputType="none" android:singleLine="true" android:textSize="14sp"/>
+                                android:inputType="none" android:singleLine="true" android:textSize="15sp"/>
                         </FrameLayout>
                     </LinearLayout>
 
@@ -193,7 +185,7 @@
                             <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                             <TextView
                                 android:text="SUPPLIER"
-                                android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.13"
+                                android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.13"
                                 android:layout_marginStart="9dp" android:layout_weight="1"
                                 android:layout_width="0dp" android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -206,9 +198,9 @@
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="12dp" android:layout_marginBottom="5dp"
-                            android:text="@string/supplier_name" android:textColor="#9A8F79" android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:tag="floatlabel" android:visibility="invisible"/>
+                            android:text="@string/supplier_name" android:textColor="#9A8F79" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
+                            />
                         <FrameLayout
                             android:layout_width="match_parent" android:layout_height="50dp"
                             android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -220,8 +212,8 @@
                                 android:id="@+id/etSupplierName"
                                 android:layout_width="match_parent" android:layout_height="match_parent"
                                 android:background="@null" android:paddingStart="44dp" android:paddingEnd="46dp"
-                                android:hint="@string/supplier_name" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                android:inputType="textCapWords" android:singleLine="true" android:textSize="14sp"/>
+                                android:hint="Search or type new" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="textCapWords" android:singleLine="true" android:textSize="15sp"/>
                             <ImageView
                                 android:id="@+id/btnPickSupplier"
                                 android:layout_width="40dp" android:layout_height="match_parent"
@@ -236,9 +228,9 @@
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                            android:text="@string/supplier_gstin" android:textColor="#9A8F79" android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:tag="floatlabel" android:visibility="invisible"/>
+                            android:text="@string/supplier_gstin" android:textColor="#9A8F79" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
+                            />
                         <FrameLayout
                             android:layout_width="match_parent" android:layout_height="50dp"
                             android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -250,17 +242,17 @@
                                 android:id="@+id/etSupplierGstin"
                                 android:layout_width="match_parent" android:layout_height="match_parent"
                                 android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                android:hint="@string/supplier_gstin" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:hint="15-character GSTIN" android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                 android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" android:inputType="textCapCharacters"
-                                android:maxLength="15" android:singleLine="true" android:textSize="14sp"/>
+                                android:maxLength="15" android:singleLine="true" android:textSize="15sp"/>
                         </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                            android:text="@string/state" android:textColor="#9A8F79" android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:tag="floatlabel" android:visibility="invisible"/>
+                            android:text="@string/state" android:textColor="#9A8F79" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
+                            />
                         <LinearLayout
                             android:layout_width="match_parent" android:layout_height="50dp"
                             android:orientation="horizontal" android:gravity="center_vertical"
@@ -272,9 +264,9 @@
                             <AutoCompleteTextView
                                 android:id="@+id/etState"
                                 android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                android:background="@null" android:hint="@string/state" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:background="@null" android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                 android:inputType="none" android:focusable="false" android:clickable="true"
-                                android:singleLine="true" android:textSize="14sp"/>
+                                android:singleLine="true" android:textSize="15sp"/>
                             <ImageView
                                 android:layout_width="18dp" android:layout_height="18dp"
                                 android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
@@ -319,9 +311,9 @@
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="12dp" android:layout_marginBottom="5dp"
-                                android:text="Port code" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Port code" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -332,16 +324,16 @@
                                     android:id="@+id/etPortCode"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Port code" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="textCapCharacters" android:maxLength="6" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="6-character code" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="textCapCharacters" android:maxLength="6" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Bill of entry number" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Bill of entry number" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -352,16 +344,16 @@
                                     android:id="@+id/etBillOfEntryNumber"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Bill of entry number" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="number" android:maxLength="7" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="7-digit number" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="number" android:maxLength="7" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Bill of entry date" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Bill of entry date" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -375,17 +367,17 @@
                                     android:id="@+id/etBillOfEntryDate"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="40dp"
-                                    android:hint="Bill of entry date" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                     android:focusable="false" android:cursorVisible="false" android:longClickable="false"
-                                    android:inputType="none" android:singleLine="true" android:textSize="14sp"/>
+                                    android:inputType="none" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Bill of entry value" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Bill of entry value" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -396,16 +388,16 @@
                                     android:id="@+id/etBillOfEntryValue"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Bill of entry value" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="Customs value" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="SEZ supplier GSTIN" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="SEZ supplier GSTIN" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:id="@+id/tilSezSupplierGstin"
                                 android:layout_width="match_parent" android:layout_height="50dp"
@@ -417,9 +409,9 @@
                                     android:id="@+id/etSezSupplierGstin"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="SEZ supplier GSTIN" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:hint="15-character GSTIN" android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                     android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" android:inputType="textCapCharacters"
-                                    android:maxLength="15" android:singleLine="true" android:textSize="14sp"/>
+                                    android:maxLength="15" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -468,9 +460,9 @@
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="0dp" android:layout_marginBottom="5dp"
-                                android:text="Place of supply code" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Place of supply code" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <LinearLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:orientation="horizontal" android:gravity="center_vertical"
@@ -480,8 +472,8 @@
                                 <AutoCompleteTextView
                                     android:id="@+id/etPlaceOfSupplyCode"
                                     android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                    android:background="@null" android:hint="Place of supply code" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="14sp"/>
+                                    android:background="@null" android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp"/>
                                 <ImageView android:layout_width="18dp" android:layout_height="18dp"
                                     android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
                             </LinearLayout>
@@ -502,9 +494,9 @@
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Invoice type" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Invoice type" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <LinearLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:orientation="horizontal" android:gravity="center_vertical"
@@ -514,8 +506,8 @@
                                 <AutoCompleteTextView
                                     android:id="@+id/etInvoiceType"
                                     android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                    android:background="@null" android:hint="Invoice type" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="14sp"/>
+                                    android:background="@null" android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp"/>
                                 <ImageView android:layout_width="18dp" android:layout_height="18dp"
                                     android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
                             </LinearLayout>
@@ -523,9 +515,9 @@
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Supply type" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Supply type" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <LinearLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:orientation="horizontal" android:gravity="center_vertical"
@@ -535,8 +527,8 @@
                                 <AutoCompleteTextView
                                     android:id="@+id/etSupplyType"
                                     android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                    android:background="@null" android:hint="Supply type" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="14sp"/>
+                                    android:background="@null" android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp"/>
                                 <ImageView android:layout_width="18dp" android:layout_height="18dp"
                                     android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
                             </LinearLayout>
@@ -544,9 +536,9 @@
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Cess paid" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Cess paid" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input">
@@ -557,16 +549,16 @@
                                     android:id="@+id/etCessPaid"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Cess paid" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="If any" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Eligibility for ITC" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Eligibility for ITC" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <LinearLayout
                                 android:layout_width="match_parent" android:layout_height="50dp"
                                 android:orientation="horizontal" android:gravity="center_vertical"
@@ -576,8 +568,8 @@
                                 <AutoCompleteTextView
                                     android:id="@+id/etEligibilityForItc"
                                     android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                    android:background="@null" android:hint="Eligibility for ITC" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="14sp"/>
+                                    android:background="@null" android:hint="Tap to select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp"/>
                                 <ImageView android:layout_width="18dp" android:layout_height="18dp"
                                     android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
                             </LinearLayout>
@@ -592,9 +584,9 @@
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Availed ITC integrated tax" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Availed ITC integrated tax" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcIntegrated"
                                 android:layout_width="match_parent" android:layout_height="50dp"
@@ -606,16 +598,16 @@
                                     android:id="@+id/etAvailedItcIntegrated"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Availed ITC integrated tax" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="IGST claimed" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Availed ITC central tax" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Availed ITC central tax" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcCentral"
                                 android:layout_width="match_parent" android:layout_height="50dp"
@@ -627,16 +619,16 @@
                                     android:id="@+id/etAvailedItcCentral"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Availed ITC central tax" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="CGST claimed" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Availed ITC state/UT tax" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Availed ITC state/UT tax" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcState"
                                 android:layout_width="match_parent" android:layout_height="50dp"
@@ -648,16 +640,16 @@
                                     android:id="@+id/etAvailedItcState"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Availed ITC state/UT tax" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="SGST claimed" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
 
                             <TextView
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="Availed ITC cess" android:textColor="#9A8F79" android:textSize="10.5sp"
-                                android:fontFamily="@font/googlesans_medium"
-                                android:tag="floatlabel" android:visibility="invisible"/>
+                                android:text="Availed ITC cess" android:textColor="#9A8F79" android:textSize="12.5sp"
+                                android:fontFamily="@font/googlesans_regular"
+                                />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcCess"
                                 android:layout_width="match_parent" android:layout_height="50dp"
@@ -669,29 +661,11 @@
                                     android:id="@+id/etAvailedItcCess"
                                     android:layout_width="match_parent" android:layout_height="match_parent"
                                     android:background="@null" android:paddingStart="44dp" android:paddingEnd="14dp"
-                                    android:hint="Availed ITC cess" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="14sp"/>
+                                    android:hint="Cess claimed" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                             </FrameLayout>
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
-
-                </ScrollView>
-
-                <!-- ======== RIGHT COLUMN (scrolls) ======== -->
-                <ScrollView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:fillViewport="true"
-                    android:clipToPadding="false"
-                    android:paddingBottom="14dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
                     <!-- LINE ITEMS -->
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -708,7 +682,7 @@
                             <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                             <TextView
                                 android:text="LINE ITEMS"
-                                android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.13"
+                                android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.13"
                                 android:layout_marginStart="9dp" android:layout_weight="1"
                                 android:layout_width="0dp" android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -759,7 +733,7 @@
                             <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                             <TextView
                                 android:text="PAYMENT OPTION"
-                                android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.13"
+                                android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.13"
                                 android:layout_marginStart="9dp"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -1058,8 +1032,6 @@
             android:insetLeft="0dp"
             android:insetRight="0dp"/>
                         </LinearLayout>
-                    </LinearLayout>
-                </ScrollView>
             </LinearLayout>
 
         </LinearLayout>

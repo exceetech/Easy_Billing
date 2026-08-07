@@ -115,24 +115,24 @@
             </LinearLayout>
 
             <!-- ===================== RECEIPT FOOTER ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="RECEIPT FOOTER"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
             <!-- cardFooter/cardShowOnReceipt: faded (alpha 0.55) until
                  Edit is tapped, same locked/unlocked feel as
                  activity_data_security.xml's protected rows. -->
-            <LinearLayout android:id="@+id/cardFooter" style="@style/AddCard">
+            <LinearLayout android:id="@+id/cardFooter" style="@style/AddCard"
+                android:layout_marginTop="16dp"
+                android:paddingTop="18dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="RECEIPT FOOTER"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
                     <TextView style="@style/SiFieldLabel" android:text="@string/footer_message"/>
                     <LinearLayout style="@style/SiFieldBox">
@@ -157,22 +157,23 @@
 
             <!-- ===================== SHOW ON RECEIPT ===================== -->
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="SHOW ON RECEIPT"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/cardShowOnReceipt"
-                style="@style/SettingsCard">
+                style="@style/SettingsCard"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="SHOW ON RECEIPT"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
 
                 <!-- Store logo -->
                 <LinearLayout android:id="@+id/rowLogo" style="@style/IdToggleRow">

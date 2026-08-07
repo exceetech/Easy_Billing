@@ -64,6 +64,7 @@ class SubscriptionActivity : BaseActivity() {
     private var currentTier: String? = null
     private var currentStatus: String? = null
     private var currentExpiryLabel: String? = null
+    private var currentRemainingDays: Int = 0
 
     // Launches ConfirmPaymentActivity and, on RESULT_OK (payment verified
     // there), finishes this screen too — mirrors the auto-return pattern
@@ -135,6 +136,7 @@ class SubscriptionActivity : BaseActivity() {
 
                 currentTier = res.tier
                 currentStatus = res.status
+                currentRemainingDays = res.remaining_days
                 currentExpiryLabel = when {
                     res.expiry_ms != null ->
                         com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy").format(java.util.Date(res.expiry_ms))
@@ -689,6 +691,29 @@ class SubscriptionActivity : BaseActivity() {
             putExtra(ConfirmPaymentActivity.EXTRA_PLAN_DURATION_DAYS, plan.duration_days)
             putExtra(ConfirmPaymentActivity.EXTRA_PLAN_PRICE_PAISE, plan.price_paise)
             monthlyBaselinePaise(plan)?.let { putExtra(ConfirmPaymentActivity.EXTRA_BASELINE_PAISE, it) }
+
+            // On-device-only estimate of what the remaining days on the
+            // current Base plan are "worth" toward this Premium upgrade —
+            // the backend has no tier/proration concept yet (confirmed:
+            // no upgrade-credit logic anywhere in pos-backend), so this is
+            // NOT sent to create-order and never changes what Razorpay
+            // actually charges. It only drives an informational row in
+            // ConfirmPaymentActivity — see EXTRA_UPGRADE_CREDIT_PAISE's
+            // doc comment there. Daily rate is approximated from the
+            // monthly Base plan price (duration_days == 30) since the
+            // app doesn't know which duration the active Base plan was
+            // actually purchased at, only its remaining_days.
+            if (currentTier == "base" && currentStatus == "active" && plan.tier == "premium" && currentRemainingDays > 0) {
+                val baseMonthlyPaise = plans.firstOrNull { it.tier == "base" && it.duration_days == 30 }?.price_paise
+                if (baseMonthlyPaise != null) {
+                    val estimatedCredit = Math.round(baseMonthlyPaise * (currentRemainingDays / 30.0)).toInt()
+                        .coerceAtMost(plan.price_paise)
+                    if (estimatedCredit > 0) {
+                        putExtra(ConfirmPaymentActivity.EXTRA_UPGRADE_CREDIT_PAISE, estimatedCredit)
+                        putExtra(ConfirmPaymentActivity.EXTRA_UPGRADE_REMAINING_DAYS, currentRemainingDays)
+                    }
+                }
+            }
         }
         confirmPaymentLauncher.launch(intent)
     }

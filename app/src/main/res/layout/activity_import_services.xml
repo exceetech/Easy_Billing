@@ -11,9 +11,11 @@
     of the old saturated blue / green / amber blocks, which fought the
     champagne background.
 
-    Ids bound by ImportServicesActivity: toolbar, tvHeroCount, tvKpiTaxable,
-    layoutItcChip, tvKpiIgst, tvKpiItc, tvKpiUnsynced, etSearch, btnFyFilter,
-    tvFyLabel, rvImportServices, layoutEmpty, progressBar, fabAdd.
+    Ids bound by ImportServicesActivity: toolbar, tvHeroCount (also the FY
+    tap target — see showFyMenu()), tvKpiTaxable, layoutItcChip, tvKpiIgst,
+    tvKpiItc, tvKpiUnsynced, layoutFilters, chipAll, chipSynced, chipQueued,
+    chipRefused, cardRecords, rvImportServices, layoutEmpty, progressBar,
+    fabAdd.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -251,82 +253,55 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================== SEARCH + FY =====================
-             Hidden while there is nothing to filter — controls that can't do
-             anything are noise on an empty screen. -->
-        <LinearLayout
+        <!-- ===================== STATUS CHIPS =====================
+             Replaces the old search box + FY dropdown row — same filter
+             language as Credit accounts (chip carries its own count, tap to
+             switch, style="@style/CreditChip"). Search by invoice number is
+             gone; FY switching now lives on the hero count line, which
+             already read "14 records · FY 25–26" (tap it — see
+             showFyMenu()). Hidden while there is nothing to filter. -->
+        <HorizontalScrollView
             android:id="@+id/layoutFilters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:layout_marginTop="14dp"
             android:paddingHorizontal="16dp"
-            android:paddingTop="14dp"
-            android:paddingBottom="10dp">
+            android:clipToPadding="false"
+            android:scrollbars="none">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="40dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_imp_filter"
-                android:paddingHorizontal="12dp">
-                <ImageView
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:src="@drawable/ic_search"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null" />
-                <EditText
-                    android:id="@+id/etSearch"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/transparent"
-                    android:hint="Search invoice number"
-                    android:textColorHint="#A99E88"
-                    android:textColor="#1A1A18"
-                    android:textSize="12.5sp"
-                    android:singleLine="true"
-                    android:paddingStart="8dp"
-                    android:importantForAutofill="no"
-                    android:inputType="text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/btnFyFilter"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_imp_filter"
-                android:paddingHorizontal="12dp"
-                android:clickable="true"
-                android:focusable="true">
-                <TextView
-                    android:id="@+id/tvFyLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="FY 25–26"
-                    android:textSize="12sp"
-                    android:textColor="#1A1A18" />
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:layout_marginStart="5dp"
-                    android:src="@drawable/ic_chevron_down"
-                    app:tint="#9A8F79"
-                    android:contentDescription="@null" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:id="@+id/chipAll"      style="@style/CreditChip" android:text="All"
+                    android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                    android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                    android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
+                <View android:layout_width="8dp" android:layout_height="1dp" />
+                <TextView android:id="@+id/chipSynced"   style="@style/CreditChip" android:text="Synced"
+                    android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                    android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                    android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
+                <View android:layout_width="8dp" android:layout_height="1dp" />
+                <TextView android:id="@+id/chipQueued"   style="@style/CreditChip" android:text="Queued"
+                    android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                    android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                    android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
+                <View android:layout_width="8dp" android:layout_height="1dp" />
+                <TextView android:id="@+id/chipRefused"  style="@style/CreditChip" android:text="Refused"
+                    android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
+                    android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
+                    android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
             </LinearLayout>
-        </LinearLayout>
+        </HorizontalScrollView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tvRecordsLabel"
             android:paddingHorizontal="18dp"
+            android:paddingTop="12dp"
             android:paddingBottom="6dp"
             android:text="RECORDS"
             android:textSize="9.5sp"
@@ -335,164 +310,166 @@
             android:fontFamily="@font/googlesans_semibold" />
 
         <!--
-            One card holding hairline-separated rows rather than a stack of
-            floating cards — it reads as a ledger, which is what it is.
+            One card — the list and the empty state are both inside it as
+            alternate contents, not two separate cards swapping places.
         -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvImportServices"
+        <FrameLayout
+            android:id="@+id/cardRecords"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginHorizontal="16dp"
-            android:background="@drawable/bg_inv_value_card"
-            android:clipToPadding="false"
-            android:paddingBottom="4dp" />
+            android:background="@drawable/bg_inv_value_card">
 
-        <!-- ===================== EMPTY STATE =====================
-             In the records card's own place, not floating over the middle of
-             the screen. A centred card on top of other cards is what made the
-             old one read as bolted on: the summary card and the RECORDS label
-             were still visible behind it. -->
-        <ScrollView
-            android:id="@+id/layoutEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="16dp"
-            android:background="@drawable/bg_inv_value_card"
-            android:fillViewport="true"
-            android:visibility="gone">
-
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvImportServices"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:paddingHorizontal="26dp"
-                android:paddingTop="30dp"
-                android:paddingBottom="26dp">
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="4dp" />
 
-                <FrameLayout
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:background="@drawable/bg_imp_empty_circle">
-                    <ImageView
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_file_import"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="16dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Nothing imported"
-                        android:textSize="19sp"
-                        android:textColor="#1A1A18"
-                        android:fontFamily="@font/googlesans_bold"
-                        android:includeFontPadding="false" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="yet"
-                        android:textSize="19sp"
-                        android:textColor="#0F6E56"
-                        android:fontFamily="serif"
-                        android:textStyle="italic"
-                        android:includeFontPadding="false" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:gravity="center"
-                    android:text="Record invoices from overseas suppliers here — consultancy, software licences, freight — so the IGST you pay under reverse charge shows up in your GSTR-2."
-                    android:textSize="12.5sp"
-                    android:textColor="#8A8272"
-                    android:lineSpacingExtra="3dp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="#F1EBDD" />
+            <!-- ===================== EMPTY STATE =====================
+                 Original centred design (72dp icon circle, centred title and
+                 body copy) — swapped in as content of the shared card rather
+                 than as a separate card of its own. -->
+            <ScrollView
+                android:id="@+id/layoutEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="11dp">
-                    <ImageView
-                        android:layout_width="17dp"
-                        android:layout_height="17dp"
-                        android:layout_marginTop="1dp"
-                        android:src="@drawable/ic_receipt"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null" />
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:paddingHorizontal="26dp"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="26dp">
+
+                    <FrameLayout
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="@drawable/bg_imp_empty_circle">
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_file_import"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nothing imported"
+                            android:textSize="19sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="yet"
+                            android:textSize="19sp"
+                            android:textColor="#0F6E56"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:gravity="center"
+                        android:text="Record invoices from overseas suppliers here — consultancy, software licences, freight — so the IGST you pay under reverse charge shows up in your GSTR-2."
+                        android:textSize="12.5sp"
+                        android:textColor="#8A8272"
+                        android:lineSpacingExtra="3dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="#F1EBDD" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginStart="10dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Keep the supplier invoice"
-                            android:textSize="12sp"
-                            android:textColor="#1A1A18" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="11dp">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
                             android:layout_marginTop="1dp"
-                            android:text="Invoice number, date and value"
-                            android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:src="@drawable/ic_receipt"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Keep the supplier invoice"
+                                android:textSize="12sp"
+                                android:textColor="#1A1A18" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Invoice number, date and value"
+                                android:textSize="11sp"
+                                android:textColor="#9A8F79" />
+                        </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="17dp"
-                        android:layout_height="17dp"
-                        android:layout_marginTop="1dp"
-                        android:src="@drawable/ic_lc_percent"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginStart="10dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="IGST is worked out for you"
-                            android:textSize="12sp"
-                            android:textColor="#1A1A18" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
                             android:layout_marginTop="1dp"
-                            android:text="Enter the rate and taxable value"
-                            android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:src="@drawable/ic_lc_percent"
+                            app:tint="#B8895A"
+                            android:contentDescription="@null" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="IGST is worked out for you"
+                                android:textSize="12sp"
+                                android:textColor="#1A1A18" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Enter the rate and taxable value"
+                                android:textSize="11sp"
+                                android:textColor="#9A8F79" />
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-        </ScrollView>
+            </ScrollView>
+        </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/fabAdd"

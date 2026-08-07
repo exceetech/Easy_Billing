@@ -248,7 +248,7 @@
                             android:layout_weight="1"
                             android:layout_marginStart="9dp"
                             android:text="GSTR-2 DEBIT NOTE DETAILS"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:textStyle="bold"
                             android:textColor="#8A6526"
                             android:letterSpacing="0.13"/>
@@ -313,7 +313,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="9dp"
                                 android:text="DOCUMENT"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.13"
                                 android:textColor="#8A6526"/>
@@ -327,15 +327,13 @@
                             android:layout_marginBottom="5dp"
                             android:layout_marginStart="2dp"
                             android:text="Document type"
-                            android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
+                            android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
                             android:textColor="#9A8F79"
-                            android:alpha="0"
-                            android:translationY="6dp"/>
-
+                            />
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="44dp"
+                            android:layout_height="50dp"
                             android:background="@drawable/bg_glass_input">
 
                             <ImageView
@@ -355,12 +353,12 @@
                                 android:background="@null"
                                 android:paddingStart="40dp"
                                 android:paddingEnd="42dp"
-                                android:hint="Document type"
+                                android:hint="Tap to select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
-                                android:textSize="13.5sp"/>
+                                android:textSize="15sp"/>
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -381,15 +379,13 @@
                             android:layout_marginBottom="5dp"
                             android:layout_marginStart="2dp"
                             android:text="Reason for issuing document"
-                            android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
+                            android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
                             android:textColor="#9A8F79"
-                            android:alpha="0"
-                            android:translationY="6dp"/>
-
+                            />
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="44dp"
+                            android:layout_height="50dp"
                             android:background="@drawable/bg_glass_input">
 
                             <ImageView
@@ -409,12 +405,12 @@
                                 android:background="@null"
                                 android:paddingStart="40dp"
                                 android:paddingEnd="42dp"
-                                android:hint="Reason for issuing document"
+                                android:hint="Tap to select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
-                                android:textSize="13.5sp"/>
+                                android:textSize="15sp"/>
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -445,7 +441,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="9dp"
                                 android:text="VALUE AND RATE"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.13"
                                 android:textColor="#8A6526"/>
@@ -470,15 +466,13 @@
                                     android:layout_marginBottom="5dp"
                                     android:layout_marginStart="2dp"
                                     android:text="Voucher value"
-                                    android:textSize="10.5sp"
-                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textSize="12.5sp"
+                                    android:fontFamily="@font/googlesans_regular"
                                     android:textColor="#9A8F79"
-                                    android:alpha="0"
-                                    android:translationY="6dp"/>
-
+                            />
                             <FrameLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="44dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/bg_glass_input">
 
                                 <ImageView
@@ -497,12 +491,12 @@
                                     android:background="@null"
                                     android:paddingStart="40dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Voucher value"
+                                    android:hint="Total value"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="numberDecimal"
                                     android:singleLine="true"
-                                    android:textSize="13.5sp"/>
+                                    android:textSize="15sp"/>
                             </FrameLayout>
                         </LinearLayout>
 
@@ -519,15 +513,13 @@
                                     android:layout_marginBottom="5dp"
                                     android:layout_marginStart="2dp"
                                     android:text="Rate"
-                                    android:textSize="10.5sp"
-                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textSize="12.5sp"
+                                    android:fontFamily="@font/googlesans_regular"
                                     android:textColor="#9A8F79"
-                                    android:alpha="0"
-                                    android:translationY="6dp"/>
-
+                            />
                             <FrameLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="44dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/bg_glass_input">
 
                                 <ImageView
@@ -546,12 +538,12 @@
                                     android:background="@null"
                                     android:paddingStart="40dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Rate"
+                                    android:hint="GST %"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="numberDecimal"
                                     android:singleLine="true"
-                                    android:textSize="13.5sp"/>
+                                    android:textSize="15sp"/>
                             </FrameLayout>
                         </LinearLayout>
 
@@ -575,7 +567,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="9dp"
                                 android:text="INPUT TAX CREDIT"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.13"
                                 android:textColor="#8A6526"/>
@@ -589,15 +581,13 @@
                             android:layout_marginBottom="5dp"
                             android:layout_marginStart="2dp"
                             android:text="Eligibility for ITC"
-                            android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
+                            android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
                             android:textColor="#9A8F79"
-                            android:alpha="0"
-                            android:translationY="6dp"/>
-
+                            />
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="44dp"
+                            android:layout_height="50dp"
                             android:background="@drawable/bg_glass_input">
 
                             <ImageView
@@ -617,12 +607,12 @@
                                 android:background="@null"
                                 android:paddingStart="40dp"
                                 android:paddingEnd="42dp"
-                                android:hint="Eligibility for ITC"
+                                android:hint="Tap to select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
-                                android:textSize="13.5sp"/>
+                                android:textSize="15sp"/>
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -655,16 +645,14 @@
                                     android:layout_marginBottom="5dp"
                                     android:layout_marginStart="2dp"
                                     android:text="Integrated"
-                                    android:textSize="10.5sp"
-                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textSize="12.5sp"
+                                    android:fontFamily="@font/googlesans_regular"
                                     android:textColor="#9A8F79"
-                                    android:alpha="0"
-                                    android:translationY="6dp"/>
-
+                            />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcIntegrated"
                                 android:layout_width="match_parent"
-                                android:layout_height="44dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/bg_glass_input">
 
                                 <ImageView
@@ -683,12 +671,12 @@
                                     android:background="@null"
                                     android:paddingStart="35dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Integrated"
+                                    android:hint="0"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="numberDecimal"
                                     android:singleLine="true"
-                                    android:textSize="12.5sp"/>
+                                    android:textSize="14.5sp"/>
                             </FrameLayout>
                         </LinearLayout>
 
@@ -705,16 +693,14 @@
                                     android:layout_marginBottom="5dp"
                                     android:layout_marginStart="2dp"
                                     android:text="Central"
-                                    android:textSize="10.5sp"
-                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textSize="12.5sp"
+                                    android:fontFamily="@font/googlesans_regular"
                                     android:textColor="#9A8F79"
-                                    android:alpha="0"
-                                    android:translationY="6dp"/>
-
+                            />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcCentral"
                                 android:layout_width="match_parent"
-                                android:layout_height="44dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/bg_glass_input">
 
                                 <ImageView
@@ -733,12 +719,12 @@
                                     android:background="@null"
                                     android:paddingStart="35dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Central"
+                                    android:hint="0"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="numberDecimal"
                                     android:singleLine="true"
-                                    android:textSize="12.5sp"/>
+                                    android:textSize="14.5sp"/>
                             </FrameLayout>
                         </LinearLayout>
 
@@ -764,16 +750,14 @@
                                     android:layout_marginBottom="5dp"
                                     android:layout_marginStart="2dp"
                                     android:text="State/UT"
-                                    android:textSize="10.5sp"
-                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textSize="12.5sp"
+                                    android:fontFamily="@font/googlesans_regular"
                                     android:textColor="#9A8F79"
-                                    android:alpha="0"
-                                    android:translationY="6dp"/>
-
+                            />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcState"
                                 android:layout_width="match_parent"
-                                android:layout_height="44dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/bg_glass_input">
 
                                 <ImageView
@@ -792,12 +776,12 @@
                                     android:background="@null"
                                     android:paddingStart="35dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="State/UT"
+                                    android:hint="0"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="numberDecimal"
                                     android:singleLine="true"
-                                    android:textSize="12.5sp"/>
+                                    android:textSize="14.5sp"/>
                             </FrameLayout>
                         </LinearLayout>
 
@@ -814,16 +798,14 @@
                                     android:layout_marginBottom="5dp"
                                     android:layout_marginStart="2dp"
                                     android:text="Cess"
-                                    android:textSize="10.5sp"
-                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textSize="12.5sp"
+                                    android:fontFamily="@font/googlesans_regular"
                                     android:textColor="#9A8F79"
-                                    android:alpha="0"
-                                    android:translationY="6dp"/>
-
+                            />
                             <FrameLayout
                                 android:id="@+id/tilAvailedItcCess"
                                 android:layout_width="match_parent"
-                                android:layout_height="44dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/bg_glass_input">
 
                                 <ImageView
@@ -842,12 +824,12 @@
                                     android:background="@null"
                                     android:paddingStart="35dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Cess"
+                                    android:hint="0"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="numberDecimal"
                                     android:singleLine="true"
-                                    android:textSize="12.5sp"/>
+                                    android:textSize="14.5sp"/>
                             </FrameLayout>
                         </LinearLayout>
 
@@ -871,7 +853,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="9dp"
                                 android:text="INVOICE AND SUPPLY"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.13"
                                 android:textColor="#8A6526"/>
@@ -885,15 +867,13 @@
                             android:layout_marginBottom="5dp"
                             android:layout_marginStart="2dp"
                             android:text="Invoice type"
-                            android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
+                            android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
                             android:textColor="#9A8F79"
-                            android:alpha="0"
-                            android:translationY="6dp"/>
-
+                            />
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="44dp"
+                            android:layout_height="50dp"
                             android:background="@drawable/bg_glass_input">
 
                             <ImageView
@@ -913,12 +893,12 @@
                                 android:background="@null"
                                 android:paddingStart="40dp"
                                 android:paddingEnd="42dp"
-                                android:hint="Invoice type"
+                                android:hint="Tap to select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
-                                android:textSize="13.5sp"/>
+                                android:textSize="15sp"/>
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -939,15 +919,13 @@
                             android:layout_marginBottom="5dp"
                             android:layout_marginStart="2dp"
                             android:text="Place of supply (state code)"
-                            android:textSize="10.5sp"
-                            android:fontFamily="@font/googlesans_medium"
+                            android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_regular"
                             android:textColor="#9A8F79"
-                            android:alpha="0"
-                            android:translationY="6dp"/>
-
+                            />
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="44dp"
+                            android:layout_height="50dp"
                             android:background="@drawable/bg_glass_input">
 
                             <ImageView
@@ -967,12 +945,12 @@
                                 android:background="@null"
                                 android:paddingStart="40dp"
                                 android:paddingEnd="42dp"
-                                android:hint="Place of supply (state code)"
+                                android:hint="Tap to select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
-                                android:textSize="13.5sp"/>
+                                android:textSize="15sp"/>
 
                             <ImageView
                                 android:layout_width="36dp"
@@ -1046,7 +1024,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ITC reclaim (GST) "
-                android:textSize="10.5sp"
+                android:textSize="12.5sp"
                 android:textColor="#8A6526" />
 
             <TextView
@@ -1054,7 +1032,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="₹0.00"
-                android:textSize="10.5sp"
+                android:textSize="12.5sp"
                 android:textColor="#8A6526"
                 android:fontFamily="serif" />
         </LinearLayout>
@@ -1096,28 +1074,30 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelReturn"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="44dp"
             android:layout_marginTop="8dp"
             android:text="Cancel"
-            android:textColor="#B23A3A"
+            android:textColor="#9A2E2E"
             android:textAllCaps="false"
-            android:textSize="13.5sp"
+            android:textSize="13sp"
+            android:textStyle="bold"
             android:fontFamily="@font/googlesans_semibold"
             android:gravity="center"
             android:includeFontPadding="false"
             app:backgroundTint="@null"
-            android:background="@drawable/bg_cta_white_red_outline"
+            android:background="@drawable/bg_inv_action_close"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:stateListAnimator="@null"
             app:elevation="0dp"
-            app:icon="@drawable/ic_cancel"
-            app:iconTint="#B23A3A"
-            app:iconSize="17dp"
+            app:icon="@drawable/ic_close"
+            app:iconTint="#B91C1C"
+            app:iconSize="16dp"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
+            app:iconPadding="7dp"
+            app:rippleColor="#F6D8D4"
             app:cornerRadius="14dp"/>
 
     </LinearLayout>

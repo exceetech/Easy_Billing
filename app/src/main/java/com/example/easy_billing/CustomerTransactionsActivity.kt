@@ -71,11 +71,11 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         setupToolbar(R.id.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // Set here rather than inherited, since this screen doesn't extend
-        // BaseActivity — see the note on the class.
-        requestedOrientation =
-            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-
+        // Orientation is no longer forced here (same fix as BaseActivity —
+        // this was silently overriding the manifest's
+        // android:screenOrientation="unspecified" back to landscape on
+        // every launch). The manifest value is now the only source of
+        // truth for orientation.
 
         rv = findViewById(R.id.rvTransactions)
 

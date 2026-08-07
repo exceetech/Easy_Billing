@@ -194,16 +194,30 @@ object ThemedDropdown {
         }
         card.addView(list)
 
-        card.addView(TextView(context).apply {
-            text = "Cancel"
-            textSize = 14f
-            setTypeface(typeface, Typeface.BOLD)
+        card.addView(LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
-            setTextColor(Color.parseColor("#9A8F79"))
+            setBackgroundResource(R.drawable.bg_inv_action_close)
             isClickable = true
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(48)
             ).apply { topMargin = dp(6) }
+
+            addView(ImageView(context).apply {
+                setImageResource(R.drawable.ic_close)
+                setColorFilter(Color.parseColor("#B91C1C"))
+                layoutParams = LinearLayout.LayoutParams(dp(16), dp(16)).apply {
+                    marginEnd = dp(8)
+                }
+            })
+
+            addView(TextView(context).apply {
+                text = "Cancel"
+                textSize = 13.5f
+                setTypeface(typeface, Typeface.BOLD)
+                setTextColor(Color.parseColor("#9A2E2E"))
+            })
+
             setOnClickListener { dialog.dismiss() }
         })
 

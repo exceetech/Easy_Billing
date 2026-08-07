@@ -141,96 +141,117 @@
             </LinearLayout>
 
             <!-- ===================== SECURITY ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+            <LinearLayout android:id="@+id/btnChangePassword" style="@style/DsCard"
+                android:orientation="vertical"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="SECURITY"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
-            <LinearLayout android:id="@+id/btnChangePassword" style="@style/DsCard">
-                <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
-                    android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
-                <LinearLayout style="@style/DsText">
-                    <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
-                    <TextView style="@style/DsSub" android:text="Update your login PIN"/>
+                android:paddingTop="18dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="SECURITY"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
                 </LinearLayout>
-                <TextView style="@style/DsChip"
-                    android:background="@drawable/bg_chip_low"
-                    android:textColor="#3B6D11"
-                    android:text="LOW"/>
-                <ImageView android:id="@+id/icChangePassword" style="@style/DsTrailing"
-                    android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
+                        android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
+                    <LinearLayout style="@style/DsText">
+                        <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
+                        <TextView style="@style/DsSub" android:text="Update your login PIN"/>
+                    </LinearLayout>
+                    <TextView style="@style/DsChip"
+                        android:background="@drawable/bg_chip_low"
+                        android:textColor="#3B6D11"
+                        android:text="LOW"/>
+                    <ImageView android:id="@+id/icChangePassword" style="@style/DsTrailing"
+                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== DATA ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+            <LinearLayout android:id="@+id/btnClearBills" style="@style/DsCard"
+                android:orientation="vertical"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="DATA"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
-            <LinearLayout android:id="@+id/btnClearBills" style="@style/DsCard">
-                <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                    android:src="@drawable/ic_si_archive" app:tint="#8A6526"/>
-                <LinearLayout style="@style/DsText">
-                    <TextView style="@style/DsTitle" android:text="@string/clear_all_bills"/>
-                    <TextView style="@style/DsSub" android:text="Archive &amp; remove bill history"/>
+                android:paddingTop="18dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="DATA"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
                 </LinearLayout>
-                <TextView style="@style/DsChip"
-                    android:background="@drawable/bg_chip_med"
-                    android:textColor="#854F0B"
-                    android:text="MEDIUM"/>
-                <ImageView android:id="@+id/icClearBills" style="@style/DsTrailing"
-                    android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
+                        android:src="@drawable/ic_si_archive" app:tint="#8A6526"/>
+                    <LinearLayout style="@style/DsText">
+                        <TextView style="@style/DsTitle" android:text="@string/clear_all_bills"/>
+                        <TextView style="@style/DsSub" android:text="Archive &amp; remove bill history"/>
+                    </LinearLayout>
+                    <TextView style="@style/DsChip"
+                        android:background="@drawable/bg_chip_med"
+                        android:textColor="#854F0B"
+                        android:text="MEDIUM"/>
+                    <ImageView android:id="@+id/icClearBills" style="@style/DsTrailing"
+                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== DANGER ZONE ===================== -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#B23A3A"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="DANGER ZONE"
-                    android:textColor="#791F1F" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
-
             <LinearLayout android:id="@+id/btnFactoryReset" style="@style/DsCard"
-                android:background="@drawable/bg_danger_card">
-                <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
-                    android:src="@drawable/ic_si_alert" app:tint="#791F1F"/>
-                <LinearLayout style="@style/DsText">
-                    <TextView style="@style/DsTitle"
-                        android:textColor="#791F1F"
-                        android:text="@string/factory_reset_app"/>
-                    <TextView style="@style/DsSub" android:text="Wipe workspace &amp; start fresh"/>
+                android:background="@drawable/bg_danger_card"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:paddingTop="18dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#B23A3A"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="DANGER ZONE"
+                        android:textColor="#791F1F" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
                 </LinearLayout>
-                <TextView style="@style/DsChip"
-                    android:background="@drawable/bg_chip_high"
-                    android:textColor="#A32D2D"
-                    android:text="HIGH"/>
-                <ImageView android:id="@+id/icFactoryReset" style="@style/DsTrailing"
-                    android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
+                        android:src="@drawable/ic_si_alert" app:tint="#791F1F"/>
+                    <LinearLayout style="@style/DsText">
+                        <TextView style="@style/DsTitle"
+                            android:textColor="#791F1F"
+                            android:text="@string/factory_reset_app"/>
+                        <TextView style="@style/DsSub" android:text="Wipe workspace &amp; start fresh"/>
+                    </LinearLayout>
+                    <TextView style="@style/DsChip"
+                        android:background="@drawable/bg_chip_high"
+                        android:textColor="#A32D2D"
+                        android:text="HIGH"/>
+                    <ImageView android:id="@+id/icFactoryReset" style="@style/DsTrailing"
+                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

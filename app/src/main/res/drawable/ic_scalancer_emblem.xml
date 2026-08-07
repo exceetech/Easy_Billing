@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- True vector trace of the Scalancer mark (potrace): exact
+     mathematical edges, crisp at every size and density, no raster
+     grain or aliasing possible. Source: user-provided Firefly PNG. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="24dp"
+    android:height="40dp"
+    android:viewportWidth="338.0"
+    android:viewportHeight="565.0">
+    <path android:pathData="M124.0,510.1 L124.0,456.1 L147.2,441.2 C160.0,433.0 186.2,416.4 205.5,404.3 C224.8,392.3 245.4,379.3 251.3,375.6 C257.3,371.8 261.8,368.4 261.3,368.0 C259.2,365.9 206.3,334.6 205.0,334.6 C203.5,334.6 154.6,364.9 74.0,415.8 C50.1,431.0 23.9,447.5 15.7,452.6 L1.0,461.9 L1.2,410.3 L1.5,358.7 L22.5,346.2 C54.6,327.0 128.4,283.2 173.0,256.8 C198.1,241.9 201.7,240.0 203.8,240.9 C205.7,241.8 244.4,264.4 263.0,275.5 C266.0,277.3 282.4,287.0 299.5,297.1 C316.6,307.1 332.2,316.4 334.3,317.7 L338.0,320.0 L338.0,370.8 L337.9,421.5 L319.2,433.4 C284.7,455.4 218.9,499.4 172.1,531.9 C146.6,549.5 125.4,564.0 124.9,564.0 C124.4,564.0 124.0,540.1 124.0,510.1 Z M1.0,250.1 L1.0,198.2 L24.2,184.4 C37.0,176.9 63.7,161.2 83.5,149.5 C103.3,137.9 133.2,120.2 150.0,110.3 C166.8,100.4 202.1,79.6 228.5,64.0 C254.9,48.4 289.7,27.9 305.9,18.3 C322.0,8.7 335.9,0.6 336.6,0.3 C337.8,-0.1 338.0,8.0 338.0,51.2 L338.0,102.6 L311.8,118.2 C297.3,126.8 253.8,152.6 215.0,175.5 C176.2,198.5 129.0,226.5 110.0,237.8 C49.4,273.9 1.8,302.0 1.4,302.0 C1.2,302.0 1.0,278.6 1.0,250.1 Z" android:fillType="evenOdd">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="338.0"
+                android:endY="565.0"
+                android:startColor="#FFCD963B"
+                android:endColor="#FFE3B677"/>
+        </aapt:attr>
+    </path>
+</vector>

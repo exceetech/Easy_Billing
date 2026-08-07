@@ -28,11 +28,17 @@ class ProfitActivity : AppCompatActivity() {
 
     // ================= NEW UI =================
     private lateinit var recyclerView: RecyclerView
+    private lateinit var cardProfitProducts: android.view.View
+    private lateinit var layoutProfitEmpty: android.view.View
+    private lateinit var tvProfitEmptyTitle: TextView
+    private lateinit var tvProfitEmptyTitleAccent: TextView
+    private lateinit var tvProfitEmptyBody: TextView
     private lateinit var profitAdapter: ProfitAdapter
     private lateinit var etSearch: EditText
     private lateinit var btnChart: ImageButton
 
     private var fullList: List<ProductProfitRaw> = emptyList()
+    private var currentSearchQuery: String = ""
 
     // ================= EXISTING =================
     private lateinit var btnToday: com.google.android.material.chip.Chip
@@ -136,6 +142,11 @@ class ProfitActivity : AppCompatActivity() {
 
     private fun setupRecycler() {
         recyclerView = findViewById(R.id.rvProducts)
+        cardProfitProducts = findViewById(R.id.cardProfitProducts)
+        layoutProfitEmpty = findViewById(R.id.layoutProfitEmpty)
+        tvProfitEmptyTitle = findViewById(R.id.tvProfitEmptyTitle)
+        tvProfitEmptyTitleAccent = findViewById(R.id.tvProfitEmptyTitleAccent)
+        tvProfitEmptyBody = findViewById(R.id.tvProfitEmptyBody)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // No ItemDecoration here — item_profit_simple.xml already draws its
@@ -149,8 +160,31 @@ class ProfitActivity : AppCompatActivity() {
 
         recyclerView.adapter = profitAdapter
 
+        // Applied to the shared card container rather than the recycler
+        // directly, since the rounded background lives on
+        // cardProfitProducts now.
+        cardProfitProducts.clipToOutline = true
+
         etSearch = findViewById(R.id.etSearch)
         btnChart = findViewById(R.id.btnChart)
+    }
+
+    /** Shows/hides the recycler vs. the empty state, and picks the right copy
+     *  for "nothing sold in this period" vs. "search found nothing". Called
+     *  after every list update — load, filter change, and search. */
+    private fun updateProfitListState(list: List<ProductProfitRaw>) {
+        layoutProfitEmpty.visibility = if (list.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+        recyclerView.visibility = if (list.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+
+        if (currentSearchQuery.isNotEmpty()) {
+            tvProfitEmptyTitle.text = "No matches"
+            tvProfitEmptyTitleAccent.text = "found"
+            tvProfitEmptyBody.text = "No product matches your search. Try a different name or variant."
+        } else {
+            tvProfitEmptyTitle.text = "No products"
+            tvProfitEmptyTitleAccent.text = "yet"
+            tvProfitEmptyBody.text = "Sell something in this period and its revenue, cost and profit will break down here by product."
+        }
     }
 
     // ================= SEARCH =================
@@ -164,6 +198,7 @@ class ProfitActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
                 val query = s.toString().lowercase()
+                currentSearchQuery = query
 
                 val filtered = fullList.filter {
                     it.productName.lowercase().contains(query) ||
@@ -171,6 +206,7 @@ class ProfitActivity : AppCompatActivity() {
                 }
 
                 profitAdapter.submitList(filtered)
+                updateProfitListState(filtered)
             }
 
             override fun afterTextChanged(s: android.text.Editable?) {}
@@ -193,6 +229,41 @@ class ProfitActivity : AppCompatActivity() {
         btnMonth.setOnClickListener { currentFilter = "month"; loadProfit("month") }
         btnAll.setOnClickListener { currentFilter = "all"; loadProfit("all") }
         btnCustom.setOnClickListener { currentFilter = "custom"; openDatePicker() }
+
+        // Same hashed-accent-per-chip concept as the dashboard's category
+        // rail — each chip gets a stable color from this palette instead of
+        // every selected chip looking identically gold.
+        val chipGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipDateFilter)
+        val chips = listOf(
+            btnToday to "Today",
+            btnWeek to "Week",
+            btnMonth to "Month",
+            btnAll to "All",
+            btnCustom to "Custom"
+        )
+        fun refreshChipColors() {
+            chips.forEach { (chip, label) -> styleDateChip(chip, chip.isChecked, label) }
+        }
+        chipGroup.setOnCheckedStateChangeListener { _, _ -> refreshChipColors() }
+        refreshChipColors()
+    }
+
+    private val dateChipPalette = listOf(
+        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#534AB7", "#D85A30", "#3B6D11", "#993556"
+    )
+
+    private fun dateChipColor(label: String): Int =
+        android.graphics.Color.parseColor(
+            dateChipPalette[(label.hashCode() and 0x7FFFFFFF) % dateChipPalette.size]
+        )
+
+    private fun styleDateChip(chip: com.google.android.material.chip.Chip, selected: Boolean, label: String) {
+        val accent = dateChipColor(label)
+        val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#E4DCC8")
+        val textColor = if (selected) accent else android.graphics.Color.parseColor("#6E6A60")
+        chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(strokeColor)
+        chip.setTextColor(textColor)
     }
 
     // ================= DATE PICKER =================
@@ -331,7 +402,9 @@ class ProfitActivity : AppCompatActivity() {
 
                     latestProfitList = mapped
                     fullList = mapped
+                    currentSearchQuery = ""
                     profitAdapter.submitList(mapped)
+                    updateProfitListState(mapped)
                 }
 
             } catch (e: Exception) {

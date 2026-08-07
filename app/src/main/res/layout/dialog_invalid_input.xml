@@ -1,39 +1,74 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/bg_dialog_rounded"
+    android:padding="22dp"
+    android:background="@drawable/bg_dialog_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- ICON -->
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/ic_warning"
+    <!-- ICON BADGE -->
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
         android:layout_gravity="center"
         android:layout_marginBottom="12dp"
-        app:tint="#EF4444" />
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_warning"
+            app:tint="#8A6526" />
+    </FrameLayout>
 
-    <!-- TITLE -->
+    <!-- EYEBROW -->
     <TextView
-        android:id="@+id/tvTitle"
-        android:text="Invalid Input"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#111827"
+        android:text="CHECK FIELD"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <!-- TITLE -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="3dp">
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invalid "
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="input"
+            android:textColor="#8A6526"
+            android:textSize="19sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
 
     <!-- MESSAGE -->
     <TextView
         android:id="@+id/tvMessage"
         android:text="This item is sold in whole units.\nDecimal not allowed."
-        android:textSize="14sp"
-        android:textColor="#6B7280"
+        android:textSize="12.5sp"
+        android:textColor="#8A8272"
         android:gravity="center"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -42,10 +77,19 @@
         android:id="@+id/btnOk"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:text="OK"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="18dp"
+        android:text="Got it"
         android:textColor="@android:color/white"
-        app:cornerRadius="12dp"
-        app:backgroundTint="#3B82F6"/>
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
 </LinearLayout>

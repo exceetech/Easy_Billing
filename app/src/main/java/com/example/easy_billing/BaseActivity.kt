@@ -35,10 +35,15 @@ open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestedOrientation =
-            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        
-        // Removed hideSystemUI() from here to prevent NullPointerException on some devices 
+        // Orientation is no longer forced here — this used to override the
+        // manifest's android:screenOrientation on every Activity extending
+        // BaseActivity, which is why changing the manifest to "unspecified"
+        // (phone compatibility work) had no visible effect: this line ran
+        // after the manifest was read and silently reset it back to
+        // landscape every time. The manifest value is now the only source
+        // of truth for orientation.
+
+        // Removed hideSystemUI() from here to prevent NullPointerException on some devices
         // where the DecorView is not yet initialized. It is handled in onWindowFocusChanged.
     }
 
@@ -204,6 +209,22 @@ open class BaseActivity : AppCompatActivity() {
 
     suspend fun checkOfflineSession() {
 
+        // Pre-login / account-recovery screens never hold a valid session
+        // TOKEN (forgot-password uses a separate one-time RESET_TOKEN, see
+        // ChangePasswordActivity). Probing backend health here with no/stale
+        // TOKEN always comes back UNAUTHORIZED, and the UNAUTHORIZED branch
+        // below calls forceLogout() unconditionally (it was only ever gated
+        // against the offline-timeout branch, not this one) — that's what
+        // was kicking users back to MainActivity with a "Session expired"
+        // toast mid-way through forgot-password/OTP/reset. None of these
+        // screens have a session to expire, so skip the check entirely.
+        val isAuthScreen = this is MainActivity ||
+                this is RegisterActivity ||
+                this is ForgotPasswordActivity ||
+                this is OtpVerificationActivity ||
+                this is ChangePasswordActivity
+        if (isAuthScreen) return
+
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
 
         val lastOnline = prefs.getLong("LAST_ONLINE", 0L)
@@ -273,10 +294,10 @@ open class BaseActivity : AppCompatActivity() {
             warningShown = true
         }
 
-        // ❌ LOGOUT
-        val isAuthScreen = this is MainActivity
-
-        if (!isAuthScreen && lastOnline > 0 && diff > limit) {
+        // ❌ LOGOUT (isAuthScreen already returned early above for the
+        // pre-login/recovery screens, so reaching here means this is a real
+        // logged-in session)
+        if (lastOnline > 0 && diff > limit) {
             forceLogout()
         }
     }

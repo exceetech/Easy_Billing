@@ -263,7 +263,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">9dp</item>
         <item name="android:textColor">#8A6526</item>
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">0.13</item>
     </style>
@@ -274,9 +274,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:textSize">10.5sp</item>
+        <item name="android:textSize">12.5sp</item>
         <item name="android:textColor">#9A968C</item>
-        <item name="android:fontFamily">@font/googlesans_medium</item>
+        <item name="android:fontFamily">@font/googlesans_regular</item>
     </style>
 
     <!-- ================= EDIT PRODUCT — hero stat trio ================= -->
@@ -321,7 +321,7 @@
     <style name="EpMiniLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">9sp</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:textColor">#A99E88</item>
         <item name="android:gravity">center</item>
     </style>
@@ -333,7 +333,7 @@
         <item name="android:gravity">center</item>
         <item name="android:textColor">#1A1A18</item>
         <item name="android:textColorHint">#A99E88</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">14.5sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:inputType">numberDecimal</item>
         <item name="android:singleLine">true</item>
@@ -383,17 +383,23 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">12.5sp</item>
         <item name="android:textColor">#9A8F79</item>
+        <item name="android:fontFamily">@font/googlesans_regular</item>
     </style>
 
+    <!-- AddInput no longer owns the box — a wrapping FrameLayout
+         (bg_glass_input, 50dp, leading Lucide icon) supplies the
+         background/height/icon now, matching Record purchase's field
+         style. AddInput is just the text properties inside it. -->
     <style name="AddInput">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">42dp</item>
-        <item name="android:background">@drawable/bg_imp_field</item>
-        <item name="android:paddingHorizontal">12dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@null</item>
+        <item name="android:paddingStart">44dp</item>
+        <item name="android:paddingEnd">14dp</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textColor">#1A1A18</item>
         <item name="android:textColorHint">#A99E88</item>
         <item name="android:includeFontPadding">false</item>
@@ -409,6 +415,7 @@
         <item name="android:background">@drawable/bg_add_seg</item>
         <item name="android:textColor">@color/add_seg_text</item>
         <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/googlesans_medium</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
     </style>
@@ -844,10 +851,11 @@
     <style name="AddpFieldLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
         <item name="android:textSize">12.5sp</item>
-        <item name="android:textColor">#8A8272</item>
+        <item name="android:textColor">#9A8F79</item>
+        <item name="android:fontFamily">@font/googlesans_regular</item>
     </style>
 
 

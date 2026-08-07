@@ -190,7 +190,7 @@ class ForgotPasswordActivity : BaseActivity() {
                         if (body?.otp_verified == true) {
                             val resetToken = body.access_token
                             getSharedPreferences("auth", MODE_PRIVATE).edit()
-                                .putString("TOKEN", resetToken)
+                                .putString("RESET_TOKEN", resetToken)
                                 .apply()
 
                             Toast.makeText(this@ForgotPasswordActivity, "OTP Verified Successfully", Toast.LENGTH_SHORT).show()

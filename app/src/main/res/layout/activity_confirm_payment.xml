@@ -1,15 +1,27 @@
+<!--
+    Root width/height here are placeholders only — the real, on-screen
+    window size is set in ConfirmPaymentActivity.onCreate() via
+    window.setLayout(), the same percentage-of-screen-width + capped-max
+    technique already used for every Dialog-based popup elsewhere in the
+    app (see ui/ThemedDropdown.kt). This used to be a flat 340dp x 540dp,
+    which was fine on the landscape-only screen this was built for but
+    didn't adapt to different phone widths — see phone_compatibility_plan.md
+    Phase 2.
+-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="340dp"
-    android:layout_height="540dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/cardContainer"
         android:orientation="vertical"
         android:background="@drawable/bg_confirm_popup_card"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/mainContent"
             android:orientation="vertical"
             android:paddingHorizontal="18dp"
             android:paddingTop="16dp"
@@ -140,6 +152,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/tvPlanPriceLabel"
                         android:text="Plan price"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
@@ -153,6 +166,83 @@
                         android:text="₹999"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <!-- On-device estimate only (see the caption this drives in
+                     ConfirmPaymentActivity) — folded into the Total below,
+                     replaced by the server's confirmed figure once
+                     create-order responds. -->
+                <LinearLayout
+                    android:id="@+id/rowUpgradeCredit"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvUpgradeCreditLabel"
+                        android:text="Upgrade credit (est.)"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvUpgradeCreditAmount"
+                        android:text="-₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvUpgradeCreditNote"
+                    android:visibility="gone"
+                    android:text="Estimated only — actual charge is confirmed once payment starts."
+                    android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#A99E88"
+                    android:layout_marginTop="3dp"
+                    android:lineSpacingExtra="1dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <!-- Plan price minus the upgrade credit — the actual
+                     pre-tax amount service charge/GST are computed on.
+                     Only shown alongside rowUpgradeCredit so it's clear
+                     what number the 2%/18% below apply to. -->
+                <LinearLayout
+                    android:id="@+id/rowPayableAmount"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Payable amount"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvPayableAmount"
+                        android:text="₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#1A1A18"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
@@ -415,12 +505,12 @@
 
     <!-- STICKY PAY BUTTON -->
     <LinearLayout
+        android:id="@+id/bottomBar"
         android:orientation="vertical"
         android:background="@drawable/bg_confirm_popup_bottom_bar"
         android:paddingHorizontal="18dp"
         android:paddingTop="12dp"
         android:paddingBottom="16dp"
-        android:elevation="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -462,6 +552,48 @@
     </LinearLayout>
 
     </LinearLayout>
+
+    <!-- LOADING OVERLAY — shown while the authoritative order/price
+         breakdown is being fetched (see prefetchAuthoritativeOrder() in
+         ConfirmPaymentActivity), hidden once it resolves. Covers the
+         local client-side estimate entirely so the user only ever sees
+         ONE set of numbers (the final, backend-confirmed ones) instead
+         of a quick flash of the rough local guess immediately followed
+         by it changing to the real total a moment later. -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:background="@drawable/bg_confirm_popup_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:indeterminateTint="#0F6E56"
+            android:layout_width="28dp"
+            android:layout_height="28dp"/>
+
+    </FrameLayout>
+
+    <!-- PAY-TIME LOADING SPINNER — shown AFTER the card has fully closed
+         (see closeCardThenShowSpinner() in ConfirmPaymentActivity) and
+         BEFORE Razorpay's checkout window opens. Deliberately no card
+         background here (unlike loadingOverlay above) — the card is
+         gone by this point, not just showing a loading state inside it,
+         so this floats as a plain spinner over the dimmed backdrop
+         instead of implying the card is still present. -->
+    <FrameLayout
+        android:id="@+id/payLoadingOverlay"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:indeterminateTint="#0F6E56"
+            android:layout_width="28dp"
+            android:layout_height="28dp"/>
+
+    </FrameLayout>
 
     <!-- CLOSE BUTTON -->
     <!-- Floating circular close button, top-right, overlapping the card —

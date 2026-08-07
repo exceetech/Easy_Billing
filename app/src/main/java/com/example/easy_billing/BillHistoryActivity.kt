@@ -24,8 +24,12 @@ import java.util.*
 
 class BillHistoryActivity : BaseActivity() {
     private lateinit var rvBills: RecyclerView
+    private lateinit var cardBillHistory: android.view.View
     private lateinit var progressBills: android.widget.ProgressBar
-    private lateinit var tvBillsEmpty: TextView
+    private lateinit var layoutBillsEmpty: android.view.View
+    private lateinit var tvBillsEmptyTitle: TextView
+    private lateinit var tvBillsEmptyTitleAccent: TextView
+    private lateinit var tvBillsEmptyBody: TextView
     private lateinit var adapter: BillHistoryAdapter
     private lateinit var etSearch: EditText
 
@@ -72,8 +76,12 @@ class BillHistoryActivity : BaseActivity() {
 
     private fun initViews() {
         rvBills = findViewById(R.id.rvBills)
+        cardBillHistory = findViewById(R.id.cardBillHistory)
         progressBills = findViewById(R.id.progressBills)
-        tvBillsEmpty = findViewById(R.id.tvBillsEmpty)
+        layoutBillsEmpty = findViewById(R.id.layoutBillsEmpty)
+        tvBillsEmptyTitle = findViewById(R.id.tvBillsEmptyTitle)
+        tvBillsEmptyTitleAccent = findViewById(R.id.tvBillsEmptyTitleAccent)
+        tvBillsEmptyBody = findViewById(R.id.tvBillsEmptyBody)
         etSearch = findViewById(R.id.etSearch)
 
         tvTodaySales = findViewById(R.id.tvTodaySales)
@@ -98,7 +106,11 @@ class BillHistoryActivity : BaseActivity() {
         }
 
         rvBills.adapter = adapter
-        rvBills.clipToOutline = true
+
+        // Applied to the shared card container rather than rvBills directly
+        // — the rounded background lives on cardBillHistory now, so that's
+        // the view whose outline actually clips the row corners.
+        cardBillHistory.clipToOutline = true
     }
 
 // ================= LOAD =================
@@ -116,7 +128,7 @@ class BillHistoryActivity : BaseActivity() {
             }
 
             progressBills.visibility = android.view.View.VISIBLE
-            tvBillsEmpty.visibility = android.view.View.GONE
+            layoutBillsEmpty.visibility = android.view.View.GONE
 
             try {
                 val bills = RetrofitClient.api.getBills(token)
@@ -148,8 +160,22 @@ class BillHistoryActivity : BaseActivity() {
     }
 
     private fun showListState(bills: List<BillResponse>) {
-        tvBillsEmpty.visibility = if (bills.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+        layoutBillsEmpty.visibility = if (bills.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         rvBills.visibility = if (bills.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+    }
+
+    /** Switches the empty state between "nothing recorded at all" and "search/filter found
+     *  nothing" — same card, same design, just different copy for the two situations. */
+    private fun setEmptyStateForSearch(isSearchOrFilter: Boolean) {
+        if (isSearchOrFilter) {
+            tvBillsEmptyTitle.text = "No matches"
+            tvBillsEmptyTitleAccent.text = "found"
+            tvBillsEmptyBody.text = "No bill matches your search or filter. Try a different invoice number, amount, or reset the filter."
+        } else {
+            tvBillsEmptyTitle.text = "No bills"
+            tvBillsEmptyTitleAccent.text = "yet"
+            tvBillsEmptyBody.text = "Bills you create will show up here — search, filter and sort them once you have a few."
+        }
     }
 
 // ================= SEARCH =================
@@ -173,6 +199,7 @@ class BillHistoryActivity : BaseActivity() {
 
                     if (query.isEmpty()) {
                         adapter.submitList(baseList)
+                        setEmptyStateForSearch(isSearchOrFilter = false)
                         showListState(baseList)
                         updateFilterSortIndicators(baseList.size)
                         return@Runnable
@@ -186,7 +213,7 @@ class BillHistoryActivity : BaseActivity() {
                     }
 
                     adapter.submitList(filtered)
-                    tvBillsEmpty.text = if (filtered.isEmpty()) "No bills match your search" else "No bills found"
+                    setEmptyStateForSearch(isSearchOrFilter = true)
                     showListState(filtered)
                     updateFilterSortIndicators(filtered.size)
                 }
@@ -299,7 +326,10 @@ class BillHistoryActivity : BaseActivity() {
         val result = applyFilterAndSort(allBills)
         adapter.submitList(result)
         updateSummary(result)
-        tvBillsEmpty.text = "No bills found"
+        // A non-default filter is a form of "search" here — same empty-state
+        // copy as a text search that came up empty, since both mean "the
+        // filter/query hides everything, not that nothing was ever billed".
+        setEmptyStateForSearch(isSearchOrFilter = activeFilter != "ALL")
         showListState(result)
         updateFilterSortIndicators(result.size)
     }

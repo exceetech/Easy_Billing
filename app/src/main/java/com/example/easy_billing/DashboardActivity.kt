@@ -78,6 +78,12 @@ class DashboardActivity : BaseActivity() {
     private lateinit var fabAiInsights: View
     private lateinit var aiInsightsAdapter: AiInsightsAdapter
 
+    // Screen-width-aware notifPanel width, set once in initViews() and
+    // read by panelWidthPx() below — replaces a hardcoded 392dp fallback
+    // that didn't adapt to phone width. See phone_compatibility_plan.md
+    // Phase 3.
+    private var notifPanelWidthPx: Int = 0
+
     // AI notification sheet
     private lateinit var notifPanel: View
     private lateinit var notifScrim: View
@@ -138,7 +144,12 @@ class DashboardActivity : BaseActivity() {
     // ── View mode (Grid tiles / List / Categorized) ──
     enum class ViewMode { GRID, LIST, CATEGORIZED }
     private var viewMode = ViewMode.GRID
-    private val GRID_SPAN = 5
+    // Computed in initViews() from the actual screen width instead of a
+    // flat constant tuned for a wide landscape screen — 5 columns on a
+    // narrow phone would squeeze each product tile down to an unusably
+    // small width. Starts at 5 only as a pre-layout fallback. See
+    // phone_compatibility_plan.md Phase 3.
+    private var GRID_SPAN = 5
     private lateinit var productGridManager: GridLayoutManager
 
 
@@ -380,6 +391,52 @@ class DashboardActivity : BaseActivity() {
 
     private fun initViews() {
         drawerLayout = findViewById(R.id.drawerLayout)
+
+        // Left nav drawer, cart drawer, and the notifications panel were
+        // all a flat fixed dp width in XML (360dp/392dp/392dp) — fine on
+        // the landscape-only screen this was built for, but on a narrower
+        // phone that can meet or exceed the entire screen width, leaving
+        // no sliver of the dashboard visible behind it (the standard
+        // signal that it's a drawer, not the whole screen) and risking
+        // overflow on the very narrowest phones. Resized here to the
+        // smaller of "the old fixed cap" or "screen width minus a fixed
+        // margin", so a slice of the dashboard always stays visible. See
+        // phone_compatibility_plan.md Phase 3.
+        //
+        // Gated to phones only (smallestScreenWidthDp < 600, matching the
+        // layout-sw600dp/ tablet qualifier) — this used to run
+        // unconditionally and silently overrode the tablet's tuned
+        // GRID_SPAN=5 / fixed drawer widths too, since there's a single
+        // shared Kotlin path for both form factors. Tablet keeps its
+        // original untouched values.
+        val isTablet = resources.configuration.smallestScreenWidthDp >= 600
+        if (!isTablet) {
+            val marginPx = (56 * resources.displayMetrics.density).toInt()
+            val availableWidthPx = resources.displayMetrics.widthPixels - marginPx
+
+            // Product grid column count — fixed at 2 for phones (the
+            // original phone tile design), instead of computing it from
+            // screen width. The width-based formula produced 3+ columns
+            // on many phones, which squeezed and reshaped the tile
+            // compared to the design the user already had. Tablet is
+            // untouched (still the flat GRID_SPAN=5 declared above).
+            GRID_SPAN = 2
+
+            findViewById<View>(R.id.leftDrawer).layoutParams = findViewById<View>(R.id.leftDrawer).layoutParams.apply {
+                width = minOf(availableWidthPx, (360 * resources.displayMetrics.density).toInt())
+            }
+            findViewById<View>(R.id.cartDrawer).layoutParams = findViewById<View>(R.id.cartDrawer).layoutParams.apply {
+                width = minOf(availableWidthPx, (392 * resources.displayMetrics.density).toInt())
+            }
+            // notifPanel's width is also read dynamically at open/close time
+            // via panelWidthPx() below, so this assignment is what that
+            // function actually sees once the first layout pass completes.
+            notifPanelWidthPx = minOf(availableWidthPx, (392 * resources.displayMetrics.density).toInt())
+            findViewById<View>(R.id.notifPanel).layoutParams = findViewById<View>(R.id.notifPanel).layoutParams.apply {
+                width = notifPanelWidthPx
+            }
+        }
+
         rvProducts = findViewById(R.id.rvProducts)
         rvCart = findViewById(R.id.rvCart)
         tvTotal = findViewById(R.id.tvTotal)
@@ -1527,6 +1584,7 @@ class DashboardActivity : BaseActivity() {
 
     private fun panelWidthPx(): Float =
         if (notifPanel.width > 0) notifPanel.width.toFloat()
+        else if (notifPanelWidthPx > 0) notifPanelWidthPx.toFloat()
         else 392f * resources.displayMetrics.density
 
     private fun refreshNotifications() {
@@ -1700,6 +1758,18 @@ class DashboardActivity : BaseActivity() {
             .setView(view)
             .create()
         dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        // Same percentage-of-screen-width + capped-max sizing as every
+        // other Dialog popup in the app (ui/ThemedDropdown.kt) — this
+        // used to rely on a flat 300dp baked into the XML, which didn't
+        // adapt to different phone widths. See
+        // phone_compatibility_plan.md Phase 2.
+        dialog.window?.setLayout(
+            minOf(
+                (resources.displayMetrics.widthPixels * 0.88f).toInt(),
+                (360 * resources.displayMetrics.density).toInt()
+            ),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 
         // Heading is now the fixed themed "Unlock premium" split-style
         // title (matches "Confirm and pay" / "Your subscription"
@@ -1770,19 +1840,36 @@ class DashboardActivity : BaseActivity() {
 
     private fun showSubscriptionDialog() {
 
-        AlertDialog.Builder(this)
-            .setTitle("Subscription Required")
-            .setMessage("Your subscription has expired. Please renew to continue using the app.")
-            .setCancelable(false)
-            .setPositiveButton("Renew") { _, _ ->
+        val view = layoutInflater.inflate(R.layout.dialog_subscription_expired, null)
 
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .setCancelable(false)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnRenewSubscription)
+            .setOnClickListener {
+                dialog.dismiss()
                 startActivity(
                     Intent(this@DashboardActivity, SubscriptionActivity::class.java)
                 )
-
                 finish()
             }
-            .show()
+
+        view.findViewById<TextView>(R.id.tvContactSupport).setOnClickListener {
+            try {
+                val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                    data = android.net.Uri.parse("mailto:support@expos.app")
+                    putExtra(Intent.EXTRA_SUBJECT, "Subscription support")
+                }
+                startActivity(emailIntent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialog.show()
     }
 
     private fun redirectToLogin() {
@@ -1824,9 +1911,23 @@ class DashboardActivity : BaseActivity() {
         val store = db.storeInfoDao().get()
 
         runOnUiThread {
+            val storeName = store?.name?.takeIf { it.isNotBlank() } ?: "My Store"
+
             // wherever you show store name
-            findViewById<TextView>(R.id.tvStoreName)?.text =
-                store?.name ?: "My Store"
+            findViewById<TextView>(R.id.tvStoreName)?.text = storeName
+
+            // Drawer avatar monogram — derive initials from the store name
+            // instead of the hardcoded "EB" placeholder.
+            findViewById<TextView>(R.id.tvDrawerAvatar)?.text = storeInitials(storeName)
+        }
+    }
+
+    private fun storeInitials(name: String): String {
+        val words = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            words.isEmpty() -> "EB"
+            words.size == 1 -> words[0].take(2).uppercase()
+            else -> (words[0].take(1) + words[1].take(1)).uppercase()
         }
     }
 

@@ -37,118 +37,135 @@
 
         <activity
             android:name=".ReportsActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".BillDetailsActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false" />
         <activity
             android:name=".ChangePasswordActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".ForgotPasswordActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".InvoiceActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false" />
         <activity
             android:name=".AddProductActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false" />
         <activity
             android:name=".BillHistoryActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".CreditDebitNotesActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:label="Issued notes"
             android:exported="false" />
         <activity
             android:name=".DashboardActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling.Auth"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".StoreSettingsActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".BillingSettingsActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".ProfileActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".PurchaseActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".ManageProductsActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".EditProductActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".InvoiceDesignActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".DataSecurityActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".AiDashboardActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".InventoryActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".GstReportsActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
 
         <activity
             android:name=".ProfitActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".LocalizationSettingsActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
 
         <activity
             android:name=".OtpVerificationActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
 
         <activity
             android:name=".SubscriptionActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".ConfirmPaymentActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling.Dialog"
             android:exported="false"/>
+
+        <!-- Overrides Razorpay's own CheckoutActivity's window theme —
+             see Theme.EasyBilling.RazorpayCheckout's doc comment in
+             themes.xml for why. Without this, the checkout window
+             rendered with a transparent/translucent backdrop, showing
+             SubscriptionActivity/ConfirmPaymentActivity bleeding through
+             behind it instead of a solid background.
+             tools:replace (not tools:node="merge") is required here —
+             Razorpay's own library manifest already declares this
+             activity with its own android:theme, and node="merge" only
+             merges child elements, it doesn't resolve a conflicting
+             attribute value on the same tag (that's what caused the
+             processDebugMainManifest / manifest merger failure). -->
+        <activity
+            android:name="com.razorpay.CheckoutActivity"
+            android:theme="@style/Theme.EasyBilling.RazorpayCheckout"
+            tools:replace="android:theme"/>
         <activity
             android:name=".OnboardingActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".TermsActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
         <activity
             android:name=".CreditAccountsActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
 
         <activity
             android:name=".CustomerTransactionsActivity"
-            android:screenOrientation="sensorLandscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".ProfitChartActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="unspecified"/>
 
         <activity
             android:name=".SplashActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling.Splash"
             android:exported="true">
             <intent-filter>
@@ -158,13 +175,13 @@
         </activity>
 
         <activity android:name=".MainActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling.Auth"/>
 
         <!-- ── Workspace Rotation ────────────────────────────────────────── -->
         <activity
             android:name=".WorkspaceChangedActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false"
             android:label="Workspace Updated"
             android:windowSoftInputMode="stateHidden"/>
@@ -183,38 +200,38 @@
         <!-- ── Return Management (v25) ───────────────────────────────────── -->
         <activity
             android:name=".SalesReturnActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:label="Issue Credit Note"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity
             android:name=".DebitNoteActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:label="Issue Debit Note"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".PurchaseHistoryActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling" />
             
         <activity
             android:name=".ui.ImportServicesActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling" />
             
         <activity
             android:name=".ui.AddImportServiceActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling" />
         <activity
             android:name=".PurchaseDetailsActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false"/>
         <activity
             android:name=".PurchaseReturnActivity"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="unspecified"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
     </application>

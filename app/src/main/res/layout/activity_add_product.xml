@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Add product screen — phone layout (single column, stacked).
+
+    This is the DEFAULT (phone) version. The original two-card
+    side-by-side design (Product Details | Pricing & Tax) plus a
+    4-column GST/UQC/Cess row lives unchanged in
+    layout-sw600dp/activity_add_product.xml — tablets load that version
+    automatically via Android's screen-width resource qualifier, phones
+    load this one. See phone_compatibility_plan.md Phase 8.
+
+    Body (stacked, top to bottom): Product Details, Pricing & Tax, GST &
+    Compliance (4 fields now stacked one per row instead of 4 across),
+    Opening Stock. Every id is preserved exactly, so findViewById keeps
+    working identically on both form factors.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -109,17 +124,12 @@
             android:orientation="vertical"
             android:paddingHorizontal="18dp">
 
-            <!-- Row: PRODUCT DETAILS + PRICING & TAX -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+            <!-- Product Details, then Pricing & Tax — stacked (was a
+                 side-by-side row on tablet). -->
 
                 <!-- ─ PRODUCT DETAILS ─ -->
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:background="@drawable/bg_addp_card"
@@ -147,13 +157,13 @@
                         android:id="@+id/etName"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/bg_addp_field_selector"
+                        android:background="@drawable/bg_glass_input"
                         android:popupBackground="@drawable/bg_pos_dropdown"
                         android:paddingHorizontal="13dp"
                         android:drawablePadding="10dp"
                         app:drawableStartCompat="@drawable/ic_lc_box"
                         android:drawableTint="#B8895A"
-                        android:hint="e.g. Basmati Rice"
+                        android:hint="Search or type new"
                         android:textColorHint="#A99E88"
                         android:textColor="#1A1A18"
                         android:textSize="15sp"
@@ -176,12 +186,14 @@
                                 android:id="@+id/etVariant"
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
-                                android:background="@drawable/bg_addp_field_selector"
+                                android:background="@drawable/bg_glass_input"
                                 android:popupBackground="@drawable/bg_pos_dropdown"
                                 android:paddingHorizontal="13dp"
+                                android:drawablePadding="8dp"
+                                app:drawableStartCompat="@drawable/ic_lc_ruler"
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                                android:drawableTint="#A99E88"
-                                android:hint="e.g. 5 kg"
+                                android:drawableTint="#B8895A"
+                                android:hint="Size or pack type"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -201,11 +213,13 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_addp_field_selector"
+                                android:background="@drawable/bg_glass_input"
                                 android:paddingHorizontal="13dp"
+                                android:drawablePadding="8dp"
+                                app:drawableStartCompat="@drawable/ic_lc_scale"
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                                android:drawableTint="#A99E88"
-                                android:hint="Select unit"
+                                android:drawableTint="#B8895A"
+                                android:hint="Tap to select"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -220,11 +234,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_addp_field_selector"
+                        android:background="@drawable/bg_glass_input"
                         android:paddingHorizontal="13dp"
+                        android:drawablePadding="8dp"
+                        app:drawableStartCompat="@drawable/ic_lc_tag"
                         app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                        android:drawableTint="#A99E88"
-                        android:hint="Select category"
+                        android:drawableTint="#B8895A"
+                        android:hint="Tap to select"
                         android:textColorHint="#A99E88"
                         android:textColor="#1A1A18"
                         android:textSize="15sp"
@@ -234,13 +250,12 @@
 
                 <!-- ─ PRICING & TAX ─ -->
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:background="@drawable/bg_addp_card"
                     android:padding="18dp"
-                    android:layout_marginStart="16dp">
+                    android:layout_marginTop="16dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -274,24 +289,23 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
-                                android:background="@drawable/bg_addp_field"
+                                android:background="@drawable/bg_glass_input"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
                                 android:paddingHorizontal="13dp">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="₹"
-                                    android:textColor="#1A1A18"
-                                    android:textSize="16sp"
-                                    android:fontFamily="@font/googlesans_semibold"/>
+                                <ImageView
+                                    android:layout_width="17dp"
+                                    android:layout_height="17dp"
+                                    android:src="@drawable/ic_lc_indian_rupee"
+                                    app:tint="#B8895A"
+                                    android:contentDescription="@null"/>
                                 <EditText
                                     android:id="@+id/etPrice"
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:background="@android:color/transparent"
-                                    android:paddingStart="6dp"
-                                    android:hint="0"
+                                    android:paddingStart="9dp"
+                                    android:hint="Rate per unit"
                                     android:textColorHint="#A99E88"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
@@ -310,9 +324,12 @@
                                 android:id="@+id/etHsn"
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
-                                android:background="@drawable/bg_addp_field_selector"
+                                android:background="@drawable/bg_glass_input"
                                 android:paddingHorizontal="13dp"
-                                android:hint="HSN/SAC"
+                                android:drawablePadding="8dp"
+                                app:drawableStartCompat="@drawable/ic_lc_file_text"
+                                android:drawableTint="#B8895A"
+                                android:hint="Tax code"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -372,9 +389,12 @@
                                 android:id="@+id/etCgst"
                                 android:layout_width="match_parent"
                                 android:layout_height="48dp"
-                                android:background="@drawable/bg_addp_field_selector"
-                                android:paddingHorizontal="13dp"
-                                android:hint="0%"
+                                android:background="@drawable/bg_glass_input"
+                                android:paddingHorizontal="10dp"
+                                android:drawablePadding="5dp"
+                                app:drawableStartCompat="@drawable/ic_lc_percent"
+                                android:drawableTint="#B8895A"
+                                android:hint="Central tax"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -392,9 +412,12 @@
                                 android:id="@+id/etSgst"
                                 android:layout_width="match_parent"
                                 android:layout_height="48dp"
-                                android:background="@drawable/bg_addp_field_selector"
-                                android:paddingHorizontal="13dp"
-                                android:hint="0%"
+                                android:background="@drawable/bg_glass_input"
+                                android:paddingHorizontal="10dp"
+                                android:drawablePadding="5dp"
+                                app:drawableStartCompat="@drawable/ic_lc_percent"
+                                android:drawableTint="#B8895A"
+                                android:hint="State tax"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -413,8 +436,11 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="48dp"
                                 android:background="@drawable/bg_addp_field_disabled"
-                                android:paddingHorizontal="13dp"
-                                android:hint="0%"
+                                android:paddingHorizontal="10dp"
+                                android:drawablePadding="5dp"
+                                app:drawableStartCompat="@drawable/ic_lc_percent"
+                                android:drawableTint="#B0A895"
+                                android:hint="Auto-filled"
                                 android:textColorHint="#B0A895"
                                 android:textColor="#8A8272"
                                 android:textSize="15sp"
@@ -423,7 +449,6 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
 
             <!-- ─ GST & COMPLIANCE ─ -->
             <LinearLayout
@@ -458,15 +483,11 @@
                         android:textSize="11.5sp"/>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
+                <!-- UQC / supply classification / HSN description / cess —
+                     stacked one per row (was a 4-column row on tablet). -->
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <TextView style="@style/AddpFieldLabel" android:text="Official UQC"/>
@@ -475,10 +496,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_addp_field_selector"
+                            android:background="@drawable/bg_glass_input"
                             android:paddingHorizontal="13dp"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@drawable/ic_lc_scale"
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                            android:drawableTint="#A99E88"
+                            android:drawableTint="#B8895A"
                             android:hint="Auto from unit"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
@@ -488,22 +511,23 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:layout_marginTop="12dp">
                         <TextView style="@style/AddpFieldLabel" android:text="Supply classification"/>
                         <TextView
                             android:id="@+id/spinnerSupplyClass"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_addp_field_selector"
+                            android:background="@drawable/bg_glass_input"
                             android:paddingHorizontal="13dp"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@drawable/ic_lc_truck"
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
-                            android:drawableTint="#A99E88"
-                            android:hint="Select classification"
+                            android:drawableTint="#B8895A"
+                            android:hint="Tap to select"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
@@ -512,19 +536,21 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1.2"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:layout_marginTop="12dp">
                         <TextView style="@style/AddpFieldLabel" android:text="HSN description"/>
                         <EditText
                             android:id="@+id/etHsnDesc"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_addp_field_selector"
+                            android:background="@drawable/bg_glass_input"
                             android:paddingHorizontal="13dp"
-                            android:hint="e.g. Rice, milled"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@drawable/ic_lc_file_text"
+                            android:drawableTint="#B8895A"
+                            android:hint="Short description"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
@@ -533,25 +559,26 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="0.6"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:layout_marginTop="12dp">
                         <TextView style="@style/AddpFieldLabel" android:text="Cess %"/>
                         <EditText
                             android:id="@+id/etCessRate"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_addp_field_selector"
+                            android:background="@drawable/bg_glass_input"
                             android:paddingHorizontal="13dp"
-                            android:hint="0"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@drawable/ic_lc_percent"
+                            android:drawableTint="#B8895A"
+                            android:hint="If applicable"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
                             android:inputType="numberDecimal"/>
                     </LinearLayout>
-                </LinearLayout>
             </LinearLayout>
 
             <!-- ─ OPENING STOCK ─ -->
@@ -629,9 +656,12 @@
                             android:id="@+id/etQty"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_addp_field_selector"
+                            android:background="@drawable/bg_glass_input"
                             android:paddingHorizontal="13dp"
-                            android:hint="0"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@drawable/ic_lc_package"
+                            android:drawableTint="#B8895A"
+                            android:hint="Current stock"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
@@ -648,7 +678,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_addp_field"
+                            android:background="@drawable/bg_glass_input"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:paddingHorizontal="13dp">
@@ -665,7 +695,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@android:color/transparent"
                                 android:paddingStart="6dp"
-                                android:hint="0"
+                                android:hint="What you paid"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -718,22 +748,23 @@
             android:layout_height="58dp"
             android:orientation="horizontal"
             android:gravity="center"
-            android:background="@drawable/bg_addp_cancel"
+            android:background="@drawable/bg_inv_action_close"
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_lc_x"
-                app:tint="#B23A3A"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_close"
+                app:tint="#B91C1C"
                 android:layout_marginEnd="8dp"
                 android:contentDescription="@null"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancel"
-                android:textColor="#B23A3A"
-                android:textSize="16sp"
+                android:textColor="#9A2E2E"
+                android:textSize="13.5sp"
+                android:textStyle="bold"
                 android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
 

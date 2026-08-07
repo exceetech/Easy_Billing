@@ -439,31 +439,22 @@ class GstReportsActivity : AppCompatActivity() {
 
     private fun selectPeriod(index: Int) {
         periodIndex = index
-        // Outlined pills, one colour per month; the selected pill is filled with
-        // its own tint, the rest stay white with a coloured outline + text.
+        // Same hashed-accent-per-chip concept as the dashboard's category rail
+        // and Profit analytics' date chips — white pill always, coloured
+        // 1.5dp stroke + text only when selected, instead of a filled tint.
         val d = resources.displayMetrics.density
         for (i in 0 until llPeriodStrip.childCount) {
             val pill = llPeriodStrip.getChildAt(i) as TextView
-            if (i == index) {
-                // Selected: its own colour (varies per month) — filled tint + outline.
-                val (fill, stroke, ink) = periodPalette[i % periodPalette.size]
-                pill.background = android.graphics.drawable.GradientDrawable().apply {
-                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                    cornerRadius = 8f * d
-                    setColor(Color.parseColor(fill))
-                    setStroke((1.5f * d).toInt(), Color.parseColor(stroke))
-                }
-                pill.setTextColor(Color.parseColor(ink))
-            } else {
-                // Idle: neutral white pill with a tan outline.
-                pill.background = android.graphics.drawable.GradientDrawable().apply {
-                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                    cornerRadius = 8f * d
-                    setColor(Color.parseColor("#FFFFFF"))
-                    setStroke((1.5f * d).toInt(), Color.parseColor("#E4DCC8"))
-                }
-                pill.setTextColor(Color.parseColor("#6E6A60"))
+            val accent = Color.parseColor(periodPalette[i % periodPalette.size].second)
+            val strokeColor = if (i == index) accent else Color.parseColor("#E4DCC8")
+            val textColor = if (i == index) accent else Color.parseColor("#6E6A60")
+            pill.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 8f * d
+                setColor(Color.parseColor("#FFFFFF"))
+                setStroke((1.5f * d).toInt(), strokeColor)
             }
+            pill.setTextColor(textColor)
         }
         val periods = currentPeriods()
         if (periods.isNotEmpty()) {

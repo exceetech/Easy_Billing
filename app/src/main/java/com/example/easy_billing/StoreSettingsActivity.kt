@@ -45,7 +45,11 @@ class StoreSettingsActivity : BaseActivity() {
     private lateinit var cardContact: View
     private lateinit var cardTax: View
 
-    private val shopTypeOptions = listOf("General", "Hotel", "Bakery", "Grocery")
+    private val shopTypeOptions = listOf(
+        "General", "Hotel", "Bakery", "Grocery",
+        "Restaurant / Cafe", "Pharmacy", "Electronics",
+        "Clothing / Apparel", "Salon & Services", "Wholesale"
+    )
     private var selectedShopType = "General"
 
     private var snapshot: StoreSnapshot? = null
@@ -254,10 +258,16 @@ class StoreSettingsActivity : BaseActivity() {
         val gstin   = etStoreGstin.text.toString().trim().uppercase()
 
         val type = when (selectedShopType.lowercase()) {
-            "hotel"   -> "hotel"
-            "bakery"  -> "bakery"
-            "grocery" -> "grocery"
-            else      -> "general"
+            "hotel"               -> "hotel"
+            "bakery"              -> "bakery"
+            "grocery"             -> "grocery"
+            "restaurant / cafe"   -> "restaurant"
+            "pharmacy"            -> "pharmacy"
+            "electronics"         -> "electronics"
+            "clothing / apparel"  -> "apparel"
+            "salon & services"    -> "salon"
+            "wholesale"           -> "wholesale"
+            else                  -> "general"
         }
 
         if (name.isEmpty()) {
@@ -409,10 +419,16 @@ class StoreSettingsActivity : BaseActivity() {
     /** Sets the displayed business type from a stored value (e.g. "grocery"). */
     private fun applyShopTypeFromStored(type: String?) {
         val display = when (type?.lowercase()) {
-            "hotel"   -> "Hotel"
-            "bakery"  -> "Bakery"
-            "grocery" -> "Grocery"
-            else      -> "General"
+            "hotel"       -> "Hotel"
+            "bakery"      -> "Bakery"
+            "grocery"     -> "Grocery"
+            "restaurant"  -> "Restaurant / Cafe"
+            "pharmacy"    -> "Pharmacy"
+            "electronics" -> "Electronics"
+            "apparel"     -> "Clothing / Apparel"
+            "salon"       -> "Salon & Services"
+            "wholesale"   -> "Wholesale"
+            else          -> "General"
         }
         applyShopType(display)
     }

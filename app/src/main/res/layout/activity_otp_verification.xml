@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_champagne_faceted">
+    android:background="@drawable/bg_login_doodle">
 
     <!-- Toolbar (back affordance handled by BaseActivity) -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -20,15 +20,18 @@
 
     <!-- Sign-up-style frosted card -->
     <com.google.android.material.card.MaterialCardView
+        android:theme="@style/ThemeOverlay.NoElevationOverlay"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="36dp"
         android:layout_marginVertical="12dp"
+        android:foreground="@drawable/bg_login_card_glass_sheen"
         app:cardCornerRadius="22dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:strokeColor="#ECE7DA"
-        app:strokeWidth="1dp"
+        app:cardElevation="10dp"
+        app:cardBackgroundColor="#F2FBF9F4"
+        app:strokeColor="#D8C3A0"
+        app:strokeWidth="1.5dp"
+        app:rippleColor="#00000000"
         app:layout_constraintWidth_max="660dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,15 +73,31 @@
                 android:fontFamily="@font/googlesans_semibold"/>
 
             <!-- Title -->
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Verify your email"
-                android:textColor="#1A1A18"
-                android:textSize="22sp"
-                android:fontFamily="serif"
-                android:textStyle="bold"/>
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Verify your "
+                    android:textColor="#1A1A18"
+                    android:textSize="22sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="email"
+                    android:textColor="#0F6E56"
+                    android:textSize="22sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"/>
+
+            </LinearLayout>
 
             <!-- Subtitle -->
             <TextView
@@ -87,7 +106,7 @@
                 android:layout_marginTop="7dp"
                 android:gravity="center"
                 android:text="Enter the 6-digit code we sent to"
-                android:textColor="#6E6A60"
+                android:textColor="#8A8272"
                 android:textSize="12.5sp"
                 android:lineSpacingExtra="2dp"/>
 
@@ -247,7 +266,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Your code is valid for 5 minutes"
-                    android:textColor="#A99E88"
+                    android:textColor="#9A8F79"
                     android:textSize="12sp"/>
             </LinearLayout>
 
@@ -273,6 +292,13 @@
                 app:iconGravity="textEnd"
                 app:iconTint="#FFFFFF"/>
 
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="16dp"
+                android:background="#EAE2D1"/>
+
             <!-- Resend row -->
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -284,7 +310,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Didn't receive it? "
-                    android:textColor="#6E6A60"
+                    android:textColor="#8A8272"
                     android:textSize="12.5sp"/>
                 <TextView
                     android:id="@+id/tvResendOtp"

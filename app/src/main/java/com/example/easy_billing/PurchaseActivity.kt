@@ -324,8 +324,6 @@ class PurchaseActivity : BaseActivity() {
         etBillOfEntryDate = findViewById(R.id.etBillOfEntryDate)
         etBillOfEntryValue = findViewById(R.id.etBillOfEntryValue)
         tilSezSupplierGstin = findViewById(R.id.tilSezSupplierGstin)
-        // Field names float up out of the box once it has content.
-        com.example.easy_billing.util.FloatingLabels.bind(findViewById(android.R.id.content))
         etSezSupplierGstin = findViewById(R.id.etSezSupplierGstin)
 
         boeDateProvider = InvoiceDatePicker.bind(etBillOfEntryDate)

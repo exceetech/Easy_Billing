@@ -319,8 +319,15 @@ class RegisterActivity : BaseActivity() {
 
         dialog.show()
 
+        // Same percentage-of-screen-width + capped-max sizing used
+        // everywhere else in the app (ui/ThemedDropdown.kt) — this used
+        // to be a flat 330dp regardless of phone width. See
+        // phone_compatibility_plan.md Phase 2.
         dialog.window?.setLayout(
-            (resources.displayMetrics.density * 330).toInt(),
+            minOf(
+                (resources.displayMetrics.widthPixels * 0.86f).toInt(),
+                (330 * resources.displayMetrics.density).toInt()
+            ),
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         )
     }

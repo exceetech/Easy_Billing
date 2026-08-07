@@ -243,12 +243,12 @@
                         android:background="@null"
                         android:paddingStart="44dp"
                         android:paddingEnd="14dp"
-                        android:hint="@string/selling_price"
+                        android:hint="Rate per unit"
                         android:textColor="#1A1A18"
                         android:textColorHint="#A99E88"
                         android:inputType="numberDecimal"
                         android:singleLine="true"
-                        android:textSize="14sp"/>
+                        android:textSize="15sp"/>
                 </FrameLayout>
 
                 <!-- Price-includes-GST toggle — no card. Icon, label and
@@ -332,12 +332,12 @@
                         android:background="@null"
                         android:paddingStart="44dp"
                         android:paddingEnd="14dp"
-                        android:hint="e.g. 1006"
+                        android:hint="Tax code"
                         android:textColor="#1A1A18"
                         android:textColorHint="#A99E88"
                         android:inputType="number"
                         android:singleLine="true"
-                        android:textSize="14sp"/>
+                        android:textSize="15sp"/>
                 </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -416,141 +416,119 @@
                 </FrameLayout>
             </LinearLayout>
 
-            <LinearLayout
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp" android:text="Official UQC"/>
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="14dp">
+                android:layout_height="50dp"
+                android:background="@drawable/bg_glass_input">
 
-                <TextView style="@style/EpFieldLabel" android:layout_width="0dp"
-                    android:layout_weight="1" android:text="Official UQC"/>
-                <TextView style="@style/EpFieldLabel" android:layout_width="0dp"
-                    android:layout_weight="1" android:layout_marginStart="8dp" android:text="Cess %"/>
-                <TextView style="@style/EpFieldLabel" android:layout_width="0dp"
-                    android:layout_weight="1" android:layout_marginStart="8dp" android:text="Supply classification"/>
-            </LinearLayout>
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/ic_lc_sliders"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
 
-            <LinearLayout
+                <TextView
+                    android:id="@+id/spinnerOfficialUqc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="38dp"
+                    android:paddingEnd="26dp"
+                    android:hint="Select"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#A99E88"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textSize="14.5sp"/>
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#A99E88"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="Cess %"/>
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="50dp"
+                android:background="@drawable/bg_glass_input">
 
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/ic_lc_percent"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
 
-                    <ImageView
-                        android:layout_width="17dp"
-                        android:layout_height="17dp"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="12dp"
-                        android:src="@drawable/ic_lc_sliders"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCessRate"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:paddingStart="38dp"
+                    android:paddingEnd="12dp"
+                    android:hint="If any"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#A99E88"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"
+                    android:textSize="14.5sp"/>
+            </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/spinnerOfficialUqc"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@null"
-                        android:gravity="center_vertical"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="38dp"
-                        android:paddingEnd="26dp"
-                        android:hint="UQC"
-                        android:textColor="#1A1A18"
-                        android:textColorHint="#A99E88"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:textSize="12.5sp"/>
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="Supply classification"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_glass_input">
 
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center_vertical|end"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_lc_chevron_down"
-                        app:tint="#A99E88"
-                        android:contentDescription="@null"/>
-                </FrameLayout>
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/ic_lc_box"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
 
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_glass_input">
+                <TextView
+                    android:id="@+id/spinnerSupplyClassification"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="38dp"
+                    android:paddingEnd="26dp"
+                    android:hint="Select"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#A99E88"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textSize="14.5sp"/>
 
-                    <ImageView
-                        android:layout_width="17dp"
-                        android:layout_height="17dp"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="12dp"
-                        android:src="@drawable/ic_lc_percent"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null"/>
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etCessRate"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@null"
-                        android:paddingStart="38dp"
-                        android:paddingEnd="12dp"
-                        android:hint="Cess %"
-                        android:textColor="#1A1A18"
-                        android:textColorHint="#A99E88"
-                        android:inputType="numberDecimal"
-                        android:singleLine="true"
-                        android:textSize="12.5sp"/>
-                </FrameLayout>
-
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_glass_input">
-
-                    <ImageView
-                        android:layout_width="17dp"
-                        android:layout_height="17dp"
-                        android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="12dp"
-                        android:src="@drawable/ic_lc_box"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null"/>
-
-                    <TextView
-                        android:id="@+id/spinnerSupplyClassification"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@null"
-                        android:gravity="center_vertical"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="38dp"
-                        android:paddingEnd="26dp"
-                        android:hint="Supply"
-                        android:textColor="#1A1A18"
-                        android:textColorHint="#A99E88"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:textSize="12.5sp"/>
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center_vertical|end"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_lc_chevron_down"
-                        app:tint="#A99E88"
-                        android:contentDescription="@null"/>
-                </FrameLayout>
-            </LinearLayout>
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#A99E88"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
 
             <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp"
                 android:text="HSN description (optional)"/>
@@ -576,12 +554,12 @@
                     android:background="@null"
                     android:paddingStart="44dp"
                     android:paddingEnd="14dp"
-                    android:hint="e.g. Tea leaves, blended"
+                    android:hint="Short description"
                     android:textColor="#1A1A18"
                     android:textColorHint="#A99E88"
                     android:inputType="textCapSentences"
                     android:maxLines="1"
-                    android:textSize="13sp"/>
+                    android:textSize="14.5sp"/>
             </FrameLayout>
             </LinearLayout><!-- /EpCard TAX -->
 
@@ -625,7 +603,7 @@
                     android:textColorHint="#A99E88"
                     android:inputType="textCapWords"
                     android:completionThreshold="1"
-                    android:textSize="14sp"/>
+                    android:textSize="15sp"/>
 
                 <ImageView
                     android:layout_width="15dp"
@@ -768,12 +746,12 @@
                             android:background="@null"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="e.g. 10"
+                            android:hint="Units to add"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="numberDecimal"
                             android:singleLine="true"
-                            android:textSize="14sp"/>
+                            android:textSize="15sp"/>
                     </FrameLayout>
 
                     <TextView

@@ -1,23 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Sign-up screen — phone layout (branding stacked above the form).
+
+    This is the DEFAULT (phone) version. The original side-by-side
+    branding-pane + form design lives unchanged in
+    layout-sw600dp/activity_register.xml — tablets load that version
+    automatically via Android's screen-width resource qualifier, phones
+    load this one. See phone_compatibility_plan.md Phase 7.
+
+    IMPORTANT: brandingPane is NOT decorative — RegisterActivity.kt uses
+    it for a swipe-to-navigate-back-to-Login gesture (setupSlideToToggle)
+    and a shared-element transition (transitionName="shared_branding_pane")
+    from MainActivity. Every id and transitionName here is preserved
+    exactly as in the tablet version; only the OUTER arrangement changed
+    from a horizontal weighted split to a vertical stack.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_champagne_faceted"
+    android:background="@drawable/bg_login_doodle"
     android:focusable="true"
     android:focusableInTouchMode="true">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mainContainerCard"
+        android:theme="@style/ThemeOverlay.NoElevationOverlay"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="36dp"
+        android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="22dp"
+        android:foreground="@drawable/bg_login_card_glass_sheen"
         app:cardCornerRadius="22dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:strokeColor="#ECE7DA"
-        app:strokeWidth="1dp"
+        app:cardElevation="10dp"
+        app:cardBackgroundColor="#F2FBF9F4"
+        app:strokeColor="#D8C3A0"
+        app:strokeWidth="1.5dp"
+        app:rippleColor="#00000000"
         app:layout_constraintWidth_max="660dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,21 +46,20 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:baselineAligned="false">
 
-            <!-- ===== LEFT: BRAND ===== -->
+            <!-- ===== BRAND (stacked header, was a side pane on tablet) ===== -->
             <LinearLayout
                 android:id="@+id/brandingPane"
                 android:transitionName="shared_branding_pane"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.86"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center_vertical"
-                android:paddingStart="26dp"
-                android:paddingEnd="22dp"
-                android:paddingVertical="28dp">
+                android:gravity="start"
+                android:paddingHorizontal="26dp"
+                android:paddingTop="26dp"
+                android:paddingBottom="16dp">
 
                 <ImageView
                     android:id="@+id/brandLogo"
@@ -131,21 +149,20 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- divider (horizontal now, between the stacked brand header and form) -->
             <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginVertical="22dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="24dp"
                 android:background="#E6DDCB"/>
 
-            <!-- ===== RIGHT: SIGN-UP FORM ===== -->
+            <!-- ===== SIGN-UP FORM (was the right pane, now full width below the brand header) ===== -->
             <LinearLayout
                 android:id="@+id/registerContainer"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.18"
                 android:orientation="vertical"
-                android:paddingStart="20dp"
-                android:paddingEnd="24dp"
+                android:paddingHorizontal="24dp"
                 android:paddingVertical="22dp">
 
                 <LinearLayout
@@ -182,68 +199,76 @@
                         android:background="@drawable/bg_login_tab_active"/>
                 </LinearLayout>
 
-                <TextView android:id="@+id/lblFullName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full Name" android:visibility="gone"/>
+                <TextView android:id="@+id/lblFullName" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:layout_marginBottom="6dp"
+                    android:text="Full name" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/nameContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="14dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_glass_input">
                     <ImageView android:id="@+id/iconFullName" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_user" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/etFullName" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="Full name" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                        android:inputType="textPersonName" android:singleLine="true" android:textSize="14sp"/>
+                        android:hint="As per your ID" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="textPersonName" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
-                <TextView android:id="@+id/lblEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:visibility="gone"/>
+                <TextView android:id="@+id/lblEmail" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
+                    android:text="Email address" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/emailContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_glass_input">
                     <ImageView android:id="@+id/iconEmail" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_mail" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/etEmail" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="Email" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                        android:inputType="textEmailAddress" android:singleLine="true" android:textSize="14sp"/>
+                        android:hint="For login &amp; receipts" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="textEmailAddress" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
-                <TextView android:id="@+id/lblPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phone Number" android:visibility="gone"/>
+                <TextView android:id="@+id/lblPhone" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
+                    android:text="Phone number" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/phoneContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_glass_input">
                     <ImageView android:id="@+id/iconPhone" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_phone" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/etPhoneNumber" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="Phone number" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                        android:inputType="phone" android:singleLine="true" android:textSize="14sp"/>
+                        android:hint="10-digit mobile" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="phone" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
-                <TextView android:id="@+id/lblShopName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shop Name" android:visibility="gone"/>
+                <TextView android:id="@+id/lblShopName" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
+                    android:text="Shop name" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/shopContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_glass_input">
                     <ImageView android:id="@+id/iconShop" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_store" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/ShopName" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="Shop name" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                        android:inputType="text" android:singleLine="true" android:textSize="14sp"/>
+                        android:hint="Shown on your bills" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="text" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -266,6 +291,55 @@
                     app:icon="@drawable/ic_cta_arrow"
                     app:iconGravity="textEnd"
                     app:iconTint="#FFFFFF"/>
+
+                <!-- Powered-by footer: wax-seal style monogram badge. -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_powered_by_divider"/>
+
+                <LinearLayout
+                    android:id="@+id/poweredByFooter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="12dp">
+
+                    <FrameLayout
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_powered_by_seal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="19dp"
+                            android:layout_gravity="center"
+                            android:adjustViewBounds="true"
+                            android:src="@drawable/ic_scalancer_emblem"
+                            android:contentDescription="@string/powered_by_scalancer"/>
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="POWERED BY"
+                        android:textColor="#B4A98F"
+                        android:textSize="7sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_medium"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="10dp"
+                        android:layout_marginTop="3dp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ic_scalancer_wordmark"
+                        android:contentDescription="@null"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
