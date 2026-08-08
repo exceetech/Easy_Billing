@@ -9,10 +9,20 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.network.PeakHourResponse
 import com.example.easy_billing.util.CurrencyHelper
+
+private val PEAK_HOUR_DIFF_CALLBACK = object : DiffUtil.ItemCallback<PeakHourResponse>() {
+    override fun areItemsTheSame(oldItem: PeakHourResponse, newItem: PeakHourResponse): Boolean =
+        oldItem.date == newItem.date && oldItem.hour == newItem.hour
+
+    override fun areContentsTheSame(oldItem: PeakHourResponse, newItem: PeakHourResponse): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Adapter for the "ALL HOURS" list (positions 4+ after podium takes top 3).
@@ -23,11 +33,11 @@ import com.example.easy_billing.util.CurrencyHelper
  * @param globalMin    Min revenue across the entire dataset.
  */
 class PeakHourAdapter(
-    private var data: List<PeakHourResponse>,
+    initialData: List<PeakHourResponse>,
     private var startRank: Int = 1,
     private var globalMax: Double = 0.0,
     private var globalMin: Double = 0.0
-) : RecyclerView.Adapter<PeakHourAdapter.ViewHolder>() {
+) : ListAdapter<PeakHourResponse, PeakHourAdapter.ViewHolder>(PEAK_HOUR_DIFF_CALLBACK) {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvHour: TextView         = view.findViewById(R.id.tvHour)
@@ -44,7 +54,10 @@ class PeakHourAdapter(
     private var localMax = 1.0
     private var localMin = 0.0
 
-    init { recalculateLocal() }
+    init {
+        recalculateLocal(initialData)
+        submitList(initialData)
+    }
 
     fun updateData(
         newData: List<PeakHourResponse>,
@@ -52,15 +65,21 @@ class PeakHourAdapter(
         newGlobalMax: Double = globalMax,
         newGlobalMin: Double = globalMin
     ) {
-        data        = newData
+        // startRank/globalMax/globalMin are adapter-level state that affects
+        // every row's rank label, colour and progress bar but isn't part of
+        // PeakHourResponse itself — DiffUtil can't see them change, so force
+        // a full rebind whenever any of them do, on top of the normal diff.
+        val modeChanged = startRank != newStartRank || globalMax != newGlobalMax || globalMin != newGlobalMin
         startRank   = newStartRank
         globalMax   = newGlobalMax
         globalMin   = newGlobalMin
-        recalculateLocal()
-        notifyDataSetChanged()
+        recalculateLocal(newData)
+        submitList(newData) {
+            if (modeChanged) notifyItemRangeChanged(0, itemCount)
+        }
     }
 
-    private fun recalculateLocal() {
+    private fun recalculateLocal(data: List<PeakHourResponse>) {
         localMax = data.maxOfOrNull { it.revenue } ?: 1.0
         localMin = data.minOfOrNull { it.revenue } ?: 0.0
     }
@@ -71,11 +90,9 @@ class PeakHourAdapter(
         return ViewHolder(view)
     }
 
-    override fun getItemCount() = data.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val item    = data[position]
+        val item    = getItem(position)
         val context = holder.itemView.context
 
         // ── Rank — plain muted text (no chip; matches mockup ALL HOURS style) ──

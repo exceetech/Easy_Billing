@@ -39,9 +39,6 @@ class CustomerTransactionsActivity : AppCompatActivity() {
     private lateinit var rv: RecyclerView
     private lateinit var adapter: TransactionAdapter
 
-    // ✅ UI list (with headers)
-    private val list = mutableListOf<TransactionUI>()
-
     // ✅ ORIGINAL DATA (IMPORTANT)
     private val originalList = mutableListOf<CreditTransaction>()
 
@@ -110,7 +107,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         findViewById<View>(R.id.chipHeaderPhone).visibility =
             if (accountPhone.isNotBlank()) View.VISIBLE else View.GONE
 
-        adapter = TransactionAdapter(list)
+        adapter = TransactionAdapter()
         rv.layoutManager = LinearLayoutManager(this)
         rv.adapter = adapter
 
@@ -428,9 +425,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
                     val ui = prepareUI(filtered)
 
-                    list.clear()
-                    list.addAll(ui)
-                    adapter.notifyDataSetChanged()
+                    adapter.submitList(ui)
                 }
 
                 handler.postDelayed(runnable!!, 300) // 🔥 smooth delay
@@ -478,9 +473,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         currentList.clear()
         currentList.addAll(filtered)
 
-        list.clear()
-        list.addAll(prepareUI(filtered))
-        adapter.notifyDataSetChanged()
+        adapter.submitList(prepareUI(filtered))
 
         findViewById<TextView>(R.id.tvFilterLabel).text = filterLabel()
     }

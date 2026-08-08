@@ -157,6 +157,20 @@ class CartAdapter(
         button: View,
         onClick: () -> Unit
     ) {
+        // This runs fresh on every bind (recycled rows get new listeners
+        // here each time). If a bind lands while a PREVIOUS hold loop from
+        // this same button is still mid-repeat, that old loop's runnable
+        // was scheduled by an old Handler/isHolding pair that this bind is
+        // about to orphan — its ACTION_UP would have stopped it, but the
+        // touch listener that would have delivered that ACTION_UP is about
+        // to be replaced below, so it never arrives. Left alone, the old
+        // loop just keeps firing onClick() against whatever item that old
+        // closure captured, forever. Cancel it before installing new ones.
+        @Suppress("UNCHECKED_CAST")
+        (button.tag as? Pair<android.os.Handler, Runnable>)?.let { (oldHandler, oldRunnable) ->
+            oldHandler.removeCallbacks(oldRunnable)
+        }
+
         val handler = android.os.Handler(android.os.Looper.getMainLooper())
         var isHolding = false
 
@@ -168,6 +182,8 @@ class CartAdapter(
                 }
             }
         }
+
+        button.tag = handler to runnable
 
         button.setOnClickListener {
             button.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
@@ -185,6 +201,7 @@ class CartAdapter(
                 event.action == android.view.MotionEvent.ACTION_CANCEL
             ) {
                 isHolding = false
+                handler.removeCallbacks(runnable)
             }
             false
         }

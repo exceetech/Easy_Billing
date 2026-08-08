@@ -17,11 +17,10 @@ import androidx.compose.material3.Button
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.CreditAccount
 import com.example.easy_billing.db.CreditTransaction
 import com.example.easy_billing.network.CreateCreditAccountRequest
-import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.repository.CreditAccountsRepository
 import com.example.easy_billing.sync.SyncManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -48,8 +47,8 @@ class CreditAccountsActivity : BaseActivity() {
 
     private var currentFilter = "ALL"
 
-    // 🔥 reuse DB instance
-    private val db by lazy { AppDatabase.getDatabase(this) }
+    // All DB/network access for this screen goes through the repository.
+    private val repository by lazy { CreditAccountsRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,14 +122,12 @@ class CreditAccountsActivity : BaseActivity() {
 
     private fun loadAccounts() = lifecycleScope.launch {
 
-        val data = db.creditAccountDao().getAll(shopId)
+        val data = repository.getAll(shopId)
 
         list.clear()
         list.addAll(data)
 
-        adapter.notifyDataSetChanged()
-
-        applyFilter(data)        // ✅ apply filter
+        applyFilter(data)        // ✅ apply filter (also pushes rows into the adapter)
         updateSummary(data)  // ✅ IMPORTANT
     }
 
@@ -158,12 +155,10 @@ class CreditAccountsActivity : BaseActivity() {
 
                     lifecycleScope.launch {
 
-                        val db = AppDatabase.getDatabase(this@CreditAccountsActivity)
-
                         val result = if (query.isEmpty()) {
-                            db.creditAccountDao().getAll(shopId)
+                            repository.getAll(shopId)
                         } else {
-                            db.creditAccountDao().search("%$query%", shopId)
+                            repository.search("%$query%", shopId)
                         }
 
                         // Go through applyFilter / updateSummary rather than
@@ -238,9 +233,7 @@ class CreditAccountsActivity : BaseActivity() {
 
             lifecycleScope.launch(Dispatchers.IO) {
 
-                val db = AppDatabase.getDatabase(this@CreditAccountsActivity)
-
-                val existing = db.creditAccountDao().getByPhone(phone, shopId)
+                val existing = repository.getByPhone(phone, shopId)
 
                 if (existing != null) {
 
@@ -270,13 +263,11 @@ class CreditAccountsActivity : BaseActivity() {
                     }
                 }
 
-                val api = RetrofitClient.api
-
                 val token = getSharedPreferences("auth", MODE_PRIVATE)
                     .getString("TOKEN", null)
 
                 if (token == null) {
-                    db.creditAccountDao().insert(
+                    repository.insertLocal(
                         CreditAccount(
                             name = name,
                             phone = phone,
@@ -288,12 +279,12 @@ class CreditAccountsActivity : BaseActivity() {
                 }
 
                 try {
-                    val response = api.createCreditAccount(
+                    val response = repository.createAccountRemote(
                         token,
                         CreateCreditAccountRequest(name, phone)
                     )
 
-                    db.creditAccountDao().insert(
+                    repository.insertLocal(
                         CreditAccount(
                             name = response.name,
                             phone = response.phone,
@@ -310,7 +301,7 @@ class CreditAccountsActivity : BaseActivity() {
 
                     e.printStackTrace()
 
-                    db.creditAccountDao().insert(
+                    repository.insertLocal(
                         CreditAccount(
                             name = name,
                             phone = phone,
@@ -322,11 +313,12 @@ class CreditAccountsActivity : BaseActivity() {
 
                 withContext(Dispatchers.Main) {
 
-                    val updated = db.creditAccountDao().getAll(shopId)
+                    val updated = repository.getAll(shopId)
 
                     list.clear()
                     list.addAll(updated)
-                    adapter.notifyDataSetChanged()
+                    applyFilter(updated)
+                    updateSummary(updated)
 
                     Toast.makeText(this@CreditAccountsActivity, "Customer added", Toast.LENGTH_SHORT).show()
 
@@ -399,7 +391,7 @@ class CreditAccountsActivity : BaseActivity() {
 
             lifecycleScope.launch(Dispatchers.IO) {
 
-                db.creditAccountDao().restoreAccount(
+                repository.restoreAccount(
                     phone = phone,
                     name = chosenName,
                     isSynced = false,
@@ -704,9 +696,9 @@ class CreditAccountsActivity : BaseActivity() {
                 // Applied as an adjustment in SQL rather than a total computed
                 // from the captured account, which may be out of date by the
                 // time the dialog is confirmed.
-                db.creditAccountDao().addToDue(account.id, -amount, shopId)
+                repository.addToDue(account.id, -amount, shopId)
 
-                db.creditTransactionDao().insert(
+                repository.insertTransaction(
                     CreditTransaction(
                         accountId = account.id,
                         amount = amount,
@@ -774,7 +766,7 @@ class CreditAccountsActivity : BaseActivity() {
                 // was opened. Settling to zero is genuinely absolute, so
                 // updateDue is right here — only the logged figure needs to be
                 // current.
-                val cleared = db.creditAccountDao().getById(account.id, shopId)?.dueAmount
+                val cleared = repository.getById(account.id, shopId)?.dueAmount
                     ?: account.dueAmount
 
                 // Re-checked here, not only on the sheet: a payment or a sync
@@ -791,7 +783,7 @@ class CreditAccountsActivity : BaseActivity() {
                     return@launch
                 }
 
-                db.creditAccountDao().updateDue(account.id, 0.0, shopId)
+                repository.updateDue(account.id, 0.0, shopId)
 
                 // Two different events, recorded as two different types.
                 // SETTLE meant both — debt forgiven and money handed back — so
@@ -804,7 +796,7 @@ class CreditAccountsActivity : BaseActivity() {
                 // The amount is always a magnitude; the type carries the
                 // direction. Logging 0 (as this once did) left the history
                 // reading "₹0" with no trace of the sum involved.
-                db.creditTransactionDao().insert(
+                repository.insertTransaction(
                     CreditTransaction(
                         accountId = account.id,
                         amount = kotlin.math.abs(cleared),
@@ -1043,8 +1035,6 @@ class CreditAccountsActivity : BaseActivity() {
                     val token = getSharedPreferences("auth", MODE_PRIVATE)
                         .getString("TOKEN", null)
 
-                    val api = RetrofitClient.api
-
                     // serverId is nullable, and `serverId != -1` is TRUE when it
                     // is null — so !! threw on any account that had never
                     // synced. The throw was swallowed by the catch below, which
@@ -1055,10 +1045,10 @@ class CreditAccountsActivity : BaseActivity() {
 
                     try {
                         if (token != null && serverId != null && serverId != -1) {
-                            api.deactivateCreditAccount(token, serverId)
+                            repository.deactivateRemote(token, serverId)
                         }
 
-                        db.creditAccountDao().deactivate(account.id, shopId)
+                        repository.deactivateLocal(account.id, shopId)
                         removed = true
 
                     } catch (e: Exception) {

@@ -9,8 +9,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.AiInsight
+
+private val AI_INSIGHT_ROW_DIFF_CALLBACK = object : DiffUtil.ItemCallback<AiInsightListAdapter.Row>() {
+    override fun areItemsTheSame(oldItem: AiInsightListAdapter.Row, newItem: AiInsightListAdapter.Row): Boolean =
+        when {
+            oldItem is AiInsightListAdapter.Row.Header && newItem is AiInsightListAdapter.Row.Header ->
+                oldItem.type == newItem.type
+            oldItem is AiInsightListAdapter.Row.Item && newItem is AiInsightListAdapter.Row.Item ->
+                // Backend generates a fixed set of insights per report; (type, title) is
+                // stable identity within one report even though there's no server id.
+                oldItem.insight.type == newItem.insight.type && oldItem.insight.title == newItem.insight.title
+            else -> false
+        }
+
+    override fun areContentsTheSame(oldItem: AiInsightListAdapter.Row, newItem: AiInsightListAdapter.Row): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Grouped insights list for the AI screen: severity section headers (fire → leak → gold)
@@ -18,9 +36,9 @@ import com.example.easy_billing.network.AiInsight
  */
 class AiInsightListAdapter(
     private val context: Context
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : ListAdapter<AiInsightListAdapter.Row, RecyclerView.ViewHolder>(AI_INSIGHT_ROW_DIFF_CALLBACK) {
 
-    private sealed class Row {
+    sealed class Row {
         data class Header(val type: String) : Row()
         data class Item(val insight: AiInsight) : Row()
     }
@@ -40,8 +58,6 @@ class AiInsightListAdapter(
         else -> TypeStyle("INSIGHTS", "#F1EFE8", "#9A8F79", "#C9C3B4", R.drawable.ic_kpi_badge_check)
     }
 
-    private var rows: List<Row> = emptyList()
-
     fun submit(insights: List<AiInsight>) {
         // Backend already orders fire → leak → gold; insert a header when the type changes.
         val built = mutableListOf<Row>()
@@ -54,21 +70,18 @@ class AiInsightListAdapter(
             }
             built.add(Row.Item(ins))
         }
-        rows = built
-        notifyDataSetChanged()
+        submitList(built)
     }
 
     /** The insight at a row position, or null if that row is a section header. */
     fun insightAt(position: Int): AiInsight? =
-        (rows.getOrNull(position) as? Row.Item)?.insight
+        (currentList.getOrNull(position) as? Row.Item)?.insight
 
     /** True if the row at this position is a section header (not swipe-dismissible). */
-    fun isHeader(position: Int): Boolean = rows.getOrNull(position) is Row.Header
-
-    override fun getItemCount(): Int = rows.size
+    fun isHeader(position: Int): Boolean = currentList.getOrNull(position) is Row.Header
 
     override fun getItemViewType(position: Int): Int =
-        if (rows[position] is Row.Header) TYPE_HEADER else TYPE_ITEM
+        if (getItem(position) is Row.Header) TYPE_HEADER else TYPE_ITEM
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(context)
@@ -80,7 +93,7 @@ class AiInsightListAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val row = rows[position]) {
+        when (val row = getItem(position)) {
             is Row.Header -> (holder as HeaderVH).bind(styleFor(row.type))
             is Row.Item -> (holder as ItemVH).bind(row.insight)
         }

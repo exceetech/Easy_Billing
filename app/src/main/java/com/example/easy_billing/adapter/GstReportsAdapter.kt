@@ -4,6 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.util.CurrencyHelper
@@ -17,8 +19,20 @@ data class GstReportItem(
     val isInterstate: Boolean
 )
 
-class GstReportsAdapter(private var items: List<GstReportItem>) :
-    RecyclerView.Adapter<GstReportsAdapter.ViewHolder>() {
+private val GST_REPORT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<GstReportItem>() {
+    override fun areItemsTheSame(oldItem: GstReportItem, newItem: GstReportItem): Boolean =
+        oldItem.invoiceNumber == newItem.invoiceNumber
+
+    override fun areContentsTheSame(oldItem: GstReportItem, newItem: GstReportItem): Boolean =
+        oldItem == newItem
+}
+
+class GstReportsAdapter(initialItems: List<GstReportItem>) :
+    ListAdapter<GstReportItem, GstReportsAdapter.ViewHolder>(GST_REPORT_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialItems)
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvInvoiceNumber: TextView = view.findViewById(R.id.tvInvoiceNumber)
@@ -36,7 +50,7 @@ class GstReportsAdapter(private var items: List<GstReportItem>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
+        val item = getItem(position)
         holder.tvInvoiceNumber.text = item.invoiceNumber
         holder.tvDate.text = item.date
         holder.tvGstin.text = item.gstin.ifBlank { "Unregistered" }
@@ -45,10 +59,7 @@ class GstReportsAdapter(private var items: List<GstReportItem>) :
         holder.tvTaxBreakup.text = if (item.isInterstate) "IGST" else "CGST/SGST"
     }
 
-    override fun getItemCount() = items.size
-
     fun updateData(newItems: List<GstReportItem>) {
-        items = newItems
-        notifyDataSetChanged()
+        submitList(newItems)
     }
 }

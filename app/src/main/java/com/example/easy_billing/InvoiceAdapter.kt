@@ -5,11 +5,60 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.db.Product
 import com.example.easy_billing.model.CartItem
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GstBillingCalculator
+
+/**
+ * One row's full display state — a value snapshot, not a live reference.
+ *
+ * [liveItem] is the actual mutable [CartItem] from InvoiceActivity's cart
+ * (needed so the discount-edit click callback mutates the real object), but
+ * everything DiffUtil compares comes from [quantity]/[discountAmount]/
+ * [product] — copied out of the CartItem AT THE MOMENT this row was built.
+ *
+ * This separation matters because CartItem.quantity/discountAmount are
+ * `var`s mutated in place (e.g. the discount dialog does
+ * `item.discountAmount = x` on the same object InvoiceActivity already
+ * holds). If DiffUtil compared the live CartItem directly, both the "old"
+ * and "new" submitted lists would end up pointing at the same
+ * already-mutated object by the time the diff actually runs, so a real
+ * change could look like no change at all. Snapshotting the values here
+ * avoids that trap.
+ */
+private data class InvoiceRow(
+    val index: Int,
+    val liveItem: CartItem,
+    val product: Product,
+    val quantity: Double,
+    val discountAmount: Double,
+    val line: GstBillingCalculator.LineBreakdown?,
+    val supplyType: String,
+    val gstScheme: String
+)
+
+private val INVOICE_ROW_DIFF_CALLBACK = object : DiffUtil.ItemCallback<InvoiceRow>() {
+    // The cart's line count/order never changes on this screen (no
+    // add/remove/reorder here — only per-line discount edits), so the
+    // slot index is a safe, stable identity.
+    override fun areItemsTheSame(oldItem: InvoiceRow, newItem: InvoiceRow): Boolean =
+        oldItem.index == newItem.index
+
+    // Deliberately compares only the snapshotted value fields, not
+    // [InvoiceRow.liveItem] itself (see class doc).
+    override fun areContentsTheSame(oldItem: InvoiceRow, newItem: InvoiceRow): Boolean =
+        oldItem.product == newItem.product &&
+            oldItem.quantity == newItem.quantity &&
+            oldItem.discountAmount == newItem.discountAmount &&
+            oldItem.line == newItem.line &&
+            oldItem.supplyType == newItem.supplyType &&
+            oldItem.gstScheme == newItem.gstScheme
+}
 
 /**
  * Renders one premium row per cart line in
@@ -29,7 +78,7 @@ class InvoiceAdapter(
     private var supplyType: String = SUPPLY_INTRASTATE,
     private var gstScheme: String = SCHEME_NORMAL,
     private val onItemClick: (CartItem) -> Unit = {}
-) : RecyclerView.Adapter<InvoiceAdapter.InvoiceViewHolder>() {
+) : ListAdapter<InvoiceRow, InvoiceAdapter.InvoiceViewHolder>(INVOICE_ROW_DIFF_CALLBACK) {
 
     companion object {
         const val SUPPLY_INTRASTATE = "intrastate"
@@ -46,6 +95,23 @@ class InvoiceAdapter(
 
     /** Per-line discounted breakdown (parallel to [items]); null when no discount. */
     private var lineCalcs: List<GstBillingCalculator.LineBreakdown>? = null
+
+    init {
+        submitList(buildRows())
+    }
+
+    private fun buildRows(): List<InvoiceRow> = items.mapIndexed { index, cartItem ->
+        InvoiceRow(
+            index = index,
+            liveItem = cartItem,
+            product = cartItem.product,
+            quantity = cartItem.quantity,
+            discountAmount = cartItem.discountAmount,
+            line = lineCalcs?.getOrNull(index),
+            supplyType = supplyType,
+            gstScheme = gstScheme
+        )
+    }
 
     class InvoiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: TextView = view.findViewById(R.id.tvAvatar)
@@ -64,10 +130,10 @@ class InvoiceAdapter(
     }
 
     override fun onBindViewHolder(holder: InvoiceViewHolder, position: Int) {
-        val item = items[position]
+        val row = getItem(position)
         val context = holder.itemView.context
-        val product = item.product
-        val qty = item.quantity
+        val product = row.product
+        val qty = row.quantity
         val unit = product.unit?.lowercase() ?: "unit"
 
         val formattedQty = if (qty % 1 == 0.0) qty.toInt().toString()
@@ -96,21 +162,21 @@ class InvoiceAdapter(
         holder.avatar.setTextColor(AVATAR_INK[slot])
 
         // ---- GST context ----
-        val isComposition = gstScheme.equals(SCHEME_COMPOSITION, ignoreCase = true) ||
-                            supplyType.equals(SUPPLY_COMPOSITION, ignoreCase = true)
-        val isIntra = supplyType.equals(SUPPLY_INTRASTATE, ignoreCase = true)
-        val isInter = supplyType.equals(SUPPLY_INTERSTATE, ignoreCase = true)
+        val isComposition = row.gstScheme.equals(SCHEME_COMPOSITION, ignoreCase = true) ||
+                            row.supplyType.equals(SUPPLY_COMPOSITION, ignoreCase = true)
+        val isIntra = row.supplyType.equals(SUPPLY_INTRASTATE, ignoreCase = true)
+        val isInter = row.supplyType.equals(SUPPLY_INTERSTATE, ignoreCase = true)
 
         val cgstPct = product.cgstPercentage
         val sgstPct = product.sgstPercentage
         val igstPct = product.igstPercentage
 
         // Per-line discounted breakdown from the calculator (spreads the bill discount).
-        val line = lineCalcs?.getOrNull(position)
-        
+        val line = row.line
+
         // Use the calculator's base selling price so we don't treat tax-exclusive adjustments as discounts
         val unitPrice = line?.sellingPrice ?: product.price
-        val grossSubtotal = unitPrice * item.quantity
+        val grossSubtotal = unitPrice * row.quantity
 
         val netTaxable = line?.taxableAmount ?: grossSubtotal
         val hasDiscount = line != null && netTaxable < grossSubtotal - 0.01
@@ -152,21 +218,24 @@ class InvoiceAdapter(
             "no tax"
 
         // Discoverable discount chip — shows current state, opens the dialog.
-        if (item.discountAmount > 0.0) {
+        if (row.discountAmount > 0.0) {
             holder.discountChip.text =
-                "✎  ${CurrencyHelper.format(context, item.discountAmount)} off · edit"
+                "✎  ${CurrencyHelper.format(context, row.discountAmount)} off · edit"
             holder.discountChip.setTextColor(0xFF0F6E56.toInt())
         } else {
             holder.discountChip.text = "＋ Add discount"
             holder.discountChip.setTextColor(0xFF8A6526.toInt())
         }
-        holder.discountChip.setOnClickListener { onItemClick(item) }
+        // Passes the LIVE CartItem, not the snapshot — the discount dialog
+        // needs to mutate the object InvoiceActivity's saveBill() will
+        // actually read from.
+        holder.discountChip.setOnClickListener { onItemClick(row.liveItem) }
     }
 
     /** Feed the calculator's per-line breakdown so rows can show discounted amounts. */
     fun updateBreakdown(lines: List<GstBillingCalculator.LineBreakdown>?) {
         lineCalcs = lines
-        notifyDataSetChanged()
+        submitList(buildRows())
     }
 
     private fun initialsOf(name: String): String {
@@ -187,8 +256,6 @@ class InvoiceAdapter(
     fun updateMode(supplyType: String, gstScheme: String) {
         this.supplyType = supplyType
         this.gstScheme = gstScheme
-        notifyDataSetChanged()
+        submitList(buildRows())
     }
-
-    override fun getItemCount() = items.size
 }

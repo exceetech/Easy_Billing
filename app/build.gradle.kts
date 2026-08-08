@@ -1,9 +1,26 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
     id("com.google.gms.google-services")
 }
+
+// SMTP credentials for EmailSender — read from local.properties (already
+// gitignored, never committed) instead of being hardcoded in source. Add
+//   SMTP_EMAIL=your-email@gmail.com
+//   SMTP_PASSWORD=your-app-password
+// to your local.properties. Empty defaults below mean a build without
+// those keys set still compiles; EmailSender.sendEmail() will just fail at
+// call time with an auth error instead of silently having a real password
+// baked into the APK.
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val smtpEmail: String = localProperties.getProperty("SMTP_EMAIL", "")
+val smtpPassword: String = localProperties.getProperty("SMTP_PASSWORD", "")
 
 android {
     namespace = "com.example.easy_billing"
@@ -25,6 +42,9 @@ android {
         //     and make sure the phone is on the same Wi-Fi and the server is running.
         // Default below targets the emulator; the release build overrides it (see buildTypes).
         buildConfigField("String", "API_BASE_URL", "\"http://192.168.31.212:8080/\"")
+
+        buildConfigField("String", "SMTP_EMAIL", "\"$smtpEmail\"")
+        buildConfigField("String", "SMTP_PASSWORD", "\"$smtpPassword\"")
     }
 
     buildFeatures {
@@ -37,7 +57,12 @@ android {
             // buildConfigField("String", "API_BASE_URL", "\"http://192.168.1.100:8080/\"")
         }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             // TODO: set the real production HTTPS endpoint before shipping.
             buildConfigField("String", "API_BASE_URL", "\"https://api.example.com/\"")
         }
@@ -68,6 +93,14 @@ android {
     }
 }
 
+// Room's @Database has no exportSchema = false, so it defaults to true —
+// this tells KSP where to write the schema history JSON (used for Room
+// migration tests). Build-time only, no runtime effect; without it KSP
+// just warns and writes nothing.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     // Razorpay Checkout SDK — subscription payment flow (SubscriptionActivity).
     implementation("com.razorpay:checkout:1.6.33")
@@ -84,7 +117,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

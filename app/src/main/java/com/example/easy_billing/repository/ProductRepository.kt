@@ -277,6 +277,69 @@ class ProductRepository private constructor(
         )
     }
 
+    /**
+     * Inserts a new local category row for [shopId] if `category` isn't a
+     * predefined/uncategorized name and doesn't already exist. Called after
+     * saving or restoring a product so a genuinely new category shows up in
+     * future category pickers. Lifted 1:1 from AddProductActivity's private
+     * helper of the same name/behavior.
+     */
+    suspend fun rememberCategoryIfNew(category: String, shopId: String) {
+        val name = category.trim()
+        if (name.isEmpty()) return
+        if (com.example.easy_billing.util.ProductCategories.PREDEFINED.any { it.equals(name, true) }) return
+        if (name.equals(com.example.easy_billing.util.ProductCategories.UNCATEGORIZED, true)) return
+        if (db.productCategoryDao().getByName(name, shopId) == null) {
+            db.productCategoryDao().insertIgnore(
+                com.example.easy_billing.db.ProductCategory(shopId = shopId, name = name)
+            )
+        }
+    }
+
+    /**
+     * Mirrors [product]'s current fields to the backend. Fire-and-forget —
+     * the local row is authoritative, so a network failure must not surface
+     * as an error to the caller. Lifted 1:1 from AddProductActivity's
+     * pushRestoredProduct(); see that function's original doc comment for
+     * why this exists as a separate push rather than relying on
+     * SyncManager alone (short version: activate() only flips isActive,
+     * the price/GST/HSN the user just typed needs an explicit push same as
+     * every other edit path in the app, e.g. updateSalesFieldsOnly above).
+     */
+    suspend fun pushProductUpdate(product: Product) {
+        val serverId = product.serverId ?: return
+        val token = ContextHolder.app
+            ?.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            ?.getString("TOKEN", null) ?: return
+        runCatching {
+            RetrofitClient.api.updateShopProduct(
+                token = "Bearer $token",
+                serverId = serverId,
+                request = AddProductRequest(
+                    name = product.name,
+                    variant_name = product.variant?.ifBlank { null },
+                    unit = product.unit ?: "piece",
+                    price = product.price,
+                    track_inventory = product.trackInventory,
+                    initial_stock = null,   // stock is never touched by a restore
+                    cost_price = null,
+                    hsn_code = product.hsnCode?.takeIf { it.isNotBlank() },
+                    default_gst_rate = product.defaultGstRate,
+                    cgst_percentage = product.cgstPercentage,
+                    sgst_percentage = product.sgstPercentage,
+                    igst_percentage = product.igstPercentage,
+                    official_uqc = product.officialUqc,
+                    hsn_description = product.hsnDescription,
+                    cess_rate = product.cessRate,
+                    supply_classification = product.supplyClassification,
+                    category = product.category,
+                    is_purchased = product.isPurchased,
+                    is_tax_inclusive = product.isTaxInclusive
+                )
+            )
+        }
+    }
+
     /* ------------------------------------------------------------------
      *  Shop-scoping
      * ------------------------------------------------------------------ */

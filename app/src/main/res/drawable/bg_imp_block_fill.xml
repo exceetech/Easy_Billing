@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- White-filled 16dp block, tinted at runtime via backgroundTint (e.g. the audit-score band). -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#FFFFFF"/>
-    <corners android:radius="16dp"/>
-</shape>

@@ -606,7 +606,7 @@ class AddProductActivity : BaseActivity() {
                     )
                 ).toInt()
 
-                rememberCategoryIfNew(categoryVal, shopId)
+                repo.rememberCategoryIfNew(categoryVal, shopId)
 
                 if (withStock) {
                     InventoryManager.addStock(db, newId, stockQty, costPrice)
@@ -666,10 +666,11 @@ class AddProductActivity : BaseActivity() {
             dialog.dismiss()
             lifecycleScope.launch {
                 try {
+                    val repo = ProductRepository.get(this@AddProductActivity)
                     db.productDao().update(product)
                     db.productDao().activate(product.id)
-                    rememberCategoryIfNew(product.category, shopIdSync())
-                    pushRestoredProduct(product)
+                    repo.rememberCategoryIfNew(product.category, shopIdSync())
+                    repo.pushProductUpdate(product)
                     withContext(Dispatchers.Main) {
                         toast("Product restored")
                         finish()
@@ -736,51 +737,6 @@ class AddProductActivity : BaseActivity() {
             }
         }
         dialog.show()
-    }
-
-    /**
-     * Mirrors a restore to the backend.
-     *
-     * `activate()` leaves the row pending so SyncManager pushes the
-     * *isActive* flip, but the price / GST / HSN the user just typed would
-     * otherwise stay local. Every other edit path in the app pushes inline
-     * right after its local write (see
-     * ProductRepository.updateSalesFieldsOnly) — this keeps that contract.
-     *
-     * Fire-and-forget: the local row is authoritative and the purchase is
-     * already saved, so a network failure must not surface as an error.
-     */
-    private suspend fun pushRestoredProduct(product: Product) {
-        val serverId = product.serverId ?: return
-        val token = getSharedPreferences("auth", MODE_PRIVATE)
-            .getString("TOKEN", null) ?: return
-        runCatching {
-            RetrofitClient.api.updateShopProduct(
-                token = "Bearer $token",
-                serverId = serverId,
-                request = AddProductRequest(
-                    name = product.name,
-                    variant_name = product.variant?.ifBlank { null },
-                    unit = product.unit ?: "piece",
-                    price = product.price,
-                    track_inventory = product.trackInventory,
-                    initial_stock = null,   // stock is never touched by a restore
-                    cost_price = null,
-                    hsn_code = product.hsnCode?.takeIf { it.isNotBlank() },
-                    default_gst_rate = product.defaultGstRate,
-                    cgst_percentage = product.cgstPercentage,
-                    sgst_percentage = product.sgstPercentage,
-                    igst_percentage = product.igstPercentage,
-                    official_uqc = product.officialUqc,
-                    hsn_description = product.hsnDescription,
-                    cess_rate = product.cessRate,
-                    supply_classification = product.supplyClassification,
-                    category = product.category,
-                    is_purchased = product.isPurchased,
-                    is_tax_inclusive = product.isTaxInclusive
-                )
-            )
-        }
     }
 
     /* ---------------- Picker popup — same visual as
@@ -900,18 +856,6 @@ class AddProductActivity : BaseActivity() {
             prefs.getString("SHOP_ID", null) ?: prefs.getInt("SHOP_ID", 0).toString()
         } catch (e: ClassCastException) {
             prefs.getInt("SHOP_ID", 0).toString()
-        }
-    }
-
-    private suspend fun rememberCategoryIfNew(category: String, shopId: String) {
-        val name = category.trim()
-        if (name.isEmpty()) return
-        if (com.example.easy_billing.util.ProductCategories.PREDEFINED.any { it.equals(name, true) }) return
-        if (name.equals(com.example.easy_billing.util.ProductCategories.UNCATEGORIZED, true)) return
-        if (db.productCategoryDao().getByName(name, shopId) == null) {
-            db.productCategoryDao().insertIgnore(
-                com.example.easy_billing.db.ProductCategory(shopId = shopId, name = name)
-            )
         }
     }
 

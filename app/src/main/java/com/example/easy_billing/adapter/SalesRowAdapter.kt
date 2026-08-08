@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.util.CurrencyHelper
@@ -19,15 +21,29 @@ data class SalesRow(
     val isBest: Boolean = false
 )
 
+private val SALES_ROW_DIFF_CALLBACK = object : DiffUtil.ItemCallback<SalesRow>() {
+    // Identity: each breakdown is rebuilt from scratch per period, and the
+    // label (a day/month name) is unique within a single breakdown.
+    override fun areItemsTheSame(oldItem: SalesRow, newItem: SalesRow): Boolean =
+        oldItem.label == newItem.label
+
+    override fun areContentsTheSame(oldItem: SalesRow, newItem: SalesRow): Boolean =
+        oldItem == newItem
+}
+
 /**
  * Calm "Daily / Monthly breakdown" list for the redesigned Sales screen:
  * day + bills · relative bar · revenue, with a star on the best period.
  * Bars are sized relative to the best (max) revenue.
  */
 class SalesRowAdapter(
-    private var data: List<SalesRow> = emptyList(),
+    initialData: List<SalesRow> = emptyList(),
     private var maxRevenue: Double = 0.0
-) : RecyclerView.Adapter<SalesRowAdapter.ViewHolder>() {
+) : ListAdapter<SalesRow, SalesRowAdapter.ViewHolder>(SALES_ROW_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialData)
+    }
 
     private val blue = Color.parseColor("#378ADD")
     private val teal = Color.parseColor("#1D9E75")
@@ -43,9 +59,15 @@ class SalesRowAdapter(
     }
 
     fun updateData(newData: List<SalesRow>, newMax: Double) {
-        data = newData
+        // maxRevenue drives every row's bar width but isn't part of SalesRow
+        // itself, so DiffUtil can't see it change. If it changed, force a
+        // full rebind after the diff so bars don't go stale even when the
+        // rows' own content (label/revenue/bills) didn't change.
+        val maxChanged = newMax != maxRevenue
         maxRevenue = newMax
-        notifyDataSetChanged()
+        submitList(newData) {
+            if (maxChanged) notifyItemRangeChanged(0, itemCount)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -54,11 +76,9 @@ class SalesRowAdapter(
         return ViewHolder(view)
     }
 
-    override fun getItemCount() = data.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = holder.itemView.context
-        val row  = data[position]
+        val row  = getItem(position)
 
         holder.vDivider.visibility = if (position == 0) View.GONE else View.VISIBLE
         holder.tvStar.visibility   = if (row.isBest) View.VISIBLE else View.GONE

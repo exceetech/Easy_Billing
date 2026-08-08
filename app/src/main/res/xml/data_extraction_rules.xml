@@ -4,16 +4,16 @@
    for details.
 -->
 <data-extraction-rules>
+    <!-- The Room DB (easy_billing_db, plus its -wal/-shm files) holds
+         sales/billing/customer financial data. Excluded from cloud-backup
+         (Google Drive) so it never leaves the device over the network.
+         Left IN for device-transfer (the direct device-to-device "copy
+         your data" flow when a user sets up a new phone), since keeping
+         billing history/continuity there is a real feature, not a risk —
+         that path stays on-device/local, unlike cloud-backup. -->
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="database" path="easy_billing_db"/>
+        <exclude domain="database" path="easy_billing_db-wal"/>
+        <exclude domain="database" path="easy_billing_db-shm"/>
     </cloud-backup>
-    <!--
-    <device-transfer>
-        <include .../>
-        <exclude .../>
-    </device-transfer>
-    -->
 </data-extraction-rules>

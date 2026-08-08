@@ -6,8 +6,10 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Pre-API-31 equivalent of data_extraction_rules.xml's cloud-backup
+         exclusion — same reasoning: keep sales/billing/customer financial
+         data out of Android's full-data backup. -->
+    <exclude domain="database" path="easy_billing_db"/>
+    <exclude domain="database" path="easy_billing_db-wal"/>
+    <exclude domain="database" path="easy_billing_db-shm"/>
 </full-backup-content>

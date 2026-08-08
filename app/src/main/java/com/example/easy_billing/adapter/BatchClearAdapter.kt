@@ -5,12 +5,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.db.PurchaseBatch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private val BATCH_CLEAR_DIFF_CALLBACK = object : DiffUtil.ItemCallback<PurchaseBatch>() {
+    override fun areItemsTheSame(oldItem: PurchaseBatch, newItem: PurchaseBatch): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: PurchaseBatch, newItem: PurchaseBatch): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Adapter for the unified Clear-Stock batch selector — same card shell
@@ -21,13 +31,22 @@ import java.util.Locale
  * some devices) since Clear Stock removes each batch's entire
  * remaining quantity rather than a partial amount. Checked by default
  * for convenience.
+ *
+ * Selection is tracked by position (selectedIndices), same as before —
+ * this adapter is only ever constructed once per dialog with a fixed
+ * batch list (no incremental updates happen mid-selection), so the
+ * position/DiffUtil-identity combination stays safe.
  */
 class BatchClearAdapter(
-    private val batches: List<PurchaseBatch>
-) : RecyclerView.Adapter<BatchClearAdapter.BatchClearVH>() {
+    initialBatches: List<PurchaseBatch>
+) : ListAdapter<PurchaseBatch, BatchClearAdapter.BatchClearVH>(BATCH_CLEAR_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialBatches)
+    }
 
     private val selectedIndices = HashSet<Int>().apply {
-        batches.indices.forEach { add(it) }
+        initialBatches.indices.forEach { add(it) }
     }
 
     var onSelectionChanged: ((Double) -> Unit)? = null
@@ -80,7 +99,7 @@ class BatchClearAdapter(
     }
 
     override fun onBindViewHolder(holder: BatchClearVH, position: Int) {
-        val b = batches[position]
+        val b = getItem(position)
         val rowColor = colorFor(b)
 
         holder.stripe.setBackgroundColor(rowColor.stripe)
@@ -116,22 +135,20 @@ class BatchClearAdapter(
         holder.itemView.setOnClickListener { toggle() }
     }
 
-    override fun getItemCount(): Int = batches.size
-
     fun selectAll(checked: Boolean) {
         selectedIndices.clear()
         if (checked) {
-            batches.indices.forEach { selectedIndices.add(it) }
+            (0 until itemCount).forEach { selectedIndices.add(it) }
         }
-        notifyDataSetChanged()
+        notifyItemRangeChanged(0, itemCount)
         onSelectionChanged?.invoke(totalSelected())
     }
 
     fun totalSelected(): Double =
-        selectedIndices.sumOf { batches[it].quantityRemaining }
+        selectedIndices.sumOf { getItem(it).quantityRemaining }
 
     fun selectedBatches(): List<PurchaseBatch> =
-        selectedIndices.map { batches[it] }
+        selectedIndices.map { getItem(it) }
 
     fun selectedCount(): Int = selectedIndices.size
 

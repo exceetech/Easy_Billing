@@ -5,13 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.CreditAccount
 
+private val CREDIT_ACCOUNT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<CreditAccount>() {
+    override fun areItemsTheSame(oldItem: CreditAccount, newItem: CreditAccount): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: CreditAccount, newItem: CreditAccount): Boolean =
+        oldItem == newItem
+}
+
 class CreditAdapter(
-    private var list: MutableList<CreditAccount>,
+    initialList: List<CreditAccount>,
     private val onClick: (CreditAccount) -> Unit
-) : RecyclerView.Adapter<CreditAdapter.VH>() {
+) : ListAdapter<CreditAccount, CreditAdapter.VH>(CREDIT_ACCOUNT_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialList)
+    }
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val stripe = view.findViewById<View>(R.id.viewBalanceStripe)
@@ -32,11 +46,9 @@ class CreditAdapter(
         return VH(view)
     }
 
-    override fun getItemCount() = list.size
-
     override fun onBindViewHolder(holder: VH, position: Int) {
 
-        val item = list[position]
+        val item = getItem(position)
         val name = item.name.trim()
 
         holder.name.text = name
@@ -82,7 +94,7 @@ class CreditAdapter(
         // Rows sit inside one card, so the last must not draw a hairline
         // against the card's bottom edge.
         holder.divider.visibility =
-            if (position == list.lastIndex) View.GONE else View.VISIBLE
+            if (position == currentList.lastIndex) View.GONE else View.VISIBLE
 
         holder.itemView.setOnClickListener {
             onClick(item)
@@ -90,8 +102,6 @@ class CreditAdapter(
     }
 
     fun update(newList: List<CreditAccount>) {
-        list.clear()
-        list.addAll(newList)
-        notifyDataSetChanged()
+        submitList(newList)
     }
 }

@@ -6,12 +6,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TransactionAdapter(private val list: List<TransactionUI>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private val TRANSACTION_DIFF_CALLBACK = object : DiffUtil.ItemCallback<TransactionUI>() {
+    // Ledger entries have no server id here, but (isHeader, headerTitle,
+    // type, amount, timestamp) together uniquely and permanently identify
+    // one entry — that tuple never changes for a given entry once created,
+    // unlike isSynced/reference which can fill in later.
+    override fun areItemsTheSame(oldItem: TransactionUI, newItem: TransactionUI): Boolean =
+        oldItem.isHeader == newItem.isHeader &&
+            oldItem.headerTitle == newItem.headerTitle &&
+            oldItem.type == newItem.type &&
+            oldItem.amount == newItem.amount &&
+            oldItem.timestamp == newItem.timestamp
+
+    override fun areContentsTheSame(oldItem: TransactionUI, newItem: TransactionUI): Boolean =
+        oldItem == newItem
+}
+
+class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(TRANSACTION_DIFF_CALLBACK) {
 
     companion object {
         const val TYPE_HEADER = 0
@@ -46,7 +63,7 @@ class TransactionAdapter(private val list: List<TransactionUI>) :
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (list[position].isHeader) TYPE_HEADER else TYPE_ITEM
+        return if (getItem(position).isHeader) TYPE_HEADER else TYPE_ITEM
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -62,11 +79,9 @@ class TransactionAdapter(private val list: List<TransactionUI>) :
         }
     }
 
-    override fun getItemCount() = list.size
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        val item = list[position]
+        val item = getItem(position)
 
         if (holder is HeaderVH) {
             holder.tvHeader.text = item.headerTitle
@@ -158,7 +173,7 @@ class TransactionAdapter(private val list: List<TransactionUI>) :
             // Rows are grouped under a date header, so the last one before the
             // next header must not draw a trailing hairline.
             val nextIsHeaderOrEnd =
-                position == list.lastIndex || list[position + 1].isHeader
+                position == itemCount - 1 || getItem(position + 1).isHeader
             holder.divider.visibility = if (nextIsHeaderOrEnd) View.GONE else View.VISIBLE
         }
     }

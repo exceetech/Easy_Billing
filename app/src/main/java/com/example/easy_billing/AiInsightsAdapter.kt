@@ -9,20 +9,35 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.AiInsight
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 
+private val AI_INSIGHT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<AiInsight>() {
+    // Backend generates a fixed set of insights per report; (type, title) is
+    // stable identity within one report even though there's no server id.
+    override fun areItemsTheSame(oldItem: AiInsight, newItem: AiInsight): Boolean =
+        oldItem.type == newItem.type && oldItem.title == newItem.title
+
+    override fun areContentsTheSame(oldItem: AiInsight, newItem: AiInsight): Boolean =
+        oldItem == newItem
+}
+
 class AiInsightsAdapter(
     private val context: Context,
-    private var insights: List<AiInsight>,
+    initialInsights: List<AiInsight>,
     private val onMinimize: () -> Unit
-) : RecyclerView.Adapter<AiInsightsAdapter.InsightViewHolder>() {
+) : ListAdapter<AiInsight, AiInsightsAdapter.InsightViewHolder>(AI_INSIGHT_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialInsights)
+    }
 
     fun updateData(newInsights: List<AiInsight>) {
-        insights = newInsights
-        notifyDataSetChanged()
+        submitList(newInsights)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InsightViewHolder {
@@ -31,11 +46,9 @@ class AiInsightsAdapter(
     }
 
     override fun onBindViewHolder(holder: InsightViewHolder, position: Int) {
-        val insight = insights[position]
+        val insight = getItem(position)
         holder.bind(insight)
     }
-
-    override fun getItemCount(): Int = insights.size
 
     inner class InsightViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cardBase: MaterialCardView = itemView.findViewById(R.id.cardInsightBase)

@@ -9,17 +9,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillResponse
 import com.example.easy_billing.util.CurrencyHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val BILL_DIFF_CALLBACK = object : DiffUtil.ItemCallback<BillResponse>() {
+    override fun areItemsTheSame(oldItem: BillResponse, newItem: BillResponse): Boolean =
+        oldItem.bill_id == newItem.bill_id
+
+    override fun areContentsTheSame(oldItem: BillResponse, newItem: BillResponse): Boolean =
+        oldItem == newItem
+}
+
 class BillHistoryAdapter(
     private val onBillClick: (BillResponse) -> Unit
-) : RecyclerView.Adapter<BillHistoryAdapter.ViewHolder>() {
+) : ListAdapter<BillResponse, BillHistoryAdapter.ViewHolder>(BILL_DIFF_CALLBACK) {
 
-    private var bills = listOf<BillResponse>()
     private var searchQuery: String = ""
 
     // Random row colours (stripe + avatar tile), champagne-safe palette.
@@ -45,14 +54,11 @@ class BillHistoryAdapter(
         return rowPalette[index]
     }
 
-    fun submitList(list: List<BillResponse>) {
-        bills = list
-        notifyDataSetChanged()
-    }
-
     fun setSearchQuery(query: String) {
         searchQuery = query.lowercase()
-        notifyDataSetChanged()
+        // Highlighting is derived from searchQuery, not list identity/content,
+        // so DiffUtil won't pick this up — force a full rebind explicitly.
+        notifyItemRangeChanged(0, itemCount)
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -71,11 +77,9 @@ class BillHistoryAdapter(
         return ViewHolder(view)
     }
 
-    override fun getItemCount() = bills.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val bill = bills[position]
+        val bill = getItem(position)
         val context = holder.itemView.context
 
         // Avatar — last 3 digits of the bill's own running number. Bill
@@ -136,7 +140,7 @@ class BillHistoryAdapter(
             holder.itemView.alpha = 1f
         }
 
-        holder.divider.visibility = if (position == bills.lastIndex) View.GONE else View.VISIBLE
+        holder.divider.visibility = if (position == currentList.lastIndex) View.GONE else View.VISIBLE
 
         // Click
         holder.itemView.setOnClickListener {

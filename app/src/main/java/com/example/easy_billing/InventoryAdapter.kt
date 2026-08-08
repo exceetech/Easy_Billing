@@ -6,8 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.InventoryItemUI
+
+private val INVENTORY_DIFF_CALLBACK = object : DiffUtil.ItemCallback<InventoryItemUI>() {
+    // Identity: same product row.
+    override fun areItemsTheSame(oldItem: InventoryItemUI, newItem: InventoryItemUI): Boolean =
+        oldItem.productId == newItem.productId
+
+    // Content: InventoryItemUI is a data class, so structural equality
+    // already compares every field (stock, avgCost, category, etc.) — a
+    // row only gets rebound if something in it genuinely changed.
+    override fun areContentsTheSame(oldItem: InventoryItemUI, newItem: InventoryItemUI): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Inventory row adapter — "Option I": stripe row + monogram avatar + a
@@ -21,11 +34,15 @@ import com.example.easy_billing.db.InventoryItemUI
  * via [showStockActionDialog]) instead of three always-visible buttons.
  */
 class InventoryAdapter(
-    private var items: List<InventoryItemUI>,
+    initialItems: List<InventoryItemUI>,
     private val onAddStock: (InventoryItemUI) -> Unit,
     private val onReduceStock: (InventoryItemUI) -> Unit,
     private val onClearStock: (InventoryItemUI) -> Unit
-) : RecyclerView.Adapter<InventoryAdapter.ViewHolder>() {
+) : ListAdapter<InventoryItemUI, InventoryAdapter.ViewHolder>(INVENTORY_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialItems)
+    }
 
     private data class RowColor(val stripe: Int, val avatarBg: Int, val avatarText: Int)
 
@@ -65,7 +82,7 @@ class InventoryAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val item = items[position]
+        val item = getItem(position)
         val rowColor = colorFor(item)
 
         holder.stripe.setBackgroundColor(rowColor.stripe)
@@ -210,31 +227,12 @@ class InventoryAdapter(
         }
     }
 
-    override fun getItemCount() = items.size
-
     // INV-5 fix: notifyDataSetChanged() rebound every row on every refresh,
     // even when nothing about a given product had actually changed — every
     // refresh visually "flickered" the whole list, making it hard to tell
     // a genuine stock-count change from a harmless re-render. DiffUtil only
     // rebinds the rows whose values actually differ.
     fun updateData(newItems: List<InventoryItemUI>) {
-        val oldItems = this.items
-        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-            override fun getOldListSize() = oldItems.size
-            override fun getNewListSize() = newItems.size
-
-            // Identity: same product row.
-            override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean =
-                oldItems[oldPos].productId == newItems[newPos].productId
-
-            // Content: InventoryItemUI is a data class, so structural
-            // equality already compares every field (stock, avgCost,
-            // category, etc.) — a row only gets rebound if something in it
-            // genuinely changed.
-            override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean =
-                oldItems[oldPos] == newItems[newPos]
-        })
-        this.items = newItems
-        diff.dispatchUpdatesTo(this)
+        submitList(newItems)
     }
 }

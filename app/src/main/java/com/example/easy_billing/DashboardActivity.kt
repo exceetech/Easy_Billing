@@ -33,11 +33,9 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import com.example.easy_billing.adapter.CartAdapter
-import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.model.CartItem
-import com.example.easy_billing.network.RetrofitClient
-import com.example.easy_billing.network.SaveTokenRequest
+import com.example.easy_billing.repository.DashboardRepository
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.DeviceUtils
 import com.example.easy_billing.util.NetworkReceiver
@@ -54,6 +52,9 @@ import kotlinx.coroutines.withContext
 
 
 class DashboardActivity : BaseActivity() {
+
+    // All DB/network access for this screen goes through the repository.
+    private val repository by lazy { DashboardRepository(this) }
 
     // Reactive LIVE / OFFLINE status for the drawer pills.
     private var liveStatusCb: android.net.ConnectivityManager.NetworkCallback? = null
@@ -303,10 +304,7 @@ class DashboardActivity : BaseActivity() {
 
                     try {
 
-                        val response = RetrofitClient.api.saveFcmToken(
-                            authToken,
-                            SaveTokenRequest(fcmToken)
-                        )
+                        val response = repository.saveFcmToken(authToken, fcmToken)
 
                         if (response.isSuccessful) {
 
@@ -603,7 +601,7 @@ class DashboardActivity : BaseActivity() {
             .getString("TOKEN", null) ?: return
         lifecycleScope.launch {
             try {
-                val data = RetrofitClient.api.getOverview(token, "today", null, null)
+                val data = repository.getOverview(token)
                 if (::tvDrawerSales.isInitialized) {
                     tvDrawerSales.text = CurrencyHelper.format(this@DashboardActivity, data.total_revenue)
                 }
@@ -625,7 +623,7 @@ class DashboardActivity : BaseActivity() {
 
             try {
 
-                val profile = RetrofitClient.api.getProfile(token)
+                val profile = repository.getProfile(token)
 
                 val shopName = profile.shop_name
                 val ownerName = profile.owner_name ?: "Owner"
@@ -917,16 +915,15 @@ class DashboardActivity : BaseActivity() {
         val token = getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null)
 
-        val db = AppDatabase.getDatabase(this@DashboardActivity)
         val productRepo = com.example.easy_billing.repository.ProductRepository.get(this)
         val currentShopId = productRepo.currentShopId()
 
         try {
             if (!token.isNullOrEmpty()) {
                 val backendProducts =
-                    RetrofitClient.api.getMyProducts(token)
+                    repository.getMyProducts(token)
 
-                val existingProducts = db.productDao().getAllWithInactive()
+                val existingProducts = repository.getAllProductsWithInactive()
 
                 // Key by serverId — Room local `id` and backend `serverId`
                 // are independent numbers. The old code keyed by `id` but
@@ -958,7 +955,7 @@ class DashboardActivity : BaseActivity() {
                         // Always write currentShopId so the row is found by
                         // getAllForCurrentShop() regardless of what format
                         // the shopId was stored in previously.
-                        db.productDao().update(
+                        repository.updateProduct(
                             existing.copy(
                                 serverId       = bp.id,
                                 name           = bp.name,
@@ -983,7 +980,7 @@ class DashboardActivity : BaseActivity() {
                     } else {
                         // New product from backend — id = 0 so Room
                         // auto-generates the local primary key.
-                        db.productDao().upsert(
+                        repository.upsertProduct(
                             Product(
                                 id             = 0,
                                 serverId       = bp.id,
@@ -1025,7 +1022,7 @@ class DashboardActivity : BaseActivity() {
         // a previous login on the same device don't bleed into the
         // tile grid.
         val localProducts = productRepo.getAllForCurrentShop()
-        val inventoryList = db.inventoryDao().getAll()
+        val inventoryList = repository.getAllInventory()
 
         val activeInv = inventoryList.filter { it.isActive }
         val inventoryMap = activeInv.associate { it.productId to it.currentStock }
@@ -1033,7 +1030,7 @@ class DashboardActivity : BaseActivity() {
 
         // Precompute sales aggregates in ONE GROUP BY query so the sales
         // sorts (best-selling / revenue / profit) are instant on tap.
-        val agg = db.billItemDao().getSalesAggByProduct()
+        val agg = repository.getSalesAggByProduct()
         val soldQty  = agg.associate { it.productId to it.qty }
         val revenue  = agg.associate { it.productId to it.revenue }
         val profit   = agg.associate { it.productId to it.profit }
@@ -1091,8 +1088,7 @@ class DashboardActivity : BaseActivity() {
 
             // Inventory read happens off the main thread to avoid UI freeze.
             val inventory = if (product.trackInventory) withContext(Dispatchers.IO) {
-                AppDatabase.getDatabase(this@DashboardActivity)
-                    .inventoryDao().getInventory(product.id)
+                repository.getInventory(product.id)
             } else null
 
             if (product.trackInventory) {
@@ -1380,12 +1376,7 @@ class DashboardActivity : BaseActivity() {
 
         lifecycleScope.launch {
 
-            val db = AppDatabase.getDatabase(this@DashboardActivity)
-
-            val stockQty = InventoryManager.getTotalStock(
-                db = db,
-                productId = product.id
-            )
+            val stockQty = repository.getTotalStock(product.id)
 
             val view = layoutInflater.inflate(R.layout.dialog_confirm_delete, null)
 
@@ -1434,12 +1425,12 @@ class DashboardActivity : BaseActivity() {
                             // syncProductDeactivations() retries it later —
                             // removing a product no longer requires being
                             // online right now.
-                            db.productDao().deactivate(product.id)
+                            repository.deactivateProductLocal(product.id)
 
                             // 🔥 ALSO DEACTIVATE INVENTORY
-                            val inventory = db.inventoryDao().getInventory(product.id)
+                            val inventory = repository.getInventory(product.id)
                             if (inventory != null) {
-                                db.inventoryDao().update(
+                                repository.updateInventory(
                                     inventory.copy(isActive = false)
                                 )
                             }
@@ -1462,8 +1453,8 @@ class DashboardActivity : BaseActivity() {
                                     .getString("TOKEN", null)
                                 val serverId = product.serverId
                                 if (!token.isNullOrEmpty() && serverId != null) {
-                                    RetrofitClient.api.deactivateProduct(token, serverId)
-                                    db.productDao().markDeactivateSynced(product.id)
+                                    repository.deactivateProductRemote(token, serverId)
+                                    repository.markDeactivateSynced(product.id)
                                 }
                             } catch (e: Exception) {
                                 // offline / transient failure — retried by
@@ -1524,7 +1515,7 @@ class DashboardActivity : BaseActivity() {
                 }
 
                 // Auth header is attached by AuthInterceptor, not passed here.
-                val response = RetrofitClient.api.getAiReport()
+                val response = repository.getAiReport()
 
                 // Insights now live in the notification sheet (bell), not the
                 // inline ticker. Keep the old ticker views hidden.
@@ -1688,7 +1679,7 @@ class DashboardActivity : BaseActivity() {
 
             try {
 
-                val res = RetrofitClient.api.getSubscription(token)
+                val res = repository.getSubscription(token)
 
                 // 🔴 If not active/trial → block user
                 // "trial" is a genuinely usable, active status (see
@@ -1907,8 +1898,7 @@ class DashboardActivity : BaseActivity() {
 
     private suspend fun loadStoreFromRoom() {
 
-        val db = AppDatabase.getDatabase(this)
-        val store = db.storeInfoDao().get()
+        val store = repository.getStoreInfo()
 
         runOnUiThread {
             val storeName = store?.name?.takeIf { it.isNotBlank() } ?: "My Store"

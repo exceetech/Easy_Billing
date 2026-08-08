@@ -15,4 +15,4 @@
 local.properties
 /gradle.properties
 /gradle/libs.versions.toml
-/gradle/wrapper/gradle-wrapper.properties
+/gradle/wrapper/gradle-wrapper.properties.fuse_hidden*

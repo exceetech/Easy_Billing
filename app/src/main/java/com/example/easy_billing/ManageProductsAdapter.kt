@@ -10,8 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Product
+
+private val MANAGE_PRODUCT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Product>() {
+    override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Manage-products adapter — invoice line-item style (champagne theme).
@@ -24,16 +33,18 @@ import com.example.easy_billing.db.Product
  */
 class ManageProductsAdapter(
     private val onClick: (Product) -> Unit
-) : RecyclerView.Adapter<ManageProductsAdapter.VH>() {
+) : ListAdapter<Product, ManageProductsAdapter.VH>(MANAGE_PRODUCT_DIFF_CALLBACK) {
 
-    private var items: List<Product> = emptyList()
     private var stock: Map<Int, Double> = emptyMap()
 
-    fun itemAt(position: Int): Product = items[position]
+    fun itemAt(position: Int): Product = getItem(position)
 
     fun setStock(map: Map<Int, Double>) {
+        // stock is adapter-level state, not part of Product itself, so
+        // DiffUtil can't see it change — force a full rebind so stock
+        // pills stay in sync even when no Product row itself changed.
         stock = map
-        notifyDataSetChanged()
+        notifyItemRangeChanged(0, itemCount)
     }
 
     private val tileBg = intArrayOf(
@@ -48,15 +59,14 @@ class ManageProductsAdapter(
     )
 
     fun submit(newItems: List<Product>) {
-        val oldLast = items.size - 1
-        val diff = DiffUtil.calculateDiff(Diff(items, newItems))
-        items = newItems
-        diff.dispatchUpdatesTo(this)
-        // Rebind the old/new last rows so the trailing divider toggles
-        // correctly when items are added or removed at the end.
-        val newLast = items.size - 1
-        if (oldLast in 0 until items.size) notifyItemChanged(oldLast)
-        if (newLast >= 0 && newLast != oldLast) notifyItemChanged(newLast)
+        val oldLast = itemCount - 1
+        submitList(newItems) {
+            // Rebind the old/new last rows so the trailing divider toggles
+            // correctly when items are added or removed at the end.
+            val newLast = itemCount - 1
+            if (oldLast in 0 until itemCount) notifyItemChanged(oldLast)
+            if (newLast >= 0 && newLast != oldLast) notifyItemChanged(newLast)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -66,7 +76,7 @@ class ManageProductsAdapter(
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val item = items[position]
+        val item = getItem(position)
 
         // Avatar tile (color-coded, cycles for visual variety).
         val slot = position % 3
@@ -138,12 +148,10 @@ class ManageProductsAdapter(
 
         // Hairline divider — hidden on the last row.
         holder.vDivider.visibility =
-            if (position == items.size - 1) View.GONE else View.VISIBLE
+            if (position == itemCount - 1) View.GONE else View.VISIBLE
 
         holder.itemView.setOnClickListener { onClick(item) }
     }
-
-    override fun getItemCount(): Int = items.size
 
     private companion object { const val LOW_STOCK = 10.0 }
 
@@ -166,15 +174,5 @@ class ManageProductsAdapter(
         val tvPrice: TextView = view.findViewById(R.id.tvPrice)
         val tvSubNote: TextView = view.findViewById(R.id.tvSubNote)
         val vDivider: View = view.findViewById(R.id.vDivider)
-    }
-
-    private class Diff(
-        private val old: List<Product>,
-        private val new: List<Product>
-    ) : DiffUtil.Callback() {
-        override fun getOldListSize() = old.size
-        override fun getNewListSize() = new.size
-        override fun areItemsTheSame(o: Int, n: Int) = old[o].id == new[n].id
-        override fun areContentsTheSame(o: Int, n: Int) = old[o] == new[n]
     }
 }

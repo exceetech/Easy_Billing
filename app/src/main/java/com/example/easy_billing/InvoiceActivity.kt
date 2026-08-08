@@ -34,6 +34,7 @@ import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.network.CreateSaleRequest
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.SaleItemDto
+import com.example.easy_billing.repository.InvoiceRepository
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.util.GstBillingCalculator
@@ -68,6 +69,12 @@ import java.util.*
  *     `gst_sales_items_table`.
  */
 class InvoiceActivity : AppCompatActivity() {
+
+    // Repository for the pure I/O functions only (store info, billing
+    // settings, customer lookup/upsert, print reads, credit-picker/add-
+    // customer CRUD). saveBill() still calls db/RetrofitClient directly —
+    // see InvoiceRepository's class doc for why that's excluded.
+    private val repository by lazy { InvoiceRepository(this) }
 
     // Reactive LIVE / OFFLINE status for the header pill.
     private var liveStatusCb: android.net.ConnectivityManager.NetworkCallback? = null
@@ -1390,7 +1397,6 @@ class InvoiceActivity : AppCompatActivity() {
                 // keeps its own snapshot above; this only powers future
                 // lookups/auto-fill. Skipped for anonymous B2C (no phone).
                 upsertCustomerMaster(
-                    db           = db,
                     phone        = customerPhone,
                     name         = customerName,
                     businessName = businessName,
@@ -1543,7 +1549,6 @@ class InvoiceActivity : AppCompatActivity() {
      */
     private fun lookupCustomerByPhone(phone: String) {
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
             // No shop, no lookup. Silent by design — this runs as the cashier
             // types a phone number and must never block them; the save paths
             // are where the missing shop is reported.
@@ -1551,7 +1556,7 @@ class InvoiceActivity : AppCompatActivity() {
             val type = invoiceType
 
             var found = withContext(Dispatchers.IO) {
-                db.customerDao().getByPhoneAndType(phone, type, shopId)
+                repository.getCustomerByPhoneAndType(phone, type, shopId)
             }
 
             if (found == null) {
@@ -1560,7 +1565,7 @@ class InvoiceActivity : AppCompatActivity() {
                 if (!token.isNullOrEmpty()) {
                     runCatching {
                         val resp = withContext(Dispatchers.IO) {
-                            RetrofitClient.api.getCustomerByPhone("Bearer $token", phone, type)
+                            repository.getCustomerByPhoneRemote(token, phone, type)
                         }
                         resp.customer?.let { r ->
                             val local = com.example.easy_billing.db.Customer(
@@ -1575,7 +1580,7 @@ class InvoiceActivity : AppCompatActivity() {
                                 stateCode     = r.state_code,
                                 updatedAt     = if (r.updated_at > 0) r.updated_at else appNow()
                             )
-                            withContext(Dispatchers.IO) { db.customerDao().insert(local) }
+                            withContext(Dispatchers.IO) { repository.insertCustomer(local) }
                             found = local
                         }
                     }
@@ -1607,7 +1612,6 @@ class InvoiceActivity : AppCompatActivity() {
      * versa. A blank phone (quick anonymous B2C) creates no record.
      */
     private suspend fun upsertCustomerMaster(
-        db: AppDatabase,
         phone: String?,
         name: String?,
         businessName: String?,
@@ -1630,9 +1634,9 @@ class InvoiceActivity : AppCompatActivity() {
         val newState      = state?.trim()?.ifBlank { null }
         val newStateCode  = stateCode?.trim()?.ifBlank { null }
 
-        val existing = db.customerDao().getByPhoneAndType(ph, type, shopId)
+        val existing = repository.getCustomerByPhoneAndType(ph, type, shopId)
         if (existing == null) {
-            db.customerDao().insert(
+            repository.insertCustomer(
                 com.example.easy_billing.db.Customer(
                     shopId       = shopId,
                     phone        = ph,
@@ -1659,7 +1663,7 @@ class InvoiceActivity : AppCompatActivity() {
                 serverId     = null   // re-flag for sync so the edit propagates
             )
             if (merged.copy(updatedAt = existing.updatedAt, serverId = existing.serverId) != existing) {
-                db.customerDao().update(merged)
+                repository.updateCustomer(merged)
             }
         }
     }
@@ -1672,13 +1676,12 @@ class InvoiceActivity : AppCompatActivity() {
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
-            val bill = db.billDao().getBillById(savedBillId)
-            val billItems = db.billDao().getItemsForBill(savedBillId)
-            val storeInfo = db.storeInfoDao().get()
+            val bill = repository.getBillById(savedBillId)
+            val billItems = repository.getItemsForBill(savedBillId)
+            val storeInfo = repository.getStoreInfo()
             // GST invoice saved with THIS bill — drives the print layout
             // (GST mode) and supplies the captured B2B/B2C customer details.
-            val savedInvoice = db.gstSalesInvoiceDao().getByBillId(savedBillId)
+            val savedInvoice = repository.getGstInvoiceByBillId(savedBillId)
             withContext(Dispatchers.Main) {
                 InvoicePdfGenerator.generatePdfFromBill(
                     this@InvoiceActivity, bill, billItems, storeInfo,
@@ -1692,8 +1695,7 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun loadStoreInfo() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
-            var store = db.storeInfoDao().get()
+            var store = repository.getStoreInfo()
             if (store == null) {
                 store = StoreInfo(
                     name = "My Store",
@@ -1702,14 +1704,14 @@ class InvoiceActivity : AppCompatActivity() {
                     gstin = "",
                     isSynced = false
                 )
-                db.storeInfoDao().insert(store)
+                repository.insertStoreInfo(store)
             }
             applyStoreInfo(store)
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
             try {
-                val response = RetrofitClient.api.getStoreSettings(token)
+                val response = repository.getStoreSettingsRemote(token)
                 val updated = StoreInfo(
                     name     = response.shop_name ?: "",
                     address  = response.store_address ?: "",
@@ -1717,15 +1719,15 @@ class InvoiceActivity : AppCompatActivity() {
                     gstin    = response.store_gstin ?: "",
                     isSynced = true
                 )
-                db.storeInfoDao().insert(updated)
-                val refreshed = db.storeInfoDao().get()
+                repository.insertStoreInfo(updated)
+                val refreshed = repository.getStoreInfo()
                 refreshed?.let { applyStoreInfo(it) }
             } catch (_: Exception) {
                 // offline ignore
             }
 
             // Pull the GST profile so we know the scheme (Normal vs Composition).
-            val profile = db.gstProfileDao().get()
+            val profile = repository.getGstProfile()
             if (profile != null) {
                 val scheme = if (profile.gstScheme.contains("compos", ignoreCase = true))
                     GstBillingCalculator.SCHEME_COMPOSITION
@@ -1780,8 +1782,7 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun loadBillingSettings() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
-            val local = db.billingSettingsDao().get()
+            val local = repository.getBillingSettings()
             withContext(Dispatchers.Main) {
                 local?.let {
                     defaultGstFallback = it.defaultGst.toDouble()
@@ -1791,12 +1792,12 @@ class InvoiceActivity : AppCompatActivity() {
             val token = getSharedPreferences("auth", MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
             try {
-                val response = RetrofitClient.api.getBillingSettings(token)
+                val response = repository.getBillingSettingsRemote(token)
                 val updated = BillingSettings(
                     defaultGst    = response.default_gst,
                     printerLayout = response.printer_layout
                 )
-                db.billingSettingsDao().insert(updated)
+                repository.insertBillingSettings(updated)
                 withContext(Dispatchers.Main) {
                     defaultGstFallback = updated.defaultGst.toDouble()
                     recalculate()
@@ -1977,10 +1978,9 @@ class InvoiceActivity : AppCompatActivity() {
         var runnable: Runnable? = null
 
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(this@InvoiceActivity)
             // Guarded above, so this is the real shop id — never a fallback.
             val shopId = currentShopIdOrNull() ?: return@launch
-            val allCustomers = db.creditAccountDao().getAll(shopId)
+            val allCustomers = repository.getAllCreditAccounts(shopId)
             var currentList = allCustomers.toMutableList()
 
             val adapter = CreditAdapter(currentList) { customer ->
@@ -2072,8 +2072,6 @@ class InvoiceActivity : AppCompatActivity() {
                 Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show(); return@setOnClickListener
             }
             lifecycleScope.launch(Dispatchers.IO) {
-                val db = AppDatabase.getDatabase(this@InvoiceActivity)
-
                 // Same rule as the credit sale above: without a real shop id
                 // this would file a customer into shop 1's books.
                 val shopId = currentShopIdOrNull() ?: run {
@@ -2087,26 +2085,25 @@ class InvoiceActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                val existing = db.creditAccountDao().getByPhone(phone, shopId)
+                val existing = repository.getCreditAccountByPhone(phone, shopId)
                 if (existing != null) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@InvoiceActivity, "Customer already exists", Toast.LENGTH_SHORT).show()
                     }
                     return@launch
                 }
-                val api = RetrofitClient.api
                 val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
                 if (token == null) {
-                    db.creditAccountDao().insert(
+                    repository.insertCreditAccount(
                         CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
                     )
                     return@launch
                 }
                 try {
-                    val response = api.createCreditAccount(
+                    val response = repository.createCreditAccountRemote(
                         token, CreateCreditAccountRequest(name, phone)
                     )
-                    db.creditAccountDao().insert(
+                    repository.insertCreditAccount(
                         CreditAccount(
                             name = response.name, phone = response.phone,
                             dueAmount = response.due_amount, serverId = response.id,
@@ -2115,7 +2112,7 @@ class InvoiceActivity : AppCompatActivity() {
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    db.creditAccountDao().insert(
+                    repository.insertCreditAccount(
                         CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
                     )
                 }

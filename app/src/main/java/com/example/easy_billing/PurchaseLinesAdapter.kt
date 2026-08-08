@@ -9,8 +9,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
+
+/**
+ * One purchase-draft line paired with its slot index. PurchaseItemDraft has
+ * no server id and is fully immutable (every field is `val`, so an edit
+ * always creates a fresh object via `.copy()`), but two lines CAN have
+ * identical field values (e.g. the same product added twice with the same
+ * quantity) — the index keeps DiffUtil's identity unambiguous in that case.
+ * Line order is append/remove-at-index only (no reordering), so the index
+ * stays a stable identity across submits.
+ */
+private data class PurchaseLineRow(val index: Int, val draft: PurchaseItemDraft)
+
+private val PURCHASE_LINE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<PurchaseLineRow>() {
+    override fun areItemsTheSame(oldItem: PurchaseLineRow, newItem: PurchaseLineRow): Boolean =
+        oldItem.index == newItem.index
+
+    override fun areContentsTheSame(oldItem: PurchaseLineRow, newItem: PurchaseLineRow): Boolean =
+        oldItem.draft == newItem.draft
+}
 
 /**
  * Adapter for the line-item list inside [PurchaseActivity]. Each row
@@ -19,14 +40,17 @@ import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
  * with the line total plus its tax. A hairline separates rows.
  */
 class PurchaseLinesAdapter(
-    private var items: List<PurchaseItemDraft>,
+    initialItems: List<PurchaseItemDraft>,
     private val onRemove: (Int) -> Unit,
     private val onEdit: (Int) -> Unit = {}
-) : RecyclerView.Adapter<PurchaseLinesAdapter.VH>() {
+) : ListAdapter<PurchaseLineRow, PurchaseLinesAdapter.VH>(PURCHASE_LINE_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialItems.mapIndexed { index, draft -> PurchaseLineRow(index, draft) })
+    }
 
     fun submit(newItems: List<PurchaseItemDraft>) {
-        items = newItems
-        notifyDataSetChanged()
+        submitList(newItems.mapIndexed { index, draft -> PurchaseLineRow(index, draft) })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -36,7 +60,7 @@ class PurchaseLinesAdapter(
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val item = items[position]
+        val item = getItem(position).draft
 
         // Avatar — up to two initials from the product name.
         holder.tvAvatar.text = initials(item.productName)
@@ -82,14 +106,12 @@ class PurchaseLinesAdapter(
         }
 
         holder.vDivider.visibility =
-            if (position == items.size - 1) View.GONE else View.VISIBLE
+            if (position == itemCount - 1) View.GONE else View.VISIBLE
 
         holder.btnRemove.setOnClickListener { onRemove(holder.adapterPosition) }
         holder.btnEdit.setOnClickListener { onEdit(holder.adapterPosition) }
         holder.itemView.setOnClickListener { onEdit(holder.adapterPosition) }
     }
-
-    override fun getItemCount(): Int = items.size
 
     private fun initials(name: String): String {
         val parts = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }

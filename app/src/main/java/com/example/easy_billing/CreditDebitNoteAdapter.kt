@@ -5,12 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.CreditNote
 import com.example.easy_billing.util.CurrencyHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private val CREDIT_NOTE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<CreditNote>() {
+    override fun areItemsTheSame(oldItem: CreditNote, newItem: CreditNote): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: CreditNote, newItem: CreditNote): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Rows for the "Issued notes" screen (activity_credit_debit_notes.xml)
@@ -22,9 +32,7 @@ import java.util.Locale
  */
 class CreditDebitNoteAdapter(
     private val onNoteClick: (CreditNote) -> Unit
-) : RecyclerView.Adapter<CreditDebitNoteAdapter.NoteVH>() {
-
-    private var notes: List<CreditNote> = emptyList()
+) : ListAdapter<CreditNote, CreditDebitNoteAdapter.NoteVH>(CREDIT_NOTE_DIFF_CALLBACK) {
 
     private val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
@@ -62,7 +70,7 @@ class CreditDebitNoteAdapter(
     }
 
     override fun onBindViewHolder(holder: NoteVH, position: Int) {
-        val note = notes[position]
+        val note = getItem(position)
         val rowColor = colorFor(note)
         val isCredit = note.noteType == "C"
 
@@ -91,10 +99,4 @@ class CreditDebitNoteAdapter(
         holder.itemView.setOnClickListener { onNoteClick(note) }
     }
 
-    override fun getItemCount(): Int = notes.size
-
-    fun submitList(list: List<CreditNote>) {
-        notes = list
-        notifyDataSetChanged()
-    }
 }

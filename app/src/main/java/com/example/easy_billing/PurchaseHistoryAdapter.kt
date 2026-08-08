@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.util.CurrencyHelper
@@ -14,15 +16,27 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+private val PURCHASE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Purchase>() {
+    override fun areItemsTheSame(oldItem: Purchase, newItem: Purchase): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: Purchase, newItem: Purchase): Boolean =
+        oldItem == newItem
+}
+
 /**
  * Purchase-history rows in the champagne / khata language: a left status
  * stripe, a supplier monogram, name + invoice·date, and a serif amount with a
  * status caption. Mirrors [R.layout.item_purchase_history_row] / item_credit.
  */
 class PurchaseHistoryAdapter(
-    private var items: List<Purchase>,
+    initialItems: List<Purchase>,
     private val onItemClick: (Purchase) -> Unit
-) : RecyclerView.Adapter<PurchaseHistoryAdapter.ViewHolder>() {
+) : ListAdapter<Purchase, PurchaseHistoryAdapter.ViewHolder>(PURCHASE_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialItems)
+    }
 
     private val dateFmt = SimpleDateFormat("dd MMM", Locale.getDefault())
 
@@ -42,11 +56,9 @@ class PurchaseHistoryAdapter(
         return ViewHolder(v)
     }
 
-    override fun getItemCount() = items.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val ctx  = holder.itemView.context
-        val item = items[position]
+        val item = getItem(position)
 
         holder.tvSupplier.text = item.supplierName
         holder.tvAvatar.text   = monogram(item.supplierName)
@@ -91,7 +103,7 @@ class PurchaseHistoryAdapter(
         }
 
         // Last row in the card must not draw a trailing hairline.
-        holder.divider.visibility = if (position == items.lastIndex) View.GONE else View.VISIBLE
+        holder.divider.visibility = if (position == currentList.lastIndex) View.GONE else View.VISIBLE
 
         holder.itemView.setOnClickListener { onItemClick(item) }
     }
@@ -102,9 +114,9 @@ class PurchaseHistoryAdapter(
         holder.tvAvatar.setTextColor(Color.parseColor(textHex))
     }
 
+    /** Kept as a thin wrapper so existing call sites (`adapter.update(list)`) don't need to change. */
     fun update(newItems: List<Purchase>) {
-        items = newItems
-        notifyDataSetChanged()
+        submitList(newItems)
     }
 
     /** First letters of the first two words of the supplier name, uppercased. */

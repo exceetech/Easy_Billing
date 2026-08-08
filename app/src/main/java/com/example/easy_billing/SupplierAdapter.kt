@@ -4,14 +4,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Supplier
 
+private val SUPPLIER_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Supplier>() {
+    override fun areItemsTheSame(oldItem: Supplier, newItem: Supplier): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: Supplier, newItem: Supplier): Boolean =
+        oldItem == newItem
+}
+
 /** Rows for the supplier picker sheet. Mirrors [CreditAdapter]. */
 class SupplierAdapter(
-    private val list: MutableList<Supplier>,
+    initialList: List<Supplier>,
     private val onClick: (Supplier) -> Unit
-) : RecyclerView.Adapter<SupplierAdapter.VH>() {
+) : ListAdapter<Supplier, SupplierAdapter.VH>(SUPPLIER_DIFF_CALLBACK) {
+
+    init {
+        submitList(initialList)
+    }
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: TextView = view.findViewById(R.id.tvAvatar)
@@ -32,10 +46,8 @@ class SupplierAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
         VH(LayoutInflater.from(parent.context).inflate(R.layout.item_supplier, parent, false))
 
-    override fun getItemCount() = list.size
-
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val item = list[position]
+        val item = getItem(position)
         val name = item.name.trim()
 
         holder.name.text = name
@@ -62,8 +74,6 @@ class SupplierAdapter(
     }
 
     fun update(newList: List<Supplier>) {
-        list.clear()
-        list.addAll(newList)
-        notifyDataSetChanged()
+        submitList(newList)
     }
 }
