@@ -209,7 +209,7 @@ class PurchaseReturnActivity : BaseActivity() {
             viewModel.purchase.collectLatest { p ->
                 p ?: return@collectLatest
                 tvSupplierName.text = p.supplierName
-                tvInvoiceRef.text = "Invoice #${p.invoiceNumber}"
+                tvInvoiceRef.text = "Invoice ${p.invoiceNumber}"
                 val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
                 tvHeaderDate.text = p.invoiceDate?.let { dateFmt.format(Date(it)) }
                     ?: dateFmt.format(Date(p.createdAt))

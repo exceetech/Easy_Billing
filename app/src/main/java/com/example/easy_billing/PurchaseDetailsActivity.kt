@@ -487,7 +487,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         view.findViewById<TextView>(R.id.tvCantCancelEyebrow).text =
-            currentInvoiceNumber.ifBlank { "PURCHASE #$purchaseId" }
+            currentInvoiceNumber.ifBlank { "PURCHASE $purchaseId" }
         view.findViewById<TextView>(R.id.tvCantCancelMessage).text = reason
 
         view.findViewById<MaterialButton>(R.id.btnCantCancelGotIt).setOnClickListener {
@@ -512,7 +512,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         view.findViewById<TextView>(R.id.tvCancelPurchaseEyebrow).text =
-            currentInvoiceNumber.ifBlank { "PURCHASE #$purchaseId" }
+            currentInvoiceNumber.ifBlank { "PURCHASE $purchaseId" }
 
         view.findViewById<MaterialButton>(R.id.btnConfirmCancelPurchase).setOnClickListener {
             dialog.dismiss()
