@@ -30,7 +30,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BILLING"
+            android:text="@string/bill_history_eyebrow"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -45,7 +45,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bill"
+                android:text="@string/bill_history_title_lead"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:textStyle="bold"
@@ -57,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="history"
+                android:text="@string/bill_history_title_accent"
                 android:textColor="#0F6E56"
                 android:textSize="21sp"
                 android:fontFamily="serif"
@@ -82,7 +82,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sold today"
+            android:text="@string/bill_history_sold_today"
             android:textColor="#9A8F79"
             android:textSize="11.5sp"
             android:fontFamily="@font/googlesans_medium" />
@@ -141,7 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Invoices today"
+                    android:text="@string/bill_history_invoices_today"
                     android:textColor="#0F6E56"
                     android:textSize="10.5sp"
                     android:fontFamily="@font/googlesans_medium" />
@@ -286,7 +286,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Newest first"
+                android:text="@string/sort_newest_first"
                 android:textColor="#9A8F79"
                 android:fontFamily="@font/googlesans_medium"
                 android:textSize="12sp"
@@ -315,7 +315,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="Reset"
+                    android:text="@string/dialog_product_filter_reset"
                     android:textColor="#B23A3A"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="11.5sp" />
@@ -401,7 +401,7 @@
                         android:id="@+id/tvBillsEmptyTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="No bills"
+                        android:text="@string/bill_history_no_bills_title"
                         android:textSize="19sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_bold"
@@ -411,7 +411,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="yet"
+                        android:text="@string/credit_no_customers_accent"
                         android:textSize="19sp"
                         android:textColor="#0F6E56"
                         android:fontFamily="serif"
@@ -425,7 +425,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
                     android:gravity="center"
-                    android:text="Bills you create will show up here — search, filter and sort them once you have a few."
+                    android:text="@string/bill_history_no_bills_body"
                     android:textSize="12.5sp"
                     android:textColor="#8A8272"
                     android:lineSpacingExtra="3dp" />
@@ -457,14 +457,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Create your first bill"
+                            android:text="@string/bill_history_tip_create_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="From the dashboard, add items and checkout"
+                            android:text="@string/bill_history_tip_create_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -489,14 +489,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Then find any bill fast"
+                            android:text="@string/bill_history_tip_search_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Search by invoice number, product or amount"
+                            android:text="@string/bill_history_tip_search_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>

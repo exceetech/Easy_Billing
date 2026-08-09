@@ -23,7 +23,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:text="FINAL STEP"
+            android:text="@string/final_step_eyebrow"
             android:textSize="10sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold"
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="Terms and"
+                android:text="@string/terms_and_word"
                 android:textSize="21sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/googlesans_bold"
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
-                android:text=" conditions"
+                android:text="@string/conditions_word"
                 android:textSize="21sp"
                 android:textStyle="italic"
                 android:fontFamily="serif"
@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:text="Your data stays yours"
+                    android:text="@string/your_data_stays_yours"
                     android:textSize="12.5sp"
                     android:fontFamily="@font/googlesans_semibold"
                     android:textColor="#1A1A18"
@@ -100,7 +100,7 @@
                     android:layout_height="wrap_content"/>
 
                 <TextView
-                    android:text="Encrypted, private, never sold"
+                    android:text="@string/encrypted_private_never_sold"
                     android:textSize="11sp"
                     android:fontFamily="@font/googlesans_medium"
                     android:textColor="#8A8474"
@@ -121,7 +121,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="Reading progress"
+                android:text="@string/reading_progress"
                 android:textSize="10.5sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#9C9482"
@@ -223,7 +223,7 @@
 
             <TextView
                 android:id="@+id/tvScrollHint"
-                android:text="Scroll to the end to continue"
+                android:text="@string/scroll_to_end_to_continue"
                 android:textSize="11sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#B8895A"
@@ -237,7 +237,7 @@
             android:id="@+id/btnAcceptTerms"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="I agree and continue"
+            android:text="@string/i_agree_and_continue"
             android:textAllCaps="false"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -261,7 +261,7 @@
 
         <TextView
             android:id="@+id/tvTermsUnlockHint"
-            android:text="Unlocks once you've read the full terms"
+            android:text="@string/unlocks_once_read_full_terms"
             android:textSize="10.5sp"
             android:fontFamily="@font/googlesans_medium"
             android:textColor="#9C9482"

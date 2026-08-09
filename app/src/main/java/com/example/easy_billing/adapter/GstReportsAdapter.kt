@@ -53,10 +53,10 @@ class GstReportsAdapter(initialItems: List<GstReportItem>) :
         val item = getItem(position)
         holder.tvInvoiceNumber.text = item.invoiceNumber
         holder.tvDate.text = item.date
-        holder.tvGstin.text = item.gstin.ifBlank { "Unregistered" }
+        holder.tvGstin.text = item.gstin.ifBlank { holder.itemView.context.getString(R.string.gst_reports_unregistered) }
         holder.tvTaxableValue.text = CurrencyHelper.format(holder.itemView.context, item.taxableValue)
         holder.tvTotalTax.text = CurrencyHelper.format(holder.itemView.context, item.totalTax)
-        holder.tvTaxBreakup.text = if (item.isInterstate) "IGST" else "CGST/SGST"
+        holder.tvTaxBreakup.text = if (item.isInterstate) holder.itemView.context.getString(R.string.invoice_igst_label) else holder.itemView.context.getString(R.string.gst_reports_cgst_sgst)
     }
 
     fun updateData(newItems: List<GstReportItem>) {

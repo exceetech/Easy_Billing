@@ -16,7 +16,7 @@
             android:id="@+id/tvInvoiceNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="INV-1234"
+            android:text="@string/gst_record_invoice_placeholder"
             android:textColor="#111827"
             android:textSize="14sp"
             android:textStyle="bold"/>
@@ -24,7 +24,7 @@
             android:id="@+id/tvDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="27/04/2026"
+            android:text="@string/gst_record_date_placeholder"
             android:textColor="#6B7280"
             android:textSize="12sp"/>
     </LinearLayout>
@@ -34,7 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Unregistered"
+        android:text="@string/gst_reports_unregistered"
         android:textColor="#4B5563"
         android:textSize="13sp"
         android:gravity="center_vertical"/>
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="end|center_vertical"
-        android:text="₹100.00"
+        android:text="@string/gst_record_taxable_placeholder"
         android:textColor="#111827"
         android:textSize="14sp"/>
         
@@ -59,7 +59,7 @@
             android:id="@+id/tvTotalTax"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="₹18.00"
+            android:text="@string/gst_record_tax_placeholder"
             android:textColor="#DC2626"
             android:textSize="14sp"
             android:textStyle="bold"/>
@@ -67,7 +67,7 @@
             android:id="@+id/tvTaxBreakup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CGST/SGST"
+            android:text="@string/gst_reports_cgst_sgst"
             android:textColor="#6B7280"
             android:textSize="10sp"/>
     </LinearLayout>

@@ -59,7 +59,7 @@
                     android:id="@+id/tvSupplier"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Supplier name"
+                    android:text="@string/xml_purchase_history_row_supplier_placeholder"
                     android:textSize="13.5sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="@font/googlesans_medium"

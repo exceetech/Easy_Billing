@@ -36,7 +36,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="BUSINESS AUDIT"
+                android:text="@string/ai_dashboard_eyebrow"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -50,7 +50,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI"
+                    android:text="@string/ai_dashboard_title_ai"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -62,7 +62,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="insights"
+                    android:text="@string/ai_dashboard_title_insights_suffix"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -112,16 +112,16 @@
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="14dp" android:layout_marginEnd="22dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Audit score" android:textColor="#9A8F79" android:textSize="12sp"/>
+                            android:text="@string/ai_dashboard_audit_score_label" android:textColor="#9A8F79" android:textSize="12sp"/>
                         <TextView android:id="@+id/tvScoreBadge"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp" android:text="—"
+                            android:layout_marginTop="5dp" android:text="@string/dash"
                             android:textColor="#085041" android:textSize="9sp" android:letterSpacing="0.06"
                             android:fontFamily="@font/googlesans_semibold"
                             android:background="@drawable/bg_imp_badge" android:backgroundTint="#DDEEEE"
                             android:paddingHorizontal="7dp" android:paddingVertical="2dp"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="7dp" android:text="Your shop's health out of 100 — higher is better"
+                            android:layout_marginTop="7dp" android:text="@string/ai_dashboard_audit_score_desc"
                             android:textColor="#9A8F79" android:textSize="11sp" android:lineSpacingMultiplier="1.3"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -164,7 +164,7 @@
                         android:textColor="#FFFFFF" android:textSize="18sp"
                         android:fontFamily="@font/googlesans_bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp" android:text="Urgent"
+                        android:layout_marginTop="1dp" android:text="@string/ai_dashboard_kpi_urgent"
                         android:textColor="#F0C4C4" android:textSize="10sp"/>
                 </LinearLayout>
 
@@ -185,7 +185,7 @@
                         android:textColor="#FFFFFF" android:textSize="18sp"
                         android:fontFamily="@font/googlesans_bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp" android:text="Leaks"
+                        android:layout_marginTop="1dp" android:text="@string/ai_dashboard_kpi_leaks"
                         android:textColor="#F5DBAE" android:textSize="10sp"/>
                 </LinearLayout>
 
@@ -206,7 +206,7 @@
                         android:textColor="#FFFFFF" android:textSize="18sp"
                         android:fontFamily="@font/googlesans_bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp" android:text="Wins"
+                        android:layout_marginTop="1dp" android:text="@string/ai_dashboard_kpi_wins"
                         android:textColor="#9FE1CB" android:textSize="10sp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -224,7 +224,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Top product velocity"
+                    android:text="@string/ai_dashboard_top_velocity_title"
                     android:textColor="#1A1A18"
                     android:textSize="14sp"
                     android:fontFamily="@font/googlesans_semibold"
@@ -240,7 +240,7 @@
                             android:id="@+id/headerProduct"
                             android:layout_width="0dp"
                             android:layout_weight="2"
-                            android:text="PRODUCT"
+                            android:text="@string/ai_dashboard_col_product"
                             android:textColor="#9A8F79"
                             android:textSize="10sp"
                             android:letterSpacing="0.04"
@@ -249,7 +249,7 @@
                             android:id="@+id/headerQty"
                             android:layout_width="0dp"
                             android:layout_weight="1"
-                            android:text="QTY"
+                            android:text="@string/ai_dashboard_col_qty"
                             android:gravity="center"
                             android:textColor="#9A8F79"
                             android:textSize="10sp"
@@ -259,7 +259,7 @@
                             android:id="@+id/headerRevenue"
                             android:layout_width="0dp"
                             android:layout_weight="1.2"
-                            android:text="REVENUE"
+                            android:text="@string/ai_dashboard_col_revenue"
                             android:gravity="end"
                             android:textColor="#9A8F79"
                             android:textSize="10sp"
@@ -282,7 +282,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="9dp"
-                    android:text="INSIGHTS"
+                    android:text="@string/ai_insight_header_default"
                     android:textColor="#8A6526"
                     android:textSize="11sp"
                     android:textStyle="bold"
@@ -310,7 +310,7 @@
                 android:id="@+id/tvInsightsEmpty"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No alerts right now — your shop looks healthy."
+                android:text="@string/ai_dashboard_insights_empty"
                 android:textColor="#9A8F79"
                 android:textSize="13sp"
                 android:gravity="center"

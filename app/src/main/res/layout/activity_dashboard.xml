@@ -80,7 +80,7 @@
                         android:id="@+id/tvGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="GOOD MORNING"
+                        android:text="@string/dashboard_greeting_morning_2"
                         android:textColor="#B8895A"
                         android:textSize="11sp"
                         android:letterSpacing="0.14"
@@ -359,7 +359,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="Can't reach our servers right now. Your changes are saved locally and will sync automatically."
+                android:text="@string/activity_dashboard_xml_offline_notice"
                 android:textColor="#9A2E2E"
                 android:textSize="11sp"
                 android:lineSpacingExtra="2dp"
@@ -464,7 +464,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI Insights"
+                    android:text="@string/ai_insights"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
                     android:textStyle="bold"
@@ -505,7 +505,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="10dp"
-                android:text="0 items"
+                android:text="@string/dashboard_cart_bar_summary_placeholder"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:fontFamily="@font/googlesans_semibold"/>
@@ -521,7 +521,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="View cart"
+                    android:text="@string/dashboard_view_cart"
                     android:textColor="#FFFFFF"
                     android:textSize="13sp"
                     android:fontFamily="@font/googlesans_semibold"/>
@@ -613,7 +613,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="LIVE INTELLIGENCE"
+                            android:text="@string/dashboard_live_intelligence"
                             android:textColor="#9FB0D4"
                             android:textSize="11sp"
                             android:letterSpacing="0.12"
@@ -621,7 +621,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Notifications"
+                            android:text="@string/dashboard_notifications_title"
                             android:textColor="#FFFFFF"
                             android:textSize="22sp"
                             android:fontFamily="serif"
@@ -639,7 +639,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Close"/>
+                        android:contentDescription="@string/close"/>
                 </LinearLayout>
 
                 <!-- Severity tally -->
@@ -662,7 +662,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#FCA5A5" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Critical" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_critical" android:textColor="#9FB0D4" android:textSize="10sp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -678,7 +678,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#FAC775" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Watch" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_watch" android:textColor="#9FB0D4" android:textSize="10sp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -694,7 +694,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#86EFAC" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Tips" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_tips" android:textColor="#9FB0D4" android:textSize="10sp"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -720,7 +720,7 @@
                     android:id="@+id/tvNotifyClearAll"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Clear all"
+                    android:text="@string/dashboard_clear_all"
                     android:textColor="#A3392B"
                     android:textSize="12sp"
                     android:fontFamily="@font/googlesans_semibold"
@@ -792,7 +792,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="All caught"
+                                android:text="@string/dashboard_all_caught"
                                 android:textSize="19sp"
                                 android:textColor="#1A1A18"
                                 android:fontFamily="@font/googlesans_bold"
@@ -814,7 +814,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="7dp"
                             android:gravity="center"
-                            android:text="No new notifications right now. Stock alerts, sales insights and tips will show up here as they happen."
+                            android:text="@string/dashboard_notify_empty_body"
                             android:textSize="12.5sp"
                             android:textColor="#8A8272"
                             android:lineSpacingExtra="3dp" />
@@ -846,14 +846,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="You'll be notified automatically"
+                                    android:text="@string/activity_dashboard_xml_notify_seen_note"
                                     android:textSize="12sp"
                                     android:textColor="#1A1A18" />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="1dp"
-                                    android:text="Low stock, big sales and unusual activity"
+                                    android:text="@string/dashboard_notify_tip1_body"
                                     android:textSize="11sp"
                                     android:textColor="#9A8F79" />
                             </LinearLayout>
@@ -878,14 +878,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Dismissed ones stay gone"
+                                    android:text="@string/dashboard_notify_tip2_title"
                                     android:textSize="12sp"
                                     android:textColor="#1A1A18" />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="1dp"
-                                    android:text="Clear all or swipe away one at a time"
+                                    android:text="@string/dashboard_notify_tip2_body"
                                     android:textSize="11sp"
                                     android:textColor="#9A8F79" />
                             </LinearLayout>
@@ -959,7 +959,7 @@
                         android:id="@+id/tvDrawerGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Welcome back"
+                        android:text="@string/dashboard_welcome_back"
                         android:textColor="#9FB0D4"
                         android:textSize="11sp"
                         android:letterSpacing="0.02"/>
@@ -968,7 +968,7 @@
                         android:id="@+id/tvDrawerNameBase"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Easy Billing"
+                        android:text="@string/dashboard_app_name_placeholder"
                         android:textColor="#FFFFFF"
                         android:textSize="22sp"
                         android:fontFamily="serif"
@@ -1009,7 +1009,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="LIVE"
+                        android:text="@string/dashboard_live_status"
                         android:textColor="#FFFFFF"
                         android:textSize="10sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -1036,7 +1036,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Today's sales"
+                        android:text="@string/activity_dashboard_xml_todays_sales_label"
                         android:textColor="#9FB0D4"
                         android:textSize="10sp"/>
                     <TextView
@@ -1062,7 +1062,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Bills today"
+                        android:text="@string/activity_dashboard_xml_bills_today_label"
                         android:textColor="#9FB0D4"
                         android:textSize="10sp"/>
                     <TextView
@@ -1094,7 +1094,7 @@
                 android:paddingBottom="20dp">
 
                 <!-- ===================== CORE OPERATIONS ===================== -->
-                <TextView style="@style/SettingsSection" android:text="CORE OPERATIONS" android:layout_marginTop="12dp"/>
+                <TextView style="@style/SettingsSection" android:text="@string/dashboard_section_core_operations" android:layout_marginTop="12dp"/>
                 <LinearLayout style="@style/SettingsCard">
 
                     <LinearLayout android:id="@+id/btnAdmin" style="@style/SettingsRow">
@@ -1102,7 +1102,7 @@
                             android:src="@drawable/ic_drawer_product" app:tint="#185FA5"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/add_edit_product"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Catalog &amp; pricing"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_catalog_pricing"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1111,8 +1111,8 @@
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#EAF3DE"
                             android:src="@drawable/ic_drawer_purchase" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Add Purchase"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Record stock in"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_add_purchase"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_record_stock_in"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1121,8 +1121,8 @@
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
                             android:src="@drawable/ic_drawer_inventory" app:tint="#185FA5"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Inventory"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Stock levels &amp; alerts"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_inventory"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_stock_levels_alerts"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1131,8 +1131,8 @@
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#EEEDFE"
                             android:src="@drawable/ic_drawer_credit" app:tint="#534AB7"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Credit Accounts"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Customer dues"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_credit_accounts"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_customer_dues"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1141,23 +1141,23 @@
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
                             android:src="@drawable/ic_drawer_import" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Import Services"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Bulk service import"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_import_services"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_bulk_service_import"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
                 </LinearLayout>
 
                 <!-- ===================== ANALYTICS & REPORTS ===================== -->
-                <TextView style="@style/SettingsSection" android:text="ANALYTICS &amp; REPORTS"/>
+                <TextView style="@style/SettingsSection" android:text="@string/dashboard_section_analytics_reports"/>
                 <LinearLayout style="@style/SettingsCard">
 
                     <LinearLayout android:id="@+id/btnPurchaseHistory" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
                             android:src="@drawable/ic_drawer_purchase_history" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Purchase History"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Past stock batches"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_purchase_history"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_past_stock_batches"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1167,7 +1167,7 @@
                             android:src="@drawable/ic_set_receipt" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/bill_history"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Invoice history"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_invoice_history"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1186,8 +1186,8 @@
                                 android:contentDescription="@null"/>
                         </FrameLayout>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Profit Analytics"/>
-                            <TextView android:id="@+id/subProfit" style="@style/SettingsRowSub" android:text="Margins &amp; trends"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_profit_analytics"/>
+                            <TextView android:id="@+id/subProfit" style="@style/SettingsRowSub" android:text="@string/dashboard_profit_subtitle"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1206,8 +1206,8 @@
                                 android:contentDescription="@null"/>
                         </FrameLayout>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="GST Reports"/>
-                            <TextView android:id="@+id/subGstReports" style="@style/SettingsRowSub" android:text="Tax filings"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_gst_reports"/>
+                            <TextView android:id="@+id/subGstReports" style="@style/SettingsRowSub" android:text="@string/dashboard_gst_reports_subtitle"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1217,7 +1217,7 @@
                             android:src="@drawable/ic_drawer_reports" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/reports"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Sales summary"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_sales_summary"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1237,14 +1237,14 @@
                         </FrameLayout>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/ai_insights"/>
-                            <TextView android:id="@+id/subAiInsights" style="@style/SettingsRowSub" android:text="Smart recommendations"/>
+                            <TextView android:id="@+id/subAiInsights" style="@style/SettingsRowSub" android:text="@string/dashboard_ai_insights_subtitle"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
                 </LinearLayout>
 
                 <!-- ===================== SYSTEM & ACCOUNT ===================== -->
-                <TextView style="@style/SettingsSection" android:text="SYSTEM &amp; ACCOUNT"/>
+                <TextView style="@style/SettingsSection" android:text="@string/activity_dashboard_xml_system_account_header"/>
                 <LinearLayout style="@style/SettingsCard">
 
                     <LinearLayout android:id="@+id/btnSettings" style="@style/SettingsRow">
@@ -1252,7 +1252,7 @@
                             android:src="@drawable/ic_drawer_settings" app:tint="#57534E"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/settings"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Store &amp; app config"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_store_app_config"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1262,7 +1262,7 @@
                             android:src="@drawable/ic_drawer_profile" app:tint="#185FA5"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/profile"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Your account"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_your_account"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1271,8 +1271,8 @@
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
                             android:src="@drawable/ic_drawer_subscription" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="Subscription"/>
-                            <TextView style="@style/SettingsRowSub" android:text="Plan &amp; billing"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_subscription"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_plan_billing"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
@@ -1318,7 +1318,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Tap to sign out"
+                                android:text="@string/dashboard_tap_to_sign_out"
                                 android:textColor="#F7CFCF"
                                 android:textSize="11sp"
                                 android:singleLine="true"
@@ -1348,7 +1348,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
                     android:gravity="center"
-                    android:text="ExPOS"
+                    android:text="@string/app_name"
                     android:textColor="#C9C3B4"
                     android:textSize="11sp"/>
             </LinearLayout>
@@ -1419,7 +1419,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Live order"
+                        android:text="@string/dashboard_live_order"
                         android:textColor="#9FB0D4"
                         android:textSize="11sp"
                         android:letterSpacing="0.02"/>
@@ -1427,7 +1427,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Cart"
+                        android:text="@string/cart"
                         android:textColor="#FFFFFF"
                         android:textSize="22sp"
                         android:fontFamily="serif"
@@ -1468,7 +1468,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="LIVE"
+                        android:text="@string/dashboard_live_status"
                         android:textColor="#FFFFFF"
                         android:textSize="10sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -1495,7 +1495,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Items"
+                        android:text="@string/dashboard_items_label"
                         android:textColor="#9FB0D4"
                         android:textSize="10sp"/>
                     <TextView
@@ -1521,7 +1521,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Subtotal"
+                        android:text="@string/subtotal"
                         android:textColor="#9FB0D4"
                         android:textSize="10sp"/>
                     <TextView
@@ -1564,7 +1564,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ORDER SUMMARY"
+                android:text="@string/dashboard_order_summary"
                 android:textColor="#9A968C"
                 android:textSize="11sp"
                 android:letterSpacing="0.05"/>
@@ -1586,7 +1586,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Subtotal"
+                        android:text="@string/subtotal"
                         android:textColor="#6E6A60"
                         android:textSize="14sp"/>
 
@@ -1594,7 +1594,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="Taxes applied at billing"
+                        android:text="@string/dashboard_taxes_applied_at_billing"
                         android:textColor="#A99E88"
                         android:textSize="10sp"/>
                 </LinearLayout>
@@ -1639,7 +1639,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Generate Bill"
+                            android:text="@string/generate_bill"
                             android:textColor="#FFFFFF"
                             android:textSize="16sp"
                             android:letterSpacing="0.01"
@@ -1650,7 +1650,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Checkout &amp; print receipt"
+                            android:text="@string/dashboard_checkout_print_receipt"
                             android:textColor="#A7D9C9"
                             android:textSize="11sp"
                             android:includeFontPadding="false"/>

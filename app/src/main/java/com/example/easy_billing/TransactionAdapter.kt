@@ -98,12 +98,13 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
             // Time, plus whatever else is worth knowing about this entry: the
             // invoice it came from, or that it hasn't reached the server yet.
             val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
+            val context = holder.itemView.context
             val extras = buildList {
                 item.reference?.takeIf { it.isNotBlank() && it.isNotBlank() }?.let { add(it) }
-                if (!item.isSynced) add("not yet synced")
+                if (!item.isSynced) add(context.getString(R.string.txn_not_yet_synced))
                 // The label already says "Written off" / "Refunded" for the new
                 // types; only the legacy one needs spelling out.
-                if (item.type == "SETTLE") add("no cash moved")
+                if (item.type == "SETTLE") add(context.getString(R.string.txn_no_cash_moved))
             }
             holder.tvDate.text =
                 (listOf(sdf.format(Date(item.timestamp))) + extras).joinToString(" · ")

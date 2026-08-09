@@ -49,7 +49,7 @@ class OtpVerificationActivity : BaseActivity() {
         email = intent.getStringExtra("EMAIL")
 
         if (email.isNullOrEmpty()) {
-            Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -68,28 +68,28 @@ class OtpVerificationActivity : BaseActivity() {
                 try {
 
                     tvResendOtp.isEnabled = false
-                    tvResendOtp.text = "Sending..."
+                    tvResendOtp.text = getString(R.string.sending_ellipsis)
 
                     RetrofitClient.api.forgotPassword(
                         ForgotPasswordRequest(email!!)
                     )
 
-                    Toast.makeText(this@OtpVerificationActivity, "OTP sent", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@OtpVerificationActivity, R.string.otp_sent, Toast.LENGTH_SHORT).show()
 
                     startResendTimer()
 
                 } catch (e: Exception) {
 
                     tvResendOtp.isEnabled = true
-                    tvResendOtp.text = "Resend OTP"
+                    tvResendOtp.text = getString(R.string.resend_otp)
 
                     // Raw exception text (e.g. "Unable to resolve host...")
                     // isn't meaningful to a non-technical shop owner —
                     // translate the common case and keep a generic fallback.
                     val message = if (e is java.io.IOException)
-                        "Couldn't resend OTP — check your internet connection"
+                        getString(R.string.couldnt_resend_otp_no_internet)
                     else
-                        "Couldn't resend OTP. Please try again"
+                        getString(R.string.couldnt_resend_otp_try_again)
 
                     Toast.makeText(
                         this@OtpVerificationActivity,
@@ -106,7 +106,7 @@ class OtpVerificationActivity : BaseActivity() {
             val otp = etOtp.text.toString().trim()
 
             if (otp.length != 6) {
-                Toast.makeText(this, "Enter valid OTP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.enter_valid_otp, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -114,7 +114,7 @@ class OtpVerificationActivity : BaseActivity() {
                 try {
 
                     btnVerify.isEnabled = false
-                    btnVerify.text = "Verifying..."
+                    btnVerify.text = getString(R.string.verifying_ellipsis)
                     hideCtaArrow()
 
                     val response = RetrofitClient.api.verifyOtp(email!!, otp)
@@ -141,7 +141,7 @@ class OtpVerificationActivity : BaseActivity() {
                                     putString("RESET_TOKEN", token)
                                 }
 
-                            Toast.makeText(this@OtpVerificationActivity, "OTP Verified", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@OtpVerificationActivity, R.string.otp_verified, Toast.LENGTH_SHORT).show()
 
                             startActivity(
                                 Intent(this@OtpVerificationActivity, ChangePasswordActivity::class.java)
@@ -152,9 +152,9 @@ class OtpVerificationActivity : BaseActivity() {
                     } else {
 
                         when (response.code()) {
-                            401 -> Toast.makeText(this@OtpVerificationActivity, "Invalid OTP", Toast.LENGTH_SHORT).show()
-                            410 -> Toast.makeText(this@OtpVerificationActivity, "OTP expired", Toast.LENGTH_SHORT).show()
-                            429 -> Toast.makeText(this@OtpVerificationActivity, "Too many attempts", Toast.LENGTH_SHORT).show()
+                            401 -> Toast.makeText(this@OtpVerificationActivity, R.string.invalid_otp, Toast.LENGTH_SHORT).show()
+                            410 -> Toast.makeText(this@OtpVerificationActivity, R.string.otp_expired, Toast.LENGTH_SHORT).show()
+                            429 -> Toast.makeText(this@OtpVerificationActivity, R.string.too_many_attempts, Toast.LENGTH_SHORT).show()
                             else -> Toast.makeText(this@OtpVerificationActivity, "Error ${response.code()}", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -170,7 +170,7 @@ class OtpVerificationActivity : BaseActivity() {
                 } finally {
 
                     btnVerify.isEnabled = true
-                    btnVerify.text = "Verify code"
+                    btnVerify.text = getString(R.string.verify_code)
                     startCtaArrowAnimation()
                 }
             }
@@ -267,7 +267,7 @@ class OtpVerificationActivity : BaseActivity() {
             }
 
             override fun onFinish() {
-                tvResendOtp.text = "Resend OTP"
+                tvResendOtp.text = getString(R.string.resend_otp)
                 tvResendOtp.isEnabled = true
             }
 

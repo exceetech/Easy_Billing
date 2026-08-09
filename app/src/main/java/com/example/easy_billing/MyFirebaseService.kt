@@ -14,7 +14,7 @@ class MyFirebaseService : FirebaseMessagingService() {
         println("🔥 MESSAGE RECEIVED")
         println("DATA: ${message.data}")
 
-        val title = message.data["title"] ?: "Easy Billing"
+        val title = message.data["title"] ?: getString(R.string.fcm_default_notification_title)
         val body = message.data["body"] ?: ""
 
         val manager = getSystemService(NotificationManager::class.java)
@@ -23,7 +23,7 @@ class MyFirebaseService : FirebaseMessagingService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "easy_billing_channel",
-                "Easy Billing Notifications",
+                getString(R.string.fcm_notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             )
             manager.createNotificationChannel(channel)

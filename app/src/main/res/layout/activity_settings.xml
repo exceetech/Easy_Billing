@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MANAGE"
+                android:text="@string/manage_eyebrow"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -49,7 +49,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Settings"
+                    android:text="@string/settings_2"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -61,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="&amp; store"
+                    android:text="@string/and_store_word"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -79,7 +79,7 @@
                 android:layout_marginBottom="8dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="STORE"
+                    android:layout_marginStart="9dp" android:text="@string/store_section"
                     android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
                     android:letterSpacing="0.08"/>
             </LinearLayout>
@@ -91,7 +91,7 @@
                         android:src="@drawable/ic_set_store" app:tint="#B8895A"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/store_information"/>
-                        <TextView style="@style/SettingsRowSub" android:text="Name, address, contact"/>
+                        <TextView style="@style/SettingsRowSub" android:text="@string/name_address_contact_sub"/>
                     </LinearLayout>
                     <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
@@ -101,7 +101,7 @@
                         android:src="@drawable/ic_set_languages" app:tint="#7A4FA3"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/localization_settings"/>
-                        <TextView style="@style/SettingsRowSub" android:text="Language, currency, format"/>
+                        <TextView style="@style/SettingsRowSub" android:text="@string/language_currency_format_sub"/>
                     </LinearLayout>
                     <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
@@ -117,7 +117,7 @@
                 android:layout_marginBottom="8dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="BILLING"
+                    android:layout_marginStart="9dp" android:text="@string/bill_history_eyebrow"
                     android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
                     android:letterSpacing="0.08"/>
             </LinearLayout>
@@ -129,7 +129,7 @@
                         android:src="@drawable/ic_set_receipt" app:tint="#0F6E56"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/billing_settings"/>
-                        <TextView style="@style/SettingsRowSub" android:text="GST, tax rates, defaults"/>
+                        <TextView style="@style/SettingsRowSub" android:text="@string/gst_tax_rates_defaults_sub"/>
                     </LinearLayout>
                     <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
@@ -139,7 +139,7 @@
                         android:src="@drawable/ic_set_file_text" app:tint="#8A6526"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/invoice_design"/>
-                        <TextView style="@style/SettingsRowSub" android:text="Template &amp; branding"/>
+                        <TextView style="@style/SettingsRowSub" android:text="@string/template_branding_sub"/>
                     </LinearLayout>
                     <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>
@@ -155,7 +155,7 @@
                 android:layout_marginBottom="8dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="DATA"
+                    android:layout_marginStart="9dp" android:text="@string/data_section"
                     android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
                     android:letterSpacing="0.08"/>
             </LinearLayout>
@@ -167,7 +167,7 @@
                         android:src="@drawable/ic_set_shield" app:tint="#791F1F"/>
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/data_security_management"/>
-                        <TextView style="@style/SettingsRowSub" android:text="Backup, workspace, reset"/>
+                        <TextView style="@style/SettingsRowSub" android:text="@string/backup_workspace_reset_sub"/>
                     </LinearLayout>
                     <ImageView style="@style/SettingsChevron"/>
                 </LinearLayout>

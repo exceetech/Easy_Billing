@@ -24,13 +24,13 @@ class BarChartMarker(context: Context) :
             0 -> {
                 // 🔵 Revenue → use CurrencyHelper
                 tvPrimary.text = CurrencyHelper.format(context, value.toDouble())
-                tvSecondary.text = "Revenue"
+                tvSecondary.text = context.getString(R.string.chart_marker_bar_revenue)
             }
 
             1 -> {
                 // 🟣 Bills → plain count
                 tvPrimary.text = value.toInt().toString()
-                tvSecondary.text = "Bills"
+                tvSecondary.text = context.getString(R.string.chart_marker_bar_bills)
             }
         }
 

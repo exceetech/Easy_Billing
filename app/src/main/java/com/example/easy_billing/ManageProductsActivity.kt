@@ -156,12 +156,14 @@ class ManageProductsActivity : BaseActivity() {
     }
 
     // Sort dropdown styled like the invoice "place of supply" sheet.
-    private val sortLabels = listOf(
-        "Name: A → Z", "Name: Z → A",
-        "Price: Low → High", "Price: High → Low",
-        "Stock: Low → High", "Stock: High → Low",
-        "Stock Value: High → Low", "Category"
-    )
+    private val sortLabels by lazy {
+        listOf(
+            getString(R.string.dashboard_sort_name_asc), getString(R.string.dashboard_sort_name_desc),
+            getString(R.string.dashboard_sort_price_asc), getString(R.string.dashboard_sort_price_desc),
+            getString(R.string.dashboard_sort_stock_asc), getString(R.string.dashboard_sort_stock_desc),
+            getString(R.string.dashboard_sort_stock_value_desc), getString(R.string.add_product_category_label)
+        )
+    }
     private val sortTypes = listOf(
         SortBy.NAME_ASC, SortBy.NAME_DESC,
         SortBy.PRICE_LOW, SortBy.PRICE_HIGH,
@@ -252,7 +254,8 @@ class ManageProductsActivity : BaseActivity() {
                         tvPurchasedCount.text = purchased.toString()
                         tvManualCount.text = (all.size - purchased).toString()
                         tvCount.text =
-                            if (categories.size == 1) "1 category" else "${categories.size} categories"
+                            if (categories.size == 1) getString(R.string.manage_products_category_count_singular)
+                            else "${categories.size} categories"
 
                         // Rebuild category chips
                         val currentCheckedTag = chipGroup.findViewById<com.google.android.material.chip.Chip>(chipGroup.checkedChipId)?.tag as? String
@@ -302,16 +305,16 @@ class ManageProductsActivity : BaseActivity() {
         }
         emptyState.visibility = View.VISIBLE
         if (viewModel.all.value.isEmpty()) {
-            tvEmptyTitle.text = "No products yet"
-            tvEmptySub.text = "Add your first product to get started."
-            btnEmptyAction.text = "Add product"
+            tvEmptyTitle.text = getString(R.string.manage_products_empty_no_products_title)
+            tvEmptySub.text = getString(R.string.manage_products_empty_no_products_sub)
+            btnEmptyAction.text = getString(R.string.manage_products_add_product_action)
             btnEmptyAction.setOnClickListener {
                 startActivity(Intent(this, AddProductActivity::class.java))
             }
         } else {
-            tvEmptyTitle.text = "No products match"
-            tvEmptySub.text = "Try a different search or filter."
-            btnEmptyAction.text = "Clear filters"
+            tvEmptyTitle.text = getString(R.string.manage_products_empty_no_match_title)
+            tvEmptySub.text = getString(R.string.manage_products_empty_no_match_sub)
+            btnEmptyAction.text = getString(R.string.manage_products_clear_filters_action)
             btnEmptyAction.setOnClickListener {
                 etSearch.setText("")
                 chipGroup.check(R.id.chipCatAll)

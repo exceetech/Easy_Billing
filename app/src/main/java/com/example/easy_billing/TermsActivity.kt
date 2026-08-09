@@ -258,7 +258,7 @@ class TermsActivity : BaseActivity() {
         lifecycleScope.launch {
             val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
             if (token.isNullOrEmpty()) {
-                Toast.makeText(this@TermsActivity, "Not logged in", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TermsActivity, R.string.not_logged_in, Toast.LENGTH_SHORT).show()
                 btnAcceptTerms.isEnabled = true
                 return@launch
             }
@@ -268,7 +268,7 @@ class TermsActivity : BaseActivity() {
                 finish()
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@TermsActivity, "Couldn't save. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TermsActivity, R.string.couldnt_save_try_again, Toast.LENGTH_SHORT).show()
                 btnAcceptTerms.isEnabled = true
             }
         }

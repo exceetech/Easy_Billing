@@ -127,7 +127,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
                 render()
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(requireContext(), "Failed to load sales", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.reports_toast_load_failed, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -166,7 +166,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
             val src = dailyData.sortedByDescending { it.date }.take(720)
             val max = src.maxOfOrNull { it.revenue } ?: 0.0
             val rows = src.map { d ->
-                val label = if (d.date == today) "Today"
+                val label = if (d.date == today) getString(R.string.reports_breakdown_today_label)
                             else runCatching { dayListFmt.format(iso.parse(d.date)!!) }.getOrDefault(d.date)
                 SalesRow(label, d.revenue, d.bills, isBest = max > 0 && d.revenue == max)
             }
@@ -201,7 +201,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
             val c = start.clone() as Calendar; c.add(Calendar.DAY_OF_YEAR, i)
             val ds = iso.format(c.time)
             val r = map[ds]
-            val full = if (offset == 0 && ds == today) "Today, " + ddMmmFmt.format(c.time)
+            val full = if (offset == 0 && ds == today) getString(R.string.reports_breakdown_today_full_prefix) + ddMmmFmt.format(c.time)
                        else eeeFmt.format(c.time) + ", " + ddMmmFmt.format(c.time)
             Pt(ds, eeeFmt.format(c.time), full, r?.revenue ?: 0.0, r?.bills ?: 0)
         }
@@ -223,12 +223,12 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
     }
 
     private fun weekLabel(offset: Int) = when (offset) {
-        0 -> "This week"; 1 -> "Last week"; else -> "$offset weeks ago"
+        0 -> getString(R.string.reports_week_label_this); 1 -> getString(R.string.reports_week_label_last); else -> "$offset weeks ago"
     }
 
     private fun yearLabel(offset: Int): String {
         val year = AppTime.calendar().get(Calendar.YEAR) - offset
-        return when (offset) { 0 -> "This year"; 1 -> "Last year"; else -> year.toString() }
+        return when (offset) { 0 -> getString(R.string.reports_year_label_this); 1 -> getString(R.string.reports_year_label_last); else -> year.toString() }
     }
 
     /** Themed dropdown to pick the week (Daily) or the year (Monthly). */
@@ -245,27 +245,27 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
     }
 
     private fun renderDaily() {
-        tvLegendMain.text = "Daily revenue"; tvLegendBest.text = "Best day"
-        tvBestLabel.text = "Best day"; tvAvgLabel.text = "Avg / day"
-        tvBreakdownLabel.text = "Daily breakdown"
+        tvLegendMain.text = getString(R.string.reports_legend_daily_revenue); tvLegendBest.text = getString(R.string.reports_legend_best_day)
+        tvBestLabel.text = getString(R.string.reports_legend_best_day); tvAvgLabel.text = getString(R.string.reports_metric_avg_day_label)
+        tvBreakdownLabel.text = getString(R.string.reports_breakdown_daily)
         tvPeriodChip.text = weekLabel(weekOffset) + "  ▾"
 
         val pts = weekPoints(weekOffset)
         val prev = weekPoints(weekOffset + 1).sumOf { it.rev }
         // Headline = selected week's total revenue; delta vs the previous week.
-        bindPeriod(pts, headline = pts.sumOf { it.rev }, prevForDelta = prev, deltaText = "vs previous week")
+        bindPeriod(pts, headline = pts.sumOf { it.rev }, prevForDelta = prev, deltaText = getString(R.string.reports_delta_vs_previous_week))
     }
 
     private fun renderMonthly() {
-        tvLegendMain.text = "Monthly revenue"; tvLegendBest.text = "Best month"
-        tvBestLabel.text = "Best month"; tvAvgLabel.text = "Avg / month"
-        tvBreakdownLabel.text = "Monthly breakdown"
+        tvLegendMain.text = getString(R.string.reports_legend_monthly_revenue); tvLegendBest.text = getString(R.string.reports_legend_best_month)
+        tvBestLabel.text = getString(R.string.reports_legend_best_month); tvAvgLabel.text = getString(R.string.reports_metric_avg_month_label)
+        tvBreakdownLabel.text = getString(R.string.reports_breakdown_monthly)
         tvPeriodChip.text = yearLabel(yearOffset) + "  ▾"
 
         val pts = yearPoints(yearOffset)
         val prev = yearPoints(yearOffset + 1).sumOf { it.rev }
         // Headline = selected year's total revenue; delta vs the previous year.
-        bindPeriod(pts, headline = pts.sumOf { it.rev }, prevForDelta = prev, deltaText = "vs previous year")
+        bindPeriod(pts, headline = pts.sumOf { it.rev }, prevForDelta = prev, deltaText = getString(R.string.reports_delta_vs_previous_year))
     }
 
     /**
@@ -279,7 +279,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
             tvTotalValue.text = CurrencyHelper.format(ctx, 0.0)
             tvDelta.visibility = View.GONE
             barChart.clear(); barChart.invalidate()
-            tvBestValue.text = "—"; tvBestSub.text = "—"; tvAvgValue.text = "—"; tvAvgSub.text = "—"
+            tvBestValue.text = getString(R.string.dash); tvBestSub.text = getString(R.string.dash); tvAvgValue.text = getString(R.string.dash); tvAvgSub.text = getString(R.string.dash)
             adapter.updateData(emptyList(), 0.0)
             return
         }

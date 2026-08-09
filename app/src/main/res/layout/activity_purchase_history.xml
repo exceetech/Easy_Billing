@@ -41,7 +41,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PURCHASES"
+            android:text="@string/purchase_history_eyebrow"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Purchase"
+                android:text="@string/purchase_history_title_lead"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:letterSpacing="-0.02"
@@ -68,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="history"
+                android:text="@string/bill_history_title_accent"
                 android:textColor="#0F6E56"
                 android:textSize="21sp"
                 android:fontFamily="serif"
@@ -89,7 +89,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bought this month"
+            android:text="@string/purchase_history_bought_this_month"
             android:textSize="11sp"
             android:textColor="#9A8F79" />
 
@@ -122,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
-                android:text="0 invoices"
+                android:text="@string/xml_purchase_history_invoices_count_placeholder"
                 android:textSize="11sp"
                 android:textColor="#9A8F79" />
         </LinearLayout>
@@ -156,7 +156,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="On credit"
+                    android:text="@string/purchase_history_tile_on_credit"
                     android:textSize="9.5sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
@@ -185,7 +185,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Cash"
+                    android:text="@string/cash"
                     android:textSize="9.5sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
@@ -216,7 +216,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
-            android:hint="Search supplier or invoice"
+            android:hint="@string/purchase_history_search_hint"
             android:textColorHint="#A99E88"
             android:textColor="#1A1A18"
             android:textSize="12.5sp"
@@ -317,7 +317,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Newest first"
+                android:text="@string/xml_purchase_history_sort_newest_first"
                 android:textColor="#9A8F79"
                 android:fontFamily="@font/googlesans_medium"
                 android:textSize="12sp"
@@ -346,7 +346,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="Reset"
+                    android:text="@string/dialog_product_filter_reset"
                     android:textColor="#B23A3A"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="11.5sp" />
@@ -428,7 +428,7 @@
                         android:id="@+id/tvPurchasesEmptyTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="No purchases"
+                        android:text="@string/purchase_history_no_purchases_title"
                         android:textSize="19sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_bold"
@@ -438,7 +438,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="yet"
+                        android:text="@string/credit_no_customers_accent"
                         android:textSize="19sp"
                         android:textColor="#0F6E56"
                         android:fontFamily="serif"
@@ -452,7 +452,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
                     android:gravity="center"
-                    android:text="Purchases you record will show up here — search, filter and sort them once you have a few."
+                    android:text="@string/purchase_history_no_purchases_body"
                     android:textSize="12.5sp"
                     android:textColor="#8A8272"
                     android:lineSpacingExtra="3dp" />
@@ -484,14 +484,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Record your first purchase"
+                            android:text="@string/purchase_history_tip_record_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Supplier, invoice number and value"
+                            android:text="@string/purchase_history_tip_record_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -516,14 +516,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Then find any purchase fast"
+                            android:text="@string/purchase_history_tip_search_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Search by supplier name or invoice number"
+                            android:text="@string/purchase_history_tip_search_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>

@@ -59,10 +59,11 @@ class Gstr2B2burAdapter(
         // never self-assessed — worth surfacing, not hiding behind a zero.
         val rcmLikelyMissed = !isRcm && taxPaid == 0.0
 
+        val ctx = holder.itemView.context
         val (label, ink, tint) = when {
-            blocked  -> Triple("NO ITC", "#A32D2D", "#FCEBEB")
-            isRcm    -> Triple("RCM", "#854F0B", "#FAEEDA")
-            else     -> Triple("NO RCM", "#5F5E5A", "#F1EFE8")
+            blocked  -> Triple(ctx.getString(R.string.gstr2_itc_none), "#A32D2D", "#FCEBEB")
+            isRcm    -> Triple(ctx.getString(R.string.gstr2_flag_rcm), "#854F0B", "#FAEEDA")
+            else     -> Triple(ctx.getString(R.string.gstr2_flag_no_rcm), "#5F5E5A", "#F1EFE8")
         }
         holder.tvBadge.visibility = View.VISIBLE
         holder.tvBadge.text = label
@@ -70,13 +71,13 @@ class Gstr2B2burAdapter(
         holder.tvBadge.backgroundTintList =
             android.content.res.ColorStateList.valueOf(Color.parseColor(tint))
 
-        val supplier = r.supplierName.ifBlank { "Supplier not named" }
+        val supplier = r.supplierName.ifBlank { ctx.getString(R.string.gstr2_supplier_not_named) }
         holder.tvTitle.text = if (r.invoiceNumber.isBlank()) supplier
                               else "${r.invoiceNumber}  ·  $supplier"
 
         val rate = if (r.rate % 1.0 == 0.0) "${r.rate.toInt()}%" else "${r.rate}%"
         holder.tvMeta.text = listOfNotNull(
-            "unregistered",
+            ctx.getString(R.string.gstr2_unregistered),
             r.invoiceDate.ifBlank { null },
             rate,
             r.placeOfSupply.ifBlank { null }
@@ -89,7 +90,7 @@ class Gstr2B2burAdapter(
                 holder.tvExtra.setTextColor(Color.parseColor("#A32D2D"))
             }
             rcmLikelyMissed -> {
-                holder.tvExtra.text = "No tax recorded — check if RCM applies"
+                holder.tvExtra.text = ctx.getString(R.string.gstr2_rcm_likely_missed)
                 holder.tvExtra.setTextColor(Color.parseColor("#BA7517"))
             }
             else -> {
@@ -105,8 +106,8 @@ class Gstr2B2burAdapter(
         holder.tvAmount.text = money(r.taxableValue)
 
         holder.tvTax.text = when {
-            blocked          -> "no credit"
-            availed == 0.0   -> "no ITC"
+            blocked          -> ctx.getString(R.string.gstr2_no_credit)
+            availed == 0.0   -> ctx.getString(R.string.gstr2_no_itc)
             else             -> "+${money(availed)} ITC"
         }
         holder.tvTax.setTextColor(

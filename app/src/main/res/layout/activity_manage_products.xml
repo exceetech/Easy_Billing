@@ -36,7 +36,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INVENTORY"
+                android:text="@string/add_product_section_inventory_label"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -50,7 +50,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Manage"
+                    android:text="@string/manage_products_header_manage"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -60,7 +60,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="products"
+                    android:text="@string/dialog_add_product_chooser_title_part3"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -123,7 +123,7 @@
                 android:layout_marginTop="8dp" android:text="0" android:textColor="#1A1A18"
                 android:textSize="19sp" android:fontFamily="serif" android:includeFontPadding="false"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="1dp" android:text="All" android:textColor="#8A8272"
+                android:layout_marginTop="1dp" android:text="@string/manage_filter_all" android:textColor="#8A8272"
                 android:textSize="10.5sp" android:singleLine="true"/>
         </LinearLayout>
 
@@ -151,7 +151,7 @@
                 android:layout_marginTop="8dp" android:text="0" android:textColor="#0F6E56"
                 android:textSize="19sp" android:fontFamily="serif" android:includeFontPadding="false"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="1dp" android:text="Purchased" android:textColor="#8A8272"
+                android:layout_marginTop="1dp" android:text="@string/manage_filter_purchased" android:textColor="#8A8272"
                 android:textSize="10.5sp" android:singleLine="true"/>
         </LinearLayout>
 
@@ -179,7 +179,7 @@
                 android:layout_marginTop="8dp" android:text="0" android:textColor="#8A6526"
                 android:textSize="19sp" android:fontFamily="serif" android:includeFontPadding="false"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="1dp" android:text="Manual" android:textColor="#8A8272"
+                android:layout_marginTop="1dp" android:text="@string/manage_filter_manual" android:textColor="#8A8272"
                 android:textSize="10.5sp" android:singleLine="true"/>
         </LinearLayout>
     </LinearLayout>
@@ -240,7 +240,7 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lc_sliders"
                 app:tint="#8A6526"
-                android:contentDescription="Sort"/>
+                android:contentDescription="@string/manage_products_sort_content_desc"/>
         </FrameLayout>
     </LinearLayout>
 
@@ -267,7 +267,7 @@
                 android:layout_height="34dp"
                 android:checked="true"
                 android:checkable="true"
-                android:text="All"
+                android:text="@string/manage_filter_all"
                 app:chipBackgroundColor="@android:color/white"
                 app:chipStrokeColor="@color/chip_stroke_inv_selector"
                 app:chipStrokeWidth="1.5dp"
@@ -330,7 +330,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="No products match"
+                android:text="@string/manage_products_empty_no_match_title"
                 android:textColor="#1A1A18"
                 android:textSize="15sp"
                 android:fontFamily="@font/googlesans_semibold"/>
@@ -341,7 +341,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:gravity="center"
-                android:text="Try a different search or filter."
+                android:text="@string/manage_products_empty_no_match_sub"
                 android:textColor="#8A8272"
                 android:textSize="12.5sp"/>
 
@@ -353,7 +353,7 @@
                 android:background="@drawable/bg_mp_tag_outline"
                 android:paddingHorizontal="18dp"
                 android:paddingVertical="10dp"
-                android:text="Clear filters"
+                android:text="@string/manage_products_clear_filters_action"
                 android:textColor="#8A6526"
                 android:textSize="13sp"
                 android:fontFamily="@font/googlesans_semibold"
@@ -368,7 +368,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingVertical="12dp"
-        android:text="Swipe left on a product to edit its details."
+        android:text="@string/manage_products_footer_hint"
         android:textColor="#A99E88"
         android:textSize="12.5sp"/>
 

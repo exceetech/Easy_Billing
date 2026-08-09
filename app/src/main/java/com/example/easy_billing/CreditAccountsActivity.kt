@@ -113,7 +113,7 @@ class CreditAccountsActivity : BaseActivity() {
     /** False (and closes the screen) when there is no valid shop to work in. */
     private fun requireShop(): Boolean {
         if (shopId > 0) return true
-        Toast.makeText(this, "No shop selected. Sign in again.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, R.string.credit_no_shop_selected, Toast.LENGTH_SHORT).show()
         finish()
         return false
     }
@@ -212,7 +212,7 @@ class CreditAccountsActivity : BaseActivity() {
             val phone = etPhone.text.toString().trim()
 
             if (name.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -222,14 +222,14 @@ class CreditAccountsActivity : BaseActivity() {
             // match later, so catch it at entry with a specific message.
             val digitsOnly = phone.filter { it.isDigit() }
             if (digitsOnly.length != 10) {
-                Toast.makeText(this, "Enter a valid 10-digit phone number", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.credit_invalid_phone, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             // Guard against a double-tap firing two creates before the first
             // round trip finishes.
             btnSave.isEnabled = false
-            btnSave.text = "Saving…"
+            btnSave.text = getString(R.string.credit_saving_ellipsis)
 
             lifecycleScope.launch(Dispatchers.IO) {
 
@@ -251,10 +251,10 @@ class CreditAccountsActivity : BaseActivity() {
 
                         withContext(Dispatchers.Main) {
                             btnSave.isEnabled = true
-                            btnSave.text = "Save"
+                            btnSave.text = getString(R.string.save)
                             Toast.makeText(
                                 this@CreditAccountsActivity,
-                                "Customer already exists",
+                                R.string.invoice_customer_already_exists,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -320,7 +320,7 @@ class CreditAccountsActivity : BaseActivity() {
                     applyFilter(updated)
                     updateSummary(updated)
 
-                    Toast.makeText(this@CreditAccountsActivity, "Customer added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CreditAccountsActivity, R.string.invoice_customer_added, Toast.LENGTH_SHORT).show()
 
                     dialog.dismiss()
                 }
@@ -377,7 +377,7 @@ class CreditAccountsActivity : BaseActivity() {
         // the balance moved on another device before the delete synced.
         view.findViewById<TextView>(R.id.tvRestoreNote).text =
             if (existing.dueAmount == 0.0)
-                "Their past transactions come back with the account. The balance is settled."
+                getString(R.string.credit_restore_note_settled)
             else
                 "Their balance of ${money(kotlin.math.abs(existing.dueAmount))} comes back with the account."
 
@@ -432,7 +432,7 @@ class CreditAccountsActivity : BaseActivity() {
         } else {
             // Nothing to compare, and no choice to make.
             compareCard.visibility = View.GONE
-            btnRestore.text = "Restore customer"
+            btnRestore.text = getString(R.string.credit_restore_customer)
             btnKeepOld.visibility = View.GONE
         }
 
@@ -476,19 +476,19 @@ class CreditAccountsActivity : BaseActivity() {
                 tile = "#FCEBEB"; ink = "#791F1F"
                 tvBalance.text = money(account.dueAmount)
                 tvBalance.setTextColor(Color.parseColor("#B23A3A"))
-                tvCaption.text = "owes you"
+                tvCaption.text = getString(R.string.credit_status_owes_you)
             }
             account.dueAmount < 0 -> {
                 tile = "#E1F5EE"; ink = "#0F6E56"
                 tvBalance.text = money(-account.dueAmount)
                 tvBalance.setTextColor(Color.parseColor("#0F6E56"))
-                tvCaption.text = "in advance"
+                tvCaption.text = getString(R.string.credit_status_in_advance)
             }
             else -> {
                 tile = "#F3ECDD"; ink = "#8A8272"
                 tvBalance.text = money(0.0)
                 tvBalance.setTextColor(Color.parseColor("#8A8272"))
-                tvCaption.text = "settled"
+                tvCaption.text = getString(R.string.credit_status_settled)
             }
         }
         avatar.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(tile))
@@ -504,7 +504,7 @@ class CreditAccountsActivity : BaseActivity() {
         val canSettle = kotlin.math.abs(account.dueAmount) > 0.005
         view.findViewById<TextView>(R.id.tvSettleSub).text =
             if (canSettle) "Clear the full ${money(kotlin.math.abs(account.dueAmount))}"
-            else "Nothing to clear"
+            else getString(R.string.credit_nothing_to_clear)
         btnSettle.alpha = if (canSettle) 1.0f else 0.45f
         btnSettle.isEnabled = canSettle
 
@@ -512,7 +512,7 @@ class CreditAccountsActivity : BaseActivity() {
         // after the tap — the activity's own check stays as the real guard.
         val canDelete = account.dueAmount == 0.0
         view.findViewById<TextView>(R.id.tvDeleteSub).text =
-            if (canDelete) "Removes them from your list" else "Settle the balance first"
+            if (canDelete) getString(R.string.credit_delete_allowed_note) else getString(R.string.credit_settle_balance_first)
         btnDelete.alpha = if (canDelete) 1.0f else 0.45f
         btnDelete.isEnabled = canDelete
         view.findViewById<View>(R.id.ivDeleteChevron).visibility =
@@ -572,7 +572,7 @@ class CreditAccountsActivity : BaseActivity() {
 
         val owed = account.dueAmount
         view.findViewById<TextView>(R.id.tvOwesCaption).text =
-            if (owed < 0) "Currently in advance" else "Currently owes"
+            if (owed < 0) getString(R.string.credit_currently_in_advance) else getString(R.string.credit_currently_owes)
         view.findViewById<TextView>(R.id.tvOwes).apply {
             text = money(kotlin.math.abs(owed))
             setTextColor(Color.parseColor(if (owed < 0) "#0F6E56" else "#B23A3A"))
@@ -590,15 +590,15 @@ class CreditAccountsActivity : BaseActivity() {
             tvAfter.text = money(kotlin.math.abs(after))
             when {
                 after > 0 -> {
-                    tvAfterCaption.text = "Balance after"
+                    tvAfterCaption.text = getString(R.string.credit_balance_after)
                     tvAfter.setTextColor(Color.parseColor("#B23A3A"))
                 }
                 after < 0 -> {
-                    tvAfterCaption.text = "In advance after"
+                    tvAfterCaption.text = getString(R.string.credit_in_advance_after)
                     tvAfter.setTextColor(Color.parseColor("#0F6E56"))
                 }
                 else -> {
-                    tvAfterCaption.text = "Settled after"
+                    tvAfterCaption.text = getString(R.string.credit_settled_after)
                     tvAfter.setTextColor(Color.parseColor("#8A8272"))
                 }
             }
@@ -685,7 +685,7 @@ class CreditAccountsActivity : BaseActivity() {
             val amount = etAmount.text.toString().toDoubleOrNull()
 
             if (amount == null || amount <= 0) {
-                etAmount.error = "Enter valid amount"
+                etAmount.error = getString(R.string.credit_enter_valid_amount)
                 return@setOnClickListener
             }
 
@@ -857,9 +857,9 @@ class CreditAccountsActivity : BaseActivity() {
         findViewById<TextView>(R.id.tvNetBalance).text = money(kotlin.math.abs(net))
         findViewById<TextView>(R.id.tvNetCaption).apply {
             when {
-                net > 0 -> { text = "owed to you"; setTextColor(Color.parseColor("#B23A3A")) }
-                net < 0 -> { text = "held in advance"; setTextColor(Color.parseColor("#0F6E56")) }
-                else    -> { text = "all settled"; setTextColor(Color.parseColor("#8A8272")) }
+                net > 0 -> { text = getString(R.string.credit_net_owed_to_you); setTextColor(Color.parseColor("#B23A3A")) }
+                net < 0 -> { text = getString(R.string.credit_net_held_in_advance); setTextColor(Color.parseColor("#0F6E56")) }
+                else    -> { text = getString(R.string.credit_net_all_settled); setTextColor(Color.parseColor("#8A8272")) }
             }
         }
 
@@ -892,13 +892,13 @@ class CreditAccountsActivity : BaseActivity() {
         val hasQuery = etSearch.text?.isNotBlank() == true
         val isSearchOrFilter = hasQuery || currentFilter != "ALL"
         if (isSearchOrFilter) {
-            tvCustomersEmptyTitle.text = "No matches"
-            tvCustomersEmptyTitleAccent.text = "found"
-            tvCustomersEmptyBody.text = "No customer matches your search or filter. Try a different name or phone number, or reset the filter."
+            tvCustomersEmptyTitle.text = getString(R.string.credit_no_matches_title)
+            tvCustomersEmptyTitleAccent.text = getString(R.string.credit_no_matches_accent)
+            tvCustomersEmptyBody.text = getString(R.string.credit_no_matches_body)
         } else {
-            tvCustomersEmptyTitle.text = "No customers"
-            tvCustomersEmptyTitleAccent.text = "yet"
-            tvCustomersEmptyBody.text = "Customers you add will show up here — track what they owe or have paid in advance."
+            tvCustomersEmptyTitle.text = getString(R.string.credit_no_customers_title)
+            tvCustomersEmptyTitleAccent.text = getString(R.string.credit_no_customers_accent)
+            tvCustomersEmptyBody.text = getString(R.string.credit_no_customers_body)
         }
         layoutCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         rvCustomers.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
@@ -940,10 +940,10 @@ class CreditAccountsActivity : BaseActivity() {
             else -> R.id.chipAll
         }
         listOf(
-            R.id.chipAll to "All",
-            R.id.chipDue to "Due",
-            R.id.chipAdvance to "Advance",
-            R.id.chipSettled to "Settled"
+            R.id.chipAll to getString(R.string.manage_filter_all),
+            R.id.chipDue to getString(R.string.credit_chip_label_due),
+            R.id.chipAdvance to getString(R.string.credit_chip_label_advance),
+            R.id.chipSettled to getString(R.string.credit_chip_label_settled)
         ).forEach { (id, label) ->
             findViewById<TextView?>(id)?.let { chip ->
                 chip.isSelected = (id == selectedId)
@@ -983,7 +983,7 @@ class CreditAccountsActivity : BaseActivity() {
     private fun deleteAccount(account: CreditAccount) {
 
         if (account.dueAmount != 0.0) {
-            Toast.makeText(this, "Only settled accounts can be removed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.credit_only_settled_removable, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1004,8 +1004,7 @@ class CreditAccountsActivity : BaseActivity() {
         val btnOk = view.findViewById<MaterialButton>(R.id.btnOk)
 
         view.findViewById<TextView>(R.id.tvDeleteName).text = account.name
-        message.text = "Their account is removed from your list. " +
-            "The balance is already settled, so nothing is owed either way."
+        message.text = getString(R.string.credit_delete_confirm_message)
 
         btnOk.visibility = View.GONE
         btnCancel.visibility = View.VISIBLE
@@ -1018,8 +1017,7 @@ class CreditAccountsActivity : BaseActivity() {
 
             view.findViewById<View>(R.id.layoutOfflineNote).visibility = View.VISIBLE
             view.findViewById<TextView>(R.id.tvOfflineNote).text =
-                "You're offline. Deleting needs a connection so this customer is " +
-                "removed everywhere, not just on this device."
+                getString(R.string.credit_delete_offline_note)
 
             btnRemove.isEnabled = false
             btnRemove.alpha = 0.45f
@@ -1061,7 +1059,7 @@ class CreditAccountsActivity : BaseActivity() {
 
                         Toast.makeText(
                             this@CreditAccountsActivity,
-                            if (removed) "Account removed"
+                            if (removed) getString(R.string.credit_account_removed)
                             else "Couldn't remove ${account.name}. Try again.",
                             Toast.LENGTH_SHORT
                         ).show()

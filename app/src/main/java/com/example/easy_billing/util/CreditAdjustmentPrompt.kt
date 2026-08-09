@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.R
 import com.example.easy_billing.repository.CreditAdjustmentRepository
 import com.example.easy_billing.repository.CreditAdjustmentRepository.Kind
 import com.example.easy_billing.repository.CreditAdjustmentRepository.Plan
@@ -127,14 +128,14 @@ object CreditAdjustmentPrompt {
         }
 
         AlertDialog.Builder(activity)
-            .setTitle("Extra after clearing dues")
-            .setPositiveButton("Cash — settle now") { d, _ ->
+            .setTitle(activity.getString(R.string.credit_adjustment_extra_after_clearing_title))
+            .setPositiveButton(activity.getString(R.string.credit_adjustment_settle_now_btn)) { d, _ ->
                 d.dismiss()
                 // Only the debt-clearing part touches the account; the excess
                 // is cash and is not recorded on the ledger.
                 commitAndFinish(activity, source, kind, plan.reduce, documentLocalId, onDone)
             }
-            .setNegativeButton("Keep as advance") { d, _ ->
+            .setNegativeButton(activity.getString(R.string.credit_adjustment_keep_as_advance_btn)) { d, _ ->
                 d.dismiss()
                 // The excess stays on the account, so the balance moves into
                 // advance by that much.

@@ -35,7 +35,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:gravity="center"
-            android:text="CN"
+            android:text="@string/credit_note_abbrev_cn"
             android:textSize="12sp"
             android:textColor="#1D6E6E"
             android:fontFamily="@font/googlesans_semibold"

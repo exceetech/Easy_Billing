@@ -108,7 +108,7 @@ class CartAdapter(
             if (newQty > MAX_QTY) {
                 android.widget.Toast.makeText(
                     context,
-                    "Max quantity reached",
+                    R.string.cart_max_quantity_reached,
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
                 return@setupHoldButton

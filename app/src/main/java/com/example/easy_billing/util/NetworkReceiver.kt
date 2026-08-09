@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.widget.Toast
 import com.example.easy_billing.MainActivity
+import com.example.easy_billing.R
 import com.example.easy_billing.sync.SyncManager
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -62,7 +63,7 @@ class NetworkReceiver(context: Context) {
                                     // only signal (that used to be the only signal,
                                     // and easy to miss).
                                     withContext(Dispatchers.Main) {
-                                        Toast.makeText(appCtx, "Server not reachable", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(appCtx, appCtx.getString(R.string.server_not_reachable_toast), Toast.LENGTH_SHORT).show()
                                     }
                                     return@launch
                                 }

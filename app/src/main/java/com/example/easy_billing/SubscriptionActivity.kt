@@ -121,7 +121,7 @@ class SubscriptionActivity : BaseActivity() {
         lifecycleScope.launch {
             val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
             if (token.isNullOrEmpty()) {
-                Toast.makeText(this@SubscriptionActivity, "Not logged in", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SubscriptionActivity, R.string.not_logged_in, Toast.LENGTH_SHORT).show()
                 return@launch
             }
 
@@ -203,7 +203,7 @@ class SubscriptionActivity : BaseActivity() {
                     tvPlan,
                     "Failed to load",
                     com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
-                ).setAction("Retry") { loadSubscription() }.show()
+                ).setAction(R.string.retry) { loadSubscription() }.show()
             }
         }
     }
@@ -279,20 +279,20 @@ class SubscriptionActivity : BaseActivity() {
             val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
             if (token.isNullOrEmpty()) {
                 btnStartTrial.isEnabled = true
-                Toast.makeText(this@SubscriptionActivity, "Not logged in", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SubscriptionActivity, R.string.not_logged_in, Toast.LENGTH_SHORT).show()
                 return@launch
             }
 
             try {
                 RetrofitClient.api.startTrial(token)
-                Toast.makeText(this@SubscriptionActivity, "Free trial started", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@SubscriptionActivity, R.string.free_trial_started, Toast.LENGTH_LONG).show()
                 loadSubscription()
                 finish()
             } catch (e: retrofit2.HttpException) {
                 btnStartTrial.isEnabled = true
                 Toast.makeText(
                     this@SubscriptionActivity,
-                    parseErrorDetail(e) ?: "Couldn't start trial",
+                    parseErrorDetail(e) ?: getString(R.string.couldnt_start_trial),
                     Toast.LENGTH_LONG
                 ).show()
                 // A 400 here means the trial was already used (server is
@@ -303,7 +303,7 @@ class SubscriptionActivity : BaseActivity() {
             } catch (e: Exception) {
                 btnStartTrial.isEnabled = true
                 e.printStackTrace()
-                Toast.makeText(this@SubscriptionActivity, "Couldn't start trial", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SubscriptionActivity, R.string.couldnt_start_trial, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -342,7 +342,7 @@ class SubscriptionActivity : BaseActivity() {
                 updateContinueButton()
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@SubscriptionActivity, "Couldn't load plans", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SubscriptionActivity, R.string.couldnt_load_plans, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -513,7 +513,7 @@ class SubscriptionActivity : BaseActivity() {
             card.addView(iconBadge)
 
             val title = TextView(this).apply {
-                text = if (isPremium) "Premium" else "Base"
+                text = if (isPremium) getString(R.string.premium_plan_name) else "Base"
                 textSize = 13.5f
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 setTextColor(0xFF1A1A18.toInt())

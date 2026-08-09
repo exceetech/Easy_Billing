@@ -122,7 +122,7 @@ class BillHistoryActivity : BaseActivity() {
                 .getString("TOKEN", null)
 
             if (token == null) {
-                Toast.makeText(this@BillHistoryActivity, "User not logged in", Toast.LENGTH_SHORT)
+                Toast.makeText(this@BillHistoryActivity, R.string.bill_history_not_logged_in, Toast.LENGTH_SHORT)
                     .show()
                 return@launch
             }
@@ -148,9 +148,9 @@ class BillHistoryActivity : BaseActivity() {
                 // the shop owner knows whether to check their internet or
                 // just retry — a flat "Failed to load bills" gave no hint.
                 val message = if (!isInternetAvailable())
-                    "No internet — showing bills may be out of date. Reconnect and reopen this screen."
+                    getString(R.string.bill_history_offline_note)
                 else
-                    "Couldn't load bills from the server. Pull down or reopen to retry."
+                    getString(R.string.bill_history_load_failed)
                 Toast.makeText(this@BillHistoryActivity, message, Toast.LENGTH_LONG).show()
                 showListState(allBills)
             } finally {
@@ -168,13 +168,13 @@ class BillHistoryActivity : BaseActivity() {
      *  nothing" — same card, same design, just different copy for the two situations. */
     private fun setEmptyStateForSearch(isSearchOrFilter: Boolean) {
         if (isSearchOrFilter) {
-            tvBillsEmptyTitle.text = "No matches"
-            tvBillsEmptyTitleAccent.text = "found"
-            tvBillsEmptyBody.text = "No bill matches your search or filter. Try a different invoice number, amount, or reset the filter."
+            tvBillsEmptyTitle.text = getString(R.string.credit_no_matches_title)
+            tvBillsEmptyTitleAccent.text = getString(R.string.credit_no_matches_accent)
+            tvBillsEmptyBody.text = getString(R.string.bill_history_no_matches_body)
         } else {
-            tvBillsEmptyTitle.text = "No bills"
-            tvBillsEmptyTitleAccent.text = "yet"
-            tvBillsEmptyBody.text = "Bills you create will show up here — search, filter and sort them once you have a few."
+            tvBillsEmptyTitle.text = getString(R.string.bill_history_no_bills_title)
+            tvBillsEmptyTitleAccent.text = getString(R.string.credit_no_customers_accent)
+            tvBillsEmptyBody.text = getString(R.string.bill_history_no_bills_body)
         }
     }
 

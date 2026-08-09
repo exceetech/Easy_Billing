@@ -484,16 +484,16 @@ class InvoiceActivity : AppCompatActivity() {
     private fun wireGstOptionsSection() {
         // Populate the GSTR invoice-type dropdown.
         val invoiceTypes = listOf(
-            "Regular",
-            "SEZ supplies with payment",
-            "SEZ supplies without payment",
-            "Deemed Exp"
+            getString(R.string.purchase_invoice_type_regular),
+            getString(R.string.purchase_invoice_type_sez_with_payment),
+            getString(R.string.purchase_invoice_type_sez_without_payment),
+            getString(R.string.purchase_invoice_type_deemed_exp)
         )
         val typeAdapter = ArrayAdapter(
             this, android.R.layout.simple_dropdown_item_1line, invoiceTypes
         )
         spinnerGstrInvoiceType.setAdapter(typeAdapter)
-        spinnerGstrInvoiceType.setText("Regular", false)
+        spinnerGstrInvoiceType.setText(getString(R.string.purchase_invoice_type_regular), false)
 
         val natureAdapter = ArrayAdapter(
             this, android.R.layout.simple_dropdown_item_1line, listOf("B2B", "B2C", "URP2B")
@@ -502,10 +502,15 @@ class InvoiceActivity : AppCompatActivity() {
         spinnerEcoNatureOfSupply.setText("B2C", false)
 
         val docAdapter = ArrayAdapter(
-            this, android.R.layout.simple_dropdown_item_1line, listOf("Invoice", "Credit Note", "Debit Note")
+            this, android.R.layout.simple_dropdown_item_1line,
+            listOf(
+                getString(R.string.invoice_document_type_invoice),
+                getString(R.string.purchase_return_doctype_credit),
+                getString(R.string.purchase_return_doctype_debit)
+            )
         )
         spinnerEcoDocumentType.setAdapter(docAdapter)
-        spinnerEcoDocumentType.setText("Invoice", false)
+        spinnerEcoDocumentType.setText(getString(R.string.invoice_document_type_invoice), false)
 
         val roleAdapter = ArrayAdapter(
             this, android.R.layout.simple_dropdown_item_1line, listOf("Supplier", "E-Commerce Operator")
@@ -530,13 +535,13 @@ class InvoiceActivity : AppCompatActivity() {
         }
 
         // Collapse/expand toggle.
-        tvGstOptionsToggle.contentDescription = "Expand GST options"
+        tvGstOptionsToggle.contentDescription = getString(R.string.invoice_expand_gst_options)
         rowGstOptionsHeader.setOnClickListener {
             val expanding = layoutGstOptionsBody.visibility != View.VISIBLE
             // No layout transition here — animating the card resize made the
             // rounded-corner background redraw with a visible lag on collapse.
             layoutGstOptionsBody.visibility = if (expanding) View.VISIBLE else View.GONE
-            tvGstOptionsToggle.contentDescription = if (expanding) "Collapse GST options" else "Expand GST options"
+            tvGstOptionsToggle.contentDescription = if (expanding) getString(R.string.invoice_collapse_gst_options) else getString(R.string.invoice_expand_gst_options)
             tvGstOptionsToggle.animate()
                 .rotation(if (expanding) 180f else 0f)
                 .setDuration(200L)
@@ -627,7 +632,7 @@ class InvoiceActivity : AppCompatActivity() {
         // has to be *possible* to enter.
         tilCustomerState.visibility = View.VISIBLE
 
-        tvCustomerRequirement.text = if (isB2B) "Required" else "Optional"
+        tvCustomerRequirement.text = if (isB2B) getString(R.string.invoice_required) else getString(R.string.invoice_optional)
         tvCustomerRequirement.setBackgroundResource(
             if (isB2B) R.drawable.bg_pill_red else R.drawable.bg_pill_green
         )
@@ -636,10 +641,9 @@ class InvoiceActivity : AppCompatActivity() {
         )
 
         tvInvoiceTypeHint.text = if (isB2B)
-            "B2B — Customer Name, Business Name, Phone, GST and State are mandatory."
+            getString(R.string.invoice_b2b_hint)
         else
-            "B2C — quick sale. Add the state for out-of-state customers, " +
-            "otherwise the sale is filed as local."
+            getString(R.string.invoice_b2c_hint)
 
         // Pop the active chip so the selection feels tactile.
         val activeChip = if (isB2B) chipB2B else chipB2C
@@ -839,9 +843,9 @@ class InvoiceActivity : AppCompatActivity() {
             tile.setBackgroundResource(R.drawable.bg_inv_tax_tile_muted)
             label.setTextColor(0xFFB7AB91.toInt())
             amount.setTextColor(0xFFB7AB91.toInt())
-            amount.text = "—"
+            amount.text = getString(R.string.dash)
             rate.setTextColor(0xFFB7AB91.toInt())
-            rate.text = "n/a"
+            rate.text = getString(R.string.invoice_not_applicable)
         }
     }
 
@@ -870,7 +874,7 @@ class InvoiceActivity : AppCompatActivity() {
             etDiscount.setText(breakdown.subtotal.toInt().toString())
             etDiscount.setSelection(etDiscount.text.length)
             isUpdating = false
-            Toast.makeText(this, "Discount cannot exceed subtotal", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.invoice_discount_exceeds_subtotal, Toast.LENGTH_SHORT).show()
         }
 
         val payable = breakdown.grandTotal
@@ -923,15 +927,15 @@ class InvoiceActivity : AppCompatActivity() {
 
         // Supply-type badge + scheme line.
         tvSupplyTypeBadge.text = when {
-            isComposition -> "COMPOSITION"
-            isInter       -> "INTERSTATE"
-            else          -> "INTRASTATE"
+            isComposition -> getString(R.string.invoice_supply_composition)
+            isInter       -> getString(R.string.invoice_supply_interstate)
+            else          -> getString(R.string.invoice_supply_intrastate)
         }
         tvSchemeLine.text = "Scheme: ${breakdown.gstScheme.ifBlank { "—" }}"
         tvSupplyExplain.text = when {
-            isComposition -> "Composition Scheme — tax is included in the selling price."
-            isInter       -> "Different state — IGST will be charged."
-            else          -> "Same-state sale — CGST + SGST will be charged."
+            isComposition -> getString(R.string.invoice_composition_explain)
+            isInter       -> getString(R.string.invoice_interstate_explain)
+            else          -> getString(R.string.invoice_intrastate_explain)
         }
 
         // Tell the line-item adapter which GST columns to light up.
@@ -992,11 +996,11 @@ class InvoiceActivity : AppCompatActivity() {
         val state    = etCustomerState.text.toString().trim()
 
         val missing = mutableListOf<String>()
-        if (name.isEmpty())     missing.add("Customer Name")
-        if (business.isEmpty()) missing.add("Business Name")
-        if (phone.isEmpty())    missing.add("Phone Number")
-        if (gstin.isEmpty())    missing.add("GST Number")
-        if (state.isEmpty())    missing.add("State")
+        if (name.isEmpty())     missing.add(getString(R.string.invoice_field_customer_name))
+        if (business.isEmpty()) missing.add(getString(R.string.invoice_field_business_name))
+        if (phone.isEmpty())    missing.add(getString(R.string.invoice_field_phone_number))
+        if (gstin.isEmpty())    missing.add(getString(R.string.invoice_field_gst_number))
+        if (state.isEmpty())    missing.add(getString(R.string.invoice_field_state))
 
         if (missing.isNotEmpty()) {
             Toast.makeText(
@@ -1007,7 +1011,7 @@ class InvoiceActivity : AppCompatActivity() {
             return false
         }
         if (gstin.length != 15) {
-            Toast.makeText(this, "GSTIN must be 15 characters", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.invoice_gstin_length, Toast.LENGTH_LONG).show()
             return false
         }
 
@@ -1024,12 +1028,12 @@ class InvoiceActivity : AppCompatActivity() {
 
         val ecoGstin = etEcommerceGstin.text.toString().trim()
         if (ecoGstin.isEmpty()) {
-            Toast.makeText(this, "E-Commerce operator GSTIN is required", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.invoice_eco_gstin_required, Toast.LENGTH_LONG).show()
             etEcommerceGstin.requestFocus()
             return false
         }
         if (ecoGstin.length != 15) {
-            Toast.makeText(this, "E-Commerce GSTIN must be 15 characters", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.invoice_eco_gstin_length, Toast.LENGTH_LONG).show()
             etEcommerceGstin.requestFocus()
             return false
         }
@@ -1065,7 +1069,7 @@ class InvoiceActivity : AppCompatActivity() {
         if (billShopId == null) {
             Toast.makeText(
                 this,
-                "No shop selected — can't save this bill. Sign in again.",
+                R.string.invoice_no_shop_save,
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1081,9 +1085,9 @@ class InvoiceActivity : AppCompatActivity() {
             val missingState = resolveBuyerStateCode().orEmpty().isBlank()
             if (missingName || missingState) {
                 val needed = when {
-                    missingName && missingState -> "the customer's name and state"
-                    missingName                 -> "the customer's name"
-                    else                        -> "the customer's state"
+                    missingName && missingState -> getString(R.string.invoice_missing_customer_name_and_state)
+                    missingName                 -> getString(R.string.invoice_missing_customer_name)
+                    else                        -> getString(R.string.invoice_missing_customer_state)
                 }
                 Toast.makeText(
                     this,
@@ -1513,7 +1517,7 @@ class InvoiceActivity : AppCompatActivity() {
                     btnConfirm.isEnabled = false
                     btnConfirm.alpha = 0.45f
                     setCosmeticEnabled(etDiscount, false)
-                    Toast.makeText(this@InvoiceActivity, "Bill Saved", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@InvoiceActivity, R.string.invoice_bill_saved, Toast.LENGTH_SHORT).show()
                 }
 
             } catch (e: Exception) {
@@ -1523,7 +1527,7 @@ class InvoiceActivity : AppCompatActivity() {
                     setCosmeticEnabled(btnConfirm, true)
                     Toast.makeText(
                         this@InvoiceActivity,
-                        e.message ?: "Error saving bill",
+                        e.message ?: getString(R.string.invoice_error_saving_bill),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -1672,7 +1676,7 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun generatePdfAndPrint() {
         if (savedBillId == -1) {
-            Toast.makeText(this, "Please save bill first", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
@@ -1698,7 +1702,7 @@ class InvoiceActivity : AppCompatActivity() {
             var store = repository.getStoreInfo()
             if (store == null) {
                 store = StoreInfo(
-                    name = "My Store",
+                    name = getString(R.string.invoice_default_store_name),
                     address = "",
                     phone = "",
                     gstin = "",
@@ -1759,7 +1763,7 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun applyStoreInfo(store: StoreInfo) {
         runOnUiThread {
-            val resolvedName = store.name.ifBlank { "My Store" }
+            val resolvedName = store.name.ifBlank { getString(R.string.invoice_default_store_name) }
             tvStoreName.text = resolvedName
             tvStoreMonogram.text = storeInitials(resolvedName)
             if (sellerName.isBlank()) sellerName = resolvedName
@@ -1820,7 +1824,7 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun showLineDiscountDialog(item: CartItem) {
         if (isBillSaved) {
-            Toast.makeText(this, "Cannot modify items after saving", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.invoice_cannot_modify_after_save, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1959,7 +1963,7 @@ class InvoiceActivity : AppCompatActivity() {
         if (currentShopIdOrNull() == null) {
             Toast.makeText(
                 this,
-                "No shop selected — can't take a credit sale. Sign in again.",
+                R.string.invoice_no_shop_credit_sale,
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -1989,7 +1993,7 @@ class InvoiceActivity : AppCompatActivity() {
             }
             rvCustomers.adapter = adapter
             view.findViewById<android.widget.TextView>(R.id.tvAccountCount)?.text =
-                if (allCustomers.size == 1) "1 account" else "${allCustomers.size} accounts"
+                if (allCustomers.size == 1) getString(R.string.invoice_account_count_singular) else "${allCustomers.size} accounts"
 
             fun updateList(data: List<CreditAccount>) {
                 currentList.clear(); currentList.addAll(data)
@@ -2044,7 +2048,7 @@ class InvoiceActivity : AppCompatActivity() {
         if (currentShopIdOrNull() == null) {
             Toast.makeText(
                 this,
-                "No shop selected — can't record this credit sale. Sign in again.",
+                R.string.invoice_no_shop_credit_record,
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -2069,7 +2073,7 @@ class InvoiceActivity : AppCompatActivity() {
             val name = etName.text.toString().trim()
             val phone = etPhone.text.toString().trim()
             if (name.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(this, "Enter all fields", Toast.LENGTH_SHORT).show(); return@setOnClickListener
+                Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show(); return@setOnClickListener
             }
             lifecycleScope.launch(Dispatchers.IO) {
                 // Same rule as the credit sale above: without a real shop id
@@ -2078,7 +2082,7 @@ class InvoiceActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             this@InvoiceActivity,
-                            "No shop selected — can't add a customer. Sign in again.",
+                            R.string.invoice_no_shop_add_customer,
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -2088,7 +2092,7 @@ class InvoiceActivity : AppCompatActivity() {
                 val existing = repository.getCreditAccountByPhone(phone, shopId)
                 if (existing != null) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@InvoiceActivity, "Customer already exists", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@InvoiceActivity, R.string.invoice_customer_already_exists, Toast.LENGTH_SHORT).show()
                     }
                     return@launch
                 }
@@ -2117,7 +2121,7 @@ class InvoiceActivity : AppCompatActivity() {
                     )
                 }
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@InvoiceActivity, "Customer added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@InvoiceActivity, R.string.invoice_customer_added, Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
             }

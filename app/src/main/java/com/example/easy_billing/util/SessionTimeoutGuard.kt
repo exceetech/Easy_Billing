@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.MainActivity
+import com.example.easy_billing.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -138,7 +139,7 @@ object SessionTimeoutGuard {
         // the session — nothing left to do.
         if (!SessionClearGate.clearIfNeeded(activity)) return
 
-        Toast.makeText(activity, "Session expired. Please login again.", Toast.LENGTH_LONG).show()
+        Toast.makeText(activity, activity.getString(R.string.session_expired_toast), Toast.LENGTH_LONG).show()
 
         val intent = Intent(activity, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

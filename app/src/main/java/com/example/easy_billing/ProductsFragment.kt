@@ -187,7 +187,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
             rvProducts.visibility = View.GONE
             llLegend.removeAllViews()
             pieChart.clear()
-            tvCenterVal.text = "—"
+            tvCenterVal.text = getString(R.string.dash)
             return
         }
         tvEmpty.visibility = View.GONE

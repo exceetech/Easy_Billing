@@ -269,7 +269,7 @@ class DashboardActivity : BaseActivity() {
 
             val channel = NotificationChannel(
                 "easy_billing_channel",
-                "Easy Billing Notifications",
+                getString(R.string.dashboard_notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             )
 
@@ -513,11 +513,11 @@ class DashboardActivity : BaseActivity() {
         btnSort.setOnClickListener {
 
             val sortOptions = listOf(
-                "Name: A → Z", "Name: Z → A",
-                "Price: Low → High", "Price: High → Low",
-                "Stock: Low → High", "Stock: High → Low",
-                "Stock Value: High → Low", "Category",
-                "Best Selling", "Top Revenue", "Most Profitable"
+                getString(R.string.dashboard_sort_name_asc), getString(R.string.dashboard_sort_name_desc),
+                getString(R.string.dashboard_sort_price_asc), getString(R.string.dashboard_sort_price_desc),
+                getString(R.string.dashboard_sort_stock_asc), getString(R.string.dashboard_sort_stock_desc),
+                getString(R.string.dashboard_sort_stock_value_desc), getString(R.string.add_product_category_label),
+                getString(R.string.dashboard_sort_best_selling), getString(R.string.dashboard_sort_top_revenue), getString(R.string.dashboard_sort_most_profitable)
             )
             val sortTypes = listOf(
                 SortType.A_TO_Z, SortType.Z_TO_A,
@@ -540,7 +540,7 @@ class DashboardActivity : BaseActivity() {
 
         val btnView = findViewById<LinearLayout>(R.id.btnViewContainer)
         btnView.setOnClickListener {
-            val options = listOf("Grid (tiles)", "List", "Categorized")
+            val options = listOf(getString(R.string.dashboard_view_grid), getString(R.string.dashboard_view_list), getString(R.string.dashboard_view_categorized))
             val current = when (viewMode) {
                 ViewMode.GRID -> 0
                 ViewMode.LIST -> 1
@@ -626,15 +626,15 @@ class DashboardActivity : BaseActivity() {
                 val profile = repository.getProfile(token)
 
                 val shopName = profile.shop_name
-                val ownerName = profile.owner_name ?: "Owner"
+                val ownerName = profile.owner_name ?: getString(R.string.dashboard_owner_fallback)
 
                 // 🔥 Split name for premium UI
                 val parts = ownerName.trim().split(" ")
-                
+
                 if (parts.isNotEmpty()) {
                     tvDrawerNameBase.text = ownerName
                 } else {
-                    tvDrawerNameBase.text = "Store"
+                    tvDrawerNameBase.text = getString(R.string.store)
                 }
 
                 // Logout button email subtitle
@@ -645,10 +645,10 @@ class DashboardActivity : BaseActivity() {
 
             } catch (e: Exception) {
 
-                tvWelcome.text = "Dashboard"
+                tvWelcome.text = getString(R.string.dashboard_title_fallback)
 
                 // 🔥 fallback
-                tvDrawerNameBase.text = "Store"
+                tvDrawerNameBase.text = getString(R.string.store)
             }
         }
     }
@@ -756,7 +756,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnGstReports).setOnClickListener {
-            launchIfPremium(GstReportsActivity::class.java, "GST reports")
+            launchIfPremium(GstReportsActivity::class.java, getString(R.string.dashboard_feature_gst_reports))
             drawerLayout.closeDrawers()
         }
 
@@ -786,7 +786,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnProfit).setOnClickListener {
-            launchIfPremium(ProfitActivity::class.java, "profit analytics")
+            launchIfPremium(ProfitActivity::class.java, getString(R.string.dashboard_feature_profit_analytics))
             drawerLayout.closeDrawers()
         }
 
@@ -796,7 +796,7 @@ class DashboardActivity : BaseActivity() {
         }
 
         findViewById<View>(R.id.btnAiInsights).setOnClickListener {
-            launchIfPremium(AiDashboardActivity::class.java, "AI insights")
+            launchIfPremium(AiDashboardActivity::class.java, getString(R.string.dashboard_feature_ai_insights))
             drawerLayout.closeDrawers()
         }
 
@@ -1012,7 +1012,7 @@ class DashboardActivity : BaseActivity() {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     this@DashboardActivity,
-                    "Failed to load products",
+                    R.string.dashboard_failed_load_products,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -1073,7 +1073,7 @@ class DashboardActivity : BaseActivity() {
 
             if (newQty > MAX_QTY) {
 
-                Toast.makeText(this@DashboardActivity, "Max quantity limit reached", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@DashboardActivity, R.string.dashboard_max_qty_reached, Toast.LENGTH_SHORT).show()
 
                 if (existing != null) {
                     existing.quantity = MAX_QTY
@@ -1096,7 +1096,7 @@ class DashboardActivity : BaseActivity() {
                 if (inventory != null) {
                     // ❌ OUT OF STOCK
                     if (inventory.currentStock <= 0) {
-                        Toast.makeText(this@DashboardActivity, "Out of stock", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@DashboardActivity, R.string.inventory_out_of_stock, Toast.LENGTH_SHORT).show()
                         return@launch
                     }
 
@@ -1210,7 +1210,7 @@ class DashboardActivity : BaseActivity() {
     private fun generateBill() {
 
         if (cartItems.isEmpty()) {
-            Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.dashboard_cart_empty_toast, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1361,7 +1361,7 @@ class DashboardActivity : BaseActivity() {
             val quantity = quantityStr.toDoubleOrNull()
 
             if (quantity == null || quantity <= 0) {
-                Toast.makeText(this, "Enter valid quantity", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.dashboard_enter_valid_quantity, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -1396,7 +1396,7 @@ class DashboardActivity : BaseActivity() {
                 tvMessage.text =
                     "⚠️ Cannot remove ${product.name}\n\nStock available: $stockQty\n\nReduce stock to 0 first."
 
-                btnDelete.text = "OK"
+                btnDelete.text = getString(R.string.dashboard_ok)
 
                 btnDelete.setOnClickListener {
                     dialog.dismiss()
@@ -1407,7 +1407,7 @@ class DashboardActivity : BaseActivity() {
                 // ================= ALLOW DEACTIVATE =================
                 tvMessage.text = "Remove ${product.name}?"
 
-                btnDelete.text = "Remove"
+                btnDelete.text = getString(R.string.dashboard_remove_button)
 
                 btnDelete.setOnClickListener {
 
@@ -1464,7 +1464,7 @@ class DashboardActivity : BaseActivity() {
                         } catch (e: Exception) {
                             Toast.makeText(
                                 this@DashboardActivity,
-                                "Failed to remove product",
+                                R.string.dashboard_failed_remove_product,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -1600,7 +1600,7 @@ class DashboardActivity : BaseActivity() {
     private fun updateNotifyBadge() {
         val count = notificationStore.unseenCount(allInsights)
         if (count > 0) {
-            tvNotifyBadge.text = if (count > 9) "9+" else count.toString()
+            tvNotifyBadge.text = if (count > 9) getString(R.string.dashboard_badge_9_plus) else count.toString()
             tvNotifyBadge.visibility = View.VISIBLE
         } else {
             tvNotifyBadge.visibility = View.GONE
@@ -1703,7 +1703,7 @@ class DashboardActivity : BaseActivity() {
 
                 Toast.makeText(
                     this@DashboardActivity,
-                    "Unable to verify subscription",
+                    R.string.dashboard_unable_verify_subscription,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -1742,7 +1742,7 @@ class DashboardActivity : BaseActivity() {
      * Premium perks regardless, since upgrading unlocks all of them
      * together, not just the one that triggered this prompt.
      */
-    private fun showUpgradePrompt(featureName: String = "premium features") {
+    private fun showUpgradePrompt(featureName: String = getString(R.string.dashboard_feature_premium_default)) {
         val view = layoutInflater.inflate(R.layout.dialog_premium_upgrade, null)
 
         val dialog = AlertDialog.Builder(this)
@@ -1807,9 +1807,9 @@ class DashboardActivity : BaseActivity() {
             )
 
             val gatedRows = listOf(
-                GatedRow(R.id.btnGstReports, R.id.iconGstReports, R.id.lockGstReports, R.id.subGstReports, "Tax filings"),
-                GatedRow(R.id.btnProfit, R.id.iconProfit, R.id.lockProfit, R.id.subProfit, "Margins & trends"),
-                GatedRow(R.id.btnAiInsights, R.id.iconAiInsights, R.id.lockAiInsights, R.id.subAiInsights, "Smart recommendations"),
+                GatedRow(R.id.btnGstReports, R.id.iconGstReports, R.id.lockGstReports, R.id.subGstReports, getString(R.string.dashboard_gst_reports_subtitle)),
+                GatedRow(R.id.btnProfit, R.id.iconProfit, R.id.lockProfit, R.id.subProfit, getString(R.string.dashboard_profit_subtitle)),
+                GatedRow(R.id.btnAiInsights, R.id.iconAiInsights, R.id.lockAiInsights, R.id.subAiInsights, getString(R.string.dashboard_ai_insights_subtitle)),
             )
 
             gatedRows.forEach { row ->
@@ -1821,7 +1821,7 @@ class DashboardActivity : BaseActivity() {
                         text = row.defaultSub
                         setTextColor(0xFF9A968C.toInt())
                     } else {
-                        text = "Upgrade to unlock"
+                        text = getString(R.string.dashboard_upgrade_to_unlock)
                         setTextColor(0xFFB8895A.toInt())
                     }
                 }
@@ -1852,11 +1852,11 @@ class DashboardActivity : BaseActivity() {
             try {
                 val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                     data = android.net.Uri.parse("mailto:support@expos.app")
-                    putExtra(Intent.EXTRA_SUBJECT, "Subscription support")
+                    putExtra(Intent.EXTRA_SUBJECT, getString(R.string.dashboard_email_subject_subscription_support))
                 }
                 startActivity(emailIntent)
             } catch (e: Exception) {
-                Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.dashboard_no_email_app, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -1888,7 +1888,7 @@ class DashboardActivity : BaseActivity() {
 
             Toast.makeText(
                 this,
-                "Unauthorized device",
+                R.string.dashboard_unauthorized_device,
                 Toast.LENGTH_LONG
             ).show()
 
@@ -1901,7 +1901,7 @@ class DashboardActivity : BaseActivity() {
         val store = repository.getStoreInfo()
 
         runOnUiThread {
-            val storeName = store?.name?.takeIf { it.isNotBlank() } ?: "My Store"
+            val storeName = store?.name?.takeIf { it.isNotBlank() } ?: getString(R.string.invoice_default_store_name)
 
             // wherever you show store name
             findViewById<TextView>(R.id.tvStoreName)?.text = storeName
@@ -1915,7 +1915,7 @@ class DashboardActivity : BaseActivity() {
     private fun storeInitials(name: String): String {
         val words = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
         return when {
-            words.isEmpty() -> "EB"
+            words.isEmpty() -> getString(R.string.dashboard_avatar_fallback)
             words.size == 1 -> words[0].take(2).uppercase()
             else -> (words[0].take(1) + words[1].take(1)).uppercase()
         }
@@ -1967,7 +1967,7 @@ class DashboardActivity : BaseActivity() {
             val d = resources.displayMetrics.density
             fun dp(v: Int) = (v * d).toInt()
             val medium = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_medium)
-            val labels = listOf("All") + cats
+            val labels = listOf(getString(R.string.manage_filter_all)) + cats
             labels.forEachIndexed { i, label ->
                 val pill = TextView(this).apply {
                     text = label
@@ -2303,31 +2303,31 @@ class DashboardActivity : BaseActivity() {
 
         fun updateCategorySummary() {
             tvCategorySummary.text = when {
-                workingCategories.isEmpty() -> "All categories"
-                workingCategories.size >= allCats.size -> "All selected"
+                workingCategories.isEmpty() -> getString(R.string.dashboard_filter_all_categories)
+                workingCategories.size >= allCats.size -> getString(R.string.dashboard_filter_all_selected)
                 else -> "${workingCategories.size} of ${allCats.size} selected"
             }
         }
         fun updateStockSummary() {
-            tvStockSummary.text = if (workingStock.isEmpty()) "Any" else workingStock.joinToString(", ") {
+            tvStockSummary.text = if (workingStock.isEmpty()) getString(R.string.dashboard_filter_any) else workingStock.joinToString(", ") {
                 when (it) {
-                    StockStatus.IN_STOCK -> "In stock"
-                    StockStatus.LOW -> "Low"
-                    StockStatus.OUT -> "Out"
+                    StockStatus.IN_STOCK -> getString(R.string.dashboard_filter_in_stock)
+                    StockStatus.LOW -> getString(R.string.dashboard_filter_low)
+                    StockStatus.OUT -> getString(R.string.dashboard_filter_out)
                 }
             }
         }
         fun updateTypeSummary() {
             val s = mutableListOf<String>()
-            if (workingPurchased) s.add("Purchased")
-            if (workingManual) s.add("Manual")
-            tvTypeSummary.text = if (s.isEmpty()) "Any" else s.joinToString(", ")
+            if (workingPurchased) s.add(getString(R.string.manage_filter_purchased))
+            if (workingManual) s.add(getString(R.string.manage_filter_manual))
+            tvTypeSummary.text = if (s.isEmpty()) getString(R.string.dashboard_filter_any) else s.joinToString(", ")
         }
         fun updatePriceSummary() {
             val mn = etPriceMin.text?.toString()?.trim()
             val mx = etPriceMax.text?.toString()?.trim()
             tvPriceSummary.text = when {
-                mn.isNullOrEmpty() && mx.isNullOrEmpty() -> "Any"
+                mn.isNullOrEmpty() && mx.isNullOrEmpty() -> getString(R.string.dashboard_filter_any)
                 mn.isNullOrEmpty() -> "Up to ₹$mx"
                 mx.isNullOrEmpty() -> "From ₹$mn"
                 else -> "₹$mn – ₹$mx"
@@ -2348,9 +2348,9 @@ class DashboardActivity : BaseActivity() {
 
         val stockSetters = mutableListOf<(Boolean) -> Unit>()
         listOf(
-            "In stock" to StockStatus.IN_STOCK,
-            "Low stock" to StockStatus.LOW,
-            "Out of stock" to StockStatus.OUT
+            getString(R.string.dashboard_filter_in_stock) to StockStatus.IN_STOCK,
+            getString(R.string.inventory_filter_low_stock) to StockStatus.LOW,
+            getString(R.string.inventory_out_of_stock) to StockStatus.OUT
         ).forEach { (label, st) ->
             stockSetters.add(addCheckRow(stockList, label, null, st in workingStock) { on ->
                 if (on) workingStock.add(st) else workingStock.remove(st)
@@ -2359,8 +2359,8 @@ class DashboardActivity : BaseActivity() {
         }
 
         val typeSetters = mutableListOf<(Boolean) -> Unit>()
-        typeSetters.add(addCheckRow(typeList, "Purchased", null, workingPurchased) { workingPurchased = it; updateTypeSummary() })
-        typeSetters.add(addCheckRow(typeList, "Manual", null, workingManual) { workingManual = it; updateTypeSummary() })
+        typeSetters.add(addCheckRow(typeList, getString(R.string.manage_filter_purchased), null, workingPurchased) { workingPurchased = it; updateTypeSummary() })
+        typeSetters.add(addCheckRow(typeList, getString(R.string.manage_filter_manual), null, workingManual) { workingManual = it; updateTypeSummary() })
 
         updateCategorySummary(); updateStockSummary(); updateTypeSummary(); updatePriceSummary()
 
@@ -2618,10 +2618,10 @@ class DashboardActivity : BaseActivity() {
         val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
 
         val greeting = when (hour) {
-            in 5..11 -> "Good Morning"
-            in 12..16 -> "Good Afternoon"
-            in 17..20 -> "Good Evening"
-            else -> "Good Night"
+            in 5..11 -> getString(R.string.dashboard_greeting_morning)
+            in 12..16 -> getString(R.string.dashboard_greeting_afternoon)
+            in 17..20 -> getString(R.string.dashboard_greeting_evening)
+            else -> getString(R.string.dashboard_greeting_night)
         }
         tvGreeting.text = greeting
     }

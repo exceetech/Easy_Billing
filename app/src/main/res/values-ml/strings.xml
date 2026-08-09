@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
 
-    <!-- App -->
+    
     <string name="app_name">ExPOS</string>
 
-    <!-- Authentication -->
+    
     <string name="phone_number">ഫോൺ നമ്പർ</string>
     <string name="full_name">പൂർണ്ണ പേര്</string>
     <string name="create_account">അക്കൗണ്ട് സൃഷ്ടിക്കുക</string>
     <string name="email">ഇമെയിൽ</string>
-    <string name="password">പാസ്‌വേഡ്</string>
-    <string name="confirm_password">പാസ്‌വേഡ് സ്ഥിരീകരിക്കുക</string>
+    <string name="password">പാസ്</string>
+    <string name="confirm_password">പാസ്</string>
     <string name="register">രജിസ്റ്റർ</string>
     <string name="already_have_an_account_login">ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ? ലോഗിൻ</string>
     <string name="don_t_have_an_account_register">അക്കൗണ്ട് ഇല്ലേ? രജിസ്റ്റർ ചെയ്യൂ</string>
@@ -22,27 +22,27 @@
     <string name="submit">സമർപ്പിക്കുക</string>
     <string name="logout">ലോഗൗട്ട്</string>
 
-    <!-- Shop -->
+    
     <string name="shop_name">കടയുടെ പേര്</string>
     <string name="app_logo">ആപ്പ് ലോഗോ</string>
 
-    <!-- General -->
+    
     <string name="edit">തിരുത്തുക</string>
     <string name="close">അടയ്ക്കുക</string>
 
-    <!-- Settings -->
+    
     <string name="store_information">കട വിവരങ്ങൾ</string>
     <string name="billing_settings">ബില്ലിംഗ് ക്രമീകരണങ്ങൾ</string>
     <string name="invoice_design">ഇൻവോയ്സ് ഡിസൈൻ</string>
     <string name="localization_settings">ഭാഷ, നാണയം</string>
     <string name="data_security_management">ഡാറ്റയും സുരക്ഷയും നിയന്ത്രണം</string>
 
-    <!-- Localization -->
+    
     <string name="language">ഭാഷ</string>
     <string name="region">പ്രദേശം</string>
     <string name="currency">നാണയം</string>
 
-    <!-- Billing -->
+    
     <string name="gst">ജിഎസ്ടി</string>
     <string name="discount">ഡിസ്‌കൗണ്ട്</string>
     <string name="total">മൊത്തം</string>
@@ -50,7 +50,7 @@
     <string name="invoice_info">ഇൻവോയ്സ് #123\nതീയതി: --</string>
     <string name="subtotal">ഉപമൊത്തം</string>
 
-    <!-- Invoice -->
+    
     <string name="confirm_bill">ബിൽ സ്ഥിരീകരിക്കുക</string>
     <string name="print_save_pdf">പ്രിന്റ് / PDF ആയി സേവ് ചെയ്യുക</string>
 
@@ -80,12 +80,12 @@
     <string name="this_month">ഈ മാസം</string>
     <string name="sort_amount">തുക പ്രകാരം ക്രമീകരിക്കുക</string>
 
-    <string name="default_gst">ഡീഫോൾട്ട് ജിഎസ്ടി (%)</string>
+    <string name="default_gst">ഡീഫോൾട്ട് ജിഎസ്ടി (%%)</string>
     <string name="printer_layout">പ്രിന്റർ ലേഔട്ട്</string>
     <string name="save_billing_settings">ബില്ലിംഗ് ക്രമീകരണങ്ങൾ സംരക്ഷിക്കുക</string>
 
     <string name="create_new_password">പുതിയ പാസ്‌വേഡ് സൃഷ്ടിക്കുക</string>
-    <string name="new_password">പുതിയ പാസ്‌വേഡ്</string>
+    <string name="new_password">പുതിയ പാസ്</string>
     <string name="save_password">പാസ്‌വേഡ് സംരക്ഷിക്കുക</string>
 
     <string name="menu">മെനു</string>
@@ -101,7 +101,7 @@
     <string name="generate_bill">ബിൽ സൃഷ്ടിക്കുക</string>
 
     <string name="data_and_security">ഡാറ്റയും സുരക്ഷയും</string>
-    <string name="change_login_password">ലോഗിൻ പാസ്‌വേഡ് മാറ്റുക</string>
+    <string name="change_login_password">ലോഗിൻ പാസ്</string>
     <string name="clear_all_bills">എല്ലാ ബില്ലുകളും മായ്ക്കുക</string>
     <string name="factory_reset_app">ആപ്പ് ഫാക്ടറി റീസെറ്റ് ചെയ്യുക</string>
 
@@ -124,7 +124,7 @@
     <string name="show_store_logo">കട ലോഗോ കാണിക്കുക</string>
     <string name="show_gstin">GSTIN കാണിക്കുക</string>
     <string name="show_phone_number">ഫോൺ നമ്പർ കാണിക്കുക</string>
-    <string name="show_discount_section">ഡിസ്‌കൗണ്ട് വിഭാഗം കാണിക്കുക</string>
+    <string name="show_discount_section">ഡിസ്</string>
     <string name="enable_round_off">റൗണ്ട് ഓഫ് സജീവമാക്കുക</string>
     <string name="save_design_settings">ഡിസൈൻ ക്രമീകരണങ്ങൾ സംരക്ഷിക്കുക</string>
 
@@ -144,7 +144,7 @@
     <string name="send_report_to_email">റിപ്പോർട്ട് ഇമെയിലിലേക്ക് അയയ്ക്കുക</string>
 
     <string name="store_address">കടയുടെ വിലാസം</string>
-    <string name="gstin">ജിഎസ്‌ടി ഐഎൻ</string>
+    <string name="gstin">ജിഎസ്</string>
     <string name="save_changes">മാറ്റങ്ങൾ സംരക്ഷിക്കുക</string>
 
     <string name="add_product">ഉൽപ്പന്നം ചേർക്കുക</string>
@@ -157,7 +157,7 @@
     <string name="add_to_cart">കാർട്ടിലേക്ക് ചേർക്കുക</string>
 
     <string name="confirm_identity">ഐഡന്റിറ്റി സ്ഥിരീകരിക്കുക</string>
-    <string name="enter_your_login_password">നിങ്ങളുടെ ലോഗിൻ പാസ്‌വേഡ് നൽകുക</string>
+    <string name="enter_your_login_password">നിങ്ങളുടെ ലോഗിൻ പാസ്</string>
     <string name="verify">സ്ഥിരീകരിക്കുക</string>
 
     <string name="item">ഇനം</string>

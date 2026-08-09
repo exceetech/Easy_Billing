@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ACCOUNT"
+                android:text="@string/account_eyebrow"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -50,7 +50,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Store"
+                    android:text="@string/store"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -62,7 +62,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="profile"
+                    android:text="@string/profile_word"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -115,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="Owner"
+                        android:text="@string/dashboard_owner_fallback"
                         android:textColor="#9A8F79"
                         android:textSize="11.5sp"
                         android:singleLine="true"
@@ -141,7 +141,7 @@
                                 android:layout_marginEnd="4dp" android:src="@drawable/ic_lucide_badge_check"
                                 app:tint="#085041" android:contentDescription="@null"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="GST registered" android:textSize="9.5sp"
+                                android:text="@string/gst_registered_badge" android:textSize="9.5sp"
                                 android:fontFamily="@font/googlesans_semibold" android:textColor="#085041"/>
                         </LinearLayout>
 
@@ -179,7 +179,7 @@
                     android:layout_height="14dp"
                     android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="STORE INFORMATION"
+                    android:layout_marginStart="9dp" android:text="@string/store_information_2"
                     android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
                     android:letterSpacing="0.08"/>
             </LinearLayout>
@@ -221,7 +221,7 @@
                     android:layout_height="14dp"
                     android:background="#D4A574"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="GST PROFILE"
+                    android:layout_marginStart="9dp" android:text="@string/gst_profile_label"
                     android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
                     android:letterSpacing="0.08"/>
             </LinearLayout>
@@ -248,7 +248,7 @@
                     android:paddingVertical="11dp">
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="GSTIN" android:textSize="9.5sp" android:letterSpacing="0.05" android:textColor="#9A8F79"/>
+                            android:text="@string/gstin" android:textSize="9.5sp" android:letterSpacing="0.05" android:textColor="#9A8F79"/>
                         <TextView android:id="@+id/tvGstinValue" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="2dp" android:text="—"
                             android:textSize="15sp" android:fontFamily="serif" android:textColor="#1A1A18" android:letterSpacing="0.04"/>
@@ -292,7 +292,7 @@
                         android:paddingHorizontal="14dp"
                         android:paddingVertical="11dp">
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="Registration" android:textColor="#9A8F79" android:textSize="12.5sp"/>
+                            android:text="@string/registration_label" android:textColor="#9A8F79" android:textSize="12.5sp"/>
                         <TextView android:id="@+id/tvRegTypeBadge"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="—" android:textSize="11sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#085041"
@@ -314,7 +314,7 @@
                 android:id="@+id/btnSignOut"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
-                android:text="Sign out"
+                android:text="@string/dialog_sign_out_confirm"
                 android:textColor="#9A2E2E"
                 android:textAllCaps="false"
                 android:textSize="13.5sp"

@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
-                android:text="PRODUCT"
+                android:text="@string/edit_product_xml_product_label"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -56,7 +56,7 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="2dp">
                 <TextView
-                    android:text="Edit"
+                    android:text="@string/edit_product_xml_edit"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -65,7 +65,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
                 <TextView
-                    android:text="details"
+                    android:text="@string/edit_product_xml_details"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -184,17 +184,17 @@
                     android:layout_marginTop="14dp">
 
                     <LinearLayout style="@style/EpHeroStat">
-                        <TextView style="@style/EpHeroStatLabel" android:text="PRICE"/>
+                        <TextView style="@style/EpHeroStatLabel" android:text="@string/edit_product_xml_price_label"/>
                         <TextView android:id="@+id/tvHeroPrice" style="@style/EpHeroStatValue" tools:text="₹32.00"/>
                     </LinearLayout>
 
                     <LinearLayout style="@style/EpHeroStat" android:layout_marginStart="8dp">
-                        <TextView style="@style/EpHeroStatLabel" android:text="GST"/>
+                        <TextView style="@style/EpHeroStatLabel" android:text="@string/edit_product_xml_gst_label"/>
                         <TextView android:id="@+id/tvHeroGst" style="@style/EpHeroStatValue" tools:text="18%"/>
                     </LinearLayout>
 
                     <LinearLayout style="@style/EpHeroStat" android:layout_marginStart="8dp">
-                        <TextView style="@style/EpHeroStatLabel" android:text="CATEGORY"/>
+                        <TextView style="@style/EpHeroStatLabel" android:text="@string/edit_product_xml_category_label"/>
                         <TextView android:id="@+id/tvHeroCategory" style="@style/EpHeroStatValue" tools:text="Beverages"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -210,7 +210,7 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView style="@style/EpCardHeaderLabel" android:text="PRICING"/>
+                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_pricing_header"/>
             </LinearLayout>
 
             <TextView style="@style/EpFieldLabel" android:text="Selling price"/>
@@ -273,7 +273,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Incl. GST"
+                        android:text="@string/edit_product_xml_incl_gst"
                         android:textColor="#0F6E56"
                         android:textSize="11.5sp"
                         android:fontFamily="@font/googlesans_medium"
@@ -299,7 +299,7 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView style="@style/EpCardHeaderLabel" android:text="TAX &amp; GSTR-1 DETAILS"/>
+                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_tax_gstr1_header"/>
             </LinearLayout>
 
             <TextView style="@style/EpFieldLabel" android:text="HSN / SAC"/>
@@ -384,7 +384,7 @@
                     <LinearLayout
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
-                        <TextView style="@style/EpMiniLabel" android:text="CGST %"/>
+                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_cgst_pct_label"/>
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCgst"
                             style="@style/EpMiniInput"/>
@@ -395,7 +395,7 @@
                     <LinearLayout
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
-                        <TextView style="@style/EpMiniLabel" android:text="SGST %"/>
+                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_sgst_pct_label"/>
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etSgst"
                             style="@style/EpMiniInput"/>
@@ -441,7 +441,7 @@
                     android:focusable="true"
                     android:paddingStart="38dp"
                     android:paddingEnd="26dp"
-                    android:hint="Select"
+                    android:hint="@string/edit_product_xml_select_hint"
                     android:textColor="#1A1A18"
                     android:textColorHint="#A99E88"
                     android:singleLine="true"
@@ -458,7 +458,7 @@
                     android:contentDescription="@null"/>
             </FrameLayout>
 
-            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="Cess %"/>
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="@string/edit_product_xml_cess_pct_label"/>
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -531,7 +531,7 @@
             </FrameLayout>
 
             <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp"
-                android:text="HSN description (optional)"/>
+                android:text="@string/edit_product_xml_hsn_desc_optional"/>
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -573,7 +573,7 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView style="@style/EpCardHeaderLabel" android:text="CATEGORY"/>
+                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_category_header"/>
             </LinearLayout>
 
             <FrameLayout
@@ -626,7 +626,7 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView style="@style/EpCardHeaderLabel" android:text="INVENTORY"/>
+                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_inventory_header"/>
             </LinearLayout>
 
             <!-- READ-ONLY view shown for purchased products — same
@@ -746,7 +746,7 @@
                             android:background="@null"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="Units to add"
+                            android:hint="@string/edit_product_xml_units_to_add_hint"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="numberDecimal"

@@ -70,7 +70,7 @@
                         android:id="@+id/tvBatchLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Batch #A102"
+                        android:text="@string/xml_batch_pick_number_placeholder"
                         android:textSize="13.5sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_medium"
@@ -90,7 +90,7 @@
                         android:textSize="9.5sp"
                         android:textColor="#8A6526"
                         android:visibility="gone"
-                        android:text="Oldest"/>
+                        android:text="@string/xml_batch_pick_oldest_tag"/>
                 </LinearLayout>
 
                 <TextView
@@ -102,7 +102,7 @@
                     android:textColor="#9A8F79"
                     android:singleLine="true"
                     android:ellipsize="end"
-                    android:text="14 Jul 2026 · ₹42/unit"/>
+                    android:text="@string/xml_batch_pick_date_cost_placeholder"/>
 
                 <!-- Remaining — labelled caption instead of a bare
                      number, so it reads as "Max reducible: 18" rather
@@ -115,7 +115,7 @@
                     android:textSize="10sp"
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_medium"
-                    android:text="Max reducible: 0"/>
+                    android:text="@string/xml_batch_pick_max_reducible_placeholder"/>
             </LinearLayout>
 
             <TextView
@@ -151,7 +151,7 @@
                 android:textSize="11.5sp"
                 android:textColor="#3A322A"
                 android:fontFamily="@font/googlesans_medium"
-                android:text="Reduce quantity"/>
+                android:text="@string/xml_batch_pick_reduce_qty_label"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDecrement"
@@ -226,7 +226,7 @@
             android:textColor="#0F6E56"
             android:fontFamily="@font/googlesans_medium"
             android:visibility="gone"
-            android:text="Reduce value: ₹0"/>
+            android:text="@string/xml_batch_pick_reduce_value_placeholder"/>
 
     </LinearLayout>
 

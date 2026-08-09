@@ -284,7 +284,7 @@ class PurchaseActivity : BaseActivity() {
         etSupplierGstin = findViewById(R.id.etSupplierGstin)
         etState         = findViewById(R.id.etState)
         btnPickSupplier = findViewById(R.id.btnPickSupplier)
-        btnPickSupplier.contentDescription = "Choose supplier"
+        btnPickSupplier.contentDescription = getString(R.string.purchase_choose_supplier_desc)
         rv              = findViewById(R.id.rvLines)
         btnAddLine      = findViewById(R.id.btnAddLine)
         btnSave         = findViewById(R.id.btnSavePurchase)
@@ -573,8 +573,14 @@ class PurchaseActivity : BaseActivity() {
         }
 
         // Invoice Type
-        val invoiceTypes = listOf("Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp", "From Composition Taxable Person")
-        etInvoiceType.setText("Regular", false)
+        val invoiceTypes = listOf(
+            getString(R.string.purchase_invoice_type_regular),
+            getString(R.string.purchase_invoice_type_sez_with_payment),
+            getString(R.string.purchase_invoice_type_sez_without_payment),
+            getString(R.string.purchase_invoice_type_deemed_exp),
+            getString(R.string.purchase_invoice_type_composition)
+        )
+        etInvoiceType.setText(getString(R.string.purchase_invoice_type_regular), false)
         etInvoiceType.setOnClickListener {
             showSortStylePopup(etInvoiceType, invoiceTypes, etInvoiceType.text.toString()) { picked ->
                 etInvoiceType.setText(picked, false)
@@ -582,8 +588,11 @@ class PurchaseActivity : BaseActivity() {
         }
 
         // Supply Type
-        val supplyTypes = listOf("intrastate", "interstate")
-        etSupplyType.setText("intrastate", false)
+        val supplyTypes = listOf(
+            getString(R.string.purchase_supply_type_intrastate),
+            getString(R.string.purchase_supply_type_interstate)
+        )
+        etSupplyType.setText(getString(R.string.purchase_supply_type_intrastate), false)
         etSupplyType.setOnClickListener {
             showSortStylePopup(etSupplyType, supplyTypes, etSupplyType.text.toString()) { picked ->
                 etSupplyType.setText(picked, false)
@@ -591,8 +600,14 @@ class PurchaseActivity : BaseActivity() {
         }
 
         // Eligibility For ITC
-        val eligibilityTypes = listOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
-        etEligibilityForItc.setText("Inputs", false)
+        val eligibilityTypes = listOf(
+            getString(R.string.purchase_eligibility_inputs),
+            getString(R.string.purchase_eligibility_capital_goods),
+            getString(R.string.purchase_eligibility_input_services),
+            getString(R.string.purchase_eligibility_ineligible),
+            getString(R.string.purchase_eligibility_none)
+        )
+        etEligibilityForItc.setText(getString(R.string.purchase_eligibility_inputs), false)
         etEligibilityForItc.setOnClickListener {
             showSortStylePopup(etEligibilityForItc, eligibilityTypes, etEligibilityForItc.text.toString()) { picked ->
                 etEligibilityForItc.setText(picked, false)
@@ -629,7 +644,7 @@ class PurchaseActivity : BaseActivity() {
 
         if (codeToCompare.isNotBlank()) {
             val sameState = shopStateCode == codeToCompare
-            val detectedType = if (sameState) "intrastate" else "interstate"
+            val detectedType = if (sameState) getString(R.string.purchase_supply_type_intrastate) else getString(R.string.purchase_supply_type_interstate)
             etSupplyType.setText(detectedType, false)
         }
     }
@@ -641,7 +656,7 @@ class PurchaseActivity : BaseActivity() {
 
         settingItc = true
         try {
-            if (eligibility == "Ineligible" || eligibility == "None") {
+            if (eligibility == getString(R.string.purchase_eligibility_ineligible) || eligibility == getString(R.string.purchase_eligibility_none)) {
                 // Statutory zero — overrides anything typed, and clears the
                 // override flags so the defaults come back if the user
                 // switches eligibility again.
@@ -748,7 +763,7 @@ class PurchaseActivity : BaseActivity() {
         switchImportedGoods.setOnClickListener { 
             if (viewModel.lines.value.isNotEmpty()) {
                 switchImportedGoods.isChecked = !switchImportedGoods.isChecked
-                Toast.makeText(this, "Imported Goods toggle can only be changed before adding items", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_imported_toggle_locked, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -775,7 +790,7 @@ class PurchaseActivity : BaseActivity() {
         btnAddLine.setOnClickListener {
             if (!isHeaderValid()) {
                 Toast.makeText(
-                    this, "Fill invoice number, supplier and state first",
+                    this, R.string.purchase_fill_header_first,
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -788,7 +803,7 @@ class PurchaseActivity : BaseActivity() {
             val supplier = etSupplierName.text?.toString()?.trim().orEmpty()
             val state = etState.text?.toString()?.trim().orEmpty()
             if (invoice.isEmpty() || supplier.isEmpty() || state.isEmpty()) {
-                Toast.makeText(this, "Fill invoice header first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_fill_header, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             // Auto-added lines (Inventory's "Add stock") start with
@@ -798,7 +813,7 @@ class PurchaseActivity : BaseActivity() {
             val unreviewedIndex = viewModel.lines.value.indexOfFirst { !it.reviewed }
             if (unreviewedIndex != -1) {
                 Toast.makeText(
-                    this, "Review the highlighted line item before saving",
+                    this, R.string.purchase_review_line_item,
                     Toast.LENGTH_SHORT
                 ).show()
                 editLine(unreviewedIndex)
@@ -811,10 +826,10 @@ class PurchaseActivity : BaseActivity() {
             if (typedGstin.isNotEmpty() &&
                 !com.example.easy_billing.util.GstEngine.isValidGstin(typedGstin)
             ) {
-                etSupplierGstin.error = "Invalid GSTIN"
+                etSupplierGstin.error = getString(R.string.purchase_invalid_gstin_error)
                 Toast.makeText(
                     this,
-                    "Supplier GSTIN doesn't look valid — check it, or leave it blank",
+                    R.string.purchase_invalid_gstin,
                     Toast.LENGTH_LONG
                 ).show()
                 return@setOnClickListener
@@ -837,8 +852,8 @@ class PurchaseActivity : BaseActivity() {
 
             val pickedInvoiceDate = invoiceDateProvider()
             if (pickedInvoiceDate == null) {
-                etInvoiceDate.error = "Pick the invoice date"
-                Toast.makeText(this, "Invoice date is required", Toast.LENGTH_SHORT).show()
+                etInvoiceDate.error = getString(R.string.purchase_pick_invoice_date_error)
+                Toast.makeText(this, R.string.purchase_invoice_date_required, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -861,29 +876,29 @@ class PurchaseActivity : BaseActivity() {
                 }
             }
             if (placeOfSupplyCode.isEmpty()) {
-                Toast.makeText(this, "Place of Supply Code is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_place_of_supply_required, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (switchImportedGoods.isChecked) {
                 val portCode = etPortCode.text?.toString()?.trim()
                 if (portCode.isNullOrEmpty()) {
-                    Toast.makeText(this, "Port Code is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.purchase_port_code_required, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val boeNumber = etBillOfEntryNumber.text?.toString()?.trim()
                 if (boeNumber.isNullOrEmpty()) {
-                    Toast.makeText(this, "Bill of Entry Number is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.purchase_boe_number_required, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val pickedBoeDate = boeDateProvider()
                 if (pickedBoeDate == null) {
-                    Toast.makeText(this, "Bill of Entry Date is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.purchase_boe_date_required, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val boeValue = etBillOfEntryValue.text?.toString()?.toDoubleOrNull()
                 if (boeValue == null) {
-                    Toast.makeText(this, "Bill of Entry Value is required for Imported Goods", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.purchase_boe_value_required, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val type = etInvoiceType.text?.toString() ?: ""
@@ -906,25 +921,25 @@ class PurchaseActivity : BaseActivity() {
             val reverseCharge = if (switchReverseCharge.isChecked) "Y" else "N"
             val invoiceType = etInvoiceType.text?.toString()?.trim().orEmpty()
             if (invoiceType.isEmpty()) {
-                Toast.makeText(this, "Invoice Type is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_invoice_type_required, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val supplyType = etSupplyType.text?.toString()?.trim().orEmpty()
             if (supplyType != "intrastate" && supplyType != "interstate") {
-                Toast.makeText(this, "Supply Type must be intrastate or interstate", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_supply_type_invalid, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val cessPaid = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
             if (cessPaid < 0.0) {
-                Toast.makeText(this, "Cess Paid must be >= 0", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_cess_paid_invalid, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val eligibility = etEligibilityForItc.text?.toString()?.trim().orEmpty()
             if (eligibility.isEmpty()) {
-                Toast.makeText(this, "Eligibility For ITC is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_eligibility_required, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -934,7 +949,7 @@ class PurchaseActivity : BaseActivity() {
             val availedItcCess = etAvailedItcCess.text?.toString()?.toDoubleOrNull() ?: 0.0
 
             if (availedItcIntegrated < 0.0 || availedItcCentral < 0.0 || availedItcState < 0.0 || availedItcCess < 0.0) {
-                Toast.makeText(this, "Availed ITC fields must be >= 0", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_itc_fields_negative, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -956,9 +971,9 @@ class PurchaseActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            if (eligibility == "Ineligible" || eligibility == "None") {
+            if (eligibility == getString(R.string.purchase_eligibility_ineligible) || eligibility == getString(R.string.purchase_eligibility_none)) {
                 if (availedItcIntegrated != 0.0 || availedItcCentral != 0.0 || availedItcState != 0.0 || availedItcCess != 0.0) {
-                    Toast.makeText(this, "Availed ITC fields must be 0 when ineligible/None", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.purchase_itc_must_be_zero, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
             }
@@ -966,7 +981,7 @@ class PurchaseActivity : BaseActivity() {
             // A credit purchase must name the account that owes it, else the
             // amount is recorded against nobody and never appears in payables.
             if (rbCredit.isChecked && viewModel.selectedCreditAccount.value == null) {
-                Toast.makeText(this, "Select a credit account", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_select_credit_account, Toast.LENGTH_SHORT).show()
                 com.example.easy_billing.util.CreditAccountPicker.show(
                     activity = this,
                     onAccountSelected = { account -> viewModel.selectCreditAccount(account) },
@@ -975,7 +990,7 @@ class PurchaseActivity : BaseActivity() {
                             rbNotCredit.isChecked = true
                             Toast.makeText(
                                 this,
-                                "Credit needs an account — set to paid now",
+                                R.string.purchase_credit_needs_account,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -1037,7 +1052,7 @@ class PurchaseActivity : BaseActivity() {
                                 rbNotCredit.isChecked = true
                                 Toast.makeText(
                                     this,
-                                    "Credit needs an account — set to paid now",
+                                    R.string.purchase_credit_needs_account,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -1156,7 +1171,7 @@ class PurchaseActivity : BaseActivity() {
                             // VM rather than a generic "saved" toast — this
                             // is how the user finds out whether the backend
                             // push actually worked.
-                            val msg = state.message ?: "Purchase saved"
+                            val msg = state.message ?: getString(R.string.purchase_saved_default_msg)
                             Toast.makeText(this@PurchaseActivity, msg, Toast.LENGTH_LONG).show()
                             finish()
                         }

@@ -166,7 +166,7 @@ class GstReportsActivity : AppCompatActivity() {
         setupSelectors()
 
         selectorReturnType.setOnClickListener { showReturnTypeDropdown() }
-        tvSelectorValue.text = "GSTR-1 · Sales"
+        tvSelectorValue.text = getString(R.string.gst_selector_gstr1_sales)
 
         setupTabs()
         setupButtons()
@@ -211,7 +211,7 @@ class GstReportsActivity : AppCompatActivity() {
     /** Return-type picker — styled dropdown matching the Invoice field popups. */
     private fun showReturnTypeDropdown() {
         val box = selectorReturnType
-        val options = listOf("GSTR-1 · Sales", "GSTR-2 · Purchases")
+        val options = listOf(getString(R.string.gst_selector_gstr1_sales), getString(R.string.gst_selector_gstr2_purchases))
         val currentIdx = if (isGstr1) 0 else 1
 
         val container = android.widget.LinearLayout(this).apply {
@@ -270,7 +270,7 @@ class GstReportsActivity : AppCompatActivity() {
     /** Switch the visible return and reset the screen. */
     private fun switchReport(toGstr1: Boolean) {
         isGstr1 = toGstr1
-        tvSelectorValue.text = if (isGstr1) "GSTR-1 · Sales" else "GSTR-2 · Purchases"
+        tvSelectorValue.text = if (isGstr1) getString(R.string.gst_selector_gstr1_sales) else getString(R.string.gst_selector_gstr2_purchases)
 
         setupTabs() // recreate section chips + pages for the chosen return
 
@@ -586,7 +586,7 @@ class GstReportsActivity : AppCompatActivity() {
                 if (viewModel1.report.value == null) {
                     // validateReport() no-ops when no report exists yet — without
                     // this the button feels dead when tapped too early.
-                    Toast.makeText(this, "Generate the report first, then validate.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.gst_toast_generate_first_validate), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 // validationResult is a StateFlow of a data class — if the report
@@ -602,7 +602,7 @@ class GstReportsActivity : AppCompatActivity() {
                     showValidationDialog(result)
                 }
             } else {
-                Toast.makeText(this, "Validation isn't available for GSTR-2 yet.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.gst_toast_validation_not_available_gstr2), Toast.LENGTH_SHORT).show()
             }
         }
         btnSaveDraft.setOnClickListener { if (isGstr1) viewModel1.saveDraft() else viewModel2.saveDraft() }
@@ -672,9 +672,9 @@ class GstReportsActivity : AppCompatActivity() {
     private fun bindReport1(report: Gstr1Report) {
         // Summary hero
         cardSummary.visibility = View.VISIBLE
-        tvSummaryHeroLabel.text   = "Total tax this period"
+        tvSummaryHeroLabel.text   = getString(R.string.gst_hero_label_total_tax)
         tvSummaryTax.text         = "₹%,.0f".format(report.totalTax)
-        tvSummaryTaxable.text     = "on ₹%,.0f taxable".format(report.totalTaxable)
+        tvSummaryTaxable.text     = getString(R.string.gst_summary_taxable_suffix).format(report.totalTaxable)
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
         tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
 
@@ -710,7 +710,7 @@ class GstReportsActivity : AppCompatActivity() {
                 paint("#FAEEDA", "#8A6526")
             }
             else -> {
-                tvValidationStatus.text = "✓ All checks passed — Ready to export"
+                tvValidationStatus.text = getString(R.string.gst_validation_all_checks_passed)
                 paint("#E1F5EE", "#0F5943")
             }
         }
@@ -731,11 +731,11 @@ class GstReportsActivity : AppCompatActivity() {
 
     private fun confirmDeleteDraft(draft: Gstr1DraftEntity) {
         showGstConfirmDialog(
-            eyebrow = "REMOVE DRAFT",
-            titleBold = "Delete ",
-            titleAccent = "draft",
+            eyebrow = getString(R.string.gst_delete_draft_eyebrow),
+            titleBold = getString(R.string.gst_delete_draft_title_bold),
+            titleAccent = getString(R.string.gst_delete_draft_title_accent),
             message = "GSTR-1 draft for ${draft.period} ${draft.financialYear} will be permanently removed.",
-            positiveLabel = "Delete"
+            positiveLabel = getString(R.string.gst_delete_draft_positive_label)
         ) { viewModel1.deleteDraft(draft.id) }
     }
 
@@ -821,25 +821,25 @@ class GstReportsActivity : AppCompatActivity() {
                 badgeFrame.background = ContextCompat.getDrawable(this, R.drawable.bg_circle_soft_red)
                 ivBadge.setImageResource(R.drawable.ic_lucide_circle_x)
                 ivBadge.imageTintList = ColorStateList.valueOf(Color.parseColor("#A32D2D"))
-                tvTitleBold.text = "Report "
-                tvTitleAcc.text = "issues"
+                tvTitleBold.text = getString(R.string.gst_validation_title_report)
+                tvTitleAcc.text = getString(R.string.gst_validation_title_issues)
                 tvMessage.text = "${result.errorCount} error(s), ${result.warningCount} warning(s) — fix errors before filing"
             }
             result.hasWarnings -> {
                 badgeFrame.background = ContextCompat.getDrawable(this, R.drawable.bg_circle_soft_gold)
                 ivBadge.setImageResource(R.drawable.ic_lc_alert_triangle)
                 ivBadge.imageTintList = ColorStateList.valueOf(Color.parseColor("#8A6526"))
-                tvTitleBold.text = "Review "
-                tvTitleAcc.text = "warnings"
+                tvTitleBold.text = getString(R.string.gst_validation_title_review)
+                tvTitleAcc.text = getString(R.string.gst_validation_title_warnings)
                 tvMessage.text = "${result.warningCount} warning(s) — worth a look before filing"
             }
             else -> {
                 badgeFrame.background = ContextCompat.getDrawable(this, R.drawable.bg_circle_soft_teal)
                 ivBadge.setImageResource(R.drawable.ic_lc_circle_check)
                 ivBadge.imageTintList = ColorStateList.valueOf(Color.parseColor("#085041"))
-                tvTitleBold.text = "All "
-                tvTitleAcc.text = "clear"
-                tvMessage.text = "No issues found. This report is ready to export."
+                tvTitleBold.text = getString(R.string.gst_validation_title_all)
+                tvTitleAcc.text = getString(R.string.gst_validation_title_clear)
+                tvMessage.text = getString(R.string.gst_validation_message_no_issues)
             }
         }
 
@@ -899,17 +899,17 @@ class GstReportsActivity : AppCompatActivity() {
     private fun handleExportEvent1(event: Gstr1ViewModel.ExportEvent) {
         when (event) {
             is Gstr1ViewModel.ExportEvent.DraftSaved -> {
-                Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.gst_toast_draft_saved), Toast.LENGTH_SHORT).show()
             }
             is Gstr1ViewModel.ExportEvent.CsvExported -> {
                 showGstSuccessDialog(
-                    eyebrow = "CSV EXPORT",
-                    titleBold = "Export ",
-                    titleAccent = "complete",
+                    eyebrow = getString(R.string.gst_csv_export_eyebrow),
+                    titleBold = getString(R.string.gst_export_title_bold),
+                    titleAccent = getString(R.string.gst_export_title_accent),
                     message = "${event.files.size} CSV file(s) ready · ${event.files.keys.joinToString(", ")}",
-                    infoLabel = "SAVED TO",
+                    infoLabel = getString(R.string.gst_export_info_label_saved_to),
                     infoValue = event.directory,
-                    primaryLabel = "Share all"
+                    primaryLabel = getString(R.string.gst_export_primary_label_share_all)
                 ) {
                     val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                         type = "text/csv"
@@ -917,18 +917,18 @@ class GstReportsActivity : AppCompatActivity() {
                         putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    startActivity(Intent.createChooser(intent, "Share GSTR-1 CSVs"))
+                    startActivity(Intent.createChooser(intent, getString(R.string.gst_share_gstr1_csvs_chooser)))
                 }
             }
             is Gstr1ViewModel.ExportEvent.ExcelExported -> {
                 showGstSuccessDialog(
-                    eyebrow = "EXCEL EXPORT",
-                    titleBold = "Export ",
-                    titleAccent = "complete",
-                    message = "Your GSTR-1 workbook is ready.",
-                    infoLabel = "SAVED TO",
+                    eyebrow = getString(R.string.gst_excel_export_eyebrow),
+                    titleBold = getString(R.string.gst_export_title_bold),
+                    titleAccent = getString(R.string.gst_export_title_accent),
+                    message = getString(R.string.gst_excel_gstr1_message),
+                    infoLabel = getString(R.string.gst_export_info_label_saved_to),
                     infoValue = event.path,
-                    primaryLabel = "Open"
+                    primaryLabel = getString(R.string.gst_export_primary_label_open)
                 ) {
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         setDataAndType(event.uri,
@@ -938,7 +938,7 @@ class GstReportsActivity : AppCompatActivity() {
                     try {
                         startActivity(intent)
                     } catch (e: Exception) {
-                        Toast.makeText(this, "No app found to open .xlsx files.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.gst_toast_no_xlsx_app), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -948,9 +948,9 @@ class GstReportsActivity : AppCompatActivity() {
 
     private fun bindReport2(report: Gstr2Report) {
         cardSummary.visibility = View.VISIBLE
-        tvSummaryHeroLabel.text   = "Input tax credit"
+        tvSummaryHeroLabel.text   = getString(R.string.gst_hero_label_itc)
         tvSummaryTax.text         = "₹%,.0f".format(report.totalTax)
-        tvSummaryTaxable.text     = "on ₹%,.0f taxable".format(report.totalTaxable)
+        tvSummaryTaxable.text     = getString(R.string.gst_summary_taxable_suffix).format(report.totalTaxable)
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
         tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
 
@@ -970,11 +970,11 @@ class GstReportsActivity : AppCompatActivity() {
             onOpen   = { viewModel2.loadDraft(it) },
             onDelete = {
                 showGstConfirmDialog(
-                    eyebrow = "REMOVE DRAFT",
-                    titleBold = "Delete ",
-                    titleAccent = "draft",
-                    message = "This GSTR-2 draft will be permanently removed.",
-                    positiveLabel = "Delete"
+                    eyebrow = getString(R.string.gst_delete_draft_eyebrow),
+                    titleBold = getString(R.string.gst_delete_draft_title_bold),
+                    titleAccent = getString(R.string.gst_delete_draft_title_accent),
+                    message = getString(R.string.gst_delete_draft_gstr2_message),
+                    positiveLabel = getString(R.string.gst_delete_draft_positive_label)
                 ) { viewModel2.deleteDraft(it) }
             }
         )
@@ -982,40 +982,40 @@ class GstReportsActivity : AppCompatActivity() {
 
     private fun handleExportEvent2(event: Gstr2ViewModel.ExportEvent) {
         when (event) {
-            is Gstr2ViewModel.ExportEvent.DraftSaved -> Toast.makeText(this, "Draft saved successfully.", Toast.LENGTH_SHORT).show()
+            is Gstr2ViewModel.ExportEvent.DraftSaved -> Toast.makeText(this, getString(R.string.gst_toast_draft_saved), Toast.LENGTH_SHORT).show()
             is Gstr2ViewModel.ExportEvent.CsvExported -> {
                 showGstSuccessDialog(
-                    eyebrow = "CSV EXPORT",
-                    titleBold = "Export ",
-                    titleAccent = "complete",
+                    eyebrow = getString(R.string.gst_csv_export_eyebrow),
+                    titleBold = getString(R.string.gst_export_title_bold),
+                    titleAccent = getString(R.string.gst_export_title_accent),
                     message = "${event.files.size} CSV file(s) are ready.",
-                    infoLabel = "SAVED TO",
+                    infoLabel = getString(R.string.gst_export_info_label_saved_to),
                     infoValue = event.directory,
-                    primaryLabel = "Share all"
+                    primaryLabel = getString(R.string.gst_export_primary_label_share_all)
                 ) {
                     val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                         type = "text/csv"
                         putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(event.files.values))
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    startActivity(Intent.createChooser(intent, "Share GSTR-2 CSVs"))
+                    startActivity(Intent.createChooser(intent, getString(R.string.gst_share_gstr2_csvs_chooser)))
                 }
             }
             is Gstr2ViewModel.ExportEvent.ExcelExported -> {
                 showGstSuccessDialog(
-                    eyebrow = "EXCEL EXPORT",
-                    titleBold = "Export ",
-                    titleAccent = "complete",
-                    message = "Your GSTR-2 workbook is ready.",
-                    infoLabel = "SAVED TO",
+                    eyebrow = getString(R.string.gst_excel_export_eyebrow),
+                    titleBold = getString(R.string.gst_export_title_bold),
+                    titleAccent = getString(R.string.gst_export_title_accent),
+                    message = getString(R.string.gst_excel_gstr2_message),
+                    infoLabel = getString(R.string.gst_export_info_label_saved_to),
                     infoValue = event.path,
-                    primaryLabel = "Open"
+                    primaryLabel = getString(R.string.gst_export_primary_label_open)
                 ) {
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         setDataAndType(event.uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    try { startActivity(intent) } catch (e: Exception) { Toast.makeText(this, "No app found.", Toast.LENGTH_SHORT).show() }
+                    try { startActivity(intent) } catch (e: Exception) { Toast.makeText(this, getString(R.string.gst_toast_no_app_found), Toast.LENGTH_SHORT).show() }
                 }
             }
         }

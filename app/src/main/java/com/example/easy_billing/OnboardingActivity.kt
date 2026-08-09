@@ -168,7 +168,7 @@ class OnboardingActivity : BaseActivity() {
                     llSteps,
                     "Couldn't load setup progress",
                     com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
-                ).setAction("Retry") { refreshProgress() }.show()
+                ).setAction(R.string.retry) { refreshProgress() }.show()
             }
         }
     }
@@ -362,7 +362,7 @@ class OnboardingActivity : BaseActivity() {
                 e.printStackTrace()
                 completing = false
                 progressOnboarding.visibility = View.GONE
-                Toast.makeText(this@OnboardingActivity, "Couldn't finish setup. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@OnboardingActivity, R.string.couldnt_finish_setup_try_again, Toast.LENGTH_SHORT).show()
                 refreshProgress()
             }
         }

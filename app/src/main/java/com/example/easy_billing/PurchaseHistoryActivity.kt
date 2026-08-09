@@ -52,11 +52,19 @@ class PurchaseHistoryActivity : BaseActivity() {
     // Filter (status) and sort are independent dimensions — both apply
     // together, same as BillHistoryActivity.
     private val filterKeys = listOf("ALL", "CREDIT", "CASH", "CANCELLED")
-    private var filterLabels = listOf("All purchases", "Credit", "Cash", "Cancelled")
+    private var filterLabels: List<String> = emptyList()
     private var activeFilter = "ALL"
 
     private val sortKeys = listOf("NEWEST", "OLDEST", "AMOUNT_HIGH", "AMOUNT_LOW", "SUPPLIER")
-    private val sortLabels = listOf("Newest first", "Oldest first", "Highest amount", "Lowest amount", "Supplier name")
+    private val sortLabels by lazy {
+        listOf(
+            getString(R.string.sort_newest_first),
+            getString(R.string.sort_oldest_first),
+            getString(R.string.sort_highest_amount),
+            getString(R.string.sort_lowest_amount),
+            getString(R.string.supplier_name)
+        )
+    }
     private var activeSort = "NEWEST"
 
     private var allPurchases: List<Purchase> = emptyList()
@@ -66,6 +74,13 @@ class PurchaseHistoryActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase_history)
         setupToolbar(R.id.toolbar)
+
+        filterLabels = listOf(
+            getString(R.string.purchase_history_filter_all_label),
+            getString(R.string.invoice_payment_credit),
+            getString(R.string.cash),
+            getString(R.string.purchase_history_filter_cancelled_label)
+        )
 
         rvPurchases   = findViewById(R.id.rvPurchases)
         cardPurchases = findViewById(R.id.cardPurchases)
@@ -141,7 +156,7 @@ class PurchaseHistoryActivity : BaseActivity() {
 
     private fun bindSummary(s: PurchaseHistoryViewModel.Summary) {
         tvBought.text = CurrencyHelper.format(this, s.boughtThisMonth)
-        tvBoughtCount.text = if (s.boughtCount == 1) "1 invoice" else "${s.boughtCount} invoices"
+        tvBoughtCount.text = if (s.boughtCount == 1) getString(R.string.purchase_history_one_invoice) else "${s.boughtCount} invoices"
         tvOnCredit.text = CurrencyHelper.format(this, s.onCreditThisMonth)
         tvCash.text = CurrencyHelper.format(this, s.cashThisMonth)
 
@@ -269,13 +284,13 @@ class PurchaseHistoryActivity : BaseActivity() {
         // not that nothing was ever recorded — same card, different copy.
         val isSearchOrFilter = query.isNotEmpty() || activeFilter != "ALL"
         if (isSearchOrFilter) {
-            tvPurchasesEmptyTitle.text = "No matches"
-            tvPurchasesEmptyTitleAccent.text = "found"
-            tvPurchasesEmptyBody.text = "No purchase matches your search or filter. Try a different supplier, invoice number, or reset the filter."
+            tvPurchasesEmptyTitle.text = getString(R.string.credit_no_matches_title)
+            tvPurchasesEmptyTitleAccent.text = getString(R.string.credit_no_matches_accent)
+            tvPurchasesEmptyBody.text = getString(R.string.purchase_history_no_matches_body)
         } else {
-            tvPurchasesEmptyTitle.text = "No purchases"
-            tvPurchasesEmptyTitleAccent.text = "yet"
-            tvPurchasesEmptyBody.text = "Purchases you record will show up here — search, filter and sort them once you have a few."
+            tvPurchasesEmptyTitle.text = getString(R.string.purchase_history_no_purchases_title)
+            tvPurchasesEmptyTitleAccent.text = getString(R.string.purchase_history_empty_yet)
+            tvPurchasesEmptyBody.text = getString(R.string.purchase_history_no_purchases_body)
         }
 
         updateFilterSortIndicators(result.size)

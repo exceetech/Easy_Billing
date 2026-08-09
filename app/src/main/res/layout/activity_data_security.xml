@@ -45,7 +45,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="PROTECTED"
+                        android:text="@string/protected_eyebrow"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
                         android:letterSpacing="0.16"
@@ -59,7 +59,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Data"
+                            android:text="@string/data_word"
                             android:textColor="#1A1A18"
                             android:textSize="21sp"
                             android:textStyle="bold"
@@ -71,7 +71,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="&amp; security"
+                            android:text="@string/and_security_word"
                             android:textColor="#0F6E56"
                             android:textSize="21sp"
                             android:fontFamily="serif"
@@ -108,7 +108,7 @@
                         android:id="@+id/tvUnlock"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Unlock"
+                        android:text="@string/dialog_premium_upgrade_title_part1"
                         android:textColor="#1A1A18"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -134,7 +134,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tap Unlock, then confirm your password to run an action."
+                    android:text="@string/tap_unlock_helper"
                     android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:lineSpacingExtra="1dp"/>
@@ -153,7 +153,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="SECURITY"
+                        android:layout_marginStart="9dp" android:text="@string/security_section"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -166,12 +166,12 @@
                         android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
                     <LinearLayout style="@style/DsText">
                         <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
-                        <TextView style="@style/DsSub" android:text="Update your login PIN"/>
+                        <TextView style="@style/DsSub" android:text="@string/update_login_pin_sub"/>
                     </LinearLayout>
                     <TextView style="@style/DsChip"
                         android:background="@drawable/bg_chip_low"
                         android:textColor="#3B6D11"
-                        android:text="LOW"/>
+                        android:text="@string/risk_low_badge"/>
                     <ImageView android:id="@+id/icChangePassword" style="@style/DsTrailing"
                         android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
                 </LinearLayout>
@@ -190,7 +190,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="DATA"
+                        android:layout_marginStart="9dp" android:text="@string/data_section"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -203,12 +203,12 @@
                         android:src="@drawable/ic_si_archive" app:tint="#8A6526"/>
                     <LinearLayout style="@style/DsText">
                         <TextView style="@style/DsTitle" android:text="@string/clear_all_bills"/>
-                        <TextView style="@style/DsSub" android:text="Archive &amp; remove bill history"/>
+                        <TextView style="@style/DsSub" android:text="@string/archive_remove_bill_history_sub"/>
                     </LinearLayout>
                     <TextView style="@style/DsChip"
                         android:background="@drawable/bg_chip_med"
                         android:textColor="#854F0B"
-                        android:text="MEDIUM"/>
+                        android:text="@string/risk_medium_badge"/>
                     <ImageView android:id="@+id/icClearBills" style="@style/DsTrailing"
                         android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
                 </LinearLayout>
@@ -228,7 +228,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#B23A3A"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="DANGER ZONE"
+                        android:layout_marginStart="9dp" android:text="@string/danger_zone_section"
                         android:textColor="#791F1F" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -243,12 +243,12 @@
                         <TextView style="@style/DsTitle"
                             android:textColor="#791F1F"
                             android:text="@string/factory_reset_app"/>
-                        <TextView style="@style/DsSub" android:text="Wipe workspace &amp; start fresh"/>
+                        <TextView style="@style/DsSub" android:text="@string/wipe_workspace_sub"/>
                     </LinearLayout>
                     <TextView style="@style/DsChip"
                         android:background="@drawable/bg_chip_high"
                         android:textColor="#A32D2D"
-                        android:text="HIGH"/>
+                        android:text="@string/risk_high_badge"/>
                     <ImageView android:id="@+id/icFactoryReset" style="@style/DsTrailing"
                         android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
                 </LinearLayout>

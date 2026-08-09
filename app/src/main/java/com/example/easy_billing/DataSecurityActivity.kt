@@ -92,7 +92,7 @@ class DataSecurityActivity : BaseActivity() {
         }
 
         // Pill reflects the action the user can take next.
-        tvUnlock.text = if (locked) "Unlock" else "Lock"
+        tvUnlock.text = if (locked) getString(R.string.dialog_premium_upgrade_title_part1) else "Lock"
         icUnlock.setImageResource(if (locked) R.drawable.ic_si_lock else R.drawable.ic_si_unlock)
     }
 
@@ -115,7 +115,7 @@ class DataSecurityActivity : BaseActivity() {
 
                 Toast.makeText(
                     this@DataSecurityActivity,
-                    "Bills archived successfully",
+                    R.string.bills_archived_successfully,
                     Toast.LENGTH_SHORT
                 ).show()
 
@@ -123,7 +123,7 @@ class DataSecurityActivity : BaseActivity() {
 
                 Toast.makeText(
                     this@DataSecurityActivity,
-                    "Failed to clear bills",
+                    R.string.failed_to_clear_bills,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -139,7 +139,7 @@ class DataSecurityActivity : BaseActivity() {
 
             if (token == null) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@DataSecurityActivity, "Not logged in.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DataSecurityActivity, R.string.not_logged_in_2, Toast.LENGTH_SHORT).show()
                 }
                 return@launch
             }
@@ -207,7 +207,7 @@ class DataSecurityActivity : BaseActivity() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@DataSecurityActivity,
-                        "Factory reset complete. Starting fresh workspace.",
+                        R.string.factory_reset_complete,
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -281,12 +281,12 @@ class DataSecurityActivity : BaseActivity() {
             val confirmPin = etConfirmPin.text.toString().trim()
 
             if (newPin.length < 6) {
-                etNewPin.error = "Password must be at least 6 characters"
+                etNewPin.error = getString(R.string.password_min_length)
                 return@setOnClickListener
             }
 
             if (newPin != confirmPin) {
-                etConfirmPin.error = "Passwords do not match"
+                etConfirmPin.error = getString(R.string.passwords_do_not_match)
                 return@setOnClickListener
             }
 
@@ -304,7 +304,7 @@ class DataSecurityActivity : BaseActivity() {
 
                     Toast.makeText(
                         this@DataSecurityActivity,
-                        "Password changed. Please login again.",
+                        R.string.password_changed_login_again,
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -326,7 +326,7 @@ class DataSecurityActivity : BaseActivity() {
 
                     Toast.makeText(
                         this@DataSecurityActivity,
-                        "Failed to change password",
+                        R.string.failed_to_change_password,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -373,7 +373,7 @@ class DataSecurityActivity : BaseActivity() {
             val password = etPassword.text.toString().trim()
 
             if (password.isEmpty()) {
-                etPassword.error = "Enter password"
+                etPassword.error = getString(R.string.data_security_enter_password_error)
                 return@setOnClickListener
             }
 

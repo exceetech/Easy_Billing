@@ -48,7 +48,7 @@
                     android:id="@+id/tvDay"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="—"
+                    android:text="@string/dash"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="#14161A"/>
@@ -58,7 +58,7 @@
                 android:id="@+id/tvBills"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="—"
+                android:text="@string/dash"
                 android:textSize="12sp"
                 android:textColor="#9AA0A8"/>
         </LinearLayout>
@@ -93,7 +93,7 @@
             android:id="@+id/tvRevenue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="—"
+            android:text="@string/dash"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#14161A"

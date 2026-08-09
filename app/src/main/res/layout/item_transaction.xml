@@ -57,7 +57,7 @@
                     android:id="@+id/tvType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Credit sale"
+                    android:text="@string/txn_label_credit_sale"
                     android:textSize="13.5sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="@font/googlesans_medium"
@@ -69,7 +69,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="11:02 am"
+                    android:text="@string/xml_transaction_time_placeholder"
                     android:textSize="10.5sp"
                     android:textColor="#9A8F79"
                     android:singleLine="true"
@@ -99,7 +99,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="₹0 left"
+                    android:text="@string/xml_transaction_left_placeholder"
                     android:textSize="9.5sp"
                     android:textColor="#A99E88" />
             </LinearLayout>

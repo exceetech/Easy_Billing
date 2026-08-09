@@ -67,19 +67,19 @@ class CreditAdapter(
         when {
             item.dueAmount > 0 -> {
                 stripe = "#B23A3A"; tile = "#FCEBEB"; ink = "#791F1F"
-                holder.status.text = "Owes you"
+                holder.status.text = holder.itemView.context.getString(R.string.credit_row_owes_you)
                 holder.due.text = money(item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
             }
             item.dueAmount < 0 -> {
                 stripe = "#0F6E56"; tile = "#E1F5EE"; ink = "#0F6E56"
-                holder.status.text = "In advance"
+                holder.status.text = holder.itemView.context.getString(R.string.credit_row_in_advance)
                 holder.due.text = money(-item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             }
             else -> {
                 stripe = "#E4DBC6"; tile = "#F3ECDD"; ink = "#8A8272"
-                holder.status.text = "Settled"
+                holder.status.text = holder.itemView.context.getString(R.string.credit_chip_label_settled)
                 holder.due.text = money(0.0)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#8A8272"))
             }

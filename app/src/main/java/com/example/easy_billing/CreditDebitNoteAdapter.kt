@@ -77,7 +77,10 @@ class CreditDebitNoteAdapter(
         holder.stripe.setBackgroundColor(rowColor.stripe)
         holder.avatar.setTextColor(rowColor.avatarText)
         holder.avatar.background.setTint(rowColor.avatarBg)
-        holder.avatar.text = if (isCredit) "CN" else "DN"
+        holder.avatar.text = if (isCredit)
+            holder.itemView.context.getString(R.string.credit_note_abbrev_cn)
+        else
+            holder.itemView.context.getString(R.string.credit_note_abbrev_dn)
 
         holder.tvNumber.text = note.noteNumber
         holder.tvMeta.text = buildString {
@@ -85,7 +88,8 @@ class CreditDebitNoteAdapter(
                 append(note.customerName)
                 append(" · ")
             }
-            append("against ")
+            append(holder.itemView.context.getString(R.string.credit_note_against_prefix))
+            append(" ")
             append(note.originalInvoiceNumber)
         }
         holder.tvDate.text = dateFmt.format(Date(note.noteDate))

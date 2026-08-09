@@ -118,7 +118,7 @@ class PeakHourAdapter(
         val textHex   = when { isPeak -> "#059669"; isLow -> "#DC2626"; else -> "#475569" }
         val bgHex     = when { isPeak -> "#ECFDF5"; isLow -> "#FEF2F2"; else -> "#F1F5F9" }
         val accentHex = when { isPeak -> "#22C55E"; isLow -> "#EF4444"; else -> "#1B3A8A" }
-        val statusTxt = when { isPeak -> "🔥 Peak"; isLow -> "⚠ Slow"; else -> "⚖ Avg" }
+        val statusTxt = when { isPeak -> context.getString(R.string.peak_hour_status_peak); isLow -> context.getString(R.string.peak_hour_status_slow); else -> context.getString(R.string.peak_hour_status_avg) }
 
         // Status badge
         holder.tvStatus.text = statusTxt

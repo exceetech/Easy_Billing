@@ -59,7 +59,7 @@
 
                 <TextView
                     android:id="@+id/tvName"
-                    android:text="Basmati rice"
+                    android:text="@string/xml_purchase_line_product_placeholder"
                     android:textColor="#18181B"
                     android:textSize="13sp"
                     android:textStyle="bold"
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="REVIEW"
+                    android:text="@string/xml_purchase_line_review_badge"
                     android:textSize="8.5sp"
                     android:letterSpacing="0.06"
                     android:fontFamily="@font/googlesans_semibold"
@@ -129,7 +129,7 @@
             android:padding="6dp"
             android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Edit"
+            android:contentDescription="@string/edit"
             android:src="@drawable/ic_lucide_pencil"
             app:tint="#8A6526"/>
 
@@ -141,7 +141,7 @@
             android:padding="6dp"
             android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Remove"
+            android:contentDescription="@string/dashboard_remove_button"
             android:src="@drawable/ic_lucide_x"
             app:tint="#C0B49C"/>
     </LinearLayout>

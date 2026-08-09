@@ -93,7 +93,7 @@
                             android:gravity="center_vertical">
 
                             <TextView
-                                android:text="Invoice · "
+                                android:text="@string/activity_invoice_xml_invoice_number_prefix"
                                 android:textColor="#9FB0D4"
                                 android:textSize="11sp"
                                 android:letterSpacing="0.02"
@@ -114,7 +114,7 @@
 
                         <TextView
                             android:id="@+id/tvSchemeBadge"
-                            android:text="NORMAL GST"
+                            android:text="@string/activity_invoice_xml_normal_gst_chip"
                             android:textColor="#E5C089"
                             android:textSize="11sp"
                             android:singleLine="true"
@@ -124,7 +124,7 @@
 
                         <TextView
                             android:id="@+id/tvStoreName"
-                            android:text="My Store"
+                            android:text="@string/invoice_default_store_name"
                             android:textColor="#FFFFFF"
                             android:textSize="22sp"
                             android:fontFamily="serif"
@@ -160,7 +160,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="LIVE"
+                            android:text="@string/dashboard_live_status"
                             android:textColor="#FFFFFF"
                             android:textSize="10sp"
                             android:fontFamily="@font/googlesans_semibold"
@@ -223,7 +223,7 @@
                     </RadioGroup>
 
                     <TextView
-                        android:text="Invoice type"
+                        android:text="@string/invoice_type_label"
                         android:textColor="#9FB0D4"
                         android:textSize="12sp"
                         android:letterSpacing="0.04"
@@ -268,7 +268,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="CUSTOMER DETAILS"
+                            android:text="@string/invoice_customer_details_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -280,7 +280,7 @@
 
                         <TextView
                             android:id="@+id/tvCustomerRequirement"
-                            android:text="Optional"
+                            android:text="@string/invoice_optional"
                             android:textSize="10sp"
                             android:textStyle="bold"
                             android:textColor="#16A34A"
@@ -294,7 +294,7 @@
 
                     <TextView
                         android:id="@+id/tvInvoiceTypeHint"
-                        android:text="B2C — quick sale (customer details optional)"
+                        android:text="@string/invoice_b2c_hint_default"
                         android:textColor="#9A8F79"
                         android:textSize="11sp"
                         android:layout_marginTop="8dp"
@@ -326,7 +326,7 @@
                             android:background="@null"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="Phone number"
+                            android:hint="@string/invoice_hint_phone_number"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="phone"
@@ -356,7 +356,7 @@
                             android:background="@null"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="Customer name"
+                            android:hint="@string/invoice_hint_customer_name"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="textPersonName"
@@ -388,7 +388,7 @@
                             android:background="@null"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="Business name"
+                            android:hint="@string/invoice_hint_business_name"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="text"
@@ -420,7 +420,7 @@
                             android:background="@null"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="GST number"
+                            android:hint="@string/invoice_hint_gst_number"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="textCapCharacters"
@@ -439,7 +439,7 @@
                         android:visibility="gone">
 
                         <TextView
-                            android:text="State of customer"
+                            android:text="@string/invoice_label_state_of_customer"
                             android:textSize="12.5sp"
                             android:textColor="#9A8F79"
                             android:fontFamily="@font/googlesans_regular"
@@ -469,7 +469,7 @@
                                 android:layout_weight="1"
                                 android:layout_height="match_parent"
                                 android:background="@null"
-                                android:hint="Select state"
+                                android:hint="@string/invoice_hint_select_state"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="textCapWords"
@@ -509,7 +509,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="LINE ITEMS"
+                            android:text="@string/invoice_line_items_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -546,7 +546,7 @@
                         android:layout_marginTop="11dp">
 
                         <TextView
-                            android:text="+  Add more items to cart"
+                            android:text="@string/invoice_add_more_items"
                             android:textColor="#0F6E56"
                             android:textSize="13sp"
                             android:textStyle="bold"
@@ -576,7 +576,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="CHARGES"
+                            android:text="@string/invoice_charges_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -602,7 +602,7 @@
                         android:layout_marginTop="12dp">
 
                         <TextView
-                            android:text="SUBTOTAL"
+                            android:text="@string/activity_invoice_xml_subtotal_label"
                             android:textColor="#9A8F79"
                             android:textSize="11sp"
                             android:letterSpacing="0.08"
@@ -628,7 +628,7 @@
                         android:gravity="center_vertical">
 
                         <TextView
-                            android:text="DISCOUNT"
+                            android:text="@string/activity_invoice_xml_discount_label"
                             android:textColor="#9A8F79"
                             android:textSize="11sp"
                             android:letterSpacing="0.08"
@@ -703,7 +703,7 @@
                         android:gravity="bottom">
 
                         <TextView
-                            android:text="NET AMOUNT"
+                            android:text="@string/invoice_net_amount_header"
                             android:textColor="#8A6526"
                             android:textSize="11sp"
                             android:textStyle="bold"
@@ -751,7 +751,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="GST OPTIONS"
+                            android:text="@string/invoice_gst_options_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -803,14 +803,14 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
                                 <TextView
-                                    android:text="Reverse charge"
+                                    android:text="@string/invoice_reverse_charge"
                                     android:textSize="13sp"
                                     android:textStyle="bold"
                                     android:textColor="#1A1A18"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"/>
                                 <TextView
-                                    android:text="Tax paid by recipient"
+                                    android:text="@string/invoice_reverse_charge_desc"
                                     android:textSize="10sp"
                                     android:textColor="#9A8F79"
                                     android:layout_width="wrap_content"
@@ -827,7 +827,7 @@
 
                         <!-- GSTR invoice type -->
                         <TextView
-                            android:text="GSTR invoice type"
+                            android:text="@string/invoice_gstr_invoice_type_label"
                             android:textSize="12.5sp"
                             android:textColor="#9A8F79"
                             android:fontFamily="@font/googlesans_regular"
@@ -858,13 +858,13 @@
                                 android:layout_weight="1"
                                 android:layout_height="match_parent"
                                 android:background="@null"
-                                android:hint="Tap to select"
+                                android:hint="@string/invoice_hint_tap_to_select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:focusable="false"
                                 android:clickable="true"
-                                android:text="Regular"
+                                android:text="@string/purchase_invoice_type_regular"
                                 android:textSize="15sp"/>
 
                             <ImageView
@@ -900,14 +900,14 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
                                 <TextView
-                                    android:text="Sold via e-commerce"
+                                    android:text="@string/invoice_sold_via_ecommerce"
                                     android:textSize="13sp"
                                     android:textStyle="bold"
                                     android:textColor="#1A1A18"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"/>
                                 <TextView
-                                    android:text="Amazon, Flipkart, etc."
+                                    android:text="@string/invoice_ecommerce_examples"
                                     android:textSize="10sp"
                                     android:textColor="#9A8F79"
                                     android:layout_width="wrap_content"
@@ -951,7 +951,7 @@
                                     android:layout_marginEnd="9dp">
 
                                     <TextView
-                                        android:text="Role"
+                                        android:text="@string/invoice_role_label"
                                         android:textSize="12.5sp"
                                         android:textColor="#9A8F79"
                             android:fontFamily="@font/googlesans_regular"
@@ -980,13 +980,13 @@
                                             android:layout_weight="1"
                                             android:layout_height="match_parent"
                                             android:background="@null"
-                                            android:hint="Tap to select"
+                                            android:hint="@string/invoice_hint_tap_to_select"
                                             android:textColor="#1A1A18"
                                             android:textColorHint="#A99E88"
                                             android:inputType="none"
                                             android:focusable="false"
                                             android:clickable="true"
-                                            android:text="Supplier"
+                                            android:text="@string/invoice_role_supplier"
                                             android:textSize="14.5sp"/>
                                         <ImageView
                                             android:layout_width="17dp"
@@ -1004,7 +1004,7 @@
                                     android:orientation="vertical">
 
                                     <TextView
-                                        android:text="Nature of supply"
+                                        android:text="@string/invoice_nature_of_supply_label"
                                         android:textSize="12.5sp"
                                         android:textColor="#9A8F79"
                             android:fontFamily="@font/googlesans_regular"
@@ -1033,7 +1033,7 @@
                                             android:layout_weight="1"
                                             android:layout_height="match_parent"
                                             android:background="@null"
-                                            android:hint="Tap to select"
+                                            android:hint="@string/invoice_hint_tap_to_select"
                                             android:textColor="#1A1A18"
                                             android:textColorHint="#A99E88"
                                             android:inputType="none"
@@ -1053,7 +1053,7 @@
 
                             <!-- Document type -->
                             <TextView
-                                android:text="Document type"
+                                android:text="@string/invoice_document_type_label"
                                 android:textSize="12.5sp"
                                 android:textColor="#9A8F79"
                             android:fontFamily="@font/googlesans_regular"
@@ -1083,13 +1083,13 @@
                                     android:layout_weight="1"
                                     android:layout_height="match_parent"
                                     android:background="@null"
-                                    android:hint="Tap to select"
+                                    android:hint="@string/invoice_hint_tap_to_select"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="none"
                                     android:focusable="false"
                                     android:clickable="true"
-                                    android:text="Invoice"
+                                    android:text="@string/invoice_document_type_invoice"
                                     android:textSize="15sp"/>
                                 <ImageView
                                     android:layout_width="18dp"
@@ -1121,7 +1121,7 @@
                                     android:background="@null"
                                     android:paddingStart="44dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Operator GSTIN"
+                                    android:hint="@string/invoice_hint_operator_gstin"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="textCapCharacters"
@@ -1152,7 +1152,7 @@
                                     android:background="@null"
                                     android:paddingStart="44dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Operator name (optional)"
+                                    android:hint="@string/invoice_hint_operator_name"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="textCapWords"
@@ -1182,7 +1182,7 @@
                                     android:background="@null"
                                     android:paddingStart="44dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Supplier GSTIN"
+                                    android:hint="@string/invoice_hint_supplier_gstin"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="textCapCharacters"
@@ -1213,7 +1213,7 @@
                                     android:background="@null"
                                     android:paddingStart="44dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Supplier name"
+                                    android:hint="@string/invoice_hint_supplier_name"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="textCapWords"
@@ -1243,7 +1243,7 @@
                                     android:background="@null"
                                     android:paddingStart="44dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Recipient GSTIN"
+                                    android:hint="@string/invoice_hint_recipient_gstin"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="textCapCharacters"
@@ -1273,7 +1273,7 @@
                                     android:background="@null"
                                     android:paddingStart="44dp"
                                     android:paddingEnd="14dp"
-                                    android:hint="Recipient name"
+                                    android:hint="@string/invoice_hint_recipient_name"
                                     android:textColor="#1A1A18"
                                     android:textColorHint="#A99E88"
                                     android:inputType="textCapWords"
@@ -1304,7 +1304,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="TAX"
+                            android:text="@string/invoice_tax_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -1316,7 +1316,7 @@
 
                         <TextView
                             android:id="@+id/tvSupplyTypeBadge"
-                            android:text="INTRASTATE"
+                            android:text="@string/invoice_supply_intrastate"
                             android:textColor="#15803D"
                             android:textSize="10sp"
                             android:textStyle="bold"
@@ -1330,7 +1330,7 @@
 
                     <TextView
                         android:id="@+id/tvSupplyExplain"
-                        android:text="Same-state sale — CGST + SGST will be charged."
+                        android:text="@string/invoice_intrastate_explain"
                         android:textColor="#9A8F79"
                         android:textSize="11sp"
                         android:layout_marginTop="6dp"
@@ -1359,7 +1359,7 @@
 
                             <TextView
                                 android:id="@+id/tvCgstLabel"
-                                android:text="CGST"
+                                android:text="@string/invoice_cgst_label"
                                 android:textColor="#8A6526"
                                 android:textSize="10sp"
                                 android:letterSpacing="0.04"
@@ -1404,7 +1404,7 @@
 
                             <TextView
                                 android:id="@+id/tvSgstLabel"
-                                android:text="SGST"
+                                android:text="@string/invoice_sgst_label"
                                 android:textColor="#8A6526"
                                 android:textSize="10sp"
                                 android:letterSpacing="0.04"
@@ -1448,7 +1448,7 @@
 
                             <TextView
                                 android:id="@+id/tvIgstLabel"
-                                android:text="IGST"
+                                android:text="@string/invoice_igst_label"
                                 android:textColor="#B7AB91"
                                 android:textSize="10sp"
                                 android:letterSpacing="0.04"
@@ -1457,7 +1457,7 @@
 
                             <TextView
                                 android:id="@+id/tvIgstRate"
-                                android:text="n/a"
+                                android:text="@string/invoice_not_applicable"
                                 android:textColor="#B7AB91"
                                 android:textSize="9sp"
                                 android:layout_marginStart="4dp"
@@ -1498,7 +1498,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:text="TOTAL TAX"
+                                android:text="@string/invoice_total_tax_header"
                                 android:textColor="#8A6526"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
@@ -1508,7 +1508,7 @@
 
                             <TextView
                                 android:id="@+id/tvSchemeLine"
-                                android:text="Normal GST scheme"
+                                android:text="@string/invoice_normal_gst_scheme"
                                 android:textColor="#9A8F79"
                                 android:textSize="9sp"
                                 android:layout_marginTop="1dp"
@@ -1529,7 +1529,7 @@
 
                     <TextView
                         android:id="@+id/tvCompositionNote"
-                        android:text="Composition Scheme — tax is included in the selling price. No CGST / SGST / IGST is charged separately."
+                        android:text="@string/invoice_composition_note_full"
                         android:textColor="#92400E"
                         android:textSize="11sp"
                         android:padding="11dp"
@@ -1564,7 +1564,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="BILL SUMMARY"
+                            android:text="@string/invoice_bill_summary_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -1582,7 +1582,7 @@
                         android:layout_marginTop="13dp">
 
                         <TextView
-                            android:text="TAXABLE"
+                            android:text="@string/invoice_taxable_label"
                             android:textColor="#9A8F79"
                             android:textSize="11sp"
                             android:letterSpacing="0.08"
@@ -1607,7 +1607,7 @@
                         android:gravity="bottom">
 
                         <TextView
-                            android:text="GST"
+                            android:text="@string/gst"
                             android:textColor="#9A8F79"
                             android:textSize="11sp"
                             android:letterSpacing="0.08"
@@ -1644,7 +1644,7 @@
                         android:visibility="gone">
 
                         <TextView
-                            android:text="ROUND OFF"
+                            android:text="@string/invoice_round_off_label"
                             android:textColor="#9A8F79"
                             android:textSize="11sp"
                             android:letterSpacing="0.08"
@@ -1688,7 +1688,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:text="GRAND TOTAL"
+                                android:text="@string/invoice_grand_total_label"
                                 android:textColor="#C9B88F"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
@@ -1697,7 +1697,7 @@
                                 android:layout_height="wrap_content"/>
 
                             <TextView
-                                android:text="incl. all taxes"
+                                android:text="@string/invoice_incl_all_taxes"
                                 android:textColor="#7C7567"
                                 android:textSize="9sp"
                                 android:layout_marginTop="2dp"
@@ -1733,7 +1733,7 @@
                             android:background="#D4A574"/>
 
                         <TextView
-                            android:text="PAYMENT"
+                            android:text="@string/invoice_payment_header"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -1752,7 +1752,7 @@
                         android:padding="3dp"
                         android:layout_height="wrap_content">
 
-                        <RadioButton android:id="@+id/rbCash" android:text="Cash"
+                        <RadioButton android:id="@+id/rbCash" android:text="@string/cash"
                             android:checked="true"
                             android:button="@null"
                             android:gravity="center"
@@ -1764,7 +1764,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
-                        <RadioButton android:id="@+id/rbUpi" android:text="UPI"
+                        <RadioButton android:id="@+id/rbUpi" android:text="@string/upi"
                             android:button="@null"
                             android:gravity="center"
                             android:background="@drawable/bg_inv_pay_seg_item"
@@ -1775,7 +1775,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
-                        <RadioButton android:id="@+id/rbCard" android:text="Card"
+                        <RadioButton android:id="@+id/rbCard" android:text="@string/card"
                             android:button="@null"
                             android:gravity="center"
                             android:background="@drawable/bg_inv_pay_seg_item"
@@ -1786,7 +1786,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_width="0dp"/>
-                        <RadioButton android:id="@+id/rbCredit" android:text="Credit"
+                        <RadioButton android:id="@+id/rbCredit" android:text="@string/invoice_payment_credit"
                             android:button="@null"
                             android:gravity="center"
                             android:background="@drawable/bg_inv_pay_seg_item"
@@ -1826,7 +1826,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Generate invoice"
+                                    android:text="@string/invoice_generate_invoice"
                                     android:textColor="#FFFFFF"
                                     android:textSize="16sp"
                                     android:letterSpacing="0.01"
@@ -1836,7 +1836,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
-                                    android:text="Save &amp; print receipt"
+                                    android:text="@string/invoice_save_print_receipt"
                                     android:textColor="#A7D9C9"
                                     android:textSize="11sp"
                                     android:includeFontPadding="false"/>
@@ -1879,7 +1879,7 @@
                             android:layout_weight="1"
                             android:layout_height="48dp"
                             android:layout_marginEnd="10dp"
-                            android:text="Close"
+                            android:text="@string/close"
                             android:textAllCaps="false"
                             android:textSize="13.5sp"
                             android:textStyle="bold"
@@ -1905,7 +1905,7 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="48dp"
-                            android:text="Print"
+                            android:text="@string/invoice_print_button"
                             android:textAllCaps="false"
                             android:textSize="14sp"
                             android:textStyle="bold"

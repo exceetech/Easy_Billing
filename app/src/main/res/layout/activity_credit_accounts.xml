@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="KHATA"
+            android:text="@string/invoice_khata_header"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -62,7 +62,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Credit"
+                android:text="@string/invoice_payment_credit"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:letterSpacing="-0.02"
@@ -74,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="accounts"
+                android:text="@string/credit_title_accent"
                 android:textColor="#0F6E56"
                 android:textSize="21sp"
                 android:fontFamily="serif"
@@ -95,7 +95,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Net position"
+            android:text="@string/credit_net_position_label"
             android:textSize="11sp"
             android:textColor="#9A8F79" />
 
@@ -128,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
-                android:text="owed to you"
+                android:text="@string/credit_net_owed_to_you"
                 android:textSize="11sp"
                 android:textColor="#B23A3A" />
         </LinearLayout>
@@ -163,7 +163,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Due"
+                    android:text="@string/credit_chip_label_due"
                     android:textSize="9.5sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
@@ -193,7 +193,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Advance"
+                    android:text="@string/credit_chip_label_advance"
                     android:textSize="9.5sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
@@ -224,7 +224,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
-            android:hint="Search name or phone"
+            android:hint="@string/invoice_hint_search_name_phone"
             android:textColorHint="#A99E88"
             android:textColor="#1A1A18"
             android:textSize="12.5sp"
@@ -249,22 +249,22 @@
             android:orientation="horizontal">
 
             <!-- Chip text carries its own count — set in updateSummary. -->
-            <TextView android:id="@+id/chipAll"      style="@style/CreditChip" android:text="All"
+            <TextView android:id="@+id/chipAll"      style="@style/CreditChip" android:text="@string/manage_filter_all"
                 android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
                 android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
                 android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
             <View android:layout_width="8dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipDue"      style="@style/CreditChip" android:text="Due"
+            <TextView android:id="@+id/chipDue"      style="@style/CreditChip" android:text="@string/credit_chip_label_due"
                 android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
                 android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
                 android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
             <View android:layout_width="8dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipAdvance"  style="@style/CreditChip" android:text="Advance"
+            <TextView android:id="@+id/chipAdvance"  style="@style/CreditChip" android:text="@string/credit_chip_label_advance"
                 android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
                 android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
                 android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
             <View android:layout_width="8dp" android:layout_height="1dp" />
-            <TextView android:id="@+id/chipSettled"  style="@style/CreditChip" android:text="Settled"
+            <TextView android:id="@+id/chipSettled"  style="@style/CreditChip" android:text="@string/credit_chip_label_settled"
                 android:layout_height="34dp" android:gravity="center" android:paddingHorizontal="12dp" android:paddingVertical="0dp"
                 android:background="@drawable/bg_imp_filter_chip" android:textColor="@color/add_seg_text"
                 android:textSize="12sp" android:fontFamily="@font/googlesans_medium" />
@@ -338,7 +338,7 @@
                         android:id="@+id/tvCustomersEmptyTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="No customers"
+                        android:text="@string/credit_no_customers_title"
                         android:textSize="19sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_bold"
@@ -348,7 +348,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="yet"
+                        android:text="@string/credit_no_customers_accent"
                         android:textSize="19sp"
                         android:textColor="#0F6E56"
                         android:fontFamily="serif"
@@ -362,7 +362,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
                     android:gravity="center"
-                    android:text="Customers you add will show up here — track what they owe or have paid in advance."
+                    android:text="@string/credit_no_customers_body"
                     android:textSize="12.5sp"
                     android:textColor="#8A8272"
                     android:lineSpacingExtra="3dp" />
@@ -394,14 +394,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Add your first customer"
+                            android:text="@string/credit_tip_add_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Name and phone number"
+                            android:text="@string/credit_tip_add_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -426,14 +426,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Then find any customer fast"
+                            android:text="@string/credit_tip_search_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Search by name or phone, or filter by status"
+                            android:text="@string/credit_tip_search_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -453,7 +453,7 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="Add customer"
+        android:text="@string/invoice_add_customer_button"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="@android:color/white"

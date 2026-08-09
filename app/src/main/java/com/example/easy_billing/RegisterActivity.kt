@@ -145,7 +145,7 @@ class RegisterActivity : BaseActivity() {
             if (isRegistering) return@setOnClickListener
             isRegistering = true
             btnRegister.isEnabled = false
-            btnRegister.text = "Registering..."
+            btnRegister.text = getString(R.string.registering_ellipsis)
             hideCtaArrow(R.id.btnRegister)
 
             val name = etFullName.text.toString().trim()
@@ -154,13 +154,13 @@ class RegisterActivity : BaseActivity() {
             val shopName = etShopName.text.toString().trim()
 
             if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || shopName.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
                 resetButton(btnRegister)
                 return@setOnClickListener
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Enter valid email", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.enter_a_valid_email_2, Toast.LENGTH_SHORT).show()
                 resetButton(btnRegister)
                 return@setOnClickListener
             }
@@ -183,7 +183,7 @@ class RegisterActivity : BaseActivity() {
 
                     Toast.makeText(
                         this@RegisterActivity,
-                        e.message ?: "Error",
+                        e.message ?: getString(R.string.generic_error),
                         Toast.LENGTH_SHORT
                     ).show()
 
@@ -279,7 +279,7 @@ class RegisterActivity : BaseActivity() {
     private fun resetButton(button: Button) {
         isRegistering = false
         button.isEnabled = true
-        button.text = "Create Account"
+        button.text = getString(R.string.create_account_2)
         startCtaArrowAnimation(R.id.btnRegister)
     }
 

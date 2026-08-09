@@ -201,7 +201,7 @@ class LocalizationSettingsActivity : BaseActivity() {
         btnVerify.setOnClickListener {
             val password = etPassword.text.toString().trim()
             if (password.isEmpty()) {
-                etPassword.error = "Enter password"
+                etPassword.error = getString(R.string.localization_settings_enter_password_error)
                 return@setOnClickListener
             }
             verifyPassword(password) {

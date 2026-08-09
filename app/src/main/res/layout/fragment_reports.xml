@@ -57,7 +57,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="REVENUE"
+                        android:text="@string/ai_dashboard_col_revenue"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
                         android:letterSpacing="0.16"
@@ -71,7 +71,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Sales"
+                            android:text="@string/reports_title_sales"
                             android:textColor="#1A1A18"
                             android:textSize="19sp"
                             android:textStyle="bold"
@@ -81,7 +81,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="report"
+                            android:text="@string/reports_title_report_suffix"
                             android:textColor="#0F6E56"
                             android:textSize="19sp"
                             android:fontFamily="serif"
@@ -94,7 +94,7 @@
                     android:id="@+id/tvPeriodChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="This week"
+                    android:text="@string/xml_reports_period_chip_default"
                     android:textSize="11sp"
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_semibold"
@@ -119,7 +119,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Daily"
+                    android:text="@string/reports_toggle_daily"
                     android:gravity="center"
                     android:paddingVertical="7dp"
                     android:textSize="12.5sp"
@@ -130,7 +130,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Monthly"
+                    android:text="@string/reports_toggle_monthly"
                     android:gravity="center"
                     android:paddingVertical="7dp"
                     android:textSize="12.5sp"/>
@@ -141,7 +141,7 @@
                 android:id="@+id/tvTotalLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total revenue"
+                android:text="@string/reports_total_revenue_label"
                 android:textSize="11.5sp"
                 android:textColor="#9A8F79"
                 android:layout_marginBottom="2dp"/>
@@ -157,7 +157,7 @@
                     android:id="@+id/tvTotalValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="—"
+                    android:text="@string/dash"
                     android:textSize="28sp"
                     android:fontFamily="@font/googlesans_bold"
                     android:textColor="#1A1A18"
@@ -167,7 +167,7 @@
                     android:id="@+id/tvDelta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="—"
+                    android:text="@string/dash"
                     android:textSize="11sp"
                     android:fontFamily="@font/googlesans_semibold"
                     android:paddingHorizontal="8dp"
@@ -193,7 +193,7 @@
                     android:id="@+id/tvLegendMain"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Daily revenue"
+                    android:text="@string/reports_legend_daily_revenue"
                     android:textSize="11sp"
                     android:textColor="#9A8F79"
                     android:layout_marginEnd="14dp"/>
@@ -207,7 +207,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Best day"
+                    android:text="@string/reports_legend_best_day"
                     android:id="@+id/tvLegendBest"
                     android:textSize="11sp"
                     android:textColor="#9A8F79"/>
@@ -250,7 +250,7 @@
                         android:id="@+id/tvBestLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Best day"
+                        android:text="@string/reports_legend_best_day"
                         android:textColor="#9A8F79"
                         android:textSize="9.5sp"/>
 
@@ -259,7 +259,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="—"
+                        android:text="@string/dash"
                         android:textSize="16sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#8A6526"/>
@@ -268,7 +268,7 @@
                         android:id="@+id/tvBestSub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="@string/dash"
                         android:textSize="11sp"
                         android:textColor="#9A8F79"
                         android:layout_marginTop="1dp"/>
@@ -287,7 +287,7 @@
                         android:id="@+id/tvAvgLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Avg / day"
+                        android:text="@string/reports_metric_avg_day_label"
                         android:textColor="#9A8F79"
                         android:textSize="9.5sp"/>
 
@@ -296,7 +296,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="—"
+                        android:text="@string/dash"
                         android:textSize="16sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#085041"/>
@@ -305,7 +305,7 @@
                         android:id="@+id/tvAvgSub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="@string/dash"
                         android:textSize="11sp"
                         android:textColor="#9A8F79"
                         android:layout_marginTop="1dp"/>
@@ -317,7 +317,7 @@
                 android:id="@+id/tvBreakdownLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Daily breakdown"
+                android:text="@string/reports_breakdown_daily"
                 android:textSize="11.5sp"
                 android:textColor="#9A8F79"
                 android:layout_marginBottom="2dp"/>

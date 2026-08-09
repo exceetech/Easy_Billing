@@ -65,7 +65,7 @@
             android:layout_marginTop="6dp"
             android:paddingHorizontal="9dp"
             android:paddingVertical="4dp"
-            android:text="＋ Add discount"
+            android:text="@string/invoice_add_discount"
             android:textColor="#8A6526"
             android:textSize="10.5sp"
             android:fontFamily="@font/googlesans_semibold"

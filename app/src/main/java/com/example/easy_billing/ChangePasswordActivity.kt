@@ -101,24 +101,24 @@ class ChangePasswordActivity : BaseActivity() {
             val confirmPass = etConfirmPassword.text.toString().trim()
 
             if (newPass.isEmpty() || confirmPass.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (newPass != confirmPass) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.passwords_do_not_match, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (newPass.length < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.password_min_length, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
                 try {
                     btnChangePassword.isEnabled = false
-                    btnChangePassword.text = "Updating..."
+                    btnChangePassword.text = getString(R.string.updating_ellipsis)
                     hideCtaArrow()
 
                     // This screen is reached from two different flows that
@@ -146,14 +146,14 @@ class ChangePasswordActivity : BaseActivity() {
                         sessionToken.isNotEmpty() ->
                             RetrofitClient.api.changePassword(sessionToken, newPass)
                         else -> {
-                            Toast.makeText(this@ChangePasswordActivity, "Session expired. Please try again.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@ChangePasswordActivity, R.string.session_expired_try_again, Toast.LENGTH_LONG).show()
                             finish()
                             return@launch
                         }
                     }
 
                     if (response.isSuccessful) {
-                        Toast.makeText(this@ChangePasswordActivity, "Password updated successfully!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ChangePasswordActivity, R.string.password_updated_successfully, Toast.LENGTH_LONG).show()
 
                         // Report 5 fix: clear the one-time reset token now
                         // that it's been used — it's single-purpose and
@@ -167,14 +167,14 @@ class ChangePasswordActivity : BaseActivity() {
                         startActivity(intent)
                         finish()
                     } else {
-                        Toast.makeText(this@ChangePasswordActivity, "Failed to update password", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ChangePasswordActivity, R.string.failed_to_update_password, Toast.LENGTH_SHORT).show()
                     }
 
                 } catch (e: Exception) {
                     Toast.makeText(this@ChangePasswordActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 } finally {
                     btnChangePassword.isEnabled = true
-                    btnChangePassword.text = "Update password"
+                    btnChangePassword.text = getString(R.string.update_password)
                     startCtaArrowAnimation()
                 }
             }
@@ -257,12 +257,12 @@ class ChangePasswordActivity : BaseActivity() {
         }
         row.visibility = View.VISIBLE
         if (newPass == confirmPass) {
-            tv.text = "Passwords match"
+            tv.text = getString(R.string.passwords_match)
             tv.setTextColor(Color.parseColor("#1D9E75"))
             iv.setImageResource(R.drawable.ic_lc_check)
             iv.setColorFilter(Color.parseColor("#1D9E75"))
         } else {
-            tv.text = "Passwords don't match"
+            tv.text = getString(R.string.passwords_dont_match)
             tv.setTextColor(Color.parseColor("#C2553A"))
             iv.setImageResource(R.drawable.ic_lc_check)
             iv.setColorFilter(Color.parseColor("#C2553A"))

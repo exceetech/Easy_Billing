@@ -115,7 +115,7 @@ class PurchaseReturnActivity : BaseActivity() {
         purchaseId = intent.getIntExtra("PURCHASE_ID", -1)
         noteType = intent.getStringExtra("NOTE_TYPE") ?: "D"
         if (purchaseId == -1) {
-            Toast.makeText(this, "Invalid purchase ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_invalid_id, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -172,21 +172,21 @@ class PurchaseReturnActivity : BaseActivity() {
 
         // Adapt UI colors & labels dynamically
         if (noteType == "C") {
-            tvHeaderSubtitle.text = "Receive credit"
-            tvHeaderSubtitleAccent.text = "note"
+            tvHeaderSubtitle.text = getString(R.string.purchase_return_receive_credit)
+            tvHeaderSubtitleAccent.text = getString(R.string.purchase_return_note_word)
             tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
-            tvSectionLabel.text = "SELECT ITEMS & QUANTITIES TO RECEIVE CREDIT ON"
-            tvTotalDebitLabel.text = "Total credit value"
-            btnConfirmReturn.text = "Confirm & save credit note"
+            tvSectionLabel.text = getString(R.string.purchase_return_section_credit)
+            tvTotalDebitLabel.text = getString(R.string.purchase_return_total_credit_value)
+            btnConfirmReturn.text = getString(R.string.purchase_return_confirm_credit_note)
             cvGstr2Container.visibility = View.VISIBLE
             setupGstr2Fields()
         } else {
-            tvHeaderSubtitle.text = "Raise debit"
-            tvHeaderSubtitleAccent.text = "note"
+            tvHeaderSubtitle.text = getString(R.string.purchase_return_raise_debit)
+            tvHeaderSubtitleAccent.text = getString(R.string.purchase_return_note_word)
             tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
-            tvSectionLabel.text = "SELECT ITEMS & QUANTITIES TO RETURN"
-            tvTotalDebitLabel.text = "Total debit value"
-            btnConfirmReturn.text = "Confirm & issue debit note"
+            tvSectionLabel.text = getString(R.string.purchase_return_section_debit)
+            tvTotalDebitLabel.text = getString(R.string.purchase_return_total_debit_value)
+            btnConfirmReturn.text = getString(R.string.purchase_return_confirm_debit_note)
             cvGstr2Container.visibility = View.VISIBLE
             setupGstr2Fields()
         }
@@ -244,11 +244,11 @@ class PurchaseReturnActivity : BaseActivity() {
             viewModel.isLoading.collectLatest { loading ->
                 btnConfirmReturn.isEnabled = !loading
                 btnConfirmReturn.text = if (loading)
-                    "Processing…"
+                    getString(R.string.purchase_return_processing)
                 else if (noteType == "C")
-                    "Confirm & save credit note"
+                    getString(R.string.purchase_return_confirm_credit_note)
                 else
-                    "Confirm & issue debit note"
+                    getString(R.string.purchase_return_confirm_debit_note)
             }
         }
 
@@ -301,7 +301,7 @@ class PurchaseReturnActivity : BaseActivity() {
                     is PurchaseReturnViewModel.Result.SaveError -> {
                         Toast.makeText(
                             this@PurchaseReturnActivity,
-                            "Failed to save: ${result.cause.message}",
+                            "Failed to save: ${result.cause.message}", // interpolation — skip resource replace
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
@@ -361,32 +361,54 @@ class PurchaseReturnActivity : BaseActivity() {
             })
         }
 
-        val docTypes = arrayOf("Debit Note", "Credit Note", "Refund Voucher")
+        val docTypes = arrayOf(
+            getString(R.string.purchase_return_doctype_debit),
+            getString(R.string.purchase_return_doctype_credit),
+            getString(R.string.purchase_return_doctype_refund)
+        )
         if (noteType == "C") {
-            actvDocumentType.setText("Credit Note", false)
+            actvDocumentType.setText(getString(R.string.purchase_return_doctype_credit), false)
         } else {
-            actvDocumentType.setText("Debit Note", false)
+            actvDocumentType.setText(getString(R.string.purchase_return_doctype_debit), false)
         }
         actvDocumentType.setOnClickListener {
             showGstr2ChooserPopup(actvDocumentType, docTypes.toList(), tvLabelDocumentType)
         }
 
-        val reasons = arrayOf("Sales return", "Purchase return", "Post sale discount", "Deficiency in services", "Correction in invoice", "Other")
-        actvReason.setText("Purchase return", false)
+        val reasons = arrayOf(
+            getString(R.string.purchase_return_reason_sales_return),
+            getString(R.string.reason_purchase_return),
+            getString(R.string.purchase_return_reason_discount),
+            getString(R.string.purchase_return_reason_deficiency),
+            getString(R.string.purchase_return_reason_correction),
+            getString(R.string.purchase_return_reason_other)
+        )
+        actvReason.setText(getString(R.string.reason_purchase_return), false)
         actvReason.setOnClickListener {
             showGstr2ChooserPopup(actvReason, reasons.toList(), tvLabelReason)
         }
 
-        val eligibilities = arrayOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
-        actvEligibility.setText("Inputs", false)
+        val eligibilities = arrayOf(
+            getString(R.string.purchase_eligibility_inputs),
+            getString(R.string.purchase_eligibility_capital_goods),
+            getString(R.string.purchase_eligibility_input_services),
+            getString(R.string.purchase_eligibility_ineligible),
+            getString(R.string.purchase_eligibility_none)
+        )
+        actvEligibility.setText(getString(R.string.purchase_eligibility_inputs), false)
         actvEligibility.setOnClickListener {
             showGstr2ChooserPopup(actvEligibility, eligibilities.toList(), tvLabelEligibility) { selected ->
                 updateItcFieldsState(selected)
             }
         }
 
-        val invoiceTypes = arrayOf("Regular", "SEZ supplies with payment", "SEZ supplies without payment", "Deemed Exp")
-        actvInvoiceType.setText("Regular", false)
+        val invoiceTypes = arrayOf(
+            getString(R.string.purchase_invoice_type_regular),
+            getString(R.string.purchase_invoice_type_sez_with_payment),
+            getString(R.string.purchase_invoice_type_sez_without_payment),
+            getString(R.string.purchase_invoice_type_deemed_exp)
+        )
+        actvInvoiceType.setText(getString(R.string.purchase_invoice_type_regular), false)
         actvInvoiceType.setOnClickListener {
             showGstr2ChooserPopup(actvInvoiceType, invoiceTypes.toList(), tvLabelInvoiceType)
         }
@@ -506,7 +528,11 @@ class PurchaseReturnActivity : BaseActivity() {
     }
 
     private fun updateItcFieldsState(eligibility: String) {
-        val isEligible = eligibility in listOf("Inputs", "Capital goods", "Input services")
+        val isEligible = eligibility in listOf(
+            getString(R.string.purchase_eligibility_inputs),
+            getString(R.string.purchase_eligibility_capital_goods),
+            getString(R.string.purchase_eligibility_input_services)
+        )
         val fieldAlpha = if (isEligible) 1f else 0.5f
 
         tilAvailedItcIntegrated.isEnabled = isEligible
@@ -569,7 +595,11 @@ class PurchaseReturnActivity : BaseActivity() {
         currentTaxableReturn = Math.round(taxable * 100.0) / 100.0
 
         val eligibility = actvEligibility.text.toString()
-        val isEligible = eligibility in listOf("Inputs", "Capital goods", "Input services")
+        val isEligible = eligibility in listOf(
+            getString(R.string.purchase_eligibility_inputs),
+            getString(R.string.purchase_eligibility_capital_goods),
+            getString(R.string.purchase_eligibility_input_services)
+        )
         if (isEligible) {
             etAvailedItcIntegrated.setText(currentIgstReturn.toString())
             etAvailedItcCentral.setText(currentCgstReturn.toString())
@@ -593,14 +623,14 @@ class PurchaseReturnActivity : BaseActivity() {
         val lines   = adapter.getReturnLines()
 
         if (lines.isEmpty()) {
-            val msg = if (noteType == "C") "Please select at least one item to receive credit on." else "Please select at least one item to return."
+            val msg = if (noteType == "C") getString(R.string.purchase_return_select_item_credit) else getString(R.string.purchase_return_select_item_debit)
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             return
         }
 
         val p = viewModel.purchase.value
         if (p == null) {
-            Toast.makeText(this, "Purchase not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_not_loaded, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -620,58 +650,58 @@ class PurchaseReturnActivity : BaseActivity() {
 
         // Client-side validations
         if (docTypeVal.isBlank()) {
-            Toast.makeText(this, "Document Type is required.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_doctype_required, Toast.LENGTH_SHORT).show()
             return
         }
         if (reasonVal.isBlank()) {
-            Toast.makeText(this, "Reason is required.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_reason_required, Toast.LENGTH_SHORT).show()
             return
         }
         if (voucherValueVal <= 0.0) {
-            Toast.makeText(this, "Note/Refund Voucher Value must be > 0.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_voucher_value_positive, Toast.LENGTH_SHORT).show()
             return
         }
         if (voucherValueVal < currentTaxableReturn) {
-            Toast.makeText(this, "Note/Refund Voucher Value (₹%.2f) must stay >= taxable value (₹%.2f).".format(voucherValueVal, currentTaxableReturn), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.purchase_return_voucher_value_min).format(voucherValueVal, currentTaxableReturn), Toast.LENGTH_SHORT).show()
             return
         }
         if (rateVal < 0.0) {
-            Toast.makeText(this, "Rate must be >= 0.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_rate_invalid, Toast.LENGTH_SHORT).show()
             return
         }
         if (eligibilityVal.isBlank()) {
-            Toast.makeText(this, "Eligibility for ITC is required.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_eligibility_required, Toast.LENGTH_SHORT).show()
             return
         }
-        if (eligibilityVal in listOf("Ineligible", "None")) {
+        if (eligibilityVal in listOf(getString(R.string.purchase_eligibility_ineligible), getString(R.string.purchase_eligibility_none))) {
             if (availedIntegratedVal != 0.0 || availedCentralVal != 0.0 || availedStateVal != 0.0 || availedCessVal != 0.0) {
-                Toast.makeText(this, "If eligibility is Ineligible/None, availed ITC values must be 0.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.purchase_return_itc_must_be_zero, Toast.LENGTH_SHORT).show()
                 return
             }
         } else {
             if (availedIntegratedVal > currentIgstReturn) {
-                Toast.makeText(this, "Availed ITC Integrated Tax cannot exceed IGST (₹%.2f).".format(currentIgstReturn), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.purchase_return_itc_integrated_exceeds).format(currentIgstReturn), Toast.LENGTH_SHORT).show()
                 return
             }
             if (availedCentralVal > currentCgstReturn) {
-                Toast.makeText(this, "Availed ITC Central Tax cannot exceed CGST (₹%.2f).".format(currentCgstReturn), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.purchase_return_itc_central_exceeds).format(currentCgstReturn), Toast.LENGTH_SHORT).show()
                 return
             }
             if (availedStateVal > currentSgstReturn) {
-                Toast.makeText(this, "Availed ITC State/UT Tax cannot exceed SGST (₹%.2f).".format(currentSgstReturn), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.purchase_return_itc_state_exceeds).format(currentSgstReturn), Toast.LENGTH_SHORT).show()
                 return
             }
             if (availedCessVal > currentCessReturn) {
-                Toast.makeText(this, "Availed ITC Cess cannot exceed Cess (₹%.2f).".format(currentCessReturn), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.purchase_return_itc_cess_exceeds).format(currentCessReturn), Toast.LENGTH_SHORT).show()
                 return
             }
         }
         if (invoiceTypeVal.isBlank()) {
-            Toast.makeText(this, "Invoice Type is required.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_invoice_type_required, Toast.LENGTH_SHORT).show()
             return
         }
         if (placeOfSupplyCodeVal.isBlank()) {
-            Toast.makeText(this, "Place of Supply Code is required.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.purchase_return_place_of_supply_required, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -679,7 +709,7 @@ class PurchaseReturnActivity : BaseActivity() {
 
         val isCredit = noteType == "C"
         val eyebrow = "${p.invoiceNumber} · ${p.supplierName}".uppercase()
-        val titleAccent = if (isCredit) "credit note?" else "debit note?"
+        val titleAccent = if (isCredit) getString(R.string.purchase_return_title_accent_credit) else getString(R.string.purchase_return_title_accent_debit)
         val msg = if (isCredit) {
             "You are receiving ${"%.2f".format(totalUnits)} additional unit(s) from ${p.supplierName}" +
             " (Invoice: ${p.invoiceNumber}). Stock will be increased and a credit note will be generated."
@@ -688,12 +718,12 @@ class PurchaseReturnActivity : BaseActivity() {
             " (Invoice: ${p.invoiceNumber}). Stock will be reduced from the exact purchase batch and a " +
             "debit note will be generated."
         }
-        val posBtn = if (isCredit) "Yes, receive CN" else "Yes, issue DN"
+        val posBtn = if (isCredit) getString(R.string.purchase_return_confirm_yes_cn) else getString(R.string.purchase_return_confirm_yes_dn)
 
         val view = layoutInflater.inflate(R.layout.dialog_confirm_purchase_note, null)
 
         view.findViewById<TextView>(R.id.tvNoteEyebrow).text = eyebrow
-        view.findViewById<TextView>(R.id.tvNoteTitleLead).text = if (isCredit) "Receive" else "Issue"
+        view.findViewById<TextView>(R.id.tvNoteTitleLead).text = if (isCredit) getString(R.string.purchase_return_title_lead_receive) else getString(R.string.purchase_return_title_lead_issue)
         view.findViewById<TextView>(R.id.tvNoteTitleAccent).text = titleAccent
         view.findViewById<TextView>(R.id.tvNoteMessage).text = msg
 

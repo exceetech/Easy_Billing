@@ -32,7 +32,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADD QUANTITY"
+                    android:text="@string/dialog_quantity_pad_eyebrow"
                     android:textColor="#B8895A"
                     android:textSize="10sp"
                     android:letterSpacing="0.12"
@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Product"
+                    android:text="@string/dialog_quantity_pad_product_placeholder"
                     android:textColor="#1A1A18"
                     android:textSize="16sp"
                     android:fontFamily="@font/googlesans_bold"
@@ -132,7 +132,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_marginBottom="3dp"
-                    android:text="total"
+                    android:text="@string/dialog_quantity_pad_total_label"
                     android:textColor="#D4A574"
                     android:textSize="13sp"/>
             </LinearLayout>

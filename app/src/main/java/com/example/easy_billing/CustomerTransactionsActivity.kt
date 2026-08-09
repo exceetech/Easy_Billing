@@ -78,14 +78,14 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
         accountId = intent.getIntExtra("ACCOUNT_ID", -1)
         localAccountId = intent.getIntExtra("LOCAL_ACCOUNT_ID", -1)
-        accountName = intent.getStringExtra("ACCOUNT_NAME") ?: "Customer"
+        accountName = intent.getStringExtra("ACCOUNT_NAME") ?: getString(R.string.txn_default_customer_name)
         accountPhone = intent.getStringExtra("ACCOUNT_PHONE") ?: ""
 
         // Only the LOCAL id is required. A missing server id just means the
         // account hasn't synced yet — its history still exists on this device,
         // and closing the screen with "Invalid account" hid it entirely.
         if (localAccountId == -1) {
-            Toast.makeText(this, "Invalid account", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.txn_invalid_account, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -224,7 +224,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                 e.printStackTrace()
                 Toast.makeText(
                     this@CustomerTransactionsActivity,
-                    "Couldn't reach the server — showing what's on this device",
+                    R.string.txn_server_unreachable,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -347,9 +347,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.tvBalanceCaption).apply {
             when {
-                balance > 0 -> { text = "owes you"; setTextColor(android.graphics.Color.parseColor("#B23A3A")) }
-                balance < 0 -> { text = "in advance"; setTextColor(android.graphics.Color.parseColor("#0F6E56")) }
-                else        -> { text = "settled"; setTextColor(android.graphics.Color.parseColor("#8A8272")) }
+                balance > 0 -> { text = getString(R.string.credit_status_owes_you); setTextColor(android.graphics.Color.parseColor("#B23A3A")) }
+                balance < 0 -> { text = getString(R.string.credit_status_in_advance); setTextColor(android.graphics.Color.parseColor("#0F6E56")) }
+                else        -> { text = getString(R.string.credit_status_settled); setTextColor(android.graphics.Color.parseColor("#8A8272")) }
             }
         }
         findViewById<TextView>(R.id.tvCurrentBalance).setTextColor(
@@ -483,7 +483,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         val s = filterStart
         val e = filterEnd
         return when {
-            s == null && e == null -> "All time"
+            s == null && e == null -> getString(R.string.txn_filter_all_time)
             s != null && e == null -> "From ${fmt.format(Date(s))}"
             s == null && e != null -> "Until ${fmt.format(Date(e))}"
             else -> "${fmt.format(Date(s!!))} – ${fmt.format(Date(e!!))}"
@@ -539,8 +539,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         }
 
         fun refresh() {
-            tvStart.text = draftStart?.let { dayFmt.format(Date(it)) } ?: "Pick a date"
-            tvEnd.text = draftEnd?.let { dayFmt.format(Date(it)) } ?: "Pick a date"
+            tvStart.text = draftStart?.let { dayFmt.format(Date(it)) } ?: getString(R.string.txn_pick_a_date)
+            tvEnd.text = draftEnd?.let { dayFmt.format(Date(it)) } ?: getString(R.string.txn_pick_a_date)
             tvStart.setTextColor(Color.parseColor(if (draftStart != null) "#1A1A18" else "#A99E88"))
             tvEnd.setTextColor(Color.parseColor(if (draftEnd != null) "#1A1A18" else "#A99E88"))
 
@@ -593,7 +593,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             val s = draftStart
             val e = draftEnd
             if (s != null && e != null && s > e) {
-                Toast.makeText(this, "The From date is after the To date", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.txn_from_after_to_date, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -616,7 +616,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         val txns = currentList
 
         if (txns.isEmpty()) {
-            Toast.makeText(this, "No data", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.txn_no_data, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -639,9 +639,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
         // States its own scope, since the date filter may be narrowing this.
         // Read from the filter chip so the two can't disagree.
-        val entryWord = if (txns.size == 1) "entry" else "entries"
+        val entryWord = if (txns.size == 1) getString(R.string.txn_entry_singular) else getString(R.string.txn_entry_plural)
         val scope = findViewById<TextView>(R.id.tvFilterLabel).text?.toString()?.lowercase()
-            ?: "all time"
+            ?: getString(R.string.txn_filter_all_time).lowercase()
         view.findViewById<TextView>(R.id.tvSummaryScope).text =
             "${txns.size} $entryWord · $scope"
 
@@ -661,9 +661,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         val tvBalance = view.findViewById<TextView>(R.id.tvSumBalance)
         tvBalance.text = money(kotlin.math.abs(balance))
         view.findViewById<TextView>(R.id.tvSumBalanceCaption).text = when {
-            balance > 0 -> "owes you"
-            balance < 0 -> "in advance"
-            else -> "settled"
+            balance > 0 -> getString(R.string.credit_status_owes_you)
+            balance < 0 -> getString(R.string.credit_status_in_advance)
+            else -> getString(R.string.credit_status_settled)
         }
         tvBalance.setTextColor(
             Color.parseColor(
@@ -679,13 +679,13 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         // and adjustments don't drag the figure down.
         val billedEntries = txns.filter { debitOf(it) > 0.0 }
         view.findViewById<TextView>(R.id.tvSumAvgBill).text =
-            if (billedEntries.isEmpty()) "—"
+            if (billedEntries.isEmpty()) getString(R.string.txn_dash_placeholder)
             else money(billedEntries.sumOf { debitOf(it) } / billedEntries.size)
 
         val lastPayment = txns.filter { it.type == "PAY" }.maxByOrNull { it.timestamp }
         view.findViewById<TextView>(R.id.tvSumLastPayment).text =
             lastPayment?.let { SimpleDateFormat("d MMM", Locale.getDefault()).format(Date(it.timestamp)) }
-                ?: "—"
+                ?: getString(R.string.txn_dash_placeholder)
 
         view.findViewById<MaterialButton>(R.id.btnSummaryClose)
             .setOnClickListener { dialog.dismiss() }
@@ -697,7 +697,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
     private fun printReport() {
 
         if (originalList.isEmpty()) {
-            Toast.makeText(this, "No transactions to print", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.txn_no_transactions_print, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -773,14 +773,14 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
 
                 if (isFinishing || isDestroyed || !window.decorView.isAttachedToWindow) {
-                    Toast.makeText(this@CustomerTransactionsActivity, "Try again", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CustomerTransactionsActivity, R.string.txn_try_again, Toast.LENGTH_SHORT).show()
                     return@withContext
                 }
 
                 val customerPhone = when {
                     !account?.phone.isNullOrBlank() -> account!!.phone
                     accountPhone.isNotBlank() -> accountPhone
-                    else -> "N/A"
+                    else -> getString(R.string.txn_phone_not_available)
                 }
                 val customerNameFinal = account?.name?.takeIf { it.isNotBlank() } ?: accountName
 
@@ -918,8 +918,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             val txnDate = sdf.format(Date(txn.timestamp))
 
             val header = when (txnDate) {
-                today -> "Today"
-                yesterday -> "Yesterday"
+                today -> getString(R.string.today)
+                yesterday -> getString(R.string.txn_header_yesterday)
                 else -> SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
                     .format(Date(txn.timestamp))
             }

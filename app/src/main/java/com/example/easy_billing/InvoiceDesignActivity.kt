@@ -81,7 +81,7 @@ class InvoiceDesignActivity : BaseActivity() {
 
     // ===== LOAD =====
     private fun loadData() {
-        etFooter.setText(prefs.getString("footer_message", "Thank You! Visit Again"))
+        etFooter.setText(prefs.getString("footer_message", getString(R.string.invoice_design_footer_default)))
         switchLogo.isChecked = prefs.getBoolean("show_logo", true)
         switchGstin.isChecked = prefs.getBoolean("show_gstin", true)
         switchPhone.isChecked = prefs.getBoolean("show_phone", true)
@@ -169,7 +169,7 @@ class InvoiceDesignActivity : BaseActivity() {
         btnVerify.setOnClickListener {
             val password = etPassword.text.toString().trim()
             if (password.isEmpty()) {
-                etPassword.error = "Enter password"
+                etPassword.error = getString(R.string.invoice_design_enter_password_error)
                 return@setOnClickListener
             }
             verifyPassword(password) {
@@ -191,7 +191,7 @@ class InvoiceDesignActivity : BaseActivity() {
             .putBoolean("round_off", switchRoundOff.isChecked)
             .apply()
 
-        Toast.makeText(this, "Design Settings Saved", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, R.string.design_settings_saved, Toast.LENGTH_SHORT).show()
 
         setEditable(false)
         isEditMode = false

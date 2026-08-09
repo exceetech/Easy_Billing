@@ -2,6 +2,7 @@ package com.example.easy_billing.util
 
 import android.app.Activity
 import android.content.Context
+import com.example.easy_billing.R
 import android.content.Intent
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
@@ -64,14 +65,14 @@ object InvoicePdfGenerator {
         // ✅ UI SETTINGS ONLY (allowed)
         val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
-        val footerMessage = prefs.getString("footer_message", "Thank You! Visit Again")
+        val footerMessage = prefs.getString("footer_message", context.getString(R.string.pdf_footer_default_message))
         val showPhone = prefs.getBoolean("show_phone", true)
         val showGstin = prefs.getBoolean("show_gstin", true)
         val showDiscount = prefs.getBoolean("show_discount", true)
         val roundOff = prefs.getBoolean("round_off", false)
 
         // ✅ STORE INFO FROM ROOM
-        val storeName = storeInfo?.name ?: "My Store"
+        val storeName = storeInfo?.name ?: context.getString(R.string.invoice_pdf_store_default_name)
         val storeAddress = storeInfo?.address ?: ""
         val storePhone = storeInfo?.phone ?: ""
         val storeGstin = storeInfo?.gstin ?: ""
@@ -144,7 +145,7 @@ object InvoicePdfGenerator {
         centerText(storeName, 22f, true)
 
         // Document title reflects the saved GST mode.
-        if (!isComposition) centerText("Tax Invoice", 14f, true)
+        if (!isComposition) centerText(context.getString(R.string.invoice_pdf_tax_invoice_title), 14f, true)
 
         if (storeAddress.isNotEmpty()) centerText(storeAddress, 14f)
         if (showPhone && storePhone.isNotEmpty()) centerText("Phone : $storePhone", 14f)
@@ -176,11 +177,11 @@ object InvoicePdfGenerator {
             }
 
             if (isB2B) {
-                detail("Business", gstInvoice?.businessName)
-                detail("Name", gstInvoice?.customerName)
-                detail("Phone", gstInvoice?.customerPhone)
-                detail("GSTIN", gstInvoice?.customerGst ?: bill.customerGstin)
-                detail("State", gstInvoice?.customerState)
+                detail(context.getString(R.string.invoice_pdf_detail_business), gstInvoice?.businessName)
+                detail(context.getString(R.string.invoice_pdf_detail_name), gstInvoice?.customerName)
+                detail(context.getString(R.string.invoice_pdf_detail_phone), gstInvoice?.customerPhone)
+                detail(context.getString(R.string.invoice_pdf_detail_gstin), gstInvoice?.customerGst ?: bill.customerGstin)
+                detail(context.getString(R.string.invoice_pdf_detail_state), gstInvoice?.customerState)
             } else {
                 detail("Name", gstInvoice?.customerName)
                 detail("Phone", gstInvoice?.customerPhone)
@@ -199,7 +200,7 @@ object InvoicePdfGenerator {
         paint.textSize = 14f
 
         val amtHeader = "Amt($currencySymbol)"
-        canvas.drawText("Item Description", colItem, y.toFloat(), paint)
+        canvas.drawText(context.getString(R.string.invoice_pdf_item_description_header), colItem, y.toFloat(), paint)
         canvas.drawText(amtHeader, colAmount - paint.measureText(amtHeader), y.toFloat(), paint)
 
         y += 20
@@ -265,7 +266,7 @@ object InvoicePdfGenerator {
             y += 18
 
             if (lineDiscount >= 0.01) {
-                leftText("Discount", 13f)
+                leftText(context.getString(R.string.invoice_pdf_discount_label), 13f)
                 rightText("- $currencySymbol%.2f".format(lineDiscount), 13f)
                 y += 18
             }
@@ -279,7 +280,7 @@ object InvoicePdfGenerator {
                     if (it.gstRate % 1 == 0.0) "${it.gstRate.toInt()}%"
                     else String.format("%.2f%%", it.gstRate)
 
-                leftText("Taxable", 13f)
+                leftText(context.getString(R.string.invoice_pdf_taxable_label), 13f)
                 rightText("$currencySymbol%.2f".format(netTaxable), 13f)
                 y += 18
 
@@ -311,21 +312,21 @@ object InvoicePdfGenerator {
         val taxable  = billItems.sumOf { it.taxableValue }
         val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount
 
-        leftText(if (isComposition) "Sub Total" else "Taxable Amount", 14f)
+        leftText(if (isComposition) context.getString(R.string.invoice_pdf_sub_total_label) else context.getString(R.string.invoice_pdf_taxable_amount_label), 14f)
         rightText("$currencySymbol%.2f".format(taxable), 14f)
         y += 22
 
         if (!isComposition) {
             // Intra-state → CGST + SGST.  Inter-state → IGST only.
             if (bill.igstAmount > 0.0) {
-                leftText("IGST", 14f)
+                leftText(context.getString(R.string.invoice_pdf_igst_label), 14f)
                 rightText("$currencySymbol%.2f".format(bill.igstAmount), 14f)
                 y += 22
             } else {
-                leftText("CGST", 14f)
+                leftText(context.getString(R.string.invoice_pdf_cgst_label), 14f)
                 rightText("$currencySymbol%.2f".format(bill.cgstAmount), 14f)
                 y += 22
-                leftText("SGST", 14f)
+                leftText(context.getString(R.string.invoice_pdf_sgst_label), 14f)
                 rightText("$currencySymbol%.2f".format(bill.sgstAmount), 14f)
                 y += 22
             }
@@ -338,7 +339,7 @@ object InvoicePdfGenerator {
         val computed  = if (isComposition) taxable else taxable + totalTax
         val roundDiff = finalTotal - computed
         if (kotlin.math.abs(roundDiff) >= 0.01) {
-            leftText("Round Off", 14f)
+            leftText(context.getString(R.string.invoice_pdf_round_off_label), 14f)
             rightText("$currencySymbol%.2f".format(roundDiff), 14f)
             y += 22
         }
@@ -348,7 +349,7 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
         paint.textSize = 18f
 
-        canvas.drawText("TOTAL", colItem, y.toFloat(), paint)
+        canvas.drawText(context.getString(R.string.invoice_pdf_total_header), colItem, y.toFloat(), paint)
 
         val total = "$currencySymbol%.2f".format(finalTotal)
         canvas.drawText(total, colAmount - paint.measureText(total), y.toFloat(), paint)
@@ -365,17 +366,17 @@ object InvoicePdfGenerator {
         // Mandatory composition declaration (only on composition bills).
         if (isComposition) {
             centerText(
-                "Composition Taxable Person, Not Eligible",
+                context.getString(R.string.invoice_pdf_composition_declaration_1),
                 11f
             )
             centerText(
-                "To Collect Tax On Supplies",
+                context.getString(R.string.invoice_pdf_composition_declaration_2),
                 11f
             )
             y += 6
         }
 
-        centerText(footerMessage ?: "Thank You! Visit Again", 14f)
+        centerText(footerMessage ?: context.getString(R.string.invoice_pdf_footer_default), 14f)
 
         document.finishPage(page)
 
@@ -511,7 +512,7 @@ object InvoicePdfGenerator {
 
         // ===== REPORT TITLE =====
 
-        center("Credit / Debit Report", 22f, true)
+        center(activity.getString(R.string.invoice_pdf_statement_title), 22f, true)
 
         // 🔥 Fetch store info (same as bill)
         val prefs = activity.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -562,13 +563,13 @@ object InvoicePdfGenerator {
         paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
         paint.textSize = 12f
 
-        canvas.drawText("Date", colDate, y, paint)
-        canvas.drawText("Type", colType, y, paint)
+        canvas.drawText(activity.getString(R.string.invoice_pdf_table_date_header), colDate, y, paint)
+        canvas.drawText(activity.getString(R.string.invoice_pdf_table_type_header), colType, y, paint)
 
         // ✅ ₹ ONLY IN HEADER
-        rightText("Dr (₹)", colDrRight, y)
-        rightText("Cr (₹)", colCrRight, y)
-        rightText("Balance (₹)", colBalRight, y)
+        rightText(activity.getString(R.string.invoice_pdf_table_dr_header), colDrRight, y)
+        rightText(activity.getString(R.string.invoice_pdf_table_cr_header), colCrRight, y)
+        rightText(activity.getString(R.string.invoice_pdf_table_balance_header), colBalRight, y)
 
         y += 20
         line()
@@ -647,16 +648,16 @@ object InvoicePdfGenerator {
             y += 20
         }
 
-        drawTotalRow("Total Debit:", totalDebit)
-        drawTotalRow("Total Credit:", totalCredit)
+        drawTotalRow(activity.getString(R.string.invoice_pdf_total_debit_label), totalDebit)
+        drawTotalRow(activity.getString(R.string.invoice_pdf_total_credit_label), totalCredit)
 
         paint.textSize = 14f
-        drawTotalRow("Final Balance:", finalBalance)
+        drawTotalRow(activity.getString(R.string.invoice_pdf_final_balance_label), finalBalance)
 
         y += 10
         line()
 
-        center("Thank You!", 14f)
+        center(activity.getString(R.string.invoice_pdf_thank_you), 14f)
 
         document.finishPage(page)
 
@@ -666,7 +667,7 @@ object InvoicePdfGenerator {
         // The caller passes "N/A" when a customer has no number, and the slash
         // in it turns this into a path — the parent folder doesn't exist, so
         // the write fails on exactly the customers with no phone recorded.
-        val safePhone = phone.replace(Regex("[^A-Za-z0-9_-]"), "").ifBlank { "customer" }
+        val safePhone = phone.replace(Regex("[^A-Za-z0-9_-]"), "").ifBlank { activity.getString(R.string.invoice_pdf_customer_fallback) }
         val fileName = "${safePhone}_${System.currentTimeMillis()}.pdf"
 
         val dir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
@@ -698,12 +699,12 @@ object InvoicePdfGenerator {
             // throwing something descriptive. Checked explicitly so the user
             // is told what is missing instead of seeing a bare "Print failed".
             val printManager = activity.getSystemService(PrintManager::class.java)
-                ?: throw IllegalStateException("This device has no printing service")
+                ?: throw IllegalStateException(activity.getString(R.string.invoice_pdf_no_printing_service))
 
             val printAdapter = PdfPrintAdapter(
                 activity,
                 file.absolutePath,
-                "Statement"
+                activity.getString(R.string.invoice_pdf_statement_job_name)
             )
 
             val attributes = PrintAttributes.Builder()
@@ -799,7 +800,7 @@ object InvoicePdfGenerator {
 
         // ================= HEADER =================
 
-        center("Profit Report", 22f, true)
+        center(activity.getString(R.string.invoice_pdf_profit_report_title), 22f, true)
         center(storeName, 18f, true)
 
         if (storeAddress.isNotEmpty()) center(storeAddress, 14f)
@@ -809,7 +810,7 @@ object InvoicePdfGenerator {
         line()
 
         if (startDate == "All Time") {
-            center("All Time Report", 14f)
+            center(activity.getString(R.string.invoice_pdf_all_time_report), 14f)
         } else {
             val parser = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val pretty = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
@@ -928,14 +929,14 @@ object InvoicePdfGenerator {
             y += 20f
         }
 
-        drawSummary("Revenue", totalRevenue)
-        drawSummary("Cost", totalCost)
-        drawSummary("Expense", totalExpense)
-        drawSummary("Loss", totalLoss)
+        drawSummary(activity.getString(R.string.invoice_pdf_summary_revenue), totalRevenue)
+        drawSummary(activity.getString(R.string.invoice_pdf_summary_cost), totalCost)
+        drawSummary(activity.getString(R.string.invoice_pdf_summary_expense), totalExpense)
+        drawSummary(activity.getString(R.string.invoice_pdf_summary_loss), totalLoss)
 
         paint.textSize = 15f
         val netProfitFinal = totalRevenue - totalCost - totalLoss
-        drawSummary("Net Profit", netProfitFinal)
+        drawSummary(activity.getString(R.string.invoice_pdf_summary_net_profit), netProfitFinal)
 
         line()
         center("Thank You!", 14f)
@@ -956,7 +957,7 @@ object InvoicePdfGenerator {
             }
             document.close()
         } catch (e: Exception) {
-            Toast.makeText(activity, "PDF save failed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, activity.getString(R.string.invoice_pdf_profit_save_failed_toast), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -977,7 +978,7 @@ object InvoicePdfGenerator {
                 .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
                 .build()
 
-            printManager.print("Profit Report", adapter, attrs)
+            printManager.print(activity.getString(R.string.invoice_pdf_profit_print_job_name), adapter, attrs)
 
         } catch (e: Exception) {
             Toast.makeText(activity, "Print failed: ${e.message}", Toast.LENGTH_LONG).show()

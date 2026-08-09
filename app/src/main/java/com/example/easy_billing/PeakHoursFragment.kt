@@ -165,7 +165,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(requireContext(), "Failed to load peak hours", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.peak_hours_toast_load_failed, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -178,9 +178,9 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         if (data.isEmpty()) {
             tvPeakRevenue.text = CurrencyHelper.format(ctx, 0.0)
             tvDelta.visibility = View.GONE
-            tvPeakAt.text = "—"
-            tvBestValue.text = "—"; tvBestSub.text = "—"
-            tvAvgValue.text = "—"; tvAvgSub.text = "—"
+            tvPeakAt.text = getString(R.string.dash)
+            tvBestValue.text = getString(R.string.dash); tvBestSub.text = getString(R.string.dash)
+            tvAvgValue.text = getString(R.string.dash); tvAvgSub.text = getString(R.string.dash)
             barChart.clear(); barChart.invalidate()
             adapter.updateData(emptyList(), 0.0)
             return

@@ -32,7 +32,7 @@
     </FrameLayout>
 
     <TextView
-        android:text="PREMIUM FEATURE"
+        android:text="@string/dialog_premium_upgrade_eyebrow"
         android:textSize="10sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
@@ -49,7 +49,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:text="Unlock"
+            android:text="@string/dialog_premium_upgrade_title_part1"
             android:textSize="19sp"
             android:textStyle="bold"
             android:fontFamily="@font/googlesans_bold"
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"/>
 
         <TextView
-            android:text=" premium"
+            android:text="@string/dialog_premium_upgrade_title_part2"
             android:textSize="19sp"
             android:textStyle="italic"
             android:fontFamily="serif"
@@ -70,7 +70,7 @@
 
     <TextView
         android:id="@+id/tvUpgradeMessage"
-        android:text="This feature is part of Premium. Upgrade to get instant access."
+        android:text="@string/dialog_premium_upgrade_message"
         android:textSize="12sp"
         android:fontFamily="@font/googlesans_medium"
         android:textColor="#8A8474"
@@ -106,7 +106,7 @@
             </FrameLayout>
 
             <TextView
-                android:text="GST reports &amp; filings"
+                android:text="@string/dialog_premium_upgrade_perk_gst"
                 android:textSize="12sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#374151"
@@ -137,7 +137,7 @@
             </FrameLayout>
 
             <TextView
-                android:text="Profit analytics &amp; trends"
+                android:text="@string/dialog_premium_upgrade_perk_profit"
                 android:textSize="12sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#374151"
@@ -168,7 +168,7 @@
             </FrameLayout>
 
             <TextView
-                android:text="AI-powered insights"
+                android:text="@string/dialog_premium_upgrade_perk_ai"
                 android:textSize="12sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#374151"
@@ -182,7 +182,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnUpgradeNow"
-        android:text="Upgrade to Premium"
+        android:text="@string/dialog_premium_upgrade_cta"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textStyle="bold"
@@ -204,7 +204,7 @@
 
     <TextView
         android:id="@+id/btnUpgradeLater"
-        android:text="Not now"
+        android:text="@string/dialog_premium_upgrade_later"
         android:textSize="12.5sp"
         android:fontFamily="@font/googlesans_semibold"
         android:textColor="#8A8474"

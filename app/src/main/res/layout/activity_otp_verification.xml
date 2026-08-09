@@ -66,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="ACCOUNT VERIFICATION"
+                android:text="@string/account_verification_eyebrow"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -82,7 +82,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Verify your "
+                    android:text="@string/verify_your_word"
                     android:textColor="#1A1A18"
                     android:textSize="22sp"
                     android:fontFamily="serif"
@@ -91,7 +91,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="email"
+                    android:text="@string/email_word"
                     android:textColor="#0F6E56"
                     android:textSize="22sp"
                     android:fontFamily="serif"
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="7dp"
                 android:gravity="center"
-                android:text="Enter the 6-digit code we sent to"
+                android:text="@string/enter_6_digit_code_sent_to"
                 android:textColor="#8A8272"
                 android:textSize="12.5sp"
                 android:lineSpacingExtra="2dp"/>
@@ -116,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:gravity="center"
-                android:text="your email"
+                android:text="@string/your_email_default"
                 android:textColor="#1A1A18"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>
@@ -265,7 +265,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your code is valid for 5 minutes"
+                    android:text="@string/code_valid_5_minutes"
                     android:textColor="#9A8F79"
                     android:textSize="12sp"/>
             </LinearLayout>
@@ -278,7 +278,7 @@
                 android:layout_marginTop="18dp"
                 android:background="@drawable/bg_login_cta_green"
                 app:backgroundTint="@null"
-                android:text="Verify code"
+                android:text="@string/verify_code"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textAllCaps="false"
@@ -309,14 +309,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Didn't receive it? "
+                    android:text="@string/didnt_receive_it"
                     android:textColor="#8A8272"
                     android:textSize="12.5sp"/>
                 <TextView
                     android:id="@+id/tvResendOtp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Resend OTP"
+                    android:text="@string/resend_otp"
                     android:textColor="#0F6E56"
                     android:textSize="12.5sp"
                     android:fontFamily="@font/googlesans_semibold"

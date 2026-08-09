@@ -58,7 +58,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PROFIT ANALYTICS"
+            android:text="@string/xml_profit_header_title"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -74,7 +74,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Savings "
+                android:text="@string/xml_profit_title_bold"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:letterSpacing="-0.02"
@@ -85,7 +85,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="analytics"
+                android:text="@string/xml_profit_title_accent"
                 android:textColor="#0F6E56"
                 android:textSize="21sp"
                 android:textStyle="italic"
@@ -110,7 +110,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Net profit"
+            android:text="@string/xml_profit_net_profit_label"
             android:textSize="11sp"
             android:textColor="#9A8F79"/>
 
@@ -161,7 +161,7 @@
                     android:id="@+id/tvMargin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0% margin"
+                    android:text="@string/xml_profit_margin_default"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="#085041"/>
@@ -197,7 +197,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Expense"
+                    android:text="@string/xml_profit_expense_label"
                     android:textSize="9.5sp"
                     android:textColor="#BA7517"/>
             </LinearLayout>
@@ -226,7 +226,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Loss"
+                    android:text="@string/xml_profit_loss_label"
                     android:textSize="9.5sp"
                     android:textColor="#A32D2D"/>
             </LinearLayout>
@@ -257,7 +257,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Revenue"
+                android:text="@string/xml_profit_revenue_label"
                 android:textColor="#9A8F79"
                 android:textSize="9.5sp"/>
 
@@ -284,7 +284,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total cost"
+                android:text="@string/xml_profit_total_cost_label"
                 android:textColor="#9A8F79"
                 android:textSize="9.5sp"/>
 
@@ -323,7 +323,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnToday"
-            android:text="Today"
+            android:text="@string/xml_profit_filter_today"
             android:layout_width="wrap_content"
             android:layout_height="34dp"
             android:checkable="true"
@@ -341,7 +341,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnWeek"
-            android:text="Week"
+            android:text="@string/xml_profit_filter_week"
             android:layout_width="wrap_content"
             android:layout_height="34dp"
             android:checkable="true"
@@ -359,7 +359,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnMonth"
-            android:text="Month"
+            android:text="@string/xml_profit_filter_month"
             android:layout_width="wrap_content"
             android:layout_height="34dp"
             android:checkable="true"
@@ -377,7 +377,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnAll"
-            android:text="All"
+            android:text="@string/xml_profit_filter_all"
             android:checked="true"
             android:layout_width="wrap_content"
             android:layout_height="34dp"
@@ -396,7 +396,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/btnCustom"
-            android:text="Custom"
+            android:text="@string/xml_profit_filter_custom"
             android:layout_width="wrap_content"
             android:layout_height="34dp"
             android:checkable="true"
@@ -445,7 +445,7 @@
                 android:layout_height="match_parent"
                 android:background="@null"
                 android:gravity="center_vertical"
-                android:hint="Search products…"
+                android:hint="@string/xml_profit_search_hint"
                 android:textSize="12.5sp"
                 android:textColor="#1A1A18"
                 android:textColorHint="#9A8F79"
@@ -475,7 +475,7 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        android:text="BY PRODUCT"
+        android:text="@string/xml_profit_by_product_label"
         android:textSize="11sp"
         android:textColor="#9CA3AF"/>
 
@@ -540,7 +540,7 @@
                     android:id="@+id/tvProfitEmptyTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No products"
+                    android:text="@string/xml_profit_empty_no_products"
                     android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="@font/googlesans_bold"
@@ -550,7 +550,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="yet"
+                    android:text="@string/xml_profit_empty_yet"
                     android:textSize="19sp"
                     android:textColor="#0F6E56"
                     android:fontFamily="serif"
@@ -564,7 +564,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="7dp"
                 android:gravity="center"
-                android:text="Sell something in this period and its revenue, cost and profit will break down here by product."
+                android:text="@string/xml_profit_empty_description"
                 android:textSize="12.5sp"
                 android:textColor="#8A8272"
                 android:lineSpacingExtra="3dp" />
@@ -596,14 +596,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Every sale updates this"
+                        android:text="@string/xml_profit_hint_every_sale"
                         android:textSize="12sp"
                         android:textColor="#1A1A18" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="Revenue, cost and margin per product"
+                        android:text="@string/xml_profit_hint_revenue_cost_margin"
                         android:textSize="11sp"
                         android:textColor="#9A8F79" />
                 </LinearLayout>
@@ -628,14 +628,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Then find any product fast"
+                        android:text="@string/xml_profit_hint_find_product"
                         android:textSize="12sp"
                         android:textColor="#1A1A18" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="Search by product name or variant"
+                        android:text="@string/xml_profit_hint_search_by_name"
                         android:textSize="11sp"
                         android:textColor="#9A8F79" />
                 </LinearLayout>
@@ -657,7 +657,7 @@
             android:id="@+id/btnPrint"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="Print report"
+            android:text="@string/xml_profit_print_report_btn"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="14sp"

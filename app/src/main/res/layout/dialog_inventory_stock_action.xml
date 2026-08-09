@@ -51,7 +51,7 @@
                 android:id="@+id/tvActionProductName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Product name"
+                android:text="@string/xml_inventory_stock_action_product_placeholder"
                 android:textSize="13.5sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#1A1A18"
@@ -112,7 +112,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="9dp"
-            android:text="Add stock"
+            android:text="@string/xml_inventory_stock_action_add_stock"
             android:textSize="13sp"
             android:textColor="#1A1A18"/>
 
@@ -150,7 +150,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="9dp"
-            android:text="Reduce stock"
+            android:text="@string/xml_inventory_stock_action_reduce_stock"
             android:textSize="13sp"
             android:textColor="#1A1A18"/>
 
@@ -188,7 +188,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="9dp"
-            android:text="Clear stock"
+            android:text="@string/xml_inventory_stock_action_clear_stock"
             android:textSize="13sp"
             android:textColor="#1A1A18"/>
 
@@ -203,7 +203,7 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="Continue"
+        android:text="@string/xml_inventory_stock_action_continue_button"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="@android:color/white"

@@ -265,7 +265,7 @@ class ReportsActivity : BaseActivity() {
             if (token == null) {
                 Toast.makeText(
                     this@ReportsActivity,
-                    "Authentication error. Please login again.",
+                    getString(R.string.reports_toast_auth_error),
                     Toast.LENGTH_SHORT
                 ).show()
                 return@launch

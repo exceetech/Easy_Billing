@@ -36,7 +36,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="12dp"
                 android:fontFamily="serif"
-                android:text="Imminent Stockout"
+                android:text="@string/ai_insight_card_title_placeholder"
                 android:textColor="#18181B"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -47,7 +47,7 @@
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:gravity="center"
-                android:text="—"
+                android:text="@string/dash"
                 android:textColor="#A1A1AA"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="You have 3 items low on stock. Restock soon to prevent lost sales."
+            android:text="@string/ai_insight_card_desc_placeholder"
             android:textColor="#52525B"
             android:textSize="14sp" />
 
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_gravity="end"
-            android:text="Take Action"
+            android:text="@string/ai_insight_card_action_button"
             android:textAllCaps="false"
             app:cornerRadius="8dp"
             app:backgroundTint="#0F172A"

@@ -36,7 +36,7 @@
             android:layout_height="wrap_content">
 
         <TextView
-            android:text="GETTING STARTED"
+            android:text="@string/getting_started_eyebrow"
             android:textSize="10sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="Set up your"
+                android:text="@string/set_up_your_word"
                 android:textSize="21sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/googlesans_bold"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
-                android:text=" shop"
+                android:text="@string/onboarding_setup_title_part2"
                 android:textSize="21sp"
                 android:textStyle="italic"
                 android:fontFamily="serif"
@@ -72,7 +72,7 @@
         </LinearLayout>
 
         <TextView
-            android:text="A few quick steps before you start billing."
+            android:text="@string/onboarding_subtitle"
             android:textSize="13sp"
             android:fontFamily="@font/googlesans_medium"
             android:textColor="#8A8474"
@@ -92,7 +92,7 @@
 
         <TextView
             android:id="@+id/tvOnboardStepCount"
-            android:text="Step 1 of 4"
+            android:text="@string/step_1_of_4_default"
             android:textSize="11sp"
             android:fontFamily="@font/googlesans_medium"
             android:textColor="#9C9482"
@@ -108,7 +108,7 @@
             android:layout_height="wrap_content"/>
 
         <TextView
-            android:text="Tap the highlighted step to continue"
+            android:text="@string/tap_highlighted_step_helper"
             android:textSize="11sp"
             android:fontFamily="@font/googlesans_medium"
             android:textColor="#9C9482"

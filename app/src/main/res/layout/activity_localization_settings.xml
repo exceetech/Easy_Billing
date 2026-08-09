@@ -45,7 +45,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="REGION"
+                        android:text="@string/localization_region_label"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
                         android:letterSpacing="0.16"
@@ -59,7 +59,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Language"
+                            android:text="@string/localization_language_title_part1"
                             android:textColor="#1A1A18"
                             android:textSize="21sp"
                             android:textStyle="bold"
@@ -71,7 +71,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="&amp; currency"
+                            android:text="@string/localization_language_title_part2"
                             android:textColor="#0F6E56"
                             android:textSize="21sp"
                             android:fontFamily="serif"
@@ -129,7 +129,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="PREFERENCES"
+                        android:layout_marginStart="9dp" android:text="@string/localization_preferences_label"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -148,7 +148,7 @@
                         <TextView
                             android:id="@+id/tvLanguage"
                             style="@style/SiValue"
-                            android:text="English"/>
+                            android:text="@string/localization_language_default_value"/>
                         <ImageView
                             android:id="@+id/icLanguageChevron"
                             android:layout_width="18dp"
@@ -173,7 +173,7 @@
                         <TextView
                             android:id="@+id/tvCurrency"
                             style="@style/SiValue"
-                            android:text="₹ INR"/>
+                            android:text="@string/localization_currency_default_value"/>
                         <ImageView
                             android:id="@+id/icCurrencyChevron"
                             android:layout_width="18dp"
@@ -203,7 +203,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="The app restarts to apply a new language or currency."
+                    android:text="@string/localization_restart_note"
                     android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:lineSpacingExtra="1dp"/>

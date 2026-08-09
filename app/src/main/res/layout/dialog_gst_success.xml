@@ -36,7 +36,7 @@
 
     <TextView
         android:id="@+id/tvEyebrow"
-        android:text="EXPORT COMPLETE"
+        android:text="@string/xml_gst_success_eyebrow"
         android:textSize="10sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
@@ -56,7 +56,7 @@
             android:id="@+id/tvTitleBold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Export "
+            android:text="@string/xml_gst_success_title_bold"
             android:textColor="#1A1A18"
             android:textSize="19sp"
             android:fontFamily="@font/googlesans_bold"
@@ -66,7 +66,7 @@
             android:id="@+id/tvTitleAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="complete"
+            android:text="@string/xml_gst_success_title_accent"
             android:textColor="#0F6E56"
             android:textSize="19sp"
             android:textStyle="italic"
@@ -76,7 +76,7 @@
 
     <TextView
         android:id="@+id/tvMessage"
-        android:text="Your files are ready."
+        android:text="@string/xml_gst_success_message"
         android:textSize="12.5sp"
         android:textColor="#8A8272"
         android:gravity="center"
@@ -97,7 +97,7 @@
 
         <TextView
             android:id="@+id/tvInfoLabel"
-            android:text="SAVED TO"
+            android:text="@string/xml_gst_success_saved_to_label"
             android:textSize="10sp"
             android:letterSpacing="0.06"
             android:textColor="#9A8F79"
@@ -145,7 +145,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:text="Share all"
+        android:text="@string/xml_gst_success_share_all_btn"
         android:textColor="@android:color/white"
         android:textAllCaps="false"
         android:textSize="13.5sp"
@@ -165,7 +165,7 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="8dp"
-        android:text="OK"
+        android:text="@string/xml_gst_success_ok_btn"
         android:textColor="#1A1A18"
         android:textAllCaps="false"
         android:textSize="13sp"

@@ -26,7 +26,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="ACCOUNT"
+                android:text="@string/account_eyebrow"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:text="Your"
+                    android:text="@string/your_word"
                     android:textSize="21sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_bold"
@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"/>
 
                 <TextView
-                    android:text=" subscription"
+                    android:text="@string/subscription_title_part2"
                     android:textSize="21sp"
                     android:textStyle="italic"
                     android:fontFamily="serif"
@@ -183,7 +183,7 @@
                         android:contentDescription="@null"/>
 
                     <TextView
-                        android:text="LIMITED OFFER"
+                        android:text="@string/limited_offer_badge"
                         android:textSize="10sp"
                         android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_semibold"
@@ -202,7 +202,7 @@
 
                     <TextView
                         android:id="@+id/tvTrialDescription"
-                        android:text="Try Premium free for 7 days"
+                        android:text="@string/try_premium_free_7_days"
                         android:textStyle="bold"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textSize="14sp"
@@ -230,7 +230,7 @@
                                 android:contentDescription="@null"/>
 
                             <TextView
-                                android:text="GST reports"
+                                android:text="@string/dashboard_feature_gst_reports"
                                 android:textSize="11.5sp"
                                 android:fontFamily="@font/googlesans_medium"
                                 android:textColor="#374151"
@@ -255,7 +255,7 @@
                                 android:contentDescription="@null"/>
 
                             <TextView
-                                android:text="Profit analytics"
+                                android:text="@string/subscription_trial_feature_profit_analytics"
                                 android:textSize="11.5sp"
                                 android:fontFamily="@font/googlesans_medium"
                                 android:textColor="#374151"
@@ -280,7 +280,7 @@
                                 android:contentDescription="@null"/>
 
                             <TextView
-                                android:text="AI insights"
+                                android:text="@string/subscription_trial_feature_ai_insights"
                                 android:textSize="11.5sp"
                                 android:fontFamily="@font/googlesans_medium"
                                 android:textColor="#374151"
@@ -294,7 +294,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnStartTrial"
-                        android:text="Start free trial"
+                        android:text="@string/start_free_trial"
                         android:textAllCaps="false"
                         android:textSize="13.5sp"
                         android:textStyle="bold"
@@ -344,7 +344,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnContinue"
-                android:text="Continue"
+                android:text="@string/continue_button"
                 android:textAllCaps="false"
                 android:textSize="14sp"
                 android:textStyle="bold"

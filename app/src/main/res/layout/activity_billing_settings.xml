@@ -45,7 +45,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TAX &amp; FORMAT"
+                        android:text="@string/tax_format_eyebrow"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
                         android:letterSpacing="0.16"
@@ -59,7 +59,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Billing"
+                            android:text="@string/billing_word"
                             android:textColor="#1A1A18"
                             android:textSize="21sp"
                             android:textStyle="bold"
@@ -71,7 +71,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="settings"
+                            android:text="@string/settings_word"
                             android:textColor="#0F6E56"
                             android:textSize="21sp"
                             android:fontFamily="serif"
@@ -129,14 +129,14 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="GST PROFILE"
+                        android:layout_marginStart="9dp" android:text="@string/gst_profile_label"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
 
                 <!-- GSTIN (locked) -->
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
-                    <TextView style="@style/SiFieldLabel" android:text="GSTIN"/>
+                    <TextView style="@style/SiFieldLabel" android:text="@string/gstin"/>
                     <LinearLayout style="@style/SiFieldBox"
                         android:background="@drawable/bg_add_field_locked">
                         <ImageView style="@style/SiIcon"
@@ -160,14 +160,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:layout_marginStart="2dp"
-                        android:text="Set in Store Information"
+                        android:text="@string/set_in_store_information"
                         android:textColor="#9A8F79"
                         android:textSize="11sp"/>
                 </LinearLayout>
 
                 <!-- Legal name -->
                 <LinearLayout style="@style/SiBlock">
-                    <TextView style="@style/SiFieldLabel" android:text="Legal name"/>
+                    <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_legal_name"/>
                     <LinearLayout style="@style/SiFieldBox">
                         <ImageView style="@style/SiIcon"
                             android:src="@drawable/ic_si_building" app:tint="#185FA5"/>
@@ -181,7 +181,7 @@
 
                 <!-- Trade name -->
                 <LinearLayout style="@style/SiBlock">
-                    <TextView style="@style/SiFieldLabel" android:text="Trade name"/>
+                    <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_trade_name"/>
                     <LinearLayout style="@style/SiFieldBox">
                         <ImageView style="@style/SiIcon"
                             android:src="@drawable/ic_set_store" app:tint="#534AB7"/>
@@ -205,7 +205,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-                        <TextView style="@style/SiFieldLabel" android:text="GST scheme"/>
+                        <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_scheme"/>
                         <LinearLayout
                             android:id="@+id/rowScheme"
                             style="@style/SiFieldBox"
@@ -217,7 +217,7 @@
                             <TextView
                                 android:id="@+id/tvScheme"
                                 style="@style/SiValue"
-                                android:text="REGULAR"/>
+                                android:text="@string/regular_badge"/>
                             <ImageView
                                 android:id="@+id/icSchemeChevron"
                                 android:layout_width="17dp"
@@ -233,7 +233,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginStart="10dp">
-                        <TextView style="@style/SiFieldLabel" android:text="State code"/>
+                        <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_state"/>
                         <LinearLayout style="@style/SiFieldBox">
                             <ImageView style="@style/SiIcon"
                                 android:src="@drawable/ic_si_pin" app:tint="#185FA5"/>
@@ -248,7 +248,7 @@
 
                 <!-- Registration type -->
                 <LinearLayout style="@style/SiBlock">
-                    <TextView style="@style/SiFieldLabel" android:text="Registration type"/>
+                    <TextView style="@style/SiFieldLabel" android:text="@string/profile_label_reg_type"/>
                     <LinearLayout
                         android:id="@+id/rowRegType"
                         style="@style/SiFieldBox"
@@ -260,7 +260,7 @@
                         <TextView
                             android:id="@+id/tvRegType"
                             style="@style/SiValue"
-                            android:text="Regular"/>
+                            android:text="@string/purchase_invoice_type_regular"/>
                         <ImageView
                             android:id="@+id/icRegTypeChevron"
                             android:layout_width="17dp"
@@ -298,13 +298,13 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="PRINTER"
+                        android:layout_marginStart="9dp" android:text="@string/printer_section_2"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
 
                 <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
-                    <TextView style="@style/SiFieldLabel" android:text="Print layout"/>
+                    <TextView style="@style/SiFieldLabel" android:text="@string/print_layout"/>
                     <LinearLayout
                         android:id="@+id/rowPrinter"
                         style="@style/SiFieldBox"
@@ -316,7 +316,7 @@
                         <TextView
                             android:id="@+id/tvPrinter"
                             style="@style/SiValue"
-                            android:text="80mm"/>
+                            android:text="@string/printer_80mm"/>
                         <ImageView
                             android:id="@+id/icPrinterChevron"
                             android:layout_width="17dp"

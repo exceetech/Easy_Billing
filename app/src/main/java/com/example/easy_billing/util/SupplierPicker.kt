@@ -146,7 +146,7 @@ object SupplierPicker {
         tvState.setOnClickListener {
             if (!tvState.isEnabled) return@setOnClickListener
             AlertDialog.Builder(activity)
-                .setTitle("Select state")
+                .setTitle(activity.getString(R.string.supplier_picker_select_state_title))
                 .setItems(states.toTypedArray()) { _, which -> tvState.text = states[which] }
                 .show()
         }
@@ -179,15 +179,15 @@ object SupplierPicker {
                         onCreated(result.existing)
                     }
                     SupplierRepository.CreateResult.BlankName -> {
-                        etName.error = "Enter the supplier name"
+                        etName.error = activity.getString(R.string.supplier_picker_enter_supplier_name_error)
                         btnSave.isEnabled = true
                     }
                     SupplierRepository.CreateResult.BadGstin -> {
-                        etGstin.error = "Invalid GSTIN"
+                        etGstin.error = activity.getString(R.string.supplier_picker_invalid_gstin_error)
                         btnSave.isEnabled = true
                     }
                     SupplierRepository.CreateResult.NoState -> {
-                        Toast.makeText(activity, "Select the supplier's state", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity, activity.getString(R.string.supplier_picker_select_supplier_state_toast), Toast.LENGTH_SHORT).show()
                         btnSave.isEnabled = true
                     }
                     SupplierRepository.CreateResult.NoShop -> {

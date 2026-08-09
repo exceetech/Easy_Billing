@@ -54,7 +54,7 @@ object CreditAccountPicker {
         onDismissedWithoutSelection: () -> Unit = {}
     ) {
         if (shopIdOf(activity) <= 0) {
-            Toast.makeText(activity, "No shop selected. Sign in again.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, activity.getString(R.string.credit_picker_no_shop_selected), Toast.LENGTH_SHORT).show()
             onDismissedWithoutSelection()
             return
         }
@@ -148,7 +148,7 @@ object CreditAccountPicker {
             val name = etName.text.toString().trim()
             val phone = etPhone.text.toString().trim()
             if (name.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(activity, "Enter all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, activity.getString(R.string.credit_picker_enter_all_fields), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -161,7 +161,7 @@ object CreditAccountPicker {
                 }
                 
                 if (existing != null) {
-                    Toast.makeText(activity, "Account already exists", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, activity.getString(R.string.credit_picker_account_already_exists), Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
@@ -197,7 +197,7 @@ object CreditAccountPicker {
                     }
                 }
                 
-                Toast.makeText(activity, "Account added", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, activity.getString(R.string.credit_picker_account_added), Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
         }

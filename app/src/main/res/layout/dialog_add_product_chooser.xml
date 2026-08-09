@@ -30,14 +30,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add or "
+                    android:text="@string/dialog_add_product_chooser_add_or"
                     android:textColor="#1A1A18"
                     android:textSize="20sp"
                     android:fontFamily="serif"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="edit"
+                    android:text="@string/dialog_add_product_chooser_title_part2"
                     android:textColor="#0F6E56"
                     android:textSize="20sp"
                     android:fontFamily="serif"
@@ -45,7 +45,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=" products"
+                    android:text="@string/dialog_add_product_chooser_products_suffix"
                     android:textColor="#1A1A18"
                     android:textSize="20sp"
                     android:fontFamily="serif"/>
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Pick what you'd like to do"
+                android:text="@string/dialog_add_product_chooser_subtitle"
                 android:textColor="#8A8272"
                 android:textSize="12sp"/>
         </LinearLayout>
@@ -103,10 +103,10 @@
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:orientation="vertical" android:layout_marginStart="13dp">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Add a product" android:textColor="#1A1A18" android:textSize="14.5sp"
+                android:text="@string/dialog_add_product_chooser_option1_title" android:textColor="#1A1A18" android:textSize="14.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="2dp" android:text="Add directly, without a purchase entry"
+                android:layout_marginTop="2dp" android:text="@string/dialog_add_product_chooser_option1_body"
                 android:textColor="#8A8272" android:textSize="11.5sp"/>
         </LinearLayout>
         <ImageView android:layout_width="19dp" android:layout_height="19dp"
@@ -138,10 +138,10 @@
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:orientation="vertical" android:layout_marginStart="13dp">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Manage products" android:textColor="#1A1A18" android:textSize="14.5sp"
+                android:text="@string/dialog_add_product_chooser_manage_products" android:textColor="#1A1A18" android:textSize="14.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginTop="2dp" android:text="Edit, update or remove existing items"
+                android:layout_marginTop="2dp" android:text="@string/dialog_add_product_chooser_option2_body"
                 android:textColor="#8A8272" android:textSize="11.5sp"/>
         </LinearLayout>
         <ImageView android:layout_width="19dp" android:layout_height="19dp"

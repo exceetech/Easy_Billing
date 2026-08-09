@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="DOCUMENTS"
+            android:text="@string/xml_notes_documents_header"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -51,7 +51,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Issued"
+                android:text="@string/xml_notes_issued_line1"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:textStyle="bold"
@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="notes"
+                android:text="@string/xml_notes_issued_line2"
                 android:textColor="#0F6E56"
                 android:textSize="21sp"
                 android:fontFamily="serif"
@@ -76,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:text="Against INV-0000"
+            android:text="@string/xml_notes_against_invoice_placeholder"
             android:textSize="11sp"
             android:textColor="#8A6526"
             android:fontFamily="@font/googlesans_medium"
@@ -107,7 +107,7 @@
                 android:id="@+id/tvTabCreditLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Credit notes · 0"
+                android:text="@string/xml_notes_credit_tab_count_placeholder"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:textColor="#085041" />
@@ -128,7 +128,7 @@
                 android:id="@+id/tvTabDebitLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Debit notes · 0"
+                android:text="@string/xml_notes_debit_tab_count_placeholder"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:textColor="#9A8F79" />
@@ -164,7 +164,7 @@
             android:layout_gravity="center"
             android:layout_marginHorizontal="32dp"
             android:gravity="center"
-            android:text="No notes issued yet"
+            android:text="@string/xml_notes_empty_state"
             android:textSize="12.5sp"
             android:textColor="#9A8F79"
             android:visibility="gone" />

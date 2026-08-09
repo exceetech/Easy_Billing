@@ -82,8 +82,8 @@ class Gstr2SectionFragment : Fragment() {
                     if (count == 0) {
                         tvEmpty.visibility = View.VISIBLE
                         rvRows.visibility  = View.GONE
-                        tvEmpty.text = "No records for this period."
-                        tvRowCount.text = "0 ROWS"
+                        tvEmpty.text = getString(R.string.gstr1_no_records)
+                        tvRowCount.text = getString(R.string.gstr1_zero_rows_caps)
                     } else {
                         tvEmpty.visibility = View.GONE
                         rvRows.visibility  = View.VISIBLE
@@ -98,7 +98,7 @@ class Gstr2SectionFragment : Fragment() {
                 if (rows.isEmpty()) {
                     tvEmpty.visibility = View.VISIBLE
                     rvRows.visibility = View.GONE
-                    tvRowCount.text = "0 rows"
+                    tvRowCount.text = getString(R.string.gstr1_zero_rows)
                 } else {
                     tvEmpty.visibility = View.GONE
                     rvRows.visibility = View.VISIBLE

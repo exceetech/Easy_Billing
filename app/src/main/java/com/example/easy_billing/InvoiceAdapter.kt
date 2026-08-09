@@ -31,7 +31,7 @@ import com.example.easy_billing.util.GstBillingCalculator
  * change could look like no change at all. Snapshotting the values here
  * avoids that trap.
  */
-private data class InvoiceRow(
+internal data class InvoiceRow(
     val index: Int,
     val liveItem: CartItem,
     val product: Product,
@@ -73,7 +73,7 @@ private val INVOICE_ROW_DIFF_CALLBACK = object : DiffUtil.ItemCallback<InvoiceRo
  *   • Intra-state Normal → CGST + SGST.
  *   • Inter-state Normal → IGST.
  */
-class InvoiceAdapter(
+internal class InvoiceAdapter(
     private val items: List<CartItem>,
     private var supplyType: String = SUPPLY_INTRASTATE,
     private var gstScheme: String = SCHEME_NORMAL,
@@ -215,7 +215,7 @@ class InvoiceAdapter(
         holder.tax.text = if (taxAmt > 0.0)
             "+${CurrencyHelper.format(context, taxAmt)} tax"
         else
-            "no tax"
+            context.getString(R.string.invoice_no_tax)
 
         // Discoverable discount chip — shows current state, opens the dialog.
         if (row.discountAmount > 0.0) {
@@ -223,7 +223,7 @@ class InvoiceAdapter(
                 "✎  ${CurrencyHelper.format(context, row.discountAmount)} off · edit"
             holder.discountChip.setTextColor(0xFF0F6E56.toInt())
         } else {
-            holder.discountChip.text = "＋ Add discount"
+            holder.discountChip.text = context.getString(R.string.invoice_add_discount)
             holder.discountChip.setTextColor(0xFF8A6526.toInt())
         }
         // Passes the LIVE CartItem, not the snapshot — the discount dialog

@@ -130,9 +130,9 @@ class InventoryActivity : BaseActivity() {
 
     private fun showStockFilterPopup() {
         val options = listOf(
-            StockFilter.ALL to "All products",
-            StockFilter.LOW to "Low stock",
-            StockFilter.OUT to "Out of stock"
+            StockFilter.ALL to getString(R.string.inventory_filter_all_products),
+            StockFilter.LOW to getString(R.string.inventory_filter_low_stock),
+            StockFilter.OUT to getString(R.string.inventory_out_of_stock)
         )
         val selectedIndex = options.indexOfFirst { it.first == currentStockFilter }.coerceAtLeast(0)
         com.example.easy_billing.ui.ThemedDropdown.show(
@@ -156,7 +156,7 @@ class InventoryActivity : BaseActivity() {
         // just no longer shortcuts to them from up here.
 
         findViewById<View?>(R.id.btnSort)?.apply {
-            contentDescription = "Sort inventory"
+            contentDescription = getString(R.string.inventory_sort_content_desc)
             setOnClickListener { showSortMenu(it) }
         }
     }
@@ -165,13 +165,13 @@ class InventoryActivity : BaseActivity() {
 
     private fun showSortMenu(anchor: View) {
         val options = listOf(
-            InvSort.A_TO_Z              to "Name: A → Z",
-            InvSort.Z_TO_A              to "Name: Z → A",
-            InvSort.PRICE_LOW_HIGH      to "Price: Low → High",
-            InvSort.PRICE_HIGH_LOW      to "Price: High → Low",
-            InvSort.STOCK_LOW_HIGH      to "Stock: Low → High",
-            InvSort.STOCK_HIGH_LOW      to "Stock: High → Low",
-            InvSort.STOCK_VALUE_HIGH_LOW to "Stock value: High → Low"
+            InvSort.A_TO_Z              to getString(R.string.dashboard_sort_name_asc),
+            InvSort.Z_TO_A              to getString(R.string.dashboard_sort_name_desc),
+            InvSort.PRICE_LOW_HIGH      to getString(R.string.dashboard_sort_price_asc),
+            InvSort.PRICE_HIGH_LOW      to getString(R.string.dashboard_sort_price_desc),
+            InvSort.STOCK_LOW_HIGH      to getString(R.string.dashboard_sort_stock_asc),
+            InvSort.STOCK_HIGH_LOW      to getString(R.string.dashboard_sort_stock_desc),
+            InvSort.STOCK_VALUE_HIGH_LOW to getString(R.string.inventory_sort_value_desc)
         )
         val selectedIndex = options.indexOfFirst { it.first == currentSort }.coerceAtLeast(0)
         com.example.easy_billing.ui.ThemedDropdown.show(
@@ -204,13 +204,13 @@ class InventoryActivity : BaseActivity() {
     }
 
     private fun sortLabelText(): String = when (currentSort) {
-        InvSort.A_TO_Z              -> "Name ↑"
-        InvSort.Z_TO_A              -> "Name ↓"
-        InvSort.PRICE_LOW_HIGH      -> "Price ↑"
-        InvSort.PRICE_HIGH_LOW      -> "Price ↓"
-        InvSort.STOCK_LOW_HIGH      -> "Stock ↑"
-        InvSort.STOCK_HIGH_LOW      -> "Stock ↓"
-        InvSort.STOCK_VALUE_HIGH_LOW -> "Value ↓"
+        InvSort.A_TO_Z              -> getString(R.string.inventory_sort_short_name_asc)
+        InvSort.Z_TO_A              -> getString(R.string.inventory_sort_short_name_desc)
+        InvSort.PRICE_LOW_HIGH      -> getString(R.string.inventory_sort_short_price_asc)
+        InvSort.PRICE_HIGH_LOW      -> getString(R.string.inventory_sort_short_price_desc)
+        InvSort.STOCK_LOW_HIGH      -> getString(R.string.inventory_sort_short_stock_asc)
+        InvSort.STOCK_HIGH_LOW      -> getString(R.string.inventory_sort_short_stock_desc)
+        InvSort.STOCK_VALUE_HIGH_LOW -> getString(R.string.inventory_sort_short_value_desc)
     }
 
     private fun updateSortLabel() {
@@ -270,7 +270,7 @@ class InventoryActivity : BaseActivity() {
                 tvCaption?.setTextColor(android.graphics.Color.parseColor("#8A6526"))
             }
             else -> {
-                tvCaption?.text = "all in stock"
+                tvCaption?.text = getString(R.string.inventory_kpi_all_in_stock)
                 tvCaption?.setTextColor(android.graphics.Color.parseColor("#8A8272"))
             }
         }
@@ -424,13 +424,13 @@ class InventoryActivity : BaseActivity() {
         val isSearchOrFilter = currentQuery.isNotEmpty() ||
             currentCategory.isNotEmpty() || currentStockFilter != StockFilter.ALL
         if (isSearchOrFilter) {
-            tvInventoryEmptyTitle.text = "No matches"
-            tvInventoryEmptyTitleAccent.text = "found"
-            tvInventoryEmptyBody.text = "No product matches your search or filter. Try a different name, category, or reset the filter."
+            tvInventoryEmptyTitle.text = getString(R.string.credit_no_matches_title)
+            tvInventoryEmptyTitleAccent.text = getString(R.string.credit_no_matches_accent)
+            tvInventoryEmptyBody.text = getString(R.string.inventory_no_matches_body)
         } else {
-            tvInventoryEmptyTitle.text = "No products"
-            tvInventoryEmptyTitleAccent.text = "yet"
-            tvInventoryEmptyBody.text = "Products you add will show up here — search, filter by category and sort them once you have a few."
+            tvInventoryEmptyTitle.text = getString(R.string.inventory_no_products_title)
+            tvInventoryEmptyTitleAccent.text = getString(R.string.credit_no_customers_accent)
+            tvInventoryEmptyBody.text = getString(R.string.inventory_no_products_body)
         }
     }
 
@@ -659,7 +659,7 @@ class InventoryActivity : BaseActivity() {
             layoutCredit.visibility = if (isReturn) View.VISIBLE else View.GONE
 
             val tvTotalLabel = view.findViewById<TextView>(R.id.tvTotalLabel)
-            tvTotalLabel?.text = if (isReturn) "Total to return" else "Total to scrap"
+            tvTotalLabel?.text = if (isReturn) getString(R.string.inventory_total_to_return) else getString(R.string.inventory_total_to_scrap)
         }
         rgReason.setOnCheckedChangeListener { _, _ -> applyReason() }
         applyReason()
@@ -671,7 +671,7 @@ class InventoryActivity : BaseActivity() {
         // unchanged; this popup is just the UI that drives them.
         val tvReasonChoice = view.findViewById<TextView>(R.id.tvReasonChoice)
         view.findViewById<View>(R.id.btnReasonPicker).setOnClickListener { anchor ->
-            val options = listOf("Return to supplier", "Scrap / damage")
+            val options = listOf(getString(R.string.inventory_reason_return), getString(R.string.inventory_reason_scrap))
             val selectedIndex = if (rbReturn.isChecked) 0 else 1
             com.example.easy_billing.ui.ThemedDropdown.show(
                 anchor, options, selectedIndex,
@@ -693,7 +693,7 @@ class InventoryActivity : BaseActivity() {
                 tvAccount.text = account.name
                 tvAccount.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
-                tvAccount.text = "No account selected"
+                tvAccount.text = getString(R.string.inventory_no_account_selected)
                 tvAccount.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
             }
         }
@@ -713,7 +713,7 @@ class InventoryActivity : BaseActivity() {
                             renderAccountSubtitle()
                             Toast.makeText(
                                 this,
-                                "Credit needs an account — adjustment turned off",
+                                R.string.inventory_credit_needs_account,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -769,28 +769,28 @@ class InventoryActivity : BaseActivity() {
                 // Return — use the batch adapter's selection
                 val adapter = batchAdapter
                 if (adapter == null) {
-                    Toast.makeText(this, "Batches not loaded yet", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_batches_not_loaded, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val lines = adapter.selectedLines()
                 if (lines.isEmpty()) {
-                    Toast.makeText(this, "Enter quantity for at least one batch", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_enter_batch_quantity, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val total = adapter.totalSelected()
                 if (total <= 0.0) {
-                    Toast.makeText(this, "Total return quantity must be > 0", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_return_qty_must_positive, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 if (total > currentStock + 0.0001) {
-                    Toast.makeText(this, "Return total exceeds available stock", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_return_exceeds_stock, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
                 AlertDialog.Builder(this)
-                    .setTitle("Confirm return to supplier")
+                    .setTitle(R.string.inventory_confirm_return_title)
                     .setMessage("Return ${formatStock(total)} ${product.unit ?: "unit(s)"} of ${product.name}? This removes it from stock and can't be undone from here.")
-                    .setPositiveButton("Return") { d, _ ->
+                    .setPositiveButton(getString(R.string.inventory_confirm_return_batches_button)) { d, _ ->
                         d.dismiss()
                         dialog.dismiss()
                         runReturnByBatches(
@@ -800,7 +800,7 @@ class InventoryActivity : BaseActivity() {
                             creditAccountId = creditAccountId
                         )
                     }
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(R.string.cancel, null)
                     .show()
                 return@setOnClickListener
             }
@@ -809,21 +809,21 @@ class InventoryActivity : BaseActivity() {
                 // Scrap path — use the batch adapter's selection
                 val adapter = batchAdapter
                 if (adapter == null) {
-                    Toast.makeText(this, "Batches not loaded yet", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_batches_not_loaded, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val selectedLines = adapter.selectedLines()
                 if (selectedLines.isEmpty()) {
-                    Toast.makeText(this, "Enter quantity for at least one batch", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_enter_batch_quantity, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val total = adapter.totalSelected()
                 if (total <= 0.0) {
-                    Toast.makeText(this, "Total scrap quantity must be > 0", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_scrap_qty_must_positive, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 if (total > currentStock + 0.0001) {
-                    Toast.makeText(this, "Scrap total exceeds available stock", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_scrap_exceeds_stock, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
@@ -836,9 +836,9 @@ class InventoryActivity : BaseActivity() {
                 }
 
                 AlertDialog.Builder(this)
-                    .setTitle("Confirm scrap")
+                    .setTitle(R.string.inventory_confirm_scrap_title)
                     .setMessage("Scrap ${formatStock(total)} ${product.unit ?: "unit(s)"} of ${product.name}? This is irreversible and removes it from stock permanently.")
-                    .setPositiveButton("Scrap") { d, _ ->
+                    .setPositiveButton(getString(R.string.inventory_confirm_scrap_batches_button)) { d, _ ->
                         d.dismiss()
                         dialog.dismiss()
                         runScrapByBatches(
@@ -846,7 +846,7 @@ class InventoryActivity : BaseActivity() {
                             lines = scrapLines
                         )
                     }
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(R.string.cancel, null)
                     .show()
                 return@setOnClickListener
             }
@@ -881,7 +881,7 @@ class InventoryActivity : BaseActivity() {
                     val msg = if (result != null) {
                         "Returned ${formatStock(result.totalQuantity)} units to supplier"
                     } else {
-                        "Could not return — check selected batches"
+                        getString(R.string.inventory_return_failed_toast)
                     }
                     Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                 }
@@ -905,7 +905,7 @@ class InventoryActivity : BaseActivity() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@InventoryActivity,
-                        e.message ?: "Failed to return batches",
+                        e.message ?: getString(R.string.inventory_return_batches_failed_toast),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -932,7 +932,7 @@ class InventoryActivity : BaseActivity() {
                     val msg = if (result != null) {
                         "Scrapped ${formatStock(result.totalQuantity)} units"
                     } else {
-                        "Could not scrap — check selected batches"
+                        getString(R.string.inventory_scrap_failed_toast)
                     }
                     Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                 }
@@ -941,7 +941,7 @@ class InventoryActivity : BaseActivity() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@InventoryActivity,
-                        e.message ?: "Failed to scrap batches",
+                        e.message ?: getString(R.string.inventory_scrap_batches_failed_toast),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -1066,7 +1066,7 @@ class InventoryActivity : BaseActivity() {
         applyReason()
 
         view.findViewById<View>(R.id.btnReasonPicker).setOnClickListener { anchor ->
-            val options = listOf("Purchase return", "Scrap / damage")
+            val options = listOf(getString(R.string.purchase_return_label), getString(R.string.inventory_reason_scrap))
             val selectedIndex = if (rbReturn.isChecked) 0 else 1
             com.example.easy_billing.ui.ThemedDropdown.show(
                 anchor, options, selectedIndex,
@@ -1086,7 +1086,7 @@ class InventoryActivity : BaseActivity() {
                 tvAccount.text = account.name
                 tvAccount.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
-                tvAccount.text = "No account selected"
+                tvAccount.text = getString(R.string.inventory_no_account_selected)
                 tvAccount.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
             }
         }
@@ -1105,7 +1105,7 @@ class InventoryActivity : BaseActivity() {
                             renderAccountSubtitle()
                             Toast.makeText(
                                 this,
-                                "Credit needs an account — adjustment turned off",
+                                R.string.inventory_credit_needs_account,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -1161,7 +1161,7 @@ class InventoryActivity : BaseActivity() {
                                 rvBatches.visibility = View.GONE
                                 cbSelectAll.isEnabled = false
                                 tvBatchRunning.text = "0"
-                                tvBatchCountSub.text = "No batches selected"
+                                tvBatchCountSub.text = getString(R.string.inventory_no_batches_selected)
                             } else {
                                 val adapter = com.example.easy_billing.adapter.BatchClearAdapter(batches)
                                 fun renderRunning(running: Double) {
@@ -1199,14 +1199,14 @@ class InventoryActivity : BaseActivity() {
         btnClear.setOnClickListener {
             val product = currentProduct
             if (product == null) {
-                Toast.makeText(this, "Product details not loaded", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.inventory_product_not_loaded, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val isReturn = rbReturn.isChecked
             val isScrap  = rbScrap.isChecked
             if (!isReturn && !isScrap) {
-                Toast.makeText(this, "Select reason", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.inventory_select_reason, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -1216,13 +1216,13 @@ class InventoryActivity : BaseActivity() {
             if (isPurchasedProduct) {
                 val adapter = batchAdapter
                 if (adapter == null) {
-                    Toast.makeText(this, "Batches not loaded yet", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_batches_not_loaded, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
                 val selectedBatches = adapter.selectedBatches()
                 if (selectedBatches.isEmpty()) {
-                    Toast.makeText(this, "Select at least one batch to clear", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.inventory_select_one_batch, Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
@@ -1277,7 +1277,7 @@ class InventoryActivity : BaseActivity() {
                             val msg = when (result) {
                                 is InventoryReductionRepository.ClearStockResult.Cleared ->
                                     "Cleared ${formatStock(result.quantity)} units"
-                                else -> "No stock to clear"
+                                else -> getString(R.string.inventory_no_stock_to_clear)
                             }
                             Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                         }

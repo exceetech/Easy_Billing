@@ -38,7 +38,7 @@
             android:id="@+id/tvRevenue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Revenue: —"
+            android:text="@string/xml_peak_marker_revenue_default"
             android:textColor="#C9D2E3"
             android:textSize="14sp"/>
     </LinearLayout>
@@ -48,7 +48,7 @@
         android:id="@+id/tvBills"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bills: —"
+        android:text="@string/xml_peak_marker_bills_default"
         android:textColor="#C9D2E3"
         android:textSize="14sp"
         android:layout_marginStart="25dp"/>

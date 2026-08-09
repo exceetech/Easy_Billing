@@ -39,7 +39,7 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             _product.value = withContext(Dispatchers.IO) { productRepo.getById(id) }
             if (_product.value == null) {
-                _ui.value = _ui.value.copy(error = "Product not found")
+                _ui.value = _ui.value.copy(error = getApplication<Application>().getString(com.example.easy_billing.R.string.edit_product_viewmodel_product_not_found))
             }
         }
     }
@@ -79,7 +79,7 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
             }.onSuccess {
                 _ui.value = UiState(saving = false, savedAt = System.currentTimeMillis())
             }.onFailure {
-                _ui.value = _ui.value.copy(saving = false, error = it.message ?: "Save failed")
+                _ui.value = _ui.value.copy(saving = false, error = it.message ?: getApplication<Application>().getString(com.example.easy_billing.R.string.edit_product_viewmodel_save_failed))
             }
         }
     }
@@ -161,7 +161,7 @@ class EditProductViewModel(app: Application) : AndroidViewModel(app) {
             }.onSuccess {
                 _ui.value = UiState(saving = false, savedAt = System.currentTimeMillis())
             }.onFailure {
-                _ui.value = _ui.value.copy(saving = false, error = it.message ?: "Save failed")
+                _ui.value = _ui.value.copy(saving = false, error = it.message ?: getApplication<Application>().getString(com.example.easy_billing.R.string.edit_product_viewmodel_save_failed_2))
             }
         }
     }

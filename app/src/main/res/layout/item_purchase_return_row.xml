@@ -69,7 +69,7 @@
                         android:id="@+id/tvProductName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Product Name"
+                        android:text="@string/xml_purchase_return_row_product_placeholder"
                         android:textSize="14sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_medium"
@@ -89,7 +89,7 @@
                         android:textSize="9.5sp"
                         android:textColor="#8A6526"
                         android:visibility="gone"
-                        android:text="Returned: 0"/>
+                        android:text="@string/xml_purchase_return_row_returned_placeholder"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -108,7 +108,7 @@
                         android:singleLine="true"
                         android:ellipsize="end"
                         android:maxWidth="90dp"
-                        android:text="HSN: —"/>
+                        android:text="@string/xml_purchase_return_row_hsn_placeholder"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
                     android:textSize="10.5sp"
                     android:textColor="#9A8F79"
                     android:fontFamily="@font/googlesans_regular"
-                    android:text="Bought 0"/>
+                    android:text="@string/xml_purchase_return_row_bought_placeholder"/>
             </LinearLayout>
 
             <TextView
@@ -181,7 +181,7 @@
                     android:textSize="12sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="@font/googlesans_medium"
-                    android:text="Return qty"/>
+                    android:text="@string/xml_purchase_return_row_return_qty_label"/>
 
                 <!-- Hidden entirely for credit notes via this wrapper. -->
                 <LinearLayout
@@ -195,7 +195,7 @@
                         android:id="@+id/tvMaxReturnLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Max returnable: "
+                        android:text="@string/xml_purchase_return_row_max_returnable_label"
                         android:textSize="10sp"
                         android:textColor="#9A8F79"
                         android:fontFamily="@font/googlesans_regular" />
@@ -285,7 +285,7 @@
             android:textColor="#8A6526"
             android:fontFamily="@font/googlesans_medium"
             android:visibility="gone"
-            android:text="Debit value: ₹0.00"/>
+            android:text="@string/xml_purchase_return_row_debit_value_placeholder"/>
 
     </LinearLayout>
 

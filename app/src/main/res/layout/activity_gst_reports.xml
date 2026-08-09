@@ -51,7 +51,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GST RETURNS"
+                android:text="@string/xml_gst_reports_header_title"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -67,7 +67,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GST "
+                    android:text="@string/xml_gst_reports_title_bold"
                     android:textColor="#1A1A18"
                     android:textSize="22sp"
                     android:letterSpacing="-0.02"
@@ -78,7 +78,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="reports"
+                    android:text="@string/xml_gst_reports_title_accent"
                     android:textColor="#0F6E56"
                     android:textSize="22sp"
                     android:textStyle="italic"
@@ -132,7 +132,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="GSTIN"
+                    android:text="@string/xml_gst_reports_gstin_label"
                     android:textSize="9.5sp"
                     android:letterSpacing="0.08"
                     android:textColor="#9A8F79"
@@ -174,7 +174,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="RETURN"
+                        android:text="@string/xml_gst_reports_return_label"
                         android:textColor="#B8895A"
                         android:textSize="9.5sp"
                         android:letterSpacing="0.14"
@@ -185,7 +185,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:text="GSTR-1 · Sales"
+                        android:text="@string/xml_gst_reports_selector_default"
                         android:textColor="#1A1A18"
                         android:textSize="16sp"
                         android:fontFamily="serif"
@@ -214,7 +214,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="FINANCIAL YEAR"
+                    android:text="@string/xml_gst_reports_fy_label"
                     android:textSize="10sp"
                     android:textColor="#9A8F79"
                     android:letterSpacing="0.06"
@@ -252,7 +252,7 @@
                             android:id="@+id/tvFyValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2025–26"
+                            android:text="@string/xml_gst_reports_fy_default_year"
                             android:textSize="19sp"
                             android:textColor="#1A1A18"
                             android:fontFamily="serif"
@@ -262,7 +262,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Apr 2025 – Mar 2026"
+                            android:text="@string/xml_gst_reports_fy_default_range"
                             android:textSize="10sp"
                             android:textColor="#A89E88" />
                     </LinearLayout>
@@ -292,7 +292,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="PERIOD"
+                        android:text="@string/xml_gst_reports_period_label"
                         android:textSize="10sp"
                         android:textColor="#9A8F79"
                         android:letterSpacing="0.06"
@@ -310,7 +310,7 @@
                             android:id="@+id/segMonthly"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Monthly"
+                            android:text="@string/xml_gst_reports_period_monthly"
                             android:textSize="12sp"
                             android:fontFamily="@font/googlesans_medium"
                             android:includeFontPadding="false"
@@ -328,7 +328,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="3dp"
-                            android:text="Quarterly"
+                            android:text="@string/xml_gst_reports_period_quarterly"
                             android:textSize="12sp"
                             android:fontFamily="@font/googlesans_medium"
                             android:includeFontPadding="false"
@@ -369,7 +369,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="52dp"
-                        android:text="Generate report"
+                        android:text="@string/xml_gst_reports_generate_btn"
                         android:textColor="#FFFFFF"
                         android:textAllCaps="false"
                         android:textSize="15sp"
@@ -449,7 +449,7 @@
                         android:id="@+id/tvSummaryHeroLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total tax this period"
+                        android:text="@string/xml_gst_reports_total_tax_label"
                         android:textSize="11sp"
                         android:textColor="#9A8F79" />
 
@@ -516,7 +516,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Invoices"
+                                android:text="@string/xml_gst_reports_invoices_label"
                                 android:textSize="10.5sp"
                                 android:textColor="#9A8F79" />
                         </LinearLayout>
@@ -544,7 +544,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Credit notes"
+                                android:text="@string/xml_gst_reports_credit_notes_label"
                                 android:textSize="10.5sp"
                                 android:textColor="#A32D2D" />
                         </LinearLayout>
@@ -625,7 +625,7 @@
                         </LinearLayout>
                         <TextView android:layout_width="0dp" android:layout_weight="1"
                             android:layout_height="wrap_content" android:layout_marginStart="12dp"
-                            android:text="Validate report" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:text="@string/xml_gst_reports_validate_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
                             android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
@@ -658,7 +658,7 @@
                         </LinearLayout>
                         <TextView android:layout_width="0dp" android:layout_weight="1"
                             android:layout_height="wrap_content" android:layout_marginStart="12dp"
-                            android:text="Export to Excel" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:text="@string/xml_gst_reports_export_excel_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
                             android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
@@ -691,7 +691,7 @@
                         </LinearLayout>
                         <TextView android:layout_width="0dp" android:layout_weight="1"
                             android:layout_height="wrap_content" android:layout_marginStart="12dp"
-                            android:text="Export to CSV" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:text="@string/xml_gst_reports_export_csv_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
                             android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
@@ -724,7 +724,7 @@
                         </LinearLayout>
                         <TextView android:layout_width="0dp" android:layout_weight="1"
                             android:layout_height="wrap_content" android:layout_marginStart="12dp"
-                            android:text="Save as draft" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:text="@string/xml_gst_reports_save_draft_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
                             android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
@@ -745,7 +745,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SAVED DRAFTS"
+                    android:text="@string/xml_gst_reports_saved_drafts_label"
                     android:textSize="11sp"
                     android:textColor="#9A8F79"
                     android:letterSpacing="0.08"

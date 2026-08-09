@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
 
     <string name="app_name">ExPOS</string>
@@ -72,7 +73,7 @@
     <string name="this_month">இந்த மாதம்</string>
     <string name="sort_amount">தொகையின்படி வரிசைப்படுத்து</string>
 
-    <string name="default_gst">இயல்புநிலை GST (%)</string>
+    <string name="default_gst">இயல்புநிலை GST (%%)</string>
     <string name="printer_layout">பிரிண்டர் அமைப்பு</string>
     <string name="save_billing_settings">பில்லிங் அமைப்புகளை சேமிக்கவும்</string>
 

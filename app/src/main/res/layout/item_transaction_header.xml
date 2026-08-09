@@ -18,7 +18,7 @@
         android:id="@+id/tvHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Today"
+        android:text="@string/today"
         android:textAllCaps="true"
         android:textSize="9.5sp"
         android:letterSpacing="0.14"

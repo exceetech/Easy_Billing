@@ -35,7 +35,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ANALYTICS"
+            android:text="@string/xml_reports_header_title"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -49,7 +49,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sales"
+                android:text="@string/xml_reports_title_bold"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:textStyle="bold"
@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="reports"
+                android:text="@string/xml_reports_title_accent"
                 android:textColor="#0F6E56"
                 android:textSize="21sp"
                 android:fontFamily="serif"
@@ -99,7 +99,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipToday"
-            android:text="Today"
+            android:text="@string/xml_reports_filter_today"
             android:checked="true"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
@@ -118,7 +118,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipWeek"
-            android:text="Week"
+            android:text="@string/xml_reports_filter_week"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:checkable="true"
@@ -136,7 +136,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipMonth"
-            android:text="Month"
+            android:text="@string/xml_reports_filter_month"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:checkable="true"
@@ -154,7 +154,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipYear"
-            android:text="Year"
+            android:text="@string/xml_reports_filter_year"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:checkable="true"
@@ -172,7 +172,7 @@
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipCustom"
-            android:text="Custom"
+            android:text="@string/xml_reports_filter_custom"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:checkable="true"
@@ -216,7 +216,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="View"
+            android:text="@string/xml_reports_view_label"
             android:textSize="11.5sp"
             android:textColor="#9A8F79"/>
 
@@ -236,7 +236,7 @@
                 android:id="@+id/tvTabChoice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Overview"
+                android:text="@string/xml_reports_overview_label"
                 android:textSize="11.5sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:textColor="#085041"/>
@@ -275,7 +275,7 @@
         android:id="@+id/btnSendReport"
         android:layout_width="0dp"
         android:layout_height="52dp"
-        android:text="Send report to email"
+        android:text="@string/xml_reports_send_email_btn"
         android:textColor="#FFFFFF"
         android:textAllCaps="false"
         android:textSize="14sp"

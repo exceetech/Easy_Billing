@@ -18,7 +18,7 @@
     <!-- TITLE -->
     <TextView
         android:id="@+id/tvActiveFilter"
-        android:text="Filter Customers"
+        android:text="@string/xml_filter_customers_title"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#111827"
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"/>
 
         <TextView
-            android:text="All Customers"
+            android:text="@string/xml_filter_customers_all"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#1F2937"
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"/>
 
         <TextView
-            android:text="Due Only"
+            android:text="@string/xml_filter_customers_due_only"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#DC2626"
@@ -98,7 +98,7 @@
             android:layout_width="wrap_content"/>
 
         <TextView
-            android:text="Advance Only"
+            android:text="@string/xml_filter_customers_advance_only"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#16A34A"
@@ -125,7 +125,7 @@
             android:layout_width="wrap_content"/>
 
         <TextView
-            android:text="Settled Only"
+            android:text="@string/xml_filter_customers_settled_only"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#374151"

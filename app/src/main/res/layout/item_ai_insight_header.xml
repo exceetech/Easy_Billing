@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
-        android:text="NEEDS ATTENTION"
+        android:text="@string/xml_ai_insight_header_default"
         android:textColor="#9A8F79"
         android:textSize="11sp"
         android:fontFamily="@font/googlesans_semibold"

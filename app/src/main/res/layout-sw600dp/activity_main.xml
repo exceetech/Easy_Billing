@@ -70,7 +70,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ex"
+                        android:text="@string/ex_word"
                         android:textColor="#1A1A18"
                         android:textSize="30sp"
                         android:fontFamily="@font/marcellus"
@@ -78,7 +78,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="POS"
+                        android:text="@string/pos_word"
                         android:textColor="#B8895A"
                         android:textSize="30sp"
                         android:fontFamily="@font/marcellus"
@@ -90,7 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:text="POINT OF SALE"
+                    android:text="@string/point_of_sale_tagline"
                     android:textColor="#9A8F79"
                     android:textSize="10sp"
                     android:letterSpacing="0.18"
@@ -117,7 +117,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
-                            android:text="GST billing"
+                            android:text="@string/feature_gst_billing"
                             android:textColor="#3A3733"
                             android:textSize="13sp"
                             android:fontFamily="@font/googlesans_medium"/>
@@ -138,7 +138,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
-                            android:text="Live inventory"
+                            android:text="@string/feature_live_inventory"
                             android:textColor="#3A3733"
                             android:textSize="13sp"
                             android:fontFamily="@font/googlesans_medium"/>
@@ -159,7 +159,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
-                            android:text="Business analytics"
+                            android:text="@string/feature_business_analytics"
                             android:textColor="#3A3733"
                             android:textSize="13sp"
                             android:fontFamily="@font/googlesans_medium"/>
@@ -199,7 +199,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:paddingVertical="8dp"
-                        android:text="Login"
+                        android:text="@string/login"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -211,7 +211,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:paddingVertical="8dp"
-                        android:text="Sign up"
+                        android:text="@string/sign_up"
                         android:textColor="#8C8576"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -231,13 +231,13 @@
                         android:id="@+id/lblEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Email Address"
+                        android:text="@string/email_address"
                         android:visibility="gone"/>
 
                     <FrameLayout
                         android:id="@+id/usernameContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/bg_glass_input">
                         <ImageView
                             android:id="@+id/iconUsername"
@@ -251,11 +251,13 @@
                         <EditText
                             android:id="@+id/etUsername"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="50dp"
                             android:background="@null"
+                            android:paddingVertical="10dp"
                             android:paddingStart="44dp"
                             android:paddingEnd="14dp"
-                            android:hint="Email"
+                            android:hint="@string/email"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="textEmailAddress"
@@ -267,13 +269,13 @@
                         android:id="@+id/lblPassword"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Password"
+                        android:text="@string/password"
                         android:visibility="gone"/>
 
                     <FrameLayout
                         android:id="@+id/passwordContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="11dp"
                         android:background="@drawable/bg_glass_input">
                         <ImageView
@@ -288,11 +290,13 @@
                         <EditText
                             android:id="@+id/etPassword"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="50dp"
                             android:background="@null"
+                            android:paddingVertical="10dp"
                             android:paddingStart="44dp"
                             android:paddingEnd="46dp"
-                            android:hint="Enter your password"
+                            android:hint="@string/enter_your_password_hint"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="textPassword"
@@ -318,7 +322,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:layout_marginTop="9dp"
-                        android:text="Forgot password?"
+                        android:text="@string/forgot_password_2"
                         android:textColor="#0F6E56"
                         android:textSize="12sp"
                         android:fontFamily="@font/googlesans_medium"
@@ -327,11 +331,12 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogin"
                         android:layout_width="match_parent"
-                        android:layout_height="52dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="52dp"
                         android:layout_marginTop="14dp"
                         android:background="@drawable/bg_login_cta_green"
                         app:backgroundTint="@null"
-                        android:text="Login"
+                        android:text="@string/login"
                         android:textColor="#FFFFFF"
                         android:textSize="15sp"
                         android:textAllCaps="false"
@@ -363,7 +368,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="7dp"
-                        android:text="Secured with enterprise-grade encryption"
+                        android:text="@string/secured_encryption_note"
                         android:textColor="#9A8F79"
                         android:textSize="10sp"/>
                 </LinearLayout>
@@ -402,7 +407,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="POWERED BY"
+                        android:text="@string/powered_by_label"
                         android:textColor="#B4A98F"
                         android:textSize="7sp"
                         android:letterSpacing="0.16"

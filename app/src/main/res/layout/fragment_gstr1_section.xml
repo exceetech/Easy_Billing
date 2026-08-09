@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingVertical="28dp"
-        android:text="No records for this period."
+        android:text="@string/xml_gstr1_section_empty"
         android:textColor="#9A8F79"
         android:textSize="13sp"
         android:visibility="gone" />

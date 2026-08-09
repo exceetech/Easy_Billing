@@ -63,7 +63,7 @@
                         android:id="@+id/tvProductName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Product name"
+                        android:text="@string/xml_purchase_detail_row_product_placeholder"
                         android:textSize="13.5sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_medium"
@@ -82,7 +82,7 @@
                         android:background="@drawable/bg_credit_avatar"
                         android:backgroundTint="#F1EBDD"
                         android:visibility="gone"
-                        android:text="2 returned" />
+                        android:text="@string/xml_purchase_detail_row_returned_placeholder" />
                 </LinearLayout>
 
                 <TextView
@@ -90,7 +90,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="HSN —  ·  Qty 0"
+                    android:text="@string/xml_purchase_detail_row_hsn_qty_placeholder"
                     android:textSize="11sp"
                     android:textColor="#9A8F79"
                     android:singleLine="true"

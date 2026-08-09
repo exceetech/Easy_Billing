@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
 
     <string name="app_name">ExPOS</string>
@@ -7,8 +7,8 @@
     <string name="full_name">పూర్తి పేరు</string>
     <string name="create_account">ఖాతా సృష్టించండి</string>
     <string name="email">ఇమెయిల్</string>
-    <string name="password">పాస్‌వర్డ్</string>
-    <string name="confirm_password">పాస్‌వర్డ్ నిర్ధారించండి</string>
+    <string name="password">పాస్</string>
+    <string name="confirm_password">పాస్</string>
     <string name="register">నమోదు</string>
     <string name="already_have_an_account_login">ఇప్పటికే ఖాతా ఉందా? లాగిన్ అవ్వండి</string>
     <string name="shop_name">దుకాణం పేరు</string>
@@ -65,18 +65,18 @@
     <string name="today_s_sales">ఈ రోజు అమ్మకాలు</string>
     <string name="_0_00">₹0.00</string>
     <string name="bills_today">ఈ రోజు బిల్లులు</string>
-    <string name="search_invoice_or_product">బిల్‌ను వెతకండి...</string>
+    <string name="search_invoice_or_product">బిల్</string>
     <string name="today">ఈ రోజు</string>
     <string name="this_week">ఈ వారం</string>
     <string name="this_month">ఈ నెల</string>
     <string name="sort_amount">మొత్తం ప్రకారం సార్టు చేయండి</string>
 
-    <string name="default_gst">డిఫాల్ట్ GST (%)</string>
+    <string name="default_gst">డిఫాల్ట్ GST (%%)</string>
     <string name="printer_layout">ప్రింటర్ లేఅవుట్</string>
     <string name="save_billing_settings">బిల్లింగ్ సెట్టింగ్స్ సేవ్ చేయండి</string>
 
     <string name="create_new_password">కొత్త పాస్‌వర్డ్ సృష్టించండి</string>
-    <string name="new_password">కొత్త పాస్‌వర్డ్</string>
+    <string name="new_password">కొత్త పాస్</string>
     <string name="save_password">పాస్‌వర్డ్ సేవ్ చేయండి</string>
 
     <string name="menu">మెను</string>
@@ -92,7 +92,7 @@
     <string name="generate_bill">బిల్ సృష్టించండి</string>
 
     <string name="data_and_security">డేటా మరియు భద్రత</string>
-    <string name="change_login_password">లాగిన్ పాస్‌వర్డ్ మార్చండి</string>
+    <string name="change_login_password">లాగిన్ పాస్</string>
     <string name="clear_all_bills">అన్ని బిల్లులను తొలగించండి</string>
     <string name="factory_reset_app">యాప్ ఫ్యాక్టరీ రీసెట్ చేయండి</string>
 
@@ -148,7 +148,7 @@
     <string name="add_to_cart">కార్ట్‌లో జోడించండి</string>
 
     <string name="confirm_identity">గుర్తింపును నిర్ధారించండి</string>
-    <string name="enter_your_login_password">మీ లాగిన్ పాస్‌వర్డ్‌ను నమోదు చేయండి</string>
+    <string name="enter_your_login_password">మీ లాగిన్ పాస్</string>
     <string name="verify">ధృవీకరించండి</string>
 
     <string name="item">అంశం</string>

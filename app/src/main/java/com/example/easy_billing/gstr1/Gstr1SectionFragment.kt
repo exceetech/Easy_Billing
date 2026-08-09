@@ -102,8 +102,8 @@ class Gstr1SectionFragment : Fragment() {
                     if (count == 0) {
                         tvEmpty.visibility = View.VISIBLE
                         rvRows.visibility  = View.GONE
-                        tvEmpty.text = "No records for this period."
-                        tvRowCount.text = "0 ROWS"
+                        tvEmpty.text = getString(R.string.gstr1_no_records)
+                        tvRowCount.text = getString(R.string.gstr1_zero_rows_caps)
                     } else {
                         tvEmpty.visibility = View.GONE
                         rvRows.visibility  = View.VISIBLE
@@ -133,8 +133,8 @@ class Gstr1SectionFragment : Fragment() {
                     // was unavailable. isEcoTab() is kept (unused for now)
                     // as a documented marker of which positions are the
                     // ECO family, in case a future regression needs it.
-                    tvEmpty.text = "No records for this period."
-                    tvRowCount.text = "0 rows"
+                    tvEmpty.text = getString(R.string.gstr1_no_records)
+                    tvRowCount.text = getString(R.string.gstr1_zero_rows)
                 } else {
                     tvEmpty.visibility = View.GONE
                     rvRows.visibility  = View.VISIBLE

@@ -106,8 +106,8 @@ class ManageProductsAdapter(
         val meta = buildList {
             item.category.takeIf { it.isNotBlank() }?.let { add(it) }
             item.hsnCode?.takeIf { it.isNotBlank() }?.let { add("HSN $it") }
-            add(if (gst > 0) "GST ${trimNum(gst)}%" else "No GST")
-            add(if (item.isPurchased) "Purchased" else "Manual")
+            add(if (gst > 0) "GST ${trimNum(gst)}%" else holder.itemView.context.getString(R.string.manage_products_no_gst))
+            add(if (item.isPurchased) holder.itemView.context.getString(R.string.manage_filter_purchased) else holder.itemView.context.getString(R.string.manage_filter_manual))
         }.joinToString("  ·  ")
         holder.tvMeta.text = meta
 
@@ -123,7 +123,7 @@ class ManageProductsAdapter(
             note.setPadding(pad, padV, pad, padV)
             when {
                 qty <= 0.0 -> {
-                    note.text = "Out of stock"
+                    note.text = holder.itemView.context.getString(R.string.inventory_out_of_stock)
                     note.setBackgroundResource(R.drawable.bg_mp_pill_red)
                     note.setTextColor(Color.parseColor("#B23A3A"))
                 }
@@ -142,7 +142,7 @@ class ManageProductsAdapter(
             // No stock tracked → unlimited.
             note.setBackgroundResource(0)
             note.setPadding(0, 0, 0, 0)
-            note.text = "Unlimited"
+            note.text = holder.itemView.context.getString(R.string.manage_products_unlimited)
             note.setTextColor(Color.parseColor("#A99E88"))
         }
 

@@ -31,7 +31,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="LINE DISCOUNT"
+                    android:text="@string/invoice_line_discount_header"
                     android:textColor="#8A6526"
                     android:textSize="10sp"
                     android:letterSpacing="0.14"
@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Item"
+                android:text="@string/item"
                 android:textColor="#1A1A18"
                 android:textSize="19sp"
                 android:fontFamily="serif"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingVertical="8dp"
-            android:text="Percent %"
+            android:text="@string/invoice_discount_mode_percent"
             android:textSize="13sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView
@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingVertical="8dp"
-            android:text="Amount ₹"
+            android:text="@string/invoice_discount_mode_amount"
             android:textSize="13sp"
             android:fontFamily="@font/googlesans_semibold"/>
     </LinearLayout>
@@ -225,7 +225,7 @@
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="NEW PRICE" android:textColor="#5E8A6E" android:textSize="10sp"
+                android:text="@string/invoice_new_price_label" android:textColor="#5E8A6E" android:textSize="10sp"
                 android:letterSpacing="0.06" android:fontFamily="@font/googlesans_semibold"/>
             <LinearLayout
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -248,7 +248,7 @@
             android:gravity="end">
             <TextView
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="YOU SAVE" android:textColor="#5E8A6E" android:textSize="10sp"
+                android:text="@string/invoice_you_save_label" android:textColor="#5E8A6E" android:textSize="10sp"
                 android:letterSpacing="0.06" android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:id="@+id/tvDiscSave"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -271,7 +271,7 @@
             android:layout_weight="1"
             android:layout_height="54dp"
             android:layout_marginEnd="10dp"
-            android:text="Remove"
+            android:text="@string/dashboard_remove_button"
             android:textAllCaps="false"
             android:textSize="13.5sp"
             android:textStyle="bold"
@@ -297,7 +297,7 @@
             android:layout_width="0dp"
             android:layout_weight="1.5"
             android:layout_height="54dp"
-            android:text="Apply discount"
+            android:text="@string/invoice_apply_discount"
             android:textAllCaps="false"
             android:textSize="14sp"
             android:textStyle="bold"

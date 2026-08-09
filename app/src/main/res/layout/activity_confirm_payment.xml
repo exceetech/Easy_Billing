@@ -31,7 +31,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:text="CHECKOUT"
+                android:text="@string/checkout_eyebrow"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:text="Confirm"
+                    android:text="@string/confirm_word"
                     android:textSize="21sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_bold"
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"/>
 
                 <TextView
-                    android:text=" and"
+                    android:text="@string/and_word"
                     android:textSize="21sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_bold"
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"/>
 
                 <TextView
-                    android:text=" pay"
+                    android:text="@string/pay_word"
                     android:textSize="21sp"
                     android:textStyle="italic"
                     android:fontFamily="serif"
@@ -114,7 +114,7 @@
 
                     <TextView
                         android:id="@+id/tvPlanName"
-                        android:text="Premium"
+                        android:text="@string/premium_plan_name"
                         android:textSize="14.5sp"
                         android:textStyle="bold"
                         android:fontFamily="@font/googlesans_semibold"
@@ -124,7 +124,7 @@
 
                     <TextView
                         android:id="@+id/tvPlanCycle"
-                        android:text="1 Month billing cycle"
+                        android:text="@string/billing_cycle_default"
                         android:textSize="11.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#8A8474"
@@ -153,7 +153,7 @@
 
                     <TextView
                         android:id="@+id/tvPlanPriceLabel"
-                        android:text="Plan price"
+                        android:text="@string/plan_price"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#8A8474"
@@ -186,7 +186,7 @@
 
                     <TextView
                         android:id="@+id/tvUpgradeCreditLabel"
-                        android:text="Upgrade credit (est.)"
+                        android:text="@string/upgrade_credit_est"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#0F6E56"
@@ -208,7 +208,7 @@
                 <TextView
                     android:id="@+id/tvUpgradeCreditNote"
                     android:visibility="gone"
-                    android:text="Estimated only — actual charge is confirmed once payment starts."
+                    android:text="@string/estimated_only_note"
                     android:textSize="10.5sp"
                     android:fontFamily="@font/googlesans_medium"
                     android:textColor="#A99E88"
@@ -230,7 +230,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:text="Payable amount"
+                        android:text="@string/payable_amount"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#1A1A18"
@@ -259,7 +259,7 @@
 
                     <TextView
                         android:id="@+id/tvDiscountLabel"
-                        android:text="Cycle discount"
+                        android:text="@string/cycle_discount"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#0F6E56"
@@ -287,7 +287,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:text="Coupon discount"
+                        android:text="@string/coupon_discount"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#0F6E56"
@@ -309,7 +309,7 @@
                 <TextView
                     android:id="@+id/tvBonusDays"
                     android:visibility="gone"
-                    android:text="+15 days free"
+                    android:text="@string/plus_15_days_free"
                     android:textSize="10.5sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_semibold"
@@ -334,7 +334,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:text="Service charge (2%)"
+                        android:text="@string/service_charge_pct"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#8A8474"
@@ -360,7 +360,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:text="GST (18%)"
+                        android:text="@string/gst_18_pct"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#8A8474"
@@ -392,7 +392,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:text="Total"
+                        android:text="@string/total_2"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:fontFamily="@font/googlesans_semibold"
@@ -424,7 +424,7 @@
 
                 <EditText
                     android:id="@+id/etCoupon"
-                    android:hint="Coupon code"
+                    android:hint="@string/coupon_code_hint"
                     android:textSize="13sp"
                     android:textAllCaps="true"
                     android:fontFamily="@font/googlesans_medium"
@@ -444,7 +444,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnApplyCoupon"
-                    android:text="Apply"
+                    android:text="@string/dialog_product_filter_apply"
                     android:textAllCaps="false"
                     android:textSize="13sp"
                     android:fontFamily="@font/googlesans_semibold"
@@ -491,7 +491,7 @@
                     android:contentDescription="@null"/>
 
                 <TextView
-                    android:text="Secured by Razorpay — cards, UPI and netbanking"
+                    android:text="@string/secured_by_razorpay"
                     android:textSize="11sp"
                     android:fontFamily="@font/googlesans_medium"
                     android:textColor="#8A8474"
@@ -520,7 +520,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPay"
-                android:text="Pay ₹999 securely"
+                android:text="@string/confirm_payment_pay_securely_btn"
                 android:textAllCaps="false"
                 android:textSize="14.5sp"
                 android:textStyle="bold"

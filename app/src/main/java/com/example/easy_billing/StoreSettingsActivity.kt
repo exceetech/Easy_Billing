@@ -271,7 +271,7 @@ class StoreSettingsActivity : BaseActivity() {
         }
 
         if (name.isEmpty()) {
-            Toast.makeText(this, "Store name is required", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.store_name_is_required, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -281,7 +281,7 @@ class StoreSettingsActivity : BaseActivity() {
         // vs IGST) determination. A typo saved here would silently miscalculate
         // GST on every bill from then on with no error anywhere in the chain.
         if (gstin.isNotEmpty() && !GstEngine.isValidGstin(gstin)) {
-            Toast.makeText(this, "Enter a valid 15-character GSTIN", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.enter_valid_15_char_gstin, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -387,7 +387,7 @@ class StoreSettingsActivity : BaseActivity() {
         btnVerify.setOnClickListener {
             val password = etPassword.text.toString().trim()
             if (password.isEmpty()) {
-                etPassword.error = "Enter password"
+                etPassword.error = getString(R.string.store_settings_enter_password_error)
                 return@setOnClickListener
             }
             verifyPassword(password) {

@@ -195,9 +195,9 @@ class Gstr2ExempAdapter(
 ) {
     override fun bindRow(h: VH, row: Pair<String, Double>, position: Int) {
         h.tvTitle.text = row.first
-        h.tvMeta.text = "no input tax credit"
+        h.tvMeta.text = h.itemView.context.getString(R.string.gstr2_exemp_no_itc)
         h.tvAmount.text = g2Money(row.second)
-        h.tvTax.text = "exempt"
+        h.tvTax.text = h.itemView.context.getString(R.string.gstr2_exempt_label)
         h.tvTax.setTextColor(Color.parseColor("#9A8F79"))
         h.vStripe.backgroundTintList =
             android.content.res.ColorStateList.valueOf(Color.parseColor(paletteFor(position)))

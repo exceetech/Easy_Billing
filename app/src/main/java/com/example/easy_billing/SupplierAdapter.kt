@@ -63,11 +63,11 @@ class SupplierAdapter(
         // has a line of its own — even when there isn't one.
         val gstin = item.gstin
         if (gstin.isNullOrBlank()) {
-            holder.gstin.text = "No GSTIN"
-            holder.tag.text = "UNREGISTERED"
+            holder.gstin.text = holder.itemView.context.getString(R.string.supplier_no_gstin)
+            holder.tag.text = holder.itemView.context.getString(R.string.supplier_tag_unregistered)
         } else {
             holder.gstin.text = gstin
-            holder.tag.text = "REGISTERED"
+            holder.tag.text = holder.itemView.context.getString(R.string.supplier_tag_registered)
         }
 
         holder.itemView.setOnClickListener { onClick(item) }

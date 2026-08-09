@@ -108,7 +108,7 @@ class EditProductActivity : BaseActivity() {
 
         val productId = intent.getIntExtra(EXTRA_PRODUCT_ID, -1)
         if (productId <= 0) {
-            Toast.makeText(this, "Missing product id", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.edit_product_missing_id_toast), Toast.LENGTH_SHORT).show()
             finish(); return
         }
         viewModel.load(productId)
@@ -217,10 +217,10 @@ class EditProductActivity : BaseActivity() {
                     if (resp.valid) {
                         tvHsnStatus.setTextColor(0xFF0F6E56.toInt())
                         tvHsnStatus.text = resp.description
-                            ?.takeIf { it.isNotBlank() } ?: "HSN verified"
+                            ?.takeIf { it.isNotBlank() } ?: getString(R.string.edit_product_hsn_verified_default)
                     } else {
                         tvHsnStatus.setTextColor(0xFFA32D2D.toInt())
-                        tvHsnStatus.text = resp.message ?: "HSN not found in registry"
+                        tvHsnStatus.text = resp.message ?: getString(R.string.edit_product_hsn_not_found)
                     }
                 }
             }
@@ -229,7 +229,7 @@ class EditProductActivity : BaseActivity() {
         // Strict toggle: cannot turn OFF if stock exists.
         switchTrack.setOnCheckedChangeListener { _, isChecked ->
             val product = viewModel.product.value ?: return@setOnCheckedChangeListener
-            
+
             var actualState = isChecked
             if (product.trackInventory && !isChecked && currentStock > 0) {
                 switchTrack.setOnCheckedChangeListener(null)
@@ -238,7 +238,7 @@ class EditProductActivity : BaseActivity() {
                 wireToggleListener()
                 Toast.makeText(
                     this,
-                    "Cannot turn off inventory while stock > 0",
+                    getString(R.string.edit_product_cannot_turn_off_inventory),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -249,7 +249,7 @@ class EditProductActivity : BaseActivity() {
     private fun wireToggleListener() {
         switchTrack.setOnCheckedChangeListener { _, isChecked ->
             val product = viewModel.product.value ?: return@setOnCheckedChangeListener
-            
+
             var actualState = isChecked
             if (product.trackInventory && !isChecked && currentStock > 0) {
                 switchTrack.setOnCheckedChangeListener(null)
@@ -258,7 +258,7 @@ class EditProductActivity : BaseActivity() {
                 wireToggleListener()
                 Toast.makeText(
                     this,
-                    "Cannot turn off inventory while stock > 0",
+                    getString(R.string.edit_product_cannot_turn_off_inventory_2),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -301,7 +301,7 @@ class EditProductActivity : BaseActivity() {
         tvName.text = product.name
         tvVariant.text = product.variant
             ?.takeIf { it.isNotBlank() }
-            ?.let { "Variant: $it" } ?: "No variant"
+            ?.let { "Variant: $it" } ?: getString(R.string.edit_product_no_variant)
         tvAvatar.text = avatarInitials(product.name)
 
         if (product.isPurchased) {
@@ -369,7 +369,7 @@ class EditProductActivity : BaseActivity() {
 
         val newPrice = etPrice.text?.toString()?.toDoubleOrNull()
         if (newPrice == null || newPrice <= 0) {
-            Toast.makeText(this, "Enter a valid selling price", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.edit_product_enter_valid_selling_price), Toast.LENGTH_SHORT).show()
             return
         }
         val hsn = etHsn.text?.toString()?.trim().orEmpty()
@@ -392,7 +392,7 @@ class EditProductActivity : BaseActivity() {
                         .storeInfoDao().get()?.gstin?.isNotBlank() == true
                 }
                 if (gstEnabled) {
-                    etHsn.error = "Required"
+                    etHsn.error = getString(R.string.edit_product_hsn_required_error)
                     Toast.makeText(
                         this@EditProductActivity,
                         "HSN Code is mandatory for GST billing",
@@ -444,7 +444,7 @@ class EditProductActivity : BaseActivity() {
         val addStock = etAddStock.text?.toString()?.toDoubleOrNull() ?: 0.0
         if (product.trackInventory && !track && currentStock > 0) {
             Toast.makeText(
-                this, "Reduce stock to 0 before turning inventory off",
+                this, getString(R.string.edit_product_reduce_stock_before_off),
                 Toast.LENGTH_LONG
             ).show()
             return

@@ -190,7 +190,7 @@ class AddProductActivity : BaseActivity() {
         }
         etName.addTextChangedListener {
             if (!localVariantsByName.containsKey(etName.text.toString().trim().lowercase())) {
-                tvBadge.text = "New to catalog"
+                tvBadge.text = getString(R.string.add_product_new_to_catalog)
             }
         }
 
@@ -225,11 +225,11 @@ class AddProductActivity : BaseActivity() {
         val key = etName.text.toString().trim().lowercase()
         val matches = localVariantsByName[key]
         if (matches.isNullOrEmpty()) {
-            tvBadge.text = "New to catalog"
+            tvBadge.text = getString(R.string.add_product_new_to_catalog)
             etVariant.setAdapter(ArrayAdapter(this, R.layout.item_dropdown_ep, emptyList<String>()))
             return
         }
-        tvBadge.text = "In catalog"
+        tvBadge.text = getString(R.string.add_product_in_catalog)
         refreshVariantAdapter(key)
     }
 
@@ -391,11 +391,11 @@ class AddProductActivity : BaseActivity() {
     private fun saveProduct() {
         val name = etName.text.toString().trim()
         if (name.isEmpty()) {
-            toast("Enter product name"); etName.requestFocus(); return
+            toast(getString(R.string.add_product_enter_name_toast)); etName.requestFocus(); return
         }
         val price = etPrice.text.toString().toDoubleOrNull()
         if (price == null || price <= 0) {
-            toast("Enter a selling price greater than 0"); etPrice.requestFocus(); return
+            toast(getString(R.string.add_product_enter_price_toast)); etPrice.requestFocus(); return
         }
 
         val variant = normalizeVariant(etVariant.text.toString())
@@ -410,10 +410,10 @@ class AddProductActivity : BaseActivity() {
         val cgstPct = if (cgstRaw.isEmpty()) 0.0 else cgstRaw.toDoubleOrNull()
         val sgstPct = if (sgstRaw.isEmpty()) 0.0 else sgstRaw.toDoubleOrNull()
         if (cgstPct == null || cgstPct < 0) {
-            toast("Enter a valid CGST % (0 or higher)"); etCgst.requestFocus(); return
+            toast(getString(R.string.add_product_invalid_cgst_toast)); etCgst.requestFocus(); return
         }
         if (sgstPct == null || sgstPct < 0) {
-            toast("Enter a valid SGST % (0 or higher)"); etSgst.requestFocus(); return
+            toast(getString(R.string.add_product_invalid_sgst_toast)); etSgst.requestFocus(); return
         }
         val igstPct = cgstPct + sgstPct
         val isTaxInclusive = switchTaxInclusive.isChecked
@@ -428,7 +428,7 @@ class AddProductActivity : BaseActivity() {
         val stockQty = etQty.text.toString().toDoubleOrNull() ?: 0.0
         val costPrice = etCost.text.toString().toDoubleOrNull() ?: 0.0
         if (withStock && stockQty <= 0) {
-            toast("Enter opening stock quantity"); etQty.requestFocus(); return
+            toast(getString(R.string.add_product_enter_stock_qty_toast)); etQty.requestFocus(); return
         }
 
         lifecycleScope.launch {
@@ -436,8 +436,8 @@ class AddProductActivity : BaseActivity() {
             val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
             if (isGstEnabled && hsnCode.isBlank()) {
                 withContext(Dispatchers.Main) {
-                    toast("HSN Code is mandatory for GST billing")
-                    etHsn.error = "Required"
+                    toast(getString(R.string.add_product_hsn_mandatory_toast))
+                    etHsn.error = getString(R.string.invoice_required)
                 }
                 return@launch
             }
@@ -614,7 +614,7 @@ class AddProductActivity : BaseActivity() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    toast("Product added")
+                    toast(getString(R.string.add_product_added_toast))
                     finish()
                 }
             } catch (e: Exception) {
@@ -672,7 +672,7 @@ class AddProductActivity : BaseActivity() {
                     repo.rememberCategoryIfNew(product.category, shopIdSync())
                     repo.pushProductUpdate(product)
                     withContext(Dispatchers.Main) {
-                        toast("Product restored")
+                        toast(getString(R.string.add_product_restored_toast))
                         finish()
                     }
                 } catch (e: Exception) {

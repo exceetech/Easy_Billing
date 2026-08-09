@@ -338,7 +338,7 @@ class BillingSettingsActivity : BaseActivity() {
         btnVerify.setOnClickListener {
             val pw = etPassword.text.toString().trim()
             if (pw.isEmpty()) {
-                etPassword.error = "Enter password"
+                etPassword.error = getString(R.string.billing_settings_enter_password_error)
                 return@setOnClickListener
             }
             verifyPassword(pw) {
@@ -371,7 +371,7 @@ class BillingSettingsActivity : BaseActivity() {
         if (resolvedStateCode.isBlank()) {
             Toast.makeText(
                 this,
-                "Enter a valid state (e.g. \"Kerala\" or its 2-digit GST code \"32\")",
+                R.string.enter_valid_state,
                 Toast.LENGTH_LONG
             ).show()
             return
@@ -450,8 +450,8 @@ class BillingSettingsActivity : BaseActivity() {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     this@BillingSettingsActivity,
-                    if (token == null) "Saved offline. Will sync later."
-                    else "Billing settings updated",
+                    if (token == null) R.string.saved_offline_will_sync_later
+                    else R.string.billing_settings_updated,
                     Toast.LENGTH_SHORT
                 ).show()
 

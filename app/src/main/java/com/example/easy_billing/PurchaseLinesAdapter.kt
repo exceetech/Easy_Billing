@@ -23,7 +23,7 @@ import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
  * Line order is append/remove-at-index only (no reordering), so the index
  * stays a stable identity across submits.
  */
-private data class PurchaseLineRow(val index: Int, val draft: PurchaseItemDraft)
+internal data class PurchaseLineRow(val index: Int, val draft: PurchaseItemDraft)
 
 private val PURCHASE_LINE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<PurchaseLineRow>() {
     override fun areItemsTheSame(oldItem: PurchaseLineRow, newItem: PurchaseLineRow): Boolean =
@@ -39,7 +39,7 @@ private val PURCHASE_LINE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Purchas
  * an avatar tile, name + "qty × rate · GST%" meta, and a right column
  * with the line total plus its tax. A hairline separates rows.
  */
-class PurchaseLinesAdapter(
+internal class PurchaseLinesAdapter(
     initialItems: List<PurchaseItemDraft>,
     private val onRemove: (Int) -> Unit,
     private val onEdit: (Int) -> Unit = {}
@@ -101,7 +101,7 @@ class PurchaseLinesAdapter(
             holder.tvTax.text = "+${money(tax)} tax"
             holder.tvTax.setTextColor(Color.parseColor("#0F6E56"))
         } else {
-            holder.tvTax.text = "no tax"
+            holder.tvTax.text = holder.itemView.context.getString(R.string.invoice_no_tax)
             holder.tvTax.setTextColor(Color.parseColor("#A99E88"))
         }
 

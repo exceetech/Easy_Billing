@@ -54,7 +54,7 @@
                 android:id="@+id/tvHeaderName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Customer"
+                android:text="@string/txn_default_customer_name"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:letterSpacing="-0.02"
@@ -117,7 +117,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Current balance"
+            android:text="@string/txn_current_balance_label"
             android:textSize="11sp"
             android:textColor="#9A8F79" />
 
@@ -150,7 +150,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
-                android:text="settled"
+                android:text="@string/credit_status_settled"
                 android:textSize="11sp"
                 android:textColor="#8A8272" />
         </LinearLayout>
@@ -184,7 +184,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Billed"
+                    android:text="@string/txn_billed_label"
                     android:textSize="9.5sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
@@ -213,7 +213,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Received"
+                    android:text="@string/txn_received_label"
                     android:textSize="9.5sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
@@ -251,7 +251,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Written off"
+                    android:text="@string/txn_label_written_off"
                     android:textSize="11.5sp"
                     android:textColor="#9A8F79" />
                 <TextView
@@ -276,7 +276,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Refunded to customer"
+                    android:text="@string/txn_refunded_to_customer_label"
                     android:textSize="11.5sp"
                     android:textColor="#9A8F79" />
                 <TextView
@@ -320,7 +320,7 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="Search amount"
+                android:hint="@string/txn_search_amount_hint"
                 android:textColorHint="#A99E88"
                 android:textColor="#1A1A18"
                 android:textSize="12.5sp"
@@ -352,7 +352,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="All time"
+                android:text="@string/txn_filter_all_time"
                 android:textSize="12sp"
                 android:textColor="#1A1A18" />
         </LinearLayout>
@@ -387,7 +387,7 @@
             app:backgroundTint="@null"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="Summary"
+            android:text="@string/txn_summary_button"
             android:textAllCaps="false"
             android:textSize="13sp"
             android:textColor="#8A6526"
@@ -420,7 +420,7 @@
             app:backgroundTint="@null"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="Statement"
+            android:text="@string/txn_statement_button"
             android:textAllCaps="false"
             android:textSize="13sp"
             android:textColor="@android:color/white"

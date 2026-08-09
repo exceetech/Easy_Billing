@@ -82,7 +82,7 @@ class BubbleChartMarker(
         val bills   = (e as? BubbleEntry)?.size?.toInt() ?: 0
 
         tvHour.text    = titleProvider?.invoke(x) ?: formatHour(x.toInt())
-        tvRevenue.text = "Revenue: " + CurrencyHelper.format(context, revenue)
+        tvRevenue.text = context.getString(R.string.chart_marker_revenue_prefix) + CurrencyHelper.format(context, revenue)
         tvBills.text   = "Bills: $bills"
 
         colorSwatch.background = GradientDrawable().apply {

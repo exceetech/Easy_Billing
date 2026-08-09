@@ -122,7 +122,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(requireContext(), "Chart load failed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.charts_toast_chart_load_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -314,7 +314,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
 
         if (entries.isEmpty()) {
             chart.clear()
-            chart.setNoDataText("No chart data available")
+            chart.setNoDataText(getString(R.string.charts_no_data_available))
             tvPeriodTotal.text = CurrencyHelper.format(requireContext(), 0.0)
             tvPeakDay.text = "—"
             return

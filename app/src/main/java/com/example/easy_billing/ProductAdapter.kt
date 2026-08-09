@@ -217,7 +217,7 @@ class ProductAdapter(
                 it.visibility = if (c != null) View.VISIBLE else View.GONE
             }
 
-            val unitLabel = formatUnit(product.unit?.takeIf { it.isNotBlank() } ?: "unit")
+            val unitLabel = formatUnit(context, product.unit?.takeIf { it.isNotBlank() } ?: "unit")
             price.text = CurrencyHelper.format(context, product.price)
             priceUnit.text = "/ $unitLabel"
 
@@ -228,7 +228,7 @@ class ProductAdapter(
                     // Untracked / service item — neutral pill, no dot.
                     stockDot.visibility     = View.GONE
                     pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1EFE8"))
-                    pillText.text           = "Service"
+                    pillText.text           = context.getString(R.string.product_adapter_service_pill)
                     pillText.setTextColor(Color.parseColor("#6B6B63"))
                     setClickListeners(product)
                 }
@@ -236,14 +236,14 @@ class ProductAdapter(
                     stockDot.visibility     = View.VISIBLE
                     stockDot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#DC2626"))
                     pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FCEBEB"))
-                    pillText.text           = "Out of stock"
+                    pillText.text           = context.getString(R.string.product_adapter_out_of_stock_pill)
                     pillText.setTextColor(Color.parseColor("#B91C1C"))
                     addBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#C9C3B4"))
                     overlay.visibility  = View.VISIBLE
                     card.alpha          = 0.55f
                     card.isClickable    = false
                     itemView.setOnClickListener {
-                        Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.product_adapter_out_of_stock_toast), Toast.LENGTH_SHORT).show()
                     }
                     itemView.setOnLongClickListener {
                         onItemLongClick(product)
@@ -310,16 +310,16 @@ class ProductAdapter(
             row.alpha = 1f
             when {
                 stockEntry == null -> {
-                    stock.text = "Service item"
+                    stock.text = context.getString(R.string.product_adapter_service_item)
                     stock.setTextColor(0xFF9A8F79.toInt())
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {
-                    stock.text = "Out of stock"
+                    stock.text = context.getString(R.string.product_adapter_out_of_stock_pill_2)
                     stock.setTextColor(0xFFA32D2D.toInt())
                     row.alpha = 0.6f
                     itemView.setOnClickListener {
-                        Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.product_adapter_out_of_stock_toast_2), Toast.LENGTH_SHORT).show()
                     }
                     itemView.setOnLongClickListener { onItemLongClick(product); true }
                 }
@@ -349,12 +349,12 @@ class ProductAdapter(
     private fun fmtQty(q: Double): String =
         if (q % 1.0 == 0.0) q.toInt().toString() else q.toString()
 
-    private fun formatUnit(unit: String): String = when (unit.lowercase()) {
-        "piece"  -> "Pc"
-        "kg"     -> "Kg"
-        "litre"  -> "L"
-        "gram"   -> "g"
-        "ml"     -> "ml"
+    private fun formatUnit(context: android.content.Context, unit: String): String = when (unit.lowercase()) {
+        "piece"  -> context.getString(R.string.product_unit_pc)
+        "kg"     -> context.getString(R.string.product_unit_kg)
+        "litre"  -> context.getString(R.string.product_unit_litre)
+        "gram"   -> context.getString(R.string.product_unit_gram)
+        "ml"     -> context.getString(R.string.product_unit_ml)
         else     -> unit
     }
 

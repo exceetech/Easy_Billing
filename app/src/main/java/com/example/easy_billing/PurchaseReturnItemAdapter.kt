@@ -145,10 +145,10 @@ class PurchaseReturnItemAdapter(
 
         if (noteType == "C") {
             holder.llMaxReturnContainer.visibility = View.GONE
-            holder.tvQtyInputLabel.text = "Receive qty"
+            holder.tvQtyInputLabel.text = holder.itemView.context.getString(R.string.purchase_return_receive_qty_label)
         } else {
             holder.llMaxReturnContainer.visibility = View.VISIBLE
-            holder.tvQtyInputLabel.text = "Return qty"
+            holder.tvQtyInputLabel.text = holder.itemView.context.getString(R.string.purchase_return_qty_label)
         }
         holder.btnIncrement.backgroundTintList = ColorStateList.valueOf(accentColor)
 

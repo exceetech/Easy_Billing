@@ -160,7 +160,7 @@ class AddImportServiceActivity : BaseActivity() {
                 if (record == null) {
                     Toast.makeText(
                         this@AddImportServiceActivity,
-                        "That record no longer exists", Toast.LENGTH_SHORT
+                        R.string.record_no_longer_exists, Toast.LENGTH_SHORT
                     ).show()
                     finish()
                     return@launch
@@ -171,8 +171,8 @@ class AddImportServiceActivity : BaseActivity() {
                 // The title is two views — plain word plus the serif accent —
                 // so setting one to "Edit record" would leave "record" showing
                 // twice.
-                findViewById<TextView>(R.id.tvScreenTitle).text = "Edit this"
-                findViewById<MaterialButton>(R.id.btnSave).text = "Save changes"
+                findViewById<TextView>(R.id.tvScreenTitle).text = getString(R.string.edit_this)
+                findViewById<MaterialButton>(R.id.btnSave).text = getString(R.string.save_changes_2)
 
                 // Delete only for records that never reached the server. There
                 // is no delete endpoint, so removing a synced row locally would
@@ -255,19 +255,19 @@ class AddImportServiceActivity : BaseActivity() {
 
     private fun confirmDelete(record: ImportService) {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Delete this record?")
+            .setTitle(R.string.delete_this_record_title)
             .setMessage(
                 "Invoice ${record.invoiceNumber} has not been sent to the server, " +
                 "so deleting it here removes it for good."
             )
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Delete") { _, _ ->
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.action_delete) { _, _ ->
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         AppDatabase.getDatabase(this@AddImportServiceActivity)
                             .importServiceDao().deleteById(record.id)
                     }
-                    Toast.makeText(this@AddImportServiceActivity, "Deleted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddImportServiceActivity, R.string.deleted_toast, Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
@@ -345,7 +345,7 @@ class AddImportServiceActivity : BaseActivity() {
         val itc = selectedItc
 
         if (invoiceNumber.isEmpty()) {
-            Toast.makeText(this, "Invoice Number is required", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.invoice_number_is_required, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -411,14 +411,14 @@ class AddImportServiceActivity : BaseActivity() {
             }
             if (clash != null) {
                 androidx.appcompat.app.AlertDialog.Builder(this@AddImportServiceActivity)
-                    .setTitle("Invoice number already used")
+                    .setTitle(R.string.invoice_number_already_used_title)
                     .setMessage(
                         "Invoice ${clash.invoiceNumber} is already recorded, dated " +
                         "${sdf.format(clash.invoiceDate)}. Saving this creates a second " +
                         "entry, and its ITC would be claimed twice."
                     )
-                    .setNegativeButton("Go back", null)
-                    .setPositiveButton("Save anyway") { _, _ -> commit(record, dao, current != null) }
+                    .setNegativeButton(R.string.go_back, null)
+                    .setPositiveButton(R.string.save_anyway) { _, _ -> commit(record, dao, current != null) }
                     .show()
                 return@launch
             }
@@ -437,7 +437,7 @@ class AddImportServiceActivity : BaseActivity() {
             }
             Toast.makeText(
                 this@AddImportServiceActivity,
-                if (isEdit) "Changes saved" else "Saved successfully",
+                if (isEdit) R.string.changes_saved else R.string.saved_successfully,
                 Toast.LENGTH_SHORT
             ).show()
             finish()

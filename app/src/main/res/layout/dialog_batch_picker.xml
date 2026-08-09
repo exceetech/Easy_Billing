@@ -37,7 +37,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Return to Supplier"
+            android:text="@string/xml_batch_picker_title"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -46,7 +46,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pick batches and the quantity to return per batch"
+            android:text="@string/xml_batch_picker_subtitle"
             android:textColor="#B0FFFFFF"
             android:textSize="12sp"
             android:layout_marginTop="2dp"/>
@@ -74,7 +74,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Target return quantity"
+                android:text="@string/xml_batch_picker_target_qty_label"
                 android:textColor="#B0FFFFFF"
                 android:textSize="12sp"/>
 
@@ -110,7 +110,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Selected"
+                android:text="@string/xml_batch_picker_selected_label"
                 android:textColor="#B0FFFFFF"
                 android:textSize="12sp"/>
 
@@ -148,7 +148,7 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:text="@string/xml_batch_picker_cancel_button"
                 android:textColor="@color/white"
                 android:layout_marginEnd="8dp"/>
 
@@ -156,7 +156,7 @@
                 android:id="@+id/btnBatchConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Confirm Return"
+                android:text="@string/xml_batch_picker_confirm_button"
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 android:backgroundTint="@color/white"

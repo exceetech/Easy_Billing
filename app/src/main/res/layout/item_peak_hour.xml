@@ -65,7 +65,7 @@
                     android:id="@+id/tvHour"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12:00 PM"
+                    android:text="@string/peak_hour_item_hour_placeholder"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="#111827"/>
@@ -74,7 +74,7 @@
                     android:id="@+id/tvBills"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="18 bills"
+                    android:text="@string/peak_hour_item_bills_placeholder"
                     android:textSize="11sp"
                     android:textColor="#9CA3AF"
                     android:layout_marginTop="1dp"/>
@@ -92,7 +92,7 @@
                     android:id="@+id/tvRevenue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₹6,100"
+                    android:text="@string/peak_hour_item_revenue_placeholder"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="#111827"/>
@@ -101,7 +101,7 @@
                     android:id="@+id/tvStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="⚖ Avg"
+                    android:text="@string/peak_hour_status_avg"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:paddingHorizontal="8dp"

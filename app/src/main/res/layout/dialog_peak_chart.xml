@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="HOUR PERFORMANCE"
+            android:text="@string/xml_peak_chart_header_title"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Daily"
+                android:text="@string/xml_peak_chart_title_bold"
                 android:textColor="#1A1A18"
                 android:textSize="24sp"
                 android:fontFamily="@font/googlesans_bold"
@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="pulse"
+                android:text="@string/xml_peak_chart_title_accent"
                 android:textColor="#0F6E56"
                 android:textSize="24sp"
                 android:fontFamily="serif"
@@ -70,7 +70,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Peak revenue"
+                    android:text="@string/xml_peak_chart_peak_revenue_label"
                     android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:layout_marginBottom="5dp"/>
@@ -99,7 +99,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Peak hour"
+                    android:text="@string/xml_peak_chart_peak_hour_label"
                     android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:layout_marginBottom="5dp"/>
@@ -136,7 +136,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total bills"
+                    android:text="@string/xml_peak_chart_total_bills_label"
                     android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:layout_marginBottom="5dp"/>
@@ -165,7 +165,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Avg bills / hr"
+                    android:text="@string/xml_peak_chart_avg_bills_label"
                     android:textColor="#9A8F79"
                     android:textSize="11sp"
                     android:layout_marginBottom="5dp"/>
@@ -184,7 +184,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bubble size indicates bill count"
+            android:text="@string/xml_peak_chart_hint_bubble_size"
             android:textColor="#9A8F79"
             android:textSize="11.5sp"
             android:layout_marginTop="18dp"
@@ -208,7 +208,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap a bubble to explore that hour"
+            android:text="@string/xml_peak_chart_hint_tap_bubble"
             android:textColor="#9A8F79"
             android:textSize="11.5sp"
             android:layout_marginTop="8dp"/>

@@ -27,7 +27,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ACCOUNT CREATED"
+        android:text="@string/dialog_register_success_eyebrow"
         android:textColor="#B8895A"
         android:textSize="10sp"
         android:letterSpacing="0.14"
@@ -42,7 +42,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="You're all "
+            android:text="@string/dialog_register_success_title_part1"
             android:textColor="#1A1A18"
             android:textSize="21sp"
             android:fontFamily="serif"
@@ -51,7 +51,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="set"
+            android:text="@string/dialog_register_success_title_part2"
             android:textColor="#0F6E56"
             android:textSize="21sp"
             android:fontFamily="serif"
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="We've sent a verification code (OTP) to your email."
+        android:text="@string/dialog_register_success_message"
         android:textColor="#8A8272"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp"/>
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
-            android:text="Code expires in 10 minutes. Check spam if it doesn't arrive."
+            android:text="@string/dialog_register_success_otp_expiry_note"
             android:textColor="#9A8F79"
             android:textSize="11.5sp"
             android:lineSpacingExtra="2dp"/>
@@ -110,7 +110,7 @@
         android:layout_marginTop="22dp"
         android:background="@drawable/bg_login_cta_green"
         app:backgroundTint="@null"
-        android:text="Continue"
+        android:text="@string/dialog_register_success_continue_btn"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         android:textAllCaps="false"

@@ -52,10 +52,10 @@ class AiInsightListAdapter(
     )
 
     private fun styleFor(type: String): TypeStyle = when (type.lowercase()) {
-        "fire" -> TypeStyle("NEEDS ATTENTION", "#FBEDED", "#791F1F", "#791F1F", R.drawable.ic_kpi_alert)
-        "leak" -> TypeStyle("PLUGGING LEAKS", "#FAEEDA", "#8A6526", "#8A6526", R.drawable.ic_trending_down)
-        "gold" -> TypeStyle("WHAT'S WORKING", "#DDEEEE", "#0F6E56", "#0F6E56", R.drawable.ic_kpi_badge_check)
-        else -> TypeStyle("INSIGHTS", "#F1EFE8", "#9A8F79", "#C9C3B4", R.drawable.ic_kpi_badge_check)
+        "fire" -> TypeStyle(context.getString(R.string.ai_insight_header_fire), "#FBEDED", "#791F1F", "#791F1F", R.drawable.ic_kpi_alert)
+        "leak" -> TypeStyle(context.getString(R.string.ai_insight_header_leak), "#FAEEDA", "#8A6526", "#8A6526", R.drawable.ic_trending_down)
+        "gold" -> TypeStyle(context.getString(R.string.ai_insight_header_gold), "#DDEEEE", "#0F6E56", "#0F6E56", R.drawable.ic_kpi_badge_check)
+        else -> TypeStyle(context.getString(R.string.ai_insight_header_default), "#F1EFE8", "#9A8F79", "#C9C3B4", R.drawable.ic_kpi_badge_check)
     }
 
     fun submit(insights: List<AiInsight>) {

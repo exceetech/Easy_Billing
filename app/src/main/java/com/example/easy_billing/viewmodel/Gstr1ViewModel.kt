@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easy_billing.R
 import com.example.easy_billing.gstr1.Gstr1CsvExporter
 import com.example.easy_billing.gstr1.Gstr1DraftEntity
 import com.example.easy_billing.gstr1.Gstr1ExcelExporter
@@ -113,7 +114,7 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
         val fy = _financialYear.value
         val p  = _period.value
         if (fy.isBlank() || p.isBlank()) {
-            _error.value = "Please select Financial Year and Period."
+            _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_select_fy_period)
             return
         }
 
@@ -127,9 +128,7 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 // unsynced on this phone, block and say so plainly — matching
                 // the plan's stated default of "clear message over silent gap."
                 if (repo.hasPendingSync()) {
-                    _error.value = "Some bills, credit/debit notes or cancellations on this " +
-                        "device haven't synced yet, so the report would be incomplete. " +
-                        "Sync and try again."
+                    _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_unsynced_data)
                     return@launch
                 }
 
@@ -152,8 +151,7 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                     // — distinct from a server error, worth a distinct message
                     // per Phase 7's "offline shows a clear state, not a raw
                     // exception" requirement.
-                    _error.value = "Couldn't reach the server to generate GSTR-1. " +
-                        "Check your internet connection and try again."
+                    _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_server_unreachable)
                     return@launch
                 }
 
@@ -174,7 +172,7 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
 
     fun saveDraft() {
         val r = _report.value ?: run {
-            _error.value = "Generate the report first."; return
+            _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_generate_report_first); return
         }
         viewModelScope.launch {
             try {
@@ -199,7 +197,7 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                     _returnType.value = r.returnType
                     _validationResult.value = Gstr1Validator.validate(r)
                 } else {
-                    _error.value = "Draft not found."
+                    _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_draft_not_found)
                 }
             } finally {
                 _isLoading.value = false

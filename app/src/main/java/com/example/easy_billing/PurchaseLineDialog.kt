@@ -387,8 +387,8 @@ class PurchaseLineDialog(
         // Editing an already-added line reads "Edit item" / "Save changes"
         // instead of "Add" / "Add item" — same dialog, different verb.
         if (editIndex != null) {
-            view.findViewById<TextView?>(R.id.tvLineDialogVerb)?.text = "Edit"
-            btnAdd.text = "Save changes"
+            view.findViewById<TextView?>(R.id.tvLineDialogVerb)?.text = activity.getString(R.string.purchase_line_dialog_verb_edit)
+            btnAdd.text = activity.getString(R.string.purchase_line_save_changes)
         }
 
         // ── GSTR-1 product master fields ──
@@ -931,7 +931,7 @@ class PurchaseLineDialog(
 
             if (name.isEmpty() || qty <= 0 || taxable <= 0 || selling <= 0) {
                 Toast.makeText(activity,
-                    "Fill product, quantity, selling price and taxable",
+                    activity.getString(R.string.purchase_line_fill_required_toast),
                     Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -950,15 +950,15 @@ class PurchaseLineDialog(
             val purchaseIgstAmt = taxable * (etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0) / 100.0
 
             if (cessPercent < 0 || cessAmt < 0 || availedIgst < 0 || availedCgst < 0 || availedSgst < 0 || availedCess < 0) {
-                Toast.makeText(activity, "Negative GSTR-2 values are not allowed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, activity.getString(R.string.purchase_line_negative_gstr2_toast), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (eligibility.isEmpty()) {
-                Toast.makeText(activity, "Eligibility for ITC is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, activity.getString(R.string.purchase_line_eligibility_required_toast), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (officialUqc.isNullOrBlank()) {
-                Toast.makeText(activity, "Official UQC (GST Unit) is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, activity.getString(R.string.purchase_line_uqc_required_toast), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -982,7 +982,7 @@ class PurchaseLineDialog(
 
             if (eligibility in listOf("Ineligible", "None")) {
                 if (availedIgst > 0.01 || availedCgst > 0.01 || availedSgst > 0.01 || availedCess > 0.01) {
-                    Toast.makeText(activity, "Availed ITC must be 0 when Ineligible or None", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, activity.getString(R.string.purchase_line_itc_must_be_zero_toast), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
             }
@@ -1288,11 +1288,11 @@ class PurchaseLineDialog(
 
         if (inactive.isPurchased) {
             btnNew.visibility = View.VISIBLE
-            btnNew.text = "Restore Old"
-            btnRestore.text = "Restore with New Values"
+            btnNew.text = activity.getString(R.string.purchase_line_restore_old_button)
+            btnRestore.text = activity.getString(R.string.purchase_line_restore_new_values_button)
         } else {
             btnNew.visibility = View.GONE
-            btnRestore.text = "Restore"
+            btnRestore.text = activity.getString(R.string.purchase_line_restore_button)
         }
 
         val productLabel = inactive.name +

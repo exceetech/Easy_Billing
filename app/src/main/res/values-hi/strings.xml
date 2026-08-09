@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
 
     <string name="app_name">ExPOS</string>
@@ -72,7 +72,7 @@
     <string name="this_month">इस महीने</string>
     <string name="sort_amount">राशि के अनुसार क्रम</string>
 
-    <string name="default_gst">डिफ़ॉल्ट जीएसटी (%)</string>
+    <string name="default_gst">डिफ़ॉल्ट जीएसटी (%%)</string>
     <string name="printer_layout">प्रिंटर लेआउट</string>
     <string name="save_billing_settings">बिलिंग सेटिंग्स सहेजें</string>
 

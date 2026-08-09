@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.easy_billing.R
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.gstr2.Gstr2DraftEntity
 import com.example.easy_billing.gstr2.Gstr2Report
@@ -116,7 +117,7 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
         val fy = _financialYear.value
         val p  = _period.value
         if (fy.isBlank() || p.isBlank()) {
-            _error.value = "Please select Financial Year and Period."
+            _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_select_fy_period)
             return
         }
 
@@ -135,9 +136,7 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                         db.purchaseDao().getCancelledUnsynced().isNotEmpty()
                 }
                 if (pending) {
-                    _error.value = "Some purchases, returns or cancellations on this device " +
-                        "haven't synced yet, so the report would be incomplete. " +
-                        "Sync and try again."
+                    _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_unsynced_data)
                     return@launch
                 }
 
@@ -213,7 +212,7 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
 
     fun saveDraft() {
         val r = _report.value ?: run {
-            _error.value = "Generate the report first."; return
+            _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_generate_report_first); return
         }
         viewModelScope.launch {
             try {

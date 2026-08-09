@@ -76,7 +76,7 @@ class PurchaseHistoryAdapter(
             cancelled -> {
                 holder.stripe.setBackgroundColor(Color.parseColor("#D8D0C0"))
                 setAvatar(holder, "#F1EBDD", "#A99E88")
-                holder.tvStatus.text = "cancelled"
+                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_cancelled)
                 holder.tvStatus.setTextColor(Color.parseColor("#A99E88"))
                 holder.itemView.alpha = 0.55f
                 holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags or strike
@@ -85,7 +85,7 @@ class PurchaseHistoryAdapter(
             item.isCredit -> {
                 holder.stripe.setBackgroundColor(Color.parseColor("#B23A3A"))
                 setAvatar(holder, "#FBEDED", "#B23A3A")
-                holder.tvStatus.text = "on credit"
+                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_credit)
                 holder.tvStatus.setTextColor(Color.parseColor("#B23A3A"))
                 holder.itemView.alpha = 1f
                 holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags and strike.inv()
@@ -94,7 +94,7 @@ class PurchaseHistoryAdapter(
             else -> {
                 holder.stripe.setBackgroundColor(Color.parseColor("#1D6E6E"))
                 setAvatar(holder, "#DDEEEE", "#1D6E6E")
-                holder.tvStatus.text = "paid cash"
+                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_paid_cash)
                 holder.tvStatus.setTextColor(Color.parseColor("#1D6E6E"))
                 holder.itemView.alpha = 1f
                 holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags and strike.inv()

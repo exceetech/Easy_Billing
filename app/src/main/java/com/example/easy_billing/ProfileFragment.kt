@@ -128,7 +128,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
                             val owner = store?.legalName?.takeIf { it.isNotBlank() } ?: store?.name
                             tvOwnerLine.text =
-                                owner?.takeIf { it.isNotBlank() }?.let { "$it · Owner" } ?: "Owner"
+                                owner?.takeIf { it.isNotBlank() }?.let { "$it · Owner" } ?: getString(R.string.dashboard_owner_fallback)
 
                             val phone = store?.phone.orEmpty()
                             if (phone.isBlank()) {
@@ -165,7 +165,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val cm = requireContext()
             .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         cm.setPrimaryClip(ClipData.newPlainText("GSTIN", currentGstin))
-        Toast.makeText(requireContext(), "GSTIN copied", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), R.string.gstin_copied, Toast.LENGTH_SHORT).show()
     }
 
     private fun signOut() {

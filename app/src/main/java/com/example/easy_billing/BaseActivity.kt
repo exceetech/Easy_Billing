@@ -128,11 +128,11 @@ open class BaseActivity : AppCompatActivity() {
                     updateLastOnlineTime()
                     onSuccess()
                 } else {
-                    Toast.makeText(this@BaseActivity, "Incorrect password", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BaseActivity, R.string.incorrect_password, Toast.LENGTH_SHORT).show()
                 }
 
             } catch (e: Exception) {
-                Toast.makeText(this@BaseActivity, "Verification failed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@BaseActivity, R.string.verification_failed, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -185,18 +185,18 @@ open class BaseActivity : AppCompatActivity() {
         val mins = driftMs / 60000
         AlertDialog.Builder(this)
             .setCancelable(false)
-            .setTitle("Wrong device time")
+            .setTitle(R.string.wrong_device_time)
             .setMessage(
                 "Your device clock is off by about $mins minute(s).\n\n" +
                 "Please set it to automatic / correct date & time, then retry. " +
                 "Billing is paused until the time is correct."
             )
-            .setPositiveButton("Open date settings") { _, _ ->
+            .setPositiveButton(R.string.open_date_settings) { _, _ ->
                 runCatching {
                     startActivity(Intent(android.provider.Settings.ACTION_DATE_SETTINGS))
                 }
             }
-            .setNegativeButton("Retry") { _, _ -> onRetry() }
+            .setNegativeButton(R.string.retry) { _, _ -> onRetry() }
             .show()
     }
 
@@ -315,7 +315,7 @@ open class BaseActivity : AppCompatActivity() {
         // left to do (DEVICE_ID preservation is handled inside the gate).
         if (!com.example.easy_billing.util.SessionClearGate.clearIfNeeded(this)) return
 
-        Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, R.string.session_expired_login_again, Toast.LENGTH_LONG).show()
 
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

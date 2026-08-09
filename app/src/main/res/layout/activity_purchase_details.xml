@@ -40,7 +40,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PURCHASE INVOICE"
+            android:text="@string/xml_purchase_details_header"
             android:textColor="#B8895A"
             android:textSize="10sp"
             android:letterSpacing="0.16"
@@ -58,7 +58,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Supplier"
+                android:text="@string/xml_purchase_details_supplier_label"
                 android:textColor="#1A1A18"
                 android:textSize="21sp"
                 android:letterSpacing="-0.02"
@@ -75,7 +75,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
-                android:text="On credit"
+                android:text="@string/purchase_history_tile_on_credit"
                 android:textSize="10.5sp"
                 android:textColor="#A32D2D"
                 android:fontFamily="@font/googlesans_medium"
@@ -105,7 +105,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingHorizontal="7dp"
                 android:paddingVertical="1dp"
-                android:text="not synced"
+                android:text="@string/xml_purchase_details_not_synced"
                 android:textSize="9.5sp"
                 android:textColor="#8A6526"
                 android:background="@drawable/bg_credit_avatar"
@@ -137,7 +137,7 @@
                 android:layout_marginBottom="10dp"
                 android:padding="10dp"
                 android:gravity="center"
-                android:text="This purchase was cancelled"
+                android:text="@string/xml_purchase_details_cancelled_note"
                 android:textSize="12sp"
                 android:textColor="#8A8272"
                 android:background="@drawable/bg_credit_tile_red"
@@ -156,7 +156,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Invoice total"
+                    android:text="@string/xml_purchase_details_invoice_total_label"
                     android:textSize="11sp"
                     android:textColor="#9A8F79" />
 
@@ -200,7 +200,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Taxable"
+                            android:text="@string/gst_report_col_taxable"
                             android:textSize="9.5sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -227,7 +227,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="GST"
+                            android:text="@string/gst"
                             android:textSize="9.5sp"
                             android:textColor="#0F6E56" />
                     </LinearLayout>
@@ -246,7 +246,7 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="10dp">
                     <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                        android:text="Tax breakdown" android:textSize="11sp" android:textColor="#9A8F79" />
+                        android:text="@string/tax_breakdown" android:textSize="11sp" android:textColor="#9A8F79" />
                     <TextView android:id="@+id/tvTaxBreakdown" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="—" android:textSize="11sp" android:textColor="#3A322A" android:gravity="end" />
                 </LinearLayout>
@@ -257,7 +257,7 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="6dp">
                     <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                        android:text="Place of supply" android:textSize="11sp" android:textColor="#9A8F79" />
+                        android:text="@string/place_of_supply" android:textSize="11sp" android:textColor="#9A8F79" />
                     <TextView android:id="@+id/tvPlaceOfSupply" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="—" android:textSize="11sp" android:textColor="#3A322A"
                         android:fontFamily="@font/googlesans_medium" android:gravity="end" />
@@ -269,7 +269,7 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="6dp">
                     <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                        android:text="Supplier GSTIN" android:textSize="11sp" android:textColor="#9A8F79" />
+                        android:text="@string/invoice_hint_supplier_gstin" android:textSize="11sp" android:textColor="#9A8F79" />
                     <TextView android:id="@+id/tvSupplierGstin" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="—" android:textSize="11sp" android:textColor="#3A322A"
                         android:fontFamily="@font/googlesans_medium" android:gravity="end" />
@@ -292,13 +292,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="Still owed to this supplier" android:textSize="9.5sp" android:textColor="#A32D2D" />
+                            android:text="@string/xml_purchase_details_still_owed_label" android:textSize="9.5sp" android:textColor="#A32D2D" />
                         <TextView android:id="@+id/tvOwed" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="1dp" android:text="₹0" android:textSize="15sp"
                             android:textColor="#791F1F" android:fontFamily="serif" />
                     </LinearLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="View ledger ›" android:textSize="11sp" android:textColor="#B23A3A" />
+                        android:text="@string/xml_purchase_details_view_ledger_link" android:textSize="11sp" android:textColor="#B23A3A" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -310,7 +310,7 @@
                 android:layout_marginHorizontal="18dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="6dp"
-                android:text="LINE ITEMS"
+                android:text="@string/invoice_line_items_header"
                 android:textSize="11sp"
                 android:textColor="#9A8F79"
                 android:letterSpacing="0.08"
@@ -332,7 +332,7 @@
                 android:layout_marginHorizontal="18dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="6dp"
-                android:text="DEBIT &amp; CREDIT NOTES"
+                android:text="@string/xml_purchase_details_notes_header"
                 android:textSize="11sp"
                 android:textColor="#9A8F79"
                 android:letterSpacing="0.08"
@@ -368,7 +368,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Net after returns"
+                        android:text="@string/xml_purchase_details_net_after_returns"
                         android:textSize="13sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_medium" />
@@ -416,7 +416,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="48dp"
-                android:text="Debit note"
+                android:text="@string/txn_label_debit_note"
                 android:textColor="#FFFFFF"
                 android:textAllCaps="false"
                 android:textSize="13sp"
@@ -443,7 +443,7 @@
                 android:layout_weight="1"
                 android:layout_height="48dp"
                 android:layout_marginStart="10dp"
-                android:text="Credit note"
+                android:text="@string/txn_label_credit_note"
                 android:textColor="#0F6E56"
                 android:textAllCaps="false"
                 android:textSize="13sp"
@@ -471,7 +471,7 @@
             android:layout_width="match_parent"
             android:layout_height="46dp"
             android:layout_marginTop="10dp"
-            android:text="Cancel purchase"
+            android:text="@string/xml_purchase_details_cancel_button"
             android:textColor="#B23A3A"
             android:textAllCaps="false"
             android:textSize="13sp"

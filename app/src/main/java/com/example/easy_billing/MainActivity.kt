@@ -97,7 +97,7 @@ class MainActivity : BaseActivity() {
     private suspend fun confirmDestructiveWorkspaceSwitch(pendingCount: Int): Boolean =
         suspendCancellableCoroutine { cont ->
             val dialog = AlertDialog.Builder(this)
-                .setTitle("Unsynced data will be lost")
+                .setTitle(R.string.unsynced_data_will_be_lost)
                 .setMessage(
                     "This device has $pendingCount unsynced record(s) from your " +
                         "current workspace. Switching now will permanently delete " +
@@ -105,11 +105,11 @@ class MainActivity : BaseActivity() {
                         "Go back and let them sync first, or continue anyway?"
                 )
                 .setCancelable(false)
-                .setPositiveButton("Switch anyway") { d, _ ->
+                .setPositiveButton(R.string.switch_anyway) { d, _ ->
                     d.dismiss()
                     if (cont.isActive) cont.resume(true) {}
                 }
-                .setNegativeButton("Go back") { d, _ ->
+                .setNegativeButton(R.string.go_back) { d, _ ->
                     d.dismiss()
                     if (cont.isActive) cont.resume(false) {}
                 }
@@ -310,7 +310,7 @@ class MainActivity : BaseActivity() {
             val deviceId = DeviceUtils.getDeviceId(this)
 
             if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_enter_all_fields, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -322,7 +322,7 @@ class MainActivity : BaseActivity() {
                     if (!isInternetAvailable()) {
                         Toast.makeText(
                             this@MainActivity,
-                            "No internet connection",
+                            R.string.no_internet_connection,
                             Toast.LENGTH_SHORT
                         ).show()
                         return@launch
@@ -346,7 +346,7 @@ class MainActivity : BaseActivity() {
                             startCtaArrowAnimation(R.id.btnLogin)
                             Toast.makeText(
                                 this@MainActivity,
-                                "Couldn't verify time. Check your connection and retry.",
+                                R.string.couldnt_verify_time_retry,
                                 Toast.LENGTH_LONG
                             ).show()
                             return@launch
@@ -364,7 +364,7 @@ class MainActivity : BaseActivity() {
                     if (token.isNullOrEmpty()) {
                         Toast.makeText(
                             this@MainActivity,
-                            "Invalid login response",
+                            R.string.invalid_login_response,
                             Toast.LENGTH_LONG
                         ).show()
                         btnLogin.isEnabled = true
@@ -416,7 +416,7 @@ class MainActivity : BaseActivity() {
                             // untouched — just stop here and let them sync first.
                             Toast.makeText(
                                 this@MainActivity,
-                                "Switch cancelled — sync your pending data first, then try again.",
+                                R.string.switch_cancelled_sync_pending,
                                 Toast.LENGTH_LONG
                             ).show()
                             btnLogin.isEnabled = true

@@ -109,9 +109,9 @@ class BillHistoryAdapter(
 
         // Status caption text mirrors purchase-history's plain lowercase style.
         holder.tvPaymentMethod.text = when {
-            bill.is_cancelled -> "cancelled"
-            isCredit -> "on credit"
-            else -> "paid"
+            bill.is_cancelled -> context.getString(R.string.bill_history_status_cancelled)
+            isCredit -> context.getString(R.string.bill_history_status_on_credit)
+            else -> context.getString(R.string.bill_history_status_paid)
         }
 
         // N1: cancelled (voided) bills stay visible, clearly marked, muted grey

@@ -127,7 +127,7 @@ class AiDashboardActivity : BaseActivity() {
                         renderOnline(cached)
                         Toast.makeText(
                             this@AiDashboardActivity,
-                            "Showing last saved insights (offline)",
+                            R.string.ai_dashboard_toast_offline_cache,
                             Toast.LENGTH_SHORT
                         ).show()
                     } catch (inner: Exception) {
@@ -138,7 +138,7 @@ class AiDashboardActivity : BaseActivity() {
                     showErrorState()
                     Toast.makeText(
                         this@AiDashboardActivity,
-                        "Couldn't load insights. Check your connection.",
+                        R.string.ai_dashboard_toast_load_failed,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -189,7 +189,7 @@ class AiDashboardActivity : BaseActivity() {
         tvPerformanceScore.text = "--"
         viewAuditRing.backgroundTintList = ColorStateList.valueOf(getColor(R.color.ai_neutral))
         tvInsightsSummary.text = ""
-        tvInsightsEmpty.text = "Insights need an active connection."
+        tvInsightsEmpty.text = getString(R.string.ai_dashboard_offline_empty)
         bindInsights(emptyList())
     }
 
@@ -260,10 +260,10 @@ class AiDashboardActivity : BaseActivity() {
     /** Maps the audit score to a labelled, colour-coded band on the ring + number + badge. */
     private fun applyScoreBand(score: Int) {
         val (label, fillRes, inkRes) = when {
-            score >= 90 -> Triple("OPTIMUM", R.color.band_green_bg, R.color.band_green_ink)
-            score >= 78 -> Triple("HEALTHY", R.color.band_green_bg, R.color.band_green_ink)
-            score >= 66 -> Triple("FAIR", R.color.band_amber_bg, R.color.band_amber_ink)
-            else -> Triple("NEEDS WORK", R.color.band_red_bg, R.color.band_red_ink)
+            score >= 90 -> Triple(getString(R.string.ai_dashboard_band_optimum), R.color.band_green_bg, R.color.band_green_ink)
+            score >= 78 -> Triple(getString(R.string.ai_dashboard_band_healthy), R.color.band_green_bg, R.color.band_green_ink)
+            score >= 66 -> Triple(getString(R.string.ai_dashboard_band_fair), R.color.band_amber_bg, R.color.band_amber_ink)
+            else -> Triple(getString(R.string.ai_dashboard_band_needs_work), R.color.band_red_bg, R.color.band_red_ink)
         }
         val fill = getColor(fillRes)
         val ink = getColor(inkRes)
@@ -290,14 +290,14 @@ class AiDashboardActivity : BaseActivity() {
 
     /** Shown when the fetch fails — a clear, non-blank error instead of frozen placeholders. */
     private fun showErrorState() {
-        tvPerformanceScore.text = "—"
-        tvScoreBadge.text = "—"
+        tvPerformanceScore.text = getString(R.string.dash)
+        tvScoreBadge.text = getString(R.string.dash)
         viewAuditRing.backgroundTintList = ColorStateList.valueOf(getColor(R.color.ai_neutral))
-        tvKpiUrgent.text = "—"
-        tvKpiLeaks.text = "—"
-        tvKpiWins.text = "—"
+        tvKpiUrgent.text = getString(R.string.dash)
+        tvKpiLeaks.text = getString(R.string.dash)
+        tvKpiWins.text = getString(R.string.dash)
         tvInsightsSummary.text = ""
-        tvInsightsEmpty.text = "Couldn't load insights. Check your connection."
+        tvInsightsEmpty.text = getString(R.string.ai_dashboard_toast_load_failed)
         insightAdapter.submit(emptyList())
         rvInsights.visibility = View.GONE
         tvInsightsEmpty.visibility = View.VISIBLE

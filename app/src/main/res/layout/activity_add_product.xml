@@ -51,7 +51,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INVENTORY"
+                android:text="@string/add_product_section_inventory_label"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -65,7 +65,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add"
+                    android:text="@string/add_product_title_add"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -75,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="product"
+                    android:text="@string/add_product_title_product"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -103,7 +103,7 @@
                 android:id="@+id/tvCatalogBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New to catalog"
+                android:text="@string/add_product_new_to_catalog"
                 android:textColor="#8A8272"
                 android:textSize="12.5sp"/>
         </LinearLayout>
@@ -145,14 +145,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="PRODUCT DETAILS"
+                            android:text="@string/add_product_section_product_details"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:letterSpacing="0.12"
                             android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
-                    <TextView style="@style/AddpFieldLabel" android:text="Product name"/>
+                    <TextView style="@style/AddpFieldLabel" android:text="@string/purchase_field_product"/>
                     <AutoCompleteTextView
                         android:id="@+id/etName"
                         android:layout_width="match_parent"
@@ -163,7 +163,7 @@
                         android:drawablePadding="10dp"
                         app:drawableStartCompat="@drawable/ic_lc_box"
                         android:drawableTint="#B8895A"
-                        android:hint="Search or type new"
+                        android:hint="@string/add_product_name_hint"
                         android:textColorHint="#A99E88"
                         android:textColor="#1A1A18"
                         android:textSize="15sp"
@@ -181,7 +181,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
-                            <TextView style="@style/AddpFieldLabel" android:text="Variant"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_variant_label"/>
                             <AutoCompleteTextView
                                 android:id="@+id/etVariant"
                                 android:layout_width="match_parent"
@@ -193,7 +193,7 @@
                                 app:drawableStartCompat="@drawable/ic_lc_ruler"
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                 android:drawableTint="#B8895A"
-                                android:hint="Size or pack type"
+                                android:hint="@string/add_product_variant_hint"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -207,7 +207,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:layout_marginStart="12dp">
-                            <TextView style="@style/AddpFieldLabel" android:text="Unit"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_unit_label"/>
                             <TextView
                                 android:id="@+id/etUnit"
                                 android:layout_width="match_parent"
@@ -219,7 +219,7 @@
                                 app:drawableStartCompat="@drawable/ic_lc_scale"
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                 android:drawableTint="#B8895A"
-                                android:hint="Tap to select"
+                                android:hint="@string/invoice_hint_tap_to_select"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -228,7 +228,7 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <TextView style="@style/AddpFieldLabel" android:text="Category"/>
+                    <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_category_label"/>
                     <TextView
                         android:id="@+id/etCategory"
                         android:layout_width="match_parent"
@@ -240,7 +240,7 @@
                         app:drawableStartCompat="@drawable/ic_lc_tag"
                         app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                         android:drawableTint="#B8895A"
-                        android:hint="Tap to select"
+                        android:hint="@string/invoice_hint_tap_to_select"
                         android:textColorHint="#A99E88"
                         android:textColor="#1A1A18"
                         android:textSize="15sp"
@@ -267,7 +267,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="PRICING &amp; TAX"
+                            android:text="@string/add_product_section_pricing_tax"
                             android:textColor="#8A6526"
                             android:textSize="12sp"
                             android:letterSpacing="0.12"
@@ -285,7 +285,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
-                            <TextView style="@style/AddpFieldLabel" android:text="Selling price"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_selling_price_label"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
@@ -305,7 +305,7 @@
                                     android:layout_height="match_parent"
                                     android:background="@android:color/transparent"
                                     android:paddingStart="9dp"
-                                    android:hint="Rate per unit"
+                                    android:hint="@string/add_product_rate_per_unit_hint"
                                     android:textColorHint="#A99E88"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
@@ -319,7 +319,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:layout_marginStart="12dp">
-                            <TextView style="@style/AddpFieldLabel" android:text="HSN / SAC"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_hsn_sac_label"/>
                             <EditText
                                 android:id="@+id/etHsn"
                                 android:layout_width="match_parent"
@@ -329,7 +329,7 @@
                                 android:drawablePadding="8dp"
                                 app:drawableStartCompat="@drawable/ic_lc_file_text"
                                 android:drawableTint="#B8895A"
-                                android:hint="Tax code"
+                                android:hint="@string/add_product_tax_code_hint"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -356,13 +356,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Price includes tax"
+                                android:text="@string/add_product_price_includes_tax"
                                 android:textColor="#1A1A18"
                                 android:textSize="14sp"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Selling price is MRP (tax-inclusive)"
+                                android:text="@string/add_product_price_mrp_note"
                                 android:textColor="#8A8272"
                                 android:textSize="11.5sp"/>
                         </LinearLayout>
@@ -384,7 +384,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
-                            <TextView style="@style/AddpFieldLabel" android:text="CGST"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/invoice_cgst_label"/>
                             <EditText
                                 android:id="@+id/etCgst"
                                 android:layout_width="match_parent"
@@ -394,7 +394,7 @@
                                 android:drawablePadding="5dp"
                                 app:drawableStartCompat="@drawable/ic_lc_percent"
                                 android:drawableTint="#B8895A"
-                                android:hint="Central tax"
+                                android:hint="@string/add_product_central_tax_hint"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -407,7 +407,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:layout_marginStart="10dp">
-                            <TextView style="@style/AddpFieldLabel" android:text="SGST"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/invoice_sgst_label"/>
                             <EditText
                                 android:id="@+id/etSgst"
                                 android:layout_width="match_parent"
@@ -417,7 +417,7 @@
                                 android:drawablePadding="5dp"
                                 app:drawableStartCompat="@drawable/ic_lc_percent"
                                 android:drawableTint="#B8895A"
-                                android:hint="State tax"
+                                android:hint="@string/add_product_state_tax_hint"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -430,7 +430,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:layout_marginStart="10dp">
-                            <TextView style="@style/AddpFieldLabel" android:text="IGST · auto"/>
+                            <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_igst_auto_label"/>
                             <EditText
                                 android:id="@+id/etIgst"
                                 android:layout_width="match_parent"
@@ -440,7 +440,7 @@
                                 android:drawablePadding="5dp"
                                 app:drawableStartCompat="@drawable/ic_lc_percent"
                                 android:drawableTint="#B0A895"
-                                android:hint="Auto-filled"
+                                android:hint="@string/add_product_auto_filled_hint"
                                 android:textColorHint="#B0A895"
                                 android:textColor="#8A8272"
                                 android:textSize="15sp"
@@ -469,7 +469,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="GST &amp; COMPLIANCE"
+                        android:text="@string/add_product_section_gst_compliance"
                         android:textColor="#8A6526"
                         android:textSize="12sp"
                         android:letterSpacing="0.12"
@@ -478,7 +478,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="optional — for GSTR-1 filing"
+                        android:text="@string/add_product_gstr1_optional_note"
                         android:textColor="#A99E88"
                         android:textSize="11.5sp"/>
                 </LinearLayout>
@@ -490,7 +490,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-                        <TextView style="@style/AddpFieldLabel" android:text="Official UQC"/>
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_official_uqc_label"/>
                         <TextView
                             android:id="@+id/spinnerUqc"
                             android:layout_width="match_parent"
@@ -502,7 +502,7 @@
                             app:drawableStartCompat="@drawable/ic_lc_scale"
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
-                            android:hint="Auto from unit"
+                            android:hint="@string/add_product_auto_from_unit_hint"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
@@ -515,7 +515,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginTop="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="Supply classification"/>
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_supply_classification_label"/>
                         <TextView
                             android:id="@+id/spinnerSupplyClass"
                             android:layout_width="match_parent"
@@ -527,7 +527,7 @@
                             app:drawableStartCompat="@drawable/ic_lc_truck"
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
-                            android:hint="Tap to select"
+                            android:hint="@string/invoice_hint_tap_to_select"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
@@ -540,7 +540,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginTop="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="HSN description"/>
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_hsn_description_label"/>
                         <EditText
                             android:id="@+id/etHsnDesc"
                             android:layout_width="match_parent"
@@ -550,7 +550,7 @@
                             android:drawablePadding="8dp"
                             app:drawableStartCompat="@drawable/ic_lc_file_text"
                             android:drawableTint="#B8895A"
-                            android:hint="Short description"
+                            android:hint="@string/add_product_short_description_hint"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
@@ -563,7 +563,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginTop="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="Cess %"/>
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_cess_label"/>
                         <EditText
                             android:id="@+id/etCessRate"
                             android:layout_width="match_parent"
@@ -573,7 +573,7 @@
                             android:drawablePadding="8dp"
                             app:drawableStartCompat="@drawable/ic_lc_percent"
                             android:drawableTint="#B8895A"
-                            android:hint="If applicable"
+                            android:hint="@string/add_product_if_applicable_hint"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
@@ -618,7 +618,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Add opening stock"
+                            android:text="@string/add_product_opening_stock_title"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:fontFamily="@font/googlesans_semibold"/>
@@ -626,7 +626,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Optional — sets current stock &amp; cost"
+                            android:text="@string/add_product_opening_stock_subtitle"
                             android:textColor="#8A8272"
                             android:textSize="12sp"/>
                     </LinearLayout>
@@ -651,7 +651,7 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-                        <TextView style="@style/AddpFieldLabel" android:text="Quantity" android:layout_marginTop="0dp"/>
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/quantity" android:layout_marginTop="0dp"/>
                         <EditText
                             android:id="@+id/etQty"
                             android:layout_width="match_parent"
@@ -661,7 +661,7 @@
                             android:drawablePadding="8dp"
                             app:drawableStartCompat="@drawable/ic_lc_package"
                             android:drawableTint="#B8895A"
-                            android:hint="Current stock"
+                            android:hint="@string/add_product_current_stock_hint"
                             android:textColorHint="#A99E88"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
@@ -674,7 +674,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_marginStart="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="Cost / unit" android:layout_marginTop="0dp"/>
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_cost_per_unit_label" android:layout_marginTop="0dp"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
@@ -695,7 +695,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@android:color/transparent"
                                 android:paddingStart="6dp"
-                                android:hint="What you paid"
+                                android:hint="@string/add_product_what_you_paid_hint"
                                 android:textColorHint="#A99E88"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
@@ -723,7 +723,7 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="No input credit. For GST ITC, use Record a purchase."
+                            android:text="@string/add_product_no_input_credit_note"
                             android:textColor="#8A6526"
                             android:textSize="12.5sp"/>
                     </LinearLayout>
@@ -761,7 +761,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:textColor="#9A2E2E"
                 android:textSize="13.5sp"
                 android:textStyle="bold"
@@ -789,7 +789,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Save product"
+                android:text="@string/add_product_save_product_button"
                 android:textColor="#FFFFFF"
                 android:textSize="16.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>

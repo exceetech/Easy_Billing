@@ -197,8 +197,8 @@ class Gstr1EcoUrp2cAdapter(rows: List<EcoUrp2CRow>) : EcoBaseAdapter<EcoUrp2CRow
         h.tvBadge.backgroundTintList =
             android.content.res.ColorStateList.valueOf(Color.parseColor("#FAEEDA"))
 
-        h.tvTitle.text = row.placeOfSupply.ifBlank { "Place of supply not set" }
-        h.tvMeta.text = "unregistered supplier  ·  unregistered buyer"
+        h.tvTitle.text = row.placeOfSupply.ifBlank { h.itemView.context.getString(R.string.gstr1_pos_not_set) }
+        h.tvMeta.text = h.itemView.context.getString(R.string.gstr1_eco_unreg_supplier_buyer)
 
         if (row.cessAmount != 0.0) {
             h.tvExtra.visibility = View.VISIBLE

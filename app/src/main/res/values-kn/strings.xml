@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
 
     <string name="app_name">ExPOS</string>
@@ -7,8 +7,8 @@
     <string name="full_name">ಪೂರ್ಣ ಹೆಸರು</string>
     <string name="create_account">ಖಾತೆ ರಚಿಸಿ</string>
     <string name="email">ಇಮೇಲ್</string>
-    <string name="password">ಪಾಸ್‌ವರ್ಡ್</string>
-    <string name="confirm_password">ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ</string>
+    <string name="password">ಪಾಸ್</string>
+    <string name="confirm_password">ಪಾಸ್</string>
     <string name="register">ನೋಂದಣಿ</string>
     <string name="already_have_an_account_login">ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯಾ? ಲಾಗಿನ್ ಮಾಡಿ</string>
     <string name="shop_name">ಅಂಗಡಿ ಹೆಸರು</string>
@@ -35,7 +35,7 @@
     <string name="region">ಪ್ರದೇಶ</string>
     <string name="currency">ಕರೆನ್ಸಿ</string>
 
-    <string name="gst">ಜಿಎಸ್‌ಟಿ</string>
+    <string name="gst">ಜಿಎಸ್</string>
     <string name="discount">ರಿಯಾಯಿತಿ</string>
     <string name="total">ಒಟ್ಟು</string>
     <string name="store_name">ಅಂಗಡಿ ಹೆಸರು</string>
@@ -71,12 +71,12 @@
     <string name="this_month">ಈ ತಿಂಗಳು</string>
     <string name="sort_amount">ಮೊತ್ತದ ಆಧಾರದ ಮೇಲೆ ಸರಿಸಿ</string>
 
-    <string name="default_gst">ಡೀಫಾಲ್ಟ್ ಜಿಎಸ್ಟಿ (%)</string>
+    <string name="default_gst">ಡೀಫಾಲ್ಟ್ ಜಿಎಸ್ಟಿ (%%)</string>
     <string name="printer_layout">ಪ್ರಿಂಟರ್ ವಿನ್ಯಾಸ</string>
-    <string name="save_billing_settings">ಬಿಲ್ಲಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಿ</string>
+    <string name="save_billing_settings">ಬಿಲ್ಲಿಂಗ್ ಸೆಟ್ಟಿಂಗ್</string>
 
     <string name="create_new_password">ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ</string>
-    <string name="new_password">ಹೊಸ ಪಾಸ್‌ವರ್ಡ್</string>
+    <string name="new_password">ಹೊಸ ಪಾಸ್</string>
     <string name="save_password">ಪಾಸ್‌ವರ್ಡ್ ಉಳಿಸಿ</string>
 
     <string name="menu">ಮೆನು</string>
@@ -86,14 +86,14 @@
     <string name="dashboard_menu">ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಮೆನು</string>
     <string name="add_products">ಉತ್ಪನ್ನಗಳನ್ನು ಸೇರಿಸಿ</string>
     <string name="bill_history">ಬಿಲ್ ಇತಿಹಾಸ</string>
-    <string name="settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="settings">ಸೆಟ್ಟಿಂಗ್</string>
     <string name="reports">ವರದಿಗಳು</string>
     <string name="ai_insights">AI ಒಳನೋಟಗಳು</string>
     <string name="generate_bill">ಬಿಲ್ ರಚಿಸಿ</string>
 
     <string name="data_and_security">ಡೇಟಾ ಮತ್ತು ಭದ್ರತೆ</string>
-    <string name="change_login_password">ಲಾಗಿನ್ ಪಾಸ್‌ವರ್ಡ್ ಬದಲಿಸಿ</string>
-    <string name="clear_all_bills">ಎಲ್ಲಾ ಬಿಲ್‌ಗಳನ್ನು ಅಳಿಸಿ</string>
+    <string name="change_login_password">ಲಾಗಿನ್ ಪಾಸ್</string>
+    <string name="clear_all_bills">ಎಲ್ಲಾ ಬಿಲ್</string>
     <string name="factory_reset_app">ಆಪ್ ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್</string>
 
     <string name="enter_your_registered_email_to_reset_your_password">
@@ -117,7 +117,7 @@
     <string name="show_phone_number">ಫೋನ್ ಸಂಖ್ಯೆ ತೋರಿಸಿ</string>
     <string name="show_discount_section">ರಿಯಾಯಿತಿ ವಿಭಾಗ ತೋರಿಸಿ</string>
     <string name="enable_round_off">ರೌಂಡ್ ಆಫ್ ಸಕ್ರಿಯಗೊಳಿಸಿ</string>
-    <string name="save_design_settings">ಡಿಸೈನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಿ</string>
+    <string name="save_design_settings">ಡಿಸೈನ್ ಸೆಟ್ಟಿಂಗ್</string>
 
     <string name="not_yet_registered_create_new_account">ಇನ್ನೂ ನೋಂದಾಯಿಸಿಲ್ಲವೇ? ಹೊಸ ಖಾತೆ ರಚಿಸಿ</string>
 
@@ -148,7 +148,7 @@
     <string name="add_to_cart">ಕಾರ್ಟ್‌ಗೆ ಸೇರಿಸಿ</string>
 
     <string name="confirm_identity">ಗುರುತನ್ನು ದೃಢೀಕರಿಸಿ</string>
-    <string name="enter_your_login_password">ನಿಮ್ಮ ಲಾಗಿನ್ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ</string>
+    <string name="enter_your_login_password">ನಿಮ್ಮ ಲಾಗಿನ್ ಪಾಸ್</string>
     <string name="verify">ಪರಿಶೀಲಿಸಿ</string>
 
     <string name="item">ಐಟಂ</string>

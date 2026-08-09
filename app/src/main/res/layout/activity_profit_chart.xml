@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PROFIT ANALYTICS"
+                android:text="@string/xml_profit_chart_header_title"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -48,7 +48,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Profit "
+                    android:text="@string/xml_profit_chart_title_bold"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:letterSpacing="-0.02"
@@ -58,7 +58,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="chart"
+                    android:text="@string/xml_profit_chart_title_accent"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:textStyle="italic"
@@ -85,7 +85,7 @@
                     android:backgroundTint="#DDEEEE"
                     android:padding="13dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Total profit" android:textSize="11sp" android:textColor="#9A8F79"/>
+                        android:text="@string/xml_profit_chart_total_profit_label" android:textSize="11sp" android:textColor="#9A8F79"/>
                     <TextView android:id="@+id/tvTotalProfit"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="2dp" android:text="₹0"
@@ -101,7 +101,7 @@
                     android:backgroundTint="#FCEBEB"
                     android:padding="13dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Best product" android:textSize="11sp" android:textColor="#9A8F79"/>
+                        android:text="@string/xml_profit_chart_best_product_label" android:textSize="11sp" android:textColor="#9A8F79"/>
                     <TextView android:id="@+id/tvBestProduct"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:layout_marginTop="2dp" android:text="—"
@@ -127,19 +127,19 @@
                     android:layout_marginBottom="4dp">
                     <TextView
                         android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-                        android:text="Profit per product" android:textSize="13sp"
+                        android:text="@string/xml_profit_chart_per_product_label" android:textSize="13sp"
                         android:fontFamily="@font/googlesans_bold"
                         android:textColor="#1A1A18"/>
                     <View android:layout_width="8dp" android:layout_height="8dp"
                         android:background="@drawable/bg_bar_fill" android:backgroundTint="#1D9E75"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginStart="4dp" android:layout_marginEnd="10dp"
-                        android:text="Profit" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                        android:text="@string/xml_profit_chart_legend_profit" android:textSize="10.5sp" android:textColor="#6E6A60"/>
                     <View android:layout_width="8dp" android:layout_height="8dp"
                         android:background="@drawable/bg_bar_fill" android:backgroundTint="#E24B4A"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:text="Loss" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                        android:text="@string/xml_profit_chart_legend_loss" android:textSize="10.5sp" android:textColor="#6E6A60"/>
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingVertical="24dp"
-                    android:text="No profit data for this period"
+                    android:text="@string/xml_profit_chart_no_data"
                     android:textColor="#9A8F79"
                     android:textSize="13sp"
                     android:visibility="gone"/>
@@ -166,7 +166,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:paddingHorizontal="4dp"
-                android:text="Longest bar = highest profit. Loss-making products appear in red at the bottom."
+                android:text="@string/xml_profit_chart_hint"
                 android:textColor="#9A8F79"
                 android:textSize="11sp"
                 android:lineSpacingExtra="1dp"/>

@@ -123,7 +123,7 @@ class InventoryAdapter(
         // earlier editorial layout's status caption.
         when {
             item.stock <= 0 -> {
-                holder.stockStatus.text = "Out of stock"
+                holder.stockStatus.text = holder.root.context.getString(R.string.inventory_out_of_stock)
                 holder.stockStatus.setTextColor(Color.parseColor("#B23A3A"))
             }
             item.stock <= 5 -> {
@@ -156,7 +156,7 @@ class InventoryAdapter(
 
         val stockText = if (item.stock % 1 == 0.0) item.stock.toInt().toString() else item.stock.toString()
         val (captionText, captionColor) = when {
-            item.stock <= 0 -> "Out of stock" to Color.parseColor("#B23A3A")
+            item.stock <= 0 -> context.getString(R.string.inventory_out_of_stock) to Color.parseColor("#B23A3A")
             item.stock <= 5 -> "$stockText units left · low stock" to Color.parseColor("#854F0B")
             else -> "$stockText units in stock" to Color.parseColor("#3B6D11")
         }

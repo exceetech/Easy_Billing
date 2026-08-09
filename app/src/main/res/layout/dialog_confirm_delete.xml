@@ -22,7 +22,7 @@
     </FrameLayout>
 
     <TextView
-        android:text="CATALOG"
+        android:text="@string/dialog_confirm_delete_eyebrow"
         android:textSize="10sp"
         android:letterSpacing="0.14"
         android:fontFamily="@font/googlesans_semibold"
@@ -35,7 +35,7 @@
     <!-- TITLE -->
     <TextView
         android:id="@+id/tvTitle"
-        android:text="Remove product"
+        android:text="@string/dialog_confirm_delete_title"
         android:textSize="18sp"
         android:textColor="#1A1A18"
         android:fontFamily="@font/googlesans_bold"
@@ -47,7 +47,7 @@
     <!-- MESSAGE -->
     <TextView
         android:id="@+id/tvMessage"
-        android:text="Are you sure?"
+        android:text="@string/dialog_confirm_delete_message_default"
         android:textSize="12sp"
         android:textColor="#8A8272"
         android:gravity="center"
@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:text="Remove"
+        android:text="@string/dashboard_remove_button"
         android:textColor="@android:color/white"
         android:textAllCaps="false"
         android:textSize="13.5sp"
@@ -94,7 +94,7 @@
         android:insetBottom="0dp"
         android:insetLeft="0dp"
         android:insetRight="0dp"
-        android:text="Cancel"
+        android:text="@string/cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="#9A2E2E"

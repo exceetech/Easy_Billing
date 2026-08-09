@@ -429,7 +429,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
     private fun onApplyCouponClicked() {
         val code = etCoupon.text.toString().trim().uppercase()
         if (code.isEmpty()) {
-            Toast.makeText(this, "Enter a coupon code", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.enter_a_coupon_code, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -505,7 +505,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
             if (token.isNullOrEmpty()) {
                 setPaymentInProgress(false)
-                Toast.makeText(this@ConfirmPaymentActivity, "Not logged in", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ConfirmPaymentActivity, R.string.not_logged_in, Toast.LENGTH_SHORT).show()
                 return@launch
             }
 
@@ -529,7 +529,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                     // (zero-amount coupon) — nothing left to do here except
                     // report success back to SubscriptionActivity.
                     setPaymentInProgress(false)
-                    Toast.makeText(this@ConfirmPaymentActivity, "Subscription activated", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ConfirmPaymentActivity, R.string.subscription_activated, Toast.LENGTH_LONG).show()
                     setResult(Activity.RESULT_OK)
                     finish()
                     return@launch
@@ -702,7 +702,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                     VerifyPaymentRequest(orderDbId, razorpayOrderId, razorpayPaymentId, razorpaySignature)
                 )
                 setPaymentInProgress(false)
-                Toast.makeText(this@ConfirmPaymentActivity, "Payment successful — subscription activated", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@ConfirmPaymentActivity, R.string.payment_successful_subscription_activated, Toast.LENGTH_LONG).show()
                 setResult(Activity.RESULT_OK)
                 finish()
             } catch (e: Exception) {
@@ -726,16 +726,16 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         // avoid scaring the user with "payment failed" language for a
         // simple back-button cancel.
         if (code == Checkout.PAYMENT_CANCELED) {
-            Toast.makeText(this, "Payment cancelled", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.payment_cancelled, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Payment failed. Please try again.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.payment_failed_try_again, Toast.LENGTH_LONG).show()
         }
     }
 
     private fun showPendingVerificationState() {
         Toast.makeText(
             this,
-            "Verifying your payment — this can take a moment. Pull to refresh shortly if it doesn't update.",
+            R.string.verifying_payment_message,
             Toast.LENGTH_LONG
         ).show()
         // Report success-in-flight to the caller anyway — if the webhook

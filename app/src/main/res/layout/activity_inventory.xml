@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INVENTORY"
+                android:text="@string/add_product_section_inventory_label"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -49,7 +49,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Stock"
+                    android:text="@string/inventory_title_lead"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:textStyle="bold"
@@ -60,7 +60,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="room"
+                    android:text="@string/inventory_title_accent"
                     android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -88,7 +88,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total stock value"
+            android:text="@string/inventory_total_stock_value_label"
             android:textSize="11sp"
             android:textColor="#9A8F79" />
 
@@ -121,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
-                android:text="all in stock"
+                android:text="@string/inventory_kpi_all_in_stock"
                 android:textSize="11sp"
                 android:textColor="#8A8272" />
         </LinearLayout>
@@ -155,7 +155,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Low stock"
+                    android:text="@string/inventory_filter_low_stock"
                     android:textSize="9.5sp"
                     android:textColor="#BA7517" />
             </LinearLayout>
@@ -184,7 +184,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Out of stock"
+                    android:text="@string/inventory_out_of_stock"
                     android:textSize="9.5sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
@@ -198,7 +198,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:text="0 active SKUs"
+        android:text="@string/inventory_active_skus_placeholder"
         android:textSize="11sp"
         android:textColor="#9A8F79"
         android:fontFamily="@font/googlesans_medium" />
@@ -308,7 +308,7 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lc_sliders"
                 app:tint="#B8895A"
-                android:contentDescription="Sort" />
+                android:contentDescription="@string/manage_products_sort_content_desc" />
 
         </FrameLayout>
 
@@ -329,7 +329,7 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_close"
                 app:tint="#B23A3A"
-                android:contentDescription="Reset filters" />
+                android:contentDescription="Reset filters" /> <!-- no matching string key -->
 
         </FrameLayout>
 
@@ -364,7 +364,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCatAll"
-                android:text="All categories"
+                android:text="@string/dashboard_filter_all_categories"
                 android:checked="true"
                 android:layout_width="wrap_content"
                 android:layout_height="34dp"
@@ -402,18 +402,18 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="2 selected"
+            android:text="@string/inventory_selected_count_placeholder"
             android:textSize="12sp"
             android:textColor="#CFE0F7"/>
 
         <TextView android:id="@+id/btnBulkEditPrice" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Edit price" android:textSize="11sp" android:textColor="#CFE0F7"
+            android:text="@string/inventory_bulk_edit_price" android:textSize="11sp" android:textColor="#CFE0F7"
             android:background="@drawable/bg_inv_bulk_act" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
         <TextView android:id="@+id/btnBulkCategory" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp"
-            android:text="Category" android:textSize="11sp" android:textColor="#CFE0F7"
+            android:text="@string/add_product_category_label" android:textSize="11sp" android:textColor="#CFE0F7"
             android:background="@drawable/bg_inv_bulk_act" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
         <TextView android:id="@+id/btnBulkInactive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp"
-            android:text="Mark inactive" android:textSize="11sp" android:textColor="#412402"
+            android:text="@string/inventory_bulk_mark_inactive" android:textSize="11sp" android:textColor="#412402"
             android:background="@drawable/bg_inv_bulk_act_gold" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
     </LinearLayout>
 
@@ -426,7 +426,7 @@
         android:layout_marginTop="13dp"
         android:layout_marginBottom="8dp">
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="ALL PRODUCTS" android:textSize="11sp" android:textColor="#9CA3AF"/>
+            android:text="@string/inventory_all_products_section" android:textSize="11sp" android:textColor="#9CA3AF"/>
     </LinearLayout>
 
     <!-- One card, one background — the list and the empty state are both
@@ -494,7 +494,7 @@
                         android:id="@+id/tvInventoryEmptyTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="No products"
+                        android:text="@string/inventory_no_products_title"
                         android:textSize="19sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_bold"
@@ -504,7 +504,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="yet"
+                        android:text="@string/credit_no_customers_accent"
                         android:textSize="19sp"
                         android:textColor="#0F6E56"
                         android:fontFamily="serif"
@@ -518,7 +518,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
                     android:gravity="center"
-                    android:text="Products you add will show up here — search, filter by category and sort them once you have a few."
+                    android:text="@string/inventory_no_products_body"
                     android:textSize="12.5sp"
                     android:textColor="#8A8272"
                     android:lineSpacingExtra="3dp" />
@@ -550,14 +550,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Add your first product"
+                            android:text="@string/inventory_tip_add_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Name, category, price and stock"
+                            android:text="@string/inventory_tip_add_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -582,14 +582,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Then find any product fast"
+                            android:text="@string/inventory_tip_search_title"
                             android:textSize="12sp"
                             android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="Search by name, or filter by category and stock"
+                            android:text="@string/inventory_tip_search_body"
                             android:textSize="11sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>

@@ -104,19 +104,19 @@ class ForgotPasswordActivity : BaseActivity() {
             val email = etEmail.text.toString().trim()
 
             if (email.isEmpty()) {
-                Toast.makeText(this, "Please enter registered email", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_enter_registered_email, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Enter a valid email", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.enter_a_valid_email, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
                 try {
                     btnSubmit.isEnabled = false
-                    btnSubmit.text = "Sending..."
+                    btnSubmit.text = getString(R.string.sending_ellipsis)
                     hideCtaArrow(R.id.btnSubmit)
 
                     val request = ForgotPasswordRequest(email)
@@ -154,7 +154,7 @@ class ForgotPasswordActivity : BaseActivity() {
                             btnSubmit.isEnabled = false
                         }
                         override fun onFinish() {
-                            btnSubmit.text = "Resend OTP"
+                            btnSubmit.text = getString(R.string.resend_otp)
                             btnSubmit.isEnabled = true
                             startCtaArrowAnimation(R.id.btnSubmit)
                         }
@@ -162,7 +162,7 @@ class ForgotPasswordActivity : BaseActivity() {
 
                 } catch (e: Exception) {
                     btnSubmit.isEnabled = true
-                    btnSubmit.text = "Send reset code"
+                    btnSubmit.text = getString(R.string.send_reset_code)
                     startCtaArrowAnimation(R.id.btnSubmit)
                     Toast.makeText(this@ForgotPasswordActivity, "Server error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -174,14 +174,14 @@ class ForgotPasswordActivity : BaseActivity() {
             val email = etEmail.text.toString().trim()
 
             if (otp.length != 6) {
-                Toast.makeText(this, "Enter valid 6-digit OTP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.enter_valid_6_digit_otp, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
                 try {
                     btnVerifyOtp.isEnabled = false
-                    btnVerifyOtp.text = "Verifying..."
+                    btnVerifyOtp.text = getString(R.string.verifying_ellipsis)
                     hideCtaArrow(R.id.btnVerifyOtp)
 
                     val response = RetrofitClient.api.verifyOtp(email, otp)
@@ -193,15 +193,15 @@ class ForgotPasswordActivity : BaseActivity() {
                                 .putString("RESET_TOKEN", resetToken)
                                 .apply()
 
-                            Toast.makeText(this@ForgotPasswordActivity, "OTP Verified Successfully", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ForgotPasswordActivity, R.string.otp_verified_successfully, Toast.LENGTH_SHORT).show()
                             startActivity(Intent(this@ForgotPasswordActivity, ChangePasswordActivity::class.java))
                             finish()
                         }
                     } else {
                         when (response.code()) {
-                            401 -> Toast.makeText(this@ForgotPasswordActivity, "Invalid OTP", Toast.LENGTH_SHORT).show()
-                            429 -> Toast.makeText(this@ForgotPasswordActivity, "Too many attempts", Toast.LENGTH_SHORT).show()
-                            410 -> Toast.makeText(this@ForgotPasswordActivity, "OTP expired", Toast.LENGTH_SHORT).show()
+                            401 -> Toast.makeText(this@ForgotPasswordActivity, R.string.invalid_otp, Toast.LENGTH_SHORT).show()
+                            429 -> Toast.makeText(this@ForgotPasswordActivity, R.string.too_many_attempts, Toast.LENGTH_SHORT).show()
+                            410 -> Toast.makeText(this@ForgotPasswordActivity, R.string.otp_expired, Toast.LENGTH_SHORT).show()
                             else -> Toast.makeText(this@ForgotPasswordActivity, "Server error: ${response.code()}", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -209,7 +209,7 @@ class ForgotPasswordActivity : BaseActivity() {
                     Toast.makeText(this@ForgotPasswordActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 } finally {
                     btnVerifyOtp.isEnabled = true
-                    btnVerifyOtp.text = "Verify code"
+                    btnVerifyOtp.text = getString(R.string.verify_code)
                     startCtaArrowAnimation(R.id.btnVerifyOtp)
                 }
             }

@@ -45,7 +45,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="YOUR BUSINESS"
+                        android:text="@string/your_business_eyebrow"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
                         android:letterSpacing="0.16"
@@ -59,7 +59,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Store"
+                            android:text="@string/store"
                             android:textColor="#1A1A18"
                             android:textSize="21sp"
                             android:textStyle="bold"
@@ -71,7 +71,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="information"
+                            android:text="@string/information_word"
                             android:textColor="#0F6E56"
                             android:textSize="21sp"
                             android:fontFamily="serif"
@@ -130,7 +130,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="IDENTITY"
+                        android:layout_marginStart="9dp" android:text="@string/identity_section"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -151,7 +151,7 @@
 
                 <!-- Business type (themed dropdown) -->
                 <LinearLayout style="@style/SiBlock">
-                    <TextView style="@style/SiFieldLabel" android:text="Business type"/>
+                    <TextView style="@style/SiFieldLabel" android:text="@string/business_type"/>
                     <LinearLayout
                         android:id="@+id/rowShopType"
                         style="@style/SiFieldBox"
@@ -163,7 +163,7 @@
                         <TextView
                             android:id="@+id/tvShopType"
                             style="@style/SiValue"
-                            android:text="General"/>
+                            android:text="@string/business_type_default_general"/>
                         <ImageView
                             android:id="@+id/icShopTypeChevron"
                             android:layout_width="18dp"
@@ -188,7 +188,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="CONTACT"
+                        android:layout_marginStart="9dp" android:text="@string/contact_section"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -234,7 +234,7 @@
                     android:layout_marginBottom="12dp">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="TAX"
+                        android:layout_marginStart="9dp" android:text="@string/invoice_tax_header"
                         android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
                         android:letterSpacing="0.08"/>
                 </LinearLayout>
@@ -256,7 +256,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:layout_marginStart="2dp"
-                        android:text="State code auto-derived from GSTIN prefix"
+                        android:text="@string/state_code_auto_derived_helper"
                         android:textColor="#9A8F79"
                         android:textSize="11sp"/>
                 </LinearLayout>

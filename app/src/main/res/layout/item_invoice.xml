@@ -39,7 +39,7 @@
 
             <TextView
                 android:id="@+id/tvName"
-                android:text="Product name"
+                android:text="@string/purchase_field_product"
                 android:textColor="#18181B"
                 android:textSize="13sp"
                 android:fontFamily="@font/googlesans_semibold"

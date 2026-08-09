@@ -176,7 +176,7 @@ class ImportServicesActivity : BaseActivity() {
         findViewById<View?>(R.id.tvRecordsLabel)?.visibility = View.VISIBLE
 
         findViewById<MaterialButton?>(R.id.fabAdd)?.text =
-            if (nothingRecorded) "Add your first record" else "Add record"
+            if (nothingRecorded) "Add your first record" else getString(R.string.add_record)
 
         // Chip counts and selected state, counted within the FY scope so a
         // chip's number always matches what tapping it will show.
@@ -410,11 +410,11 @@ class ImportServiceAdapter(
         when (item.syncStatus) {
             "rejected" -> {
                 holder.tvStatusBadge.visibility = View.VISIBLE
-                bindBadge(holder.tvStatusBadge, "#FCEBEB", "#791F1F", "Refused")
+                bindBadge(holder.tvStatusBadge, "#FCEBEB", "#791F1F", holder.itemView.context.getString(R.string.refused_chip))
             }
             "pending" -> {
                 holder.tvStatusBadge.visibility = View.VISIBLE
-                bindBadge(holder.tvStatusBadge, "#FAEEDA", "#633806", "Queued")
+                bindBadge(holder.tvStatusBadge, "#FAEEDA", "#633806", holder.itemView.context.getString(R.string.queued_chip))
             }
             else -> holder.tvStatusBadge.visibility = View.GONE
         }

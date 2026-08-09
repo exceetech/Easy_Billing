@@ -27,7 +27,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🔄"
+        android:text="@string/workspace_changed_icon_emoji"
         android:textSize="48sp"
         android:layout_marginBottom="20dp"/>
 
@@ -35,7 +35,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Workspace Updated"
+        android:text="@string/workspace_changed_title"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="#111827"
@@ -45,7 +45,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your business workspace has been restored or replaced from another device.\n\nYou must reload the latest workspace to continue."
+        android:text="@string/workspace_changed_body"
         android:textSize="15sp"
         android:textColor="#4B5563"
         android:textAlignment="center"
@@ -57,7 +57,7 @@
         android:id="@+id/btnReloadWorkspace"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Reload Workspace"
+        android:text="@string/workspace_changed_reload_btn"
         android:textAllCaps="false"
         android:textSize="16sp"/>
 

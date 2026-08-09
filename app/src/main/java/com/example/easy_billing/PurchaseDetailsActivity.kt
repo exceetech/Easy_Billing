@@ -91,7 +91,7 @@ class PurchaseDetailsActivity : BaseActivity() {
 
         purchaseId = intent.getIntExtra("PURCHASE_ID", -1)
         if (purchaseId == -1) {
-            Toast.makeText(this, "Invalid purchase ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.purchase_invalid_id_toast), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -433,7 +433,7 @@ class PurchaseDetailsActivity : BaseActivity() {
     private fun openNote(noteType: String) {
         val p = viewModel.selectedPurchase.value
         if (p == null) {
-            Toast.makeText(this, "Purchase not loaded yet.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.purchase_not_loaded_toast), Toast.LENGTH_SHORT).show()
             return
         }
         startActivity(
