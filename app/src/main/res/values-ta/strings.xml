@@ -85,7 +85,7 @@
     <string name="activity_debit_note_debit">டெபிட்</string>
     <string name="activity_debit_note_enter_additional_quantity_per">ஒவ்வொரு பொருளுக்கும் கூடுதல் அளவை உள்ளிடவும்</string>
     <string name="activity_debit_note_gst">ஜிஎஸ்டி</string>
-    <string name="activity_debit_note_invoice">இன்வாய்ஸ் #—</string>
+    <string name="activity_debit_note_invoice">இன்வாய்ஸ் —</string>
     <string name="activity_debit_note_note">குறிப்பு</string>
     <string name="activity_debit_note_taxable">வரி விதிக்கக்கூடிய</string>
     <string name="activity_debit_note_total_additional_value">மொத்த கூடுதல் மதிப்பு</string>
@@ -106,14 +106,14 @@
     <string name="activity_invoice_b2c">B2C</string>
     <string name="activity_invoice_m">M</string>
     <string name="activity_purchase_details_inv">INV-—  ·  —</string>
-    <string name="activity_purchase_return_invoice">இன்வாய்ஸ் #—</string>
+    <string name="activity_purchase_return_invoice">இன்வாய்ஸ் —</string>
     <string name="activity_register_ex">Ex</string>
     <string name="activity_register_pos">POS</string>
     <string name="activity_sales_return_cancel">ரத்துசெய்</string>
     <string name="activity_sales_return_confirm_and_issue_credit">உறுதிப்படுத்தி கிரெடிட் குறிப்பை வழங்கு</string>
     <string name="activity_sales_return_credit">கடன்</string>
     <string name="activity_sales_return_gst_reversal">ஜிஎஸ்டி திருப்பம்</string>
-    <string name="activity_sales_return_invoice">இன்வாய்ஸ் #—</string>
+    <string name="activity_sales_return_invoice">இன்வாய்ஸ் —</string>
     <string name="activity_sales_return_note">குறிப்பு</string>
     <string name="activity_sales_return_sales_return">விற்பனை திரும்ப</string>
     <string name="activity_sales_return_select_items_and_quantity">திரும்பப் பெற பொருட்கள் மற்றும் அளவைத் தேர்ந்தெடுக்கவும்</string>
@@ -178,7 +178,7 @@
     <string name="dialog_audit_score_info_whats_the_audit">What\'s the audit</string>
     <string name="dialog_cancel_void_invoice_cancel">ரத்துசெய் /</string>
     <string name="dialog_cancel_void_invoice_gst_reporting_and_inventory">ஜிஎஸ்டி அறிக்கை மற்றும் இருப்பு உடனடியாக புதுப்பிக்கப்படும்.</string>
-    <string name="dialog_cancel_void_invoice_invoice">இன்வாய்ஸ் #—</string>
+    <string name="dialog_cancel_void_invoice_invoice">இன்வாய்ஸ் —</string>
     <string name="dialog_cancel_void_invoice_keep_invoice">இன்வாய்ஸை வைத்திரு</string>
     <string name="dialog_cancel_void_invoice_mark_this_invoice_as">ஜிஎஸ்டி அறிக்கையிடலுக்கு இந்த இன்வாய்ஸை ரத்து செய்யப்பட்டதாகக் குறிக்கவா? இது அனைத்து பில் செய்யப்பட்ட பொருட்களையும் உங்கள் இருப்புக்கு மீட்டமைக்கும். இதை செயல்தவிர்க்க முடியாது.</string>
     <string name="dialog_cancel_void_invoice_void_invoice">இன்வாய்ஸை ரத்து செய்வதா?</string>
@@ -220,7 +220,7 @@
     <string name="dialog_clear_stock_select_batches_to_clear">Select batches to clear</string>
     <string name="dialog_clear_stock_total_to_clear">Total to clear</string>
     <string name="dialog_confirm_debit_note_additional_value">கூடுதல் மதிப்பு</string>
-    <string name="dialog_confirm_debit_note_invoice">இன்வாய்ஸ் #—</string>
+    <string name="dialog_confirm_debit_note_invoice">இன்வாய்ஸ் —</string>
     <string name="dialog_confirm_debit_note_issue_debit">டெபிட் வழங்கு</string>
     <string name="dialog_confirm_debit_note_note">குறிப்பு?</string>
     <string name="dialog_confirm_debit_note_review">மதிப்பாய்வு</string>
@@ -1983,7 +1983,7 @@
     <!-- dialog_confirm_credit_note -->
     <string name="xml_confirm_credit_note_body">இந்த விலைப்பட்டியலிலிருந்து பொருட்களை திரும்ப அனுப்புகிறீர்கள். இது இருப்பை சரிசெய்து GST கடன் நோட்டை உருவாக்கும்.</string>
     <string name="xml_confirm_credit_note_confirm_button">ஆம், கடன் நோட்டு வழங்கு</string>
-    <string name="xml_confirm_credit_note_invoice_placeholder">விலைப்பட்டியல் #—</string>
+    <string name="xml_confirm_credit_note_invoice_placeholder">விலைப்பட்டியல் —</string>
     <string name="xml_confirm_credit_note_return_value_label">திரும்ப அனுப்பும் மதிப்பு</string>
     <string name="xml_confirm_credit_note_review_button">மறுஆய்வு செய்</string>
     <string name="xml_confirm_credit_note_title_line1">கடன் நோட்டு</string>

@@ -95,7 +95,7 @@ class BillHistoryAdapter(
         holder.tvAvatar.text = avatarText
 
         // Invoice number with search highlight
-        val invoiceLabel = "Invoice #${bill.bill_number}"
+        val invoiceLabel = "Invoice ${bill.bill_number}"
         holder.tvBillNumber.text = highlightText(invoiceLabel)
 
         // Caption — short date + payment method, e.g. "12 Apr · Cash"

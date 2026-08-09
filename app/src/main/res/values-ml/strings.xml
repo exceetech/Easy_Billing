@@ -85,7 +85,7 @@
     <string name="activity_debit_note_debit">ഡെബിറ്റ്</string>
     <string name="activity_debit_note_enter_additional_quantity_per">കൂടുതൽ അളവ് നൽകുക</string>
     <string name="activity_debit_note_gst">ജിഎസ്ടി</string>
-    <string name="activity_debit_note_invoice">ഇൻവോയ്സ് #—</string>
+    <string name="activity_debit_note_invoice">ഇൻവോയ്സ് —</string>
     <string name="activity_debit_note_note">കുറിപ്പ്</string>
     <string name="activity_debit_note_taxable">നികുതി</string>
     <string name="activity_debit_note_total_additional_value">ആകെ കൂടുതൽ തുക</string>
@@ -106,14 +106,14 @@
     <string name="activity_invoice_b2c">B2C</string>
     <string name="activity_invoice_m">M</string>
     <string name="activity_purchase_details_inv">INV-—  ·  —</string>
-    <string name="activity_purchase_return_invoice">ഇൻവോയ്സ് #—</string>
+    <string name="activity_purchase_return_invoice">ഇൻവോയ്സ് —</string>
     <string name="activity_register_ex">Ex</string>
     <string name="activity_register_pos">POS</string>
     <string name="activity_sales_return_cancel">റദ്ദാക്കുക</string>
     <string name="activity_sales_return_confirm_and_issue_credit">ക്രെഡിറ്റ് നോട്ട് നൽകുക</string>
     <string name="activity_sales_return_credit">ക്രെഡിറ്റ്</string>
     <string name="activity_sales_return_gst_reversal">ജിഎസ്ടി മടക്കം</string>
-    <string name="activity_sales_return_invoice">ഇൻവോയ്സ് #—</string>
+    <string name="activity_sales_return_invoice">ഇൻവോയ്സ് —</string>
     <string name="activity_sales_return_note">കുറിപ്പ്</string>
     <string name="activity_sales_return_sales_return">വിൽപന മടക്കം</string>
     <string name="activity_sales_return_select_items_and_quantity">മടക്കേണ്ടവ തിരഞ്ഞെടുക്കുക</string>
@@ -178,7 +178,7 @@
     <string name="dialog_audit_score_info_whats_the_audit">What\'s the audit</string>
     <string name="dialog_cancel_void_invoice_cancel">റദ്ദാക്കുക /</string>
     <string name="dialog_cancel_void_invoice_gst_reporting_and_inventory">ജിഎസ്ടിയും ഇൻവെന്ററിയും ഉടൻ അപ്ഡേറ്റ് ആകും.</string>
-    <string name="dialog_cancel_void_invoice_invoice">ഇൻവോയ്സ് #—</string>
+    <string name="dialog_cancel_void_invoice_invoice">ഇൻവോയ്സ് —</string>
     <string name="dialog_cancel_void_invoice_keep_invoice">ഇൻവോയ്സ് സൂക്ഷിക്കുക</string>
     <string name="dialog_cancel_void_invoice_mark_this_invoice_as">ജിഎസ്ടി റിപ്പോർട്ടിംഗിനായി ഈ ഇൻവോയ്സ് റദ്ദാക്കണോ? ബിൽ ചെയ്ത ഇനങ്ങൾ ഇൻവെന്ററിയിലേക്ക് തിരിച്ചെത്തും.</string>
     <string name="dialog_cancel_void_invoice_void_invoice">ഇൻവോയ്സ് മാറ്റണോ?</string>
@@ -220,7 +220,7 @@
     <string name="dialog_clear_stock_select_batches_to_clear">Select batches to clear</string>
     <string name="dialog_clear_stock_total_to_clear">Total to clear</string>
     <string name="dialog_confirm_debit_note_additional_value">കൂടുതൽ തുക</string>
-    <string name="dialog_confirm_debit_note_invoice">ഇൻവോയ്സ് #—</string>
+    <string name="dialog_confirm_debit_note_invoice">ഇൻവോയ്സ് —</string>
     <string name="dialog_confirm_debit_note_issue_debit">ഡെബിറ്റ് നൽകുക</string>
     <string name="dialog_confirm_debit_note_note">കുറിപ്പ്?</string>
     <string name="dialog_confirm_debit_note_review">പരിശോധിക്കുക</string>
@@ -1983,7 +1983,7 @@
     <!-- dialog_confirm_credit_note -->
     <string name="xml_confirm_credit_note_body">നിങ്ങൾ ഈ ഇൻവോയ്സിൽ നിന്ന് ഇനങ്ങൾ റിട്ടേൺ ചെയ്യുകയാണ്. ഇത് ഇൻവെന്ററി അഡ്ജസ്റ്റ് ചെയ്യുകയും ഒരു GST ക്രെഡിറ്റ് നോട്ട് ജനറേറ്റ് ചെയ്യുകയും ചെയ്യും.</string>
     <string name="xml_confirm_credit_note_confirm_button">അതെ, ക്രെഡിറ്റ് നോട്ട് ഇഷ്യൂ ചെയ്യുക</string>
-    <string name="xml_confirm_credit_note_invoice_placeholder">ഇൻവോയ്സ് #—</string>
+    <string name="xml_confirm_credit_note_invoice_placeholder">ഇൻവോയ്സ് —</string>
     <string name="xml_confirm_credit_note_return_value_label">റിട്ടേൺ മൂല്യം</string>
     <string name="xml_confirm_credit_note_review_button">അവലോകനം ചെയ്യുക</string>
     <string name="xml_confirm_credit_note_title_line1">ക്രെഡിറ്റ് ഇഷ്യൂ ചെയ്യുക</string>

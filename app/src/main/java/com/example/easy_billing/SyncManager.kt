@@ -2790,7 +2790,8 @@ class SyncManager(private val context: Context) {
                 eco_role                = inv.ecoRole,
                 document_type           = inv.documentType,
                 document_nature         = inv.documentNature,
-                document_series         = inv.invoiceNumber.split("_").firstOrNull() ?: inv.documentSeries
+                document_series         = inv.invoiceNumber.takeWhile { it.isLetter() }
+                    .ifBlank { null } ?: inv.documentSeries
             )
         }
 

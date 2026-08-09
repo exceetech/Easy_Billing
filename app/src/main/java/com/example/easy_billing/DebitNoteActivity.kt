@@ -70,7 +70,7 @@ class DebitNoteActivity : BaseActivity() {
         btnConfirmDebit = findViewById(R.id.btnConfirmDebit)
         btnCancelDebit  = findViewById(R.id.btnCancelDebit)
 
-        tvInvoiceNumber.text = "Invoice #$billNumber"
+        tvInvoiceNumber.text = "Invoice $billNumber"
 
         rvDebitItems.layoutManager = LinearLayoutManager(this)
         rvDebitItems.clipToOutline = true
@@ -180,7 +180,7 @@ class DebitNoteActivity : BaseActivity() {
     }
 
     private fun bindBillHeader(bill: Bill) {
-        tvInvoiceNumber.text = "Invoice #${bill.billNumber}"
+        tvInvoiceNumber.text = "Invoice ${bill.billNumber}"
         try {
             val parsedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 .parse(bill.date.substring(0, 19))
@@ -219,7 +219,7 @@ class DebitNoteActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         view.findViewById<TextView>(R.id.tvConfirmDebitEyebrow).text =
-            "Invoice #${bill.billNumber}"
+            "Invoice ${bill.billNumber}"
         view.findViewById<TextView>(R.id.tvConfirmDebitMessage).text =
             "You're issuing a debit note for additional value on Invoice #${bill.billNumber}. This will generate a GST debit note."
         view.findViewById<TextView>(R.id.tvConfirmDebitValue).text = tvTotalDebitValue.text

@@ -82,7 +82,7 @@ class SalesReturnActivity : AppCompatActivity() {
         btnConfirmReturn = findViewById(R.id.btnConfirmReturn)
         btnCancelReturn  = findViewById(R.id.btnCancelReturn)
 
-        tvInvoiceNumber.text = "Invoice #$billNumber"
+        tvInvoiceNumber.text = "Invoice $billNumber"
 
         rvReturnItems.layoutManager = LinearLayoutManager(this)
 
@@ -249,7 +249,7 @@ class SalesReturnActivity : AppCompatActivity() {
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun bindBillHeader(bill: Bill) {
-        tvInvoiceNumber.text = "Invoice #${bill.billNumber}"
+        tvInvoiceNumber.text = "Invoice ${bill.billNumber}"
         try {
             val parsedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 .parse(bill.date.substring(0, 19))
@@ -291,7 +291,7 @@ class SalesReturnActivity : AppCompatActivity() {
 
         val unitCount = lines.sumOf { it.second }.let { "%.2f".format(it) }
         view.findViewById<TextView>(R.id.tvConfirmCreditEyebrow).text =
-            "Invoice #${bill.billNumber}"
+            "Invoice ${bill.billNumber}"
         view.findViewById<TextView>(R.id.tvConfirmCreditMessage).text =
             "You're returning $unitCount unit(s) from Invoice #${bill.billNumber}. This will adjust inventory and generate a GST credit note."
         view.findViewById<TextView>(R.id.tvConfirmCreditValue).text = tvTotalReturnValue.text

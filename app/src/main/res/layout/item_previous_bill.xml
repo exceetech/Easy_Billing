@@ -60,7 +60,7 @@
                     android:id="@+id/tvBillNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Invoice #0001"
+                    android:text="Invoice 0001"
                     android:textSize="13.5sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="@font/googlesans_medium"

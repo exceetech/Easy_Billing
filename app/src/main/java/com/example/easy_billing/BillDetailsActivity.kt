@@ -230,7 +230,7 @@ class BillDetailsActivity : AppCompatActivity() {
                     bill.created_at // fallback
                 }
 
-                tvBillInfo.text = "Invoice · #${bill.bill_number}"
+                tvBillInfo.text = "Invoice · ${bill.bill_number}"
                 tvBillDate.text = cleanDate
                 resolvedBillNumber = bill.bill_number
 
@@ -410,8 +410,8 @@ class BillDetailsActivity : AppCompatActivity() {
                 dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
                 view.findViewById<TextView>(R.id.tvCancelInvoiceEyebrow).text =
-                    "Invoice #$resolvedBillNumber".takeIf { resolvedBillNumber.isNotBlank() }
-                        ?: "Invoice #—"
+                    "Invoice $resolvedBillNumber".takeIf { resolvedBillNumber.isNotBlank() }
+                        ?: "Invoice —"
                 view.findViewById<TextView>(R.id.tvCancelInvoiceMessage).text = message
 
                 view.findViewById<MaterialButton>(R.id.btnConfirmCancelInvoice).setOnClickListener {
