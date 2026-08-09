@@ -42,7 +42,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TREND"
+                        android:text="@string/fragment_charts_trend"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
                         android:letterSpacing="0.16"
@@ -57,7 +57,7 @@
                             android:id="@+id/tvTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Sales"
+                            android:text="@string/fragment_charts_sales"
                             android:textColor="#1A1A18"
                             android:textSize="19sp"
                             android:textStyle="bold"
@@ -67,7 +67,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="trend"
+                            android:text="@string/fragment_charts_trend_1"
                             android:textColor="#0F6E56"
                             android:textSize="19sp"
                             android:fontFamily="serif"
@@ -94,7 +94,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Rising"
+                        android:text="@string/fragment_charts_rising"
                         android:textSize="10.5sp"
                         android:textColor="#9A8F79"
                         android:layout_marginEnd="12dp"/>
@@ -108,7 +108,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Falling"
+                        android:text="@string/fragment_charts_falling"
                         android:textSize="10.5sp"
                         android:textColor="#9A8F79"/>
                 </LinearLayout>
@@ -135,7 +135,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="This period"
+                        android:text="@string/fragment_charts_this_period"
                         android:textColor="#9A8F79"
                         android:textSize="9.5sp"/>
 
@@ -162,7 +162,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Peak"
+                        android:text="@string/fragment_charts_peak"
                         android:textColor="#9A8F79"
                         android:textSize="9.5sp"/>
 

@@ -227,7 +227,7 @@
                             <AutoCompleteTextView
                                 android:id="@+id/etCategoryPurchase"
                                 android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                android:background="@null" android:hint="Tap to select"
+                                android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select"
                                 android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                 android:inputType="none" android:focusable="false" android:clickable="true"
                                 android:singleLine="true" android:textSize="15sp"/>
@@ -314,7 +314,7 @@
                     <AutoCompleteTextView
                         android:id="@+id/spinnerOfficialUqcPurchase"
                         android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                        android:background="@null" android:hint="Tap to select"
+                        android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select"
                         android:textColor="#1A1A18" android:textColorHint="#A99E88"
                         android:inputType="none" android:focusable="false" android:clickable="true"
                         android:singleLine="true" android:textSize="15sp"/>
@@ -368,7 +368,7 @@
                             <AutoCompleteTextView
                                 android:id="@+id/spinnerSupplyClassificationPurchase"
                                 android:layout_width="0dp" android:layout_height="match_parent"
-                                android:background="@null" android:hint="Tap to select"
+                                android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select"
                                 android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                 android:inputType="none" android:focusable="false" android:clickable="true"
                                 android:singleLine="true" android:textSize="15sp"/>
@@ -739,7 +739,7 @@
                     <AutoCompleteTextView
                         android:id="@+id/spinnerEligibilityItemPurchase"
                         android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                        android:background="@null" android:hint="Tap to select"
+                        android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select"
                         android:textColor="#1A1A18" android:textColorHint="#A99E88"
                         android:inputType="none" android:focusable="false" android:clickable="true"
                         android:singleLine="true" android:textSize="15sp"/>
@@ -764,7 +764,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etCessAmountPurchase"
                         android:layout_width="match_parent" android:layout_height="match_parent"
-                        android:background="@null" android:hint="If any"
+                        android:background="@null" android:hint="@string/dialog_purchase_line_if_any"
                         android:textColor="#1A1A18" android:textColorHint="#A99E88"
                         android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                 </LinearLayout>
@@ -784,7 +784,7 @@
                         android:orientation="vertical" android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_glass_input" android:padding="9dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="IGST" android:textColor="#9A8F79" android:textSize="10sp"/>
+                            android:text="@string/dialog_purchase_line_igst" android:textColor="#9A8F79" android:textSize="10sp"/>
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etAvailedItcIgstPurchase"
                             android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -799,7 +799,7 @@
                         android:orientation="vertical" android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_glass_input" android:padding="9dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="CGST" android:textColor="#9A8F79" android:textSize="10sp"/>
+                            android:text="@string/dialog_purchase_line_cgst" android:textColor="#9A8F79" android:textSize="10sp"/>
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etAvailedItcCgstPurchase"
                             android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -814,7 +814,7 @@
                         android:orientation="vertical"
                         android:background="@drawable/bg_glass_input" android:padding="9dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="SGST" android:textColor="#9A8F79" android:textSize="10sp"/>
+                            android:text="@string/dialog_purchase_line_sgst" android:textColor="#9A8F79" android:textSize="10sp"/>
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etAvailedItcSgstPurchase"
                             android:layout_width="match_parent" android:layout_height="wrap_content"

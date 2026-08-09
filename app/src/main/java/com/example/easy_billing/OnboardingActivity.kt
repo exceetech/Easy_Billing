@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.TypedValue
@@ -166,7 +168,7 @@ class OnboardingActivity : BaseActivity() {
                 progressOnboarding.visibility = View.GONE
                 com.google.android.material.snackbar.Snackbar.make(
                     llSteps,
-                    "Couldn't load setup progress",
+                    getString(R.string.onboardingactivity_couldnt_load_setup_progress),
                     com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
                 ).setAction(R.string.retry) { refreshProgress() }.show()
             }

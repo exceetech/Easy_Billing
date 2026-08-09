@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -111,7 +113,7 @@ class BillDetailsActivity : AppCompatActivity() {
         billId = intent.getIntExtra("BILL_ID", -1)
 
         if (billId == -1) {
-            Toast.makeText(this, "Invalid Bill ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.billdetailsactivity_invalid_bill_id), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -380,7 +382,7 @@ class BillDetailsActivity : AppCompatActivity() {
      */
     private fun confirmCancellation() {
         if (localBillId == -1) {
-            Toast.makeText(this, "Bill not loaded yet", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_not_loaded_yet), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -433,7 +435,7 @@ class BillDetailsActivity : AppCompatActivity() {
      */
     private fun performCancellation() {
         if (resolvedBillNumber.isBlank()) {
-            Toast.makeText(this, "Bill number not resolved yet", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_number_not_resolved), Toast.LENGTH_SHORT).show()
             return
         }
         btnCancelBill.isEnabled = false
@@ -537,7 +539,7 @@ class BillDetailsActivity : AppCompatActivity() {
                     applyBillCancellationState(cancelled = true)
                     Toast.makeText(
                         this@BillDetailsActivity,
-                        "Invoice voided. Cancellation will sync automatically.",
+                        getString(R.string.billdetailsactivity_invoice_voided_cancellation_will),
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -574,7 +576,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
     private fun openSalesReturn() {
         if (localBillId == -1) {
-            Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_not_loaded_yet_1), Toast.LENGTH_SHORT).show()
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
@@ -582,7 +584,7 @@ class BillDetailsActivity : AppCompatActivity() {
             val bill = db.billDao().getBillById(localBillId)
             withContext(Dispatchers.Main) {
                 if (bill.isCancelled) {
-                    Toast.makeText(this@BillDetailsActivity, "Cannot issue a credit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BillDetailsActivity, getString(R.string.billdetailsactivity_cannot_issue_a_credit), Toast.LENGTH_SHORT).show()
                     return@withContext
                 }
                 val intent = Intent(this@BillDetailsActivity, SalesReturnActivity::class.java).apply {
@@ -596,7 +598,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
     private fun openDebitNote() {
         if (localBillId == -1) {
-            Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_not_loaded_yet_1), Toast.LENGTH_SHORT).show()
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
@@ -604,7 +606,7 @@ class BillDetailsActivity : AppCompatActivity() {
             val bill = db.billDao().getBillById(localBillId)
             withContext(Dispatchers.Main) {
                 if (bill.isCancelled) {
-                    Toast.makeText(this@BillDetailsActivity, "Cannot issue a debit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BillDetailsActivity, getString(R.string.billdetailsactivity_cannot_issue_a_debit), Toast.LENGTH_SHORT).show()
                     return@withContext
                 }
                 val intent = Intent(this@BillDetailsActivity, DebitNoteActivity::class.java).apply {
@@ -771,7 +773,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 e.printStackTrace()
                 Toast.makeText(
                     this@BillDetailsActivity,
-                    "Couldn't save the invoice — storage permission is needed",
+                    getString(R.string.billdetailsactivity_couldnt_save_the_invoice),
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {

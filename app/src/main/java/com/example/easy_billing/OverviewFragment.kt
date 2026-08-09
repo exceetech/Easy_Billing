@@ -233,7 +233,7 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(requireContext(), "Failed to load overview", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.overviewfragment_failed_to_load_overview), Toast.LENGTH_SHORT).show()
             }
         }
     }

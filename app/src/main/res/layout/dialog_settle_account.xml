@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="Customer"
+        android:text="@string/dialog_settle_account_customer"
         android:textColor="#B8895A"
         android:textSize="10sp"
         android:letterSpacing="0.16"
@@ -61,7 +61,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Settle this"
+            android:text="@string/dialog_settle_account_settle_this"
             android:textColor="#1A1A18"
             android:textSize="20sp"
             android:fontFamily="@font/googlesans_bold"
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:text="account"
+            android:text="@string/dialog_settle_account_account"
             android:textColor="#0F6E56"
             android:textSize="20sp"
             android:fontFamily="serif"
@@ -89,7 +89,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Writing off"
+            android:text="@string/dialog_settle_account_writing_off"
             android:textColor="#9A8F79"
             android:textSize="11sp" />
         <TextView
@@ -110,7 +110,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="The balance goes to zero and the amount is logged in their history. This doesn't record money received — use Record a payment for that."
+        android:text="@string/dialog_settle_account_the_balance_goes_to"
         android:textColor="#8A8272"
         android:textSize="12sp"
         android:lineSpacingExtra="3dp" />
@@ -126,7 +126,7 @@
         android:insetBottom="0dp"
         android:insetLeft="0dp"
         android:insetRight="0dp"
-        android:text="Settle account"
+        android:text="@string/dialog_settle_account_settle_account"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="@android:color/white"
@@ -153,7 +153,7 @@
         android:insetBottom="0dp"
         android:insetLeft="0dp"
         android:insetRight="0dp"
-        android:text="Cancel"
+        android:text="@string/dialog_settle_account_cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="#9A2E2E"

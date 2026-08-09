@@ -1,291 +1,2230 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    
-    <string name="app_name">ExPOS</string>
-    <string name="powered_by_scalancer">Scalancer</string>
-
-    
-    <string name="phone_number">Phone Number</string>
-    <string name="full_name">Full Name</string>
-    <string name="create_account">Create Account</string>
-    <string name="email">Email</string>
-    <string name="password">Password</string>
-    <string name="confirm_password">Confirm Password</string>
-    <string name="register">Register</string>
-    <string name="already_have_an_account_login">Already have an account? Login</string>
-    <string name="don_t_have_an_account_register">Don\'t have an account? Register</string>
-    <string name="username">Username</string>
-    <string name="login_password">Password</string>
-    <string name="login">Login</string>
-    <string name="forgot_password">Forgot Password?</string>
-    <string name="registered_email">Registered Email</string>
-    <string name="submit">Submit</string>
-    <string name="logout">Logout</string>
-
-    
-    <string name="shop_name">Shop Name</string>
-    <string name="app_logo">App Logo</string>
-
-    
-    <string name="edit">Edit</string>
-    <string name="close">Close</string>
-
-    
-    <string name="store_information">Store Information</string>
-    <string name="billing_settings">Billing Settings</string>
-    <string name="invoice_design">Invoice Design</string>
-    <string name="localization_settings">Language and Currency</string>
-    <string name="data_security_management">Data and Security Management</string>
-
-    
-    <string name="language">Language</string>
-    <string name="region">Region</string>
-    <string name="currency">Currency</string>
-
-    
-    <string name="gst">GST</string>
-    <string name="discount">Discount</string>
-    <string name="total">Total</string>
-    <string name="store_name">Store Name</string>
-    <string name="invoice_info">Invoice #123\nDate: --</string>
-    <string name="subtotal">Subtotal</string>
-
-    
-    <string name="confirm_bill">Confirm Bill</string>
-    <string name="print_save_pdf">Print / Save PDF</string>
-
-
-    <string name="search_products">Search products...</string>
-    <string name="custom_item">Custom item</string>
-
-    <string name="todo">TODO</string>
-    <string name="total_revenue">Total Revenue</string>
-    <string name="_0">₹0</string>
-    <string name="top_selling_products">Top Selling Products</string>
-    <string name="product">Product</string>
-    <string name="qty">Qty</string>
-    <string name="revenue">Revenue</string>
-    <string name="ai_suggestions">AI Suggestions</string>
-    <string name="analyzing_your_business">Analyzing your business...</string>
-
-    <string name="today_s_sales">Today\'s Sales</string>
+    <!-- item_daily_report -->
     <string name="_0_00">₹0.00</string>
-    <string name="bills_today">Bills Today</string>
-    <string name="search_invoice_or_product">Search invoice...</string>
-    <string name="today">Today</string>
-    <string name="this_week">This Week</string>
-    <string name="this_month">This Month</string>
-    <string name="sort_amount">Sort by Amount</string>
+    <string name="_0_bills">0 bills</string>
+    <string name="date">Date</string>
 
+    <!-- activity_subscription -->
+    <string name="account_eyebrow">ACCOUNT</string>
+    <string name="checking">Checking...</string>
+    <string name="continue_button">Continue</string>
+    <string name="days_left">Days left: -</string>
+    <string name="expiry">Expiry: -</string>
+    <string name="limited_offer_badge">LIMITED OFFER</string>
+    <string name="plan">Plan: -</string>
+    <string name="start_free_trial">Start free trial</string>
+    <string name="subscription_title_part2">subscription</string>
+    <string name="subscription_trial_feature_ai_insights">AI insights</string>
+    <string name="subscription_trial_feature_profit_analytics">Profit analytics</string>
+    <string name="try_premium_free_7_days">Try Premium free for 7 days</string>
+    <string name="your_word">Your</string>
 
-    <string name="default_gst">Default GST (%%)</string>
-    <string name="printer_layout">Printer Layout</string>
-    <string name="save_billing_settings">Save Billing Settings</string>
+    <!-- activity_forgot_password -->
+    <string name="account_recovery_eyebrow">ACCOUNT RECOVERY</string>
+    <string name="enter_6_digit_code_emailed">Enter the 6-digit code we emailed you</string>
+    <string name="enter_email_hint">Enter email</string>
+    <string name="enter_registered_email_subtitle">Enter your registered email and we\'ll send a verification code.</string>
+    <string name="forgot_password_footer_remembered">Remembered it?</string>
+    <string name="forgot_password_title_part1">Forgot</string>
+    <string name="password_question_word">password?</string>
+    <string name="sent_badge">Sent</string>
+    <string name="verification_code">Verification code</string>
 
-    <string name="create_new_password">Create New Password</string>
-    <string name="new_password">New Password</string>
-    <string name="save_password">Save Password</string>
+    <!-- activity_otp_verification -->
+    <string name="account_verification_eyebrow">ACCOUNT VERIFICATION</string>
+    <string name="code_valid_5_minutes">Your code is valid for 5 minutes</string>
+    <string name="didnt_receive_it">Didn\'t receive it?</string>
+    <string name="email_word">email</string>
+    <string name="enter_6_digit_code_sent_to">Enter the 6-digit code we sent to</string>
+    <string name="verify_your_word">Verify your</string>
+    <string name="your_email_default">your email</string>
 
-    <string name="menu">Menu</string>
-    <string name="welcome">Welcome</string>
-    <string name="cart">Cart</string>
-    <string name="loading_ai_suggestions">Loading AI suggestions...</string>
-    <string name="dashboard_menu">Dashboard Menu</string>
-    <string name="add_products">Add Products</string>
-    <string name="bill_history">Bill History</string>
-    <string name="settings">Settings</string>
-    <string name="reports">Reports</string>
+    <!-- AddImportServiceActivity -->
+    <string name="action_delete">Delete</string>
+    <string name="changes_saved">Changes saved</string>
+    <string name="delete_this_record_title">Delete this record?</string>
+    <string name="deleted_toast">Deleted</string>
+    <string name="edit_this">Edit this</string>
+    <string name="invoice_number_already_used_title">Invoice number already used</string>
+    <string name="invoice_number_is_required">Invoice Number is required</string>
+    <string name="record_no_longer_exists">That record no longer exists</string>
+    <string name="save_anyway">Save anyway</string>
+    <string name="save_changes_2">Save changes</string>
+    <string name="saved_successfully">Saved successfully</string>
+
+    <!-- App -->
+    <string name="activity_add_import_service_of_000_paid">of ₹0.00 paid</string>
+    <string name="activity_bill_details_additional_charge_debit_note">Additional charge / debit note</string>
+    <string name="activity_bill_details_b2c">B2C</string>
+    <string name="activity_bill_details_cancel_void_invoice">Cancel / void invoice</string>
+    <string name="activity_bill_details_close">Close</string>
+    <string name="activity_bill_details_debit_amp_credit_notes">DEBIT &amp;amp; CREDIT NOTES</string>
+    <string name="activity_bill_details_discount">Discount</string>
+    <string name="activity_bill_details_gst">GST</string>
+    <string name="activity_bill_details_invoice_0001">Invoice · #0001</string>
+    <string name="activity_bill_details_items">ITEMS</string>
+    <string name="activity_bill_details_m">M</string>
+    <string name="activity_bill_details_my_store">My Store</string>
+    <string name="activity_bill_details_paid">PAID</string>
+    <string name="activity_bill_details_paid_via_cash">Paid via Cash</string>
+    <string name="activity_bill_details_partial_return_credit_note">Partial return / credit note</string>
+    <string name="activity_bill_details_print">Print</string>
+    <string name="activity_bill_details_subtotal">Subtotal</string>
+    <string name="activity_bill_details_summary">SUMMARY</string>
+    <string name="activity_bill_details_total">Total</string>
+    <string name="activity_bill_details_walkin_customer">Walk-in customer</string>
+    <string name="activity_bill_details_wc">WC</string>
+    <string name="activity_dashboard_eb">EB</string>
+    <string name="activity_dashboard_up">up</string>
+    <string name="activity_debit_note_0_items_adjusted">0 items adjusted</string>
+    <string name="activity_debit_note_additional_charge">ADDITIONAL CHARGE</string>
+    <string name="activity_debit_note_cancel">Cancel</string>
+    <string name="activity_debit_note_confirm_amp_issue_debit">Confirm &amp;amp; issue debit note</string>
+    <string name="activity_debit_note_debit">Debit</string>
+    <string name="activity_debit_note_enter_additional_quantity_per">ENTER ADDITIONAL QUANTITY PER ITEM</string>
+    <string name="activity_debit_note_gst">GST</string>
+    <string name="activity_debit_note_invoice">Invoice #—</string>
+    <string name="activity_debit_note_note">note</string>
+    <string name="activity_debit_note_taxable">Taxable</string>
+    <string name="activity_debit_note_total_additional_value">Total additional value</string>
+    <string name="activity_edit_product_cancel">Cancel</string>
+    <string name="activity_edit_product_hsn_sac">HSN / SAC</string>
+    <string name="activity_edit_product_if_any">If any</string>
+    <string name="activity_edit_product_igst_auto">IGST · auto</string>
+    <string name="activity_edit_product_official_uqc">Official UQC</string>
+    <string name="activity_edit_product_rate_per_unit">Rate per unit</string>
+    <string name="activity_edit_product_select">Select</string>
+    <string name="activity_edit_product_select_category">Select category</string>
+    <string name="activity_edit_product_selling_price">Selling price</string>
+    <string name="activity_edit_product_short_description">Short description</string>
+    <string name="activity_edit_product_supply_classification">Supply classification</string>
+    <string name="activity_edit_product_tax_code">Tax code</string>
+    <string name="activity_import_services_14_records_fy_2526">14 records · FY 25–26</string>
+    <string name="activity_invoice_b2b">B2B</string>
+    <string name="activity_invoice_b2c">B2C</string>
+    <string name="activity_invoice_m">M</string>
+    <string name="activity_purchase_details_inv">INV-—  ·  —</string>
+    <string name="activity_purchase_return_invoice">Invoice #—</string>
+    <string name="activity_register_ex">Ex</string>
+    <string name="activity_register_pos">POS</string>
+    <string name="activity_sales_return_cancel">Cancel</string>
+    <string name="activity_sales_return_confirm_and_issue_credit">Confirm and issue credit note</string>
+    <string name="activity_sales_return_credit">Credit</string>
+    <string name="activity_sales_return_gst_reversal">GST reversal</string>
+    <string name="activity_sales_return_invoice">Invoice #—</string>
+    <string name="activity_sales_return_note">note</string>
+    <string name="activity_sales_return_sales_return">SALES RETURN</string>
+    <string name="activity_sales_return_select_items_and_quantity">SELECT ITEMS AND QUANTITY TO RETURN</string>
+    <string name="activity_sales_return_taxable">Taxable</string>
+    <string name="activity_sales_return_total_return_value">Total return value</string>
+    <string name="activity_settings_expos">ExPOS</string>
+    <string name="billdetailsactivity_bill_not_loaded_yet">Bill not loaded yet</string>
+    <string name="billdetailsactivity_bill_not_loaded_yet_1">Bill not loaded yet. Please wait.</string>
+    <string name="billdetailsactivity_bill_number_not_resolved">Bill number not resolved yet</string>
+    <string name="billdetailsactivity_cannot_issue_a_credit">Cannot issue a credit note for a cancelled invoice.</string>
+    <string name="billdetailsactivity_cannot_issue_a_debit">Cannot issue a debit note for a cancelled invoice.</string>
+    <string name="billdetailsactivity_couldnt_save_the_invoice">Couldn\'t save the invoice — storage permission is needed</string>
+    <string name="billdetailsactivity_invalid_bill_id">Invalid Bill ID</string>
+    <string name="billdetailsactivity_invoice_voided_cancellation_will">Invoice voided. Cancellation will sync automatically.</string>
+    <string name="confirmpaymentactivity_couldnt_open_payment_screen">Couldn\'t open payment screen</string>
+    <string name="confirmpaymentactivity_couldnt_start_payment_please">Couldn\'t start payment. Please try again.</string>
+    <string name="confirmpaymentactivity_couldnt_validate_coupon">Couldn\'t validate coupon</string>
+    <string name="debitnoteactivity_bill_not_loaded_yet">Bill not loaded yet. Please wait.</string>
+    <string name="debitnoteactivity_cannot_issue_a_debit">Cannot issue a debit note for a cancelled invoice.</string>
+    <string name="debitnoteactivity_invalid_bill_id">Invalid bill ID</string>
+    <string name="debitnoteactivity_please_enter_additional_quantity">Please enter additional quantity for at least one item.</string>
+    <string name="dialog_account_options_clear_the_balance">Clear the balance</string>
+    <string name="dialog_account_options_customer">Customer</string>
+    <string name="dialog_account_options_delete_account">Delete account</string>
+    <string name="dialog_account_options_full_history_and_statement">Full history and statement</string>
+    <string name="dialog_account_options_r">R</string>
+    <string name="dialog_account_options_record_a_payment">Record a payment</string>
+    <string name="dialog_account_options_reduce_what_they_owe">Reduce what they owe</string>
+    <string name="dialog_account_options_removes_them_from_your">Removes them from your list</string>
+    <string name="dialog_account_options_settle_account">Settle account</string>
+    <string name="dialog_account_options_settled">settled</string>
+    <string name="dialog_account_options_view_transactions">View transactions</string>
+    <string name="dialog_add_payment_amount_received">Amount received</string>
+    <string name="dialog_add_payment_balance_after">Balance after</string>
+    <string name="dialog_add_payment_cancel">Cancel</string>
+    <string name="dialog_add_payment_currently_owes">Currently owes</string>
+    <string name="dialog_add_payment_customer">Customer</string>
+    <string name="dialog_add_payment_payment">payment</string>
+    <string name="dialog_add_payment_record_a">Record a</string>
+    <string name="dialog_add_payment_record_payment">Record payment</string>
+    <string name="dialog_add_supplier_15character_gstin">15-character GSTIN</string>
+    <string name="dialog_add_supplier_cancel">Cancel</string>
+    <string name="dialog_add_supplier_gstin">GSTIN</string>
+    <string name="dialog_add_supplier_gstin_is_optional_leave">GSTIN is optional — leave it blank for an unregistered supplier</string>
+    <string name="dialog_add_supplier_new_supplier">New supplier</string>
+    <string name="dialog_add_supplier_save_supplier">Save supplier</string>
+    <string name="dialog_add_supplier_select_state">Select state</string>
+    <string name="dialog_add_supplier_state">State</string>
+    <string name="dialog_add_supplier_supplier">SUPPLIER</string>
+    <string name="dialog_add_supplier_supplier_name">Supplier name</string>
+    <string name="dialog_add_supplier_supplier_name_1">Supplier name</string>
+    <string name="dialog_add_supplier_taken_from_the_gstin">Taken from the GSTIN</string>
+    <string name="dialog_audit_score_info_6677_a_few_things">66–77 · a few things to watch</string>
+    <string name="dialog_audit_score_info_78100_few_or_no">78–100 · few or no issues</string>
+    <string name="dialog_audit_score_info_a_quick_health_check">A quick health check of your shop, from 0 to 100. It starts at 100 and goes down for every urgent issue or money leak we find — so a higher score means fewer problems to fix.</string>
+    <string name="dialog_audit_score_info_below_66_act_on">below 66 · act on the alerts</string>
+    <string name="dialog_audit_score_info_fair">Fair</string>
+    <string name="dialog_audit_score_info_got_it">Got it</string>
+    <string name="dialog_audit_score_info_healthy">Healthy</string>
+    <string name="dialog_audit_score_info_needs_work">Needs work</string>
+    <string name="dialog_audit_score_info_score">score?</string>
+    <string name="dialog_audit_score_info_whats_the_audit">What\'s the audit</string>
+    <string name="dialog_cancel_void_invoice_cancel">Cancel /</string>
+    <string name="dialog_cancel_void_invoice_gst_reporting_and_inventory">GST reporting and inventory will be updated immediately.</string>
+    <string name="dialog_cancel_void_invoice_invoice">Invoice #—</string>
+    <string name="dialog_cancel_void_invoice_keep_invoice">Keep invoice</string>
+    <string name="dialog_cancel_void_invoice_mark_this_invoice_as">Mark this invoice as cancelled for GST reporting? This will also restore all billed items to your inventory. This can\'t be undone.</string>
+    <string name="dialog_cancel_void_invoice_void_invoice">void invoice?</string>
+    <string name="dialog_cancel_void_invoice_yes_cancel_invoice">Yes, cancel invoice</string>
+    <string name="dialog_clear_stock_adjust_credit_account">Adjust Credit Account?</string>
+    <string name="dialog_clear_stock_cancel">Cancel</string>
+    <string name="dialog_clear_stock_clear_selected">Clear Selected</string>
+    <string name="dialog_clear_stock_clear_stock">Clear Stock</string>
+    <string name="dialog_clear_stock_fullscreen_account">Account</string>
+    <string name="dialog_clear_stock_fullscreen_cancel">Cancel</string>
+    <string name="dialog_clear_stock_fullscreen_clear_out">Clear out</string>
+    <string name="dialog_clear_stock_fullscreen_clear_selected_stock">Clear selected stock</string>
+    <string name="dialog_clear_stock_fullscreen_clear_stock">CLEAR STOCK</string>
+    <string name="dialog_clear_stock_fullscreen_mb">MB</string>
+    <string name="dialog_clear_stock_fullscreen_no_account_selected">No account selected</string>
+    <string name="dialog_clear_stock_fullscreen_no_active_batches_available">No active batches available</string>
+    <string name="dialog_clear_stock_fullscreen_no_batches_selected">No batches selected</string>
+    <string name="dialog_clear_stock_fullscreen_product_name">Product name</string>
+    <string name="dialog_clear_stock_fullscreen_purchase_return">Purchase return</string>
+    <string name="dialog_clear_stock_fullscreen_purchase_return_1">Purchase Return</string>
+    <string name="dialog_clear_stock_fullscreen_reason">REASON</string>
+    <string name="dialog_clear_stock_fullscreen_reason_1">Reason</string>
+    <string name="dialog_clear_stock_fullscreen_reduce_debt_from_account">Reduce debt from account</string>
+    <string name="dialog_clear_stock_fullscreen_remaining">remaining</string>
+    <string name="dialog_clear_stock_fullscreen_remaining_now">Remaining now</string>
+    <string name="dialog_clear_stock_fullscreen_scrap_damage">Scrap / Damage</string>
+    <string name="dialog_clear_stock_fullscreen_select_all">Select all</string>
+    <string name="dialog_clear_stock_fullscreen_select_batches_to_clear">SELECT BATCHES TO CLEAR</string>
+    <string name="dialog_clear_stock_fullscreen_stock">stock</string>
+    <string name="dialog_clear_stock_fullscreen_total_to_clear">Total to clear</string>
+    <string name="dialog_clear_stock_no_account_selected">No account selected</string>
+    <string name="dialog_clear_stock_no_active_batches_available">No active batches available</string>
+    <string name="dialog_clear_stock_purchase_return">Purchase Return</string>
+    <string name="dialog_clear_stock_reason_for_clearing">Reason for clearing</string>
+    <string name="dialog_clear_stock_reduce_debt_from_account">Reduce debt from account</string>
+    <string name="dialog_clear_stock_remaining_0">Remaining: 0</string>
+    <string name="dialog_clear_stock_scrap_damage">Scrap / Damage</string>
+    <string name="dialog_clear_stock_select_all">Select All</string>
+    <string name="dialog_clear_stock_select_batches_to_clear">Select batches to clear</string>
+    <string name="dialog_clear_stock_total_to_clear">Total to clear</string>
+    <string name="dialog_confirm_debit_note_additional_value">Additional value</string>
+    <string name="dialog_confirm_debit_note_invoice">Invoice #—</string>
+    <string name="dialog_confirm_debit_note_issue_debit">Issue debit</string>
+    <string name="dialog_confirm_debit_note_note">note?</string>
+    <string name="dialog_confirm_debit_note_review">Review</string>
+    <string name="dialog_confirm_debit_note_yes_issue_debit_note">Yes, issue debit note</string>
+    <string name="dialog_confirm_debit_note_youre_issuing_a_debit">You\'re issuing a debit note for additional value on this invoice. This will generate a GST debit note.</string>
+    <string name="dialog_confirm_print_cancel">Cancel</string>
+    <string name="dialog_confirm_print_export_report">EXPORT REPORT</string>
+    <string name="dialog_confirm_print_print">Print</string>
+    <string name="dialog_confirm_print_print_1">Print</string>
+    <string name="dialog_confirm_print_printing_for">PRINTING FOR</string>
+    <string name="dialog_confirm_print_report">report</string>
+    <string name="dialog_confirm_print_send_this_summary_to">Send this summary to your connected printer.</string>
+    <string name="dialog_confirm_print_this_month">This month</string>
+    <string name="dialog_date_range_all_time">All time</string>
+    <string name="dialog_date_range_apply_filter">Apply filter</string>
+    <string name="dialog_date_range_cancel">Cancel</string>
+    <string name="dialog_date_range_custom_range">CUSTOM RANGE</string>
+    <string name="dialog_date_range_date">date</string>
+    <string name="dialog_date_range_filter_by">Filter by</string>
+    <string name="dialog_date_range_from">From</string>
+    <string name="dialog_date_range_last_3_months">Last 3 months</string>
+    <string name="dialog_date_range_leave_either_side_empty">Leave either side empty to run open-ended — everything before, or everything since.</string>
+    <string name="dialog_date_range_matches">Matches</string>
+    <string name="dialog_date_range_pick_a_date">Pick a date</string>
+    <string name="dialog_date_range_quick_ranges">QUICK RANGES</string>
+    <string name="dialog_date_range_this_month">This month</string>
+    <string name="dialog_date_range_to">To</string>
+    <string name="dialog_delete_account_cancel">Cancel</string>
+    <string name="dialog_delete_account_customer">Customer</string>
+    <string name="dialog_delete_account_customer_1">customer</string>
+    <string name="dialog_delete_account_delete_customer">Delete customer</string>
+    <string name="dialog_delete_account_delete_this">Delete this</string>
+    <string name="dialog_delete_account_ok">OK</string>
+    <string name="dialog_delete_account_their_account_is_removed">Their account is removed from your list. The balance is already settled, so nothing is owed either way.</string>
+    <string name="dialog_inventory_stock_action_0_units">0 units</string>
+    <string name="dialog_inventory_stock_action_pb">PB</string>
+    <string name="dialog_ledger_summary_account">Account</string>
+    <string name="dialog_ledger_summary_average_bill">Average bill</string>
+    <string name="dialog_ledger_summary_balance">Balance</string>
+    <string name="dialog_ledger_summary_billed">Billed</string>
+    <string name="dialog_ledger_summary_close">Close</string>
+    <string name="dialog_ledger_summary_handed_back">handed back</string>
+    <string name="dialog_ledger_summary_last_payment">Last payment</string>
+    <string name="dialog_ledger_summary_no_cash_moved">no cash moved</string>
+    <string name="dialog_ledger_summary_received">Received</string>
+    <string name="dialog_ledger_summary_refunded">Refunded</string>
+    <string name="dialog_ledger_summary_settled">settled</string>
+    <string name="dialog_ledger_summary_summary">summary</string>
+    <string name="dialog_ledger_summary_written_off">Written off</string>
+    <string name="dialog_product_detail_0_margin">0% margin</string>
+    <string name="dialog_product_detail_close">Close</string>
+    <string name="dialog_product_detail_cost">Cost</string>
+    <string name="dialog_product_detail_loss">Loss</string>
+    <string name="dialog_product_detail_loss_0">● Loss 0</string>
+    <string name="dialog_product_detail_net_profit">Net profit</string>
+    <string name="dialog_product_detail_no_shrinkage">no shrinkage</string>
+    <string name="dialog_product_detail_product">PRODUCT</string>
+    <string name="dialog_product_detail_product_1">Product</string>
+    <string name="dialog_product_detail_product_name">Product name</string>
+    <string name="dialog_product_detail_profit">profit</string>
+    <string name="dialog_product_detail_remaining_0">● Remaining 0</string>
+    <string name="dialog_product_detail_remaining_stock">Remaining stock</string>
+    <string name="dialog_product_detail_revenue">Revenue</string>
+    <string name="dialog_product_detail_sold_0">● Sold 0</string>
+    <string name="dialog_product_detail_stock_flow">STOCK FLOW</string>
+    <string name="dialog_product_detail_stock_movement">Stock movement</string>
+    <string name="dialog_product_detail_total_added">Total added</string>
+    <string name="dialog_product_exists_cancel">Cancel</string>
+    <string name="dialog_product_exists_create_new_instead">Create new instead</string>
+    <string name="dialog_product_exists_duplicate_found">DUPLICATE FOUND</string>
+    <string name="dialog_product_exists_exists">exists</string>
+    <string name="dialog_product_exists_price_0nvariant_nunit_nstock">Price: ₹0\nVariant: -\nUnit: -\nStock: 0</string>
+    <string name="dialog_product_exists_product">Product</string>
+    <string name="dialog_product_exists_restore">Restore</string>
+    <string name="dialog_product_exists_update_existing_or_replace">Update existing or replace with new?</string>
+    <string name="dialog_purchase_line_cgst">CGST</string>
+    <string name="dialog_purchase_line_if_any">If any</string>
+    <string name="dialog_purchase_line_igst">IGST</string>
+    <string name="dialog_purchase_line_sgst">SGST</string>
+    <string name="dialog_purchase_line_tap_to_select">Tap to select</string>
+    <string name="dialog_quantity_pad_add_to_cart">Add to cart</string>
+    <string name="dialog_reduce_stock_available_0">Available: 0</string>
+    <string name="dialog_reduce_stock_cancel">Cancel</string>
+    <string name="dialog_reduce_stock_credit_account">Credit account</string>
+    <string name="dialog_reduce_stock_fullscreen_account">Account</string>
+    <string name="dialog_reduce_stock_fullscreen_available_now">Available now</string>
+    <string name="dialog_reduce_stock_fullscreen_br">BR</string>
+    <string name="dialog_reduce_stock_fullscreen_cancel">Cancel</string>
+    <string name="dialog_reduce_stock_fullscreen_no_account_selected">No account selected</string>
+    <string name="dialog_reduce_stock_fullscreen_no_batches_selected">No batches selected</string>
+    <string name="dialog_reduce_stock_fullscreen_no_purchase_batches_available">No purchase batches available</string>
+    <string name="dialog_reduce_stock_fullscreen_out">out</string>
+    <string name="dialog_reduce_stock_fullscreen_pick_batches">PICK BATCHES</string>
+    <string name="dialog_reduce_stock_fullscreen_product_name">Product name</string>
+    <string name="dialog_reduce_stock_fullscreen_reason">REASON</string>
+    <string name="dialog_reduce_stock_fullscreen_reason_1">Reason</string>
+    <string name="dialog_reduce_stock_fullscreen_reduce">REDUCE</string>
+    <string name="dialog_reduce_stock_fullscreen_reduce_debt_from_account">Reduce debt from account</string>
+    <string name="dialog_reduce_stock_fullscreen_reduce_stock">Reduce stock</string>
+    <string name="dialog_reduce_stock_fullscreen_return_to_supplier">Return to supplier</string>
+    <string name="dialog_reduce_stock_fullscreen_scrap_damage">Scrap / damage</string>
+    <string name="dialog_reduce_stock_fullscreen_stock">stock</string>
+    <string name="dialog_reduce_stock_fullscreen_stock_value">Stock value</string>
+    <string name="dialog_reduce_stock_fullscreen_take">Take</string>
+    <string name="dialog_reduce_stock_fullscreen_total_to_return">Total to return</string>
+    <string name="dialog_reduce_stock_no_account_selected">No account selected</string>
+    <string name="dialog_reduce_stock_no_purchase_batches_available">No purchase batches available</string>
+    <string name="dialog_reduce_stock_pick_batches_and_perbatch">Pick batches and per-batch quantity</string>
+    <string name="dialog_reduce_stock_quantity_to_reduce">Quantity to reduce</string>
+    <string name="dialog_reduce_stock_reason">Reason</string>
+    <string name="dialog_reduce_stock_reduce">Reduce</string>
+    <string name="dialog_reduce_stock_reduce_debt_from_account">Reduce debt from account</string>
+    <string name="dialog_reduce_stock_reduce_stock">Reduce Stock</string>
+    <string name="dialog_reduce_stock_return_to_supplier">Return to Supplier</string>
+    <string name="dialog_reduce_stock_scrap_damage">Scrap / Damage</string>
+    <string name="dialog_reduce_stock_total_to_return">Total to return</string>
+    <string name="dialog_sales_chart_avg_day">Avg / day</string>
+    <string name="dialog_sales_chart_bubble_size_indicates_bill">Bubble size indicates bill count</string>
+    <string name="dialog_sales_chart_peak_revenue">Peak revenue</string>
+    <string name="dialog_sales_chart_revenue_pulse">Revenue pulse</string>
+    <string name="dialog_sales_chart_sales_performance">Sales performance</string>
+    <string name="dialog_sales_chart_tap_a_bubble_to">Tap a bubble to explore that period ↗</string>
+    <string name="dialog_sales_chart_top_day">Top day</string>
+    <string name="dialog_sales_chart_total_bills">Total bills</string>
+    <string name="dialog_settle_account_account">account</string>
+    <string name="dialog_settle_account_cancel">Cancel</string>
+    <string name="dialog_settle_account_customer">Customer</string>
+    <string name="dialog_settle_account_settle_account">Settle account</string>
+    <string name="dialog_settle_account_settle_this">Settle this</string>
+    <string name="dialog_settle_account_the_balance_goes_to">The balance goes to zero and the amount is logged in their history. This doesn\'t record money received — use Record a payment for that.</string>
+    <string name="dialog_settle_account_writing_off">Writing off</string>
+    <string name="dialog_supplier_picker_new_supplier">+  New supplier</string>
+    <string name="dialog_supplier_picker_no_saved_suppliers_yetntap">No saved suppliers yet.\nTap “New supplier” below to add one.</string>
+    <string name="dialog_supplier_picker_purchase">PURCHASE</string>
+    <string name="dialog_supplier_picker_saved">Saved</string>
+    <string name="dialog_supplier_picker_search_name_gstin_or">Search name, GSTIN or state</string>
+    <string name="dialog_supplier_picker_suppliers">suppliers</string>
+    <string name="editproductactivity_hsn_code_is_mandatory">HSN Code is mandatory for GST billing</string>
+    <string name="fragment_charts_falling">Falling</string>
+    <string name="fragment_charts_peak">Peak</string>
+    <string name="fragment_charts_rising">Rising</string>
+    <string name="fragment_charts_sales">Sales</string>
+    <string name="fragment_charts_this_period">This period</string>
+    <string name="fragment_charts_trend">TREND</string>
+    <string name="fragment_charts_trend_1">trend</string>
+    <string name="fragment_overview_avg_bill">Avg bill</string>
+    <string name="fragment_overview_cancelled">Cancelled</string>
+    <string name="fragment_overview_card">Card</string>
+    <string name="fragment_overview_cash">Cash</string>
+    <string name="fragment_overview_credit">Credit</string>
+    <string name="fragment_overview_glance">GLANCE</string>
+    <string name="fragment_overview_good_morning">Good morning</string>
+    <string name="fragment_overview_payment_split">PAYMENT SPLIT</string>
+    <string name="fragment_overview_returns">Returns</string>
+    <string name="fragment_overview_total_bills">Total bills</string>
+    <string name="fragment_overview_total_collected">Total collected</string>
+    <string name="fragment_overview_total_revenue">TOTAL REVENUE</string>
+    <string name="fragment_overview_upi">UPI</string>
+    <string name="fragment_overview_your_store">Your Store</string>
+    <string name="fragment_profile_st">ST</string>
+    <string name="marker_bar_chart_0_bills">0 Bills</string>
+    <string name="menu_sort_best_selling">Best Selling</string>
+    <string name="menu_sort_category">Category</string>
+    <string name="menu_sort_most_profitable">Most Profitable</string>
+    <string name="menu_sort_name_a_z">Name: A → Z</string>
+    <string name="menu_sort_name_z_a">Name: Z → A</string>
+    <string name="menu_sort_price_high_low">Price: High → Low</string>
+    <string name="menu_sort_price_low_high">Price: Low → High</string>
+    <string name="menu_sort_stock_high_low">Stock: High → Low</string>
+    <string name="menu_sort_stock_low_high">Stock: Low → High</string>
+    <string name="menu_sort_stock_value_high_low">Stock Value: High → Low</string>
+    <string name="menu_sort_top_revenue">Top Revenue</string>
+    <string name="onboardingactivity_couldnt_load_setup_progress">Couldn\'t load setup progress</string>
+    <string name="overviewfragment_failed_to_load_overview">Failed to load overview</string>
+    <string name="profitactivity_no_data_to_print">No data to print</string>
+    <string name="profitactivity_print_failed">Print failed</string>
+    <string name="salesreturnactivity_bill_not_loaded_yet">Bill not loaded yet. Please wait.</string>
+    <string name="salesreturnactivity_cannot_issue_a_credit">Cannot issue a credit note for a cancelled invoice.</string>
+    <string name="salesreturnactivity_invalid_bill_id">Invalid bill ID</string>
+    <string name="salesreturnactivity_please_select_at_least">Please select at least one item to return.</string>
+    <string name="subscriptionactivity_failed_to_load">Failed to load</string>
+    <string name="supplierpicker_no_shop_selected_sign">No shop selected. Sign in again.</string>
+
+    <!-- activity_dashboard -->
+    <string name="activity_dashboard_sw600dp_xml_all_caught_up">You\'re all caught up</string>
+    <string name="activity_dashboard_sw600dp_xml_bills_today_label">Bills today</string>
+    <string name="activity_dashboard_sw600dp_xml_offline_notice">Can\'t reach our servers right now. Your changes are saved locally and will sync automatically.</string>
+    <string name="activity_dashboard_sw600dp_xml_system_account_header">SYSTEM &amp;amp; ACCOUNT</string>
+    <string name="activity_dashboard_sw600dp_xml_todays_sales_label">Today\'s sales</string>
+    <string name="activity_dashboard_xml_bills_today_label">Bills today</string>
+    <string name="activity_dashboard_xml_notify_seen_note">You\'ll be notified automatically</string>
+    <string name="activity_dashboard_xml_offline_notice">Can\'t reach our servers right now. Your changes are saved locally and will sync automatically.</string>
+    <string name="activity_dashboard_xml_system_account_header">SYSTEM &amp;amp; ACCOUNT</string>
+    <string name="activity_dashboard_xml_todays_sales_label">Today\'s sales</string>
+    <string name="add_edit_product">Add/Edit Products</string>
     <string name="ai_insights">AI Insights</string>
+    <string name="bill_history">Bill History</string>
+    <string name="cart">Cart</string>
+    <string name="dashboard_add_purchase">Add Purchase</string>
+    <string name="dashboard_all_caught">All caught</string>
+    <string name="dashboard_app_name_placeholder">Easy Billing</string>
+    <string name="dashboard_cart_bar_summary_placeholder">0 items</string>
+    <string name="dashboard_checkout_print_receipt">Checkout &amp; print receipt</string>
+    <string name="dashboard_clear_all">Clear all</string>
+    <string name="dashboard_credit_accounts">Credit Accounts</string>
+    <string name="dashboard_greeting_morning_2">GOOD MORNING</string>
+    <string name="dashboard_gst_reports">GST Reports</string>
+    <string name="dashboard_import_services">Import Services</string>
+    <string name="dashboard_inventory">Inventory</string>
+    <string name="dashboard_items_label">Items</string>
+    <string name="dashboard_live_intelligence">LIVE INTELLIGENCE</string>
+    <string name="dashboard_live_order">Live order</string>
+    <string name="dashboard_notifications_title">Notifications</string>
+    <string name="dashboard_notify_critical">Critical</string>
+    <string name="dashboard_notify_empty_body">No new notifications right now. Stock alerts, sales insights and tips will show up here as they happen.</string>
+    <string name="dashboard_notify_empty_body_short">No new notifications right now</string>
+    <string name="dashboard_notify_tip1_body">Low stock, big sales and unusual activity</string>
+    <string name="dashboard_notify_tip2_body">Clear all or swipe away one at a time</string>
+    <string name="dashboard_notify_tip2_title">Dismissed ones stay gone</string>
+    <string name="dashboard_notify_tips">Tips</string>
+    <string name="dashboard_notify_watch">Watch</string>
+    <string name="dashboard_order_summary">ORDER SUMMARY</string>
+    <string name="dashboard_profit_analytics">Profit Analytics</string>
+    <string name="dashboard_purchase_history">Purchase History</string>
+    <string name="dashboard_section_analytics_reports">ANALYTICS &amp; REPORTS</string>
+    <string name="dashboard_section_core_operations">CORE OPERATIONS</string>
+    <string name="dashboard_sub_bulk_service_import">Bulk service import</string>
+    <string name="dashboard_sub_catalog_pricing">Catalog &amp; pricing</string>
+    <string name="dashboard_sub_customer_dues">Customer dues</string>
+    <string name="dashboard_sub_invoice_history">Invoice history</string>
+    <string name="dashboard_sub_past_stock_batches">Past stock batches</string>
+    <string name="dashboard_sub_plan_billing">Plan &amp; billing</string>
+    <string name="dashboard_sub_record_stock_in">Record stock in</string>
+    <string name="dashboard_sub_sales_summary">Sales summary</string>
+    <string name="dashboard_sub_stock_levels_alerts">Stock levels &amp; alerts</string>
+    <string name="dashboard_sub_store_app_config">Store &amp; app config</string>
+    <string name="dashboard_sub_your_account">Your account</string>
+    <string name="dashboard_tap_to_sign_out">Tap to sign out</string>
+    <string name="dashboard_taxes_applied_at_billing">Taxes applied at billing</string>
+    <string name="dashboard_view_cart">View cart</string>
+    <string name="dashboard_welcome_back">Welcome back</string>
     <string name="generate_bill">Generate Bill</string>
+    <string name="logout">Logout</string>
+    <string name="reports">Reports</string>
+    <string name="search_products">Search products...</string>
+    <string name="settings">Settings</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="welcome">Welcome</string>
 
+    <!-- activity_invoice -->
+    <string name="activity_invoice_sw600dp_xml_discount_label">DISCOUNT</string>
+    <string name="activity_invoice_sw600dp_xml_invoice_number_prefix">Invoice ·</string>
+    <string name="activity_invoice_sw600dp_xml_normal_gst_chip">NORMAL GST</string>
+    <string name="activity_invoice_sw600dp_xml_subtotal_label">SUBTOTAL</string>
+    <string name="activity_invoice_xml_discount_label">DISCOUNT</string>
+    <string name="activity_invoice_xml_invoice_number_prefix">Invoice ·</string>
+    <string name="activity_invoice_xml_normal_gst_chip">NORMAL GST</string>
+    <string name="activity_invoice_xml_subtotal_label">SUBTOTAL</string>
+    <string name="card">Card</string>
+    <string name="dashboard_live_status">LIVE</string>
+    <string name="gst">GST</string>
+    <string name="invoice_add_more_items">+  Add more items to cart</string>
+    <string name="invoice_b2c_hint_default">B2C — quick sale (customer details optional)</string>
+    <string name="invoice_bill_summary_header">BILL SUMMARY</string>
+    <string name="invoice_cgst_label">CGST</string>
+    <string name="invoice_charges_header">CHARGES</string>
+    <string name="invoice_composition_note_full">Composition Scheme — tax is included in the selling price. No CGST / SGST / IGST is charged separately.</string>
+    <string name="invoice_customer_details_header">CUSTOMER DETAILS</string>
+    <string name="invoice_ecommerce_examples">Amazon, Flipkart, etc.</string>
+    <string name="invoice_generate_invoice">Generate invoice</string>
+    <string name="invoice_grand_total_label">GRAND TOTAL</string>
+    <string name="invoice_gst_options_header">GST OPTIONS</string>
+    <string name="invoice_gstr_invoice_type_label">GSTR invoice type</string>
+    <string name="invoice_hint_business_name">Business name</string>
+    <string name="invoice_hint_customer_name">Customer name</string>
+    <string name="invoice_hint_gst_number">GST number</string>
+    <string name="invoice_hint_operator_gstin">Operator GSTIN</string>
+    <string name="invoice_hint_operator_name">Operator name (optional)</string>
+    <string name="invoice_hint_phone_number">Phone number</string>
+    <string name="invoice_hint_recipient_gstin">Recipient GSTIN</string>
+    <string name="invoice_hint_recipient_name">Recipient name</string>
+    <string name="invoice_hint_select_state">Select state</string>
+    <string name="invoice_hint_supplier_gstin">Supplier GSTIN</string>
+    <string name="invoice_hint_supplier_name">Supplier name</string>
+    <string name="invoice_incl_all_taxes">incl. all taxes</string>
+    <string name="invoice_label_state_of_customer">State of customer</string>
+    <string name="invoice_line_items_header">LINE ITEMS</string>
+    <string name="invoice_nature_of_supply_label">Nature of supply</string>
+    <string name="invoice_net_amount_header">NET AMOUNT</string>
+    <string name="invoice_normal_gst_scheme">Normal GST scheme</string>
+    <string name="invoice_payment_header">PAYMENT</string>
+    <string name="invoice_print_button">Print</string>
+    <string name="invoice_reverse_charge">Reverse charge</string>
+    <string name="invoice_reverse_charge_desc">Tax paid by recipient</string>
+    <string name="invoice_role_label">Role</string>
+    <string name="invoice_role_supplier">Supplier</string>
+    <string name="invoice_round_off_label">ROUND OFF</string>
+    <string name="invoice_save_print_receipt">Save &amp; print receipt</string>
+    <string name="invoice_sgst_label">SGST</string>
+    <string name="invoice_sold_via_ecommerce">Sold via e-commerce</string>
+    <string name="invoice_tax_header">TAX</string>
+    <string name="invoice_taxable_label">TAXABLE</string>
+    <string name="invoice_total_tax_header">TOTAL TAX</string>
+    <string name="invoice_type_label">Invoice type</string>
+    <string name="upi">UPI</string>
 
-    <string name="data_and_security">Data and Security</string>
+    <!-- activity_add_import_service -->
+    <string name="add_a">Add a</string>
+    <string name="applicable_rate">Applicable rate</string>
+    <string name="as_printed_on_invoice">As printed on invoice</string>
+    <string name="auto_badge">AUTO</string>
+    <string name="auto_calculated">Auto-calculated</string>
+    <string name="availed_itc_cess">Availed ITC Cess (₹)</string>
+    <string name="availed_itc_igst">Availed ITC IGST (₹)</string>
+    <string name="cess_paid_rupees">Cess paid (₹)</string>
+    <string name="eligibility">Eligibility</string>
+    <string name="gst_rate_pct">GST rate (%%)</string>
+    <string name="igst_calc_helper">IGST is calculated from rate × taxable value. Type over it if your invoice says otherwise.</string>
+    <string name="igst_paid_rupees">IGST paid (₹)</string>
+    <string name="import_of_services_eyebrow">IMPORT OF SERVICES</string>
+    <string name="invoice_number_2">Invoice number</string>
+    <string name="invoice_section_label">INVOICE</string>
+    <string name="invoice_value_2">Invoice value</string>
+    <string name="itc_eligibility_capital">Capital</string>
+    <string name="itc_eligibility_services">Services</string>
+    <string name="place_of_supply_default">97 - Other Territory</string>
+    <string name="record_word">record</string>
+    <string name="save_record">Save record</string>
+    <string name="select_date">Select date</string>
+    <string name="taxable_value_rupees">Taxable value (₹)</string>
+    <string name="up_to_tax_paid">Up to tax paid</string>
+    <string name="value_before_tax">Value before tax</string>
+
+    <!-- AddProductActivity -->
+    <string name="add_product_added_toast">Product added</string>
+    <string name="add_product_enter_name_toast">Enter product name</string>
+    <string name="add_product_enter_price_toast">Enter a selling price greater than 0</string>
+    <string name="add_product_enter_stock_qty_toast">Enter opening stock quantity</string>
+    <string name="add_product_hsn_mandatory_toast">HSN Code is mandatory for GST billing</string>
+    <string name="add_product_in_catalog">In catalog</string>
+    <string name="add_product_invalid_cgst_toast">Enter a valid CGST % (0 or higher)</string>
+    <string name="add_product_invalid_sgst_toast">Enter a valid SGST % (0 or higher)</string>
+    <string name="add_product_new_to_catalog">New to catalog</string>
+    <string name="add_product_restored_toast">Product restored</string>
+    <string name="variant_already_exists_message">%1$s · %2$s is already in your catalog. Edit it, or change the variant name.</string>
+    <string name="variant_already_exists_message_no_variant">%1$s is already in your catalog. Edit it, or change the variant name.</string>
+
+    <!-- dialog_variant_exists -->
+    <string name="add_product_already_in_catalog_badge">ALREADY IN CATALOG</string>
+    <string name="add_product_variant_exists_add_another">Add another</string>
+    <string name="add_product_variant_exists_default_message">This product and variant already exist. Open it for editing instead?</string>
+    <string name="add_product_variant_exists_edit_existing">Edit existing</string>
+    <string name="add_product_variant_exists_title">Already exists</string>
+
+    <!-- activity_add_product -->
+    <string name="add_product_auto_filled_hint">Auto-filled</string>
+    <string name="add_product_auto_from_unit_hint">Auto from unit</string>
+    <string name="add_product_central_tax_hint">Central tax</string>
+    <string name="add_product_cess_label">Cess %%</string>
+    <string name="add_product_cost_per_unit_label">Cost / unit</string>
+    <string name="add_product_current_stock_hint">Current stock</string>
+    <string name="add_product_gstr1_optional_note">optional — for GSTR-1 filing</string>
+    <string name="add_product_hsn_description_hint_example">e.g. Rice, milled</string>
+    <string name="add_product_hsn_description_label">HSN description</string>
+    <string name="add_product_hsn_sac_hint">HSN/SAC</string>
+    <string name="add_product_hsn_sac_label">HSN / SAC</string>
+    <string name="add_product_if_applicable_hint">If applicable</string>
+    <string name="add_product_igst_auto_label">IGST · auto</string>
+    <string name="add_product_name_hint_example">e.g. Basmati Rice</string>
+    <string name="add_product_no_input_credit_note">No input credit. For GST ITC, use Record a purchase.</string>
+    <string name="add_product_official_uqc_label">Official UQC</string>
+    <string name="add_product_opening_stock_subtitle">Optional — sets current stock &amp; cost</string>
+    <string name="add_product_opening_stock_title">Add opening stock</string>
+    <string name="add_product_price_includes_tax">Price includes tax</string>
+    <string name="add_product_price_mrp_note">Selling price is MRP (tax-inclusive)</string>
+    <string name="add_product_rate_per_unit_hint">Rate per unit</string>
+    <string name="add_product_save_product_button">Save product</string>
+    <string name="add_product_section_gst_compliance">GST &amp; COMPLIANCE</string>
+    <string name="add_product_section_pricing_tax">PRICING &amp; TAX</string>
+    <string name="add_product_section_product_details">PRODUCT DETAILS</string>
+    <string name="add_product_select_category_hint">Select category</string>
+    <string name="add_product_select_classification_hint">Select classification</string>
+    <string name="add_product_select_unit_hint">Select unit</string>
+    <string name="add_product_selling_price_label">Selling price</string>
+    <string name="add_product_short_description_hint">Short description</string>
+    <string name="add_product_state_tax_hint">State tax</string>
+    <string name="add_product_supply_classification_label">Supply classification</string>
+    <string name="add_product_tax_code_hint">Tax code</string>
+    <string name="add_product_title_add">Add</string>
+    <string name="add_product_title_product">product</string>
+    <string name="add_product_unit_label">Unit</string>
+    <string name="add_product_variant_hint">Size or pack type</string>
+    <string name="add_product_variant_hint_example">e.g. 5 kg</string>
+    <string name="add_product_variant_label">Variant</string>
+    <string name="add_product_what_you_paid_hint">What you paid</string>
+    <string name="quantity">Quantity</string>
+
+    <!-- Common -->
+    <string name="add_product_category_label">Category</string>
+    <string name="add_product_section_inventory_label">INVENTORY</string>
+    <string name="cancel">Cancel</string>
+    <string name="credit_chip_label_settled">Settled</string>
+    <string name="credit_no_customers_accent">yet</string>
+    <string name="credit_no_matches_accent">found</string>
+    <string name="credit_no_matches_title">No matches</string>
+    <string name="dash">—</string>
+    <string name="dashboard_remove_button">Remove</string>
+    <string name="edit">Edit</string>
+    <string name="gstin">GSTIN</string>
+    <string name="incorrect_password">Incorrect password</string>
+    <string name="inventory_out_of_stock">Out of stock</string>
+    <string name="invoice_hint_tap_to_select">Tap to select</string>
+    <string name="manage_filter_all">All</string>
+    <string name="open_date_settings">Open date settings</string>
+    <string name="purchase_eligibility_inputs">Inputs</string>
+    <string name="purchase_invoice_type_regular">Regular</string>
+    <string name="retry">Retry</string>
+    <string name="session_expired_login_again">Session expired. Please login again.</string>
+    <string name="verification_failed">Verification failed</string>
+    <string name="verify_code">Verify code</string>
+    <string name="wrong_device_time">Wrong device time</string>
+
+    <!-- dialog_variant_restore -->
+    <string name="add_product_hidden_product_badge">HIDDEN PRODUCT</string>
+    <string name="add_product_keep_old_details">Keep old details</string>
+    <string name="add_product_restore_default_message">This product was hidden earlier. Restore it to use this name again.</string>
+    <string name="add_product_restore_title">Restore this product?</string>
+    <string name="add_product_restore_with_entered_details">Restore with the details I entered</string>
+
+    <!-- activity_purchase -->
+    <string name="add_product_name_hint">Search or type new</string>
+    <string name="invoice_number">Invoice number</string>
+    <string name="invoice_value">Invoice value</string>
+    <string name="purchase_add_line_button">+  Add items to purchase</string>
+    <string name="purchase_boe_date_label">Bill of entry date</string>
+    <string name="purchase_boe_number_hint">7-digit number</string>
+    <string name="purchase_boe_number_label">Bill of entry number</string>
+    <string name="purchase_boe_value_hint">Customs value</string>
+    <string name="purchase_boe_value_label">Bill of entry value</string>
+    <string name="purchase_cess_paid_hint">If any</string>
+    <string name="purchase_cess_paid_label">Cess paid</string>
+    <string name="purchase_change_account_button">Change</string>
+    <string name="purchase_choose_supplier_desc_2">Choose a saved supplier</string>
+    <string name="purchase_credit_account_label">CREDIT ACCOUNT</string>
+    <string name="purchase_eligibility_label">Eligibility for ITC</string>
+    <string name="purchase_eyebrow">NEW PURCHASE</string>
+    <string name="purchase_gst_compliance_header">GST compliance details</string>
+    <string name="purchase_gstin_hint">15-character GSTIN</string>
+    <string name="purchase_history_tile_on_credit">On credit</string>
+    <string name="purchase_imported_goods_label">Imported goods</string>
+    <string name="purchase_invoice_date_label">Invoice date</string>
+    <string name="purchase_invoice_number_hint">As printed on the bill</string>
+    <string name="purchase_itc_central_hint">CGST claimed</string>
+    <string name="purchase_itc_central_label">Availed ITC central tax</string>
+    <string name="purchase_itc_cess_hint">Cess claimed</string>
+    <string name="purchase_itc_cess_label">Availed ITC cess</string>
+    <string name="purchase_itc_helper_text">ITC defaults to paid tax when eligible. Adjust only if invoice ITC differs.</string>
+    <string name="purchase_itc_integrated_hint">IGST claimed</string>
+    <string name="purchase_itc_integrated_label">Availed ITC integrated tax</string>
+    <string name="purchase_itc_state_hint">SGST claimed</string>
+    <string name="purchase_itc_state_label">Availed ITC state/UT tax</string>
+    <string name="purchase_payment_credit_sub">Pay supplier later</string>
+    <string name="purchase_payment_paid_now">Paid now</string>
+    <string name="purchase_payment_paid_now_sub">Cash / bank settled</string>
+    <string name="purchase_place_of_supply_label">Place of supply code</string>
+    <string name="purchase_port_code_hint">6-character code</string>
+    <string name="purchase_port_code_label">Port code</string>
+    <string name="purchase_remove_account_button">Remove account</string>
+    <string name="purchase_section_invoice_details">INVOICE DETAILS</string>
+    <string name="purchase_section_payment_option">PAYMENT OPTION</string>
+    <string name="purchase_section_supplier">SUPPLIER</string>
+    <string name="purchase_sez_gstin_label">SEZ supplier GSTIN</string>
+    <string name="purchase_supplier_helper">Registered supplier — GSTIN enables input tax credit</string>
+    <string name="purchase_supply_type_label">Supply type</string>
+    <string name="purchase_title_accent">purchase</string>
+    <string name="purchase_title_lead">Record</string>
+    <string name="save_purchase">Save purchase</string>
+    <string name="state">State</string>
+    <string name="supplier_gstin">Supplier GSTIN (optional)</string>
+    <string name="taxable_amount">Taxable amount</string>
+
+    <!-- ImportServicesActivity -->
+    <string name="add_record">Add record</string>
+    <string name="queued_chip">Queued</string>
+    <string name="refused_chip">Refused</string>
+
+    <!-- activity_ai_dashboard -->
+    <string name="ai_dashboard_audit_score_desc">Your shop\'s health out of 100 — higher is better</string>
+    <string name="ai_dashboard_audit_score_label">Audit score</string>
+    <string name="ai_dashboard_col_product">PRODUCT</string>
+    <string name="ai_dashboard_col_qty">QTY</string>
+    <string name="ai_dashboard_col_revenue">REVENUE</string>
+    <string name="ai_dashboard_eyebrow">BUSINESS AUDIT</string>
+    <string name="ai_dashboard_insights_empty">No alerts right now — your shop looks healthy.</string>
+    <string name="ai_dashboard_kpi_leaks">Leaks</string>
+    <string name="ai_dashboard_kpi_urgent">Urgent</string>
+    <string name="ai_dashboard_kpi_wins">Wins</string>
+    <string name="ai_dashboard_title_ai">AI</string>
+    <string name="ai_dashboard_title_insights_suffix">insights</string>
+    <string name="ai_dashboard_top_velocity_title">Top product velocity</string>
+
+    <!-- AiDashboardActivity -->
+    <string name="ai_dashboard_band_fair">FAIR</string>
+    <string name="ai_dashboard_band_healthy">HEALTHY</string>
+    <string name="ai_dashboard_band_needs_work">NEEDS WORK</string>
+    <string name="ai_dashboard_band_optimum">OPTIMUM</string>
+    <string name="ai_dashboard_offline_empty">Insights need an active connection.</string>
+    <string name="ai_dashboard_toast_load_failed">Couldn\'t load insights. Check your connection.</string>
+    <string name="ai_dashboard_toast_offline_cache">Showing last saved insights (offline)</string>
+
+    <!-- item_insight_card -->
+    <string name="ai_insight_card_action_button">Take Action</string>
+    <string name="ai_insight_card_desc_placeholder">You have 3 items low on stock. Restock soon to prevent lost sales.</string>
+    <string name="ai_insight_card_title_placeholder">Imminent Stockout</string>
+
+    <!-- AiInsightListAdapter -->
+    <string name="ai_insight_header_default">INSIGHTS</string>
+    <string name="ai_insight_header_fire">NEEDS ATTENTION</string>
+    <string name="ai_insight_header_gold">WHAT\'S WORKING</string>
+    <string name="ai_insight_header_leak">PLUGGING LEAKS</string>
+
+    <!-- activity_change_password -->
+    <string name="almost_there_eyebrow">ALMOST THERE</string>
+    <string name="back_to_login">Back to login</string>
+    <string name="confirm_password_2">Confirm password</string>
+    <string name="confirm_your_password">Confirm your password</string>
+    <string name="create_strong_password_subtitle">Create a strong password to keep your account safe.</string>
+    <string name="enter_new_password">Enter new password</string>
+    <string name="new_password_2">New password</string>
+    <string name="password_word">password</string>
+    <string name="remembered_it">Remembered it?</string>
+    <string name="set_a_new">Set a new</string>
+
+    <!-- activity_data_security -->
+    <string name="and_security_word">&amp; security</string>
+    <string name="archive_remove_bill_history_sub">Archive &amp; remove bill history</string>
     <string name="change_login_password">Change Login Password</string>
     <string name="clear_all_bills">Clear All Bills</string>
+    <string name="danger_zone_section">DANGER ZONE</string>
+    <string name="data_section">DATA</string>
+    <string name="data_word">Data</string>
     <string name="factory_reset_app">Factory Reset App</string>
+    <string name="protected_eyebrow">PROTECTED</string>
+    <string name="risk_high_badge">HIGH</string>
+    <string name="risk_low_badge">LOW</string>
+    <string name="risk_medium_badge">MEDIUM</string>
+    <string name="security_section">SECURITY</string>
+    <string name="tap_unlock_helper">Tap Unlock, then confirm your password to run an action.</string>
+    <string name="update_login_pin_sub">Update your login PIN</string>
+    <string name="wipe_workspace_sub">Wipe workspace &amp; start fresh</string>
 
-    <string name="enter_your_registered_email_to_reset_your_password">Enter your registered email to reset your password.</string>
-    <string name="enter_otp">Enter OTP</string>
-    <string name="_6_digit_otp">6-digit OTP</string>
-    <string name="verify_otp">Verify OTP</string>
+    <!-- activity_settings -->
+    <string name="and_store_word">&amp; store</string>
+    <string name="backup_workspace_reset_sub">Backup, workspace, reset</string>
+    <string name="billing_settings">Billing Settings</string>
+    <string name="data_security_management">Data and Security Management</string>
+    <string name="gst_tax_rates_defaults_sub">GST, tax rates, defaults</string>
+    <string name="invoice_design">Invoice Design</string>
+    <string name="language_currency_format_sub">Language, currency, format</string>
+    <string name="localization_settings">Language and Currency</string>
+    <string name="manage_eyebrow">MANAGE</string>
+    <string name="name_address_contact_sub">Name, address, contact</string>
+    <string name="settings_2">Settings</string>
+    <string name="store_information">Store Information</string>
+    <string name="store_section">STORE</string>
+    <string name="template_branding_sub">Template &amp; branding</string>
 
-    <string name="store">Store</string>
-    <string name="invoice_123_ndate">Invoice #123\nDate: --</string>
-    <string name="total_0">Total: ₹0</string>
-    <string name="cash">Cash</string>
-    <string name="upi">UPI</string>
-    <string name="card">Card</string>
+    <!-- activity_confirm_payment -->
+    <string name="and_word">and</string>
+    <string name="billing_cycle_default">1 Month billing cycle</string>
+    <string name="checkout_eyebrow">CHECKOUT</string>
+    <string name="close">Close</string>
+    <string name="confirm_payment_pay_securely_btn">Pay ₹999 securely</string>
+    <string name="confirm_word">Confirm</string>
+    <string name="coupon_code_hint">Coupon code</string>
+    <string name="coupon_discount">Coupon discount</string>
+    <string name="cycle_discount">Cycle discount</string>
+    <string name="dialog_product_filter_apply">Apply</string>
+    <string name="estimated_only_note">Estimated only — actual charge is confirmed once payment starts.</string>
+    <string name="gst_18_pct">GST (18%%)</string>
+    <string name="pay_word">pay</string>
+    <string name="payable_amount">Payable amount</string>
+    <string name="plan_price">Plan price</string>
+    <string name="plus_15_days_free">+15 days free</string>
+    <string name="secured_by_razorpay">Secured by Razorpay — cards, UPI and netbanking</string>
+    <string name="service_charge_pct">Service charge (2%%)</string>
+    <string name="total_2">Total</string>
+    <string name="upgrade_credit_est">Upgrade credit (est.)</string>
 
-    <string name="footer_message">Footer Message</string>
-    <string name="thank_you_visit_again">Thank you! Visit again</string>
-    <string name="show_store_logo">Show Store Logo</string>
-    <string name="show_gstin">Show GSTIN</string>
-    <string name="show_phone_number">Show Phone Number</string>
-    <string name="show_discount_section">Show Discount Section</string>
-    <string name="enable_round_off">Enable Round Off</string>
-    <string name="save_design_settings">Save Design Settings</string>
+    <!-- AndroidManifest -->
+    <string name="app_name">ExPOS</string>
 
-    <string name="not_yet_registered_create_new_account">Not Yet Registered? Create New Account</string>
+    <!-- activity_register -->
+    <string name="as_per_your_id_hint">As per your ID</string>
+    <string name="create_account_3">Create account</string>
+    <string name="digit_mobile_hint">10-digit mobile</string>
+    <string name="for_login_receipts_hint">For login &amp; receipts</string>
+    <string name="full_name_2">Full name</string>
+    <string name="login_2">Login</string>
+    <string name="shop_name_2">Shop name</string>
+    <string name="shown_on_your_bills_hint">Shown on your bills</string>
 
-    <string name="analytics_reports">Analytics Reports</string>
-    <string name="overview">Overview</string>
-    <string name="bills">Bills</string>
-    <string name="avg_bill">Average Bill</string>
-    <string name="sales_trend">Sales Trend</string>
-    <string name="peak_hours">Peak Hours</string>
-    <string name="daily_sales">Daily Sales</string>
-    <string name="monthly_sales">Monthly Sales</string>
-    <string name="top_products">Top Products</string>
-    <string name="peak_hour_details">Peak Hour Details</string>
-    <string name="business_insights">Business Insights</string>
-    <string name="send_report_to_email">Send Report to Email</string>
+    <!-- EditProductActivity -->
+    <string name="badge_manual">MANUAL</string>
+    <string name="badge_purchased">PURCHASED</string>
+    <string name="edit_product_cannot_turn_off_inventory">Cannot turn off inventory while stock &gt; 0</string>
+    <string name="edit_product_cannot_turn_off_inventory_2">Cannot turn off inventory while stock &gt; 0</string>
+    <string name="edit_product_enter_valid_selling_price">Enter a valid selling price</string>
+    <string name="edit_product_hsn_not_found">HSN not found in registry</string>
+    <string name="edit_product_hsn_required_error">Required</string>
+    <string name="edit_product_hsn_verified_default">HSN verified</string>
+    <string name="edit_product_missing_id_toast">Missing product id</string>
+    <string name="edit_product_no_variant">No variant</string>
+    <string name="edit_product_reduce_stock_before_off">Reduce stock to 0 before turning inventory off</string>
+    <string name="edit_save_success">Saved</string>
 
+    <!-- activity_bill_history -->
+    <string name="bill_history_eyebrow">BILLING</string>
+    <string name="bill_history_invoices_today">Invoices today</string>
+    <string name="bill_history_sold_today">Sold today</string>
+    <string name="bill_history_tip_create_body">From the dashboard, add items and checkout</string>
+    <string name="bill_history_tip_create_title">Create your first bill</string>
+    <string name="bill_history_tip_search_body">Search by invoice number, product or amount</string>
+    <string name="bill_history_tip_search_title">Then find any bill fast</string>
+    <string name="bill_history_title_accent">history</string>
+    <string name="bill_history_title_lead">Bill</string>
+    <string name="dialog_product_filter_reset">Reset</string>
+    <string name="search_invoice_or_product">Search invoice...</string>
+
+    <!-- BillHistoryActivity -->
+    <string name="bill_history_load_failed">Couldn\'t load bills from the server. Pull down or reopen to retry.</string>
+    <string name="bill_history_no_bills_body">Bills you create will show up here — search, filter and sort them once you have a few.</string>
+    <string name="bill_history_no_bills_title">No bills</string>
+    <string name="bill_history_no_matches_body">No bill matches your search or filter. Try a different invoice number, amount, or reset the filter.</string>
+    <string name="bill_history_not_logged_in">User not logged in</string>
+    <string name="bill_history_offline_note">No internet — showing bills may be out of date. Reconnect and reopen this screen.</string>
+
+    <!-- BillHistoryAdapter -->
+    <string name="bill_history_status_cancelled">cancelled</string>
+    <string name="bill_history_status_on_credit">on credit</string>
+    <string name="bill_history_status_paid">paid</string>
+
+    <!-- BillingSettingsActivity -->
+    <string name="billing_settings_enter_password_error">Enter password</string>
+    <string name="billing_settings_updated">Billing settings updated</string>
+    <string name="enter_valid_state">Enter a valid state (e.g. \"Kerala\" or its 2-digit GST code \"32\")</string>
+    <string name="saved_offline_will_sync_later">Saved offline. Will sync later.</string>
+
+    <!-- activity_billing_settings -->
+    <string name="billing_word">Billing</string>
+    <string name="print_layout">Print layout</string>
+    <string name="printer_80mm">80mm</string>
+    <string name="printer_section_2">PRINTER</string>
+    <string name="profile_label_reg_type">Registration type</string>
+    <string name="regular_badge">REGULAR</string>
+    <string name="save_billing_settings">Save Billing Settings</string>
+    <string name="set_in_store_information">Set in Store Information</string>
+    <string name="settings_word">settings</string>
+    <string name="tax_format_eyebrow">TAX &amp; FORMAT</string>
+
+    <!-- DataSecurityActivity -->
+    <string name="bills_archived_successfully">Bills archived successfully</string>
+    <string name="data_security_enter_password_error">Enter password</string>
+    <string name="dialog_premium_upgrade_title_part1">Unlock</string>
+    <string name="factory_reset_complete">Factory reset complete. Starting fresh workspace.</string>
+    <string name="failed_to_change_password">Failed to change password</string>
+    <string name="failed_to_clear_bills">Failed to clear bills</string>
+    <string name="not_logged_in_2">Not logged in.</string>
+    <string name="password_changed_login_again">Password changed. Please login again.</string>
+    <string name="password_min_length">Password must be at least 6 characters</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+
+    <!-- activity_store_settings -->
+    <string name="business_type">Business type</string>
+    <string name="business_type_default_general">General</string>
+    <string name="contact_section">CONTACT</string>
+    <string name="identity_section">IDENTITY</string>
+    <string name="information_word">information</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="state_code_auto_derived_helper">State code auto-derived from GSTIN prefix</string>
     <string name="store_address">Store Address</string>
-    <string name="gstin">GSTIN</string>
+    <string name="store_name">Store Name</string>
+    <string name="your_business_eyebrow">YOUR BUSINESS</string>
+
+    <!-- CartAdapter -->
+    <string name="cart_max_quantity_reached">Max quantity reached</string>
+
+    <!-- PurchaseHistoryActivity -->
+    <string name="cash">Cash</string>
+    <string name="invoice_payment_credit">Credit</string>
+    <string name="purchase_history_empty_yet">yet</string>
+    <string name="purchase_history_filter_all_label">All purchases</string>
+    <string name="purchase_history_filter_cancelled_label">Cancelled</string>
+    <string name="purchase_history_no_matches_body">No purchase matches your search or filter. Try a different supplier, invoice number, or reset the filter.</string>
+    <string name="purchase_history_no_purchases_body">Purchases you record will show up here — search, filter and sort them once you have a few.</string>
+    <string name="purchase_history_no_purchases_title">No purchases</string>
+    <string name="purchase_history_one_invoice">1 invoice</string>
+    <string name="sort_highest_amount">Highest amount</string>
+    <string name="sort_lowest_amount">Lowest amount</string>
+    <string name="sort_newest_first">Newest first</string>
+    <string name="sort_oldest_first">Oldest first</string>
+    <string name="supplier_name">Supplier name</string>
+
+    <!-- BarChartMarker -->
+    <string name="chart_marker_bar_bills">Bills</string>
+    <string name="chart_marker_bar_revenue">Revenue</string>
+
+    <!-- BubbleChartMarker -->
+    <string name="chart_marker_revenue_prefix">Revenue:</string>
+
+    <!-- ChartsFragment -->
+    <string name="charts_no_data_available">No chart data available</string>
+    <string name="charts_toast_chart_load_failed">Chart load failed</string>
+
+    <!-- activity_terms -->
+    <string name="conditions_word">conditions</string>
+    <string name="encrypted_private_never_sold">Encrypted, private, never sold</string>
+    <string name="final_step_eyebrow">FINAL STEP</string>
+    <string name="i_agree_and_continue">I agree and continue</string>
+    <string name="reading_progress">Reading progress</string>
+    <string name="scroll_to_end_to_continue">Scroll to the end to continue</string>
+    <string name="terms_and_word">Terms and</string>
+    <string name="unlocks_once_read_full_terms">Unlocks once you\'ve read the full terms</string>
+    <string name="your_data_stays_yours">Your data stays yours</string>
+
+    <!-- dialog_change_pin -->
+    <string name="confirm_password">Confirm Password</string>
+    <string name="dialog_change_pin_subtitle">Set a new login PIN for your account</string>
+    <string name="dialog_change_pin_title_part1">Change</string>
+    <string name="dialog_change_pin_title_part2">password</string>
+    <string name="new_password">New Password</string>
+
+    <!-- OnboardingActivity -->
+    <string name="couldnt_finish_setup_try_again">Couldn\'t finish setup. Please try again.</string>
+
+    <!-- SubscriptionActivity -->
+    <string name="couldnt_load_plans">Couldn\'t load plans</string>
+    <string name="couldnt_start_trial">Couldn\'t start trial</string>
+    <string name="free_trial_started">Free trial started</string>
+    <string name="premium_plan_name">Premium</string>
+
+    <!-- OtpVerificationActivity -->
+    <string name="couldnt_resend_otp_no_internet">Couldn\'t resend OTP — check your internet connection</string>
+    <string name="couldnt_resend_otp_try_again">Couldn\'t resend OTP. Please try again</string>
+    <string name="enter_valid_otp">Enter valid OTP</string>
+    <string name="invalid_otp">Invalid OTP</string>
+    <string name="otp_expired">OTP expired</string>
+    <string name="otp_sent">OTP sent</string>
+    <string name="otp_verified">OTP Verified</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="sending_ellipsis">Sending...</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="too_many_attempts">Too many attempts</string>
+    <string name="verifying_ellipsis">Verifying...</string>
+
+    <!-- TermsActivity -->
+    <string name="couldnt_save_try_again">Couldn\'t save. Please try again.</string>
+    <string name="not_logged_in">Not logged in</string>
+    <string name="terms_and_conditions_body">Easy Billing — Terms and Conditions (Draft)\n\n1. Acceptance of Terms\nBy creating an account and using Easy Billing, you agree to these Terms and Conditions.\n\n2. Subscription and Billing\nCertain features (GST reports, profit insights, AI insights) require an active Premium subscription or trial. Subscription fees are billed as described on the Subscription screen at the time of purchase. Prices and plans may change; changes will not affect an already-paid current billing period.\n\n3. Free Trial\nA free trial, where offered, is available once per shop account. Trial length and eligibility are determined by Easy Billing and may change at any time.\n\n4. Data and Privacy\nYour business data (bills, inventory, customer records) is stored to provide the service. We do not sell your data to third parties.\n\n5. Refunds\nRefund requests are handled on a case-by-case basis; contact support for assistance.\n\n6. Changes to These Terms\nWe may update these Terms from time to time. Material changes may require you to re-accept before continuing to use the app.\n\n7. Contact\nFor questions about these Terms, contact support@expos.com.</string>
+
+    <!-- MainActivity -->
+    <string name="couldnt_verify_time_retry">Couldn\'t verify time. Check your connection and retry.</string>
+    <string name="go_back">Go back</string>
+    <string name="invalid_login_response">Invalid login response</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="please_enter_all_fields">Please enter all fields</string>
+    <string name="switch_anyway">Switch anyway</string>
+    <string name="switch_cancelled_sync_pending">Switch cancelled — sync your pending data first, then try again.</string>
+    <string name="unsynced_data_will_be_lost">Unsynced data will be lost</string>
+
+    <!-- RegisterActivity -->
+    <string name="create_account_2">Create Account</string>
+    <string name="enter_a_valid_email_2">Enter valid email</string>
+    <string name="generic_error">Error</string>
+    <string name="please_fill_all_fields">Please fill all fields</string>
+    <string name="registering_ellipsis">Registering...</string>
+
+    <!-- CreditAccountsActivity -->
+    <string name="credit_account_removed">Account removed</string>
+    <string name="credit_balance_after">Balance after</string>
+    <string name="credit_chip_label_advance">Advance</string>
+    <string name="credit_chip_label_due">Due</string>
+    <string name="credit_currently_in_advance">Currently in advance</string>
+    <string name="credit_currently_owes">Currently owes</string>
+    <string name="credit_delete_allowed_note">Removes them from your list</string>
+    <string name="credit_delete_confirm_message">Their account is removed from your list. The balance is already settled, so nothing is owed either way.</string>
+    <string name="credit_delete_offline_note">You\'re offline. Deleting needs a connection so this customer is removed everywhere, not just on this device.</string>
+    <string name="credit_enter_valid_amount">Enter valid amount</string>
+    <string name="credit_in_advance_after">In advance after</string>
+    <string name="credit_invalid_phone">Enter a valid 10-digit phone number</string>
+    <string name="credit_net_all_settled">all settled</string>
+    <string name="credit_net_held_in_advance">held in advance</string>
+    <string name="credit_net_owed_to_you">owed to you</string>
+    <string name="credit_no_customers_body">Customers you add will show up here — track what they owe or have paid in advance.</string>
+    <string name="credit_no_customers_title">No customers</string>
+    <string name="credit_no_matches_body">No customer matches your search or filter. Try a different name or phone number, or reset the filter.</string>
+    <string name="credit_no_shop_selected">No shop selected. Sign in again.</string>
+    <string name="credit_nothing_to_clear">Nothing to clear</string>
+    <string name="credit_only_settled_removable">Only settled accounts can be removed</string>
+    <string name="credit_restore_customer">Restore customer</string>
+    <string name="credit_restore_note_settled">Their past transactions come back with the account. The balance is settled.</string>
+    <string name="credit_saving_ellipsis">Saving…</string>
+    <string name="credit_settle_balance_first">Settle the balance first</string>
+    <string name="credit_settled_after">Settled after</string>
+    <string name="credit_status_in_advance">in advance</string>
+    <string name="credit_status_owes_you">owes you</string>
+    <string name="credit_status_settled">settled</string>
+    <string name="save">Save</string>
+
+    <!-- CreditAdjustmentPrompt -->
+    <string name="credit_adjustment_extra_after_clearing_title">Extra after clearing dues</string>
+    <string name="credit_adjustment_keep_as_advance_btn">Keep as advance</string>
+    <string name="credit_adjustment_settle_now_btn">Cash — settle now</string>
+
+    <!-- activity_credit_accounts -->
+    <string name="credit_net_position_label">Net position</string>
+    <string name="credit_tip_add_body">Name and phone number</string>
+    <string name="credit_tip_add_title">Add your first customer</string>
+    <string name="credit_tip_search_body">Search by name or phone, or filter by status</string>
+    <string name="credit_tip_search_title">Then find any customer fast</string>
+    <string name="credit_title_accent">accounts</string>
+    <string name="invoice_add_customer_button">Add customer</string>
+    <string name="invoice_khata_header">KHATA</string>
+
+    <!-- CreditDebitNoteAdapter -->
+    <string name="credit_note_abbrev_cn">CN</string>
+    <string name="credit_note_abbrev_dn">DN</string>
+    <string name="credit_note_against_prefix">against</string>
+
+    <!-- CreditAccountPicker -->
+    <string name="credit_picker_account_added">Account added</string>
+    <string name="credit_picker_account_already_exists">Account already exists</string>
+    <string name="credit_picker_enter_all_fields">Enter all fields</string>
+    <string name="credit_picker_no_shop_selected">No shop selected. Sign in again.</string>
+
+    <!-- CreditAdapter -->
+    <string name="credit_row_in_advance">In advance</string>
+    <string name="credit_row_owes_you">Owes you</string>
+
+    <!-- activity_localization_settings -->
+    <string name="currency">Currency</string>
+    <string name="language">Language</string>
+    <string name="localization_currency_default_value">₹ INR</string>
+    <string name="localization_language_default_value">English</string>
+    <string name="localization_language_title_part1">Language</string>
+    <string name="localization_language_title_part2">&amp; currency</string>
+    <string name="localization_preferences_label">PREFERENCES</string>
+    <string name="localization_region_label">REGION</string>
+    <string name="localization_restart_note">The app restarts to apply a new language or currency.</string>
     <string name="save_changes">Save Changes</string>
 
-    <string name="add_product">Add Product</string>
-    <string name="custom_product_name">Custom product name</string>
-    <string name="price">Price</string>
-    <string name="cancel">Cancel</string>
-    <string name="add">Add</string>
+    <!-- DashboardActivity -->
+    <string name="dashboard_ai_insights_subtitle">Smart recommendations</string>
+    <string name="dashboard_avatar_fallback">EB</string>
+    <string name="dashboard_badge_9_plus">9+</string>
+    <string name="dashboard_cart_empty_toast">Cart is empty</string>
+    <string name="dashboard_email_subject_subscription_support">Subscription support</string>
+    <string name="dashboard_enter_valid_quantity">Enter valid quantity</string>
+    <string name="dashboard_failed_load_products">Failed to load products</string>
+    <string name="dashboard_failed_remove_product">Failed to remove product</string>
+    <string name="dashboard_feature_ai_insights">AI insights</string>
+    <string name="dashboard_feature_gst_reports">GST reports</string>
+    <string name="dashboard_feature_premium_default">premium features</string>
+    <string name="dashboard_feature_profit_analytics">profit analytics</string>
+    <string name="dashboard_filter_all_categories">All categories</string>
+    <string name="dashboard_filter_all_selected">All selected</string>
+    <string name="dashboard_filter_any">Any</string>
+    <string name="dashboard_filter_in_stock">In stock</string>
+    <string name="dashboard_filter_low">Low</string>
+    <string name="dashboard_filter_out">Out</string>
+    <string name="dashboard_greeting_afternoon">Good Afternoon</string>
+    <string name="dashboard_greeting_evening">Good Evening</string>
+    <string name="dashboard_greeting_morning">Good Morning</string>
+    <string name="dashboard_greeting_night">Good Night</string>
+    <string name="dashboard_gst_reports_subtitle">Tax filings</string>
+    <string name="dashboard_max_qty_reached">Max quantity limit reached</string>
+    <string name="dashboard_no_email_app">No email app found</string>
+    <string name="dashboard_notification_channel_name">Easy Billing Notifications</string>
+    <string name="dashboard_ok">OK</string>
+    <string name="dashboard_profit_subtitle">Margins &amp; trends</string>
+    <string name="dashboard_sort_best_selling">Best Selling</string>
+    <string name="dashboard_sort_most_profitable">Most Profitable</string>
+    <string name="dashboard_sort_top_revenue">Top Revenue</string>
+    <string name="dashboard_title_fallback">Dashboard</string>
+    <string name="dashboard_unable_verify_subscription">Unable to verify subscription</string>
+    <string name="dashboard_unauthorized_device">Unauthorized device</string>
+    <string name="dashboard_upgrade_to_unlock">Upgrade to unlock</string>
+    <string name="dashboard_view_categorized">Categorized</string>
+    <string name="dashboard_view_grid">Grid (tiles)</string>
+    <string name="dashboard_view_list">List</string>
+    <string name="manage_filter_manual">Manual</string>
+    <string name="manage_filter_purchased">Purchased</string>
+    <string name="store">Store</string>
 
-    <string name="enter_quantity">Enter Quantity</string>
-    <string name="add_to_cart">Add to Cart</string>
+    <!-- dialog_limited_stock -->
+    <string name="dashboard_limited_stock_message">Only $allowedQty available.\nDo you want to add available quantity?</string>
+    <string name="dialog_limited_stock_add_available_default">Add available</string>
+    <string name="dialog_limited_stock_title">Limited stock</string>
 
-    <string name="confirm_identity">Confirm Identity</string>
+    <!-- ProfileFragment -->
+    <string name="dashboard_owner_fallback">Owner</string>
+    <string name="gstin_copied">GSTIN copied</string>
+    <string name="profile_label_address">Address</string>
+    <string name="profile_label_legal_name">Legal name</string>
+    <string name="profile_label_owner">Owner / Legal name</string>
+    <string name="profile_label_phone">Contact</string>
+    <string name="profile_label_scheme">GST scheme</string>
+    <string name="profile_label_state">State code</string>
+    <string name="profile_label_store_name">Store name</string>
+    <string name="profile_label_trade_name">Trade name</string>
+
+    <!-- InventoryActivity -->
+    <string name="dashboard_sort_name_asc">Name: A → Z</string>
+    <string name="dashboard_sort_name_desc">Name: Z → A</string>
+    <string name="dashboard_sort_price_asc">Price: Low → High</string>
+    <string name="dashboard_sort_price_desc">Price: High → Low</string>
+    <string name="dashboard_sort_stock_asc">Stock: Low → High</string>
+    <string name="dashboard_sort_stock_desc">Stock: High → Low</string>
+    <string name="inventory_batches_not_loaded">Batches not loaded yet</string>
+    <string name="inventory_confirm_return_batches_button">Return</string>
+    <string name="inventory_confirm_return_title">Confirm return to supplier</string>
+    <string name="inventory_confirm_scrap_batches_button">Scrap</string>
+    <string name="inventory_confirm_scrap_title">Confirm scrap</string>
+    <string name="inventory_credit_needs_account">Credit needs an account — adjustment turned off</string>
+    <string name="inventory_enter_batch_quantity">Enter quantity for at least one batch</string>
+    <string name="inventory_filter_all_products">All products</string>
+    <string name="inventory_filter_low_stock">Low stock</string>
+    <string name="inventory_kpi_all_in_stock">all in stock</string>
+    <string name="inventory_no_account_selected">No account selected</string>
+    <string name="inventory_no_batches_selected">No batches selected</string>
+    <string name="inventory_no_matches_body">No product matches your search or filter. Try a different name, category, or reset the filter.</string>
+    <string name="inventory_no_products_body">Products you add will show up here — search, filter by category and sort them once you have a few.</string>
+    <string name="inventory_no_products_title">No products</string>
+    <string name="inventory_no_stock_to_clear">No stock to clear</string>
+    <string name="inventory_product_not_loaded">Product details not loaded</string>
+    <string name="inventory_reason_return">Return to supplier</string>
+    <string name="inventory_reason_scrap">Scrap / damage</string>
+    <string name="inventory_return_batches_failed_toast">Failed to return batches</string>
+    <string name="inventory_return_exceeds_stock">Return total exceeds available stock</string>
+    <string name="inventory_return_failed_toast">Could not return — check selected batches</string>
+    <string name="inventory_return_qty_must_positive">Total return quantity must be &gt; 0</string>
+    <string name="inventory_scrap_batches_failed_toast">Failed to scrap batches</string>
+    <string name="inventory_scrap_exceeds_stock">Scrap total exceeds available stock</string>
+    <string name="inventory_scrap_failed_toast">Could not scrap — check selected batches</string>
+    <string name="inventory_scrap_qty_must_positive">Total scrap quantity must be &gt; 0</string>
+    <string name="inventory_select_one_batch">Select at least one batch to clear</string>
+    <string name="inventory_select_reason">Select reason</string>
+    <string name="inventory_sort_content_desc">Sort inventory</string>
+    <string name="inventory_sort_short_name_asc">Name ↑</string>
+    <string name="inventory_sort_short_name_desc">Name ↓</string>
+    <string name="inventory_sort_short_price_asc">Price ↑</string>
+    <string name="inventory_sort_short_price_desc">Price ↓</string>
+    <string name="inventory_sort_short_stock_asc">Stock ↑</string>
+    <string name="inventory_sort_short_stock_desc">Stock ↓</string>
+    <string name="inventory_sort_short_value_desc">Value ↓</string>
+    <string name="inventory_sort_value_desc">Stock value: High → Low</string>
+    <string name="inventory_total_to_return">Total to return</string>
+    <string name="inventory_total_to_scrap">Total to scrap</string>
+    <string name="purchase_return_label">Purchase return</string>
+
+    <!-- ManageProductsActivity -->
+    <string name="dashboard_sort_stock_value_desc">Stock Value: High → Low</string>
+    <string name="manage_products_add_product_action">Add product</string>
+    <string name="manage_products_category_count_singular">1 category</string>
+    <string name="manage_products_clear_filters_action">Clear filters</string>
+    <string name="manage_products_empty_no_match_sub">Try a different search or filter.</string>
+    <string name="manage_products_empty_no_match_title">No products match</string>
+    <string name="manage_products_empty_no_products_sub">Add your first product to get started.</string>
+    <string name="manage_products_empty_no_products_title">No products yet</string>
+
+    <!-- dialog_subscription_expired -->
+    <string name="dashboard_subscription">Subscription</string>
+    <string name="dialog_subscription_expired_contact_support">Need help? Contact support</string>
+    <string name="dialog_subscription_expired_cta">Renew subscription</string>
+    <string name="dialog_subscription_expired_data_safe">Your data is safe. Renewing unlocks everything instantly.</string>
+    <string name="dialog_subscription_expired_eyebrow">EXPOS PREMIUM</string>
+    <string name="dialog_subscription_expired_message">Your plan ran out, so billing, inventory and reports are paused. Renew to pick up right where you left off — nothing has been deleted.</string>
+    <string name="dialog_subscription_expired_title_part2">expired</string>
+
+    <!-- InvoiceDesignActivity -->
+    <string name="design_settings_saved">Design Settings Saved</string>
+    <string name="invoice_design_enter_password_error">Enter password</string>
+    <string name="invoice_design_footer_default">Thank You! Visit Again</string>
+
+    <!-- activity_invoice_design -->
+    <string name="design_word">design</string>
+    <string name="enable_round_off">Enable Round Off</string>
+    <string name="footer_message">Footer Message</string>
+    <string name="print_layout_eyebrow">PRINT LAYOUT</string>
+    <string name="printed_bottom_receipt_helper">Printed at the bottom of every receipt</string>
+    <string name="receipt_footer_section">RECEIPT FOOTER</string>
+    <string name="round_grand_total_helper">Round the grand total to nearest rupee</string>
+    <string name="save_design_settings">Save Design Settings</string>
+    <string name="show_discount_section">Show Discount Section</string>
+    <string name="show_gstin">Show GSTIN</string>
+    <string name="show_on_receipt_section">SHOW ON RECEIPT</string>
+    <string name="show_phone_number">Show Phone Number</string>
+    <string name="show_store_logo">Show Store Logo</string>
+
+    <!-- dialog_add_product_chooser -->
+    <string name="dialog_add_product_chooser_add_or">Add or</string>
+    <string name="dialog_add_product_chooser_manage_products">Manage products</string>
+    <string name="dialog_add_product_chooser_option1_body">Add directly, without a purchase entry</string>
+    <string name="dialog_add_product_chooser_option1_title">Add a product</string>
+    <string name="dialog_add_product_chooser_option2_body">Edit, update or remove existing items</string>
+    <string name="dialog_add_product_chooser_products_suffix">products</string>
+    <string name="dialog_add_product_chooser_subtitle">Pick what you\'d like to do</string>
+    <string name="dialog_add_product_chooser_title_part2">edit</string>
+
+    <!-- fragment_products -->
+    <string name="dialog_add_product_chooser_title_part3">products</string>
+    <string name="products_breakdown_label">Product breakdown</string>
+    <string name="products_empty_state">No products found</string>
+    <string name="products_eyebrow_breakdown">BREAKDOWN</string>
+    <string name="products_sort_chip_default">Fast moving ▾</string>
+    <string name="products_title_top">Top</string>
+
+    <!-- dialog_confirm_delete -->
+    <string name="dialog_confirm_delete_eyebrow">CATALOG</string>
+    <string name="dialog_confirm_delete_message_default">Are you sure?</string>
+    <string name="dialog_confirm_delete_title">Remove product</string>
+
+    <!-- dialog_premium_upgrade -->
+    <string name="dialog_premium_upgrade_cta">Upgrade to Premium</string>
+    <string name="dialog_premium_upgrade_eyebrow">PREMIUM FEATURE</string>
+    <string name="dialog_premium_upgrade_later">Not now</string>
+    <string name="dialog_premium_upgrade_message">This feature is part of Premium. Upgrade to get instant access.</string>
+    <string name="dialog_premium_upgrade_perk_ai">AI-powered insights</string>
+    <string name="dialog_premium_upgrade_perk_gst">GST reports &amp; filings</string>
+    <string name="dialog_premium_upgrade_perk_profit">Profit analytics &amp; trends</string>
+    <string name="dialog_premium_upgrade_title_part2">premium</string>
+
+    <!-- dialog_product_filter -->
+    <string name="dialog_product_filter_max_price_hint">Max ₹</string>
+    <string name="dialog_product_filter_min_price_hint">Min ₹</string>
+    <string name="dialog_product_filter_price_range">Price range</string>
+    <string name="dialog_product_filter_product_type">Product type</string>
+    <string name="dialog_product_filter_select_all">Select all</string>
+    <string name="dialog_product_filter_stock_status">Stock status</string>
+    <string name="dialog_product_filter_title">Filters</string>
+
+    <!-- dialog_quantity_pad -->
+    <string name="dialog_quantity_pad_eyebrow">ADD QUANTITY</string>
+    <string name="dialog_quantity_pad_product_placeholder">Product</string>
+    <string name="dialog_quantity_pad_total_label">total</string>
+
+    <!-- dialog_register_success -->
+    <string name="dialog_register_success_continue_btn">Continue</string>
+    <string name="dialog_register_success_eyebrow">ACCOUNT CREATED</string>
+    <string name="dialog_register_success_message">We\'ve sent a verification code (OTP) to your email.</string>
+    <string name="dialog_register_success_otp_expiry_note">Code expires in 10 minutes. Check spam if it doesn\'t arrive.</string>
+    <string name="dialog_register_success_title_part1">You\'re all</string>
+    <string name="dialog_register_success_title_part2">set</string>
+
+    <!-- dialog_server_unavailable -->
+    <string name="dialog_server_unavailable_countdown_placeholder">Logging out in 15s</string>
+    <string name="dialog_server_unavailable_got_it_btn">Got it</string>
+    <string name="dialog_server_unavailable_message">This is on our end, not your connection. Your work is saved locally and will sync once we\'re back.</string>
+    <string name="dialog_server_unavailable_subtitle">Your internet is fine — we can\'t reach our servers</string>
+    <string name="dialog_server_unavailable_title">Server Unavailable</string>
+
+    <!-- dialog_session_expiring -->
+    <string name="dialog_session_expiring_countdown_placeholder">Logging out in 15s</string>
+    <string name="dialog_session_expiring_got_it_btn">Got it</string>
+    <string name="dialog_session_expiring_message">Reconnect now to stay signed in — your work is saved locally either way.</string>
+    <string name="dialog_session_expiring_subtitle">No internet connection detected</string>
+    <string name="dialog_session_expiring_title">Session Expiring</string>
+
+    <!-- dialog_sign_out -->
+    <string name="dialog_sign_out_cancel">Stay signed in</string>
+    <string name="dialog_sign_out_confirm">Sign out</string>
+    <string name="dialog_sign_out_message">You\'ll need to log in again to access your store.</string>
+    <string name="dialog_sign_out_title">Sign out?</string>
+
+    <!-- dialog_verify_password -->
+    <string name="dialog_verify_password_title_part2">identity</string>
     <string name="enter_your_login_password">Enter your login password</string>
     <string name="verify">Verify</string>
 
-    <string name="item">Item</string>
-    <string name="delete_item">Delete item</string>
-
-    <string name="date">Date</string>
-    <string name="_0_bills">0 bills</string>
-    <string name="month">Month</string>
-
-    <string name="product_name">Product Name</string>
-    <string name="sold_0">Sold: 0</string>
-    <string name="this_year">this_year</string>
-    <string name="checking">Checking...</string>
-    <string name="plan">Plan: -</string>
-    <string name="expiry">Expiry: -</string>
-    <string name="days_left">Days left: -</string>
-    <string name="scan_and_pay">Scan and Pay</string>
-    <string name="pay_monthly_999">Pay Monthly ₹999</string>
-    <string name="pay_yearly_9999">Pay Yearly ₹9999</string>
-
-    
-    <string name="profile">Profile</string>
-    <string name="profile_subtitle">Your store identity and GST registration</string>
-    <string name="profile_store_info">Store information</string>
-    <string name="profile_gst_section">GST profile</string>
-    <string name="profile_edit_tax_rates">Edit tax rates</string>
-    <string name="profile_label_store_name">Store name</string>
-    <string name="profile_label_owner">Owner / Legal name</string>
-    <string name="profile_label_phone">Contact</string>
-    <string name="profile_label_address">Address</string>
-    <string name="profile_label_gstin">GSTIN</string>
-    <string name="profile_label_legal_name">Legal name</string>
-    <string name="profile_label_trade_name">Trade name</string>
-    <string name="profile_label_reg_type">Registration type</string>
-    <string name="profile_label_scheme">GST scheme</string>
-    <string name="profile_label_state">State code</string>
-    <string name="profile_saved_toast">Saved</string>
-
-    
-    <string name="cgst">CGST %%</string>
-    <string name="sgst">SGST %%</string>
-    <string name="igst">IGST %%</string>
-    <string name="save_tax_rates">Save tax rates</string>
-
-    
-    <string name="sync_pending">Pending sync</string>
-    <string name="sync_synced">Synced</string>
-    <string name="sync_failed">Sync failed</string>
-
-    
-    <string name="dash">—</string>
-
-    
-    <string name="tax_breakdown">Tax breakdown</string>
-    <string name="tax_rates">Tax rates</string>
-    <string name="billing_autofill_note">Auto-filled from your GST profile when available. You can override.</string>
-
-    
-    <string name="billing_settings_subtitle">GST profile and printer layout</string>
-    <string name="billing_gstin_helper">Set your GSTIN in Store Settings.</string>
-    <string name="printer_section">Printer</string>
-
-    
-    <string name="hsn_help_url">https://cbic-gst.gov.in/gst-goods-services-rates.html</string>
-    <string name="hsn_help_text">HSN list</string>
-    <string name="hsn_help_cd">Open the official HSN/GST rate list</string>
-
-    
-    <string name="purchase_title">New purchase invoice</string>
-    <string name="invoice_number">Invoice number</string>
-    <string name="supplier_name">Supplier name</string>
-    <string name="supplier_gstin">Supplier GSTIN (optional)</string>
-    <string name="state">State</string>
-    <string name="add_line">Add product</string>
-    <string name="save_purchase">Save purchase</string>
-    <string name="taxable_amount">Taxable amount</string>
-    <string name="invoice_value">Invoice value</string>
-    <string name="quantity">Quantity</string>
-    <string name="purchase_tax">Tax you paid</string>
-    <string name="purchase_tax_helper">GST on this invoice from your supplier</string>
-    <string name="sales_tax">Tax you\'ll charge</string>
-    <string name="sales_tax_helper">GST you\'ll add when this item is sold</string>
-    <string name="selling_price">Selling price (per unit)</string>
-    <string name="purchased_stock_managed_note">Stock is managed through purchase entries</string>
-
-    
-    <string name="purchase_field_product">Product name</string>
-    <string name="purchase_field_variant">Variant name</string>
-    <string name="purchase_field_unit">Unit</string>
-
-    
-    <string name="manage_products">Manage Products</string>
-    <string name="manage_products_subtitle">Edit existing products</string>
-    <string name="manage_products_search_hint">Search by name or HSN…</string>
-    <string name="manage_filter_all">All</string>
-    <string name="manage_filter_purchased">Purchased</string>
-    <string name="manage_filter_manual">Manual</string>
-    <string name="manage_empty_state">No products yet. Use \"Add/Edit Products\" to create your first one.</string>
-    <string name="badge_purchased">PURCHASED</string>
-    <string name="badge_manual">MANUAL</string>
-    <string name="edit_section_inventory">Inventory</string>
+    <!-- activity_edit_product -->
+    <string name="edit_add_stock_helper">Leave blank to keep current stock unchanged.</string>
+    <string name="edit_add_stock_qty">Add stock (quantity)</string>
     <string name="edit_current_stock">Current stock</string>
+    <string name="edit_product_xml_category_header">CATEGORY</string>
+    <string name="edit_product_xml_category_label">CATEGORY</string>
+    <string name="edit_product_xml_cess_pct_label">Cess %%</string>
+    <string name="edit_product_xml_cgst_pct_label">CGST %%</string>
+    <string name="edit_product_xml_details">details</string>
+    <string name="edit_product_xml_edit">Edit</string>
+    <string name="edit_product_xml_gst_label">GST</string>
+    <string name="edit_product_xml_hsn_desc_optional">HSN description (optional)</string>
+    <string name="edit_product_xml_incl_gst">Incl. GST</string>
+    <string name="edit_product_xml_inventory_header">INVENTORY</string>
+    <string name="edit_product_xml_price_label">PRICE</string>
+    <string name="edit_product_xml_pricing_header">PRICING</string>
+    <string name="edit_product_xml_product_label">PRODUCT</string>
+    <string name="edit_product_xml_select_hint">Select</string>
+    <string name="edit_product_xml_sgst_pct_label">SGST %%</string>
+    <string name="edit_product_xml_tax_gstr1_header">TAX &amp;amp; GSTR-1 DETAILS</string>
+    <string name="edit_product_xml_units_to_add_hint">Units to add</string>
     <string name="edit_stock_locked_helper">Stock is managed via purchases — add stock by recording a new purchase invoice.</string>
     <string name="edit_track_inventory">Track inventory</string>
-    <string name="edit_add_stock_qty">Add stock (quantity)</string>
-    <string name="edit_add_stock_helper">Leave blank to keep current stock unchanged.</string>
-    <string name="edit_screen_title">Edit product</string>
-    <string name="edit_save_success">Saved</string>
-    <string name="variant_already_exists_title">Variant already exists</string>
-    <string name="variant_already_exists_message">%1$s · %2$s is already in your catalog. Edit it, or change the variant name.</string>
-    <string name="variant_already_exists_message_no_variant">%1$s is already in your catalog. Edit it, or change the variant name.</string>
-    <string name="action_edit">Edit</string>
-    <string name="action_add_another_variant">Add another variant</string>
-    <string name="action_already_added">Already added</string>
-    <string name="save">Save</string>
+    <string name="hsn_help_text">HSN list</string>
 
-    
-    <string name="add_edit_product">Add/Edit Products</string>
-    <string name="add_edit_product_title">Add or edit a product</string>
-    <string name="add_edit_product_subtitle">How was this product acquired?</string>
-    <string name="add_purchased_product">Add Purchased Product</string>
-    <string name="add_non_purchased_product">Add Non-Purchased Product</string>
+    <!-- EditProductViewModel -->
+    <string name="edit_product_viewmodel_product_not_found">Product not found</string>
+    <string name="edit_product_viewmodel_save_failed">Save failed</string>
+    <string name="edit_product_viewmodel_save_failed_2">Save failed</string>
 
-    
-    <string name="clear_stock_title">Clear remaining stock</string>
-    <string name="clear_stock_subtitle">All remaining stock will be removed.</string>
+    <!-- activity_main -->
+    <string name="email">Email</string>
+    <string name="email_address">Email address</string>
+    <string name="enter_your_password_hint">Enter your password</string>
+    <string name="ex_word">Ex</string>
+    <string name="feature_business_analytics">Business analytics</string>
+    <string name="feature_gst_billing">GST billing</string>
+    <string name="feature_live_inventory">Live inventory</string>
+    <string name="forgot_password_2">Forgot password?</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="point_of_sale_tagline">POINT OF SALE</string>
+    <string name="pos_word">POS</string>
+    <string name="powered_by_label">POWERED BY</string>
+    <string name="powered_by_scalancer">Scalancer</string>
+    <string name="secured_encryption_note">Secured with enterprise-grade encryption</string>
+    <string name="sign_up">Sign up</string>
+
+    <!-- ConfirmPaymentActivity -->
+    <string name="enter_a_coupon_code">Enter a coupon code</string>
+    <string name="payment_cancelled">Payment cancelled</string>
+    <string name="payment_failed_try_again">Payment failed. Please try again.</string>
+    <string name="payment_successful_subscription_activated">Payment successful — subscription activated</string>
+    <string name="subscription_activated">Subscription activated</string>
+    <string name="verifying_payment_message">Verifying your payment — this can take a moment. Pull to refresh shortly if it doesn\'t update.</string>
+
+    <!-- ForgotPasswordActivity -->
+    <string name="enter_a_valid_email">Enter a valid email</string>
+    <string name="enter_valid_6_digit_otp">Enter valid 6-digit OTP</string>
+    <string name="otp_verified_successfully">OTP Verified Successfully</string>
+    <string name="please_enter_registered_email">Please enter registered email</string>
+    <string name="send_reset_code">Send reset code</string>
+
+    <!-- activity_import_services -->
+    <string name="enter_rate_taxable_value_tip">Enter the rate and taxable value</string>
+    <string name="gstr2_eyebrow">GSTR-2</string>
+    <string name="igst_paid">IGST paid</string>
+    <string name="igst_worked_out_tip">IGST is worked out for you</string>
+    <string name="import_of_word">Import of</string>
+    <string name="import_services_empty_body">Record invoices from overseas suppliers here — consultancy, software licences, freight — so the IGST you pay under reverse charge shows up in your GSTR-2.</string>
+    <string name="invoice_number_date_value_tip">Invoice number, date and value</string>
+    <string name="itc_availed">ITC availed</string>
+    <string name="itc_ready">ITC ready</string>
+    <string name="keep_supplier_invoice_tip">Keep the supplier invoice</string>
+    <string name="needs_fixing">Needs fixing</string>
+    <string name="nothing_imported">Nothing imported</string>
+    <string name="records_section">RECORDS</string>
+    <string name="services_word">services</string>
+    <string name="sync_synced">Synced</string>
+    <string name="total_taxable_value">Total taxable value</string>
+
+    <!-- StoreSettingsActivity -->
+    <string name="enter_valid_15_char_gstin">Enter a valid 15-character GSTIN</string>
+    <string name="store_name_is_required">Store name is required</string>
+    <string name="store_settings_enter_password_error">Enter password</string>
+
+    <!-- ChangePasswordActivity -->
+    <string name="failed_to_update_password">Failed to update password</string>
+    <string name="password_updated_successfully">Password updated successfully!</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="passwords_match">Passwords match</string>
+    <string name="session_expired_try_again">Session expired. Please try again.</string>
+    <string name="update_password">Update password</string>
+    <string name="updating_ellipsis">Updating...</string>
+
+    <!-- MyFirebaseService -->
+    <string name="fcm_default_notification_title">Easy Billing</string>
+    <string name="fcm_notification_channel_name">Easy Billing Notifications</string>
+
+    <!-- fragment_top_products -->
+    <string name="fragment_top_products_search_hint">Search by name or phone</string>
+
+    <!-- activity_onboarding -->
+    <string name="getting_started_eyebrow">GETTING STARTED</string>
+    <string name="onboarding_setup_title_part2">shop</string>
+    <string name="onboarding_subtitle">A few quick steps before you start billing.</string>
+    <string name="set_up_your_word">Set up your</string>
+    <string name="step_1_of_4_default">Step 1 of 4</string>
+    <string name="tap_highlighted_step_helper">Tap the highlighted step to continue</string>
+
+    <!-- GstReportsActivity -->
+    <string name="gst_csv_export_eyebrow">CSV EXPORT</string>
+    <string name="gst_delete_draft_eyebrow">REMOVE DRAFT</string>
+    <string name="gst_delete_draft_gstr2_message">This GSTR-2 draft will be permanently removed.</string>
+    <string name="gst_delete_draft_positive_label">Delete</string>
+    <string name="gst_delete_draft_title_accent">draft</string>
+    <string name="gst_delete_draft_title_bold">Delete</string>
+    <string name="gst_excel_export_eyebrow">EXCEL EXPORT</string>
+    <string name="gst_excel_gstr1_message">Your GSTR-1 workbook is ready.</string>
+    <string name="gst_excel_gstr2_message">Your GSTR-2 workbook is ready.</string>
+    <string name="gst_export_info_label_saved_to">SAVED TO</string>
+    <string name="gst_export_primary_label_open">Open</string>
+    <string name="gst_export_primary_label_share_all">Share all</string>
+    <string name="gst_export_title_accent">complete</string>
+    <string name="gst_export_title_bold">Export</string>
+    <string name="gst_hero_label_itc">Input tax credit</string>
+    <string name="gst_hero_label_total_tax">Total tax this period</string>
+    <string name="gst_selector_gstr1_sales">GSTR-1 · Sales</string>
+    <string name="gst_selector_gstr2_purchases">GSTR-2 · Purchases</string>
+    <string name="gst_share_gstr1_csvs_chooser">Share GSTR-1 CSVs</string>
+    <string name="gst_share_gstr2_csvs_chooser">Share GSTR-2 CSVs</string>
+    <string name="gst_summary_taxable_suffix">on ₹%,.0f taxable</string>
+    <string name="gst_toast_draft_saved">Draft saved successfully.</string>
+    <string name="gst_toast_generate_first_validate">Generate the report first, then validate.</string>
+    <string name="gst_toast_no_app_found">No app found.</string>
+    <string name="gst_toast_no_xlsx_app">No app found to open .xlsx files.</string>
+    <string name="gst_toast_validation_not_available_gstr2">Validation isn\'t available for GSTR-2 yet.</string>
+    <string name="gst_validation_all_checks_passed">✓ All checks passed — Ready to export</string>
+    <string name="gst_validation_message_no_issues">No issues found. This report is ready to export.</string>
+    <string name="gst_validation_title_all">All</string>
+    <string name="gst_validation_title_clear">clear</string>
+    <string name="gst_validation_title_issues">issues</string>
+    <string name="gst_validation_title_report">Report</string>
+    <string name="gst_validation_title_review">Review</string>
+    <string name="gst_validation_title_warnings">warnings</string>
+
+    <!-- fragment_profile -->
+    <string name="gst_profile_label">GST PROFILE</string>
+    <string name="gst_registered_badge">GST registered</string>
+    <string name="profile_word">profile</string>
+    <string name="registration_label">Registration</string>
+    <string name="store_information_2">STORE INFORMATION</string>
+
+    <!-- item_gst_record -->
+    <string name="gst_record_date_placeholder">27/04/2026</string>
+    <string name="gst_record_invoice_placeholder">INV-1234</string>
+    <string name="gst_record_tax_placeholder">₹18.00</string>
+    <string name="gst_record_taxable_placeholder">₹100.00</string>
+
+    <!-- fragment_gst_report -->
+    <string name="gst_report_col_date_inv">Date/Inv</string>
+    <string name="gst_report_col_tax">Tax</string>
+    <string name="gst_report_col_taxable">Taxable</string>
+    <string name="gst_report_empty_state">No records found</string>
+
+    <!-- GstReportsAdapter -->
+    <string name="gst_reports_cgst_sgst">CGST/SGST</string>
+    <string name="gst_reports_unregistered">Unregistered</string>
+    <string name="invoice_igst_label">IGST</string>
+
+    <!-- Gstr1EcoAdapters -->
+    <string name="gstr1_eco_unreg_supplier_buyer">unregistered supplier  ·  unregistered buyer</string>
+    <string name="gstr1_pos_not_set">Place of supply not set</string>
+
+    <!-- Gstr1SectionFragment -->
+    <string name="gstr1_no_records">No records for this period.</string>
+    <string name="gstr1_zero_rows">0 rows</string>
+    <string name="gstr1_zero_rows_caps">0 ROWS</string>
+
+    <!-- Gstr1ViewModel -->
+    <string name="gstr1_vm_error_draft_not_found">Draft not found.</string>
+    <string name="gstr1_vm_error_generate_report_first">Generate the report first.</string>
+    <string name="gstr1_vm_error_select_fy_period">Please select Financial Year and Period.</string>
+    <string name="gstr1_vm_error_server_unreachable">Couldn\'t reach the server to generate GSTR-1. Check your internet connection and try again.</string>
+    <string name="gstr1_vm_error_unsynced_data">Some bills, credit/debit notes or cancellations on this device haven\'t synced yet, so the report would be incomplete. Sync and try again.</string>
+
+    <!-- Gstr2RemainingAdapters -->
+    <string name="gstr2_exemp_no_itc">no input tax credit</string>
+    <string name="gstr2_exempt_label">exempt</string>
+
+    <!-- Gstr2B2burAdapter -->
+    <string name="gstr2_flag_no_rcm">NO RCM</string>
+    <string name="gstr2_flag_rcm">RCM</string>
+    <string name="gstr2_itc_none">NO ITC</string>
+    <string name="gstr2_no_credit">no credit</string>
+    <string name="gstr2_no_itc">no ITC</string>
+    <string name="gstr2_rcm_likely_missed">No tax recorded — check if RCM applies</string>
+    <string name="gstr2_supplier_not_named">Supplier not named</string>
+    <string name="gstr2_unregistered">unregistered</string>
+
+    <!-- Gstr2ViewModel -->
+    <string name="gstr2_vm_error_generate_report_first">Generate the report first.</string>
+    <string name="gstr2_vm_error_select_fy_period">Please select Financial Year and Period.</string>
+    <string name="gstr2_vm_error_unsynced_data">Some purchases, returns or cancellations on this device haven\'t synced yet, so the report would be incomplete. Sync and try again.</string>
+
+    <!-- activity_purchase_return -->
+    <string name="input_tax_credit_label">INPUT TAX CREDIT</string>
+    <string name="invoice_document_type_label">Document type</string>
+    <string name="xml_purchase_return_central_label">Central</string>
+    <string name="xml_purchase_return_cess_label">Cess</string>
+    <string name="xml_purchase_return_document_label">DOCUMENT</string>
+    <string name="xml_purchase_return_eligibility_label">Eligibility for ITC</string>
+    <string name="xml_purchase_return_gst_pct_hint">GST %%</string>
+    <string name="xml_purchase_return_gstr2_debit_note_header">GSTR-2 DEBIT NOTE DETAILS</string>
+    <string name="xml_purchase_return_header">PURCHASE RETURN</string>
+    <string name="xml_purchase_return_integrated_label">Integrated</string>
+    <string name="xml_purchase_return_invoice_supply_header">INVOICE AND SUPPLY</string>
+    <string name="xml_purchase_return_invoice_type_label">Invoice type</string>
+    <string name="xml_purchase_return_itc_reclaim_label">ITC reclaim (GST)</string>
+    <string name="xml_purchase_return_place_of_supply_label">Place of supply (state code)</string>
+    <string name="xml_purchase_return_pre_gst_document">Pre GST document</string>
+    <string name="xml_purchase_return_rate_label">Rate</string>
+    <string name="xml_purchase_return_reason_label">Reason for issuing document</string>
+    <string name="xml_purchase_return_state_ut_label">State/UT</string>
+    <string name="xml_purchase_return_supplier_label">Supplier</string>
+    <string name="xml_purchase_return_total_value_hint">Total value</string>
+    <string name="xml_purchase_return_value_rate_header">VALUE AND RATE</string>
+    <string name="xml_purchase_return_voucher_value_label">Voucher value</string>
+
+    <!-- activity_inventory -->
+    <string name="inventory_active_skus_placeholder">0 active SKUs</string>
+    <string name="inventory_all_products_section">ALL PRODUCTS</string>
+    <string name="inventory_bulk_edit_price">Edit price</string>
+    <string name="inventory_bulk_mark_inactive">Mark inactive</string>
+    <string name="inventory_selected_count_placeholder">2 selected</string>
+    <string name="inventory_tip_add_body">Name, category, price and stock</string>
+    <string name="inventory_tip_add_title">Add your first product</string>
+    <string name="inventory_tip_search_body">Search by name, or filter by category and stock</string>
+    <string name="inventory_tip_search_title">Then find any product fast</string>
+    <string name="inventory_title_accent">room</string>
+    <string name="inventory_title_lead">Stock</string>
+    <string name="inventory_total_stock_value_label">Total stock value</string>
+
+    <!-- InvoiceActivity -->
+    <string name="invoice_account_count_singular">1 account</string>
+    <string name="invoice_b2b_hint">B2B — Customer Name, Business Name, Phone, GST and State are mandatory.</string>
+    <string name="invoice_b2c_hint">B2C — quick sale. Add the state for out-of-state customers, otherwise the sale is filed as local.</string>
+    <string name="invoice_bill_saved">Bill Saved</string>
+    <string name="invoice_cannot_modify_after_save">Cannot modify items after saving</string>
+    <string name="invoice_collapse_gst_options">Collapse GST options</string>
+    <string name="invoice_composition_explain">Composition Scheme — tax is included in the selling price.</string>
+    <string name="invoice_customer_added">Customer added</string>
+    <string name="invoice_customer_already_exists">Customer already exists</string>
+    <string name="invoice_default_store_name">My Store</string>
+    <string name="invoice_discount_exceeds_subtotal">Discount cannot exceed subtotal</string>
+    <string name="invoice_document_type_invoice">Invoice</string>
+    <string name="invoice_eco_gstin_length">E-Commerce GSTIN must be 15 characters</string>
+    <string name="invoice_eco_gstin_required">E-Commerce operator GSTIN is required</string>
+    <string name="invoice_enter_all_fields">Enter all fields</string>
+    <string name="invoice_error_saving_bill">Error saving bill</string>
+    <string name="invoice_expand_gst_options">Expand GST options</string>
+    <string name="invoice_field_business_name">Business Name</string>
+    <string name="invoice_field_customer_name">Customer Name</string>
+    <string name="invoice_field_gst_number">GST Number</string>
+    <string name="invoice_field_phone_number">Phone Number</string>
+    <string name="invoice_field_state">State</string>
+    <string name="invoice_gstin_length">GSTIN must be 15 characters</string>
+    <string name="invoice_interstate_explain">Different state — IGST will be charged.</string>
+    <string name="invoice_intrastate_explain">Same-state sale — CGST + SGST will be charged.</string>
+    <string name="invoice_missing_customer_name">the customer\'s name</string>
+    <string name="invoice_missing_customer_name_and_state">the customer\'s name and state</string>
+    <string name="invoice_missing_customer_state">the customer\'s state</string>
+    <string name="invoice_no_shop_add_customer">No shop selected — can\'t add a customer. Sign in again.</string>
+    <string name="invoice_no_shop_credit_record">No shop selected — can\'t record this credit sale. Sign in again.</string>
+    <string name="invoice_no_shop_credit_sale">No shop selected — can\'t take a credit sale. Sign in again.</string>
+    <string name="invoice_no_shop_save">No shop selected — can\'t save this bill. Sign in again.</string>
+    <string name="invoice_not_applicable">n/a</string>
+    <string name="invoice_optional">Optional</string>
+    <string name="invoice_required">Required</string>
+    <string name="invoice_save_bill_first">Please save bill first</string>
+    <string name="invoice_supply_composition">COMPOSITION</string>
+    <string name="invoice_supply_interstate">INTERSTATE</string>
+    <string name="invoice_supply_intrastate">INTRASTATE</string>
+    <string name="purchase_invoice_type_deemed_exp">Deemed Exp</string>
+    <string name="purchase_invoice_type_sez_with_payment">SEZ supplies with payment</string>
+    <string name="purchase_invoice_type_sez_without_payment">SEZ supplies without payment</string>
+    <string name="purchase_return_doctype_credit">Credit Note</string>
+    <string name="purchase_return_doctype_debit">Debit Note</string>
+
+    <!-- dialog_customer_picker -->
+    <string name="invoice_account_word">account</string>
+    <string name="invoice_hint_search_name_phone">Search name or phone</string>
+    <string name="invoice_hint_select">Select</string>
+    <string name="invoice_on_credit_header">ON CREDIT</string>
+    <string name="xml_customer_picker_new_account_button">+  New credit account</string>
+
+    <!-- InvoiceAdapter -->
+    <string name="invoice_add_discount">＋ Add discount</string>
+    <string name="invoice_no_tax">no tax</string>
+
+    <!-- dialog_line_discount -->
+    <string name="invoice_apply_discount">Apply discount</string>
+    <string name="invoice_discount_mode_amount">Amount ₹</string>
+    <string name="invoice_discount_mode_percent">Percent %%</string>
+    <string name="invoice_line_discount_header">LINE DISCOUNT</string>
+    <string name="invoice_new_price_label">NEW PRICE</string>
+    <string name="invoice_you_save_label">YOU SAVE</string>
+    <string name="item">Item</string>
+
+    <!-- dialog_add_customer -->
+    <string name="invoice_customer_appear_note">They\'ll appear whenever you take a sale on credit.</string>
+    <string name="invoice_customer_word">customer</string>
+    <string name="invoice_hint_name_example">Ramesh Kumar</string>
+    <string name="invoice_label_name">Name</string>
+    <string name="invoice_new_word">New</string>
+    <string name="invoice_phone_reuse_note">Used to find this customer later, so one number can\'t be reused.</string>
+    <string name="xml_add_customer_phone_hint">98765 43210</string>
+
+    <!-- InvoicePdfGenerator -->
+    <string name="invoice_pdf_all_time_report">All Time Report</string>
+    <string name="invoice_pdf_cgst_label">CGST</string>
+    <string name="invoice_pdf_composition_declaration_1">Composition Taxable Person, Not Eligible</string>
+    <string name="invoice_pdf_composition_declaration_2">To Collect Tax On Supplies</string>
+    <string name="invoice_pdf_customer_fallback">customer</string>
+    <string name="invoice_pdf_detail_business">Business</string>
+    <string name="invoice_pdf_detail_gstin">GSTIN</string>
+    <string name="invoice_pdf_detail_name">Name</string>
+    <string name="invoice_pdf_detail_phone">Phone</string>
+    <string name="invoice_pdf_detail_state">State</string>
+    <string name="invoice_pdf_discount_label">Discount</string>
+    <string name="invoice_pdf_final_balance_label">Final Balance:</string>
+    <string name="invoice_pdf_footer_default">Thank You! Visit Again</string>
+    <string name="invoice_pdf_igst_label">IGST</string>
+    <string name="invoice_pdf_item_description_header">Item Description</string>
+    <string name="invoice_pdf_no_printing_service">This device has no printing service</string>
+    <string name="invoice_pdf_profit_print_job_name">Profit Report</string>
+    <string name="invoice_pdf_profit_report_title">Profit Report</string>
+    <string name="invoice_pdf_profit_save_failed_toast">PDF save failed</string>
+    <string name="invoice_pdf_round_off_label">Round Off</string>
+    <string name="invoice_pdf_sgst_label">SGST</string>
+    <string name="invoice_pdf_statement_job_name">Statement</string>
+    <string name="invoice_pdf_statement_title">Credit / Debit Report</string>
+    <string name="invoice_pdf_store_default_name">My Store</string>
+    <string name="invoice_pdf_sub_total_label">Sub Total</string>
+    <string name="invoice_pdf_summary_cost">Cost</string>
+    <string name="invoice_pdf_summary_expense">Expense</string>
+    <string name="invoice_pdf_summary_loss">Loss</string>
+    <string name="invoice_pdf_summary_net_profit">Net Profit</string>
+    <string name="invoice_pdf_summary_revenue">Revenue</string>
+    <string name="invoice_pdf_table_balance_header">Balance (₹)</string>
+    <string name="invoice_pdf_table_cr_header">Cr (₹)</string>
+    <string name="invoice_pdf_table_date_header">Date</string>
+    <string name="invoice_pdf_table_dr_header">Dr (₹)</string>
+    <string name="invoice_pdf_table_type_header">Type</string>
+    <string name="invoice_pdf_tax_invoice_title">Tax Invoice</string>
+    <string name="invoice_pdf_taxable_amount_label">Taxable Amount</string>
+    <string name="invoice_pdf_taxable_label">Taxable</string>
+    <string name="invoice_pdf_thank_you">Thank You!</string>
+    <string name="invoice_pdf_total_credit_label">Total Credit:</string>
+    <string name="invoice_pdf_total_debit_label">Total Debit:</string>
+    <string name="invoice_pdf_total_header">TOTAL</string>
+    <string name="pdf_footer_default_message">Thank You! Visit Again</string>
+
+    <!-- item_product -->
+    <string name="item_product_add_button">Add</string>
+
+    <!-- LocalizationSettingsActivity -->
+    <string name="localization_settings_enter_password_error">Enter password</string>
+
+    <!-- activity_manage_products -->
+    <string name="manage_products_footer_hint">Swipe left on a product to edit its details.</string>
+    <string name="manage_products_header_manage">Manage</string>
+    <string name="manage_products_search_hint">Search by name or HSN…</string>
+    <string name="manage_products_sort_content_desc">Sort</string>
+
+    <!-- ManageProductsAdapter -->
+    <string name="manage_products_no_gst">No GST</string>
+    <string name="manage_products_unlimited">Unlimited</string>
+
+    <!-- item_monthly_report -->
+    <string name="month">Month</string>
+
+    <!-- item_peak_hour -->
+    <string name="peak_hour_item_bills_placeholder">18 bills</string>
+    <string name="peak_hour_item_hour_placeholder">12:00 PM</string>
+    <string name="peak_hour_item_revenue_placeholder">₹6,100</string>
+
+    <!-- PeakHourAdapter -->
+    <string name="peak_hour_status_avg">⚖ Avg</string>
+    <string name="peak_hour_status_peak">🔥 Peak</string>
+    <string name="peak_hour_status_slow">⚠ Slow</string>
+
+    <!-- fragment_peak_hours -->
+    <string name="peak_hours_breakdown_label">Hourly breakdown</string>
+    <string name="peak_hours_eyebrow_today">TODAY</string>
+    <string name="peak_hours_hero_label">Peak revenue</string>
+    <string name="peak_hours_legend_hourly_revenue">Hourly revenue</string>
+    <string name="peak_hours_legend_peak_hour">Peak hour</string>
+    <string name="peak_hours_metric_avg_hour_label">Avg / hour</string>
+    <string name="peak_hours_metric_best_hour_label">Best hour</string>
+    <string name="peak_hours_period_chip_default">24 Hour</string>
+    <string name="peak_hours_title_hours_suffix">hours</string>
+    <string name="peak_hours_title_peak">Peak</string>
+
+    <!-- PeakHoursFragment -->
+    <string name="peak_hours_toast_load_failed">Failed to load peak hours</string>
+
+    <!-- activity_purchase_details -->
+    <string name="place_of_supply">Place of supply</string>
+    <string name="tax_breakdown">Tax breakdown</string>
+    <string name="txn_label_credit_note">Credit note</string>
+    <string name="txn_label_debit_note">Debit note</string>
+    <string name="xml_purchase_details_cancel_button">Cancel purchase</string>
+    <string name="xml_purchase_details_cancelled_note">This purchase was cancelled</string>
+    <string name="xml_purchase_details_header">PURCHASE INVOICE</string>
+    <string name="xml_purchase_details_invoice_total_label">Invoice total</string>
+    <string name="xml_purchase_details_net_after_returns">Net after returns</string>
+    <string name="xml_purchase_details_not_synced">not synced</string>
+    <string name="xml_purchase_details_notes_header">DEBIT &amp; CREDIT NOTES</string>
+    <string name="xml_purchase_details_still_owed_label">Still owed to this supplier</string>
+    <string name="xml_purchase_details_supplier_label">Supplier</string>
+    <string name="xml_purchase_details_view_ledger_link">View ledger ›</string>
+
+    <!-- ProductAdapter -->
+    <string name="product_adapter_out_of_stock_pill">Out of stock</string>
+    <string name="product_adapter_out_of_stock_pill_2">Out of stock</string>
+    <string name="product_adapter_out_of_stock_toast">Out of stock</string>
+    <string name="product_adapter_out_of_stock_toast_2">Out of stock</string>
+    <string name="product_adapter_service_item">Service item</string>
+    <string name="product_adapter_service_pill">Service</string>
+    <string name="product_unit_gram">g</string>
+    <string name="product_unit_kg">Kg</string>
+    <string name="product_unit_litre">L</string>
+    <string name="product_unit_ml">ml</string>
+    <string name="product_unit_pc">Pc</string>
+
+    <!-- item_inventory -->
+    <string name="product_name">Product Name</string>
+    <string name="xml_inventory_category_variant_placeholder">Category · Variant</string>
+    <string name="xml_inventory_units_in_stock_placeholder">0 units in stock</string>
+
+    <!-- ProfileActivity -->
+    <string name="profile">Profile</string>
+
+    <!-- PurchaseActivity -->
+    <string name="purchase_boe_date_required">Bill of Entry Date is required for Imported Goods</string>
+    <string name="purchase_boe_number_required">Bill of Entry Number is required for Imported Goods</string>
+    <string name="purchase_boe_value_required">Bill of Entry Value is required for Imported Goods</string>
+    <string name="purchase_cess_paid_invalid">Cess Paid must be &gt;= 0</string>
+    <string name="purchase_choose_supplier_desc">Choose supplier</string>
+    <string name="purchase_credit_needs_account">Credit needs an account — set to paid now</string>
+    <string name="purchase_eligibility_required">Eligibility For ITC is required</string>
+    <string name="purchase_fill_header">Fill invoice header first</string>
+    <string name="purchase_fill_header_first">Fill invoice number, supplier and state first</string>
+    <string name="purchase_imported_toggle_locked">Imported Goods toggle can only be changed before adding items</string>
+    <string name="purchase_invalid_gstin">Supplier GSTIN doesn\'t look valid — check it, or leave it blank</string>
+    <string name="purchase_invalid_gstin_error">Invalid GSTIN</string>
+    <string name="purchase_invoice_date_required">Invoice date is required</string>
+    <string name="purchase_invoice_type_composition">From Composition Taxable Person</string>
+    <string name="purchase_invoice_type_required">Invoice Type is required</string>
+    <string name="purchase_itc_fields_negative">Availed ITC fields must be &gt;= 0</string>
+    <string name="purchase_itc_must_be_zero">Availed ITC fields must be 0 when ineligible/None</string>
+    <string name="purchase_pick_invoice_date_error">Pick the invoice date</string>
+    <string name="purchase_place_of_supply_required">Place of Supply Code is required</string>
+    <string name="purchase_port_code_required">Port Code is required for Imported Goods</string>
+    <string name="purchase_review_line_item">Review the highlighted line item before saving</string>
+    <string name="purchase_saved_default_msg">Purchase saved</string>
+    <string name="purchase_select_credit_account">Select a credit account</string>
+    <string name="purchase_supply_type_interstate">interstate</string>
+    <string name="purchase_supply_type_intrastate">intrastate</string>
+    <string name="purchase_supply_type_invalid">Supply Type must be intrastate or interstate</string>
+
+    <!-- PurchaseReturnActivity -->
+    <string name="purchase_eligibility_capital_goods">Capital goods</string>
+    <string name="purchase_eligibility_ineligible">Ineligible</string>
+    <string name="purchase_eligibility_input_services">Input services</string>
+    <string name="purchase_eligibility_none">None</string>
+    <string name="purchase_return_confirm_credit_note">Confirm &amp; save credit note</string>
+    <string name="purchase_return_confirm_debit_note">Confirm &amp; issue debit note</string>
+    <string name="purchase_return_confirm_yes_cn">Yes, receive CN</string>
+    <string name="purchase_return_confirm_yes_dn">Yes, issue DN</string>
+    <string name="purchase_return_doctype_refund">Refund Voucher</string>
+    <string name="purchase_return_doctype_required">Document Type is required.</string>
+    <string name="purchase_return_eligibility_required">Eligibility for ITC is required.</string>
+    <string name="purchase_return_invalid_id">Invalid purchase ID</string>
+    <string name="purchase_return_invoice_type_required">Invoice Type is required.</string>
+    <string name="purchase_return_itc_central_exceeds">Availed ITC Central Tax cannot exceed CGST (₹%.2f).</string>
+    <string name="purchase_return_itc_cess_exceeds">Availed ITC Cess cannot exceed Cess (₹%.2f).</string>
+    <string name="purchase_return_itc_integrated_exceeds">Availed ITC Integrated Tax cannot exceed IGST (₹%.2f).</string>
+    <string name="purchase_return_itc_must_be_zero">If eligibility is Ineligible/None, availed ITC values must be 0.</string>
+    <string name="purchase_return_itc_state_exceeds">Availed ITC State/UT Tax cannot exceed SGST (₹%.2f).</string>
+    <string name="purchase_return_not_loaded">Purchase not loaded yet. Please wait.</string>
+    <string name="purchase_return_note_word">note</string>
+    <string name="purchase_return_place_of_supply_required">Place of Supply Code is required.</string>
+    <string name="purchase_return_processing">Processing…</string>
+    <string name="purchase_return_raise_debit">Raise debit</string>
+    <string name="purchase_return_rate_invalid">Rate must be &gt;= 0.</string>
+    <string name="purchase_return_reason_correction">Correction in invoice</string>
+    <string name="purchase_return_reason_deficiency">Deficiency in services</string>
+    <string name="purchase_return_reason_discount">Post sale discount</string>
+    <string name="purchase_return_reason_other">Other</string>
+    <string name="purchase_return_reason_required">Reason is required.</string>
+    <string name="purchase_return_reason_sales_return">Sales return</string>
+    <string name="purchase_return_receive_credit">Receive credit</string>
+    <string name="purchase_return_section_credit">SELECT ITEMS &amp; QUANTITIES TO RECEIVE CREDIT ON</string>
+    <string name="purchase_return_section_debit">SELECT ITEMS &amp; QUANTITIES TO RETURN</string>
+    <string name="purchase_return_select_item_credit">Please select at least one item to receive credit on.</string>
+    <string name="purchase_return_select_item_debit">Please select at least one item to return.</string>
+    <string name="purchase_return_title_accent_credit">credit note?</string>
+    <string name="purchase_return_title_accent_debit">debit note?</string>
+    <string name="purchase_return_title_lead_issue">Issue</string>
+    <string name="purchase_return_title_lead_receive">Receive</string>
+    <string name="purchase_return_total_credit_value">Total credit value</string>
+    <string name="purchase_return_total_debit_value">Total debit value</string>
+    <string name="purchase_return_voucher_value_min">Note/Refund Voucher Value (₹%1$.2f) must stay &gt;= taxable value (₹%2$.2f).</string>
+    <string name="purchase_return_voucher_value_positive">Note/Refund Voucher Value must be &gt; 0.</string>
     <string name="reason_purchase_return">Purchase return</string>
-    <string name="reason_scrap">Scrap</string>
 
-    
-    <string name="terms_and_conditions_body">Easy Billing — Terms and Conditions (Draft)\n\n1. Acceptance of Terms\nBy creating an account and using Easy Billing, you agree to these Terms and Conditions.\n\n2. Subscription and Billing\nCertain features (GST reports, profit insights, AI insights) require an active Premium subscription or trial. Subscription fees are billed as described on the Subscription screen at the time of purchase. Prices and plans may change; changes will not affect an already-paid current billing period.\n\n3. Free Trial\nA free trial, where offered, is available once per shop account. Trial length and eligibility are determined by Easy Billing and may change at any time.\n\n4. Data and Privacy\nYour business data (bills, inventory, customer records) is stored to provide the service. We do not sell your data to third parties.\n\n5. Refunds\nRefund requests are handled on a case-by-case basis; contact support for assistance.\n\n6. Changes to These Terms\nWe may update these Terms from time to time. Material changes may require you to re-accept before continuing to use the app.\n\n7. Contact\nFor questions about these Terms, contact support@expos.com.</string>
+    <!-- item_invoice -->
+    <string name="purchase_field_product">Product name</string>
+
+    <!-- activity_purchase_history -->
+    <string name="purchase_history_bought_this_month">Bought this month</string>
+    <string name="purchase_history_eyebrow">PURCHASES</string>
+    <string name="purchase_history_search_hint">Search supplier or invoice</string>
+    <string name="purchase_history_tip_record_body">Supplier, invoice number and value</string>
+    <string name="purchase_history_tip_record_title">Record your first purchase</string>
+    <string name="purchase_history_tip_search_body">Search by supplier name or invoice number</string>
+    <string name="purchase_history_tip_search_title">Then find any purchase fast</string>
+    <string name="purchase_history_title_lead">Purchase</string>
+    <string name="xml_purchase_history_invoices_count_placeholder">0 invoices</string>
+    <string name="xml_purchase_history_sort_newest_first">Newest first</string>
+
+    <!-- PurchaseHistoryAdapter -->
+    <string name="purchase_history_status_cancelled">cancelled</string>
+    <string name="purchase_history_status_credit">on credit</string>
+    <string name="purchase_history_status_paid_cash">paid cash</string>
+
+    <!-- PurchaseDetailsActivity -->
+    <string name="purchase_invalid_id_toast">Invalid purchase ID</string>
+    <string name="purchase_not_loaded_toast">Purchase not loaded yet.</string>
+
+    <!-- PurchaseLineDialog -->
+    <string name="purchase_line_dialog_verb_edit">Edit</string>
+    <string name="purchase_line_eligibility_required_toast">Eligibility for ITC is required</string>
+    <string name="purchase_line_fill_required_toast">Fill product, quantity, selling price and taxable</string>
+    <string name="purchase_line_itc_must_be_zero_toast">Availed ITC must be 0 when Ineligible or None</string>
+    <string name="purchase_line_negative_gstr2_toast">Negative GSTR-2 values are not allowed</string>
+    <string name="purchase_line_restore_button">Restore</string>
+    <string name="purchase_line_restore_new_values_button">Restore with New Values</string>
+    <string name="purchase_line_restore_old_button">Restore Old</string>
+    <string name="purchase_line_save_changes">Save changes</string>
+    <string name="purchase_line_uqc_required_toast">Official UQC (GST Unit) is required</string>
+
+    <!-- PurchaseReturnItemAdapter -->
+    <string name="purchase_return_qty_label">Return qty</string>
+    <string name="purchase_return_receive_qty_label">Receive qty</string>
+
+    <!-- ReportsFragment -->
+    <string name="reports_breakdown_daily">Daily breakdown</string>
+    <string name="reports_breakdown_monthly">Monthly breakdown</string>
+    <string name="reports_breakdown_today_full_prefix">Today,</string>
+    <string name="reports_breakdown_today_label">Today</string>
+    <string name="reports_delta_vs_previous_week">vs previous week</string>
+    <string name="reports_delta_vs_previous_year">vs previous year</string>
+    <string name="reports_legend_best_day">Best day</string>
+    <string name="reports_legend_best_month">Best month</string>
+    <string name="reports_legend_daily_revenue">Daily revenue</string>
+    <string name="reports_legend_monthly_revenue">Monthly revenue</string>
+    <string name="reports_metric_avg_day_label">Avg / day</string>
+    <string name="reports_metric_avg_month_label">Avg / month</string>
+    <string name="reports_toast_load_failed">Failed to load sales</string>
+    <string name="reports_week_label_last">Last week</string>
+    <string name="reports_week_label_this">This week</string>
+    <string name="reports_year_label_last">Last year</string>
+    <string name="reports_year_label_this">This year</string>
+
+    <!-- fragment_reports -->
+    <string name="reports_title_report_suffix">report</string>
+    <string name="reports_title_sales">Sales</string>
+    <string name="reports_toggle_daily">Daily</string>
+    <string name="reports_toggle_monthly">Monthly</string>
+    <string name="reports_total_revenue_label">Total revenue</string>
+    <string name="xml_reports_period_chip_default">This week</string>
+
+    <!-- ReportsActivity -->
+    <string name="reports_toast_auth_error">Authentication error. Please login again.</string>
+
+    <!-- NetworkReceiver -->
+    <string name="server_not_reachable_toast">Server not reachable</string>
+
+    <!-- SessionTimeoutGuard -->
+    <string name="session_expired_toast">Session expired. Please login again.</string>
+
+    <!-- SupplierAdapter -->
+    <string name="supplier_no_gstin">No GSTIN</string>
+    <string name="supplier_tag_registered">REGISTERED</string>
+    <string name="supplier_tag_unregistered">UNREGISTERED</string>
+
+    <!-- SupplierPicker -->
+    <string name="supplier_picker_enter_supplier_name_error">Enter the supplier name</string>
+    <string name="supplier_picker_invalid_gstin_error">Invalid GSTIN</string>
+    <string name="supplier_picker_select_state_title">Select state</string>
+    <string name="supplier_picker_select_supplier_state_toast">Select the supplier\'s state</string>
+
+    <!-- CustomerTransactionsActivity -->
+    <string name="today">Today</string>
+    <string name="txn_dash_placeholder">—</string>
+    <string name="txn_default_customer_name">Customer</string>
+    <string name="txn_entry_plural">entries</string>
+    <string name="txn_entry_singular">entry</string>
+    <string name="txn_filter_all_time">All time</string>
+    <string name="txn_from_after_to_date">The From date is after the To date</string>
+    <string name="txn_header_yesterday">Yesterday</string>
+    <string name="txn_invalid_account">Invalid account</string>
+    <string name="txn_no_data">No data</string>
+    <string name="txn_no_transactions_print">No transactions to print</string>
+    <string name="txn_phone_not_available">N/A</string>
+    <string name="txn_pick_a_date">Pick a date</string>
+    <string name="txn_server_unreachable">Couldn\'t reach the server — showing what\'s on this device</string>
+    <string name="txn_try_again">Try again</string>
+
+    <!-- activity_customer_transactions -->
+    <string name="txn_billed_label">Billed</string>
+    <string name="txn_current_balance_label">Current balance</string>
+    <string name="txn_label_written_off">Written off</string>
+    <string name="txn_received_label">Received</string>
+    <string name="txn_refunded_to_customer_label">Refunded to customer</string>
+    <string name="txn_search_amount_hint">Search amount</string>
+    <string name="txn_statement_button">Statement</string>
+    <string name="txn_summary_button">Summary</string>
+
+    <!-- item_transaction -->
+    <string name="txn_label_credit_sale">Credit sale</string>
+    <string name="xml_transaction_left_placeholder">₹0 left</string>
+    <string name="xml_transaction_time_placeholder">11:02 am</string>
+
+    <!-- TransactionAdapter -->
+    <string name="txn_no_cash_moved">no cash moved</string>
+    <string name="txn_not_yet_synced">not yet synced</string>
+
+    <!-- activity_workspace_changed -->
+    <string name="workspace_changed_body">Your business workspace has been restored or replaced from another device.\n\nYou must reload the latest workspace to continue.</string>
+    <string name="workspace_changed_icon_emoji">🔄</string>
+    <string name="workspace_changed_reload_btn">Reload Workspace</string>
+    <string name="workspace_changed_title">Workspace Updated</string>
+
+    <!-- item_ai_insight_header -->
+    <string name="xml_ai_insight_header_default">NEEDS ATTENTION</string>
+
+    <!-- item_batch_pick -->
+    <string name="xml_batch_pick_date_cost_placeholder">14 Jul 2026 · ₹42/unit</string>
+    <string name="xml_batch_pick_max_reducible_placeholder">Max reducible: 0</string>
+    <string name="xml_batch_pick_number_placeholder">Batch #A102</string>
+    <string name="xml_batch_pick_oldest_tag">Oldest</string>
+    <string name="xml_batch_pick_reduce_qty_label">Reduce quantity</string>
+    <string name="xml_batch_pick_reduce_value_placeholder">Reduce value: ₹0</string>
+
+    <!-- dialog_batch_picker -->
+    <string name="xml_batch_picker_cancel_button">Cancel</string>
+    <string name="xml_batch_picker_confirm_button">Confirm Return</string>
+    <string name="xml_batch_picker_selected_label">Selected</string>
+    <string name="xml_batch_picker_subtitle">Pick batches and the quantity to return per batch</string>
+    <string name="xml_batch_picker_target_qty_label">Target return quantity</string>
+    <string name="xml_batch_picker_title">Return to Supplier</string>
+
+    <!-- dialog_cancel_purchase_confirm -->
+    <string name="xml_cancel_purchase_body">All remaining stock from this purchase will be returned to the supplier and the purchase marked cancelled. This can\'t be undone.</string>
+    <string name="xml_cancel_purchase_confirm_button">Cancel purchase</string>
+    <string name="xml_cancel_purchase_keep_button">Keep purchase</string>
+    <string name="xml_cancel_purchase_title_line1">Cancel this</string>
+    <string name="xml_cancel_purchase_title_line2">purchase?</string>
+
+    <!-- dialog_cant_cancel_purchase -->
+    <string name="xml_cant_cancel_got_it_button">Got it</string>
+    <string name="xml_cant_cancel_purchase_kicker">PURCHASE</string>
+    <string name="xml_cant_cancel_title_line1">Can\'t</string>
+    <string name="xml_cant_cancel_title_line2">cancel</string>
+    <string name="xml_cant_cancel_title_line3">this</string>
+
+    <!-- dialog_confirm_credit_note -->
+    <string name="xml_confirm_credit_note_body">You\'re returning items from this invoice. This will adjust inventory and generate a GST credit note.</string>
+    <string name="xml_confirm_credit_note_confirm_button">Yes, issue credit note</string>
+    <string name="xml_confirm_credit_note_invoice_placeholder">Invoice #—</string>
+    <string name="xml_confirm_credit_note_return_value_label">Return value</string>
+    <string name="xml_confirm_credit_note_review_button">Review</string>
+    <string name="xml_confirm_credit_note_title_line1">Issue credit</string>
+    <string name="xml_confirm_credit_note_title_line2">note?</string>
+
+    <!-- dialog_confirm_purchase_note -->
+    <string name="xml_confirm_purchase_note_body">You are returning 0 unit(s) to the supplier. Stock will be reduced from the exact purchase batch and a debit note will be generated.</string>
+    <string name="xml_confirm_purchase_note_confirm_button">Yes, issue DN</string>
+    <string name="xml_confirm_purchase_note_invoice_placeholder">INV-2043 · SUPPLIER</string>
+    <string name="xml_confirm_purchase_note_review_button">Review</string>
+    <string name="xml_confirm_purchase_note_title_line1">Issue</string>
+    <string name="xml_confirm_purchase_note_title_line2">debit note?</string>
+
+    <!-- item_credit -->
+    <string name="xml_credit_item_phone_placeholder">9876543210</string>
+
+    <!-- dialog_filter_customers -->
+    <string name="xml_filter_customers_advance_only">Advance Only</string>
+    <string name="xml_filter_customers_all">All Customers</string>
+    <string name="xml_filter_customers_due_only">Due Only</string>
+    <string name="xml_filter_customers_settled_only">Settled Only</string>
+    <string name="xml_filter_customers_title">Filter Customers</string>
+
+    <!-- dialog_gst_confirm -->
+    <string name="xml_gst_confirm_cancel_btn">Cancel</string>
+    <string name="xml_gst_confirm_eyebrow">REMOVE DRAFT</string>
+    <string name="xml_gst_confirm_message">This draft will be permanently removed.</string>
+    <string name="xml_gst_confirm_positive_btn">Delete draft</string>
+    <string name="xml_gst_confirm_title_accent">draft</string>
+    <string name="xml_gst_confirm_title_bold">Delete</string>
+
+    <!-- activity_gst_reports -->
+    <string name="xml_gst_reports_credit_notes_label">Credit notes</string>
+    <string name="xml_gst_reports_export_csv_btn">Export to CSV</string>
+    <string name="xml_gst_reports_export_excel_btn">Export to Excel</string>
+    <string name="xml_gst_reports_fy_default_range">Apr 2025 – Mar 2026</string>
+    <string name="xml_gst_reports_fy_default_year">2025–26</string>
+    <string name="xml_gst_reports_fy_label">FINANCIAL YEAR</string>
+    <string name="xml_gst_reports_generate_btn">Generate report</string>
+    <string name="xml_gst_reports_gstin_label">GSTIN</string>
+    <string name="xml_gst_reports_header_title">GST RETURNS</string>
+    <string name="xml_gst_reports_invoices_label">Invoices</string>
+    <string name="xml_gst_reports_period_label">PERIOD</string>
+    <string name="xml_gst_reports_period_monthly">Monthly</string>
+    <string name="xml_gst_reports_period_quarterly">Quarterly</string>
+    <string name="xml_gst_reports_return_label">RETURN</string>
+    <string name="xml_gst_reports_save_draft_btn">Save as draft</string>
+    <string name="xml_gst_reports_saved_drafts_label">SAVED DRAFTS</string>
+    <string name="xml_gst_reports_selector_default">GSTR-1 · Sales</string>
+    <string name="xml_gst_reports_title_accent">reports</string>
+    <string name="xml_gst_reports_title_bold">GST</string>
+    <string name="xml_gst_reports_total_tax_label">Total tax this period</string>
+    <string name="xml_gst_reports_validate_btn">Validate report</string>
+
+    <!-- dialog_gst_success -->
+    <string name="xml_gst_success_eyebrow">EXPORT COMPLETE</string>
+    <string name="xml_gst_success_message">Your files are ready.</string>
+    <string name="xml_gst_success_ok_btn">OK</string>
+    <string name="xml_gst_success_saved_to_label">SAVED TO</string>
+    <string name="xml_gst_success_share_all_btn">Share all</string>
+    <string name="xml_gst_success_title_accent">complete</string>
+    <string name="xml_gst_success_title_bold">Export</string>
+
+    <!-- dialog_gst_validation -->
+    <string name="xml_gst_validation_eyebrow">VALIDATION</string>
+    <string name="xml_gst_validation_message">No issues found. This report is ready to export.</string>
+    <string name="xml_gst_validation_ok_btn">Got it</string>
+    <string name="xml_gst_validation_title_accent">clear</string>
+    <string name="xml_gst_validation_title_bold">All</string>
+
+    <!-- fragment_gstr1_section -->
+    <string name="xml_gstr1_section_empty">No records for this period.</string>
+
+    <!-- dialog_inventory_stock_action -->
+    <string name="xml_inventory_stock_action_add_stock">Add stock</string>
+    <string name="xml_inventory_stock_action_clear_stock">Clear stock</string>
+    <string name="xml_inventory_stock_action_continue_button">Continue</string>
+    <string name="xml_inventory_stock_action_product_placeholder">Product name</string>
+    <string name="xml_inventory_stock_action_reduce_stock">Reduce stock</string>
+
+    <!-- activity_credit_debit_notes -->
+    <string name="xml_notes_against_invoice_placeholder">Against INV-0000</string>
+    <string name="xml_notes_credit_tab_count_placeholder">Credit notes · 0</string>
+    <string name="xml_notes_debit_tab_count_placeholder">Debit notes · 0</string>
+    <string name="xml_notes_documents_header">DOCUMENTS</string>
+    <string name="xml_notes_empty_state">No notes issued yet</string>
+    <string name="xml_notes_issued_line1">Issued</string>
+    <string name="xml_notes_issued_line2">notes</string>
+
+    <!-- dialog_peak_chart -->
+    <string name="xml_peak_chart_avg_bills_label">Avg bills / hr</string>
+    <string name="xml_peak_chart_header_title">HOUR PERFORMANCE</string>
+    <string name="xml_peak_chart_hint_bubble_size">Bubble size indicates bill count</string>
+    <string name="xml_peak_chart_hint_tap_bubble">Tap a bubble to explore that hour</string>
+    <string name="xml_peak_chart_peak_hour_label">Peak hour</string>
+    <string name="xml_peak_chart_peak_revenue_label">Peak revenue</string>
+    <string name="xml_peak_chart_title_accent">pulse</string>
+    <string name="xml_peak_chart_title_bold">Daily</string>
+    <string name="xml_peak_chart_total_bills_label">Total bills</string>
+
+    <!-- marker_peak_bubble -->
+    <string name="xml_peak_marker_bills_default">Bills: —</string>
+    <string name="xml_peak_marker_revenue_default">Revenue: —</string>
+
+    <!-- activity_profit -->
+    <string name="xml_profit_by_product_label">BY PRODUCT</string>
+    <string name="xml_profit_empty_description">Sell something in this period and its revenue, cost and profit will break down here by product.</string>
+    <string name="xml_profit_empty_no_products">No products</string>
+    <string name="xml_profit_empty_yet">yet</string>
+    <string name="xml_profit_expense_label">Expense</string>
+    <string name="xml_profit_filter_all">All</string>
+    <string name="xml_profit_filter_custom">Custom</string>
+    <string name="xml_profit_filter_month">Month</string>
+    <string name="xml_profit_filter_today">Today</string>
+    <string name="xml_profit_filter_week">Week</string>
+    <string name="xml_profit_header_title">PROFIT ANALYTICS</string>
+    <string name="xml_profit_hint_every_sale">Every sale updates this</string>
+    <string name="xml_profit_hint_find_product">Then find any product fast</string>
+    <string name="xml_profit_hint_revenue_cost_margin">Revenue, cost and margin per product</string>
+    <string name="xml_profit_hint_search_by_name">Search by product name or variant</string>
+    <string name="xml_profit_loss_label">Loss</string>
+    <string name="xml_profit_margin_default">0% margin</string>
+    <string name="xml_profit_net_profit_label">Net profit</string>
+    <string name="xml_profit_print_report_btn">Print report</string>
+    <string name="xml_profit_revenue_label">Revenue</string>
+    <string name="xml_profit_search_hint">Search products…</string>
+    <string name="xml_profit_title_accent">analytics</string>
+    <string name="xml_profit_title_bold">Savings</string>
+    <string name="xml_profit_total_cost_label">Total cost</string>
+
+    <!-- activity_profit_chart -->
+    <string name="xml_profit_chart_best_product_label">Best product</string>
+    <string name="xml_profit_chart_header_title">PROFIT ANALYTICS</string>
+    <string name="xml_profit_chart_hint">Longest bar = highest profit. Loss-making products appear in red at the bottom.</string>
+    <string name="xml_profit_chart_legend_loss">Loss</string>
+    <string name="xml_profit_chart_legend_profit">Profit</string>
+    <string name="xml_profit_chart_no_data">No profit data for this period</string>
+    <string name="xml_profit_chart_per_product_label">Profit per product</string>
+    <string name="xml_profit_chart_title_accent">chart</string>
+    <string name="xml_profit_chart_title_bold">Profit</string>
+    <string name="xml_profit_chart_total_profit_label">Total profit</string>
+
+    <!-- item_purchase_detail_row -->
+    <string name="xml_purchase_detail_row_hsn_qty_placeholder">HSN —  ·  Qty 0</string>
+    <string name="xml_purchase_detail_row_product_placeholder">Product name</string>
+    <string name="xml_purchase_detail_row_returned_placeholder">2 returned</string>
+
+    <!-- item_purchase_history_row -->
+    <string name="xml_purchase_history_row_supplier_placeholder">Supplier name</string>
+
+    <!-- dialog_purchase_line -->
+    <string name="xml_purchase_line_dialog_add_item_button">Add item</string>
+    <string name="xml_purchase_line_dialog_availed_itc_label">Availed ITC</string>
+    <string name="xml_purchase_line_dialog_cancel_button">Cancel</string>
+    <string name="xml_purchase_line_dialog_category_label">Category</string>
+    <string name="xml_purchase_line_dialog_cess_amount_label">Cess amount</string>
+    <string name="xml_purchase_line_dialog_cess_label">Cess</string>
+    <string name="xml_purchase_line_dialog_cess_pct_label">Cess %%</string>
+    <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
+    <string name="xml_purchase_line_dialog_cgst_paid_label">CGST paid</string>
+    <string name="xml_purchase_line_dialog_disc_label">Disc</string>
+    <string name="xml_purchase_line_dialog_eligibility_label">Eligibility for ITC</string>
+    <string name="xml_purchase_line_dialog_gross_label">Gross</string>
+    <string name="xml_purchase_line_dialog_hsn_description_label">HSN description</string>
+    <string name="xml_purchase_line_dialog_hsn_label">HSN / SAC</string>
+    <string name="xml_purchase_line_dialog_if_any_hint">If any</string>
+    <string name="xml_purchase_line_dialog_igst_label">IGST</string>
+    <string name="xml_purchase_line_dialog_igst_paid_label">IGST paid</string>
+    <string name="xml_purchase_line_dialog_includes_gst_label">Price includes GST (MRP)</string>
+    <string name="xml_purchase_line_dialog_invoice_value_label">Invoice value</string>
+    <string name="xml_purchase_line_dialog_itc_details_label">Input tax credit details</string>
+    <string name="xml_purchase_line_dialog_product_hint">Product name</string>
+    <string name="xml_purchase_line_dialog_product_search_hint">Search or type new</string>
+    <string name="xml_purchase_line_dialog_product_section">PRODUCT</string>
+    <string name="xml_purchase_line_dialog_qty_label">Qty</string>
+    <string name="xml_purchase_line_dialog_rate_per_unit_hint">Rate per unit</string>
+    <string name="xml_purchase_line_dialog_selling_price_label">Selling price</string>
+    <string name="xml_purchase_line_dialog_sgst_label">SGST</string>
+    <string name="xml_purchase_line_dialog_sgst_paid_label">SGST paid</string>
+    <string name="xml_purchase_line_dialog_short_description_hint">Short description</string>
+    <string name="xml_purchase_line_dialog_supplier_invoice_section">SUPPLIER INVOICE</string>
+    <string name="xml_purchase_line_dialog_supply_class_label">Supply class</string>
+    <string name="xml_purchase_line_dialog_tap_select_hint">Tap to select</string>
+    <string name="xml_purchase_line_dialog_tax_classification_section">TAX CLASSIFICATION</string>
+    <string name="xml_purchase_line_dialog_tax_code_hint">Tax code</string>
+    <string name="xml_purchase_line_dialog_taxable_label">Taxable</string>
+    <string name="xml_purchase_line_dialog_title_kicker">PURCHASE LINE</string>
+    <string name="xml_purchase_line_dialog_title_line1">Add</string>
+    <string name="xml_purchase_line_dialog_title_line2">item</string>
+    <string name="xml_purchase_line_dialog_unit_label">Unit</string>
+    <string name="xml_purchase_line_dialog_uqc_label">Official UQC</string>
+    <string name="xml_purchase_line_dialog_variant_hint">Size or pack type</string>
+    <string name="xml_purchase_line_dialog_variant_label">Variant</string>
+    <string name="xml_purchase_line_dialog_you_sell_at_section">YOU WILL SELL AT</string>
+
+    <!-- item_purchase_line -->
+    <string name="xml_purchase_line_product_placeholder">Basmati rice</string>
+    <string name="xml_purchase_line_review_badge">REVIEW</string>
+
+    <!-- item_purchase_return_row -->
+    <string name="xml_purchase_return_row_bought_placeholder">Bought 0</string>
+    <string name="xml_purchase_return_row_debit_value_placeholder">Debit value: ₹0.00</string>
+    <string name="xml_purchase_return_row_hsn_placeholder">HSN: —</string>
+    <string name="xml_purchase_return_row_max_returnable_label">Max returnable:</string>
+    <string name="xml_purchase_return_row_product_placeholder">Product Name</string>
+    <string name="xml_purchase_return_row_return_qty_label">Return qty</string>
+    <string name="xml_purchase_return_row_returned_placeholder">Returned: 0</string>
+
+    <!-- dialog_purchased_header -->
+    <string name="xml_purchased_header_add_product_button">Add Product</string>
+    <string name="xml_purchased_header_cancel_button">Cancel</string>
+    <string name="xml_purchased_header_gstin_hint">Supplier GSTIN (Optional)</string>
+    <string name="xml_purchased_header_invoice_date_hint">Invoice Date</string>
+    <string name="xml_purchased_header_invoice_number_hint">Invoice Number</string>
+    <string name="xml_purchased_header_state_hint">Supplier State</string>
+    <string name="xml_purchased_header_subtitle">Enter invoice details to continue</string>
+    <string name="xml_purchased_header_supplier_name_hint">Supplier Name</string>
+    <string name="xml_purchased_header_title">Purchase Header</string>
+
+    <!-- activity_reports -->
+    <string name="xml_reports_filter_custom">Custom</string>
+    <string name="xml_reports_filter_month">Month</string>
+    <string name="xml_reports_filter_today">Today</string>
+    <string name="xml_reports_filter_week">Week</string>
+    <string name="xml_reports_filter_year">Year</string>
+    <string name="xml_reports_header_title">ANALYTICS</string>
+    <string name="xml_reports_overview_label">Overview</string>
+    <string name="xml_reports_send_email_btn">Send report to email</string>
+    <string name="xml_reports_title_accent">reports</string>
+    <string name="xml_reports_title_bold">Sales</string>
+    <string name="xml_reports_view_label">View</string>
+
+    <!-- dialog_restore_customer -->
+    <string name="xml_restore_customer_balance_note">Their balance is restored as it was when the account was deleted.</string>
+    <string name="xml_restore_customer_body">This number belonged to a customer you deleted. Restoring brings back their account and past transactions.</string>
+    <string name="xml_restore_customer_cancel_button">Cancel</string>
+    <string name="xml_restore_customer_confirm_button">Restore customer</string>
+    <string name="xml_restore_customer_keep_saved_button">Keep the saved name</string>
+    <string name="xml_restore_customer_saved_as_label">SAVED AS</string>
+    <string name="xml_restore_customer_title_line1">Restore this</string>
+    <string name="xml_restore_customer_title_line2">customer</string>
+    <string name="xml_restore_customer_you_typed_label">YOU TYPED</string>
 
 </resources>

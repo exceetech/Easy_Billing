@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sales performance"
+            android:text="@string/dialog_sales_chart_sales_performance"
             android:textColor="#8A9099"
             android:textSize="14sp"/>
 
@@ -24,7 +24,7 @@
             android:id="@+id/tvSalesDlgTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Revenue pulse"
+            android:text="@string/dialog_sales_chart_revenue_pulse"
             android:textColor="#1A1D21"
             android:textSize="28sp"
             android:textStyle="bold"
@@ -56,7 +56,7 @@
                         android:id="@+id/tvSalesDlgL1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Peak revenue"
+                        android:text="@string/dialog_sales_chart_peak_revenue"
                         android:textColor="#6B7280"
                         android:textSize="13sp"
                         android:layout_marginBottom="5dp"/>
@@ -91,7 +91,7 @@
                         android:id="@+id/tvSalesDlgL2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Top day"
+                        android:text="@string/dialog_sales_chart_top_day"
                         android:textColor="#6B7280"
                         android:textSize="13sp"
                         android:layout_marginBottom="5dp"/>
@@ -133,7 +133,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total bills"
+                        android:text="@string/dialog_sales_chart_total_bills"
                         android:textColor="#6B7280"
                         android:textSize="13sp"
                         android:layout_marginBottom="5dp"/>
@@ -168,7 +168,7 @@
                         android:id="@+id/tvSalesDlgL4"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Avg / day"
+                        android:text="@string/dialog_sales_chart_avg_day"
                         android:textColor="#6B7280"
                         android:textSize="13sp"
                         android:layout_marginBottom="5dp"/>
@@ -188,7 +188,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bubble size indicates bill count"
+            android:text="@string/dialog_sales_chart_bubble_size_indicates_bill"
             android:textColor="#8A9099"
             android:textSize="13sp"
             android:layout_marginTop="18dp"
@@ -203,7 +203,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap a bubble to explore that period ↗"
+            android:text="@string/dialog_sales_chart_tap_a_bubble_to"
             android:textColor="#6B7178"
             android:textSize="13sp"
             android:layout_marginTop="6dp"/>

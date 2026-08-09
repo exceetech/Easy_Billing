@@ -194,7 +194,7 @@ object SupplierPicker {
                         // Refused rather than filed against a fallback shop.
                         Toast.makeText(
                             activity,
-                            "No shop selected. Sign in again.",
+                            activity.getString(R.string.supplierpicker_no_shop_selected_sign),
                             Toast.LENGTH_LONG
                         ).show()
                         dialog.dismiss()

@@ -135,7 +135,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="14 records · FY 25–26"
+                        android:text="@string/activity_import_services_14_records_fy_2526"
                         android:textSize="11sp"
                         android:textColor="#8A8272"
                         android:singleLine="true"

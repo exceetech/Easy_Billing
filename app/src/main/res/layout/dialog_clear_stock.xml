@@ -33,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Clear Stock"
+                android:text="@string/dialog_clear_stock_clear_stock"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Remaining: 0"
+                android:text="@string/dialog_clear_stock_remaining_0"
                 android:textColor="#B0FFFFFF"
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
@@ -52,7 +52,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reason for clearing"
+                android:text="@string/dialog_clear_stock_reason_for_clearing"
                 android:textColor="#80FFFFFF"
                 android:textSize="12sp"
                 android:textAllCaps="true"
@@ -70,7 +70,7 @@
                     android:id="@+id/rbReturn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Purchase Return"
+                    android:text="@string/dialog_clear_stock_purchase_return"
                     android:textColor="@color/white"
                     android:buttonTint="@color/white"/>
 
@@ -78,7 +78,7 @@
                     android:id="@+id/rbScrap"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Scrap / Damage"
+                    android:text="@string/dialog_clear_stock_scrap_damage"
                     android:textColor="@color/white"
                     android:buttonTint="@color/white"/>
             </RadioGroup>
@@ -103,7 +103,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Select batches to clear"
+                        android:text="@string/dialog_clear_stock_select_batches_to_clear"
                         android:textColor="#80FFFFFF"
                         android:textSize="12sp"
                         android:textAllCaps="true"
@@ -113,7 +113,7 @@
                         android:id="@+id/cbSelectAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Select All"
+                        android:text="@string/dialog_clear_stock_select_all"
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:buttonTint="@color/white"/>
@@ -125,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:gravity="center"
-                    android:text="No active batches available"
+                    android:text="@string/dialog_clear_stock_no_active_batches_available"
                     android:textColor="#B0FFFFFF"
                     android:textSize="13sp"
                     android:visibility="gone"/>
@@ -149,7 +149,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Total to clear"
+                        android:text="@string/dialog_clear_stock_total_to_clear"
                         android:textColor="#B0FFFFFF"
                         android:textSize="12sp"/>
 
@@ -176,7 +176,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Adjust Credit Account?"
+                    android:text="@string/dialog_clear_stock_adjust_credit_account"
                     android:textColor="#80FFFFFF"
                     android:textSize="12sp"
                     android:textAllCaps="true"
@@ -187,7 +187,7 @@
                     android:id="@+id/cbAdjustCredit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Reduce debt from account"
+                    android:text="@string/dialog_clear_stock_reduce_debt_from_account"
                     android:textColor="@color/white"
                     android:buttonTint="@color/white"/>
 
@@ -195,7 +195,7 @@
                     android:id="@+id/tvReturnAccountName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No account selected"
+                    android:text="@string/dialog_clear_stock_no_account_selected"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold"
@@ -214,7 +214,7 @@
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cancel"
+                    android:text="@string/dialog_clear_stock_cancel"
                     android:textColor="@color/white"
                     android:layout_marginEnd="8dp"/>
 
@@ -222,7 +222,7 @@
                     android:id="@+id/btnClear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Clear Selected"
+                    android:text="@string/dialog_clear_stock_clear_selected"
                     android:backgroundTint="#EF4444"
                     android:textColor="@color/white"
                     app:cornerRadius="12dp"/>

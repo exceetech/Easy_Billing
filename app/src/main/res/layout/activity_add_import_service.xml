@@ -499,7 +499,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="of ₹0.00 paid"
+                            android:text="@string/activity_add_import_service_of_000_paid"
                             android:textSize="10sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>
@@ -527,7 +527,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="of ₹0.00 paid"
+                            android:text="@string/activity_add_import_service_of_000_paid"
                             android:textSize="10sp"
                             android:textColor="#9A8F79" />
                     </LinearLayout>

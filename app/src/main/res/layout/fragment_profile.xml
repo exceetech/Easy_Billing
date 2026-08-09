@@ -86,7 +86,7 @@
                     android:layout_height="60dp"
                     android:gravity="center"
                     android:background="@drawable/bg_profile_avatar_ring"
-                    android:text="ST"
+                    android:text="@string/fragment_profile_st"
                     android:textColor="#8A6526"
                     android:textSize="19sp"
                     android:fontFamily="serif"

@@ -179,7 +179,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:text="ExPOS"
+                android:text="@string/activity_settings_expos"
                 android:textColor="#C9C3B4"
                 android:textSize="11sp"/>
         </LinearLayout>

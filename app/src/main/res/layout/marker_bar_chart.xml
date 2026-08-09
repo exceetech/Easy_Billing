@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/tvSecondary"
-        android:text="0 Bills"
+        android:text="@string/marker_bar_chart_0_bills"
         android:textColor="#D1D5DB"
         android:textSize="10sp"
         android:layout_height="wrap_content"

@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="SUPPLIER"
+            android:text="@string/dialog_add_supplier_supplier"
             android:textColor="#8A6526"
             android:textSize="10sp"
             android:letterSpacing="0.14"
@@ -42,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="New supplier"
+        android:text="@string/dialog_add_supplier_new_supplier"
         android:textColor="#1A1A18"
         android:textSize="20sp"
         android:fontFamily="serif"/>
@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:text="GSTIN is optional — leave it blank for an unregistered supplier"
+        android:text="@string/dialog_add_supplier_gstin_is_optional_leave"
         android:textColor="#8A8272"
         android:textSize="11.5sp"/>
 
@@ -59,7 +59,7 @@
     <TextView
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginTop="16dp" android:layout_marginBottom="5dp"
-        android:text="Supplier name" android:textColor="#9A8F79" android:textSize="10.5sp"
+        android:text="@string/dialog_add_supplier_supplier_name" android:textColor="#9A8F79" android:textSize="10.5sp"
         android:fontFamily="@font/googlesans_medium"/>
     <LinearLayout
         android:layout_width="match_parent" android:layout_height="50dp"
@@ -71,7 +71,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSupName"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-            android:background="@null" android:hint="Supplier name"
+            android:background="@null" android:hint="@string/dialog_add_supplier_supplier_name_1"
             android:textColor="#1A1A18" android:textColorHint="#A99E88"
             android:inputType="textCapWords" android:singleLine="true" android:textSize="14sp"/>
     </LinearLayout>
@@ -80,7 +80,7 @@
     <TextView
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-        android:text="GSTIN" android:textColor="#9A8F79" android:textSize="10.5sp"
+        android:text="@string/dialog_add_supplier_gstin" android:textColor="#9A8F79" android:textSize="10.5sp"
         android:fontFamily="@font/googlesans_medium"/>
     <LinearLayout
         android:layout_width="match_parent" android:layout_height="50dp"
@@ -92,7 +92,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSupGstin"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-            android:background="@null" android:hint="15-character GSTIN"
+            android:background="@null" android:hint="@string/dialog_add_supplier_15character_gstin"
             android:textColor="#1A1A18" android:textColorHint="#A99E88"
             android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             android:inputType="textCapCharacters" android:maxLength="15"
@@ -103,7 +103,7 @@
     <TextView
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-        android:text="State" android:textColor="#9A8F79" android:textSize="10.5sp"
+        android:text="@string/dialog_add_supplier_state" android:textColor="#9A8F79" android:textSize="10.5sp"
         android:fontFamily="@font/googlesans_medium"/>
     <LinearLayout
         android:layout_width="match_parent" android:layout_height="50dp"
@@ -116,7 +116,7 @@
             android:id="@+id/etSupState"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:hint="Select state" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+            android:hint="@string/dialog_add_supplier_select_state" android:textColor="#1A1A18" android:textColorHint="#A99E88"
             android:singleLine="true" android:ellipsize="end" android:textSize="14sp"/>
         <ImageView
             android:layout_width="18dp" android:layout_height="18dp"
@@ -128,7 +128,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Taken from the GSTIN"
+        android:text="@string/dialog_add_supplier_taken_from_the_gstin"
         android:textColor="#0F6E56"
         android:textSize="11sp"
         android:visibility="gone"/>
@@ -143,7 +143,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSupCancel"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
-            android:text="Cancel" android:textAllCaps="false" android:textSize="13.5sp"
+            android:text="@string/dialog_add_supplier_cancel" android:textAllCaps="false" android:textSize="13.5sp"
             android:textColor="#8A8272"
             android:insetTop="0dp" android:insetBottom="0dp"
             app:cornerRadius="13dp" app:backgroundTint="#F1EBDD"
@@ -153,7 +153,7 @@
             android:id="@+id/btnSupSave"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
             android:layout_marginStart="10dp"
-            android:text="Save supplier" android:textAllCaps="false" android:textSize="13.5sp"
+            android:text="@string/dialog_add_supplier_save_supplier" android:textAllCaps="false" android:textSize="13.5sp"
             android:textColor="@android:color/white"
             android:insetTop="0dp" android:insetBottom="0dp"
             app:cornerRadius="13dp" app:backgroundTint="#0F6E56"

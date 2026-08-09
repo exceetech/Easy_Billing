@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
@@ -466,7 +468,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 updatePriceSummary()
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@ConfirmPaymentActivity, "Couldn't validate coupon", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ConfirmPaymentActivity, getString(R.string.confirmpaymentactivity_couldnt_validate_coupon), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -579,7 +581,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             } catch (e: Exception) {
                 setPaymentInProgress(false)
                 e.printStackTrace()
-                Toast.makeText(this@ConfirmPaymentActivity, "Couldn't start payment. Please try again.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@ConfirmPaymentActivity, getString(R.string.confirmpaymentactivity_couldnt_start_payment_please), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -667,7 +669,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             reopenCardAfterCancelledOrFailedCheckout()
             setPaymentInProgress(false)
             e.printStackTrace()
-            Toast.makeText(this, "Couldn't open payment screen", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.confirmpaymentactivity_couldnt_open_payment_screen), Toast.LENGTH_LONG).show()
         }
     }
 

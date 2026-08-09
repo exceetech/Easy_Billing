@@ -54,7 +54,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="CLEAR STOCK"
+                    android:text="@string/dialog_clear_stock_fullscreen_clear_stock"
                     android:textColor="#B8895A"
                     android:textSize="10sp"
                     android:letterSpacing="0.16"
@@ -68,7 +68,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Clear out"
+                        android:text="@string/dialog_clear_stock_fullscreen_clear_out"
                         android:textColor="#1A1A18"
                         android:textSize="23sp"
                         android:letterSpacing="-0.02"
@@ -78,7 +78,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="7dp"
-                        android:text="remaining"
+                        android:text="@string/dialog_clear_stock_fullscreen_remaining"
                         android:textColor="#791F1F"
                         android:textSize="23sp"
                         android:fontFamily="serif"
@@ -88,7 +88,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="7dp"
-                        android:text="stock"
+                        android:text="@string/dialog_clear_stock_fullscreen_stock"
                         android:textColor="#1A1A18"
                         android:textSize="23sp"
                         android:letterSpacing="-0.02"
@@ -117,7 +117,7 @@
                         android:layout_width="42dp"
                         android:layout_height="42dp"
                         android:gravity="center"
-                        android:text="MB"
+                        android:text="@string/dialog_clear_stock_fullscreen_mb"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#791F1F"
@@ -136,7 +136,7 @@
                             android:id="@+id/tvProductName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Product name"
+                            android:text="@string/dialog_clear_stock_fullscreen_product_name"
                             android:textSize="14sp"
                             android:fontFamily="@font/googlesans_medium"
                             android:textColor="#1A1A18"
@@ -166,7 +166,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Remaining now"
+                    android:text="@string/dialog_clear_stock_fullscreen_remaining_now"
                     android:textSize="9sp"
                     android:textColor="#9A8F79"/>
 
@@ -187,7 +187,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="7dp"
-                android:text="REASON"
+                android:text="@string/dialog_clear_stock_fullscreen_reason"
                 android:textSize="9.5sp"
                 android:letterSpacing="0.08"
                 android:fontFamily="@font/googlesans_semibold"
@@ -209,7 +209,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Reason"
+                    android:text="@string/dialog_clear_stock_fullscreen_reason_1"
                     android:textSize="11.5sp"
                     android:textColor="#9A8F79"/>
 
@@ -229,7 +229,7 @@
                         android:id="@+id/tvReasonChoice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Purchase return"
+                        android:text="@string/dialog_clear_stock_fullscreen_purchase_return"
                         android:textSize="11.5sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#085041"/>
@@ -254,14 +254,14 @@
                     android:id="@+id/rbReturn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Purchase Return"
+                    android:text="@string/dialog_clear_stock_fullscreen_purchase_return_1"
                     android:checked="true"/>
 
                 <RadioButton
                     android:id="@+id/rbScrap"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Scrap / Damage"/>
+                    android:text="@string/dialog_clear_stock_fullscreen_scrap_damage"/>
             </RadioGroup>
 
             <LinearLayout
@@ -283,7 +283,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="SELECT BATCHES TO CLEAR"
+                        android:text="@string/dialog_clear_stock_fullscreen_select_batches_to_clear"
                         android:textSize="9.5sp"
                         android:letterSpacing="0.08"
                         android:fontFamily="@font/googlesans_semibold"
@@ -301,7 +301,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Select all"
+                            android:text="@string/dialog_clear_stock_fullscreen_select_all"
                             android:textSize="11sp"
                             android:textColor="#0F6E56"
                             android:fontFamily="@font/googlesans_semibold"/>
@@ -333,7 +333,7 @@
                     android:gravity="center"
                     android:padding="20dp"
                     android:background="@drawable/bg_inv_value_card"
-                    android:text="No active batches available"
+                    android:text="@string/dialog_clear_stock_fullscreen_no_active_batches_available"
                     android:textSize="12sp"
                     android:textColor="#9A8F79"
                     android:visibility="gone"/>
@@ -369,7 +369,7 @@
                             android:id="@+id/tvTotalLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total to clear"
+                            android:text="@string/dialog_clear_stock_fullscreen_total_to_clear"
                             android:textSize="11.5sp"
                             android:fontFamily="@font/googlesans_medium"
                             android:textColor="#9A8F79"/>
@@ -379,7 +379,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="No batches selected"
+                            android:text="@string/dialog_clear_stock_fullscreen_no_batches_selected"
                             android:textSize="10sp"
                             android:fontFamily="@font/googlesans_medium"
                             android:textColor="#8A6526"/>
@@ -432,7 +432,7 @@
                     <TextView
                         android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
                         android:layout_marginStart="10dp"
-                        android:text="Reduce debt from account" android:textColor="#1A1A18" android:textSize="14sp"
+                        android:text="@string/dialog_clear_stock_fullscreen_reduce_debt_from_account" android:textColor="#1A1A18" android:textSize="14sp"
                         android:fontFamily="@font/googlesans_medium"/>
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/cbAdjustCredit"
@@ -460,7 +460,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Account"
+                        android:text="@string/dialog_clear_stock_fullscreen_account"
                         android:textSize="11.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#9A8F79"/>
@@ -472,7 +472,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:gravity="end"
-                        android:text="No account selected"
+                        android:text="@string/dialog_clear_stock_fullscreen_no_account_selected"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
                         android:textColor="#9A8F79"
@@ -505,7 +505,7 @@
             android:id="@+id/btnClear"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Clear selected stock"
+            android:text="@string/dialog_clear_stock_fullscreen_clear_selected_stock"
             android:textColor="#FFFFFF"
             android:textAllCaps="false"
             android:textSize="13.5sp"
@@ -532,7 +532,7 @@
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
-            android:text="Cancel"
+            android:text="@string/dialog_clear_stock_fullscreen_cancel"
             android:textColor="#9A2E2E"
             android:textAllCaps="false"
             android:textSize="13sp"

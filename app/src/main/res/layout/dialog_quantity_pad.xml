@@ -187,7 +187,7 @@
             android:id="@+id/btnAddQty"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="Add to cart"
+            android:text="@string/dialog_quantity_pad_add_to_cart"
             android:textSize="15sp"
             android:textColor="@android:color/white"
             android:fontFamily="@font/googlesans_semibold"

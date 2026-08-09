@@ -1,165 +1,2230 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">ExPOS</string>
-
-    <string name="phone_number">ఫోన్ నంబర్</string>
-    <string name="full_name">పూర్తి పేరు</string>
-    <string name="create_account">ఖాతా సృష్టించండి</string>
-    <string name="email">ఇమెయిల్</string>
-    <string name="password">పాస్</string>
-    <string name="confirm_password">పాస్</string>
-    <string name="register">నమోదు</string>
-    <string name="already_have_an_account_login">ఇప్పటికే ఖాతా ఉందా? లాగిన్ అవ్వండి</string>
-    <string name="shop_name">దుకాణం పేరు</string>
-    <string name="don_t_have_an_account_register">ఖాతా లేదా? నమోదు చేసుకోండి</string>
-    <string name="username">యూజర్ పేరు</string>
-    <string name="login_password">పాస్‌వర్డ్</string>
-    <string name="login">లాగిన్</string>
-    <string name="forgot_password">పాస్‌వర్డ్ మర్చిపోయారా?</string>
-    <string name="app_logo">యాప్ లోగో</string>
-    <string name="registered_email">నమోదైన ఇమెయిల్</string>
-    <string name="submit">సమర్పించండి</string>
-    <string name="logout">లాగౌట్</string>
-
-    <string name="edit">సవరించండి</string>
-    <string name="close">మూసివేయండి</string>
-
-    <string name="store_information">దుకాణ సమాచారం</string>
-    <string name="billing_settings">బిల్లింగ్ సెట్టింగ్స్</string>
-    <string name="invoice_design">ఇన్వాయిస్ డిజైన్</string>
-    <string name="localization_settings">భాష మరియు కరెన్సీ</string>
-    <string name="data_security_management">డేటా మరియు భద్రత నిర్వహణ</string>
-
-    <string name="language">భాష</string>
-    <string name="region">ప్రాంతం</string>
-    <string name="currency">కరెన్సీ</string>
-
-    <string name="gst">జీఎస్టీ</string>
-    <string name="discount">డిస్కౌంట్</string>
-    <string name="total">మొత్తం</string>
-    <string name="store_name">దుకాణం పేరు</string>
-    <string name="invoice_info">ఇన్వాయిస్ #123\nతేదీ: --</string>
-    <string name="subtotal">ఉప మొత్తం</string>
-
-    <string name="confirm_bill">బిల్ నిర్ధారించండి</string>
-    <string name="print_save_pdf">ప్రింట్ / PDF సేవ్ చేయండి</string>
-
-    <string name="search_products">ఉత్పత్తులను వెతకండి</string>
-    <string name="custom_item">కస్టమ్ ఐటమ్ పేరు</string>
-
-    <string name="todo">ఐకాన్</string>
-
-    <string name="total_revenue">మొత్తం ఆదాయం</string>
-    <string name="_0">₹0</string>
-
-    <string name="top_selling_products">అత్యధికంగా అమ్ముడైన ఉత్పత్తులు</string>
-
-    <string name="product">ఉత్పత్తి</string>
-    <string name="qty">మొత్తం</string>
-    <string name="revenue">ఆదాయం</string>
-
-    <string name="ai_suggestions">ఎఐ సూచనలు</string>
-    <string name="analyzing_your_business">మీ వ్యాపార డేటాను విశ్లేషిస్తోంది...</string>
-
-    <string name="today_s_sales">ఈ రోజు అమ్మకాలు</string>
+    <!-- item_daily_report -->
     <string name="_0_00">₹0.00</string>
-    <string name="bills_today">ఈ రోజు బిల్లులు</string>
-    <string name="search_invoice_or_product">బిల్</string>
-    <string name="today">ఈ రోజు</string>
-    <string name="this_week">ఈ వారం</string>
-    <string name="this_month">ఈ నెల</string>
-    <string name="sort_amount">మొత్తం ప్రకారం సార్టు చేయండి</string>
+    <string name="_0_bills">0 బిల్లులు</string>
+    <string name="date">తేదీ</string>
 
-    <string name="default_gst">డిఫాల్ట్ GST (%%)</string>
-    <string name="printer_layout">ప్రింటర్ లేఅవుట్</string>
-    <string name="save_billing_settings">బిల్లింగ్ సెట్టింగ్స్ సేవ్ చేయండి</string>
+    <!-- activity_subscription -->
+    <string name="account_eyebrow">ఖాతా</string>
+    <string name="checking">తనిఖీ చేస్తోంది...</string>
+    <string name="continue_button">కొనసాగించండి</string>
+    <string name="days_left">మిగిలి ఉన్న రోజులు: -</string>
+    <string name="expiry">గడువు: -</string>
+    <string name="limited_offer_badge">పరిమిత ఆఫర్</string>
+    <string name="plan">ప్లాన్: -</string>
+    <string name="start_free_trial">ఉచిత ట్రయల్ ప్రారంభించండి</string>
+    <string name="subscription_title_part2">సబ్</string>
+    <string name="subscription_trial_feature_ai_insights">AI అంతర్దృష్టులు</string>
+    <string name="subscription_trial_feature_profit_analytics">లాభ విశ్లేషణ</string>
+    <string name="try_premium_free_7_days">ప్రీమియంను 7 రోజులు ఉచితంగా ప్రయత్నించండి</string>
+    <string name="your_word">మీ</string>
 
-    <string name="create_new_password">కొత్త పాస్‌వర్డ్ సృష్టించండి</string>
-    <string name="new_password">కొత్త పాస్</string>
-    <string name="save_password">పాస్‌వర్డ్ సేవ్ చేయండి</string>
+    <!-- activity_forgot_password -->
+    <string name="account_recovery_eyebrow">ఖాతా రికవరీ</string>
+    <string name="enter_6_digit_code_emailed">మేము ఇమెయిల్ చేసిన 6-అంకెల కోడ్</string>
+    <string name="enter_email_hint">ఇమెయిల్ నమోదు చేయండి</string>
+    <string name="enter_registered_email_subtitle">మీ రిజిస్టర్డ్ ఇమెయిల్ నమోదు చేయండి</string>
+    <string name="forgot_password_footer_remembered">గుర్తుకు వచ్చిందా?</string>
+    <string name="forgot_password_title_part1">మర్చిపోయారా</string>
+    <string name="password_question_word">పాస్</string>
+    <string name="sent_badge">పంపబడింది</string>
+    <string name="verification_code">వెరిఫికేషన్ కోడ్</string>
 
-    <string name="menu">మెను</string>
-    <string name="welcome">స్వాగతం</string>
-    <string name="cart">కార్ట్</string>
-    <string name="loading_ai_suggestions">AI సూచనలు లోడ్ అవుతున్నాయి...</string>
-    <string name="dashboard_menu">డాష్‌బోర్డ్ మెను</string>
-    <string name="add_products">ఉత్పత్తులు జోడించండి</string>
-    <string name="bill_history">బిల్ చరిత్ర</string>
-    <string name="settings">సెట్టింగ్స్</string>
-    <string name="reports">రిపోర్ట్స్</string>
+    <!-- activity_otp_verification -->
+    <string name="account_verification_eyebrow">ఖాతా వెరిఫికేషన్</string>
+    <string name="code_valid_5_minutes">మీ కోడ్ 5 నిమిషాలు చెల్లుబాటు అవుతుంది</string>
+    <string name="didnt_receive_it">రాలేదా?</string>
+    <string name="email_word">ఇమెయిల్</string>
+    <string name="enter_6_digit_code_sent_to">మేము పంపిన 6-అంకెల కోడ్</string>
+    <string name="verify_your_word">మీ</string>
+    <string name="your_email_default">మీ ఇమెయిల్</string>
+
+    <!-- AddImportServiceActivity -->
+    <string name="action_delete">తొలగించండి</string>
+    <string name="changes_saved">మార్పులు సేవ్ చేయబడ్డాయి</string>
+    <string name="delete_this_record_title">ఈ రికార్డ్</string>
+    <string name="deleted_toast">తొలగించబడింది</string>
+    <string name="edit_this">దీన్ని ఎడిట్ చేయండి</string>
+    <string name="invoice_number_already_used_title">ఇన్</string>
+    <string name="invoice_number_is_required">ఇన్</string>
+    <string name="record_no_longer_exists">ఆ రికార్డ్ ఇక లేదు</string>
+    <string name="save_anyway">అయినా సేవ్ చేయండి</string>
+    <string name="save_changes_2">మార్పులను సేవ్ చేయండి</string>
+    <string name="saved_successfully">విజయవంతంగా సేవ్ చేయబడింది</string>
+
+    <!-- App -->
+    <string name="activity_add_import_service_of_000_paid">లో ₹0.00 చెల్లించారు</string>
+    <string name="activity_bill_details_additional_charge_debit_note">అదనపు ఛార్జీ / డెబిట్</string>
+    <string name="activity_bill_details_b2c">B2C</string>
+    <string name="activity_bill_details_cancel_void_invoice">రద్దు చేయి / ఇన్‌వాయిస్</string>
+    <string name="activity_bill_details_close">మూసివేయి</string>
+    <string name="activity_bill_details_debit_amp_credit_notes">డెబిట్ మరియు క్రెడిట్ నోట్స్</string>
+    <string name="activity_bill_details_discount">డిస్కౌంట్</string>
+    <string name="activity_bill_details_gst">జీఎస్టీ</string>
+    <string name="activity_bill_details_invoice_0001">ఇన్‌వాయిస్ · #0001</string>
+    <string name="activity_bill_details_items">వస్తువులు</string>
+    <string name="activity_bill_details_m">M</string>
+    <string name="activity_bill_details_my_store">నా స్టోర్</string>
+    <string name="activity_bill_details_paid">చెల్లించబడింది</string>
+    <string name="activity_bill_details_paid_via_cash">నగదు ద్వారా చెల్లించారు</string>
+    <string name="activity_bill_details_partial_return_credit_note">పాక్షిక రిటర్న్ / క్రెడిట్</string>
+    <string name="activity_bill_details_print">ప్రింట్</string>
+    <string name="activity_bill_details_subtotal">ఉప మొత్తం</string>
+    <string name="activity_bill_details_summary">సారాంశం</string>
+    <string name="activity_bill_details_total">మొత్తం</string>
+    <string name="activity_bill_details_walkin_customer">వాక్-ఇన్ కస్టమర్</string>
+    <string name="activity_bill_details_wc">WC</string>
+    <string name="activity_dashboard_eb">EB</string>
+    <string name="activity_dashboard_up">పైన</string>
+    <string name="activity_debit_note_0_items_adjusted">0 వస్తువులు సర్దుబాటు చేయబడ్డాయి</string>
+    <string name="activity_debit_note_additional_charge">అదనపు ఛార్జీ</string>
+    <string name="activity_debit_note_cancel">రద్దు చేయి</string>
+    <string name="activity_debit_note_confirm_amp_issue_debit">నిర్ధారించి డెబిట్ నోట్ జారీ చేయండి</string>
+    <string name="activity_debit_note_debit">డెబిట్</string>
+    <string name="activity_debit_note_enter_additional_quantity_per">ప్రతి వస్తువుకు అదనపు పరిమాణాన్ని నమోదు చేయండి</string>
+    <string name="activity_debit_note_gst">జీఎస్టీ</string>
+    <string name="activity_debit_note_invoice">ఇన్‌వాయిస్ #—</string>
+    <string name="activity_debit_note_note">నోట్</string>
+    <string name="activity_debit_note_taxable">పన్ను పరిధిలోని</string>
+    <string name="activity_debit_note_total_additional_value">మొత్తం అదనపు విలువ</string>
+    <string name="activity_edit_product_cancel">Cancel</string>
+    <string name="activity_edit_product_hsn_sac">HSN / SAC</string>
+    <string name="activity_edit_product_if_any">If any</string>
+    <string name="activity_edit_product_igst_auto">IGST · auto</string>
+    <string name="activity_edit_product_official_uqc">Official UQC</string>
+    <string name="activity_edit_product_rate_per_unit">Rate per unit</string>
+    <string name="activity_edit_product_select">Select</string>
+    <string name="activity_edit_product_select_category">Select category</string>
+    <string name="activity_edit_product_selling_price">Selling price</string>
+    <string name="activity_edit_product_short_description">Short description</string>
+    <string name="activity_edit_product_supply_classification">Supply classification</string>
+    <string name="activity_edit_product_tax_code">Tax code</string>
+    <string name="activity_import_services_14_records_fy_2526">14 రికార్డులు · FY 25–26</string>
+    <string name="activity_invoice_b2b">B2B</string>
+    <string name="activity_invoice_b2c">B2C</string>
+    <string name="activity_invoice_m">M</string>
+    <string name="activity_purchase_details_inv">INV-—  ·  —</string>
+    <string name="activity_purchase_return_invoice">ఇన్‌వాయిస్ #—</string>
+    <string name="activity_register_ex">Ex</string>
+    <string name="activity_register_pos">POS</string>
+    <string name="activity_sales_return_cancel">రద్దు చేయి</string>
+    <string name="activity_sales_return_confirm_and_issue_credit">నిర్ధారించి క్రెడిట్ నోట్ జారీ చేయండి</string>
+    <string name="activity_sales_return_credit">క్రెడిట్</string>
+    <string name="activity_sales_return_gst_reversal">జీఎస్టీ రివర్సల్</string>
+    <string name="activity_sales_return_invoice">ఇన్‌వాయిస్ #—</string>
+    <string name="activity_sales_return_note">నోట్</string>
+    <string name="activity_sales_return_sales_return">విక్రయాల రిటర్న్</string>
+    <string name="activity_sales_return_select_items_and_quantity">తిరిగి ఇవ్వడానికి వస్తువులు మరియు పరిమాణాన్ని ఎంచుకోండి</string>
+    <string name="activity_sales_return_taxable">పన్ను పరిధిలోని</string>
+    <string name="activity_sales_return_total_return_value">మొత్తం రిటర్న్ విలువ</string>
+    <string name="activity_settings_expos">ExPOS</string>
+    <string name="billdetailsactivity_bill_not_loaded_yet">బిల్ ఇంకా లోడ్ కాలేదు</string>
+    <string name="billdetailsactivity_bill_not_loaded_yet_1">బిల్ ఇంకా లోడ్ కాలేదు. దయచేసి వేచి ఉండండి.</string>
+    <string name="billdetailsactivity_bill_number_not_resolved">బిల్ నంబర్ ఇంకా పరిష్కరించబడలేదు</string>
+    <string name="billdetailsactivity_cannot_issue_a_credit">రద్దు చేయబడిన ఇన్‌వాయిస్ కోసం క్రెడిట్ నోట్ జారీ చేయలేరు.</string>
+    <string name="billdetailsactivity_cannot_issue_a_debit">రద్దు చేయబడిన ఇన్‌వాయిస్ కోసం డెబిట్ నోట్ జారీ చేయలేరు.</string>
+    <string name="billdetailsactivity_couldnt_save_the_invoice">ఇన్‌వాయిస్‌ను సేవ్ చేయలేకపోయాము — నిల్వ అనుమతి అవసరం</string>
+    <string name="billdetailsactivity_invalid_bill_id">చెల్లని బిల్ ఐడి</string>
+    <string name="billdetailsactivity_invoice_voided_cancellation_will">ఇన్‌వాయిస్ రద్దు చేయబడింది. రద్దు స్వయంచాలకంగా సింక్ అవుతుంది.</string>
+    <string name="confirmpaymentactivity_couldnt_open_payment_screen">చెల్లింపు స్క్రీన్‌ను తెరవలేకపోయాము</string>
+    <string name="confirmpaymentactivity_couldnt_start_payment_please">చెల్లింపును ప్రారంభించలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.</string>
+    <string name="confirmpaymentactivity_couldnt_validate_coupon">కూపన్‌ని ధృవీకరించలేకపోయాము</string>
+    <string name="debitnoteactivity_bill_not_loaded_yet">బిల్ ఇంకా లోడ్ కాలేదు. దయచేసి వేచి ఉండండి.</string>
+    <string name="debitnoteactivity_cannot_issue_a_debit">రద్దు చేయబడిన ఇన్‌వాయిస్ కోసం డెబిట్ నోట్ జారీ చేయలేరు.</string>
+    <string name="debitnoteactivity_invalid_bill_id">చెల్లని బిల్ ఐడి</string>
+    <string name="debitnoteactivity_please_enter_additional_quantity">దయచేసి కనీసం ఒక వస్తువుకు అదనపు పరిమాణాన్ని నమోదు చేయండి.</string>
+    <string name="dialog_account_options_clear_the_balance">బ్యాలెన్స్ క్లియర్ చేయండి</string>
+    <string name="dialog_account_options_customer">కస్టమర్</string>
+    <string name="dialog_account_options_delete_account">ఖాతాను తొలగించండి</string>
+    <string name="dialog_account_options_full_history_and_statement">పూర్తి చరిత్ర మరియు స్టేట్‌మెంట్</string>
+    <string name="dialog_account_options_r">R</string>
+    <string name="dialog_account_options_record_a_payment">చెల్లింపును రికార్డ్ చేయండి</string>
+    <string name="dialog_account_options_reduce_what_they_owe">వారి బాకీని తగ్గించండి</string>
+    <string name="dialog_account_options_removes_them_from_your">మీ జాబితా నుండి వారిని తీసివేస్తుంది</string>
+    <string name="dialog_account_options_settle_account">ఖాతాను పరిష్కరించండి</string>
+    <string name="dialog_account_options_settled">పరిష్కరించబడింది</string>
+    <string name="dialog_account_options_view_transactions">లావాదేవీలను చూడండి</string>
+    <string name="dialog_add_payment_amount_received">అందుకున్న మొత్తం</string>
+    <string name="dialog_add_payment_balance_after">తర్వాత బ్యాలెన్స్</string>
+    <string name="dialog_add_payment_cancel">రద్దు చేయి</string>
+    <string name="dialog_add_payment_currently_owes">ప్రస్తుతం బాకీ</string>
+    <string name="dialog_add_payment_customer">కస్టమర్</string>
+    <string name="dialog_add_payment_payment">చెల్లింపు</string>
+    <string name="dialog_add_payment_record_a">రికార్డ్ చేయండి</string>
+    <string name="dialog_add_payment_record_payment">చెల్లింపును రికార్డ్ చేయండి</string>
+    <string name="dialog_add_supplier_15character_gstin">15-అక్షరాల జీఎస్టీఐఎన్</string>
+    <string name="dialog_add_supplier_cancel">రద్దు చేయి</string>
+    <string name="dialog_add_supplier_gstin">జీఎస్టీఐఎన్</string>
+    <string name="dialog_add_supplier_gstin_is_optional_leave">జీఎస్టీఐఎన్ ఐచ్ఛికం — నమోదుకాని సరఫరాదారు కోసం ఖాళీగా ఉంచండి</string>
+    <string name="dialog_add_supplier_new_supplier">కొత్త సరఫరాదారు</string>
+    <string name="dialog_add_supplier_save_supplier">సరఫరాదారుని సేవ్ చేయండి</string>
+    <string name="dialog_add_supplier_select_state">రాష్ట్రాన్ని ఎంచుకోండి</string>
+    <string name="dialog_add_supplier_state">రాష్ట్రం</string>
+    <string name="dialog_add_supplier_supplier">సరఫరాదారు</string>
+    <string name="dialog_add_supplier_supplier_name">సరఫరాదారు పేరు</string>
+    <string name="dialog_add_supplier_supplier_name_1">సరఫరాదారు పేరు</string>
+    <string name="dialog_add_supplier_taken_from_the_gstin">జీఎస్టీఐఎన్ నుండి తీసుకోబడింది</string>
+    <string name="dialog_audit_score_info_6677_a_few_things">66–77 · a few things to watch</string>
+    <string name="dialog_audit_score_info_78100_few_or_no">78–100 · few or no issues</string>
+    <string name="dialog_audit_score_info_a_quick_health_check">A quick health check of your shop, from 0 to 100. It starts at 100 and goes down for every urgent issue or money leak we find — so a higher score means fewer problems to fix.</string>
+    <string name="dialog_audit_score_info_below_66_act_on">below 66 · act on the alerts</string>
+    <string name="dialog_audit_score_info_fair">Fair</string>
+    <string name="dialog_audit_score_info_got_it">Got it</string>
+    <string name="dialog_audit_score_info_healthy">Healthy</string>
+    <string name="dialog_audit_score_info_needs_work">Needs work</string>
+    <string name="dialog_audit_score_info_score">score?</string>
+    <string name="dialog_audit_score_info_whats_the_audit">What\'s the audit</string>
+    <string name="dialog_cancel_void_invoice_cancel">రద్దు చేయి /</string>
+    <string name="dialog_cancel_void_invoice_gst_reporting_and_inventory">జీఎస్టీ రిపోర్టింగ్ మరియు ఇన్వెంటరీ వెంటనే అప్‌డేట్ చేయబడుతుంది.</string>
+    <string name="dialog_cancel_void_invoice_invoice">ఇన్‌వాయిస్ #—</string>
+    <string name="dialog_cancel_void_invoice_keep_invoice">ఇన్‌వాయిస్‌ని ఉంచండి</string>
+    <string name="dialog_cancel_void_invoice_mark_this_invoice_as">జీఎస్టీ రిపోర్టింగ్ కోసం ఈ ఇన్‌వాయిస్‌ను రద్దు చేయబడినదిగా గుర్తించాలా? ఇది బిల్ చేయబడిన అన్ని వస్తువులను మీ ఇన్వెంటరీకి పునరుద్ధరిస్తుంది. ఇది అన్డు చేయబడదు.</string>
+    <string name="dialog_cancel_void_invoice_void_invoice">ఇన్‌వాయిస్‌ని రద్దు చేయాలా?</string>
+    <string name="dialog_cancel_void_invoice_yes_cancel_invoice">అవును, ఇన్‌వాయిస్‌ని రద్దు చేయండి</string>
+    <string name="dialog_clear_stock_adjust_credit_account">Adjust Credit Account?</string>
+    <string name="dialog_clear_stock_cancel">Cancel</string>
+    <string name="dialog_clear_stock_clear_selected">Clear Selected</string>
+    <string name="dialog_clear_stock_clear_stock">Clear Stock</string>
+    <string name="dialog_clear_stock_fullscreen_account">ఖాతా</string>
+    <string name="dialog_clear_stock_fullscreen_cancel">రద్దు చేయి</string>
+    <string name="dialog_clear_stock_fullscreen_clear_out">క్లియర్ చేయండి</string>
+    <string name="dialog_clear_stock_fullscreen_clear_selected_stock">ఎంచుకున్న స్టాక్‌ను క్లియర్ చేయండి</string>
+    <string name="dialog_clear_stock_fullscreen_clear_stock">స్టాక్ క్లియర్ చేయండి</string>
+    <string name="dialog_clear_stock_fullscreen_mb">MB</string>
+    <string name="dialog_clear_stock_fullscreen_no_account_selected">ఖాతా ఎంపిక చేయబడలేదు</string>
+    <string name="dialog_clear_stock_fullscreen_no_active_batches_available">క్రియాశీల బ్యాచ్‌లు లేవు</string>
+    <string name="dialog_clear_stock_fullscreen_no_batches_selected">బ్యాచ్‌లు ఎంపిక చేయబడలేదు</string>
+    <string name="dialog_clear_stock_fullscreen_product_name">ఉత్పత్తి పేరు</string>
+    <string name="dialog_clear_stock_fullscreen_purchase_return">కొనుగోలు రిటర్న్</string>
+    <string name="dialog_clear_stock_fullscreen_purchase_return_1">కొనుగోలు రిటర్న్</string>
+    <string name="dialog_clear_stock_fullscreen_reason">కారణం</string>
+    <string name="dialog_clear_stock_fullscreen_reason_1">కారణం</string>
+    <string name="dialog_clear_stock_fullscreen_reduce_debt_from_account">ఖాతా నుండి రుణాన్ని తగ్గించండి</string>
+    <string name="dialog_clear_stock_fullscreen_remaining">మిగిలినది</string>
+    <string name="dialog_clear_stock_fullscreen_remaining_now">ఇప్పుడు మిగిలి ఉంది</string>
+    <string name="dialog_clear_stock_fullscreen_scrap_damage">స్క్రాప్ / నష్టం</string>
+    <string name="dialog_clear_stock_fullscreen_select_all">అన్నింటినీ ఎంచుకోండి</string>
+    <string name="dialog_clear_stock_fullscreen_select_batches_to_clear">క్లియర్ చేయడానికి బ్యాచ్‌లను ఎంచుకోండి</string>
+    <string name="dialog_clear_stock_fullscreen_stock">స్టాక్</string>
+    <string name="dialog_clear_stock_fullscreen_total_to_clear">క్లియర్ చేయవలసిన మొత్తం</string>
+    <string name="dialog_clear_stock_no_account_selected">No account selected</string>
+    <string name="dialog_clear_stock_no_active_batches_available">No active batches available</string>
+    <string name="dialog_clear_stock_purchase_return">Purchase Return</string>
+    <string name="dialog_clear_stock_reason_for_clearing">Reason for clearing</string>
+    <string name="dialog_clear_stock_reduce_debt_from_account">Reduce debt from account</string>
+    <string name="dialog_clear_stock_remaining_0">Remaining: 0</string>
+    <string name="dialog_clear_stock_scrap_damage">Scrap / Damage</string>
+    <string name="dialog_clear_stock_select_all">Select All</string>
+    <string name="dialog_clear_stock_select_batches_to_clear">Select batches to clear</string>
+    <string name="dialog_clear_stock_total_to_clear">Total to clear</string>
+    <string name="dialog_confirm_debit_note_additional_value">అదనపు విలువ</string>
+    <string name="dialog_confirm_debit_note_invoice">ఇన్‌వాయిస్ #—</string>
+    <string name="dialog_confirm_debit_note_issue_debit">డెబిట్ జారీ చేయండి</string>
+    <string name="dialog_confirm_debit_note_note">నోట్?</string>
+    <string name="dialog_confirm_debit_note_review">సమీక్షించండి</string>
+    <string name="dialog_confirm_debit_note_yes_issue_debit_note">అవును, డెబిట్ నోట్ జారీ చేయండి</string>
+    <string name="dialog_confirm_debit_note_youre_issuing_a_debit">ఈ ఇన్‌వాయిస్‌పై అదనపు విలువ కోసం మీరు డెబిట్ నోట్‌ను జారీ చేస్తున్నారు. ఇది జీఎస్టీ డెబిట్ నోట్‌ను ఉత్పత్తి చేస్తుంది.</string>
+    <string name="dialog_confirm_print_cancel">రద్దు చేయి</string>
+    <string name="dialog_confirm_print_export_report">నివేదికను ఎగుమతి చేయండి</string>
+    <string name="dialog_confirm_print_print">ప్రింట్</string>
+    <string name="dialog_confirm_print_print_1">ప్రింట్</string>
+    <string name="dialog_confirm_print_printing_for">దీని కోసం ప్రింట్ చేయబడుతోంది</string>
+    <string name="dialog_confirm_print_report">నివేదిక</string>
+    <string name="dialog_confirm_print_send_this_summary_to">మీ కనెక్ట్ చేయబడిన ప్రింటర్‌కు ఈ సారాంశాన్ని పంపండి.</string>
+    <string name="dialog_confirm_print_this_month">ఈ నెల</string>
+    <string name="dialog_date_range_all_time">అన్ని వేళలా</string>
+    <string name="dialog_date_range_apply_filter">ఫిల్టర్‌ని వర్తించండి</string>
+    <string name="dialog_date_range_cancel">రద్దు చేయి</string>
+    <string name="dialog_date_range_custom_range">అనుకూల శ్రేణి</string>
+    <string name="dialog_date_range_date">తేదీ</string>
+    <string name="dialog_date_range_filter_by">దీని ద్వారా ఫిల్టర్ చేయండి</string>
+    <string name="dialog_date_range_from">నుండి</string>
+    <string name="dialog_date_range_last_3_months">గత 3 నెలలు</string>
+    <string name="dialog_date_range_leave_either_side_empty">ఓపెన్-ఎండెడ్ రన్ చేయడానికి ఏదైనా వైపు ఖాళీగా ఉంచండి — అంతకు ముందు ఉన్నదంతా, లేదా అప్పటి నుండి ఉన్నదంతా.</string>
+    <string name="dialog_date_range_matches">సరిపోలికలు</string>
+    <string name="dialog_date_range_pick_a_date">తేదీని ఎంచుకోండి</string>
+    <string name="dialog_date_range_quick_ranges">త్వరిత శ్రేణులు</string>
+    <string name="dialog_date_range_this_month">ఈ నెల</string>
+    <string name="dialog_date_range_to">వరకు</string>
+    <string name="dialog_delete_account_cancel">రద్దు చేయి</string>
+    <string name="dialog_delete_account_customer">కస్టమర్</string>
+    <string name="dialog_delete_account_customer_1">కస్టమర్</string>
+    <string name="dialog_delete_account_delete_customer">కస్టమర్‌ని తొలగించండి</string>
+    <string name="dialog_delete_account_delete_this">దీన్ని తొలగించండి</string>
+    <string name="dialog_delete_account_ok">సరే</string>
+    <string name="dialog_delete_account_their_account_is_removed">వారి ఖాతా మీ జాబితా నుండి తీసివేయబడింది. బ్యాలెన్స్ అప్పటికే సెటిల్ చేయబడింది.</string>
+    <string name="dialog_inventory_stock_action_0_units">0 units</string>
+    <string name="dialog_inventory_stock_action_pb">PB</string>
+    <string name="dialog_ledger_summary_account">Account</string>
+    <string name="dialog_ledger_summary_average_bill">Average bill</string>
+    <string name="dialog_ledger_summary_balance">Balance</string>
+    <string name="dialog_ledger_summary_billed">Billed</string>
+    <string name="dialog_ledger_summary_close">Close</string>
+    <string name="dialog_ledger_summary_handed_back">handed back</string>
+    <string name="dialog_ledger_summary_last_payment">Last payment</string>
+    <string name="dialog_ledger_summary_no_cash_moved">no cash moved</string>
+    <string name="dialog_ledger_summary_received">Received</string>
+    <string name="dialog_ledger_summary_refunded">Refunded</string>
+    <string name="dialog_ledger_summary_settled">settled</string>
+    <string name="dialog_ledger_summary_summary">summary</string>
+    <string name="dialog_ledger_summary_written_off">Written off</string>
+    <string name="dialog_product_detail_0_margin">0%% మార్జిన్</string>
+    <string name="dialog_product_detail_close">మూసివేయి</string>
+    <string name="dialog_product_detail_cost">ఖర్చు</string>
+    <string name="dialog_product_detail_loss">నష్టం</string>
+    <string name="dialog_product_detail_loss_0">● 0 నష్టం</string>
+    <string name="dialog_product_detail_net_profit">నికర లాభం</string>
+    <string name="dialog_product_detail_no_shrinkage">కుదింపు లేదు</string>
+    <string name="dialog_product_detail_product">ఉత్పత్తి</string>
+    <string name="dialog_product_detail_product_1">ఉత్పత్తి</string>
+    <string name="dialog_product_detail_product_name">ఉత్పత్తి పేరు</string>
+    <string name="dialog_product_detail_profit">లాభం</string>
+    <string name="dialog_product_detail_remaining_0">● 0 మిగిలి ఉంది</string>
+    <string name="dialog_product_detail_remaining_stock">మిగిలిన స్టాక్</string>
+    <string name="dialog_product_detail_revenue">ఆదాయం</string>
+    <string name="dialog_product_detail_sold_0">● 0 విక్రయించబడింది</string>
+    <string name="dialog_product_detail_stock_flow">స్టాక్ ఫ్లో</string>
+    <string name="dialog_product_detail_stock_movement">స్టాక్ కదలిక</string>
+    <string name="dialog_product_detail_total_added">మొత్తం జోడించబడింది</string>
+    <string name="dialog_product_exists_cancel">రద్దు చేయి</string>
+    <string name="dialog_product_exists_create_new_instead">బదులుగా కొత్తది సృష్టించండి</string>
+    <string name="dialog_product_exists_duplicate_found">నకిలీ కనుగొనబడింది</string>
+    <string name="dialog_product_exists_exists">ఉంది</string>
+    <string name="dialog_product_exists_price_0nvariant_nunit_nstock">ధర: ₹0\nవేరియంట్: -\nయూనిట్: -\nస్టాక్: 0</string>
+    <string name="dialog_product_exists_product">ఉత్పత్తి</string>
+    <string name="dialog_product_exists_restore">పునరుద్ధరించు</string>
+    <string name="dialog_product_exists_update_existing_or_replace">ఇప్పటికే ఉన్నదాన్ని అప్‌డేట్ చేయాలా లేదా కొత్తదానితో భర్తీ చేయాలా?</string>
+    <string name="dialog_purchase_line_cgst">CGST</string>
+    <string name="dialog_purchase_line_if_any">ఏదైనా ఉంటే</string>
+    <string name="dialog_purchase_line_igst">IGST</string>
+    <string name="dialog_purchase_line_sgst">SGST</string>
+    <string name="dialog_purchase_line_tap_to_select">ఎంచుకోవడానికి నొక్కండి</string>
+    <string name="dialog_quantity_pad_add_to_cart">కార్ట్‌కు జోడించండి</string>
+    <string name="dialog_reduce_stock_available_0">Available: 0</string>
+    <string name="dialog_reduce_stock_cancel">Cancel</string>
+    <string name="dialog_reduce_stock_credit_account">Credit account</string>
+    <string name="dialog_reduce_stock_fullscreen_account">ఖాతా</string>
+    <string name="dialog_reduce_stock_fullscreen_available_now">ఇప్పుడు అందుబాటులో ఉంది</string>
+    <string name="dialog_reduce_stock_fullscreen_br">BR</string>
+    <string name="dialog_reduce_stock_fullscreen_cancel">రద్దు చేయి</string>
+    <string name="dialog_reduce_stock_fullscreen_no_account_selected">ఖాతా ఎంపిక చేయబడలేదు</string>
+    <string name="dialog_reduce_stock_fullscreen_no_batches_selected">బ్యాచ్‌లు ఎంపిక చేయబడలేదు</string>
+    <string name="dialog_reduce_stock_fullscreen_no_purchase_batches_available">కొనుగోలు బ్యాచ్‌లు అందుబాటులో లేవు</string>
+    <string name="dialog_reduce_stock_fullscreen_out">బయట</string>
+    <string name="dialog_reduce_stock_fullscreen_pick_batches">బ్యాచ్‌లను ఎంచుకోండి</string>
+    <string name="dialog_reduce_stock_fullscreen_product_name">ఉత్పత్తి పేరు</string>
+    <string name="dialog_reduce_stock_fullscreen_reason">కారణం</string>
+    <string name="dialog_reduce_stock_fullscreen_reason_1">కారణం</string>
+    <string name="dialog_reduce_stock_fullscreen_reduce">తగ్గించు</string>
+    <string name="dialog_reduce_stock_fullscreen_reduce_debt_from_account">ఖాతా నుండి రుణాన్ని తగ్గించండి</string>
+    <string name="dialog_reduce_stock_fullscreen_reduce_stock">స్టాక్‌ను తగ్గించండి</string>
+    <string name="dialog_reduce_stock_fullscreen_return_to_supplier">సరఫరాదారుకి తిరిగి ఇవ్వండి</string>
+    <string name="dialog_reduce_stock_fullscreen_scrap_damage">స్క్రాప్ / నష్టం</string>
+    <string name="dialog_reduce_stock_fullscreen_stock">స్టాక్</string>
+    <string name="dialog_reduce_stock_fullscreen_stock_value">స్టాక్ విలువ</string>
+    <string name="dialog_reduce_stock_fullscreen_take">తీసుకోండి</string>
+    <string name="dialog_reduce_stock_fullscreen_total_to_return">తిరిగి ఇవ్వవలసిన మొత్తం</string>
+    <string name="dialog_reduce_stock_no_account_selected">No account selected</string>
+    <string name="dialog_reduce_stock_no_purchase_batches_available">No purchase batches available</string>
+    <string name="dialog_reduce_stock_pick_batches_and_perbatch">Pick batches and per-batch quantity</string>
+    <string name="dialog_reduce_stock_quantity_to_reduce">Quantity to reduce</string>
+    <string name="dialog_reduce_stock_reason">Reason</string>
+    <string name="dialog_reduce_stock_reduce">Reduce</string>
+    <string name="dialog_reduce_stock_reduce_debt_from_account">Reduce debt from account</string>
+    <string name="dialog_reduce_stock_reduce_stock">Reduce Stock</string>
+    <string name="dialog_reduce_stock_return_to_supplier">Return to Supplier</string>
+    <string name="dialog_reduce_stock_scrap_damage">Scrap / Damage</string>
+    <string name="dialog_reduce_stock_total_to_return">Total to return</string>
+    <string name="dialog_sales_chart_avg_day">సగటు / రోజు</string>
+    <string name="dialog_sales_chart_bubble_size_indicates_bill">బబుల్ పరిమాణం బిల్ కౌంట్‌ను సూచిస్తుంది</string>
+    <string name="dialog_sales_chart_peak_revenue">గరిష్ట ఆదాయం</string>
+    <string name="dialog_sales_chart_revenue_pulse">ఆదాయం పల్స్</string>
+    <string name="dialog_sales_chart_sales_performance">విక్రయాల పనితీరు</string>
+    <string name="dialog_sales_chart_tap_a_bubble_to">ఆ కాలాన్ని అన్వేషించడానికి బబుల్‌ని నొక్కండి ↗</string>
+    <string name="dialog_sales_chart_top_day">టాప్ డే</string>
+    <string name="dialog_sales_chart_total_bills">మొత్తం బిల్లులు</string>
+    <string name="dialog_settle_account_account">ఖాతా</string>
+    <string name="dialog_settle_account_cancel">రద్దు చేయి</string>
+    <string name="dialog_settle_account_customer">కస్టమర్</string>
+    <string name="dialog_settle_account_settle_account">ఖాతాను పరిష్కరించండి</string>
+    <string name="dialog_settle_account_settle_this">దీన్ని పరిష్కరించండి</string>
+    <string name="dialog_settle_account_the_balance_goes_to">బ్యాలెన్స్ సున్నా అవుతుంది మరియు మొత్తం వారి చరిత్రలో నమోదు చేయబడుతుంది. ఇది అందుకున్న డబ్బును రికార్డ్ చేయదు — దాని కోసం చెల్లింపు రికార్డ్ చేయి ఉపయోగించండి.</string>
+    <string name="dialog_settle_account_writing_off">రద్దు చేయబడుతోంది</string>
+    <string name="dialog_supplier_picker_new_supplier">+  New supplier</string>
+    <string name="dialog_supplier_picker_no_saved_suppliers_yetntap">No saved suppliers yet.\nTap “New supplier” below to add one.</string>
+    <string name="dialog_supplier_picker_purchase">PURCHASE</string>
+    <string name="dialog_supplier_picker_saved">Saved</string>
+    <string name="dialog_supplier_picker_search_name_gstin_or">Search name, GSTIN or state</string>
+    <string name="dialog_supplier_picker_suppliers">suppliers</string>
+    <string name="editproductactivity_hsn_code_is_mandatory">జీఎస్టీ బిల్లింగ్ కోసం హెచ్ఎస్ఎన్ కోడ్ తప్పనిసరి</string>
+    <string name="fragment_charts_falling">పడిపోతోంది</string>
+    <string name="fragment_charts_peak">గరిష్టం</string>
+    <string name="fragment_charts_rising">పెరుగుతోంది</string>
+    <string name="fragment_charts_sales">విక్రయాలు</string>
+    <string name="fragment_charts_this_period">ఈ కాలం</string>
+    <string name="fragment_charts_trend">ట్రెండ్</string>
+    <string name="fragment_charts_trend_1">ట్రెండ్</string>
+    <string name="fragment_overview_avg_bill">Avg bill</string>
+    <string name="fragment_overview_cancelled">Cancelled</string>
+    <string name="fragment_overview_card">Card</string>
+    <string name="fragment_overview_cash">Cash</string>
+    <string name="fragment_overview_credit">Credit</string>
+    <string name="fragment_overview_glance">GLANCE</string>
+    <string name="fragment_overview_good_morning">Good morning</string>
+    <string name="fragment_overview_payment_split">PAYMENT SPLIT</string>
+    <string name="fragment_overview_returns">Returns</string>
+    <string name="fragment_overview_total_bills">Total bills</string>
+    <string name="fragment_overview_total_collected">Total collected</string>
+    <string name="fragment_overview_total_revenue">TOTAL REVENUE</string>
+    <string name="fragment_overview_upi">UPI</string>
+    <string name="fragment_overview_your_store">Your Store</string>
+    <string name="fragment_profile_st">ST</string>
+    <string name="marker_bar_chart_0_bills">0 Bills</string>
+    <string name="menu_sort_best_selling">అత్యధికంగా అమ్ముడైనది</string>
+    <string name="menu_sort_category">వర్గం</string>
+    <string name="menu_sort_most_profitable">అత్యంత లాభదాయకమైనది</string>
+    <string name="menu_sort_name_a_z">పేరు: A → Z</string>
+    <string name="menu_sort_name_z_a">పేరు: Z → A</string>
+    <string name="menu_sort_price_high_low">ధర: ఎక్కువ → తక్కువ</string>
+    <string name="menu_sort_price_low_high">ధర: తక్కువ → ఎక్కువ</string>
+    <string name="menu_sort_stock_high_low">స్టాక్: ఎక్కువ → తక్కువ</string>
+    <string name="menu_sort_stock_low_high">స్టాక్: తక్కువ → ఎక్కువ</string>
+    <string name="menu_sort_stock_value_high_low">స్టాక్ విలువ: ఎక్కువ → తక్కువ</string>
+    <string name="menu_sort_top_revenue">టాప్ ఆదాయం</string>
+    <string name="onboardingactivity_couldnt_load_setup_progress">సెటప్ పురోగతిని లోడ్ చేయలేకపోయాము</string>
+    <string name="overviewfragment_failed_to_load_overview">అవలోకనాన్ని లోడ్ చేయడంలో విఫలమైంది</string>
+    <string name="profitactivity_no_data_to_print">ప్రింట్ చేయడానికి డేటా లేదు</string>
+    <string name="profitactivity_print_failed">ప్రింట్ విఫలమైంది</string>
+    <string name="salesreturnactivity_bill_not_loaded_yet">బిల్ ఇంకా లోడ్ కాలేదు. దయచేసి వేచి ఉండండి.</string>
+    <string name="salesreturnactivity_cannot_issue_a_credit">రద్దు చేయబడిన ఇన్‌వాయిస్ కోసం క్రెడిట్ నోట్ జారీ చేయలేరు.</string>
+    <string name="salesreturnactivity_invalid_bill_id">చెల్లని బిల్ ఐడి</string>
+    <string name="salesreturnactivity_please_select_at_least">దయచేసి తిరిగి ఇవ్వడానికి కనీసం ఒక వస్తువును ఎంచుకోండి.</string>
+    <string name="subscriptionactivity_failed_to_load">లోడ్ చేయడంలో విఫలమైంది</string>
+    <string name="supplierpicker_no_shop_selected_sign">ఏ దుకాణం ఎంపిక చేయబడలేదు. మళ్లీ సైన్ ఇన్ చేయండి.</string>
+
+    <!-- activity_dashboard -->
+    <string name="activity_dashboard_sw600dp_xml_all_caught_up">మీరు అన్నీ పూర్తి చేశారు</string>
+    <string name="activity_dashboard_sw600dp_xml_bills_today_label">ఈ రోజు బిల్లులు</string>
+    <string name="activity_dashboard_sw600dp_xml_offline_notice">మా సర్వర్</string>
+    <string name="activity_dashboard_sw600dp_xml_system_account_header">సిస్టమ్ &amp;amp; ఖాతా</string>
+    <string name="activity_dashboard_sw600dp_xml_todays_sales_label">ఈ రోజు అమ్మకాలు</string>
+    <string name="activity_dashboard_xml_bills_today_label">ఈ రోజు బిల్లులు</string>
+    <string name="activity_dashboard_xml_notify_seen_note">మీకు ఆటోమేటిక్</string>
+    <string name="activity_dashboard_xml_offline_notice">మా సర్వర్</string>
+    <string name="activity_dashboard_xml_system_account_header">సిస్టమ్ &amp;amp; ఖాతా</string>
+    <string name="activity_dashboard_xml_todays_sales_label">ఈ రోజు అమ్మకాలు</string>
+    <string name="add_edit_product">ఉత్పత్తులను జోడించండి/సవరించండి</string>
     <string name="ai_insights">AI విశ్లేషణ</string>
+    <string name="bill_history">బిల్ చరిత్ర</string>
+    <string name="cart">కార్ట్</string>
+    <string name="dashboard_add_purchase">కొనుగోలు జోడించండి</string>
+    <string name="dashboard_all_caught">అన్నీ చూశారు</string>
+    <string name="dashboard_app_name_placeholder">Easy Billing</string>
+    <string name="dashboard_cart_bar_summary_placeholder">0 ఐటమ్</string>
+    <string name="dashboard_checkout_print_receipt">చెక్అవుట్ &amp; రసీదు ప్రింట్ చేయండి</string>
+    <string name="dashboard_clear_all">అన్నీ క్లియర్ చేయండి</string>
+    <string name="dashboard_credit_accounts">క్రెడిట్ ఖాతాలు</string>
+    <string name="dashboard_greeting_morning_2">శుభోదయం</string>
+    <string name="dashboard_gst_reports">GST రిపోర్ట్</string>
+    <string name="dashboard_import_services">సర్వీసులు దిగుమతి చేయండి</string>
+    <string name="dashboard_inventory">ఇన్వెంటరీ</string>
+    <string name="dashboard_items_label">ఐటమ్</string>
+    <string name="dashboard_live_intelligence">లైవ్ ఇంటెలిజెన్స్</string>
+    <string name="dashboard_live_order">లైవ్ ఆర్డర్</string>
+    <string name="dashboard_notifications_title">నోటిఫికేషన్</string>
+    <string name="dashboard_notify_critical">క్రిటికల్</string>
+    <string name="dashboard_notify_empty_body">ప్రస్తుతం కొత్త నోటిఫికేషన్</string>
+    <string name="dashboard_notify_empty_body_short">ప్రస్తుతం కొత్త నోటిఫికేషన్</string>
+    <string name="dashboard_notify_tip1_body">తక్కువ స్టాక్, పెద్ద సేల్స్ మరియు అసాధారణ యాక్టివిటీ</string>
+    <string name="dashboard_notify_tip2_body">అన్నీ క్లియర్ చేయండి లేదా ఒక్కొక్కటిగా స్వైప్ చేయండి</string>
+    <string name="dashboard_notify_tip2_title">తీసివేసినవి తొలగించబడతాయి</string>
+    <string name="dashboard_notify_tips">చిట్కాలు</string>
+    <string name="dashboard_notify_watch">వాచ్</string>
+    <string name="dashboard_order_summary">ఆర్డర్ సారాంశం</string>
+    <string name="dashboard_profit_analytics">లాభ విశ్లేషణ</string>
+    <string name="dashboard_purchase_history">కొనుగోలు చరిత్ర</string>
+    <string name="dashboard_section_analytics_reports">అనలిటిక్స్ &amp; రిపోర్ట్</string>
+    <string name="dashboard_section_core_operations">ప్రధాన కార్యకలాపాలు</string>
+    <string name="dashboard_sub_bulk_service_import">బల్క్ సర్వీస్ ఇంపోర్ట్</string>
+    <string name="dashboard_sub_catalog_pricing">కేటలాగ్ &amp; ధర</string>
+    <string name="dashboard_sub_customer_dues">కస్టమర్ బాకీలు</string>
+    <string name="dashboard_sub_invoice_history">ఇన్</string>
+    <string name="dashboard_sub_past_stock_batches">గత స్టాక్ బ్యాచ్</string>
+    <string name="dashboard_sub_plan_billing">ప్లాన్ &amp; బిల్లింగ్</string>
+    <string name="dashboard_sub_record_stock_in">స్టాక్ ఇన్ నమోదు చేయండి</string>
+    <string name="dashboard_sub_sales_summary">సేల్స్ సారాంశం</string>
+    <string name="dashboard_sub_stock_levels_alerts">స్టాక్ స్థాయిలు &amp; అలర్ట్</string>
+    <string name="dashboard_sub_store_app_config">స్టోర్ &amp; యాప్ కాన్ఫిగరేషన్</string>
+    <string name="dashboard_sub_your_account">మీ ఖాతా</string>
+    <string name="dashboard_tap_to_sign_out">సైన్ అవుట్ చేయడానికి ట్యాప్ చేయండి</string>
+    <string name="dashboard_taxes_applied_at_billing">పన్నులు బిల్లింగ్ సమయంలో వర్తిస్తాయి</string>
+    <string name="dashboard_view_cart">కార్ట్ చూడండి</string>
+    <string name="dashboard_welcome_back">మళ్ళీ స్వాగతం</string>
     <string name="generate_bill">బిల్ సృష్టించండి</string>
+    <string name="logout">లాగౌట్</string>
+    <string name="reports">రిపోర్ట్స్</string>
+    <string name="search_products">ఉత్పత్తులను వెతకండి</string>
+    <string name="settings">సెట్టింగ్స్</string>
+    <string name="subtotal">ఉప మొత్తం</string>
+    <string name="welcome">స్వాగతం</string>
 
-    <string name="data_and_security">డేటా మరియు భద్రత</string>
+    <!-- activity_invoice -->
+    <string name="activity_invoice_sw600dp_xml_discount_label">డిస్కౌంట్</string>
+    <string name="activity_invoice_sw600dp_xml_invoice_number_prefix">ఇన్వాయిస్ ·</string>
+    <string name="activity_invoice_sw600dp_xml_normal_gst_chip">సాధారణ GST</string>
+    <string name="activity_invoice_sw600dp_xml_subtotal_label">సబ్</string>
+    <string name="activity_invoice_xml_discount_label">డిస్కౌంట్</string>
+    <string name="activity_invoice_xml_invoice_number_prefix">ఇన్వాయిస్ ·</string>
+    <string name="activity_invoice_xml_normal_gst_chip">సాధారణ GST</string>
+    <string name="activity_invoice_xml_subtotal_label">సబ్</string>
+    <string name="card">కార్డ్</string>
+    <string name="dashboard_live_status">లైవ్</string>
+    <string name="gst">జీఎస్టీ</string>
+    <string name="invoice_add_more_items">+  కార్ట్</string>
+    <string name="invoice_b2c_hint_default">B2C — త్వరిత సేల్ (కస్టమర్ వివరాలు ఐచ్ఛికం)</string>
+    <string name="invoice_bill_summary_header">బిల్ సారాంశం</string>
+    <string name="invoice_cgst_label">CGST</string>
+    <string name="invoice_charges_header">ఛార్జీలు</string>
+    <string name="invoice_composition_note_full">కంపోజిషన్ స్కీమ్ — పన్ను అమ్మకపు ధరలో చేర్చబడింది. CGST / SGST / IGST వేరుగా వసూలు చేయబడదు.</string>
+    <string name="invoice_customer_details_header">కస్టమర్ వివరాలు</string>
+    <string name="invoice_ecommerce_examples">అమెజాన్, ఫ్లిప్</string>
+    <string name="invoice_generate_invoice">ఇన్</string>
+    <string name="invoice_grand_total_label">మొత్తం</string>
+    <string name="invoice_gst_options_header">GST ఆప్షన్</string>
+    <string name="invoice_gstr_invoice_type_label">GSTR ఇన్</string>
+    <string name="invoice_hint_business_name">వ్యాపార పేరు</string>
+    <string name="invoice_hint_customer_name">కస్టమర్ పేరు</string>
+    <string name="invoice_hint_gst_number">GST నంబర్</string>
+    <string name="invoice_hint_operator_gstin">ఆపరేటర్ GSTIN</string>
+    <string name="invoice_hint_operator_name">ఆపరేటర్ పేరు (ఐచ్ఛికం)</string>
+    <string name="invoice_hint_phone_number">ఫోన్ నంబర్</string>
+    <string name="invoice_hint_recipient_gstin">స్వీకర్త GSTIN</string>
+    <string name="invoice_hint_recipient_name">స్వీకర్త పేరు</string>
+    <string name="invoice_hint_select_state">రాష్ట్రం ఎంచుకోండి</string>
+    <string name="invoice_hint_supplier_gstin">సరఫరాదారు GSTIN</string>
+    <string name="invoice_hint_supplier_name">సరఫరాదారు పేరు</string>
+    <string name="invoice_incl_all_taxes">అన్ని పన్నులతో సహా</string>
+    <string name="invoice_label_state_of_customer">కస్టమర్ రాష్ట్రం</string>
+    <string name="invoice_line_items_header">లైన్ ఐటమ్</string>
+    <string name="invoice_nature_of_supply_label">సరఫరా స్వభావం</string>
+    <string name="invoice_net_amount_header">నికర మొత్తం</string>
+    <string name="invoice_normal_gst_scheme">సాధారణ GST స్కీమ్</string>
+    <string name="invoice_payment_header">చెల్లింపు</string>
+    <string name="invoice_print_button">ప్రింట్</string>
+    <string name="invoice_reverse_charge">రివర్స్ ఛార్జ్</string>
+    <string name="invoice_reverse_charge_desc">పన్ను స్వీకర్త చెల్లిస్తారు</string>
+    <string name="invoice_role_label">పాత్ర</string>
+    <string name="invoice_role_supplier">సరఫరాదారు</string>
+    <string name="invoice_round_off_label">రౌండ్ ఆఫ్</string>
+    <string name="invoice_save_print_receipt">సేవ్ చేసి రసీదు ప్రింట్ చేయండి</string>
+    <string name="invoice_sgst_label">SGST</string>
+    <string name="invoice_sold_via_ecommerce">ఈ-కామర్స్ ద్వారా విక్రయించబడింది</string>
+    <string name="invoice_tax_header">పన్ను</string>
+    <string name="invoice_taxable_label">పన్ను విధించదగినది</string>
+    <string name="invoice_total_tax_header">మొత్తం పన్ను</string>
+    <string name="invoice_type_label">ఇన్</string>
+    <string name="upi">UPI</string>
+
+    <!-- activity_add_import_service -->
+    <string name="add_a">జోడించండి</string>
+    <string name="applicable_rate">వర్తించే రేటు</string>
+    <string name="as_printed_on_invoice">ఇన్</string>
+    <string name="auto_badge">ఆటో</string>
+    <string name="auto_calculated">ఆటోమేటిక్</string>
+    <string name="availed_itc_cess">పొందిన ITC సెస్ (₹)</string>
+    <string name="availed_itc_igst">పొందిన ITC IGST (₹)</string>
+    <string name="cess_paid_rupees">చెల్లించిన సెస్ (₹)</string>
+    <string name="eligibility">అర్హత</string>
+    <string name="gst_rate_pct">GST రేటు (%%)</string>
+    <string name="igst_calc_helper">IGST రేటు × పన్ను విధించదగిన విలువ నుండి లెక్కించబడుతుంది. మీ ఇన్</string>
+    <string name="igst_paid_rupees">చెల్లించిన IGST (₹)</string>
+    <string name="import_of_services_eyebrow">సేవల దిగుమతి</string>
+    <string name="invoice_number_2">ఇన్</string>
+    <string name="invoice_section_label">ఇన్</string>
+    <string name="invoice_value_2">ఇన్</string>
+    <string name="itc_eligibility_capital">క్యాపిటల్</string>
+    <string name="itc_eligibility_services">సేవలు</string>
+    <string name="place_of_supply_default">97 - ఇతర భూభాగం</string>
+    <string name="record_word">రికార్డ్</string>
+    <string name="save_record">రికార్డ్</string>
+    <string name="select_date">తేదీని ఎంచుకోండి</string>
+    <string name="taxable_value_rupees">పన్ను విధించదగిన విలువ (₹)</string>
+    <string name="up_to_tax_paid">చెల్లించిన పన్ను వరకు</string>
+    <string name="value_before_tax">పన్నుకు ముందు విలువ</string>
+
+    <!-- AddProductActivity -->
+    <string name="add_product_added_toast">ఉత్పత్తి జోడించబడింది</string>
+    <string name="add_product_enter_name_toast">ఉత్పత్తి పేరు నమోదు చేయండి</string>
+    <string name="add_product_enter_price_toast">0 కంటే ఎక్కువ అమ్మకపు ధర నమోదు చేయండి</string>
+    <string name="add_product_enter_stock_qty_toast">ఓపెనింగ్ స్టాక్ పరిమాణం నమోదు చేయండి</string>
+    <string name="add_product_hsn_mandatory_toast">GST బిల్లింగ్ కోసం HSN కోడ్ తప్పనిసరి</string>
+    <string name="add_product_in_catalog">కేటలాగ్</string>
+    <string name="add_product_invalid_cgst_toast">సరైన CGST %% నమోదు చేయండి (0 లేదా అంతకంటే ఎక్కువ)</string>
+    <string name="add_product_invalid_sgst_toast">సరైన SGST %% నమోదు చేయండి (0 లేదా అంతకంటే ఎక్కువ)</string>
+    <string name="add_product_new_to_catalog">కేటలాగ్</string>
+    <string name="add_product_restored_toast">ఉత్పత్తి పునరుద్ధరించబడింది</string>
+    <string name="variant_already_exists_message">%1$s · %2$s ఇప్పటికే మీ కేటలాగ్</string>
+    <string name="variant_already_exists_message_no_variant">%1$s ఇప్పటికే మీ కేటలాగ్</string>
+
+    <!-- dialog_variant_exists -->
+    <string name="add_product_already_in_catalog_badge">ఇప్పటికే కేటలాగ్</string>
+    <string name="add_product_variant_exists_add_another">మరొకటి జోడించండి</string>
+    <string name="add_product_variant_exists_default_message">ఈ ఉత్పత్తి మరియు వేరియంట్ ఇప్పటికే ఉన్నాయి. బదులుగా ఎడిటింగ్ కోసం దీన్ని తెరవాలా?</string>
+    <string name="add_product_variant_exists_edit_existing">ఉన్నదాన్ని ఎడిట్ చేయండి</string>
+    <string name="add_product_variant_exists_title">ఇప్పటికే ఉంది</string>
+
+    <!-- activity_add_product -->
+    <string name="add_product_auto_filled_hint">ఆటోగా నింపబడింది</string>
+    <string name="add_product_auto_from_unit_hint">యూనిట్ నుండి ఆటో</string>
+    <string name="add_product_central_tax_hint">కేంద్ర పన్ను</string>
+    <string name="add_product_cess_label">సెస్ %%</string>
+    <string name="add_product_cost_per_unit_label">ధర / యూనిట్</string>
+    <string name="add_product_current_stock_hint">ప్రస్తుత స్టాక్</string>
+    <string name="add_product_gstr1_optional_note">ఐచ్ఛికం — GSTR-1 ఫైలింగ్ కోసం</string>
+    <string name="add_product_hsn_description_hint_example">ఉదా. రైస్, మిల్డ్</string>
+    <string name="add_product_hsn_description_label">HSN వివరణ</string>
+    <string name="add_product_hsn_sac_hint">HSN/SAC</string>
+    <string name="add_product_hsn_sac_label">HSN / SAC</string>
+    <string name="add_product_if_applicable_hint">వర్తిస్తే</string>
+    <string name="add_product_igst_auto_label">IGST · ఆటో</string>
+    <string name="add_product_name_hint_example">ఉదా. బాస్మతి రైస్</string>
+    <string name="add_product_no_input_credit_note">ఇన్</string>
+    <string name="add_product_official_uqc_label">అధికారిక UQC</string>
+    <string name="add_product_opening_stock_subtitle">ఐచ్ఛికం — ప్రస్తుత స్టాక్ &amp; ధరను సెట్ చేస్తుంది</string>
+    <string name="add_product_opening_stock_title">ఓపెనింగ్ స్టాక్ జోడించండి</string>
+    <string name="add_product_price_includes_tax">ధరలో పన్ను చేర్చబడింది</string>
+    <string name="add_product_price_mrp_note">అమ్మకపు ధర MRP (పన్నుతో సహా)</string>
+    <string name="add_product_rate_per_unit_hint">ఒక్కో యూనిట్</string>
+    <string name="add_product_save_product_button">ఉత్పత్తిని సేవ్ చేయండి</string>
+    <string name="add_product_section_gst_compliance">GST &amp; నిబంధనలు</string>
+    <string name="add_product_section_pricing_tax">ధర &amp; పన్ను</string>
+    <string name="add_product_section_product_details">ఉత్పత్తి వివరాలు</string>
+    <string name="add_product_select_category_hint">కేటగిరీ ఎంచుకోండి</string>
+    <string name="add_product_select_classification_hint">వర్గీకరణ ఎంచుకోండి</string>
+    <string name="add_product_select_unit_hint">యూనిట్ ఎంచుకోండి</string>
+    <string name="add_product_selling_price_label">అమ్మకపు ధర</string>
+    <string name="add_product_short_description_hint">సంక్షిప్త వివరణ</string>
+    <string name="add_product_state_tax_hint">రాష్ట్ర పన్ను</string>
+    <string name="add_product_supply_classification_label">సరఫరా వర్గీకరణ</string>
+    <string name="add_product_tax_code_hint">పన్ను కోడ్</string>
+    <string name="add_product_title_add">జోడించండి</string>
+    <string name="add_product_title_product">ఉత్పత్తి</string>
+    <string name="add_product_unit_label">యూనిట్</string>
+    <string name="add_product_variant_hint">సైజ్ లేదా ప్యాక్ రకం</string>
+    <string name="add_product_variant_hint_example">ఉదా. 5 kg</string>
+    <string name="add_product_variant_label">వేరియంట్</string>
+    <string name="add_product_what_you_paid_hint">మీరు చెల్లించినది</string>
+    <string name="quantity">పరిమాణం</string>
+
+    <!-- Common -->
+    <string name="add_product_category_label">కేటగిరీ</string>
+    <string name="add_product_section_inventory_label">ఇన్వెంటరీ</string>
+    <string name="cancel">రద్దు</string>
+    <string name="credit_chip_label_settled">సెటిల్</string>
+    <string name="credit_no_customers_accent">ఇంకా</string>
+    <string name="credit_no_matches_accent">కనుగొనబడలేదు</string>
+    <string name="credit_no_matches_title">సరిపోలికలు లేవు</string>
+    <string name="dash">—</string>
+    <string name="dashboard_remove_button">తీసివేయండి</string>
+    <string name="edit">సవరించండి</string>
+    <string name="gstin">జీఎస్టీఐఎన్</string>
+    <string name="incorrect_password">పాస్</string>
+    <string name="inventory_out_of_stock">స్టాక్ లేదు</string>
+    <string name="invoice_hint_tap_to_select">ఎంచుకోవడానికి ట్యాప్ చేయండి</string>
+    <string name="manage_filter_all">అన్నీ</string>
+    <string name="open_date_settings">తేదీ సెట్టింగ్</string>
+    <string name="purchase_eligibility_inputs">ఇన్</string>
+    <string name="purchase_invoice_type_regular">రెగ్యులర్</string>
+    <string name="retry">మళ్ళీ ప్రయత్నించండి</string>
+    <string name="session_expired_login_again">సెషన్ గడువు ముగిసింది. దయచేసి మళ్ళీ లాగిన్ చేయండి.</string>
+    <string name="verification_failed">వెరిఫికేషన్ విఫలమైంది</string>
+    <string name="verify_code">కోడ్</string>
+    <string name="wrong_device_time">పరికర సమయం తప్పు</string>
+
+    <!-- dialog_variant_restore -->
+    <string name="add_product_hidden_product_badge">దాచిన ఉత్పత్తి</string>
+    <string name="add_product_keep_old_details">పాత వివరాలు ఉంచండి</string>
+    <string name="add_product_restore_default_message">ఈ ఉత్పత్తి ఇంతకుముందు దాచబడింది. ఈ పేరును మళ్ళీ ఉపయోగించడానికి దాన్ని పునరుద్ధరించండి.</string>
+    <string name="add_product_restore_title">ఈ ఉత్పత్తిని పునరుద్ధరించాలా?</string>
+    <string name="add_product_restore_with_entered_details">నేను నమోదు చేసిన వివరాలతో పునరుద్ధరించండి</string>
+
+    <!-- activity_purchase -->
+    <string name="add_product_name_hint">వెతకండి లేదా కొత్తది టైప్ చేయండి</string>
+    <string name="invoice_number">ఇన్</string>
+    <string name="invoice_value">ఇన్</string>
+    <string name="purchase_add_line_button">+  కొనుగోలుకు ఐటమ్</string>
+    <string name="purchase_boe_date_label">బిల్ ఆఫ్ ఎంట్రీ తేదీ</string>
+    <string name="purchase_boe_number_hint">7-అంకెల నంబర్</string>
+    <string name="purchase_boe_number_label">బిల్ ఆఫ్ ఎంట్రీ నంబర్</string>
+    <string name="purchase_boe_value_hint">కస్టమ్స్ విలువ</string>
+    <string name="purchase_boe_value_label">బిల్ ఆఫ్ ఎంట్రీ విలువ</string>
+    <string name="purchase_cess_paid_hint">ఏదైనా ఉంటే</string>
+    <string name="purchase_cess_paid_label">చెల్లించిన సెస్</string>
+    <string name="purchase_change_account_button">మార్చండి</string>
+    <string name="purchase_choose_supplier_desc_2">సేవ్ చేసిన సప్లయర్</string>
+    <string name="purchase_credit_account_label">క్రెడిట్ ఖాతా</string>
+    <string name="purchase_eligibility_label">ITC అర్హత</string>
+    <string name="purchase_eyebrow">కొత్త కొనుగోలు</string>
+    <string name="purchase_gst_compliance_header">GST కంప్లయన్స్ వివరాలు</string>
+    <string name="purchase_gstin_hint">15-అక్షరాల GSTIN</string>
+    <string name="purchase_history_tile_on_credit">క్రెడిట్</string>
+    <string name="purchase_imported_goods_label">దిగుమతి చేసిన వస్తువులు</string>
+    <string name="purchase_invoice_date_label">ఇన్</string>
+    <string name="purchase_invoice_number_hint">బిల్</string>
+    <string name="purchase_itc_central_hint">క్లెయిమ్ చేసిన CGST</string>
+    <string name="purchase_itc_central_label">పొందిన ITC సెంట్రల్ టాక్స్</string>
+    <string name="purchase_itc_cess_hint">క్లెయిమ్ చేసిన సెస్</string>
+    <string name="purchase_itc_cess_label">పొందిన ITC సెస్</string>
+    <string name="purchase_itc_helper_text">అర్హత ఉన్నప్పుడు ITC డిఫాల్ట్</string>
+    <string name="purchase_itc_integrated_hint">క్లెయిమ్ చేసిన IGST</string>
+    <string name="purchase_itc_integrated_label">పొందిన ITC ఇంటిగ్రేటెడ్ టాక్స్</string>
+    <string name="purchase_itc_state_hint">క్లెయిమ్ చేసిన SGST</string>
+    <string name="purchase_itc_state_label">పొందిన ITC స్టేట్/UT టాక్స్</string>
+    <string name="purchase_payment_credit_sub">సప్లయర్</string>
+    <string name="purchase_payment_paid_now">ఇప్పుడు చెల్లించారు</string>
+    <string name="purchase_payment_paid_now_sub">నగదు / బ్యాంక్ ద్వారా సెటిల్ చేయబడింది</string>
+    <string name="purchase_place_of_supply_label">సరఫరా స్థల కోడ్</string>
+    <string name="purchase_port_code_hint">6-అక్షరాల కోడ్</string>
+    <string name="purchase_port_code_label">పోర్ట్ కోడ్</string>
+    <string name="purchase_remove_account_button">ఖాతాను తీసివేయండి</string>
+    <string name="purchase_section_invoice_details">ఇన్</string>
+    <string name="purchase_section_payment_option">పేమెంట్ ఆప్షన్</string>
+    <string name="purchase_section_supplier">సప్లయర్</string>
+    <string name="purchase_sez_gstin_label">SEZ సప్లయర్ GSTIN</string>
+    <string name="purchase_supplier_helper">రిజిస్టర్డ్ సప్లయర్ — GSTIN ఇన్</string>
+    <string name="purchase_supply_type_label">సరఫరా రకం</string>
+    <string name="purchase_title_accent">రికార్డ్ చేయండి</string>
+    <string name="purchase_title_lead">కొనుగోలు</string>
+    <string name="save_purchase">కొనుగోలును సేవ్ చేయండి</string>
+    <string name="state">రాష్ట్రం</string>
+    <string name="supplier_gstin">సరఫరాదారు జీఎస్టీఐఎన్ (ఐచ్ఛికం)</string>
+    <string name="taxable_amount">పన్ను చెల్లించవలసిన మొత్తం</string>
+
+    <!-- ImportServicesActivity -->
+    <string name="add_record">రికార్డ్ జోడించండి</string>
+    <string name="queued_chip">క్యూలో ఉంది</string>
+    <string name="refused_chip">తిరస్కరించబడింది</string>
+
+    <!-- activity_ai_dashboard -->
+    <string name="ai_dashboard_audit_score_desc">మీ షాప్ ఆరోగ్యం 100కి — ఎక్కువ ఉంటే మంచిది</string>
+    <string name="ai_dashboard_audit_score_label">ఆడిట్ స్కోర్</string>
+    <string name="ai_dashboard_col_product">ఉత్పత్తి</string>
+    <string name="ai_dashboard_col_qty">పరిమాణం</string>
+    <string name="ai_dashboard_col_revenue">ఆదాయం</string>
+    <string name="ai_dashboard_eyebrow">వ్యాపార ఆడిట్</string>
+    <string name="ai_dashboard_insights_empty">ప్రస్తుతం అలర్ట్</string>
+    <string name="ai_dashboard_kpi_leaks">లీక్</string>
+    <string name="ai_dashboard_kpi_urgent">అత్యవసరం</string>
+    <string name="ai_dashboard_kpi_wins">విజయాలు</string>
+    <string name="ai_dashboard_title_ai">AI</string>
+    <string name="ai_dashboard_title_insights_suffix">ఇన్</string>
+    <string name="ai_dashboard_top_velocity_title">టాప్ ఉత్పత్తి వేగం</string>
+
+    <!-- AiDashboardActivity -->
+    <string name="ai_dashboard_band_fair">మధ్యస్థం</string>
+    <string name="ai_dashboard_band_healthy">ఆరోగ్యకరం</string>
+    <string name="ai_dashboard_band_needs_work">మెరుగుపరచాలి</string>
+    <string name="ai_dashboard_band_optimum">ఆప్టిమమ్</string>
+    <string name="ai_dashboard_offline_empty">ఇన్</string>
+    <string name="ai_dashboard_toast_load_failed">ఇన్</string>
+    <string name="ai_dashboard_toast_offline_cache">చివరిగా సేవ్ చేసిన ఇన్</string>
+
+    <!-- item_insight_card -->
+    <string name="ai_insight_card_action_button">చర్య తీసుకోండి</string>
+    <string name="ai_insight_card_desc_placeholder">మీ వద్ద 3 వస్తువులు తక్కువ స్టాక్</string>
+    <string name="ai_insight_card_title_placeholder">త్వరలో స్టాక్ అయిపోతుంది</string>
+
+    <!-- AiInsightListAdapter -->
+    <string name="ai_insight_header_default">ఇన్</string>
+    <string name="ai_insight_header_fire">శ్రద్ధ అవసరం</string>
+    <string name="ai_insight_header_gold">ఏది పనిచేస్తోంది</string>
+    <string name="ai_insight_header_leak">నష్టాలను ఆపడం</string>
+
+    <!-- activity_change_password -->
+    <string name="almost_there_eyebrow">దాదాపు అయిపోయింది</string>
+    <string name="back_to_login">లాగిన్</string>
+    <string name="confirm_password_2">పాస్</string>
+    <string name="confirm_your_password">మీ పాస్</string>
+    <string name="create_strong_password_subtitle">మీ ఖాతాను సురక్షితంగా ఉంచడానికి బలమైన పాస్</string>
+    <string name="enter_new_password">కొత్త పాస్</string>
+    <string name="new_password_2">కొత్త పాస్</string>
+    <string name="password_word">పాస్</string>
+    <string name="remembered_it">గుర్తుకు వచ్చిందా?</string>
+    <string name="set_a_new">కొత్తది సెట్ చేయండి</string>
+
+    <!-- activity_data_security -->
+    <string name="and_security_word">&amp; భద్రత</string>
+    <string name="archive_remove_bill_history_sub">బిల్ హిస్టరీని ఆర్కైవ్ చేసి &amp; తీసివేయండి</string>
     <string name="change_login_password">లాగిన్ పాస్</string>
     <string name="clear_all_bills">అన్ని బిల్లులను తొలగించండి</string>
+    <string name="danger_zone_section">డేంజర్ జోన్</string>
+    <string name="data_section">డేటా</string>
+    <string name="data_word">డేటా</string>
     <string name="factory_reset_app">యాప్ ఫ్యాక్టరీ రీసెట్ చేయండి</string>
+    <string name="protected_eyebrow">రక్షితం</string>
+    <string name="risk_high_badge">అధికం</string>
+    <string name="risk_low_badge">తక్కువ</string>
+    <string name="risk_medium_badge">మధ్యస్థం</string>
+    <string name="security_section">భద్రత</string>
+    <string name="tap_unlock_helper">అన్</string>
+    <string name="update_login_pin_sub">మీ లాగిన్ PINను అప్</string>
+    <string name="wipe_workspace_sub">వర్క్</string>
 
-    <string name="enter_your_registered_email_to_reset_your_password">
-పాస్‌వర్డ్ రీసెట్ చేయడానికి మీ నమోదు చేసిన ఇమెయిల్ నమోదు చేయండి
-</string>
-    <string name="enter_otp">OTP నమోదు చేయండి</string>
-    <string name="_6_digit_otp">6 అంకెల OTP</string>
-    <string name="verify_otp">OTP ధృవీకరించండి</string>
+    <!-- activity_settings -->
+    <string name="and_store_word">&amp; స్టోర్</string>
+    <string name="backup_workspace_reset_sub">బ్యాకప్, వర్క్</string>
+    <string name="billing_settings">బిల్లింగ్ సెట్టింగ్స్</string>
+    <string name="data_security_management">డేటా మరియు భద్రత నిర్వహణ</string>
+    <string name="gst_tax_rates_defaults_sub">GST, పన్ను రేట్లు, డిఫాల్ట్</string>
+    <string name="invoice_design">ఇన్వాయిస్ డిజైన్</string>
+    <string name="language_currency_format_sub">భాష, కరెన్సీ, ఫార్మాట్</string>
+    <string name="localization_settings">భాష మరియు కరెన్సీ</string>
+    <string name="manage_eyebrow">మేనేజ్</string>
+    <string name="name_address_contact_sub">పేరు, చిరునామా, సంప్రదింపు</string>
+    <string name="settings_2">సెట్టింగ్</string>
+    <string name="store_information">దుకాణ సమాచారం</string>
+    <string name="store_section">స్టోర్</string>
+    <string name="template_branding_sub">టెంప్లేట్ &amp; బ్రాండింగ్</string>
 
-    <string name="store">దుకాణం</string>
-    <string name="invoice_123_ndate">ఇన్వాయిస్ #123\nతేదీ: --</string>
-    <string name="total_0">మొత్తం: ₹0</string>
-    <string name="cash">నగదు</string>
-    <string name="upi">UPI</string>
-    <string name="card">కార్డ్</string>
+    <!-- activity_confirm_payment -->
+    <string name="and_word">మరియు</string>
+    <string name="billing_cycle_default">1 నెల బిల్లింగ్ సైకిల్</string>
+    <string name="checkout_eyebrow">చెక్</string>
+    <string name="close">మూసివేయండి</string>
+    <string name="confirm_payment_pay_securely_btn">₹999 సురక్షితంగా చెల్లించండి</string>
+    <string name="confirm_word">నిర్ధారించండి</string>
+    <string name="coupon_code_hint">కూపన్ కోడ్</string>
+    <string name="coupon_discount">కూపన్ డిస్కౌంట్</string>
+    <string name="cycle_discount">సైకిల్ డిస్కౌంట్</string>
+    <string name="dialog_product_filter_apply">వర్తింపజేయండి</string>
+    <string name="estimated_only_note">కేవలం అంచనా మాత్రమే — పేమెంట్ ప్రారంభమైన తర్వాతే వాస్తవ మొత్తం నిర్ధారించబడుతుంది.</string>
+    <string name="gst_18_pct">GST (18%%)</string>
+    <string name="pay_word">చెల్లించండి</string>
+    <string name="payable_amount">చెల్లించవలసిన మొత్తం</string>
+    <string name="plan_price">ప్లాన్ ధర</string>
+    <string name="plus_15_days_free">+15 రోజులు ఉచితం</string>
+    <string name="secured_by_razorpay">Razorpay ద్వారా సురక్షితం — కార్డులు, UPI మరియు నెట్</string>
+    <string name="service_charge_pct">సర్వీస్ ఛార్జ్ (2%%)</string>
+    <string name="total_2">మొత్తం</string>
+    <string name="upgrade_credit_est">అప్</string>
 
-    <string name="footer_message">ఫుటర్ సందేశం</string>
-    <string name="thank_you_visit_again">ధన్యవాదాలు! మళ్లీ రండి</string>
-    <string name="show_store_logo">దుకాణం లోగో చూపించండి</string>
-    <string name="show_gstin">GSTIN చూపించండి</string>
-    <string name="show_phone_number">ఫోన్ నంబర్ చూపించండి</string>
-    <string name="show_discount_section">డిస్కౌంట్ విభాగం చూపించండి</string>
-    <string name="enable_round_off">రౌండ్ ఆఫ్ ప్రారంభించండి</string>
-    <string name="save_design_settings">డిజైన్ సెట్టింగ్స్ సేవ్ చేయండి</string>
+    <!-- AndroidManifest -->
+    <string name="app_name">ExPOS</string>
 
-    <string name="not_yet_registered_create_new_account">ఇంకా నమోదు కాలేదా? కొత్త ఖాతా సృష్టించండి</string>
+    <!-- activity_register -->
+    <string name="as_per_your_id_hint">మీ IDలో ఉన్నట్లుగా</string>
+    <string name="create_account_3">ఖాతా క్రియేట్ చేయండి</string>
+    <string name="digit_mobile_hint">10-అంకెల మొబైల్</string>
+    <string name="for_login_receipts_hint">లాగిన్ &amp; రిసీట్</string>
+    <string name="full_name_2">పూర్తి పేరు</string>
+    <string name="login_2">లాగిన్</string>
+    <string name="shop_name_2">షాప్ పేరు</string>
+    <string name="shown_on_your_bills_hint">మీ బిల్లులపై చూపబడుతుంది</string>
 
-    <string name="analytics_reports">అనలిటిక్స్ నివేదికలు</string>
-    <string name="overview">సారాంశం</string>
-    <string name="bills">బిల్లులు</string>
-    <string name="avg_bill">సగటు బిల్</string>
-    <string name="sales_trend">అమ్మకాల ధోరణి</string>
-    <string name="peak_hours">పీక్ గంటలు</string>
-    <string name="daily_sales">రోజువారీ అమ్మకాలు</string>
-    <string name="monthly_sales">మాసిక అమ్మకాలు</string>
-    <string name="top_products">అగ్ర ఉత్పత్తులు</string>
-    <string name="peak_hour_details">పీక్ గంటల వివరాలు</string>
-    <string name="business_insights">వ్యాపార అవగాహనలు</string>
-    <string name="send_report_to_email">నివేదికను ఇమెయిల్‌కు పంపండి</string>
+    <!-- EditProductActivity -->
+    <string name="badge_manual">మాన్యువల్</string>
+    <string name="badge_purchased">కొనుగోలు చేసినవి</string>
+    <string name="edit_product_cannot_turn_off_inventory">స్టాక్ &gt; 0 ఉన్నప్పుడు ఇన్వెంటరీని ఆఫ్ చేయలేరు</string>
+    <string name="edit_product_cannot_turn_off_inventory_2">స్టాక్ &gt; 0 ఉన్నప్పుడు ఇన్వెంటరీని ఆఫ్ చేయలేరు</string>
+    <string name="edit_product_enter_valid_selling_price">సరైన అమ్మకపు ధరను నమోదు చేయండి</string>
+    <string name="edit_product_hsn_not_found">రిజిస్ట్రీలో HSN కనుగొనబడలేదు</string>
+    <string name="edit_product_hsn_required_error">అవసరం</string>
+    <string name="edit_product_hsn_verified_default">HSN ధృవీకరించబడింది</string>
+    <string name="edit_product_missing_id_toast">ప్రొడక్ట్ ఐడి లేదు</string>
+    <string name="edit_product_no_variant">వేరియంట్ లేదు</string>
+    <string name="edit_product_reduce_stock_before_off">ఇన్వెంటరీని ఆఫ్ చేయడానికి ముందు స్టాక్</string>
+    <string name="edit_save_success">సేవ్ చేయబడింది</string>
 
+    <!-- activity_bill_history -->
+    <string name="bill_history_eyebrow">బిల్లింగ్</string>
+    <string name="bill_history_invoices_today">ఈరోజు ఇన్</string>
+    <string name="bill_history_sold_today">ఈరోజు అమ్మకాలు</string>
+    <string name="bill_history_tip_create_body">డాష్</string>
+    <string name="bill_history_tip_create_title">మీ మొదటి బిల్ క్రియేట్ చేయండి</string>
+    <string name="bill_history_tip_search_body">ఇన్</string>
+    <string name="bill_history_tip_search_title">తర్వాత ఏ బిల్</string>
+    <string name="bill_history_title_accent">హిస్టరీ</string>
+    <string name="bill_history_title_lead">బిల్</string>
+    <string name="dialog_product_filter_reset">రీసెట్</string>
+    <string name="search_invoice_or_product">బిల్</string>
+
+    <!-- BillHistoryActivity -->
+    <string name="bill_history_load_failed">సర్వర్ నుండి బిల్లులు లోడ్ కాలేదు. రిట్రై చేయడానికి కిందకు లాగండి లేదా తిరిగి తెరవండి.</string>
+    <string name="bill_history_no_bills_body">మీరు క్రియేట్ చేసే బిల్లులు ఇక్కడ కనిపిస్తాయి — కొన్ని బిల్లులు అయ్యాక వాటిని సెర్చ్, ఫిల్టర్ మరియు సార్ట్ చేయవచ్చు.</string>
+    <string name="bill_history_no_bills_title">బిల్లులు లేవు</string>
+    <string name="bill_history_no_matches_body">మీ సెర్చ్ లేదా ఫిల్టర్</string>
+    <string name="bill_history_not_logged_in">యూజర్ లాగిన్ కాలేదు</string>
+    <string name="bill_history_offline_note">ఇంటర్నెట్ లేదు — చూపిస్తున్న బిల్లులు పాతవి కావచ్చు. మళ్ళీ కనెక్ట్ చేసి ఈ స్క్రీన్</string>
+
+    <!-- BillHistoryAdapter -->
+    <string name="bill_history_status_cancelled">రద్దు చేయబడింది</string>
+    <string name="bill_history_status_on_credit">క్రెడిట్</string>
+    <string name="bill_history_status_paid">చెల్లించబడింది</string>
+
+    <!-- BillingSettingsActivity -->
+    <string name="billing_settings_enter_password_error">పాస్</string>
+    <string name="billing_settings_updated">బిల్లింగ్ సెట్టింగ్</string>
+    <string name="enter_valid_state">సరైన రాష్ట్రాన్ని నమోదు చేయండి (ఉదా. \"Kerala\" లేదా దాని 2-అంకెల GST కోడ్ \"32\")</string>
+    <string name="saved_offline_will_sync_later">ఆఫ్</string>
+
+    <!-- activity_billing_settings -->
+    <string name="billing_word">బిల్లింగ్</string>
+    <string name="print_layout">ప్రింట్ లేఅవుట్</string>
+    <string name="printer_80mm">80mm</string>
+    <string name="printer_section_2">ప్రింటర్</string>
+    <string name="profile_label_reg_type">నమోదు రకం</string>
+    <string name="regular_badge">రెగ్యులర్</string>
+    <string name="save_billing_settings">బిల్లింగ్ సెట్టింగ్స్ సేవ్ చేయండి</string>
+    <string name="set_in_store_information">స్టోర్ ఇన్ఫర్మేషన్</string>
+    <string name="settings_word">సెట్టింగ్</string>
+    <string name="tax_format_eyebrow">పన్ను &amp; ఫార్మాట్</string>
+
+    <!-- DataSecurityActivity -->
+    <string name="bills_archived_successfully">బిల్లులు విజయవంతంగా ఆర్కైవ్ చేయబడ్డాయి</string>
+    <string name="data_security_enter_password_error">పాస్</string>
+    <string name="dialog_premium_upgrade_title_part1">అన్</string>
+    <string name="factory_reset_complete">ఫ్యాక్టరీ రీసెట్ పూర్తయింది. కొత్త వర్క్</string>
+    <string name="failed_to_change_password">పాస్</string>
+    <string name="failed_to_clear_bills">బిల్లులను క్లియర్ చేయడం విఫలమైంది</string>
+    <string name="not_logged_in_2">లాగిన్ కాలేదు.</string>
+    <string name="password_changed_login_again">పాస్</string>
+    <string name="password_min_length">పాస్</string>
+    <string name="passwords_do_not_match">పాస్</string>
+
+    <!-- activity_store_settings -->
+    <string name="business_type">వ్యాపార రకం</string>
+    <string name="business_type_default_general">జనరల్</string>
+    <string name="contact_section">సంప్రదింపు</string>
+    <string name="identity_section">గుర్తింపు</string>
+    <string name="information_word">సమాచారం</string>
+    <string name="phone_number">ఫోన్ నంబర్</string>
+    <string name="state_code_auto_derived_helper">GSTIN ప్రిఫిక్స్ నుండి స్టేట్ కోడ్ ఆటోమేటిక్</string>
     <string name="store_address">దుకాణ చిరునామా</string>
-    <string name="gstin">జీఎస్టీఐఎన్</string>
+    <string name="store_name">దుకాణం పేరు</string>
+    <string name="your_business_eyebrow">మీ వ్యాపారం</string>
+
+    <!-- CartAdapter -->
+    <string name="cart_max_quantity_reached">గరిష్ట పరిమాణం చేరుకుంది</string>
+
+    <!-- PurchaseHistoryActivity -->
+    <string name="cash">నగదు</string>
+    <string name="invoice_payment_credit">క్రెడిట్</string>
+    <string name="purchase_history_empty_yet">ఇంకా లేదు</string>
+    <string name="purchase_history_filter_all_label">అన్ని కొనుగోళ్లు</string>
+    <string name="purchase_history_filter_cancelled_label">రద్దయినవి</string>
+    <string name="purchase_history_no_matches_body">మీ శోధన లేదా ఫిల్టర్</string>
+    <string name="purchase_history_no_purchases_body">మీరు నమోదు చేసిన కొనుగోళ్లు ఇక్కడ కనిపిస్తాయి — కొన్ని ఉన్నప్పుడు శోధించండి, ఫిల్టర్ చేయండి మరియు క్రమబద్ధీకరించండి.</string>
+    <string name="purchase_history_no_purchases_title">కొనుగోళ్లు లేవు</string>
+    <string name="purchase_history_one_invoice">1 ఇన్</string>
+    <string name="sort_highest_amount">అత్యధిక మొత్తం</string>
+    <string name="sort_lowest_amount">అత్యల్ప మొత్తం</string>
+    <string name="sort_newest_first">కొత్తవి మొదట</string>
+    <string name="sort_oldest_first">పాతవి మొదట</string>
+    <string name="supplier_name">సరఫరాదారు పేరు</string>
+
+    <!-- BarChartMarker -->
+    <string name="chart_marker_bar_bills">బిల్లులు</string>
+    <string name="chart_marker_bar_revenue">ఆదాయం</string>
+
+    <!-- BubbleChartMarker -->
+    <string name="chart_marker_revenue_prefix">ఆదాయం:</string>
+
+    <!-- ChartsFragment -->
+    <string name="charts_no_data_available">చార్ట్ డేటా అందుబాటులో లేదు</string>
+    <string name="charts_toast_chart_load_failed">చార్ట్ లోడ్ కాలేదు</string>
+
+    <!-- activity_terms -->
+    <string name="conditions_word">షరతులు</string>
+    <string name="encrypted_private_never_sold">ఎన్</string>
+    <string name="final_step_eyebrow">చివరి దశ</string>
+    <string name="i_agree_and_continue">నేను అంగీకరిస్తున్నాను &amp; కొనసాగిస్తాను</string>
+    <string name="reading_progress">చదివిన ప్రోగ్రెస్</string>
+    <string name="scroll_to_end_to_continue">కొనసాగించడానికి చివరి వరకు స్క్రోల్ చేయండి</string>
+    <string name="terms_and_word">నిబంధనలు మరియు</string>
+    <string name="unlocks_once_read_full_terms">పూర్తి నిబంధనలు చదివిన తర్వాత అన్</string>
+    <string name="your_data_stays_yours">మీ డేటా మీదే</string>
+
+    <!-- dialog_change_pin -->
+    <string name="confirm_password">పాస్</string>
+    <string name="dialog_change_pin_subtitle">మీ ఖాతా కోసం కొత్త లాగిన్ PINను సెట్ చేయండి</string>
+    <string name="dialog_change_pin_title_part1">మార్చండి</string>
+    <string name="dialog_change_pin_title_part2">పాస్</string>
+    <string name="new_password">కొత్త పాస్</string>
+
+    <!-- OnboardingActivity -->
+    <string name="couldnt_finish_setup_try_again">సెటప్ పూర్తి చేయలేకపోయాము. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+
+    <!-- SubscriptionActivity -->
+    <string name="couldnt_load_plans">ప్లాన్</string>
+    <string name="couldnt_start_trial">ట్రయల్ ప్రారంభించలేకపోయాము</string>
+    <string name="free_trial_started">ఉచిత ట్రయల్ ప్రారంభమైంది</string>
+    <string name="premium_plan_name">ప్రీమియం</string>
+
+    <!-- OtpVerificationActivity -->
+    <string name="couldnt_resend_otp_no_internet">OTP మళ్ళీ పంపలేకపోయాము — మీ ఇంటర్నెట్ కనెక్షన్ చెక్ చేయండి</string>
+    <string name="couldnt_resend_otp_try_again">OTP మళ్ళీ పంపలేకపోయాము. దయచేసి మళ్ళీ ప్రయత్నించండి</string>
+    <string name="enter_valid_otp">సరైన OTP నమోదు చేయండి</string>
+    <string name="invalid_otp">తప్పు OTP</string>
+    <string name="otp_expired">OTP గడువు ముగిసింది</string>
+    <string name="otp_sent">OTP పంపబడింది</string>
+    <string name="otp_verified">OTP వెరిఫై అయింది</string>
+    <string name="resend_otp">OTP మళ్ళీ పంపండి</string>
+    <string name="sending_ellipsis">పంపుతోంది...</string>
+    <string name="something_went_wrong">ఏదో తప్పు జరిగింది</string>
+    <string name="too_many_attempts">చాలా ప్రయత్నాలు జరిగాయి</string>
+    <string name="verifying_ellipsis">వెరిఫై చేస్తోంది...</string>
+
+    <!-- TermsActivity -->
+    <string name="couldnt_save_try_again">సేవ్ చేయలేకపోయాము. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="not_logged_in">లాగిన్ కాలేదు</string>
+    <string name="terms_and_conditions_body">Supply classification</string>
+
+    <!-- MainActivity -->
+    <string name="couldnt_verify_time_retry">సమయాన్ని వెరిఫై చేయలేకపోయాము. మీ కనెక్షన్ చెక్ చేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="go_back">వెనక్కి వెళ్ళండి</string>
+    <string name="invalid_login_response">తప్పు లాగిన్ రెస్పాన్స్</string>
+    <string name="no_internet_connection">ఇంటర్నెట్ కనెక్షన్ లేదు</string>
+    <string name="please_enter_all_fields">దయచేసి అన్ని ఫీల్డ్</string>
+    <string name="switch_anyway">అయినా మారండి</string>
+    <string name="switch_cancelled_sync_pending">మార్పు రద్దు చేయబడింది — ముందుగా మీ పెండింగ్ డేటాను సింక్ చేసి, మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="unsynced_data_will_be_lost">సింక్ కాని డేటా పోతుంది</string>
+
+    <!-- RegisterActivity -->
+    <string name="create_account_2">ఖాతా క్రియేట్ చేయండి</string>
+    <string name="enter_a_valid_email_2">సరైన ఇమెయిల్ నమోదు చేయండి</string>
+    <string name="generic_error">లోపం</string>
+    <string name="please_fill_all_fields">దయచేసి అన్ని ఫీల్డ్</string>
+    <string name="registering_ellipsis">రిజిస్టర్ అవుతోంది...</string>
+
+    <!-- CreditAccountsActivity -->
+    <string name="credit_account_removed">ఖాతా తొలగించబడింది</string>
+    <string name="credit_balance_after">తర్వాత బ్యాలెన్స్</string>
+    <string name="credit_chip_label_advance">అడ్వాన్స్</string>
+    <string name="credit_chip_label_due">బాకీ</string>
+    <string name="credit_currently_in_advance">ప్రస్తుతం అడ్వాన్స్</string>
+    <string name="credit_currently_owes">ప్రస్తుతం బాకీ ఉంది</string>
+    <string name="credit_delete_allowed_note">వారిని మీ జాబితా నుండి తొలగిస్తుంది</string>
+    <string name="credit_delete_confirm_message">వారి ఖాతా మీ జాబితా నుండి తొలగించబడుతుంది. బ్యాలెన్స్ ఇప్పటికే సెటిల్ అయింది, కాబట్టి ఏ విధంగానూ బాకీ లేదు.</string>
+    <string name="credit_delete_offline_note">మీరు ఆఫ్</string>
+    <string name="credit_enter_valid_amount">చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి</string>
+    <string name="credit_in_advance_after">తర్వాత అడ్వాన్స్</string>
+    <string name="credit_invalid_phone">చెల్లుబాటు అయ్యే 10-అంకెల ఫోన్ నంబర్ నమోదు చేయండి</string>
+    <string name="credit_net_all_settled">అన్నీ సెటిల్ అయ్యాయి</string>
+    <string name="credit_net_held_in_advance">అడ్వాన్స్</string>
+    <string name="credit_net_owed_to_you">మీకు బాకీ</string>
+    <string name="credit_no_customers_body">మీరు జోడించిన కస్టమర్లు ఇక్కడ కనిపిస్తారు — వారు బాకీ ఉన్నది లేదా అడ్వాన్స్</string>
+    <string name="credit_no_customers_title">కస్టమర్లు లేరు</string>
+    <string name="credit_no_matches_body">మీ శోధన లేదా ఫిల్టర్</string>
+    <string name="credit_no_shop_selected">షాప్ ఎంచుకోలేదు. మళ్ళీ సైన్ ఇన్ చేయండి.</string>
+    <string name="credit_nothing_to_clear">క్లియర్ చేయడానికి ఏమీ లేదు</string>
+    <string name="credit_only_settled_removable">సెటిల్ అయిన ఖాతాలను మాత్రమే తొలగించవచ్చు</string>
+    <string name="credit_restore_customer">కస్టమర్</string>
+    <string name="credit_restore_note_settled">వారి గత లావాదేవీలు ఖాతాతో పాటు తిరిగి వస్తాయి. బ్యాలెన్స్ సెటిల్ అయింది.</string>
+    <string name="credit_saving_ellipsis">సేవ్ చేస్తోంది…</string>
+    <string name="credit_settle_balance_first">ముందుగా బ్యాలెన్స్</string>
+    <string name="credit_settled_after">తర్వాత సెటిల్ అయింది</string>
+    <string name="credit_status_in_advance">అడ్వాన్స్</string>
+    <string name="credit_status_owes_you">మీకు బాకీ ఉన్నారు</string>
+    <string name="credit_status_settled">సెటిల్ అయింది</string>
+    <string name="save">సేవ్ చేయండి</string>
+
+    <!-- CreditAdjustmentPrompt -->
+    <string name="credit_adjustment_extra_after_clearing_title">బాకీలు తీర్చిన తర్వాత మిగిలింది</string>
+    <string name="credit_adjustment_keep_as_advance_btn">అడ్వాన్స్</string>
+    <string name="credit_adjustment_settle_now_btn">నగదు — ఇప్పుడే సెటిల్ చేయండి</string>
+
+    <!-- activity_credit_accounts -->
+    <string name="credit_net_position_label">నెట్ పొజిషన్</string>
+    <string name="credit_tip_add_body">పేరు మరియు ఫోన్ నంబర్</string>
+    <string name="credit_tip_add_title">మీ మొదటి కస్టమర్</string>
+    <string name="credit_tip_search_body">పేరు లేదా ఫోన్ ద్వారా సెర్చ్ చేయండి, లేదా స్టేటస్ ద్వారా ఫిల్టర్ చేయండి</string>
+    <string name="credit_tip_search_title">తర్వాత ఏ కస్టమర్</string>
+    <string name="credit_title_accent">ఖాతాలు</string>
+    <string name="invoice_add_customer_button">కస్టమర్ జోడించండి</string>
+    <string name="invoice_khata_header">ఖాతా</string>
+
+    <!-- CreditDebitNoteAdapter -->
+    <string name="credit_note_abbrev_cn">CN</string>
+    <string name="credit_note_abbrev_dn">DN</string>
+    <string name="credit_note_against_prefix">కి వ్యతిరేకంగా</string>
+
+    <!-- CreditAccountPicker -->
+    <string name="credit_picker_account_added">ఖాతా జోడించబడింది</string>
+    <string name="credit_picker_account_already_exists">ఖాతా ఇప్పటికే ఉంది</string>
+    <string name="credit_picker_enter_all_fields">అన్ని ఫీల్డ్</string>
+    <string name="credit_picker_no_shop_selected">షాప్ ఎంపిక చేయలేదు. మళ్లీ సైన్ ఇన్ చేయండి.</string>
+
+    <!-- CreditAdapter -->
+    <string name="credit_row_in_advance">అడ్వాన్స్</string>
+    <string name="credit_row_owes_you">మీకు బాకీ</string>
+
+    <!-- activity_localization_settings -->
+    <string name="currency">కరెన్సీ</string>
+    <string name="language">భాష</string>
+    <string name="localization_currency_default_value">₹ INR</string>
+    <string name="localization_language_default_value">English</string>
+    <string name="localization_language_title_part1">భాష</string>
+    <string name="localization_language_title_part2">&amp; కరెన్సీ</string>
+    <string name="localization_preferences_label">ప్రాధాన్యతలు</string>
+    <string name="localization_region_label">ప్రాంతం</string>
+    <string name="localization_restart_note">కొత్త భాష లేదా కరెన్సీని వర్తింపజేయడానికి యాప్ పునఃప్రారంభమవుతుంది.</string>
     <string name="save_changes">మార్పులను సేవ్ చేయండి</string>
 
-    <string name="add_product">ఉత్పత్తి జోడించండి</string>
-    <string name="custom_product_name">కస్టమ్ ఉత్పత్తి పేరు</string>
-    <string name="price">ధర</string>
-    <string name="cancel">రద్దు</string>
-    <string name="add">జోడించండి</string>
+    <!-- DashboardActivity -->
+    <string name="dashboard_ai_insights_subtitle">స్మార్ట్ సిఫార్సులు</string>
+    <string name="dashboard_avatar_fallback">EB</string>
+    <string name="dashboard_badge_9_plus">9+</string>
+    <string name="dashboard_cart_empty_toast">కార్ట్ ఖాళీగా ఉంది</string>
+    <string name="dashboard_email_subject_subscription_support">సబ్</string>
+    <string name="dashboard_enter_valid_quantity">సరైన పరిమాణం నమోదు చేయండి</string>
+    <string name="dashboard_failed_load_products">ఉత్పత్తులను లోడ్ చేయడంలో విఫలమైంది</string>
+    <string name="dashboard_failed_remove_product">ఉత్పత్తిని తీసివేయడంలో విఫలమైంది</string>
+    <string name="dashboard_feature_ai_insights">AI అంతర్దృష్టులు</string>
+    <string name="dashboard_feature_gst_reports">GST రిపోర్ట్</string>
+    <string name="dashboard_feature_premium_default">ప్రీమియం ఫీచర్లు</string>
+    <string name="dashboard_feature_profit_analytics">లాభ విశ్లేషణ</string>
+    <string name="dashboard_filter_all_categories">అన్ని కేటగిరీలు</string>
+    <string name="dashboard_filter_all_selected">అన్నీ ఎంపిక చేయబడ్డాయి</string>
+    <string name="dashboard_filter_any">ఏదైనా</string>
+    <string name="dashboard_filter_in_stock">స్టాక్</string>
+    <string name="dashboard_filter_low">తక్కువ</string>
+    <string name="dashboard_filter_out">లేదు</string>
+    <string name="dashboard_greeting_afternoon">శుభ మధ్యాహ్నం</string>
+    <string name="dashboard_greeting_evening">శుభ సాయంత్రం</string>
+    <string name="dashboard_greeting_morning">శుభోదయం</string>
+    <string name="dashboard_greeting_night">శుభ రాత్రి</string>
+    <string name="dashboard_gst_reports_subtitle">పన్ను ఫైలింగ్</string>
+    <string name="dashboard_max_qty_reached">గరిష్ట పరిమాణ పరిమితి చేరుకుంది</string>
+    <string name="dashboard_no_email_app">ఇమెయిల్ యాప్ కనుగొనబడలేదు</string>
+    <string name="dashboard_notification_channel_name">Easy Billing నోటిఫికేషన్</string>
+    <string name="dashboard_ok">సరే</string>
+    <string name="dashboard_profit_subtitle">మార్జిన్</string>
+    <string name="dashboard_sort_best_selling">బెస్ట్ సెల్లింగ్</string>
+    <string name="dashboard_sort_most_profitable">అత్యధిక లాభదాయకం</string>
+    <string name="dashboard_sort_top_revenue">టాప్ రెవెన్యూ</string>
+    <string name="dashboard_title_fallback">డాష్</string>
+    <string name="dashboard_unable_verify_subscription">సబ్</string>
+    <string name="dashboard_unauthorized_device">అనధికార పరికరం</string>
+    <string name="dashboard_upgrade_to_unlock">అన్</string>
+    <string name="dashboard_view_categorized">కేటగిరీల వారీగా</string>
+    <string name="dashboard_view_grid">గ్రిడ్ (టైల్స్)</string>
+    <string name="dashboard_view_list">లిస్ట్</string>
+    <string name="manage_filter_manual">మాన్యువల్</string>
+    <string name="manage_filter_purchased">కొనుగోలు చేసినవి</string>
+    <string name="store">దుకాణం</string>
 
-    <string name="enter_quantity">పరిమాణాన్ని నమోదు చేయండి</string>
-    <string name="add_to_cart">కార్ట్‌లో జోడించండి</string>
+    <!-- dialog_limited_stock -->
+    <string name="dashboard_limited_stock_message">కేవలం $allowedQty మాత్రమే అందుబాటులో ఉంది.\nఅందుబాటులో ఉన్న పరిమాణం జోడించాలా?</string>
+    <string name="dialog_limited_stock_add_available_default">అందుబాటులో ఉన్నది జోడించండి</string>
+    <string name="dialog_limited_stock_title">పరిమిత స్టాక్</string>
 
-    <string name="confirm_identity">గుర్తింపును నిర్ధారించండి</string>
+    <!-- ProfileFragment -->
+    <string name="dashboard_owner_fallback">యజమాని</string>
+    <string name="gstin_copied">GSTIN కాపీ చేయబడింది</string>
+    <string name="profile_label_address">చిరునామా</string>
+    <string name="profile_label_legal_name">చట్టబద్ధమైన పేరు</string>
+    <string name="profile_label_owner">యజమాని / చట్టబద్ధమైన పేరు</string>
+    <string name="profile_label_phone">సంప్రదించండి</string>
+    <string name="profile_label_scheme">జీఎస్టీ పథకం</string>
+    <string name="profile_label_state">రాష్ట్ర కోడ్</string>
+    <string name="profile_label_store_name">స్టోర్ పేరు</string>
+    <string name="profile_label_trade_name">వ్యాపార పేరు</string>
+
+    <!-- InventoryActivity -->
+    <string name="dashboard_sort_name_asc">పేరు: A → Z</string>
+    <string name="dashboard_sort_name_desc">పేరు: Z → A</string>
+    <string name="dashboard_sort_price_asc">ధర: తక్కువ → ఎక్కువ</string>
+    <string name="dashboard_sort_price_desc">ధర: ఎక్కువ → తక్కువ</string>
+    <string name="dashboard_sort_stock_asc">స్టాక్: తక్కువ → ఎక్కువ</string>
+    <string name="dashboard_sort_stock_desc">స్టాక్: ఎక్కువ → తక్కువ</string>
+    <string name="inventory_batches_not_loaded">బ్యాచ్</string>
+    <string name="inventory_confirm_return_batches_button">రిటర్న్ చేయండి</string>
+    <string name="inventory_confirm_return_title">సరఫరాదారుకు రిటర్న్</string>
+    <string name="inventory_confirm_scrap_batches_button">స్క్రాప్ చేయండి</string>
+    <string name="inventory_confirm_scrap_title">స్క్రాప్</string>
+    <string name="inventory_credit_needs_account">క్రెడిట్</string>
+    <string name="inventory_enter_batch_quantity">కనీసం ఒక బ్యాచ్</string>
+    <string name="inventory_filter_all_products">అన్ని ఉత్పత్తులు</string>
+    <string name="inventory_filter_low_stock">తక్కువ స్టాక్</string>
+    <string name="inventory_kpi_all_in_stock">అన్నీ స్టాక్</string>
+    <string name="inventory_no_account_selected">ఖాతా ఎంచుకోలేదు</string>
+    <string name="inventory_no_batches_selected">బ్యాచ్</string>
+    <string name="inventory_no_matches_body">మీ శోధన లేదా ఫిల్టర్</string>
+    <string name="inventory_no_products_body">మీరు జోడించిన ఉత్పత్తులు ఇక్కడ కనిపిస్తాయి — కొన్ని ఉన్నప్పుడు శోధించండి, కేటగిరీ వారీగా ఫిల్టర్ చేయండి మరియు క్రమబద్ధీకరించండి.</string>
+    <string name="inventory_no_products_title">ఉత్పత్తులు లేవు</string>
+    <string name="inventory_no_stock_to_clear">క్లియర్ చేయడానికి స్టాక్ లేదు</string>
+    <string name="inventory_product_not_loaded">ఉత్పత్తి వివరాలు లోడ్ కాలేదు</string>
+    <string name="inventory_reason_return">సరఫరాదారుకు తిరిగి ఇవ్వండి</string>
+    <string name="inventory_reason_scrap">స్క్రాప్ / డ్యామేజ్</string>
+    <string name="inventory_return_batches_failed_toast">బ్యాచ్</string>
+    <string name="inventory_return_exceeds_stock">రిటర్న్ మొత్తం అందుబాటులో ఉన్న స్టాక్</string>
+    <string name="inventory_return_failed_toast">రిటర్న్ చేయలేకపోయాం — ఎంచుకున్న బ్యాచ్</string>
+    <string name="inventory_return_qty_must_positive">మొత్తం రిటర్న్ పరిమాణం 0 కంటే ఎక్కువ ఉండాలి</string>
+    <string name="inventory_scrap_batches_failed_toast">బ్యాచ్</string>
+    <string name="inventory_scrap_exceeds_stock">స్క్రాప్ మొత్తం అందుబాటులో ఉన్న స్టాక్</string>
+    <string name="inventory_scrap_failed_toast">స్క్రాప్ చేయలేకపోయాం — ఎంచుకున్న బ్యాచ్</string>
+    <string name="inventory_scrap_qty_must_positive">మొత్తం స్క్రాప్ పరిమాణం 0 కంటే ఎక్కువ ఉండాలి</string>
+    <string name="inventory_select_one_batch">క్లియర్ చేయడానికి కనీసం ఒక బ్యాచ్</string>
+    <string name="inventory_select_reason">కారణాన్ని ఎంచుకోండి</string>
+    <string name="inventory_sort_content_desc">ఇన్వెంటరీని క్రమబద్ధీకరించండి</string>
+    <string name="inventory_sort_short_name_asc">పేరు ↑</string>
+    <string name="inventory_sort_short_name_desc">పేరు ↓</string>
+    <string name="inventory_sort_short_price_asc">ధర ↑</string>
+    <string name="inventory_sort_short_price_desc">ధర ↓</string>
+    <string name="inventory_sort_short_stock_asc">స్టాక్ ↑</string>
+    <string name="inventory_sort_short_stock_desc">స్టాక్ ↓</string>
+    <string name="inventory_sort_short_value_desc">విలువ ↓</string>
+    <string name="inventory_sort_value_desc">స్టాక్ విలువ: ఎక్కువ → తక్కువ</string>
+    <string name="inventory_total_to_return">మొత్తం రిటర్న్ చేయాల్సినది</string>
+    <string name="inventory_total_to_scrap">మొత్తం స్క్రాప్ చేయాల్సినది</string>
+    <string name="purchase_return_label">కొనుగోలు రిటర్న్</string>
+
+    <!-- ManageProductsActivity -->
+    <string name="dashboard_sort_stock_value_desc">స్టాక్ విలువ: ఎక్కువ → తక్కువ</string>
+    <string name="manage_products_add_product_action">ఉత్పత్తి జోడించండి</string>
+    <string name="manage_products_category_count_singular">1 కేటగిరీ</string>
+    <string name="manage_products_clear_filters_action">ఫిల్టర్</string>
+    <string name="manage_products_empty_no_match_sub">వేరే వెతుకులాట లేదా ఫిల్టర్ ప్రయత్నించండి.</string>
+    <string name="manage_products_empty_no_match_title">ఉత్పత్తులు సరిపోలలేదు</string>
+    <string name="manage_products_empty_no_products_sub">ప్రారంభించడానికి మీ మొదటి ఉత్పత్తిని జోడించండి.</string>
+    <string name="manage_products_empty_no_products_title">ఇంకా ఉత్పత్తులు లేవు</string>
+
+    <!-- dialog_subscription_expired -->
+    <string name="dashboard_subscription">సబ్</string>
+    <string name="dialog_subscription_expired_contact_support">సహాయం కావాలా? సపోర్ట్</string>
+    <string name="dialog_subscription_expired_cta">సబ్</string>
+    <string name="dialog_subscription_expired_data_safe">మీ డేటా సురక్షితంగా ఉంది. రెన్యూ చేయడం వెంటనే అన్నింటినీ అన్</string>
+    <string name="dialog_subscription_expired_eyebrow">EXPOS ప్రీమియం</string>
+    <string name="dialog_subscription_expired_message">మీ ప్లాన్ ముగిసింది, కాబట్టి బిల్లింగ్, ఇన్వెంటరీ మరియు రిపోర్ట్</string>
+    <string name="dialog_subscription_expired_title_part2">గడువు ముగిసింది</string>
+
+    <!-- InvoiceDesignActivity -->
+    <string name="design_settings_saved">డిజైన్ సెట్టింగ్</string>
+    <string name="invoice_design_enter_password_error">పాస్</string>
+    <string name="invoice_design_footer_default">ధన్యవాదాలు! మళ్ళీ దర్శించండి</string>
+
+    <!-- activity_invoice_design -->
+    <string name="design_word">డిజైన్</string>
+    <string name="enable_round_off">రౌండ్ ఆఫ్ ప్రారంభించండి</string>
+    <string name="footer_message">ఫుటర్ సందేశం</string>
+    <string name="print_layout_eyebrow">ప్రింట్ లేఅవుట్</string>
+    <string name="printed_bottom_receipt_helper">ప్రతి రిసీట్ కింద ముద్రించబడుతుంది</string>
+    <string name="receipt_footer_section">రిసీట్ ఫుటర్</string>
+    <string name="round_grand_total_helper">గ్రాండ్ టోటల్</string>
+    <string name="save_design_settings">డిజైన్ సెట్టింగ్స్ సేవ్ చేయండి</string>
+    <string name="show_discount_section">డిస్కౌంట్ విభాగం చూపించండి</string>
+    <string name="show_gstin">GSTIN చూపించండి</string>
+    <string name="show_on_receipt_section">రిసీట్</string>
+    <string name="show_phone_number">ఫోన్ నంబర్ చూపించండి</string>
+    <string name="show_store_logo">దుకాణం లోగో చూపించండి</string>
+
+    <!-- dialog_add_product_chooser -->
+    <string name="dialog_add_product_chooser_add_or">చేర్చండి లేదా</string>
+    <string name="dialog_add_product_chooser_manage_products">ప్రొడక్ట్</string>
+    <string name="dialog_add_product_chooser_option1_body">కొనుగోలు ఎంట్రీ లేకుండా నేరుగా జోడించండి</string>
+    <string name="dialog_add_product_chooser_option1_title">ఉత్పత్తి జోడించండి</string>
+    <string name="dialog_add_product_chooser_option2_body">ఉన్న ఐటమ్</string>
+    <string name="dialog_add_product_chooser_products_suffix">ప్రొడక్ట్</string>
+    <string name="dialog_add_product_chooser_subtitle">మీరు ఏమి చేయాలనుకుంటున్నారో ఎంచుకోండి</string>
+    <string name="dialog_add_product_chooser_title_part2">ఎడిట్ చేయండి</string>
+
+    <!-- fragment_products -->
+    <string name="dialog_add_product_chooser_title_part3">ఉత్పత్తులు</string>
+    <string name="products_breakdown_label">ఉత్పత్తి విభజన</string>
+    <string name="products_empty_state">ఉత్పత్తులు కనుగొనబడలేదు</string>
+    <string name="products_eyebrow_breakdown">విభజన</string>
+    <string name="products_sort_chip_default">వేగంగా అమ్ముడయ్యేవి ▾</string>
+    <string name="products_title_top">టాప్</string>
+
+    <!-- dialog_confirm_delete -->
+    <string name="dialog_confirm_delete_eyebrow">కేటలాగ్</string>
+    <string name="dialog_confirm_delete_message_default">మీరు ఖచ్చితంగా ఉన్నారా?</string>
+    <string name="dialog_confirm_delete_title">ఉత్పత్తిని తీసివేయండి</string>
+
+    <!-- dialog_premium_upgrade -->
+    <string name="dialog_premium_upgrade_cta">ప్రీమియంకి అప్</string>
+    <string name="dialog_premium_upgrade_eyebrow">ప్రీమియం ఫీచర్</string>
+    <string name="dialog_premium_upgrade_later">ఇప్పుడు వద్దు</string>
+    <string name="dialog_premium_upgrade_message">ఈ ఫీచర్ Premiumలో భాగం. తక్షణ యాక్సెస్ పొందడానికి అప్</string>
+    <string name="dialog_premium_upgrade_perk_ai">AI-ఆధారిత ఇన్</string>
+    <string name="dialog_premium_upgrade_perk_gst">GST రిపోర్ట్</string>
+    <string name="dialog_premium_upgrade_perk_profit">లాభ విశ్లేషణ &amp; ట్రెండ్</string>
+    <string name="dialog_premium_upgrade_title_part2">ప్రీమియం</string>
+
+    <!-- dialog_product_filter -->
+    <string name="dialog_product_filter_max_price_hint">గరిష్ట ₹</string>
+    <string name="dialog_product_filter_min_price_hint">కనిష్ట ₹</string>
+    <string name="dialog_product_filter_price_range">ధర శ్రేణి</string>
+    <string name="dialog_product_filter_product_type">ఉత్పత్తి రకం</string>
+    <string name="dialog_product_filter_select_all">అన్నీ ఎంచుకోండి</string>
+    <string name="dialog_product_filter_stock_status">స్టాక్ స్థితి</string>
+    <string name="dialog_product_filter_title">ఫిల్టర్</string>
+
+    <!-- dialog_quantity_pad -->
+    <string name="dialog_quantity_pad_eyebrow">పరిమాణం జోడించండి</string>
+    <string name="dialog_quantity_pad_product_placeholder">ఉత్పత్తి</string>
+    <string name="dialog_quantity_pad_total_label">మొత్తం</string>
+
+    <!-- dialog_register_success -->
+    <string name="dialog_register_success_continue_btn">కొనసాగించండి</string>
+    <string name="dialog_register_success_eyebrow">ఖాతా సృష్టించబడింది</string>
+    <string name="dialog_register_success_message">మేము మీ ఇమెయిల్</string>
+    <string name="dialog_register_success_otp_expiry_note">కోడ్ 10 నిమిషాల్లో గడువు ముగుస్తుంది. రాకపోతే స్పామ్</string>
+    <string name="dialog_register_success_title_part1">మీరు పూర్తిగా</string>
+    <string name="dialog_register_success_title_part2">సిద్ధం</string>
+
+    <!-- dialog_server_unavailable -->
+    <string name="dialog_server_unavailable_countdown_placeholder">15s లో లాగ్ అవుట్ అవుతోంది</string>
+    <string name="dialog_server_unavailable_got_it_btn">అర్థమైంది</string>
+    <string name="dialog_server_unavailable_message">ఇది మా వైపు సమస్య, మీ కనెక్షన్</string>
+    <string name="dialog_server_unavailable_subtitle">మీ ఇంటర్నెట్ బాగానే ఉంది — మేము మా సర్వర్</string>
+    <string name="dialog_server_unavailable_title">సర్వర్ అందుబాటులో లేదు</string>
+
+    <!-- dialog_session_expiring -->
+    <string name="dialog_session_expiring_countdown_placeholder">15s లో లాగ్ అవుట్ అవుతోంది</string>
+    <string name="dialog_session_expiring_got_it_btn">అర్థమైంది</string>
+    <string name="dialog_session_expiring_message">సైన్ ఇన్</string>
+    <string name="dialog_session_expiring_subtitle">ఇంటర్నెట్ కనెక్షన్ కనుగొనబడలేదు</string>
+    <string name="dialog_session_expiring_title">సెషన్ ముగుస్తోంది</string>
+
+    <!-- dialog_sign_out -->
+    <string name="dialog_sign_out_cancel">సైన్ ఇన్</string>
+    <string name="dialog_sign_out_confirm">సైన్ అవుట్</string>
+    <string name="dialog_sign_out_message">మీ స్టోర్</string>
+    <string name="dialog_sign_out_title">సైన్ అవుట్ చేయాలా?</string>
+
+    <!-- dialog_verify_password -->
+    <string name="dialog_verify_password_title_part2">గుర్తింపు</string>
     <string name="enter_your_login_password">మీ లాగిన్ పాస్</string>
     <string name="verify">ధృవీకరించండి</string>
 
+    <!-- activity_edit_product -->
+    <string name="edit_add_stock_helper">ప్రస్తుత స్టాక్</string>
+    <string name="edit_add_stock_qty">స్టాక్</string>
+    <string name="edit_current_stock">ప్రస్తుత స్టాక్</string>
+    <string name="edit_product_xml_category_header">కేటగిరీ</string>
+    <string name="edit_product_xml_category_label">కేటగిరీ</string>
+    <string name="edit_product_xml_cess_pct_label">Cess %%</string>
+    <string name="edit_product_xml_cgst_pct_label">CGST %%</string>
+    <string name="edit_product_xml_details">వివరాలు</string>
+    <string name="edit_product_xml_edit">ఎడిట్</string>
+    <string name="edit_product_xml_gst_label">GST</string>
+    <string name="edit_product_xml_hsn_desc_optional">HSN వివరణ (ఐచ్ఛికం)</string>
+    <string name="edit_product_xml_incl_gst">GST తో సహా</string>
+    <string name="edit_product_xml_inventory_header">ఇన్వెంటరీ</string>
+    <string name="edit_product_xml_price_label">ధర</string>
+    <string name="edit_product_xml_pricing_header">ధర వివరాలు</string>
+    <string name="edit_product_xml_product_label">ప్రొడక్ట్</string>
+    <string name="edit_product_xml_select_hint">ఎంచుకోండి</string>
+    <string name="edit_product_xml_sgst_pct_label">SGST %%</string>
+    <string name="edit_product_xml_tax_gstr1_header">పన్ను &amp;amp; GSTR-1 వివరాలు</string>
+    <string name="edit_product_xml_units_to_add_hint">చేర్చాల్సిన యూనిట్లు</string>
+    <string name="edit_stock_locked_helper">కొనుగోళ్ల ద్వారా స్టాక్ నిర్వహించబడుతుంది — కొత్త కొనుగోలు ఇన్</string>
+    <string name="edit_track_inventory">ఇన్వెంటరీని ట్రాక్ చేయండి</string>
+    <string name="hsn_help_text">హెచ్ఎస్ఎన్ జాబితా</string>
+
+    <!-- EditProductViewModel -->
+    <string name="edit_product_viewmodel_product_not_found">ప్రొడక్ట్ కనిపించలేదు</string>
+    <string name="edit_product_viewmodel_save_failed">సేవ్ విఫలమైంది</string>
+    <string name="edit_product_viewmodel_save_failed_2">సేవ్ విఫలమైంది</string>
+
+    <!-- activity_main -->
+    <string name="email">ఇమెయిల్</string>
+    <string name="email_address">ఇమెయిల్ అడ్రస్</string>
+    <string name="enter_your_password_hint">మీ పాస్</string>
+    <string name="ex_word">Ex</string>
+    <string name="feature_business_analytics">బిజినెస్ అనలిటిక్స్</string>
+    <string name="feature_gst_billing">GST బిల్లింగ్</string>
+    <string name="feature_live_inventory">లైవ్ ఇన్వెంటరీ</string>
+    <string name="forgot_password_2">పాస్</string>
+    <string name="login">లాగిన్</string>
+    <string name="password">పాస్</string>
+    <string name="point_of_sale_tagline">పాయింట్ ఆఫ్ సేల్</string>
+    <string name="pos_word">POS</string>
+    <string name="powered_by_label">పవర్డ్ బై</string>
+    <string name="powered_by_scalancer">రిపోర్ట్</string>
+    <string name="secured_encryption_note">ఎంటర్</string>
+    <string name="sign_up">సైన్ అప్</string>
+
+    <!-- ConfirmPaymentActivity -->
+    <string name="enter_a_coupon_code">కూపన్ కోడ్ నమోదు చేయండి</string>
+    <string name="payment_cancelled">పేమెంట్ రద్దు చేయబడింది</string>
+    <string name="payment_failed_try_again">పేమెంట్ విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="payment_successful_subscription_activated">పేమెంట్ విజయవంతమైంది — సబ్</string>
+    <string name="subscription_activated">సబ్</string>
+    <string name="verifying_payment_message">మీ పేమెంట్</string>
+
+    <!-- ForgotPasswordActivity -->
+    <string name="enter_a_valid_email">సరైన ఇమెయిల్ నమోదు చేయండి</string>
+    <string name="enter_valid_6_digit_otp">సరైన 6-అంకెల OTP నమోదు చేయండి</string>
+    <string name="otp_verified_successfully">OTP విజయవంతంగా వెరిఫై అయింది</string>
+    <string name="please_enter_registered_email">దయచేసి రిజిస్టర్డ్ ఇమెయిల్ నమోదు చేయండి</string>
+    <string name="send_reset_code">రీసెట్ కోడ్ పంపండి</string>
+
+    <!-- activity_import_services -->
+    <string name="enter_rate_taxable_value_tip">రేటు మరియు పన్ను విధించదగిన విలువను నమోదు చేయండి</string>
+    <string name="gstr2_eyebrow">GSTR-2</string>
+    <string name="igst_paid">చెల్లించిన IGST</string>
+    <string name="igst_worked_out_tip">IGST మీ కోసం లెక్కించబడుతుంది</string>
+    <string name="import_of_word">దిగుమతి</string>
+    <string name="import_services_empty_body">విదేశీ సప్లయర్ల ఇన్</string>
+    <string name="invoice_number_date_value_tip">ఇన్</string>
+    <string name="itc_availed">పొందిన ITC</string>
+    <string name="itc_ready">ITC సిద్ధంగా ఉంది</string>
+    <string name="keep_supplier_invoice_tip">సప్లయర్ ఇన్</string>
+    <string name="needs_fixing">సరిచేయాలి</string>
+    <string name="nothing_imported">ఏమీ దిగుమతి చేయలేదు</string>
+    <string name="records_section">రికార్డ్</string>
+    <string name="services_word">సేవలు</string>
+    <string name="sync_synced">సింక్ చేయబడింది</string>
+    <string name="total_taxable_value">మొత్తం పన్ను విధించదగిన విలువ</string>
+
+    <!-- StoreSettingsActivity -->
+    <string name="enter_valid_15_char_gstin">సరైన 15-అక్షరాల GSTIN నమోదు చేయండి</string>
+    <string name="store_name_is_required">స్టోర్ పేరు అవసరం</string>
+    <string name="store_settings_enter_password_error">పాస్</string>
+
+    <!-- ChangePasswordActivity -->
+    <string name="failed_to_update_password">పాస్</string>
+    <string name="password_updated_successfully">పాస్</string>
+    <string name="passwords_dont_match">పాస్</string>
+    <string name="passwords_match">పాస్</string>
+    <string name="session_expired_try_again">సెషన్ గడువు ముగిసింది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="update_password">పాస్</string>
+    <string name="updating_ellipsis">అప్</string>
+
+    <!-- MyFirebaseService -->
+    <string name="fcm_default_notification_title">Easy Billing</string>
+    <string name="fcm_notification_channel_name">Easy Billing నోటిఫికేషన్లు</string>
+
+    <!-- fragment_top_products -->
+    <string name="fragment_top_products_search_hint">పేరు లేదా ఫోన్ నంబర్ ద్వారా వెతకండి</string>
+
+    <!-- activity_onboarding -->
+    <string name="getting_started_eyebrow">ప్రారంభం</string>
+    <string name="onboarding_setup_title_part2">షాప్</string>
+    <string name="onboarding_subtitle">బిల్లింగ్ ప్రారంభించే ముందు కొన్ని త్వరిత దశలు.</string>
+    <string name="set_up_your_word">మీ</string>
+    <string name="step_1_of_4_default">దశ 1 / 4</string>
+    <string name="tap_highlighted_step_helper">కొనసాగించడానికి హైలైట్ చేసిన దశను నొక్కండి</string>
+
+    <!-- GstReportsActivity -->
+    <string name="gst_csv_export_eyebrow">CSV ఎగుమతి</string>
+    <string name="gst_delete_draft_eyebrow">డ్రాఫ్ట్ తీసివేయండి</string>
+    <string name="gst_delete_draft_gstr2_message">ఈ GSTR-2 డ్రాఫ్ట్ శాశ్వతంగా తీసివేయబడుతుంది.</string>
+    <string name="gst_delete_draft_positive_label">తొలగించండి</string>
+    <string name="gst_delete_draft_title_accent">డ్రాఫ్ట్</string>
+    <string name="gst_delete_draft_title_bold">తొలగించండి</string>
+    <string name="gst_excel_export_eyebrow">ఎక్సెల్ ఎగుమతి</string>
+    <string name="gst_excel_gstr1_message">మీ GSTR-1 వర్క్</string>
+    <string name="gst_excel_gstr2_message">మీ GSTR-2 వర్క్</string>
+    <string name="gst_export_info_label_saved_to">ఇక్కడ సేవ్ చేయబడింది</string>
+    <string name="gst_export_primary_label_open">తెరవండి</string>
+    <string name="gst_export_primary_label_share_all">అన్నీ షేర్ చేయండి</string>
+    <string name="gst_export_title_accent">పూర్తయింది</string>
+    <string name="gst_export_title_bold">ఎగుమతి</string>
+    <string name="gst_hero_label_itc">Input tax credit</string>
+    <string name="gst_hero_label_total_tax">ఈ కాలానికి మొత్తం పన్ను</string>
+    <string name="gst_selector_gstr1_sales">GSTR-1 · అమ్మకాలు</string>
+    <string name="gst_selector_gstr2_purchases">GSTR-2 · కొనుగోళ్లు</string>
+    <string name="gst_share_gstr1_csvs_chooser">GSTR-1 CSVలను షేర్ చేయండి</string>
+    <string name="gst_share_gstr2_csvs_chooser">GSTR-2 CSVలను షేర్ చేయండి</string>
+    <string name="gst_summary_taxable_suffix">₹%,.0f taxable పై</string>
+    <string name="gst_toast_draft_saved">డ్రాఫ్ట్ విజయవంతంగా సేవ్ అయింది.</string>
+    <string name="gst_toast_generate_first_validate">ముందు నివేదికను రూపొందించి, తర్వాత వెరిఫై చేయండి.</string>
+    <string name="gst_toast_no_app_found">యాప్ ఏదీ కనుగొనబడలేదు.</string>
+    <string name="gst_toast_no_xlsx_app">.xlsx ఫైల్స్ తెరవడానికి యాప్ ఏదీ కనుగొనబడలేదు.</string>
+    <string name="gst_toast_validation_not_available_gstr2">GSTR-2 కోసం వెరిఫికేషన్ ఇంకా అందుబాటులో లేదు.</string>
+    <string name="gst_validation_all_checks_passed">✓ అన్ని చెక్</string>
+    <string name="gst_validation_message_no_issues">ఎలాంటి సమస్యలు కనిపించలేదు. ఈ రిపోర్ట్ ఎగుమతికి సిద్ధంగా ఉంది.</string>
+    <string name="gst_validation_title_all">అన్నీ</string>
+    <string name="gst_validation_title_clear">సరిగ్గా ఉన్నాయి</string>
+    <string name="gst_validation_title_issues">సమస్యలు</string>
+    <string name="gst_validation_title_report">నివేదిక</string>
+    <string name="gst_validation_title_review">సమీక్షించండి</string>
+    <string name="gst_validation_title_warnings">వార్నింగ్</string>
+
+    <!-- fragment_profile -->
+    <string name="gst_profile_label">GST ప్రొఫైల్</string>
+    <string name="gst_registered_badge">GST రిజిస్టర్ చేయబడింది</string>
+    <string name="profile_word">ప్రొఫైల్</string>
+    <string name="registration_label">రిజిస్ట్రేషన్</string>
+    <string name="store_information_2">స్టోర్ ఇన్ఫర్మేషన్</string>
+
+    <!-- item_gst_record -->
+    <string name="gst_record_date_placeholder">27/04/2026</string>
+    <string name="gst_record_invoice_placeholder">INV-1234</string>
+    <string name="gst_record_tax_placeholder">₹18.00</string>
+    <string name="gst_record_taxable_placeholder">₹100.00</string>
+
+    <!-- fragment_gst_report -->
+    <string name="gst_report_col_date_inv">తేదీ/ఇన్</string>
+    <string name="gst_report_col_tax">పన్ను</string>
+    <string name="gst_report_col_taxable">పన్ను విధించదగినది</string>
+    <string name="gst_report_empty_state">రికార్డులు కనుగొనబడలేదు</string>
+
+    <!-- GstReportsAdapter -->
+    <string name="gst_reports_cgst_sgst">CGST/SGST</string>
+    <string name="gst_reports_unregistered">నమోదుకాని</string>
+    <string name="invoice_igst_label">IGST</string>
+
+    <!-- Gstr1EcoAdapters -->
+    <string name="gstr1_eco_unreg_supplier_buyer">నమోదుకాని సరఫరాదారు  ·  నమోదుకాని కొనుగోలుదారు</string>
+    <string name="gstr1_pos_not_set">సరఫరా స్థలం సెట్ చేయలేదు</string>
+
+    <!-- Gstr1SectionFragment -->
+    <string name="gstr1_no_records">ఈ వ్యవధికి రికార్డులు లేవు.</string>
+    <string name="gstr1_zero_rows">0 అడ్డు వరుసలు</string>
+    <string name="gstr1_zero_rows_caps">0 అడ్డు వరుసలు</string>
+
+    <!-- Gstr1ViewModel -->
+    <string name="gstr1_vm_error_draft_not_found">డ్రాఫ్ట్ కనుగొనబడలేదు.</string>
+    <string name="gstr1_vm_error_generate_report_first">ముందుగా రిపోర్ట్ జనరేట్ చేయండి.</string>
+    <string name="gstr1_vm_error_select_fy_period">దయచేసి ఆర్థిక సంవత్సరం మరియు వ్యవధి ఎంచుకోండి.</string>
+    <string name="gstr1_vm_error_server_unreachable">GSTR-1 జనరేట్ చేయడానికి సర్వర్</string>
+    <string name="gstr1_vm_error_unsynced_data">ఈ పరికరంలో కొన్ని బిల్లులు, క్రెడిట్/డెబిట్ నోట్లు లేదా రద్దులు ఇంకా సింక్ కాలేదు, కాబట్టి రిపోర్ట్ అసంపూర్ణంగా ఉంటుంది. సింక్ చేసి మళ్లీ ప్రయత్నించండి.</string>
+
+    <!-- Gstr2RemainingAdapters -->
+    <string name="gstr2_exemp_no_itc">ఇన్</string>
+    <string name="gstr2_exempt_label">మినహాయింపు</string>
+
+    <!-- Gstr2B2burAdapter -->
+    <string name="gstr2_flag_no_rcm">RCM లేదు</string>
+    <string name="gstr2_flag_rcm">RCM</string>
+    <string name="gstr2_itc_none">ITC లేదు</string>
+    <string name="gstr2_no_credit">క్రెడిట్ లేదు</string>
+    <string name="gstr2_no_itc">ITC లేదు</string>
+    <string name="gstr2_rcm_likely_missed">పన్ను నమోదు కాలేదు — RCM వర్తిస్తుందేమో చూడండి</string>
+    <string name="gstr2_supplier_not_named">సరఫరాదారు పేరు లేదు</string>
+    <string name="gstr2_unregistered">నమోదుకాని</string>
+
+    <!-- Gstr2ViewModel -->
+    <string name="gstr2_vm_error_generate_report_first">ముందుగా రిపోర్ట్ జనరేట్ చేయండి.</string>
+    <string name="gstr2_vm_error_select_fy_period">దయచేసి ఆర్థిక సంవత్సరం మరియు వ్యవధి ఎంచుకోండి.</string>
+    <string name="gstr2_vm_error_unsynced_data">ఈ పరికరంలో కొన్ని కొనుగోళ్లు, రిటర్న్</string>
+
+    <!-- activity_purchase_return -->
+    <string name="input_tax_credit_label">ఇన్</string>
+    <string name="invoice_document_type_label">డాక్యుమెంట్ రకం</string>
+    <string name="xml_purchase_return_central_label">సెంట్రల్</string>
+    <string name="xml_purchase_return_cess_label">సెస్</string>
+    <string name="xml_purchase_return_document_label">పత్రం</string>
+    <string name="xml_purchase_return_eligibility_label">ITC అర్హత</string>
+    <string name="xml_purchase_return_gst_pct_hint">GST %%</string>
+    <string name="xml_purchase_return_gstr2_debit_note_header">GSTR-2 డెబిట్ నోట్ వివరాలు</string>
+    <string name="xml_purchase_return_header">కొనుగోలు రిటర్న్</string>
+    <string name="xml_purchase_return_integrated_label">ఇంటిగ్రేటెడ్</string>
+    <string name="xml_purchase_return_invoice_supply_header">ఇన్</string>
+    <string name="xml_purchase_return_invoice_type_label">ఇన్</string>
+    <string name="xml_purchase_return_itc_reclaim_label">ITC రీక్లెయిమ్ (GST)</string>
+    <string name="xml_purchase_return_place_of_supply_label">సరఫరా స్థలం (రాష్ట్ర కోడ్)</string>
+    <string name="xml_purchase_return_pre_gst_document">GST కంటే ముందు పత్రం</string>
+    <string name="xml_purchase_return_rate_label">రేటు</string>
+    <string name="xml_purchase_return_reason_label">పత్రం జారీ చేయడానికి కారణం</string>
+    <string name="xml_purchase_return_state_ut_label">రాష్ట్రం/UT</string>
+    <string name="xml_purchase_return_supplier_label">సరఫరాదారు</string>
+    <string name="xml_purchase_return_total_value_hint">మొత్తం విలువ</string>
+    <string name="xml_purchase_return_value_rate_header">విలువ మరియు రేటు</string>
+    <string name="xml_purchase_return_voucher_value_label">వౌచర్ విలువ</string>
+
+    <!-- activity_inventory -->
+    <string name="inventory_active_skus_placeholder">0 యాక్టివ్ SKUలు</string>
+    <string name="inventory_all_products_section">అన్ని ప్రొడక్ట్</string>
+    <string name="inventory_bulk_edit_price">ధర ఎడిట్ చేయండి</string>
+    <string name="inventory_bulk_mark_inactive">ఇనాక్టివ్</string>
+    <string name="inventory_selected_count_placeholder">2 ఎంపిక చేయబడ్డాయి</string>
+    <string name="inventory_tip_add_body">పేరు, కేటగిరీ, ధర మరియు స్టాక్</string>
+    <string name="inventory_tip_add_title">మీ మొదటి ప్రొడక్ట్</string>
+    <string name="inventory_tip_search_body">పేరు ద్వారా సెర్చ్ చేయండి, లేదా కేటగిరీ మరియు స్టాక్ ద్వారా ఫిల్టర్ చేయండి</string>
+    <string name="inventory_tip_search_title">తర్వాత ఏ ప్రొడక్ట్</string>
+    <string name="inventory_title_accent">రూమ్</string>
+    <string name="inventory_title_lead">స్టాక్</string>
+    <string name="inventory_total_stock_value_label">మొత్తం స్టాక్ విలువ</string>
+
+    <!-- InvoiceActivity -->
+    <string name="invoice_account_count_singular">1 ఖాతా</string>
+    <string name="invoice_b2b_hint">B2B — కస్టమర్ పేరు, వ్యాపార పేరు, ఫోన్, GST మరియు రాష్ట్రం తప్పనిసరి.</string>
+    <string name="invoice_b2c_hint">B2C — త్వరిత సేల్. వేరే రాష్ట్ర కస్టమర్</string>
+    <string name="invoice_bill_saved">బిల్ సేవ్ చేయబడింది</string>
+    <string name="invoice_cannot_modify_after_save">సేవ్ చేసిన తర్వాత ఐటమ్</string>
+    <string name="invoice_collapse_gst_options">GST ఆప్షన్</string>
+    <string name="invoice_composition_explain">కంపోజిషన్ స్కీమ్ — పన్ను అమ్మకపు ధరలో చేర్చబడింది.</string>
+    <string name="invoice_customer_added">కస్టమర్ జోడించబడ్డారు</string>
+    <string name="invoice_customer_already_exists">కస్టమర్ ఇప్పటికే ఉన్నారు</string>
+    <string name="invoice_default_store_name">నా స్టోర్</string>
+    <string name="invoice_discount_exceeds_subtotal">డిస్కౌంట్ సబ్</string>
+    <string name="invoice_document_type_invoice">ఇన్</string>
+    <string name="invoice_eco_gstin_length">E-Commerce GSTIN 15 అక్షరాలు ఉండాలి</string>
+    <string name="invoice_eco_gstin_required">E-Commerce ఆపరేటర్ GSTIN తప్పనిసరి</string>
+    <string name="invoice_enter_all_fields">అన్ని ఫీల్డ్</string>
+    <string name="invoice_error_saving_bill">బిల్ సేవ్ చేయడంలో లోపం</string>
+    <string name="invoice_expand_gst_options">GST ఆప్షన్</string>
+    <string name="invoice_field_business_name">వ్యాపార పేరు</string>
+    <string name="invoice_field_customer_name">కస్టమర్ పేరు</string>
+    <string name="invoice_field_gst_number">GST నంబర్</string>
+    <string name="invoice_field_phone_number">ఫోన్ నంబర్</string>
+    <string name="invoice_field_state">రాష్ట్రం</string>
+    <string name="invoice_gstin_length">GSTIN 15 అక్షరాలు ఉండాలి</string>
+    <string name="invoice_interstate_explain">వేరే రాష్ట్రం — IGST వసూలు చేయబడుతుంది.</string>
+    <string name="invoice_intrastate_explain">అదే రాష్ట్ర సేల్ — CGST + SGST వసూలు చేయబడుతుంది.</string>
+    <string name="invoice_missing_customer_name">కస్టమర్ పేరు</string>
+    <string name="invoice_missing_customer_name_and_state">కస్టమర్ పేరు మరియు రాష్ట్రం</string>
+    <string name="invoice_missing_customer_state">కస్టమర్ రాష్ట్రం</string>
+    <string name="invoice_no_shop_add_customer">షాప్ ఎంచుకోలేదు — కస్టమర్</string>
+    <string name="invoice_no_shop_credit_record">షాప్ ఎంచుకోలేదు — ఈ క్రెడిట్ సేల్</string>
+    <string name="invoice_no_shop_credit_sale">షాప్ ఎంచుకోలేదు — క్రెడిట్ సేల్ తీసుకోలేరు. మళ్ళీ సైన్ ఇన్ చేయండి.</string>
+    <string name="invoice_no_shop_save">షాప్ ఎంచుకోలేదు — ఈ బిల్</string>
+    <string name="invoice_not_applicable">వర్తించదు</string>
+    <string name="invoice_optional">ఐచ్ఛికం</string>
+    <string name="invoice_required">తప్పనిసరి</string>
+    <string name="invoice_save_bill_first">దయచేసి ముందుగా బిల్ సేవ్ చేయండి</string>
+    <string name="invoice_supply_composition">కంపోజిషన్</string>
+    <string name="invoice_supply_interstate">ఇంటర్</string>
+    <string name="invoice_supply_intrastate">ఇంట్రాస్టేట్</string>
+    <string name="purchase_invoice_type_deemed_exp">డీమ్డ్ ఎక్స్</string>
+    <string name="purchase_invoice_type_sez_with_payment">చెల్లింపుతో SEZ సరఫరాలు</string>
+    <string name="purchase_invoice_type_sez_without_payment">చెల్లింపు లేకుండా SEZ సరఫరాలు</string>
+    <string name="purchase_return_doctype_credit">క్రెడిట్ నోట్</string>
+    <string name="purchase_return_doctype_debit">డెబిట్ నోట్</string>
+
+    <!-- dialog_customer_picker -->
+    <string name="invoice_account_word">ఖాతా</string>
+    <string name="invoice_hint_search_name_phone">పేరు లేదా ఫోన్ వెతకండి</string>
+    <string name="invoice_hint_select">ఎంచుకోండి</string>
+    <string name="invoice_on_credit_header">క్రెడిట్</string>
+    <string name="xml_customer_picker_new_account_button">+  కొత్త క్రెడిట్ ఖాతా</string>
+
+    <!-- InvoiceAdapter -->
+    <string name="invoice_add_discount">＋ డిస్కౌంట్ జోడించండి</string>
+    <string name="invoice_no_tax">పన్ను లేదు</string>
+
+    <!-- dialog_line_discount -->
+    <string name="invoice_apply_discount">డిస్కౌంట్ వర్తింపజేయండి</string>
+    <string name="invoice_discount_mode_amount">మొత్తం ₹</string>
+    <string name="invoice_discount_mode_percent">శాతం %%</string>
+    <string name="invoice_line_discount_header">లైన్ డిస్కౌంట్</string>
+    <string name="invoice_new_price_label">కొత్త ధర</string>
+    <string name="invoice_you_save_label">మీరు ఆదా చేస్తారు</string>
     <string name="item">అంశం</string>
-    <string name="delete_item">అంశాన్ని తొలగించండి</string>
 
-    <string name="date">తేదీ</string>
-    <string name="_0_bills">0 బిల్లులు</string>
+    <!-- dialog_add_customer -->
+    <string name="invoice_customer_appear_note">మీరు క్రెడిట్</string>
+    <string name="invoice_customer_word">కస్టమర్</string>
+    <string name="invoice_hint_name_example">రమేష్ కుమార్</string>
+    <string name="invoice_label_name">పేరు</string>
+    <string name="invoice_new_word">కొత్త</string>
+    <string name="invoice_phone_reuse_note">ఈ కస్టమర్</string>
+    <string name="xml_add_customer_phone_hint">98765 43210</string>
 
+    <!-- InvoicePdfGenerator -->
+    <string name="invoice_pdf_all_time_report">మొత్తం కాలానికి నివేదిక</string>
+    <string name="invoice_pdf_cgst_label">CGST</string>
+    <string name="invoice_pdf_composition_declaration_1">కంపోజిషన్ పన్ను చెల్లింపుదారు, సరఫరాలపై పన్ను</string>
+    <string name="invoice_pdf_composition_declaration_2">వసూలు చేయడానికి అర్హత లేదు</string>
+    <string name="invoice_pdf_customer_fallback">కస్టమర్</string>
+    <string name="invoice_pdf_detail_business">వ్యాపారం</string>
+    <string name="invoice_pdf_detail_gstin">GSTIN</string>
+    <string name="invoice_pdf_detail_name">పేరు</string>
+    <string name="invoice_pdf_detail_phone">ఫోన్</string>
+    <string name="invoice_pdf_detail_state">రాష్ట్రం</string>
+    <string name="invoice_pdf_discount_label">డిస్కౌంట్</string>
+    <string name="invoice_pdf_final_balance_label">తుది బ్యాలెన్స్:</string>
+    <string name="invoice_pdf_footer_default">ధన్యవాదాలు! మళ్ళీ దర్శించండి</string>
+    <string name="invoice_pdf_igst_label">IGST</string>
+    <string name="invoice_pdf_item_description_header">ఐటమ్ వివరణ</string>
+    <string name="invoice_pdf_no_printing_service">ఈ పరికరంలో ప్రింటింగ్ సర్వీస్ లేదు</string>
+    <string name="invoice_pdf_profit_print_job_name">లాభాల నివేదిక</string>
+    <string name="invoice_pdf_profit_report_title">లాభాల నివేదిక</string>
+    <string name="invoice_pdf_profit_save_failed_toast">PDF సేవ్ విఫలమైంది</string>
+    <string name="invoice_pdf_round_off_label">రౌండ్ ఆఫ్</string>
+    <string name="invoice_pdf_sgst_label">SGST</string>
+    <string name="invoice_pdf_statement_job_name">స్టేట్</string>
+    <string name="invoice_pdf_statement_title">క్రెడిట్ / డెబిట్ నివేదిక</string>
+    <string name="invoice_pdf_store_default_name">నా స్టోర్</string>
+    <string name="invoice_pdf_sub_total_label">సబ్ టోటల్</string>
+    <string name="invoice_pdf_summary_cost">ఖర్చు</string>
+    <string name="invoice_pdf_summary_expense">వ్యయం</string>
+    <string name="invoice_pdf_summary_loss">నష్టం</string>
+    <string name="invoice_pdf_summary_net_profit">నికర లాభం</string>
+    <string name="invoice_pdf_summary_revenue">ఆదాయం</string>
+    <string name="invoice_pdf_table_balance_header">బ్యాలెన్స్ (₹)</string>
+    <string name="invoice_pdf_table_cr_header">Cr (₹)</string>
+    <string name="invoice_pdf_table_date_header">తేదీ</string>
+    <string name="invoice_pdf_table_dr_header">Dr (₹)</string>
+    <string name="invoice_pdf_table_type_header">రకం</string>
+    <string name="invoice_pdf_tax_invoice_title">టాక్స్ ఇన్వాయిస్</string>
+    <string name="invoice_pdf_taxable_amount_label">పన్ను విధించదగిన మొత్తం</string>
+    <string name="invoice_pdf_taxable_label">పన్ను విధించదగినది</string>
+    <string name="invoice_pdf_thank_you">ధన్యవాదాలు!</string>
+    <string name="invoice_pdf_total_credit_label">మొత్తం క్రెడిట్:</string>
+    <string name="invoice_pdf_total_debit_label">మొత్తం డెబిట్:</string>
+    <string name="invoice_pdf_total_header">మొత్తం</string>
+    <string name="pdf_footer_default_message">ధన్యవాదాలు! మళ్ళీ రండి</string>
+
+    <!-- item_product -->
+    <string name="item_product_add_button">Add</string>
+
+    <!-- LocalizationSettingsActivity -->
+    <string name="localization_settings_enter_password_error">పాస్</string>
+
+    <!-- activity_manage_products -->
+    <string name="manage_products_footer_hint">ఉత్పత్తి వివరాలను ఎడిట్ చేయడానికి దానిపై ఎడమవైపు స్వైప్ చేయండి.</string>
+    <string name="manage_products_header_manage">నిర్వహించండి</string>
+    <string name="manage_products_search_hint">పేరు లేదా హెచ్ఎస్ఎన్ ద్వారా శోధించండి…</string>
+    <string name="manage_products_sort_content_desc">సార్ట్</string>
+
+    <!-- ManageProductsAdapter -->
+    <string name="manage_products_no_gst">GST లేదు</string>
+    <string name="manage_products_unlimited">అపరిమితం</string>
+
+    <!-- item_monthly_report -->
     <string name="month">నెల</string>
 
+    <!-- item_peak_hour -->
+    <string name="peak_hour_item_bills_placeholder">18 బిల్లులు</string>
+    <string name="peak_hour_item_hour_placeholder">12:00 PM</string>
+    <string name="peak_hour_item_revenue_placeholder">₹6,100</string>
+
+    <!-- PeakHourAdapter -->
+    <string name="peak_hour_status_avg">⚖ సగటు</string>
+    <string name="peak_hour_status_peak">🔥 పీక్</string>
+    <string name="peak_hour_status_slow">⚠ నెమ్మది</string>
+
+    <!-- fragment_peak_hours -->
+    <string name="peak_hours_breakdown_label">గంటవారీ విభజన</string>
+    <string name="peak_hours_eyebrow_today">ఈరోజు</string>
+    <string name="peak_hours_hero_label">గరిష్ట ఆదాయం</string>
+    <string name="peak_hours_legend_hourly_revenue">గంటవారీ ఆదాయం</string>
+    <string name="peak_hours_legend_peak_hour">పీక్ గంట</string>
+    <string name="peak_hours_metric_avg_hour_label">సగటు / గంట</string>
+    <string name="peak_hours_metric_best_hour_label">ఉత్తమ గంట</string>
+    <string name="peak_hours_period_chip_default">24 గంటలు</string>
+    <string name="peak_hours_title_hours_suffix">గంటలు</string>
+    <string name="peak_hours_title_peak">పీక్</string>
+
+    <!-- PeakHoursFragment -->
+    <string name="peak_hours_toast_load_failed">పీక్ అవర్స్ లోడ్ చేయడంలో విఫలమైంది</string>
+
+    <!-- activity_purchase_details -->
+    <string name="place_of_supply">సరఫరా స్థలం</string>
+    <string name="tax_breakdown">పన్ను వివరాలు</string>
+    <string name="txn_label_credit_note">క్రెడిట్ నోట్</string>
+    <string name="txn_label_debit_note">డెబిట్ నోట్</string>
+    <string name="xml_purchase_details_cancel_button">పర్చేజ్ రద్దు చేయండి</string>
+    <string name="xml_purchase_details_cancelled_note">ఈ పర్చేజ్ రద్దు చేయబడింది</string>
+    <string name="xml_purchase_details_header">పర్చేజ్ ఇన్వాయిస్</string>
+    <string name="xml_purchase_details_invoice_total_label">ఇన్వాయిస్ మొత్తం</string>
+    <string name="xml_purchase_details_net_after_returns">రిటర్న్</string>
+    <string name="xml_purchase_details_not_synced">సింక్ కాలేదు</string>
+    <string name="xml_purchase_details_notes_header">డెబిట్ &amp; క్రెడిట్ నోట్</string>
+    <string name="xml_purchase_details_still_owed_label">ఈ సప్లయర్</string>
+    <string name="xml_purchase_details_supplier_label">సప్లయర్</string>
+    <string name="xml_purchase_details_view_ledger_link">లెడ్జర్ చూడండి ›</string>
+
+    <!-- ProductAdapter -->
+    <string name="product_adapter_out_of_stock_pill">స్టాక్ లేదు</string>
+    <string name="product_adapter_out_of_stock_pill_2">స్టాక్ లేదు</string>
+    <string name="product_adapter_out_of_stock_toast">స్టాక్ లేదు</string>
+    <string name="product_adapter_out_of_stock_toast_2">స్టాక్ లేదు</string>
+    <string name="product_adapter_service_item">సర్వీస్ ఐటమ్</string>
+    <string name="product_adapter_service_pill">సర్వీస్</string>
+    <string name="product_unit_gram">g</string>
+    <string name="product_unit_kg">కేజీ</string>
+    <string name="product_unit_litre">L</string>
+    <string name="product_unit_ml">ml</string>
+    <string name="product_unit_pc">పీస్</string>
+
+    <!-- item_inventory -->
     <string name="product_name">ఉత్పత్తి పేరు</string>
-    <string name="sold_0">అమ్మినవి: 0</string>
+    <string name="xml_inventory_category_variant_placeholder">వర్గం · వేరియంట్</string>
+    <string name="xml_inventory_units_in_stock_placeholder">స్టాక్</string>
+
+    <!-- ProfileActivity -->
+    <string name="profile">ప్రొఫైల్</string>
+
+    <!-- PurchaseActivity -->
+    <string name="purchase_boe_date_required">ఇంపోర్టెడ్ గూడ్స్</string>
+    <string name="purchase_boe_number_required">ఇంపోర్టెడ్ గూడ్స్</string>
+    <string name="purchase_boe_value_required">ఇంపోర్టెడ్ గూడ్స్</string>
+    <string name="purchase_cess_paid_invalid">చెల్లించిన సెస్ &gt;= 0 అయి ఉండాలి</string>
+    <string name="purchase_choose_supplier_desc">సరఫరాదారును ఎంచుకోండి</string>
+    <string name="purchase_credit_needs_account">క్రెడిట్</string>
+    <string name="purchase_eligibility_required">ITC అర్హత అవసరం</string>
+    <string name="purchase_fill_header">మొదట ఇన్</string>
+    <string name="purchase_fill_header_first">మొదట ఇన్</string>
+    <string name="purchase_imported_toggle_locked">ఇంపోర్టెడ్ గూడ్స్ టోగుల్</string>
+    <string name="purchase_invalid_gstin">సరఫరాదారు GSTIN సరైనదిగా కనిపించడం లేదు — దాన్ని తనిఖీ చేయండి, లేదా ఖాళీగా వదిలేయండి</string>
+    <string name="purchase_invalid_gstin_error">చెల్లని GSTIN</string>
+    <string name="purchase_invoice_date_required">ఇన్</string>
+    <string name="purchase_invoice_type_composition">కంపోజిషన్ పన్ను చెల్లింపుదారు నుండి</string>
+    <string name="purchase_invoice_type_required">ఇన్</string>
+    <string name="purchase_itc_fields_negative">అందుకున్న ITC ఫీల్డ్</string>
+    <string name="purchase_itc_must_be_zero">అర్హత లేనప్పుడు/None అయినప్పుడు అందుకున్న ITC ఫీల్డ్</string>
+    <string name="purchase_pick_invoice_date_error">ఇన్</string>
+    <string name="purchase_place_of_supply_required">సరఫరా స్థల కోడ్ అవసరం</string>
+    <string name="purchase_port_code_required">ఇంపోర్టెడ్ గూడ్స్</string>
+    <string name="purchase_review_line_item">సేవ్ చేయడానికి ముందు హైలైట్ చేసిన లైన్ ఐటమ్</string>
+    <string name="purchase_saved_default_msg">కొనుగోలు సేవ్ చేయబడింది</string>
+    <string name="purchase_select_credit_account">క్రెడిట్ ఖాతాను ఎంచుకోండి</string>
+    <string name="purchase_supply_type_interstate">ఇంటర్</string>
+    <string name="purchase_supply_type_intrastate">ఇంట్రాస్టేట్</string>
+    <string name="purchase_supply_type_invalid">సప్లై రకం intrastate లేదా interstate అయి ఉండాలి</string>
+
+    <!-- PurchaseReturnActivity -->
+    <string name="purchase_eligibility_capital_goods">క్యాపిటల్ గూడ్స్</string>
+    <string name="purchase_eligibility_ineligible">అర్హత లేని</string>
+    <string name="purchase_eligibility_input_services">ఇన్</string>
+    <string name="purchase_eligibility_none">ఏదీ లేదు</string>
+    <string name="purchase_return_confirm_credit_note">క్రెడిట్ నోట్</string>
+    <string name="purchase_return_confirm_debit_note">డెబిట్ నోట్</string>
+    <string name="purchase_return_confirm_yes_cn">అవును, CN అందుకోండి</string>
+    <string name="purchase_return_confirm_yes_dn">అవును, DN జారీ చేయండి</string>
+    <string name="purchase_return_doctype_refund">రిఫండ్ వోచర్</string>
+    <string name="purchase_return_doctype_required">డాక్యుమెంట్ రకం అవసరం.</string>
+    <string name="purchase_return_eligibility_required">ITC అర్హత అవసరం.</string>
+    <string name="purchase_return_invalid_id">చెల్లని కొనుగోలు ID</string>
+    <string name="purchase_return_invoice_type_required">ఇన్</string>
+    <string name="purchase_return_itc_central_exceeds">అందుకున్న ITC సెంట్రల్ టాక్స్ CGST (₹%.2f) మించకూడదు.</string>
+    <string name="purchase_return_itc_cess_exceeds">అందుకున్న ITC సెస్ సెస్ (₹%.2f) మించకూడదు.</string>
+    <string name="purchase_return_itc_integrated_exceeds">అందుకున్న ITC ఇంటిగ్రేటెడ్ టాక్స్ IGST (₹%.2f) మించకూడదు.</string>
+    <string name="purchase_return_itc_must_be_zero">అర్హత Ineligible/None అయితే, అందుకున్న ITC విలువలు 0 అయి ఉండాలి.</string>
+    <string name="purchase_return_itc_state_exceeds">అందుకున్న ITC స్టేట్/UT టాక్స్ SGST (₹%.2f) మించకూడదు.</string>
+    <string name="purchase_return_not_loaded">కొనుగోలు ఇంకా లోడ్ కాలేదు. దయచేసి వేచి ఉండండి.</string>
+    <string name="purchase_return_note_word">నోట్</string>
+    <string name="purchase_return_place_of_supply_required">సరఫరా స్థల కోడ్ అవసరం.</string>
+    <string name="purchase_return_processing">ప్రాసెస్ చేస్తోంది…</string>
+    <string name="purchase_return_raise_debit">డెబిట్ లేవనెత్తండి</string>
+    <string name="purchase_return_rate_invalid">రేటు &gt;= 0 అయి ఉండాలి.</string>
+    <string name="purchase_return_reason_correction">ఇన్</string>
+    <string name="purchase_return_reason_deficiency">సేవల్లో లోపం</string>
+    <string name="purchase_return_reason_discount">విక్రయ అనంతర డిస్కౌంట్</string>
+    <string name="purchase_return_reason_other">ఇతర</string>
+    <string name="purchase_return_reason_required">కారణం అవసరం.</string>
+    <string name="purchase_return_reason_sales_return">అమ్మకాల రిటర్న్</string>
+    <string name="purchase_return_receive_credit">క్రెడిట్ అందుకోండి</string>
+    <string name="purchase_return_section_credit">క్రెడిట్ అందుకోవడానికి వస్తువులు &amp; పరిమాణాలను ఎంచుకోండి</string>
+    <string name="purchase_return_section_debit">రిటర్న్ చేయడానికి వస్తువులు &amp; పరిమాణాలను ఎంచుకోండి</string>
+    <string name="purchase_return_select_item_credit">క్రెడిట్ అందుకోవడానికి కనీసం ఒక వస్తువును ఎంచుకోండి.</string>
+    <string name="purchase_return_select_item_debit">రిటర్న్ చేయడానికి కనీసం ఒక వస్తువును ఎంచుకోండి.</string>
+    <string name="purchase_return_title_accent_credit">క్రెడిట్ నోట్?</string>
+    <string name="purchase_return_title_accent_debit">డెబిట్ నోట్?</string>
+    <string name="purchase_return_title_lead_issue">జారీ చేయండి</string>
+    <string name="purchase_return_title_lead_receive">అందుకోండి</string>
+    <string name="purchase_return_total_credit_value">మొత్తం క్రెడిట్ విలువ</string>
+    <string name="purchase_return_total_debit_value">మొత్తం డెబిట్ విలువ</string>
+    <string name="purchase_return_voucher_value_min">నోట్/రిఫండ్ వోచర్ విలువ (₹%1$.2f) పన్ను విధించదగిన విలువ (₹%2$.2f) కంటే తక్కువ కాకూడదు.</string>
+    <string name="purchase_return_voucher_value_positive">నోట్/రిఫండ్ వోచర్ విలువ &gt; 0 అయి ఉండాలి.</string>
+    <string name="reason_purchase_return">కొనుగోలు వాపసు</string>
+
+    <!-- item_invoice -->
+    <string name="purchase_field_product">ఉత్పత్తి పేరు</string>
+
+    <!-- activity_purchase_history -->
+    <string name="purchase_history_bought_this_month">ఈ నెల కొన్నవి</string>
+    <string name="purchase_history_eyebrow">కొనుగోళ్లు</string>
+    <string name="purchase_history_search_hint">సప్లయర్ లేదా ఇన్</string>
+    <string name="purchase_history_tip_record_body">సప్లయర్, ఇన్</string>
+    <string name="purchase_history_tip_record_title">మీ మొదటి కొనుగోలును రికార్డ్ చేయండి</string>
+    <string name="purchase_history_tip_search_body">సప్లయర్ పేరు లేదా ఇన్</string>
+    <string name="purchase_history_tip_search_title">తర్వాత ఏ కొనుగోలునైనా వేగంగా వెతకండి</string>
+    <string name="purchase_history_title_lead">కొనుగోలు</string>
+    <string name="xml_purchase_history_invoices_count_placeholder">0 ఇన్</string>
+    <string name="xml_purchase_history_sort_newest_first">కొత్తవి మొదట</string>
+
+    <!-- PurchaseHistoryAdapter -->
+    <string name="purchase_history_status_cancelled">రద్దు చేయబడింది</string>
+    <string name="purchase_history_status_credit">క్రెడిట్</string>
+    <string name="purchase_history_status_paid_cash">నగదులో చెల్లించారు</string>
+
+    <!-- PurchaseDetailsActivity -->
+    <string name="purchase_invalid_id_toast">చెల్లని పర్చేజ్ ID</string>
+    <string name="purchase_not_loaded_toast">పర్చేజ్ ఇంకా లోడ్ కాలేదు.</string>
+
+    <!-- PurchaseLineDialog -->
+    <string name="purchase_line_dialog_verb_edit">సవరించు</string>
+    <string name="purchase_line_eligibility_required_toast">ITC అర్హత తప్పనిసరి</string>
+    <string name="purchase_line_fill_required_toast">ప్రొడక్ట్, పరిమాణం, అమ్మకపు ధర మరియు టాక్సబుల్ నింపండి</string>
+    <string name="purchase_line_itc_must_be_zero_toast">Ineligible లేదా None అయినప్పుడు అందుబాటులో ఉన్న ITC 0గా ఉండాలి</string>
+    <string name="purchase_line_negative_gstr2_toast">నెగటివ్ GSTR-2 విలువలు అనుమతించబడవు</string>
+    <string name="purchase_line_restore_button">పునరుద్ధరించు</string>
+    <string name="purchase_line_restore_new_values_button">కొత్త విలువలతో పునరుద్ధరించు</string>
+    <string name="purchase_line_restore_old_button">పాతది పునరుద్ధరించు</string>
+    <string name="purchase_line_save_changes">మార్పులను సేవ్ చేయండి</string>
+    <string name="purchase_line_uqc_required_toast">అధికారిక UQC (GST యూనిట్) తప్పనిసరి</string>
+
+    <!-- PurchaseReturnItemAdapter -->
+    <string name="purchase_return_qty_label">రిటర్న్ పరిమాణం</string>
+    <string name="purchase_return_receive_qty_label">స్వీకరించే పరిమాణం</string>
+
+    <!-- ReportsFragment -->
+    <string name="reports_breakdown_daily">రోజువారీ విభజన</string>
+    <string name="reports_breakdown_monthly">నెలవారీ విభజన</string>
+    <string name="reports_breakdown_today_full_prefix">ఈ రోజు,</string>
+    <string name="reports_breakdown_today_label">ఈ రోజు</string>
+    <string name="reports_delta_vs_previous_week">మునుపటి వారంతో పోలిస్తే</string>
+    <string name="reports_delta_vs_previous_year">మునుపటి సంవత్సరంతో పోలిస్తే</string>
+    <string name="reports_legend_best_day">ఉత్తమ రోజు</string>
+    <string name="reports_legend_best_month">ఉత్తమ నెల</string>
+    <string name="reports_legend_daily_revenue">రోజువారీ ఆదాయం</string>
+    <string name="reports_legend_monthly_revenue">నెలవారీ ఆదాయం</string>
+    <string name="reports_metric_avg_day_label">సగటు / రోజు</string>
+    <string name="reports_metric_avg_month_label">సగటు / నెల</string>
+    <string name="reports_toast_load_failed">సేల్స్ లోడ్ చేయడంలో విఫలమైంది</string>
+    <string name="reports_week_label_last">గత వారం</string>
+    <string name="reports_week_label_this">ఈ వారం</string>
+    <string name="reports_year_label_last">గత సంవత్సరం</string>
+    <string name="reports_year_label_this">ఈ సంవత్సరం</string>
+
+    <!-- fragment_reports -->
+    <string name="reports_title_report_suffix">నివేదిక</string>
+    <string name="reports_title_sales">అమ్మకాలు</string>
+    <string name="reports_toggle_daily">రోజువారీ</string>
+    <string name="reports_toggle_monthly">నెలవారీ</string>
+    <string name="reports_total_revenue_label">మొత్తం ఆదాయం</string>
+    <string name="xml_reports_period_chip_default">ఈ వారం</string>
+
+    <!-- ReportsActivity -->
+    <string name="reports_toast_auth_error">ప్రామాణీకరణ లోపం. దయచేసి మళ్లీ లాగిన్ చేయండి.</string>
+
+    <!-- NetworkReceiver -->
+    <string name="server_not_reachable_toast">సర్వర్</string>
+
+    <!-- SessionTimeoutGuard -->
+    <string name="session_expired_toast">సెషన్ ముగిసింది. దయచేసి మళ్లీ లాగిన్ చేయండి.</string>
+
+    <!-- SupplierAdapter -->
+    <string name="supplier_no_gstin">GSTIN లేదు</string>
+    <string name="supplier_tag_registered">నమోదైన</string>
+    <string name="supplier_tag_unregistered">నమోదుకాని</string>
+
+    <!-- SupplierPicker -->
+    <string name="supplier_picker_enter_supplier_name_error">సప్లయర్ పేరును నమోదు చేయండి</string>
+    <string name="supplier_picker_invalid_gstin_error">చెల్లని GSTIN</string>
+    <string name="supplier_picker_select_state_title">రాష్ట్రాన్ని ఎంచుకోండి</string>
+    <string name="supplier_picker_select_supplier_state_toast">సప్లయర్ రాష్ట్రాన్ని ఎంచుకోండి</string>
+
+    <!-- CustomerTransactionsActivity -->
+    <string name="today">ఈ రోజు</string>
+    <string name="txn_dash_placeholder">—</string>
+    <string name="txn_default_customer_name">కస్టమర్</string>
+    <string name="txn_entry_plural">ఎంట్రీలు</string>
+    <string name="txn_entry_singular">ఎంట్రీ</string>
+    <string name="txn_filter_all_time">అన్ని సమయాలు</string>
+    <string name="txn_from_after_to_date">From తేదీ To తేదీ తర్వాత ఉంది</string>
+    <string name="txn_header_yesterday">నిన్న</string>
+    <string name="txn_invalid_account">చెల్లని ఖాతా</string>
+    <string name="txn_no_data">డేటా లేదు</string>
+    <string name="txn_no_transactions_print">ప్రింట్ చేయడానికి లావాదేవీలు లేవు</string>
+    <string name="txn_phone_not_available">N/A</string>
+    <string name="txn_pick_a_date">తేదీని ఎంచుకోండి</string>
+    <string name="txn_server_unreachable">సర్వర్</string>
+    <string name="txn_try_again">మళ్ళీ ప్రయత్నించండి</string>
+
+    <!-- activity_customer_transactions -->
+    <string name="txn_billed_label">బిల్ చేయబడింది</string>
+    <string name="txn_current_balance_label">ప్రస్తుత బ్యాలెన్స్</string>
+    <string name="txn_label_written_off">రైట్ ఆఫ్ చేయబడింది</string>
+    <string name="txn_received_label">అందుకున్నారు</string>
+    <string name="txn_refunded_to_customer_label">కస్టమర్</string>
+    <string name="txn_search_amount_hint">మొత్తాన్ని సెర్చ్ చేయండి</string>
+    <string name="txn_statement_button">స్టేట్</string>
+    <string name="txn_summary_button">సారాంశం</string>
+
+    <!-- item_transaction -->
+    <string name="txn_label_credit_sale">క్రెడిట్ అమ్మకం</string>
+    <string name="xml_transaction_left_placeholder">₹0 మిగిలింది</string>
+    <string name="xml_transaction_time_placeholder">11:02 am</string>
+
+    <!-- TransactionAdapter -->
+    <string name="txn_no_cash_moved">నగదు కదలలేదు</string>
+    <string name="txn_not_yet_synced">ఇంకా సింక్ కాలేదు</string>
+
+    <!-- activity_workspace_changed -->
+    <string name="workspace_changed_body">మీ వ్యాపార వర్క్</string>
+    <string name="workspace_changed_icon_emoji">🔄</string>
+    <string name="workspace_changed_reload_btn">వర్క్</string>
+    <string name="workspace_changed_title">వర్క్</string>
+
+    <!-- item_ai_insight_header -->
+    <string name="xml_ai_insight_header_default">శ్రద్ధ అవసరం</string>
+
+    <!-- item_batch_pick -->
+    <string name="xml_batch_pick_date_cost_placeholder">14 జూలై 2026 · ₹42/యూనిట్</string>
+    <string name="xml_batch_pick_max_reducible_placeholder">గరిష్టంగా తగ్గించగలిగేది: 0</string>
+    <string name="xml_batch_pick_number_placeholder">బ్యాచ్ #A102</string>
+    <string name="xml_batch_pick_oldest_tag">పాతది</string>
+    <string name="xml_batch_pick_reduce_qty_label">పరిమాణాన్ని తగ్గించండి</string>
+    <string name="xml_batch_pick_reduce_value_placeholder">తగ్గించిన విలువ: ₹0</string>
+
+    <!-- dialog_batch_picker -->
+    <string name="xml_batch_picker_cancel_button">రద్దు చేయండి</string>
+    <string name="xml_batch_picker_confirm_button">రిటర్న్</string>
+    <string name="xml_batch_picker_selected_label">ఎంపిక చేయబడింది</string>
+    <string name="xml_batch_picker_subtitle">బ్యాచ్</string>
+    <string name="xml_batch_picker_target_qty_label">లక్ష్య రిటర్న్ పరిమాణం</string>
+    <string name="xml_batch_picker_title">సరఫరాదారుకు తిరిగి ఇవ్వండి</string>
+
+    <!-- dialog_cancel_purchase_confirm -->
+    <string name="xml_cancel_purchase_body">ఈ కొనుగోలు నుండి మిగిలిన మొత్తం స్టాక్ సరఫరాదారుకు తిరిగి పంపబడుతుంది మరియు కొనుగోలు రద్దుగా గుర్తించబడుతుంది. దీన్ని వెనక్కి తీసుకోలేరు.</string>
+    <string name="xml_cancel_purchase_confirm_button">కొనుగోలును రద్దు చేయండి</string>
+    <string name="xml_cancel_purchase_keep_button">కొనుగోలును ఉంచండి</string>
+    <string name="xml_cancel_purchase_title_line1">ఈ కొనుగోలును</string>
+    <string name="xml_cancel_purchase_title_line2">రద్దు చేయాలా?</string>
+
+    <!-- dialog_cant_cancel_purchase -->
+    <string name="xml_cant_cancel_got_it_button">అర్థమైంది</string>
+    <string name="xml_cant_cancel_purchase_kicker">కొనుగోలు</string>
+    <string name="xml_cant_cancel_title_line1">దీన్ని</string>
+    <string name="xml_cant_cancel_title_line2">రద్దు</string>
+    <string name="xml_cant_cancel_title_line3">చేయలేరు</string>
+
+    <!-- dialog_confirm_credit_note -->
+    <string name="xml_confirm_credit_note_body">మీరు ఈ ఇన్</string>
+    <string name="xml_confirm_credit_note_confirm_button">అవును, క్రెడిట్ నోట్ జారీ చేయండి</string>
+    <string name="xml_confirm_credit_note_invoice_placeholder">ఇన్</string>
+    <string name="xml_confirm_credit_note_return_value_label">రిటర్న్ విలువ</string>
+    <string name="xml_confirm_credit_note_review_button">సమీక్షించండి</string>
+    <string name="xml_confirm_credit_note_title_line1">క్రెడిట్ నోట్</string>
+    <string name="xml_confirm_credit_note_title_line2">జారీ చేయాలా?</string>
+
+    <!-- dialog_confirm_purchase_note -->
+    <string name="xml_confirm_purchase_note_body">మీరు సరఫరాదారుకు 0 యూనిట్(లు) తిరిగి ఇస్తున్నారు. ఖచ్చితమైన కొనుగోలు బ్యాచ్ నుండి స్టాక్ తగ్గించబడుతుంది మరియు డెబిట్ నోట్ రూపొందించబడుతుంది.</string>
+    <string name="xml_confirm_purchase_note_confirm_button">అవును, DN జారీ చేయండి</string>
+    <string name="xml_confirm_purchase_note_invoice_placeholder">INV-2043 · సరఫరాదారు</string>
+    <string name="xml_confirm_purchase_note_review_button">సమీక్షించండి</string>
+    <string name="xml_confirm_purchase_note_title_line1">డెబిట్ నోట్</string>
+    <string name="xml_confirm_purchase_note_title_line2">జారీ చేయాలా?</string>
+
+    <!-- item_credit -->
+    <string name="xml_credit_item_phone_placeholder">9876543210</string>
+
+    <!-- dialog_filter_customers -->
+    <string name="xml_filter_customers_advance_only">అడ్వాన్స్ ఉన్నవి మాత్రమే</string>
+    <string name="xml_filter_customers_all">అందరు కస్టమర్లు</string>
+    <string name="xml_filter_customers_due_only">బాకీ ఉన్నవి మాత్రమే</string>
+    <string name="xml_filter_customers_settled_only">సెటిల్ అయినవి మాత్రమే</string>
+    <string name="xml_filter_customers_title">కస్టమర్లను ఫిల్టర్ చేయండి</string>
+
+    <!-- dialog_gst_confirm -->
+    <string name="xml_gst_confirm_cancel_btn">రద్దు చేయండి</string>
+    <string name="xml_gst_confirm_eyebrow">డ్రాఫ్ట్ తొలగించండి</string>
+    <string name="xml_gst_confirm_message">ఈ డ్రాఫ్ట్ శాశ్వతంగా తొలగించబడుతుంది.</string>
+    <string name="xml_gst_confirm_positive_btn">డ్రాఫ్ట్ డిలీట్ చేయండి</string>
+    <string name="xml_gst_confirm_title_accent">డ్రాఫ్ట్</string>
+    <string name="xml_gst_confirm_title_bold">డిలీట్</string>
+
+    <!-- activity_gst_reports -->
+    <string name="xml_gst_reports_credit_notes_label">క్రెడిట్ నోట్స్</string>
+    <string name="xml_gst_reports_export_csv_btn">CSV కు ఎగుమతి చేయండి</string>
+    <string name="xml_gst_reports_export_excel_btn">Excel కు ఎగుమతి చేయండి</string>
+    <string name="xml_gst_reports_fy_default_range">ఏప్రిల్ 2025 – మార్చి 2026</string>
+    <string name="xml_gst_reports_fy_default_year">2025–26</string>
+    <string name="xml_gst_reports_fy_label">ఆర్థిక సంవత్సరం</string>
+    <string name="xml_gst_reports_generate_btn">రిపోర్ట్ జనరేట్ చేయండి</string>
+    <string name="xml_gst_reports_gstin_label">GSTIN</string>
+    <string name="xml_gst_reports_header_title">GST రిటర్న్</string>
+    <string name="xml_gst_reports_invoices_label">ఇన్వాయిస్</string>
+    <string name="xml_gst_reports_period_label">వ్యవధి</string>
+    <string name="xml_gst_reports_period_monthly">నెలవారీ</string>
+    <string name="xml_gst_reports_period_quarterly">త్రైమాసిక</string>
+    <string name="xml_gst_reports_return_label">రిటర్న్</string>
+    <string name="xml_gst_reports_save_draft_btn">డ్రాఫ్ట్</string>
+    <string name="xml_gst_reports_saved_drafts_label">సేవ్ చేసిన డ్రాఫ్ట్</string>
+    <string name="xml_gst_reports_selector_default">GSTR-1 · అమ్మకాలు</string>
+    <string name="xml_gst_reports_title_accent">రిపోర్ట్</string>
+    <string name="xml_gst_reports_title_bold">GST</string>
+    <string name="xml_gst_reports_total_tax_label">ఈ వ్యవధిలో మొత్తం పన్ను</string>
+    <string name="xml_gst_reports_validate_btn">రిపోర్ట్ ధృవీకరించండి</string>
+
+    <!-- dialog_gst_success -->
+    <string name="xml_gst_success_eyebrow">ఎగుమతి పూర్తయింది</string>
+    <string name="xml_gst_success_message">మీ ఫైల్</string>
+    <string name="xml_gst_success_ok_btn">సరే</string>
+    <string name="xml_gst_success_saved_to_label">దీనిలో సేవ్ చేయబడింది</string>
+    <string name="xml_gst_success_share_all_btn">అన్నీ షేర్ చేయండి</string>
+    <string name="xml_gst_success_title_accent">పూర్తయింది</string>
+    <string name="xml_gst_success_title_bold">ఎగుమతి</string>
+
+    <!-- dialog_gst_validation -->
+    <string name="xml_gst_validation_eyebrow">వాలిడేషన్</string>
+    <string name="xml_gst_validation_message">ఎలాంటి సమస్యలు కనిపించలేదు. ఈ రిపోర్ట్ ఎగుమతికి సిద్ధంగా ఉంది.</string>
+    <string name="xml_gst_validation_ok_btn">సరే</string>
+    <string name="xml_gst_validation_title_accent">సరిగ్గా ఉంది</string>
+    <string name="xml_gst_validation_title_bold">అంతా</string>
+
+    <!-- fragment_gstr1_section -->
+    <string name="xml_gstr1_section_empty">ఈ వ్యవధికి రికార్డులు లేవు.</string>
+
+    <!-- dialog_inventory_stock_action -->
+    <string name="xml_inventory_stock_action_add_stock">స్టాక్ జోడించండి</string>
+    <string name="xml_inventory_stock_action_clear_stock">స్టాక్ క్లియర్ చేయండి</string>
+    <string name="xml_inventory_stock_action_continue_button">కొనసాగించండి</string>
+    <string name="xml_inventory_stock_action_product_placeholder">ప్రొడక్ట్ పేరు</string>
+    <string name="xml_inventory_stock_action_reduce_stock">స్టాక్ తగ్గించండి</string>
+
+    <!-- activity_credit_debit_notes -->
+    <string name="xml_notes_against_invoice_placeholder">INV-0000కి వ్యతిరేకంగా</string>
+    <string name="xml_notes_credit_tab_count_placeholder">క్రెడిట్ నోట్లు · 0</string>
+    <string name="xml_notes_debit_tab_count_placeholder">డెబిట్ నోట్లు · 0</string>
+    <string name="xml_notes_documents_header">పత్రాలు</string>
+    <string name="xml_notes_empty_state">ఇంకా ఏ నోట్లు జారీ చేయలేదు</string>
+    <string name="xml_notes_issued_line1">జారీ చేసిన</string>
+    <string name="xml_notes_issued_line2">నోట్లు</string>
+
+    <!-- dialog_peak_chart -->
+    <string name="xml_peak_chart_avg_bills_label">సగటు బిల్లులు / గంట</string>
+    <string name="xml_peak_chart_header_title">గంట వారీ పనితీరు</string>
+    <string name="xml_peak_chart_hint_bubble_size">బబుల్ పరిమాణం బిల్లుల సంఖ్యను సూచిస్తుంది</string>
+    <string name="xml_peak_chart_hint_tap_bubble">ఆ గంట వివరాలను చూడటానికి ఒక బబుల్</string>
+    <string name="xml_peak_chart_peak_hour_label">గరిష్ఠ గంట</string>
+    <string name="xml_peak_chart_peak_revenue_label">గరిష్ఠ ఆదాయం</string>
+    <string name="xml_peak_chart_title_accent">కదలిక</string>
+    <string name="xml_peak_chart_title_bold">రోజువారీ</string>
+    <string name="xml_peak_chart_total_bills_label">మొత్తం బిల్లులు</string>
+
+    <!-- marker_peak_bubble -->
+    <string name="xml_peak_marker_bills_default">బిల్లులు: —</string>
+    <string name="xml_peak_marker_revenue_default">ఆదాయం: —</string>
+
+    <!-- activity_profit -->
+    <string name="xml_profit_by_product_label">ఉత్పత్తి వారీగా</string>
+    <string name="xml_profit_empty_description">ఈ వ్యవధిలో ఏదైనా అమ్మితే, దాని ఆదాయం, ఖర్చు మరియు లాభం ఇక్కడ ఉత్పత్తి వారీగా చూపిస్తుంది.</string>
+    <string name="xml_profit_empty_no_products">ఉత్పత్తులు లేవు</string>
+    <string name="xml_profit_empty_yet">ఇంకా</string>
+    <string name="xml_profit_expense_label">ఖర్చు</string>
+    <string name="xml_profit_filter_all">అన్నీ</string>
+    <string name="xml_profit_filter_custom">కస్టమ్</string>
+    <string name="xml_profit_filter_month">నెల</string>
+    <string name="xml_profit_filter_today">ఈరోజు</string>
+    <string name="xml_profit_filter_week">వారం</string>
+    <string name="xml_profit_header_title">ప్రాఫిట్ అనలిటిక్స్</string>
+    <string name="xml_profit_hint_every_sale">ప్రతి అమ్మకం దీన్ని అప్</string>
+    <string name="xml_profit_hint_find_product">తర్వాత ఏ ఉత్పత్తినైనా వెంటనే వెతకండి</string>
+    <string name="xml_profit_hint_revenue_cost_margin">ఒక్కో ఉత్పత్తికి ఆదాయం, ఖర్చు మరియు మార్జిన్</string>
+    <string name="xml_profit_hint_search_by_name">ఉత్పత్తి పేరు లేదా వేరియంట్ ద్వారా వెతకండి</string>
+    <string name="xml_profit_loss_label">నష్టం</string>
+    <string name="xml_profit_margin_default">0%% మార్జిన్</string>
+    <string name="xml_profit_net_profit_label">నికర లాభం</string>
+    <string name="xml_profit_print_report_btn">రిపోర్ట్ ప్రింట్ చేయండి</string>
+    <string name="xml_profit_revenue_label">ఆదాయం</string>
+    <string name="xml_profit_search_hint">ఉత్పత్తులను వెతకండి…</string>
+    <string name="xml_profit_title_accent">విశ్లేషణ</string>
+    <string name="xml_profit_title_bold">పొదుపు</string>
+    <string name="xml_profit_total_cost_label">మొత్తం ఖర్చు</string>
+
+    <!-- activity_profit_chart -->
+    <string name="xml_profit_chart_best_product_label">అత్యుత్తమ ఉత్పత్తి</string>
+    <string name="xml_profit_chart_header_title">ప్రాఫిట్ అనలిటిక్స్</string>
+    <string name="xml_profit_chart_hint">పొడవైన బార్ = అత్యధిక లాభం. నష్టం వచ్చిన ఉత్పత్తులు కింద ఎరుపు రంగులో కనిపిస్తాయి.</string>
+    <string name="xml_profit_chart_legend_loss">నష్టం</string>
+    <string name="xml_profit_chart_legend_profit">లాభం</string>
+    <string name="xml_profit_chart_no_data">ఈ వ్యవధికి లాభం డేటా లేదు</string>
+    <string name="xml_profit_chart_per_product_label">ఒక్కో ఉత్పత్తికి లాభం</string>
+    <string name="xml_profit_chart_title_accent">చార్ట్</string>
+    <string name="xml_profit_chart_title_bold">లాభం</string>
+    <string name="xml_profit_chart_total_profit_label">మొత్తం లాభం</string>
+
+    <!-- item_purchase_detail_row -->
+    <string name="xml_purchase_detail_row_hsn_qty_placeholder">HSN —  ·  పరిమాణం 0</string>
+    <string name="xml_purchase_detail_row_product_placeholder">ఉత్పత్తి పేరు</string>
+    <string name="xml_purchase_detail_row_returned_placeholder">2 తిరిగి ఇచ్చారు</string>
+
+    <!-- item_purchase_history_row -->
+    <string name="xml_purchase_history_row_supplier_placeholder">సప్లయర్ పేరు</string>
+
+    <!-- dialog_purchase_line -->
+    <string name="xml_purchase_line_dialog_add_item_button">వస్తువును జోడించండి</string>
+    <string name="xml_purchase_line_dialog_availed_itc_label">పొందిన ITC</string>
+    <string name="xml_purchase_line_dialog_cancel_button">రద్దు చేయి</string>
+    <string name="xml_purchase_line_dialog_category_label">వర్గం</string>
+    <string name="xml_purchase_line_dialog_cess_amount_label">సెస్ మొత్తం</string>
+    <string name="xml_purchase_line_dialog_cess_label">Cess</string>
+    <string name="xml_purchase_line_dialog_cess_pct_label">సెస్ %%</string>
+    <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
+    <string name="xml_purchase_line_dialog_cgst_paid_label">చెల్లించిన CGST</string>
+    <string name="xml_purchase_line_dialog_disc_label">డిస్కౌంట్</string>
+    <string name="xml_purchase_line_dialog_eligibility_label">ITC అర్హత</string>
+    <string name="xml_purchase_line_dialog_gross_label">గ్రాస్</string>
+    <string name="xml_purchase_line_dialog_hsn_description_label">HSN వివరణ</string>
+    <string name="xml_purchase_line_dialog_hsn_label">HSN / SAC</string>
+    <string name="xml_purchase_line_dialog_if_any_hint">ఏదైనా ఉంటే</string>
+    <string name="xml_purchase_line_dialog_igst_label">IGST</string>
+    <string name="xml_purchase_line_dialog_igst_paid_label">చెల్లించిన IGST</string>
+    <string name="xml_purchase_line_dialog_includes_gst_label">ధరలో GST ఉంది (MRP)</string>
+    <string name="xml_purchase_line_dialog_invoice_value_label">ఇన్</string>
+    <string name="xml_purchase_line_dialog_itc_details_label">ఇన్</string>
+    <string name="xml_purchase_line_dialog_product_hint">ఉత్పత్తి పేరు</string>
+    <string name="xml_purchase_line_dialog_product_search_hint">వెతకండి లేదా కొత్తది టైప్ చేయండి</string>
+    <string name="xml_purchase_line_dialog_product_section">ఉత్పత్తి</string>
+    <string name="xml_purchase_line_dialog_qty_label">పరిమాణం</string>
+    <string name="xml_purchase_line_dialog_rate_per_unit_hint">యూనిట్</string>
+    <string name="xml_purchase_line_dialog_selling_price_label">అమ్మకం ధర</string>
+    <string name="xml_purchase_line_dialog_sgst_label">SGST</string>
+    <string name="xml_purchase_line_dialog_sgst_paid_label">చెల్లించిన SGST</string>
+    <string name="xml_purchase_line_dialog_short_description_hint">సంక్షిప్త వివరణ</string>
+    <string name="xml_purchase_line_dialog_supplier_invoice_section">సరఫరాదారు ఇన్</string>
+    <string name="xml_purchase_line_dialog_supply_class_label">సరఫరా తరగతి</string>
+    <string name="xml_purchase_line_dialog_tap_select_hint">ఎంచుకోవడానికి నొక్కండి</string>
+    <string name="xml_purchase_line_dialog_tax_classification_section">పన్ను వర్గీకరణ</string>
+    <string name="xml_purchase_line_dialog_tax_code_hint">పన్ను కోడ్</string>
+    <string name="xml_purchase_line_dialog_taxable_label">పన్ను విధించదగినది</string>
+    <string name="xml_purchase_line_dialog_title_kicker">కొనుగోలు లైన్</string>
+    <string name="xml_purchase_line_dialog_title_line1">వస్తువును</string>
+    <string name="xml_purchase_line_dialog_title_line2">జోడించండి</string>
+    <string name="xml_purchase_line_dialog_unit_label">యూనిట్</string>
+    <string name="xml_purchase_line_dialog_uqc_label">అధికారిక UQC</string>
+    <string name="xml_purchase_line_dialog_variant_hint">సైజు లేదా ప్యాక్ రకం</string>
+    <string name="xml_purchase_line_dialog_variant_label">వేరియంట్</string>
+    <string name="xml_purchase_line_dialog_you_sell_at_section">మీరు దీనికి అమ్ముతారు</string>
+
+    <!-- item_purchase_line -->
+    <string name="xml_purchase_line_product_placeholder">బాస్మతి బియ్యం</string>
+    <string name="xml_purchase_line_review_badge">సమీక్ష</string>
+
+    <!-- item_purchase_return_row -->
+    <string name="xml_purchase_return_row_bought_placeholder">కొన్నవి 0</string>
+    <string name="xml_purchase_return_row_debit_value_placeholder">డెబిట్ విలువ: ₹0.00</string>
+    <string name="xml_purchase_return_row_hsn_placeholder">HSN: —</string>
+    <string name="xml_purchase_return_row_max_returnable_label">గరిష్ఠంగా తిరిగి ఇవ్వదగినది:</string>
+    <string name="xml_purchase_return_row_product_placeholder">ఉత్పత్తి పేరు</string>
+    <string name="xml_purchase_return_row_return_qty_label">రిటర్న్ పరిమాణం</string>
+    <string name="xml_purchase_return_row_returned_placeholder">తిరిగి ఇచ్చినవి: 0</string>
+
+    <!-- dialog_purchased_header -->
+    <string name="xml_purchased_header_add_product_button">ఉత్పత్తిని జోడించండి</string>
+    <string name="xml_purchased_header_cancel_button">రద్దు చేయండి</string>
+    <string name="xml_purchased_header_gstin_hint">సప్లయర్ GSTIN (ఐచ్ఛికం)</string>
+    <string name="xml_purchased_header_invoice_date_hint">ఇన్వాయిస్ తేదీ</string>
+    <string name="xml_purchased_header_invoice_number_hint">ఇన్వాయిస్ నంబర్</string>
+    <string name="xml_purchased_header_state_hint">సప్లయర్ రాష్ట్రం</string>
+    <string name="xml_purchased_header_subtitle">కొనసాగించడానికి ఇన్వాయిస్ వివరాలు నమోదు చేయండి</string>
+    <string name="xml_purchased_header_supplier_name_hint">సప్లయర్ పేరు</string>
+    <string name="xml_purchased_header_title">పర్చేజ్ హెడర్</string>
+
+    <!-- activity_reports -->
+    <string name="xml_reports_filter_custom">కస్టమ్</string>
+    <string name="xml_reports_filter_month">నెల</string>
+    <string name="xml_reports_filter_today">ఈరోజు</string>
+    <string name="xml_reports_filter_week">వారం</string>
+    <string name="xml_reports_filter_year">సంవత్సరం</string>
+    <string name="xml_reports_header_title">అనలిటిక్స్</string>
+    <string name="xml_reports_overview_label">అవలోకనం</string>
+    <string name="xml_reports_send_email_btn">రిపోర్ట్</string>
+    <string name="xml_reports_title_accent">రిపోర్ట్</string>
+    <string name="xml_reports_title_bold">సేల్స్</string>
+    <string name="xml_reports_view_label">వీక్షణ</string>
+
+    <!-- dialog_restore_customer -->
+    <string name="xml_restore_customer_balance_note">ఖాతా తొలగించినప్పుడు ఉన్న బ్యాలెన్స్ అలాగే పునరుద్ధరించబడుతుంది.</string>
+    <string name="xml_restore_customer_body">మీరు తొలగించిన కస్టమర్</string>
+    <string name="xml_restore_customer_cancel_button">రద్దు చేయండి</string>
+    <string name="xml_restore_customer_confirm_button">కస్టమర్</string>
+    <string name="xml_restore_customer_keep_saved_button">సేవ్ చేసిన పేరును ఉంచండి</string>
+    <string name="xml_restore_customer_saved_as_label">సేవ్ చేసిన పేరు</string>
+    <string name="xml_restore_customer_title_line1">ఈ</string>
+    <string name="xml_restore_customer_title_line2">కస్టమర్</string>
+    <string name="xml_restore_customer_you_typed_label">మీరు టైప్ చేసింది</string>
 
 </resources>

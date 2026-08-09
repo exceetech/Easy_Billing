@@ -47,7 +47,7 @@
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:gravity="center"
-            android:text="R"
+            android:text="@string/dialog_account_options_r"
             android:textSize="17sp"
             android:textColor="#8A8272"
             android:fontFamily="@font/googlesans_semibold"
@@ -66,7 +66,7 @@
                 android:id="@+id/tvCustomerName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Customer"
+                android:text="@string/dialog_account_options_customer"
                 android:textSize="15sp"
                 android:textColor="#1A1A18"
                 android:fontFamily="@font/googlesans_medium"
@@ -108,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-                android:text="settled"
+                android:text="@string/dialog_account_options_settled"
                 android:textSize="9.5sp"
                 android:textColor="#A99E88" />
         </LinearLayout>
@@ -152,14 +152,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Record a payment"
+                    android:text="@string/dialog_account_options_record_a_payment"
                     android:textSize="13.5sp"
                     android:textColor="#1A1A18" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Reduce what they owe"
+                    android:text="@string/dialog_account_options_reduce_what_they_owe"
                     android:textSize="11sp"
                     android:textColor="#9A8F79" />
             </LinearLayout>
@@ -208,7 +208,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Settle account"
+                    android:text="@string/dialog_account_options_settle_account"
                     android:textSize="13.5sp"
                     android:textColor="#1A1A18" />
                 <!--
@@ -221,7 +221,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Clear the balance"
+                    android:text="@string/dialog_account_options_clear_the_balance"
                     android:textSize="11sp"
                     android:textColor="#9A8F79" />
             </LinearLayout>
@@ -270,14 +270,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="View transactions"
+                    android:text="@string/dialog_account_options_view_transactions"
                     android:textSize="13.5sp"
                     android:textColor="#1A1A18" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="Full history and statement"
+                    android:text="@string/dialog_account_options_full_history_and_statement"
                     android:textSize="11sp"
                     android:textColor="#9A8F79" />
             </LinearLayout>
@@ -324,7 +324,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete account"
+                android:text="@string/dialog_account_options_delete_account"
                 android:textSize="13.5sp"
                 android:textColor="#B23A3A" />
             <TextView
@@ -332,7 +332,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-                android:text="Removes them from your list"
+                android:text="@string/dialog_account_options_removes_them_from_your"
                 android:textSize="11sp"
                 android:textColor="#C0A99A" />
         </LinearLayout>

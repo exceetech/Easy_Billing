@@ -94,7 +94,7 @@
                 android:id="@+id/tvInvoiceInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INV-—  ·  —"
+                android:text="@string/activity_purchase_details_inv"
                 android:textColor="#9A8F79"
                 android:textSize="11.5sp" />
 

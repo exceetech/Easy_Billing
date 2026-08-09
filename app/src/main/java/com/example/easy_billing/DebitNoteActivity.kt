@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -52,7 +54,7 @@ class DebitNoteActivity : BaseActivity() {
         billNumber = intent.getStringExtra("BILL_NUMBER") ?: ""
 
         if (billId == -1) {
-            Toast.makeText(this, "Invalid bill ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.debitnoteactivity_invalid_bill_id), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -86,7 +88,7 @@ class DebitNoteActivity : BaseActivity() {
             viewModel.bill.collectLatest { bill ->
                 bill ?: return@collectLatest
                 if (bill.isCancelled) {
-                    Toast.makeText(this@DebitNoteActivity, "Cannot issue a debit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DebitNoteActivity, getString(R.string.debitnoteactivity_cannot_issue_a_debit), Toast.LENGTH_SHORT).show()
                     finish()
                     return@collectLatest
                 }
@@ -195,13 +197,13 @@ class DebitNoteActivity : BaseActivity() {
         val lines   = adapter.getDebitLines()
 
         if (lines.isEmpty()) {
-            Toast.makeText(this, "Please enter additional quantity for at least one item.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.debitnoteactivity_please_enter_additional_quantity), Toast.LENGTH_SHORT).show()
             return
         }
 
         val bill = viewModel.bill.value
         if (bill == null) {
-            Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.debitnoteactivity_bill_not_loaded_yet), Toast.LENGTH_SHORT).show()
             return
         }
 

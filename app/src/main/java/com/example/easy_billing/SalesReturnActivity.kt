@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -67,7 +69,7 @@ class SalesReturnActivity : AppCompatActivity() {
         billNumber = intent.getStringExtra("BILL_NUMBER") ?: ""
 
         if (billId == -1) {
-            Toast.makeText(this, "Invalid bill ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.salesreturnactivity_invalid_bill_id), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -152,7 +154,7 @@ class SalesReturnActivity : AppCompatActivity() {
             viewModel.bill.collectLatest { bill ->
                 bill ?: return@collectLatest
                 if (bill.isCancelled) {
-                    Toast.makeText(this@SalesReturnActivity, "Cannot issue a credit note for a cancelled invoice.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SalesReturnActivity, getString(R.string.salesreturnactivity_cannot_issue_a_credit), Toast.LENGTH_SHORT).show()
                     finish()
                     return@collectLatest
                 }
@@ -266,13 +268,13 @@ class SalesReturnActivity : AppCompatActivity() {
         val lines   = adapter.getReturnLines()
 
         if (lines.isEmpty()) {
-            Toast.makeText(this, "Please select at least one item to return.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.salesreturnactivity_please_select_at_least), Toast.LENGTH_SHORT).show()
             return
         }
 
         val bill = viewModel.bill.value
         if (bill == null) {
-            Toast.makeText(this, "Bill not loaded yet. Please wait.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.salesreturnactivity_bill_not_loaded_yet), Toast.LENGTH_SHORT).show()
             return
         }
 

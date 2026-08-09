@@ -33,7 +33,7 @@
 
     <!-- EYEBROW -->
     <TextView
-        android:text="EXPORT REPORT"
+        android:text="@string/dialog_confirm_print_export_report"
         android:textSize="10sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Print "
+            android:text="@string/dialog_confirm_print_print"
             android:textColor="#1A1A18"
             android:textSize="19sp"
             android:fontFamily="@font/googlesans_bold"
@@ -61,7 +61,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="report"
+            android:text="@string/dialog_confirm_print_report"
             android:textColor="#0F6E56"
             android:textSize="19sp"
             android:textStyle="italic"
@@ -71,7 +71,7 @@
 
     <!-- SUBTITLE -->
     <TextView
-        android:text="Send this summary to your connected printer."
+        android:text="@string/dialog_confirm_print_send_this_summary_to"
         android:textSize="12.5sp"
         android:textColor="#6E6A60"
         android:gravity="center"
@@ -90,7 +90,7 @@
         android:layout_marginTop="16dp">
 
         <TextView
-            android:text="PRINTING FOR"
+            android:text="@string/dialog_confirm_print_printing_for"
             android:textSize="10sp"
             android:letterSpacing="0.06"
             android:textColor="#9A8F79"
@@ -119,7 +119,7 @@
 
             <TextView
                 android:id="@+id/tvInfo"
-                android:text="This month"
+                android:text="@string/dialog_confirm_print_this_month"
                 android:textSize="13.5sp"
                 android:fontFamily="serif"
                 android:textColor="#1A1A18"
@@ -135,7 +135,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:text="Print"
+        android:text="@string/dialog_confirm_print_print_1"
         android:textColor="@android:color/white"
         android:textAllCaps="false"
         android:textSize="13.5sp"
@@ -161,7 +161,7 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="8dp"
-        android:text="Cancel"
+        android:text="@string/dialog_confirm_print_cancel"
         android:textColor="#9A2E2E"
         android:textAllCaps="false"
         android:textSize="13sp"

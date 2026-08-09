@@ -46,7 +46,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SALES RETURN"
+                android:text="@string/activity_sales_return_sales_return"
                 android:textColor="#B8895A"
                 android:textSize="10sp"
                 android:letterSpacing="0.16"
@@ -61,7 +61,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Credit"
+                    android:text="@string/activity_sales_return_credit"
                     android:textColor="#1A1A18"
                     android:textSize="21sp"
                     android:letterSpacing="-0.02"
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="note"
+                    android:text="@string/activity_sales_return_note"
                     android:textColor="#1D6E6E"
                     android:textSize="21sp"
                     android:fontFamily="serif"
@@ -105,7 +105,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:text="Invoice #—"
+                    android:text="@string/activity_sales_return_invoice"
                     android:textColor="#0F6E56"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="11sp"
@@ -130,7 +130,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="18dp"
         android:layout_marginBottom="6dp"
-        android:text="SELECT ITEMS AND QUANTITY TO RETURN"
+        android:text="@string/activity_sales_return_select_items_and_quantity"
         android:textSize="11sp"
         android:textColor="#9A8F79"
         android:letterSpacing="0.08"
@@ -170,7 +170,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Total return value"
+                android:text="@string/activity_sales_return_total_return_value"
                 android:textSize="11.5sp"
                 android:textColor="#9A8F79" />
 
@@ -199,7 +199,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Taxable "
+                android:text="@string/activity_sales_return_taxable"
                 android:textSize="10.5sp"
                 android:textColor="#8A6526" />
 
@@ -216,7 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="GST reversal "
+                android:text="@string/activity_sales_return_gst_reversal"
                 android:textSize="10.5sp"
                 android:textColor="#0F6E56" />
 
@@ -245,7 +245,7 @@
             android:id="@+id/btnConfirmReturn"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Confirm and issue credit note"
+            android:text="@string/activity_sales_return_confirm_and_issue_credit"
             android:textColor="#FFFFFF"
             android:textAllCaps="false"
             android:textSize="13.5sp"
@@ -274,7 +274,7 @@
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
-            android:text="Cancel"
+            android:text="@string/activity_sales_return_cancel"
             android:textColor="#9A2E2E"
             android:textAllCaps="false"
             android:textSize="13sp"

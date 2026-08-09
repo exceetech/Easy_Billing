@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="What's the audit"
+            android:text="@string/dialog_audit_score_info_whats_the_audit"
             android:textColor="#1A1A18"
             android:textSize="16sp"
             android:fontFamily="@font/googlesans_bold"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:text="score?"
+            android:text="@string/dialog_audit_score_info_score"
             android:textColor="#0F6E56"
             android:textSize="16sp"
             android:fontFamily="serif"
@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="A quick health check of your shop, from 0 to 100. It starts at 100 and goes down for every urgent issue or money leak we find — so a higher score means fewer problems to fix."
+        android:text="@string/dialog_audit_score_info_a_quick_health_check"
         android:textColor="#9A8F79"
         android:textSize="13sp"
         android:lineSpacingMultiplier="1.4"/>
@@ -57,11 +57,11 @@
         <View android:layout_width="10dp" android:layout_height="10dp"
             android:background="@drawable/bg_imp_dot" android:backgroundTint="#085041"/>
         <TextView android:layout_width="80dp" android:layout_height="wrap_content"
-            android:layout_marginStart="9dp" android:text="Healthy"
+            android:layout_marginStart="9dp" android:text="@string/dialog_audit_score_info_healthy"
             android:textColor="#1A1A18" android:textSize="12sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="78–100 · few or no issues" android:textColor="#9A8F79" android:textSize="12sp"/>
+            android:text="@string/dialog_audit_score_info_78100_few_or_no" android:textColor="#9A8F79" android:textSize="12sp"/>
     </LinearLayout>
 
     <!-- Fair -->
@@ -74,11 +74,11 @@
         <View android:layout_width="10dp" android:layout_height="10dp"
             android:background="@drawable/bg_imp_dot" android:backgroundTint="#8A6526"/>
         <TextView android:layout_width="80dp" android:layout_height="wrap_content"
-            android:layout_marginStart="9dp" android:text="Fair"
+            android:layout_marginStart="9dp" android:text="@string/dialog_audit_score_info_fair"
             android:textColor="#1A1A18" android:textSize="12sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="66–77 · a few things to watch" android:textColor="#9A8F79" android:textSize="12sp"/>
+            android:text="@string/dialog_audit_score_info_6677_a_few_things" android:textColor="#9A8F79" android:textSize="12sp"/>
     </LinearLayout>
 
     <!-- Needs work -->
@@ -91,11 +91,11 @@
         <View android:layout_width="10dp" android:layout_height="10dp"
             android:background="@drawable/bg_imp_dot" android:backgroundTint="#791F1F"/>
         <TextView android:layout_width="80dp" android:layout_height="wrap_content"
-            android:layout_marginStart="9dp" android:text="Needs work"
+            android:layout_marginStart="9dp" android:text="@string/dialog_audit_score_info_needs_work"
             android:textColor="#1A1A18" android:textSize="12sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="below 66 · act on the alerts" android:textColor="#9A8F79" android:textSize="12sp"/>
+            android:text="@string/dialog_audit_score_info_below_66_act_on" android:textColor="#9A8F79" android:textSize="12sp"/>
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -108,7 +108,7 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="Got it"
+        android:text="@string/dialog_audit_score_info_got_it"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="13sp"

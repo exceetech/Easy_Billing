@@ -75,7 +75,7 @@
                         android:id="@+id/tvGreeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Good morning"
+                        android:text="@string/fragment_overview_good_morning"
                         android:textColor="#9A8F79"
                         android:textSize="11.5sp"
                         android:layout_marginBottom="2dp"/>
@@ -84,7 +84,7 @@
                         android:id="@+id/tvShopName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Your Store"
+                        android:text="@string/fragment_overview_your_store"
                         android:textColor="#1A1A18"
                         android:textSize="15sp"
                         android:fontFamily="@font/googlesans_semibold"/>
@@ -139,7 +139,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TOTAL REVENUE"
+                            android:text="@string/fragment_overview_total_revenue"
                             android:textColor="#9FE1CB"
                             android:textSize="9.5sp"
                             android:letterSpacing="0.18"
@@ -216,7 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="9dp"
-                android:text="GLANCE"
+                android:text="@string/fragment_overview_glance"
                 android:textColor="#8A6526"
                 android:textSize="11sp"
                 android:textStyle="bold"
@@ -289,7 +289,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total bills"
+                        android:text="@string/fragment_overview_total_bills"
                         android:textColor="#0F6E56"
                         android:textSize="10.5sp"
                         android:layout_marginTop="1dp"/>
@@ -353,7 +353,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Avg bill"
+                        android:text="@string/fragment_overview_avg_bill"
                         android:textColor="#B8895A"
                         android:textSize="10.5sp"
                         android:layout_marginTop="1dp"/>
@@ -428,7 +428,7 @@
                         android:id="@+id/tvReturnsLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Returns"
+                        android:text="@string/fragment_overview_returns"
                         android:textColor="#8A6526"
                         android:textSize="10.5sp"
                         android:layout_marginTop="1dp"/>
@@ -493,7 +493,7 @@
                         android:id="@+id/tvCancelledAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Cancelled"
+                        android:text="@string/fragment_overview_cancelled"
                         android:textColor="#9A2E2E"
                         android:textSize="10.5sp"
                         android:layout_marginTop="1dp"/>
@@ -515,7 +515,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="9dp"
-                android:text="PAYMENT SPLIT"
+                android:text="@string/fragment_overview_payment_split"
                 android:textColor="#8A6526"
                 android:textSize="11sp"
                 android:textStyle="bold"
@@ -539,7 +539,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Total collected"
+                    android:text="@string/fragment_overview_total_collected"
                     android:textColor="#9A8F79"
                     android:textSize="11.5sp"/>
                 <TextView
@@ -609,7 +609,7 @@
                         app:tint="@color/ov_green_cash" android:contentDescription="Cash"/>
                 </FrameLayout>
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp" android:text="Cash"
+                    android:layout_marginStart="10dp" android:text="@string/fragment_overview_cash"
                     android:textColor="#1A1A18" android:textSize="12.5sp"/>
                 <TextView android:id="@+id/tvCashPct" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp" android:text="0%"
@@ -633,7 +633,7 @@
                         app:tint="@color/ov_purple" android:contentDescription="UPI"/>
                 </FrameLayout>
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp" android:text="UPI"
+                    android:layout_marginStart="10dp" android:text="@string/fragment_overview_upi"
                     android:textColor="#1A1A18" android:textSize="12.5sp"/>
                 <TextView android:id="@+id/tvUpiPct" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp" android:text="0%"
@@ -657,7 +657,7 @@
                         app:tint="@color/ov_blue" android:contentDescription="Card"/>
                 </FrameLayout>
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp" android:text="Card"
+                    android:layout_marginStart="10dp" android:text="@string/fragment_overview_card"
                     android:textColor="#1A1A18" android:textSize="12.5sp"/>
                 <TextView android:id="@+id/tvCardPct" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp" android:text="0%"
@@ -680,7 +680,7 @@
                         app:tint="@color/ov_amber" android:contentDescription="Credit"/>
                 </FrameLayout>
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp" android:text="Credit"
+                    android:layout_marginStart="10dp" android:text="@string/fragment_overview_credit"
                     android:textColor="#1A1A18" android:textSize="12.5sp"/>
                 <TextView android:id="@+id/tvCreditPct" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp" android:text="0%"

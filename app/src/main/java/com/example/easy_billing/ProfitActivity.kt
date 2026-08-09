@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.app.Dialog
 import com.example.easy_billing.util.AppTime
 import android.content.Intent
@@ -489,7 +491,7 @@ class ProfitActivity : AppCompatActivity() {
     private fun printProfitReport() {
 
         if (latestProfitList.isEmpty()) {
-            Toast.makeText(this, "No data to print", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.profitactivity_no_data_to_print), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -554,7 +556,7 @@ class ProfitActivity : AppCompatActivity() {
 
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(this@ProfitActivity, "Print failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ProfitActivity, getString(R.string.profitactivity_print_failed), Toast.LENGTH_SHORT).show()
                 }
             }
         }

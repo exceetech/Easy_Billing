@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="Customer"
+        android:text="@string/dialog_add_payment_customer"
         android:textColor="#B8895A"
         android:textSize="10sp"
         android:letterSpacing="0.16"
@@ -60,7 +60,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Record a"
+            android:text="@string/dialog_add_payment_record_a"
             android:textColor="#1A1A18"
             android:textSize="20sp"
             android:fontFamily="@font/googlesans_bold"
@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:text="payment"
+            android:text="@string/dialog_add_payment_payment"
             android:textColor="#0F6E56"
             android:textSize="20sp"
             android:fontFamily="serif"
@@ -91,7 +91,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Currently owes"
+            android:text="@string/dialog_add_payment_currently_owes"
             android:textColor="#9A8F79"
             android:textSize="11.5sp" />
         <TextView
@@ -111,7 +111,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="6dp"
-        android:text="Amount received"
+        android:text="@string/dialog_add_payment_amount_received"
         android:textSize="12.5sp"
         android:textColor="#9A968C"
         android:fontFamily="@font/googlesans_regular" />
@@ -217,7 +217,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Balance after"
+            android:text="@string/dialog_add_payment_balance_after"
             android:textColor="#9A8F79"
             android:textSize="11.5sp" />
         <TextView
@@ -242,7 +242,7 @@
         android:insetBottom="0dp"
         android:insetLeft="0dp"
         android:insetRight="0dp"
-        android:text="Record payment"
+        android:text="@string/dialog_add_payment_record_payment"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="@android:color/white"
@@ -269,7 +269,7 @@
         android:insetBottom="0dp"
         android:insetLeft="0dp"
         android:insetRight="0dp"
-        android:text="Cancel"
+        android:text="@string/dialog_add_payment_cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textColor="#9A2E2E"

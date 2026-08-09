@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -201,7 +203,7 @@ class SubscriptionActivity : BaseActivity() {
                 e.printStackTrace()
                 com.google.android.material.snackbar.Snackbar.make(
                     tvPlan,
-                    "Failed to load",
+                    getString(R.string.subscriptionactivity_failed_to_load),
                     com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
                 ).setAction(R.string.retry) { loadSubscription() }.show()
             }

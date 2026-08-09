@@ -1,5 +1,7 @@
 package com.example.easy_billing
 
+import com.example.easy_billing.R
+
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -395,7 +397,7 @@ class EditProductActivity : BaseActivity() {
                     etHsn.error = getString(R.string.edit_product_hsn_required_error)
                     Toast.makeText(
                         this@EditProductActivity,
-                        "HSN Code is mandatory for GST billing",
+                        getString(R.string.editproductactivity_hsn_code_is_mandatory),
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
