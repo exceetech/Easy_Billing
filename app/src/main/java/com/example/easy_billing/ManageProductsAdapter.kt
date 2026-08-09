@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.Product
+import com.example.easy_billing.util.CurrencyHelper
 
 private val MANAGE_PRODUCT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Product>() {
     override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean =
@@ -112,7 +113,7 @@ class ManageProductsAdapter(
         holder.tvMeta.text = meta
 
         // Price anchor.
-        holder.tvPrice.text = money(item.price)
+        holder.tvPrice.text = money(holder.itemView.context, item.price)
 
         // Sub-note: stock pill when tracked, else a plain GST note.
         val note = holder.tvSubNote
@@ -155,8 +156,10 @@ class ManageProductsAdapter(
 
     private companion object { const val LOW_STOCK = 10.0 }
 
-    private fun money(p: Double): String =
-        if (p % 1.0 == 0.0) "₹${p.toLong()}" else "₹${"%.2f".format(p)}"
+    private fun money(context: android.content.Context, p: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
+        return if (p % 1.0 == 0.0) "$symbol${p.toLong()}" else "$symbol${"%.2f".format(p)}"
+    }
 
     private fun trimNum(d: Double): String =
         if (d % 1.0 == 0.0) d.toLong().toString() else d.toString()

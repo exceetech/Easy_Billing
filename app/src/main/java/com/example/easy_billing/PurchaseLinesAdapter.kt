@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * One purchase-draft line paired with its slot index. PurchaseItemDraft has
@@ -90,15 +91,15 @@ internal class PurchaseLinesAdapter(
 
         // Meta: "20 × ₹460 · GST 5%" (+ discount when present).
         holder.tvMeta.text = buildString {
-            append("${trimNum(item.quantity)} × ${money(rate)}")
+            append("${trimNum(item.quantity)} × ${money(holder.itemView.context, rate)}")
             append(if (gstPct > 0) "  ·  GST ${trimNum(round1(gstPct))}%" else "  ·  No GST")
-            if (item.discountAmount > 0) append("  ·  Disc ${money(item.discountAmount)}")
+            if (item.discountAmount > 0) append("  ·  Disc ${money(holder.itemView.context, item.discountAmount)}")
         }
 
         // Line total + tax.
-        holder.tvPrice.text = money(item.invoiceValue)
+        holder.tvPrice.text = money(holder.itemView.context, item.invoiceValue)
         if (tax > 0) {
-            holder.tvTax.text = "+${money(tax)} tax"
+            holder.tvTax.text = "+${money(holder.itemView.context, tax)} tax"
             holder.tvTax.setTextColor(Color.parseColor("#0F6E56"))
         } else {
             holder.tvTax.text = holder.itemView.context.getString(R.string.invoice_no_tax)
@@ -122,8 +123,10 @@ internal class PurchaseLinesAdapter(
         }
     }
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
+        return if (v % 1.0 == 0.0) "$symbol${v.toLong()}" else "$symbol${"%.2f".format(v)}"
+    }
 
     private fun trimNum(d: Double): String =
         if (d % 1.0 == 0.0) d.toLong().toString() else d.toString()

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.gstr1.Gstr1RowAdapter
+import com.example.easy_billing.util.CurrencyHelper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -111,16 +112,17 @@ class Gstr2SectionFragment : Fragment() {
 
     private fun buildRowsFromReport(position: Int, report: Gstr2Report?): List<Pair<String, String>> {
         if (report == null) return emptyList()
+        val symbol = CurrencyHelper.getCurrencySymbol(requireContext())
         return try {
             when (position) {
-                0 -> report.b2b.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "GSTIN: ${it.supplierGstin} | Taxable: ₹${it.taxableValue}") }
-                1 -> report.b2bur.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "Supplier: ${it.supplierName} | Taxable: ₹${it.taxableValue}") }
-                2 -> report.imps.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "POS: ${it.placeOfSupply} | Taxable: ₹${it.taxableValue}") }
-                3 -> report.impg.map { Pair("${it.billOfEntryNumber} · ${it.billOfEntryDate}", "Port: ${it.portCode} | Taxable: ₹${it.taxableValue}") }
-                4 -> report.cdnr.map { Pair("${it.noteNumber} · ${it.noteDate}", "GSTIN: ${it.supplierGstin} | Taxable: ₹${it.taxableValue}") }
-                5 -> report.cdnur.map { Pair("${it.noteNumber} · ${it.noteDate}", "Type: ${it.documentType} | Taxable: ₹${it.taxableValue}") }
-                6 -> report.exemp.map { Pair(it.description, "Nil Rated: ₹${it.nilRated} | Exempt: ₹${it.exempted}") }
-                7 -> report.hsnsum.map { Pair("HSN: ${it.hsn}", "Total Value: ₹${it.totalValue} | Taxable: ₹${it.taxableValue}") }
+                0 -> report.b2b.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "GSTIN: ${it.supplierGstin} | Taxable: $symbol${it.taxableValue}") }
+                1 -> report.b2bur.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "Supplier: ${it.supplierName} | Taxable: $symbol${it.taxableValue}") }
+                2 -> report.imps.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "POS: ${it.placeOfSupply} | Taxable: $symbol${it.taxableValue}") }
+                3 -> report.impg.map { Pair("${it.billOfEntryNumber} · ${it.billOfEntryDate}", "Port: ${it.portCode} | Taxable: $symbol${it.taxableValue}") }
+                4 -> report.cdnr.map { Pair("${it.noteNumber} · ${it.noteDate}", "GSTIN: ${it.supplierGstin} | Taxable: $symbol${it.taxableValue}") }
+                5 -> report.cdnur.map { Pair("${it.noteNumber} · ${it.noteDate}", "Type: ${it.documentType} | Taxable: $symbol${it.taxableValue}") }
+                6 -> report.exemp.map { Pair(it.description, "Nil Rated: $symbol${it.nilRated} | Exempt: $symbol${it.exempted}") }
+                7 -> report.hsnsum.map { Pair("HSN: ${it.hsn}", "Total Value: $symbol${it.totalValue} | Taxable: $symbol${it.taxableValue}") }
                 else -> emptyList()
             }
         } catch (e: Exception) {
@@ -130,39 +132,40 @@ class Gstr2SectionFragment : Fragment() {
 
     private fun buildRows(position: Int, json: String): List<Pair<String, String>> {
         val gson = Gson()
+        val symbol = CurrencyHelper.getCurrencySymbol(requireContext())
         return try {
             when (position) {
                 0 -> {
                     val list = gson.fromJson<List<Gstr2B2bRow>>(json, object : TypeToken<List<Gstr2B2bRow>>() {}.type)
-                    list.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "GSTIN: ${it.supplierGstin} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "GSTIN: ${it.supplierGstin} | Taxable: $symbol${it.taxableValue}") }
                 }
                 1 -> {
                     val list = gson.fromJson<List<Gstr2B2burRow>>(json, object : TypeToken<List<Gstr2B2burRow>>() {}.type)
-                    list.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "Supplier: ${it.supplierName} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "Supplier: ${it.supplierName} | Taxable: $symbol${it.taxableValue}") }
                 }
                 2 -> {
                     val list = gson.fromJson<List<Gstr2ImpsRow>>(json, object : TypeToken<List<Gstr2ImpsRow>>() {}.type)
-                    list.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "POS: ${it.placeOfSupply} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("${it.invoiceNumber} · ${it.invoiceDate}", "POS: ${it.placeOfSupply} | Taxable: $symbol${it.taxableValue}") }
                 }
                 3 -> {
                     val list = gson.fromJson<List<Gstr2ImpgRow>>(json, object : TypeToken<List<Gstr2ImpgRow>>() {}.type)
-                    list.map { Pair("${it.billOfEntryNumber} · ${it.billOfEntryDate}", "Port: ${it.portCode} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("${it.billOfEntryNumber} · ${it.billOfEntryDate}", "Port: ${it.portCode} | Taxable: $symbol${it.taxableValue}") }
                 }
                 4 -> {
                     val list = gson.fromJson<List<Gstr2CdnrRow>>(json, object : TypeToken<List<Gstr2CdnrRow>>() {}.type)
-                    list.map { Pair("${it.noteNumber} · ${it.noteDate}", "GSTIN: ${it.supplierGstin} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("${it.noteNumber} · ${it.noteDate}", "GSTIN: ${it.supplierGstin} | Taxable: $symbol${it.taxableValue}") }
                 }
                 5 -> {
                     val list = gson.fromJson<List<Gstr2CdnurRow>>(json, object : TypeToken<List<Gstr2CdnurRow>>() {}.type)
-                    list.map { Pair("${it.noteNumber} · ${it.noteDate}", "Type: ${it.documentType} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("${it.noteNumber} · ${it.noteDate}", "Type: ${it.documentType} | Taxable: $symbol${it.taxableValue}") }
                 }
                 6 -> {
                     val list = gson.fromJson<List<Gstr2ExempRow>>(json, object : TypeToken<List<Gstr2ExempRow>>() {}.type)
-                    list.map { Pair(it.description, "Nil Rated: ₹${it.nilRated} | Exempt: ₹${it.exempted}") }
+                    list.map { Pair(it.description, "Nil Rated: $symbol${it.nilRated} | Exempt: $symbol${it.exempted}") }
                 }
                 7 -> {
                     val list = gson.fromJson<List<Gstr2HsnsumRow>>(json, object : TypeToken<List<Gstr2HsnsumRow>>() {}.type)
-                    list.map { Pair("HSN: ${it.hsn}", "Total Value: ₹${it.totalValue} | Taxable: ₹${it.taxableValue}") }
+                    list.map { Pair("HSN: ${it.hsn}", "Total Value: $symbol${it.totalValue} | Taxable: $symbol${it.taxableValue}") }
                 }
                 else -> emptyList()
             }

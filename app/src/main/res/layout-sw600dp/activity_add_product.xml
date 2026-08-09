@@ -281,7 +281,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="₹"
+                                    android:text=""
                                     android:textColor="#1A1A18"
                                     android:textSize="16sp"
                                     android:fontFamily="@font/googlesans_semibold"/>
@@ -655,7 +655,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="₹"
+                                android:text=""
                                 android:textColor="#1A1A18"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/googlesans_semibold"/>

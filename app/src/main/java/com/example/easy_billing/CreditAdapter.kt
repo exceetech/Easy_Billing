@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.CreditAccount
+import com.example.easy_billing.util.CurrencyHelper
 
 private val CREDIT_ACCOUNT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<CreditAccount>() {
     override fun areItemsTheSame(oldItem: CreditAccount, newItem: CreditAccount): Boolean =
@@ -37,8 +38,10 @@ class CreditAdapter(
         val divider = view.findViewById<View>(R.id.viewRowDivider)
     }
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
+        return if (v % 1.0 == 0.0) "$symbol${v.toLong()}" else "$symbol${"%.2f".format(v)}"
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
@@ -68,19 +71,19 @@ class CreditAdapter(
             item.dueAmount > 0 -> {
                 stripe = "#B23A3A"; tile = "#FCEBEB"; ink = "#791F1F"
                 holder.status.text = holder.itemView.context.getString(R.string.credit_row_owes_you)
-                holder.due.text = money(item.dueAmount)
+                holder.due.text = money(holder.itemView.context, item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
             }
             item.dueAmount < 0 -> {
                 stripe = "#0F6E56"; tile = "#E1F5EE"; ink = "#0F6E56"
                 holder.status.text = holder.itemView.context.getString(R.string.credit_row_in_advance)
-                holder.due.text = money(-item.dueAmount)
+                holder.due.text = money(holder.itemView.context, -item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             }
             else -> {
                 stripe = "#E4DBC6"; tile = "#F3ECDD"; ink = "#8A8272"
                 holder.status.text = holder.itemView.context.getString(R.string.credit_chip_label_settled)
-                holder.due.text = money(0.0)
+                holder.due.text = money(holder.itemView.context, 0.0)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#8A8272"))
             }
         }

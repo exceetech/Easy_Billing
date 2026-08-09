@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.ProductProfitRaw
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * Profit-by-product chart page: a ranked "leaderboard" of products by net profit
@@ -76,13 +77,13 @@ class ProfitChartActivity : AppCompatActivity() {
         if (ranked.isEmpty()) {
             rv.visibility = View.GONE
             tvEmpty.visibility = View.VISIBLE
-            tvTotal.text = "₹0"
+            tvTotal.text = "${CurrencyHelper.getCurrencySymbol(this)}0"
             tvBest.text = "—"
             return
         }
 
         val total = ranked.sumOf { it.profit }
-        tvTotal.text = "₹${"%,.2f".format(total)}"
+        tvTotal.text = "${CurrencyHelper.getCurrencySymbol(this)}${"%,.2f".format(total)}"
         tvTotal.setTextColor(Color.parseColor(if (total < 0) "#A32D2D" else "#0F6E56"))
 
         val best = ranked.first()

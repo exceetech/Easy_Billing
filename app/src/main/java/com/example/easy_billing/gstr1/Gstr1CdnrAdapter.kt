@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * CDNR (GSTR-1 Table 9B, registered) row adapter.
@@ -39,10 +40,11 @@ class Gstr1CdnrAdapter(
     override fun getItemCount() = rows.size
 
     /** Keeps the minus outside the rupee symbol: -₹1,200, not ₹-1,200. */
-    private fun money(v: Double): String {
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
         val sign = if (v < 0) "-" else ""
         val a = kotlin.math.abs(v)
-        return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+        return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
@@ -75,14 +77,14 @@ class Gstr1CdnrAdapter(
             "RCM".takeIf { r.reverseCharge.equals("Y", ignoreCase = true) }
         ).joinToString("  ·  ")
 
-        holder.tvAmount.text = money(signed)
+        holder.tvAmount.text = money(holder.itemView.context, signed)
         holder.tvAmount.setTextColor(Color.parseColor(if (isCredit) "#A32D2D" else "#1A1A18"))
 
         val tax = signed * r.rate / 100.0
         holder.tvTax.text = if (r.cessAmount != 0.0)
-            "${money(tax)} · cess ${money(if (isCredit) -kotlin.math.abs(r.cessAmount) else r.cessAmount)}"
+            "${money(holder.itemView.context, tax)} · cess ${money(holder.itemView.context, if (isCredit) -kotlin.math.abs(r.cessAmount) else r.cessAmount)}"
         else
-            money(tax)
+            money(holder.itemView.context, tax)
         holder.tvTax.setTextColor(Color.parseColor(ink))
 
         holder.vStripe.backgroundTintList =

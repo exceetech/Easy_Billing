@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.InventoryItemUI
+import com.example.easy_billing.util.CurrencyHelper
 
 private val INVENTORY_DIFF_CALLBACK = object : DiffUtil.ItemCallback<InventoryItemUI>() {
     // Identity: same product row.
@@ -96,7 +97,7 @@ class InventoryAdapter(
         val unitText = item.unit?.takeIf { it.isNotBlank() } ?: ""
 
         holder.name.text = item.productName
-        holder.cost.text = "₹${"%.2f".format(item.avgCost)}"
+        holder.cost.text = "${CurrencyHelper.getCurrencySymbol(holder.itemView.context)}${"%.2f".format(item.avgCost)}"
 
         // Stock count (no decimals if whole)
         val stockText = if (item.stock % 1 == 0.0)

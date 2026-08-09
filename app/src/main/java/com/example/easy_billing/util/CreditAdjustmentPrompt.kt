@@ -26,8 +26,10 @@ import kotlinx.coroutines.launch
  */
 object CreditAdjustmentPrompt {
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
+        return if (v % 1.0 == 0.0) "$symbol${v.toLong()}" else "$symbol${"%.2f".format(v)}"
+    }
 
     /** Sales entry point — unchanged signature. */
     fun handle(
@@ -116,14 +118,14 @@ object CreditAdjustmentPrompt {
         val party = plan.account.name
         val clearsLine =
             if (plan.reduce > 0.005)
-                "${money(plan.reduce)} clears $party's remaining dues.\n"
+                "${money(activity, plan.reduce)} clears $party's remaining dues.\n"
             else
                 "$party has no dues left to clear.\n"
 
         val msg = buildString {
             append(clearsLine)
-            append("Extra ${money(plan.excess)} is left over.\n\n")
-            append("Settle the ${money(plan.excess)} in cash, or keep it as an advance " +
+            append("Extra ${money(activity, plan.excess)} is left over.\n\n")
+            append("Settle the ${money(activity, plan.excess)} in cash, or keep it as an advance " +
                 "on $party's account?")
         }
 
@@ -165,8 +167,8 @@ object CreditAdjustmentPrompt {
     private fun toast(activity: AppCompatActivity, kind: Kind, r: PostResult) {
         val text = when (r) {
             is PostResult.Ok ->
-                if (kind.raises) "Added ${money(r.appliedAmount)} to balance"
-                else "Reduced balance by ${money(r.appliedAmount)}"
+                if (kind.raises) "Added ${money(activity, r.appliedAmount)} to balance"
+                else "Reduced balance by ${money(activity, r.appliedAmount)}"
             PostResult.AlreadyPosted -> "Already applied to the account"
             PostResult.Nothing -> "Recorded — no change to balance"
             PostResult.NoShop -> "No shop selected. Sign in again."

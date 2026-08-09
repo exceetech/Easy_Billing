@@ -20,6 +20,7 @@ import com.example.easy_billing.BaseActivity
 import com.example.easy_billing.R
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.ImportService
+import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -325,9 +326,9 @@ class ImportServicesActivity : BaseActivity() {
 
         val scope = selectedFyStart?.let { fyLabel(it) } ?: "All FY"
         findViewById<TextView?>(R.id.tvHeroCount)?.text = "${list.size} records · $scope"
-        findViewById<TextView?>(R.id.tvKpiTaxable)?.text = money(taxable)
-        findViewById<TextView?>(R.id.tvKpiIgst)?.text = money(igst)
-        findViewById<TextView?>(R.id.tvKpiItc)?.text = money(itcAvailed)
+        findViewById<TextView?>(R.id.tvKpiTaxable)?.text = money(this, taxable)
+        findViewById<TextView?>(R.id.tvKpiIgst)?.text = money(this, igst)
+        findViewById<TextView?>(R.id.tvKpiItc)?.text = money(this, itcAvailed)
         findViewById<TextView?>(R.id.tvKpiUnsynced)?.text = needsFixing.toString()
 
         // ITC chip only when something has actually been availed.
@@ -337,7 +338,8 @@ class ImportServicesActivity : BaseActivity() {
 
     companion object {
         private val inFormat: NumberFormat = NumberFormat.getIntegerInstance(Locale("en", "IN"))
-        fun money(v: Double): String = "₹" + inFormat.format(Math.round(v))
+        fun money(context: android.content.Context, v: Double): String =
+            CurrencyHelper.getCurrencySymbol(context) + inFormat.format(Math.round(v))
     }
 }
 
@@ -373,14 +375,14 @@ class ImportServiceAdapter(
 
         holder.tvInvoiceNumber.text = item.invoiceNumber
 
-        holder.tvInvoiceValue.text = ImportServicesActivity.money(item.taxableValue)
-        holder.tvIgst.text = ImportServicesActivity.money(item.igstPaid)
+        holder.tvInvoiceValue.text = ImportServicesActivity.money(holder.itemView.context, item.taxableValue)
+        holder.tvIgst.text = ImportServicesActivity.money(holder.itemView.context, item.igstPaid)
         holder.tvItcAvailed.text =
-            ImportServicesActivity.money(item.availedItcIgst + item.availedItcCess)
+            ImportServicesActivity.money(holder.itemView.context, item.availedItcIgst + item.availedItcCess)
 
         // Cess is zero on almost every import record — only give it a column
         // when there is something to show.
-        holder.tvCess.text = ImportServicesActivity.money(item.cessPaid)
+        holder.tvCess.text = ImportServicesActivity.money(holder.itemView.context, item.cessPaid)
         holder.layoutCess.visibility = if (item.cessPaid > 0.0) View.VISIBLE else View.GONE
 
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * Adapters for the five e-commerce-operator sections (GSTR-1 Tables 14 & 15).
@@ -31,10 +32,11 @@ private val ECO_PALETTE = listOf(
     "#378ADD"  // blue
 )
 
-private fun ecoMoney(v: Double): String {
+private fun ecoMoney(context: android.content.Context, v: Double): String {
+    val symbol = CurrencyHelper.getCurrencySymbol(context)
     val sign = if (v < 0) "-" else ""
     val a = kotlin.math.abs(v)
-    return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+    return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
 }
 
 private fun ecoRate(r: Double): String =
@@ -89,13 +91,13 @@ class Gstr1EcoAdapter(rows: List<EcoRow>) : EcoBaseAdapter<EcoRow>(rows) {
         val tax = row.igst + row.cgst + row.sgst
         h.tvExtra.visibility = View.VISIBLE
         h.tvExtra.text = if (row.igst > 0.0)
-            "IGST ${ecoMoney(row.igst)}" + if (row.cess != 0.0) "  ·  cess ${ecoMoney(row.cess)}" else ""
+            "IGST ${ecoMoney(h.itemView.context, row.igst)}" + if (row.cess != 0.0) "  ·  cess ${ecoMoney(h.itemView.context, row.cess)}" else ""
         else
-            "CGST ${ecoMoney(row.cgst)} + SGST ${ecoMoney(row.sgst)}" +
-                if (row.cess != 0.0) "  ·  cess ${ecoMoney(row.cess)}" else ""
+            "CGST ${ecoMoney(h.itemView.context, row.cgst)} + SGST ${ecoMoney(h.itemView.context, row.sgst)}" +
+                if (row.cess != 0.0) "  ·  cess ${ecoMoney(h.itemView.context, row.cess)}" else ""
 
-        h.tvAmount.text = ecoMoney(row.netValue)
-        h.tvTax.text = "+${ecoMoney(tax)} tax"
+        h.tvAmount.text = ecoMoney(h.itemView.context, row.netValue)
+        h.tvTax.text = "+${ecoMoney(h.itemView.context, tax)} tax"
     }
 }
 
@@ -120,13 +122,13 @@ class Gstr1EcoB2bAdapter(rows: List<EcoB2BRow>) : EcoBaseAdapter<EcoB2BRow>(rows
         h.tvExtra.text = listOfNotNull(
             row.docType.ifBlank { null },
             row.supplierGstin.takeIf { it.isNotBlank() }?.let { "supplier $it" },
-            if (row.cessAmount != 0.0) "cess ${ecoMoney(row.cessAmount)}" else null
+            if (row.cessAmount != 0.0) "cess ${ecoMoney(h.itemView.context, row.cessAmount)}" else null
         ).joinToString("  ·  ").ifBlank { "—" }
 
-        h.tvAmount.text = ecoMoney(row.taxableValue)
-        h.tvTax.text = "+${ecoMoney(row.taxableValue * row.rate / 100.0)} tax"
+        h.tvAmount.text = ecoMoney(h.itemView.context, row.taxableValue)
+        h.tvTax.text = "+${ecoMoney(h.itemView.context, row.taxableValue * row.rate / 100.0)} tax"
         h.tvSubAmount.visibility = View.VISIBLE
-        h.tvSubAmount.text = "${ecoMoney(row.supplyValue)} supply"
+        h.tvSubAmount.text = "${ecoMoney(h.itemView.context, row.supplyValue)} supply"
     }
 }
 
@@ -149,11 +151,11 @@ class Gstr1EcoB2cAdapter(rows: List<EcoB2CRow>) : EcoBaseAdapter<EcoB2CRow>(rows
 
         if (row.cessAmount != 0.0) {
             h.tvExtra.visibility = View.VISIBLE
-            h.tvExtra.text = "cess ${ecoMoney(row.cessAmount)}"
+            h.tvExtra.text = "cess ${ecoMoney(h.itemView.context, row.cessAmount)}"
         }
 
-        h.tvAmount.text = ecoMoney(row.taxableValue)
-        h.tvTax.text = "+${ecoMoney(row.taxableValue * row.rate / 100.0)} tax"
+        h.tvAmount.text = ecoMoney(h.itemView.context, row.taxableValue)
+        h.tvTax.text = "+${ecoMoney(h.itemView.context, row.taxableValue * row.rate / 100.0)} tax"
     }
 }
 
@@ -178,13 +180,13 @@ class Gstr1EcoUrp2bAdapter(rows: List<EcoUrp2BRow>) : EcoBaseAdapter<EcoUrp2BRow
         h.tvExtra.text = listOfNotNull(
             row.docType.ifBlank { null },
             "unregistered supplier",
-            if (row.cessAmount != 0.0) "cess ${ecoMoney(row.cessAmount)}" else null
+            if (row.cessAmount != 0.0) "cess ${ecoMoney(h.itemView.context, row.cessAmount)}" else null
         ).joinToString("  ·  ")
 
-        h.tvAmount.text = ecoMoney(row.taxableValue)
-        h.tvTax.text = "+${ecoMoney(row.taxableValue * row.rate / 100.0)} tax"
+        h.tvAmount.text = ecoMoney(h.itemView.context, row.taxableValue)
+        h.tvTax.text = "+${ecoMoney(h.itemView.context, row.taxableValue * row.rate / 100.0)} tax"
         h.tvSubAmount.visibility = View.VISIBLE
-        h.tvSubAmount.text = "${ecoMoney(row.supplyValue)} supply"
+        h.tvSubAmount.text = "${ecoMoney(h.itemView.context, row.supplyValue)} supply"
     }
 }
 
@@ -202,10 +204,10 @@ class Gstr1EcoUrp2cAdapter(rows: List<EcoUrp2CRow>) : EcoBaseAdapter<EcoUrp2CRow
 
         if (row.cessAmount != 0.0) {
             h.tvExtra.visibility = View.VISIBLE
-            h.tvExtra.text = "cess ${ecoMoney(row.cessAmount)}"
+            h.tvExtra.text = "cess ${ecoMoney(h.itemView.context, row.cessAmount)}"
         }
 
-        h.tvAmount.text = ecoMoney(row.taxableValue)
-        h.tvTax.text = "+${ecoMoney(row.taxableValue * row.rate / 100.0)} tax"
+        h.tvAmount.text = ecoMoney(h.itemView.context, row.taxableValue)
+        h.tvTax.text = "+${ecoMoney(h.itemView.context, row.taxableValue * row.rate / 100.0)} tax"
     }
 }

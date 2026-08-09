@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.ProductProfitRaw
+import com.example.easy_billing.util.CurrencyHelper
 
 class ProfitAdapter(
     private val onClick: (ProductProfitRaw) -> Unit
@@ -87,7 +88,7 @@ class ProfitAdapter(
         holder.qty.text = "$qtyFormatted ${item.unit ?: ""} sold".trim()
 
         // ================= PROFIT =================
-        holder.profit.text = "₹%.2f".format(item.profit)
+        holder.profit.text = "${CurrencyHelper.getCurrencySymbol(holder.itemView.context)}%.2f".format(item.profit)
         holder.profit.setTextColor(Color.parseColor(profitColor))
 
         // ================= STRIPE =================

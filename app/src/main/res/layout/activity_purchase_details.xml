@@ -165,7 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="₹0"
+                    android:text="0"
                     android:textSize="30sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="serif"
@@ -191,7 +191,7 @@
                             android:id="@+id/tvTaxableAmount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="₹0"
+                            android:text="0"
                             android:textSize="15sp"
                             android:textColor="#3A322A"
                             android:fontFamily="serif"
@@ -218,7 +218,7 @@
                             android:id="@+id/tvGstAmount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="₹0"
+                            android:text="0"
                             android:textSize="15sp"
                             android:textColor="#085041"
                             android:fontFamily="serif"
@@ -294,7 +294,7 @@
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="@string/xml_purchase_details_still_owed_label" android:textSize="9.5sp" android:textColor="#A32D2D" />
                         <TextView android:id="@+id/tvOwed" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp" android:text="₹0" android:textSize="15sp"
+                            android:layout_marginTop="1dp" android:text="0" android:textSize="15sp"
                             android:textColor="#791F1F" android:fontFamily="serif" />
                     </LinearLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -387,7 +387,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:text="₹0"
+                    android:text="0"
                     android:textSize="26sp"
                     android:textColor="#0F6E56"
                     android:fontFamily="serif" />

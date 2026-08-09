@@ -1091,7 +1091,7 @@ class InvoiceActivity : AppCompatActivity() {
                 }
                 Toast.makeText(
                     this,
-                    "Bills above ₹${"%,.0f".format(b2clThresholdNow())} need $needed for GST filing.",
+                    "Bills above ${CurrencyHelper.getCurrencySymbol(this)}${"%,.0f".format(b2clThresholdNow())} need $needed for GST filing.",
                     Toast.LENGTH_LONG
                 ).show()
                 if (missingName) etCustomerName.requestFocus() else etCustomerState.requestFocus()
@@ -1831,6 +1831,7 @@ class InvoiceActivity : AppCompatActivity() {
         val v = layoutInflater.inflate(R.layout.dialog_line_discount, null)
         val et         = v.findViewById<EditText>(R.id.etDiscountAmount)
         val unitPrefix = v.findViewById<TextView>(R.id.tvUnitPrefix)
+        unitPrefix.text = CurrencyHelper.getCurrencySymbol(this)
         val unitSuffix = v.findViewById<TextView>(R.id.tvUnitSuffix)
         val modePct = v.findViewById<TextView>(R.id.tvModePercent)
         val modeAmt = v.findViewById<TextView>(R.id.tvModeAmount)

@@ -1002,7 +1002,7 @@
                 android:id="@+id/tvTotalDebitValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₹0.00"
+                android:text="0.00"
                 android:textSize="26sp"
                 android:textColor="#1A1A18"
                 android:fontFamily="serif"
@@ -1031,7 +1031,7 @@
                 android:id="@+id/tvItcReclaim"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₹0.00"
+                android:text="0.00"
                 android:textSize="12.5sp"
                 android:textColor="#8A6526"
                 android:fontFamily="serif" />

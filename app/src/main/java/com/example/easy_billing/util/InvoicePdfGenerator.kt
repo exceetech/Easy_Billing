@@ -12,6 +12,7 @@ import android.print.PrintManager
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.example.easy_billing.ShopManager
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
@@ -566,10 +567,11 @@ object InvoicePdfGenerator {
         canvas.drawText(activity.getString(R.string.invoice_pdf_table_date_header), colDate, y, paint)
         canvas.drawText(activity.getString(R.string.invoice_pdf_table_type_header), colType, y, paint)
 
-        // ✅ ₹ ONLY IN HEADER
-        rightText(activity.getString(R.string.invoice_pdf_table_dr_header), colDrRight, y)
-        rightText(activity.getString(R.string.invoice_pdf_table_cr_header), colCrRight, y)
-        rightText(activity.getString(R.string.invoice_pdf_table_balance_header), colBalRight, y)
+        // Header labels now show the active currency symbol instead of a hardcoded ₹
+        val headerSymbol = CurrencyHelper.getCurrencySymbol(activity)
+        rightText("${activity.getString(R.string.invoice_pdf_table_dr_header)} ($headerSymbol)", colDrRight, y)
+        rightText("${activity.getString(R.string.invoice_pdf_table_cr_header)} ($headerSymbol)", colCrRight, y)
+        rightText("${activity.getString(R.string.invoice_pdf_table_balance_header)} ($headerSymbol)", colBalRight, y)
 
         y += 20
         line()
@@ -592,9 +594,10 @@ object InvoicePdfGenerator {
             paint.textSize = 12f
             canvas.drawText("Date", colDate, y, paint)
             canvas.drawText("Type", colType, y, paint)
-            rightText("Dr (₹)", colDrRight, y)
-            rightText("Cr (₹)", colCrRight, y)
-            rightText("Balance (₹)", colBalRight, y)
+            val pageSymbol = CurrencyHelper.getCurrencySymbol(activity)
+            rightText("Dr ($pageSymbol)", colDrRight, y)
+            rightText("Cr ($pageSymbol)", colCrRight, y)
+            rightText("Balance ($pageSymbol)", colBalRight, y)
             y += 20
             line()
             paint.typeface = Typeface.MONOSPACE
@@ -609,10 +612,11 @@ object InvoicePdfGenerator {
             canvas.drawText(it[0], colDate, y, paint)
             canvas.drawText(it[1], colType, y, paint)
 
-            // ✅ REMOVE ₹ from values (clean columns)
-            rightText(it[2].replace("₹", ""), colDrRight, y)
-            rightText(it[3].replace("₹", ""), colCrRight, y)
-            rightText(it[4].replace("₹", ""), colBalRight, y)
+            // ✅ REMOVE currency symbol from values (clean columns)
+            val rowSymbol = CurrencyHelper.getCurrencySymbol(activity)
+            rightText(it[2].replace(rowSymbol, ""), colDrRight, y)
+            rightText(it[3].replace(rowSymbol, ""), colCrRight, y)
+            rightText(it[4].replace(rowSymbol, ""), colBalRight, y)
 
             y += 18
         }

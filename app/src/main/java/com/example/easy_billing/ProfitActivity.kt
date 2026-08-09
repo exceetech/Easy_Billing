@@ -4,6 +4,7 @@ import com.example.easy_billing.R
 
 import android.app.Dialog
 import com.example.easy_billing.util.AppTime
+import com.example.easy_billing.util.CurrencyHelper
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -336,9 +337,10 @@ class ProfitActivity : AppCompatActivity() {
 
                     val summary = response.summary
 
-                    findViewById<TextView>(R.id.tvRevenue).text = "₹${"%.2f".format(summary.revenue)}"
-                    findViewById<TextView>(R.id.tvCost).text = "₹${"%.2f".format(summary.cost)}"
-                    findViewById<TextView>(R.id.tvExpense).text = "₹${"%.2f".format(summary.expense)}"
+                    val currencySymbol = CurrencyHelper.getCurrencySymbol(this@ProfitActivity)
+                    findViewById<TextView>(R.id.tvRevenue).text = "$currencySymbol${"%.2f".format(summary.revenue)}"
+                    findViewById<TextView>(R.id.tvCost).text = "$currencySymbol${"%.2f".format(summary.cost)}"
+                    findViewById<TextView>(R.id.tvExpense).text = "$currencySymbol${"%.2f".format(summary.expense)}"
 
                     // Moving-average redesign, Phase 5: the "Loss" tile now
                     // includes purchase-return gain/loss alongside scrap
@@ -349,11 +351,11 @@ class ProfitActivity : AppCompatActivity() {
                     // purchaseReturnVariance (net gain on returns) reduces
                     // this figure, same as it reduces the headline loss.
                     val combinedLoss = summary.loss + summary.purchaseReturnVariance
-                    findViewById<TextView>(R.id.tvLoss).text = "₹${"%.2f".format(combinedLoss)}"
+                    findViewById<TextView>(R.id.tvLoss).text = "$currencySymbol${"%.2f".format(combinedLoss)}"
 
                     // Net profit spotlight headline (ink for profit, red for loss).
                     val netTv = findViewById<TextView>(R.id.tvNetProfit)
-                    netTv.text = "₹${"%.2f".format(summary.profit)}"
+                    netTv.text = "$currencySymbol${"%.2f".format(summary.profit)}"
                     netTv.setTextColor(
                         Color.parseColor(if (summary.profit < 0) "#A32D2D" else "#1A1A18")
                     )
@@ -432,7 +434,8 @@ class ProfitActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         fun qtyFormat(q: Double) = if (q % 1 == 0.0) q.toInt().toString() else "%.2f".format(q)
-        fun money(v: Double) = "₹%,.2f".format(v)
+        val currencySymbol = CurrencyHelper.getCurrencySymbol(this)
+        fun money(v: Double) = "$currencySymbol%,.2f".format(v)
 
         val name = if (item.variant.isNullOrBlank()) item.productName
             else "${item.productName} (${item.variant})"
@@ -504,6 +507,7 @@ class ProfitActivity : AppCompatActivity() {
             var totalExpense = 0.0
 
             val rows = mutableListOf<List<String>>()
+            val printCurrencySymbol = CurrencyHelper.getCurrencySymbol(this@ProfitActivity)
 
             latestProfitList.forEach { item ->
 
@@ -517,13 +521,13 @@ class ProfitActivity : AppCompatActivity() {
                 rows.add(
                     listOf(
                         "${item.productName} ${item.variant ?: ""}", "${item.totalQty}", "${item.unit}",
-                        "₹%.2f".format(item.revenue),
-                        "₹%.2f".format(item.cost),
-                        "₹%.2f".format(item.profit),
+                        "$printCurrencySymbol%.2f".format(item.revenue),
+                        "$printCurrencySymbol%.2f".format(item.cost),
+                        "$printCurrencySymbol%.2f".format(item.profit),
                         "Added:${item.added.toInt()} | Sold:${item.sold.toInt()} | Loss:${item.lossQty.toInt()}",
                         "${item.remaining.toInt()}",
-                        "₹-%.2f".format(item.lossAmount),
-                        "₹%.2f".format(netProfit),
+                        "$printCurrencySymbol-%.2f".format(item.lossAmount),
+                        "$printCurrencySymbol%.2f".format(netProfit),
                         getInsight(item, netProfit)
                     )
                 )
@@ -531,7 +535,7 @@ class ProfitActivity : AppCompatActivity() {
 
             // 🔥 Expense from UI (already loaded)
             val expense = findViewById<TextView>(R.id.tvExpense)
-                .text.toString().replace("₹", "").toDoubleOrNull() ?: 0.0
+                .text.toString().replace(printCurrencySymbol, "").toDoubleOrNull() ?: 0.0
 
             totalExpense = expense
 

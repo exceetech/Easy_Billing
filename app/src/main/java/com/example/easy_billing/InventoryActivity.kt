@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.adapter.BatchPickerAdapter
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.db.InventoryItemUI
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.db.PurchaseBatch
@@ -251,7 +252,7 @@ class InventoryActivity : BaseActivity() {
         val lowCount = fullList.count { it.stock in 0.0001..5.0 }
         val outCount = fullList.count { it.stock <= 0.0 }
 
-        findViewById<TextView?>(R.id.tvKpiValue)?.text = "₹${formatIndianShort(totalValue)}"
+        findViewById<TextView?>(R.id.tvKpiValue)?.text = "${CurrencyHelper.getCurrencySymbol(this)}${formatIndianShort(totalValue)}"
         findViewById<TextView?>(R.id.tvKpiLow)?.text = lowCount.toString()
         findViewById<TextView?>(R.id.tvKpiOut)?.text = outCount.toString()
         findViewById<TextView?>(R.id.tvHeroSub)?.text = "${fullList.size} active SKUs"
@@ -616,7 +617,7 @@ class InventoryActivity : BaseActivity() {
                 .inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
             withContext(Dispatchers.Main) {
                 val value = avgCost * currentStock
-                tvStockValue.text = "₹${"%.0f".format(value)}"
+                tvStockValue.text = "${CurrencyHelper.getCurrencySymbol(this@InventoryActivity)}${"%.0f".format(value)}"
             }
         }
 

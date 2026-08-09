@@ -50,7 +50,7 @@
 
             <TextView
                 android:id="@+id/tvMeta"
-                android:text="2 × ₹10"
+                android:text="2 × 10"
                 android:textColor="#9A8F79"
                 android:textSize="10.5sp"
                 android:layout_marginTop="2dp"
@@ -60,7 +60,7 @@
 
         <TextView
             android:id="@+id/tvPrice"
-            android:text="₹0"
+            android:text="0"
             android:textColor="#18181B"
             android:textSize="14sp"
             android:fontFamily="serif"

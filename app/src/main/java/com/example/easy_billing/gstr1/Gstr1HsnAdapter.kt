@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * HSN summary (GSTR-1 Table 12) row adapter — used for both HSN(B2B) and
@@ -49,10 +50,11 @@ class Gstr1HsnAdapter(
 
     override fun getItemCount() = rows.size
 
-    private fun money(v: Double): String {
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
         val sign = if (v < 0) "-" else ""
         val a = kotlin.math.abs(v)
-        return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+        return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
     }
 
     private fun qty(v: Double): String =
@@ -86,28 +88,28 @@ class Gstr1HsnAdapter(
         // Tax split — CGST+SGST means intra-state, IGST means inter-state.
         // Cess is appended so a cess-bearing HSN is obvious at a glance.
         val split = when {
-            r.igstAmount > 0.0 -> "IGST ${money(r.igstAmount)}"
+            r.igstAmount > 0.0 -> "IGST ${money(holder.itemView.context, r.igstAmount)}"
             r.cgstAmount > 0.0 || r.sgstAmount > 0.0 ->
-                "CGST ${money(r.cgstAmount)} + SGST ${money(r.sgstAmount)}"
+                "CGST ${money(holder.itemView.context, r.cgstAmount)} + SGST ${money(holder.itemView.context, r.sgstAmount)}"
             else -> "No tax"
         }
         val qtyLabel = "${qty(r.totalQuantity)} ${r.uqc.ifBlank { "NOS" }.uppercase()}"
         holder.tvExtra.visibility = View.VISIBLE
         holder.tvExtra.text = listOfNotNull(
             split,
-            if (hasCess) "cess ${money(r.cessAmount)}" else null,
+            if (hasCess) "cess ${money(holder.itemView.context, r.cessAmount)}" else null,
             qtyLabel
         ).joinToString("  ·  ")
 
-        holder.tvAmount.text = money(r.taxableValue)
-        holder.tvTax.text = "+${money(tax)} tax"
+        holder.tvAmount.text = money(holder.itemView.context, r.taxableValue)
+        holder.tvTax.text = "+${money(holder.itemView.context, tax)} tax"
         holder.tvTax.setTextColor(Color.parseColor(if (hsnMissing) "#854F0B" else "#0F6E56"))
 
         // Prefer the filed Total Value; fall back if an older server sent 0.
         val total = if (r.totalValue != 0.0) r.totalValue
                     else r.taxableValue + tax + r.cessAmount
         holder.tvSubAmount.visibility = View.VISIBLE
-        holder.tvSubAmount.text = "${money(total)} total"
+        holder.tvSubAmount.text = "${money(holder.itemView.context, total)} total"
 
         val accent = if (hsnMissing) "#BA7517" else stripePalette[position % stripePalette.size]
         holder.vStripe.backgroundTintList =

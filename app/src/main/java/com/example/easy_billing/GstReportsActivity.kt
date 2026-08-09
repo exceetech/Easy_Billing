@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.gstr1.Gstr1DraftEntity
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.gstr1.Gstr1Report
 import com.example.easy_billing.gstr1.Gstr1SheetTabAdapter
 import com.example.easy_billing.gstr1.Gstr1Validator
@@ -673,7 +674,7 @@ class GstReportsActivity : AppCompatActivity() {
         // Summary hero
         cardSummary.visibility = View.VISIBLE
         tvSummaryHeroLabel.text   = getString(R.string.gst_hero_label_total_tax)
-        tvSummaryTax.text         = "₹%,.0f".format(report.totalTax)
+        tvSummaryTax.text         = "${CurrencyHelper.getCurrencySymbol(this)}%,.0f".format(report.totalTax)
         tvSummaryTaxable.text     = getString(R.string.gst_summary_taxable_suffix).format(report.totalTaxable)
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
         tvSummaryCreditNotes.text = report.totalCreditNotes.toString()
@@ -949,7 +950,7 @@ class GstReportsActivity : AppCompatActivity() {
     private fun bindReport2(report: Gstr2Report) {
         cardSummary.visibility = View.VISIBLE
         tvSummaryHeroLabel.text   = getString(R.string.gst_hero_label_itc)
-        tvSummaryTax.text         = "₹%,.0f".format(report.totalTax)
+        tvSummaryTax.text         = "${CurrencyHelper.getCurrencySymbol(this)}%,.0f".format(report.totalTax)
         tvSummaryTaxable.text     = getString(R.string.gst_summary_taxable_suffix).format(report.totalTaxable)
         tvSummaryInvoices.text    = report.totalInvoiceCount.toString()
         tvSummaryCreditNotes.text = report.totalCreditNotes.toString()

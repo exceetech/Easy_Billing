@@ -149,7 +149,7 @@
                             android:id="@+id/tvRevenue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₹0"
+                            android:text="0"
                             android:textColor="#FFFFFF"
                             android:textSize="32sp"
                             android:fontFamily="@font/googlesans_semibold"/>
@@ -344,7 +344,7 @@
                         android:id="@+id/tvAverage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="₹0"
+                        android:text="0"
                         android:textColor="#8A6526"
                         android:textSize="20sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -418,7 +418,7 @@
                         android:id="@+id/tvReturns"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="₹0"
+                        android:text="0"
                         android:textColor="#8A6526"
                         android:textSize="20sp"
                         android:fontFamily="@font/googlesans_semibold"
@@ -546,7 +546,7 @@
                     android:id="@+id/tvPaymentTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₹0"
+                    android:text="0"
                     android:textColor="#1A1A18"
                     android:textSize="17sp"
                     android:fontFamily="@font/googlesans_semibold"/>
@@ -615,7 +615,7 @@
                     android:layout_marginEnd="10dp" android:text="0%"
                     android:textColor="#9A8F79" android:textSize="11.5sp"/>
                 <TextView android:id="@+id/tvCashAmount" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="₹0" android:textColor="@color/ov_green_cash" android:textSize="12.5sp"
+                    android:text="0" android:textColor="@color/ov_green_cash" android:textSize="12.5sp"
                     android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
 
@@ -639,7 +639,7 @@
                     android:layout_marginEnd="10dp" android:text="0%"
                     android:textColor="#9A8F79" android:textSize="11.5sp"/>
                 <TextView android:id="@+id/tvUpiAmount" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="₹0" android:textColor="@color/ov_purple" android:textSize="12.5sp"
+                    android:text="0" android:textColor="@color/ov_purple" android:textSize="12.5sp"
                     android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
 
@@ -663,7 +663,7 @@
                     android:layout_marginEnd="10dp" android:text="0%"
                     android:textColor="#9A8F79" android:textSize="11.5sp"/>
                 <TextView android:id="@+id/tvCardAmount" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="₹0" android:textColor="@color/ov_blue" android:textSize="12.5sp"
+                    android:text="0" android:textColor="@color/ov_blue" android:textSize="12.5sp"
                     android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
 
@@ -686,7 +686,7 @@
                     android:layout_marginEnd="10dp" android:text="0%"
                     android:textColor="#9A8F79" android:textSize="11.5sp"/>
                 <TextView android:id="@+id/tvCreditAmount" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="₹0" android:textColor="@color/ov_amber" android:textSize="12.5sp"
+                    android:text="0" android:textColor="@color/ov_amber" android:textSize="12.5sp"
                     android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
 

@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.CreditAccount
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.db.CreditTransaction
 import com.example.easy_billing.network.CreateCreditAccountRequest
 import com.example.easy_billing.repository.CreditAccountsRepository
@@ -838,8 +839,10 @@ class CreditAccountsActivity : BaseActivity() {
         }
     }
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
+    private fun money(v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(this)
+        return if (v % 1.0 == 0.0) "$symbol${v.toLong()}" else "$symbol${"%.2f".format(v)}"
+    }
 
     private fun updateSummary(accounts: List<CreditAccount>) {
 

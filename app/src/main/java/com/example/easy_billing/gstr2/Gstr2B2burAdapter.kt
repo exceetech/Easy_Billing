@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * GSTR-2 B2BUR row adapter — inward supplies from UNREGISTERED suppliers.
@@ -42,10 +43,11 @@ class Gstr2B2burAdapter(
 
     override fun getItemCount() = rows.size
 
-    private fun money(v: Double): String {
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
         val sign = if (v < 0) "-" else ""
         val a = kotlin.math.abs(v)
-        return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+        return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
@@ -86,7 +88,7 @@ class Gstr2B2burAdapter(
         holder.tvExtra.visibility = View.VISIBLE
         when {
             blocked -> {
-                holder.tvExtra.text = "Tax ${money(taxPaid)} paid · credit blocked"
+                holder.tvExtra.text = "Tax ${money(holder.itemView.context, taxPaid)} paid · credit blocked"
                 holder.tvExtra.setTextColor(Color.parseColor("#A32D2D"))
             }
             rcmLikelyMissed -> {
@@ -95,20 +97,20 @@ class Gstr2B2burAdapter(
             }
             else -> {
                 holder.tvExtra.text = listOfNotNull(
-                    "Tax ${money(taxPaid)}",
-                    "ITC ${money(availed)}",
+                    "Tax ${money(holder.itemView.context, taxPaid)}",
+                    "ITC ${money(holder.itemView.context, availed)}",
                     r.supplyType.ifBlank { null }
                 ).joinToString("  ·  ")
                 holder.tvExtra.setTextColor(Color.parseColor("#A89E88"))
             }
         }
 
-        holder.tvAmount.text = money(r.taxableValue)
+        holder.tvAmount.text = money(holder.itemView.context, r.taxableValue)
 
         holder.tvTax.text = when {
             blocked          -> ctx.getString(R.string.gstr2_no_credit)
             availed == 0.0   -> ctx.getString(R.string.gstr2_no_itc)
-            else             -> "+${money(availed)} ITC"
+            else             -> "+${money(holder.itemView.context, availed)} ITC"
         }
         holder.tvTax.setTextColor(
             Color.parseColor(
@@ -121,7 +123,7 @@ class Gstr2B2burAdapter(
         )
 
         holder.tvSubAmount.visibility = if (r.cessPaid != 0.0) View.VISIBLE else View.GONE
-        if (r.cessPaid != 0.0) holder.tvSubAmount.text = "cess ${money(r.cessPaid)}"
+        if (r.cessPaid != 0.0) holder.tvSubAmount.text = "cess ${money(holder.itemView.context, r.cessPaid)}"
 
         val accent = when {
             blocked         -> "#A32D2D"

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * B2CL (GSTR-1 Table 5) row adapter — same ledger row as B2B.
@@ -53,8 +54,10 @@ class Gstr1B2clAdapter(
 
     override fun getItemCount() = rows.size
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹%,.0f".format(v) else "₹%,.2f".format(v)
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
+        return if (v % 1.0 == 0.0) "$symbol%,.0f".format(v) else "$symbol%,.2f".format(v)
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val r = rows[position]
@@ -72,14 +75,14 @@ class Gstr1B2clAdapter(
             if (viaEcom) "e-com ${r.ecomGstin}" else null
         ).joinToString("  ·  ")
 
-        holder.tvAmount.text = money(r.taxableValue)
+        holder.tvAmount.text = money(holder.itemView.context, r.taxableValue)
 
         // Inter-state, so the whole slab is IGST.
         val tax = r.taxableValue * r.rate / 100.0
         holder.tvTax.text = if (r.cessAmount > 0.0)
-            "+${money(tax)} · cess ${money(r.cessAmount)}"
+            "+${money(holder.itemView.context, tax)} · cess ${money(holder.itemView.context, r.cessAmount)}"
         else
-            "+${money(tax)}"
+            "+${money(holder.itemView.context, tax)}"
 
         val accent = stripePalette[position % stripePalette.size]
         holder.vStripe.backgroundTintList =

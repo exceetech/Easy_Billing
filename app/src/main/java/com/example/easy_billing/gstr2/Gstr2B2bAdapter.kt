@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * GSTR-2 B2B row adapter — inward supplies from registered suppliers.
@@ -42,10 +43,11 @@ class Gstr2B2bAdapter(
 
     override fun getItemCount() = rows.size
 
-    private fun money(v: Double): String {
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
         val sign = if (v < 0) "-" else ""
         val a = kotlin.math.abs(v)
-        return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+        return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
     }
 
     /** Short label + colours for each ITC category. */
@@ -89,21 +91,21 @@ class Gstr2B2bAdapter(
         // Tax paid vs credit actually available — the whole point of the table.
         holder.tvExtra.visibility = View.VISIBLE
         holder.tvExtra.text = if (blocked)
-            "Tax ${money(taxPaid)} paid · credit blocked"
+            "Tax ${money(holder.itemView.context, taxPaid)} paid · credit blocked"
         else
-            "Tax ${money(taxPaid)} · ITC ${money(availed)}"
+            "Tax ${money(holder.itemView.context, taxPaid)} · ITC ${money(holder.itemView.context, availed)}"
         holder.tvExtra.setTextColor(
             Color.parseColor(if (blocked) "#A32D2D" else "#A89E88")
         )
 
-        holder.tvAmount.text = money(r.taxableValue)
+        holder.tvAmount.text = money(holder.itemView.context, r.taxableValue)
 
         // The headline figure is the credit being claimed, not the tax charged.
-        holder.tvTax.text = if (blocked) "no credit" else "+${money(availed)} ITC"
+        holder.tvTax.text = if (blocked) "no credit" else "+${money(holder.itemView.context, availed)} ITC"
         holder.tvTax.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#0F6E56"))
 
         holder.tvSubAmount.visibility = if (r.cessPaid != 0.0) View.VISIBLE else View.GONE
-        if (r.cessPaid != 0.0) holder.tvSubAmount.text = "cess ${money(r.cessPaid)}"
+        if (r.cessPaid != 0.0) holder.tvSubAmount.text = "cess ${money(holder.itemView.context, r.cessPaid)}"
 
         holder.vStripe.backgroundTintList =
             android.content.res.ColorStateList.valueOf(Color.parseColor(if (blocked) "#A32D2D" else ink))

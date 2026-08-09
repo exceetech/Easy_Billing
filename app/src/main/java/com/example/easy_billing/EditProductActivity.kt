@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.db.Product
 import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.repository.ProductVerificationRepository
@@ -316,7 +317,7 @@ class EditProductActivity : BaseActivity() {
                 android.content.res.ColorStateList.valueOf(0xFFB8895A.toInt())
         }
 
-        tvHeroPrice.text = "₹%.2f".format(product.price)
+        tvHeroPrice.text = "${CurrencyHelper.getCurrencySymbol(this)}%.2f".format(product.price)
         val gstTotal = if (product.igstPercentage > 0) product.igstPercentage
             else product.cgstPercentage + product.sgstPercentage
         tvHeroGst.text = if (gstTotal > 0) "${formatRate(gstTotal)}%" else "—"

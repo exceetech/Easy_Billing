@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.AiInsight
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.network.AiReportResponse
 import com.example.easy_billing.network.ProductReport
 import com.example.easy_billing.network.RetrofitClient
@@ -49,7 +50,7 @@ class AiDashboardActivity : BaseActivity() {
 
     // Indian-grouped currency, rounded to whole rupees (avoids raw Double artifacts).
     private val moneyFormat: NumberFormat = NumberFormat.getIntegerInstance(Locale("en", "IN"))
-    private fun money(value: Double): String = "₹" + moneyFormat.format(Math.round(value))
+    private fun money(value: Double): String = CurrencyHelper.getCurrencySymbol(this) + moneyFormat.format(Math.round(value))
 
     override fun onCreate(savedInstanceState: Bundle?) {
 

@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.db.CreditTransaction
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.InvoicePdfGenerator
@@ -363,8 +364,10 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         )
     }
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
+    private fun money(v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(this)
+        return if (v % 1.0 == 0.0) "$symbol${v.toLong()}" else "$symbol${"%.2f".format(v)}"
+    }
 
     // ================= SEARCH =================
 
@@ -714,6 +717,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             val rows = mutableListOf<List<String>>()
 
             val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            val currencySymbol = CurrencyHelper.getCurrencySymbol(this@CustomerTransactionsActivity)
 
             originalList.sortedBy { it.timestamp }.forEach {
 
@@ -744,8 +748,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                 // keeps the debit column's own total equal to the net Billed
                 // figure printed in the footer.
                 val debitStr = when {
-                    debit > 0 -> "₹%.2f".format(debit)
-                    debit < 0 -> "−₹%.2f".format(-debit)
+                    debit > 0 -> "$currencySymbol%.2f".format(debit)
+                    debit < 0 -> "−$currencySymbol%.2f".format(-debit)
                     else -> "-"
                 }
 
@@ -757,8 +761,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                         // statement read "WRITE_OFF" and "PURCHASE_CREDIT".
                         TransactionAdapter.labelFor(shownType),
                         debitStr,
-                        if (credit > 0) "₹%.2f".format(credit) else "-",
-                        "₹%.2f".format(balance)
+                        if (credit > 0) "$currencySymbol%.2f".format(credit) else "-",
+                        "$currencySymbol%.2f".format(balance)
                     )
                 )
             }

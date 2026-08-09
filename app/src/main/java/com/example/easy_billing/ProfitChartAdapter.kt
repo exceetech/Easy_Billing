@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.ProductProfitRaw
+import com.example.easy_billing.util.CurrencyHelper
 import kotlin.math.abs
 
 /**
@@ -56,7 +57,8 @@ class ProfitChartAdapter(
             else "${item.productName} (${item.variant})"
 
         val isLoss = item.profit < 0
-        holder.value.text = "${if (isLoss) "−" else ""}₹${"%,.2f".format(abs(item.profit))}"
+        val symbol = CurrencyHelper.getCurrencySymbol(holder.itemView.context)
+        holder.value.text = "${if (isLoss) "−" else ""}$symbol${"%,.2f".format(abs(item.profit))}"
         holder.value.setTextColor(Color.parseColor(if (isLoss) "#A32D2D" else "#0F6E56"))
 
         // Bar length relative to the biggest absolute profit (min 4% so tiny bars show).

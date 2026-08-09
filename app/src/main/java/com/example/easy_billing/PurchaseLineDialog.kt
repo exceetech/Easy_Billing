@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.Product
+import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.network.VariantResponse
 import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
@@ -1302,7 +1303,7 @@ class PurchaseLineDialog(
                 "Restore it to proceed with the purchase?"
 
         tvDetails.text = buildString {
-            append("Last price: ₹${inactive.price}\n")
+            append("Last price: ${CurrencyHelper.getCurrencySymbol(activity)}${inactive.price}\n")
             if (!inactive.hsnCode.isNullOrBlank()) append("HSN: ${inactive.hsnCode}\n")
             if (inactive.cgstPercentage > 0 || inactive.sgstPercentage > 0)
                 append("CGST: ${inactive.cgstPercentage}%  SGST: ${inactive.sgstPercentage}%\n")

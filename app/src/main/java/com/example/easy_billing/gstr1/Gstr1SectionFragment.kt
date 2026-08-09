@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * Fragment displayed inside each GSTR-1 section tab.
@@ -152,48 +153,49 @@ class Gstr1SectionFragment : Fragment() {
      * Returns list of (primary, secondary) string pairs for display.
      * Position maps to [Gstr1SheetTabAdapter.TAB_LABELS].
      */
-    private fun buildRows(report: Gstr1Report, position: Int): List<Pair<String, String>> =
-        when (position) {
+    private fun buildRows(report: Gstr1Report, position: Int): List<Pair<String, String>> {
+        val symbol = CurrencyHelper.getCurrencySymbol(requireContext())
+        return when (position) {
             0 -> report.b2b.map {
                 Pair(
                     "${it.invoiceNumber}  ·  ${it.invoiceDate}",
-                    "GSTIN: ${it.gstin}  |  Rate: ${it.rate}%  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "GSTIN: ${it.gstin}  |  Rate: ${it.rate}%  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             1 -> report.b2cl.map {
                 Pair(
                     "${it.invoiceNumber}  ·  ${it.invoiceDate}",
-                    "POS: ${it.placeOfSupply}  |  Rate: ${it.rate}%  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "POS: ${it.placeOfSupply}  |  Rate: ${it.rate}%  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             2 -> report.b2cs.map {
                 Pair(
                     "POS: ${it.placeOfSupply}  |  Rate: ${it.rate}%",
-                    "Type: ${it.type}  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "Type: ${it.type}  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             3 -> report.cdnr.map {
                 Pair(
                     "${it.noteNumber}  ·  ${it.noteDate}  [${it.noteType}]",
-                    "GSTIN: ${it.gstin}  |  Rate: ${it.rate}%  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "GSTIN: ${it.gstin}  |  Rate: ${it.rate}%  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             4 -> report.cdnur.map {
                 Pair(
                     "${it.noteNumber}  ·  ${it.noteDate}  [${it.noteType}]",
-                    "UR Type: ${it.urType}  |  Rate: ${it.rate}%  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "UR Type: ${it.urType}  |  Rate: ${it.rate}%  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             5 -> report.hsnB2B.map {
                 Pair(
                     "HSN: ${it.hsn}  (${it.uqc})  |  Rate: ${it.rate}%",
-                    "${it.description}  |  Qty: ${it.totalQuantity}  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "${it.description}  |  Qty: ${it.totalQuantity}  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             6 -> report.hsnB2C.map {
                 Pair(
                     "HSN: ${it.hsn}  (${it.uqc})  |  Rate: ${it.rate}%",
-                    "${it.description}  |  Qty: ${it.totalQuantity}  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "${it.description}  |  Qty: ${it.totalQuantity}  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             7 -> report.docs.map {
@@ -205,7 +207,7 @@ class Gstr1SectionFragment : Fragment() {
             8 -> report.eco.map {
                 Pair(
                     "${it.ecoName}  (${it.ecoGstin})",
-                    "Nature: ${it.natureOfSupply}  |  Net: ₹${"%.2f".format(it.netValue)}"
+                    "Nature: ${it.natureOfSupply}  |  Net: $symbol${"%.2f".format(it.netValue)}"
                 )
             }
             9 -> report.ecoB2B.map {
@@ -217,21 +219,22 @@ class Gstr1SectionFragment : Fragment() {
             10 -> report.ecoB2C.map {
                 Pair(
                     "Supplier: ${it.supplierGstin}",
-                    "POS: ${it.placeOfSupply}  |  Rate: ${it.rate}%  |  Taxable: ₹${"%.2f".format(it.taxableValue)}"
+                    "POS: ${it.placeOfSupply}  |  Rate: ${it.rate}%  |  Taxable: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             11 -> report.ecoUrp2B.map {
                 Pair(
                     "${it.docNumber}  ·  ${it.docDate}",
-                    "Recipient: ${it.recipientGstin}  |  Rate: ${it.rate}%  |  Value: ₹${"%.2f".format(it.taxableValue)}"
+                    "Recipient: ${it.recipientGstin}  |  Rate: ${it.rate}%  |  Value: $symbol${"%.2f".format(it.taxableValue)}"
                 )
             }
             12 -> report.ecoUrp2C.map {
                 Pair(
                     "POS: ${it.placeOfSupply}  |  Rate: ${it.rate}%",
-                    "Taxable: ₹${"%.2f".format(it.taxableValue)}  |  Cess: ₹${"%.2f".format(it.cessAmount)}"
+                    "Taxable: $symbol${"%.2f".format(it.taxableValue)}  |  Cess: $symbol${"%.2f".format(it.cessAmount)}"
                 )
             }
             else -> emptyList()
         }
+    }
 }

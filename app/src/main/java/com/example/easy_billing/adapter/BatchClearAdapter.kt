@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.db.PurchaseBatch
+import com.example.easy_billing.util.CurrencyHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -112,14 +113,15 @@ class BatchClearAdapter(
         holder.tvInvoice.text = label
         holder.avatar.text = label.trim().take(1).uppercase()
 
+        val symbol = CurrencyHelper.getCurrencySymbol(holder.itemView.context)
         holder.tvMeta.text = buildString {
             append(dateFmt.format(Date(b.createdAt)))
-            append(" · ₹")
+            append(" · $symbol")
             append(formatNum(b.unitCostExcludingTax))
             append("/unit")
         }
         holder.tvRemain.text = "Remaining: ${formatNum(b.quantityRemaining)}"
-        holder.tvValue.text = "₹${formatNum(b.quantityRemaining * b.unitCostExcludingTax)}"
+        holder.tvValue.text = "$symbol${formatNum(b.quantityRemaining * b.unitCostExcludingTax)}"
         holder.tvValue.setTextColor(rowColor.stripe)
 
         renderCheckState(holder, selectedIndices.contains(position))

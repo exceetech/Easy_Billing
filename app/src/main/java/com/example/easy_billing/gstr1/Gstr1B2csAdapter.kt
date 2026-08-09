@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * B2CS (GSTR-1 Table 7) row adapter — same ledger row as the other sections.
@@ -62,10 +63,11 @@ class Gstr1B2csAdapter(
     override fun getItemCount() = rows.size
 
     /** Keeps the minus sign outside the rupee symbol: -₹1,200, not ₹-1,200. */
-    private fun money(v: Double): String {
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
         val sign = if (v < 0) "-" else ""
         val a = kotlin.math.abs(v)
-        return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+        return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
     }
 
     /** Leading 2-digit state code out of a "33-Tamil Nadu" place of supply. */
@@ -112,21 +114,21 @@ class Gstr1B2csAdapter(
         if (known) {
             holder.tvExtra.text = if (isIntra) {
                 val half = tax / 2.0
-                "CGST ${money(half)} + SGST ${money(half)}"
+                "CGST ${money(holder.itemView.context, half)} + SGST ${money(holder.itemView.context, half)}"
             } else {
-                "IGST ${money(tax)}"
+                "IGST ${money(holder.itemView.context, tax)}"
             }
         }
 
-        holder.tvAmount.text = money(r.taxableValue)
+        holder.tvAmount.text = money(holder.itemView.context, r.taxableValue)
         holder.tvAmount.setTextColor(
             Color.parseColor(if (isNegative) "#A32D2D" else "#1A1A18")
         )
 
         holder.tvTax.text = if (r.cessAmount != 0.0)
-            "${money(tax)} · cess ${money(r.cessAmount)}"
+            "${money(holder.itemView.context, tax)} · cess ${money(holder.itemView.context, r.cessAmount)}"
         else
-            "${money(tax)} tax"
+            "${money(holder.itemView.context, tax)} tax"
         holder.tvTax.setTextColor(
             Color.parseColor(
                 when {
@@ -138,7 +140,7 @@ class Gstr1B2csAdapter(
         )
 
         holder.tvSubAmount.visibility = View.VISIBLE
-        holder.tvSubAmount.text = "${money(r.taxableValue + tax + r.cessAmount)} total"
+        holder.tvSubAmount.text = "${money(holder.itemView.context, r.taxableValue + tax + r.cessAmount)} total"
 
         val accent = if (isNegative) "#A32D2D" else stripePalette[position % stripePalette.size]
         holder.vStripe.backgroundTintList =

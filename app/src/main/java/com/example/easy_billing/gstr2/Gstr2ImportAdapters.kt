@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * Adapters for the two GSTR-2 import sections.
@@ -22,10 +23,11 @@ import com.example.easy_billing.R
  */
 private val IMPORT_PALETTE = listOf("#1D9E75", "#0C447C", "#7F77DD", "#D85A30")
 
-private fun impMoney(v: Double): String {
+private fun impMoney(context: android.content.Context, v: Double): String {
+    val symbol = CurrencyHelper.getCurrencySymbol(context)
     val sign = if (v < 0) "-" else ""
     val a = kotlin.math.abs(v)
-    return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+    return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
 }
 
 private fun impRate(r: Double): String =
@@ -93,16 +95,16 @@ abstract class ImportBaseAdapter<T>(
 
         h.tvExtra.visibility = View.VISIBLE
         h.tvExtra.text = if (blocked)
-            "IGST ${impMoney(igst)} paid · credit blocked"
+            "IGST ${impMoney(h.itemView.context, igst)} paid · credit blocked"
         else
             listOfNotNull(
-                "IGST ${impMoney(igst)}",
-                "ITC ${impMoney(availed)}",
-                if (cess != 0.0) "cess ${impMoney(cess)}" else null
+                "IGST ${impMoney(h.itemView.context, igst)}",
+                "ITC ${impMoney(h.itemView.context, availed)}",
+                if (cess != 0.0) "cess ${impMoney(h.itemView.context, cess)}" else null
             ).joinToString("  ·  ")
         h.tvExtra.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#A89E88"))
 
-        h.tvTax.text = if (blocked) "no credit" else "+${impMoney(availed)} ITC"
+        h.tvTax.text = if (blocked) "no credit" else "+${impMoney(h.itemView.context, availed)} ITC"
         h.tvTax.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#0F6E56"))
 
         val accent = if (blocked) "#A32D2D" else IMPORT_PALETTE[position % IMPORT_PALETTE.size]
@@ -124,7 +126,7 @@ class Gstr2ImpsAdapter(rows: List<Gstr2ImpsRow>) : ImportBaseAdapter<Gstr2ImpsRo
             "RCM"
         ).joinToString("  ·  ")
 
-        h.tvAmount.text = impMoney(row.taxableValue)
+        h.tvAmount.text = impMoney(h.itemView.context, row.taxableValue)
         paintItc(h, position, row.eligibilityForItc, row.igstPaid, row.cessPaid, row.availedItcIgst)
     }
 }
@@ -144,12 +146,12 @@ class Gstr2ImpgAdapter(rows: List<Gstr2ImpgRow>) : ImportBaseAdapter<Gstr2ImpgRo
             row.sezSupplierGstin.takeIf { it.isNotBlank() }?.let { "SEZ $it" }
         ).joinToString("  ·  ")
 
-        h.tvAmount.text = impMoney(row.taxableValue)
+        h.tvAmount.text = impMoney(h.itemView.context, row.taxableValue)
         paintItc(h, position, row.eligibilityForItc, row.igstPaid, row.cessPaid, row.availedItcIgst)
 
         if (row.billOfEntryValue != 0.0) {
             h.tvSubAmount.visibility = View.VISIBLE
-            h.tvSubAmount.text = "${impMoney(row.billOfEntryValue)} BoE"
+            h.tvSubAmount.text = "${impMoney(h.itemView.context, row.billOfEntryValue)} BoE"
         }
     }
 }

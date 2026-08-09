@@ -430,7 +430,7 @@
 
             <TextView
                 android:id="@+id/tvSubTotal"
-                android:text="₹0"
+                android:text="0"
                 android:textColor="#1A1A18"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
@@ -454,7 +454,7 @@
 
             <TextView
                 android:id="@+id/tvGst"
-                android:text="₹0"
+                android:text="0"
                 android:textColor="#1A1A18"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
@@ -478,7 +478,7 @@
 
             <TextView
                 android:id="@+id/tvDiscount"
-                android:text="₹0"
+                android:text="0"
                 android:textColor="#B23A3A"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
@@ -510,7 +510,7 @@
 
             <TextView
                 android:id="@+id/tvTotal"
-                android:text="₹0"
+                android:text="0"
                 android:textSize="22sp"
                 android:textColor="#0F6E56"
                 android:fontFamily="serif"

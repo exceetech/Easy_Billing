@@ -87,7 +87,7 @@
 
             <TextView
                 android:id="@+id/tvMeta"
-                android:text="20 × ₹460 · GST 5%"
+                android:text="20 × 460 · GST 5%"
                 android:textColor="#9A8F79"
                 android:textSize="10sp"
                 android:layout_marginTop="2dp"
@@ -104,7 +104,7 @@
 
             <TextView
                 android:id="@+id/tvPrice"
-                android:text="₹9,660"
+                android:text="9,660"
                 android:textColor="#18181B"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -113,7 +113,7 @@
 
             <TextView
                 android:id="@+id/tvTax"
-                android:text="+₹460 tax"
+                android:text="+460 tax"
                 android:textColor="#0F6E56"
                 android:textSize="10sp"
                 android:layout_marginTop="2dp"

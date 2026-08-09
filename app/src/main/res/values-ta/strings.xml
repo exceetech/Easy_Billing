@@ -2,7 +2,7 @@
 <resources>
 
     <!-- item_daily_report -->
-    <string name="_0_00">₹0.00</string>
+    <string name="_0_00">0.00</string>
     <string name="_0_bills">0 பில்கள்</string>
     <string name="date">தேதி</string>
 
@@ -55,7 +55,7 @@
     <string name="saved_successfully">வெற்றிகரமாக சேமிக்கப்பட்டது</string>
 
     <!-- App -->
-    <string name="activity_add_import_service_of_000_paid">இல் ₹0.00 செலுத்தப்பட்டது</string>
+    <string name="activity_add_import_service_of_000_paid">இல் 0.00 செலுத்தப்பட்டது</string>
     <string name="activity_bill_details_additional_charge_debit_note">கூடுதல் கட்டணம் / டெபிட்</string>
     <string name="activity_bill_details_b2c">B2C</string>
     <string name="activity_bill_details_cancel_void_invoice">ரத்துசெய் / இன்வாய்ஸ்</string>
@@ -292,7 +292,7 @@
     <string name="dialog_product_exists_create_new_instead">பதிலாக புதியதை உருவாக்கவும்</string>
     <string name="dialog_product_exists_duplicate_found">நகல் கண்டறியப்பட்டது</string>
     <string name="dialog_product_exists_exists">உள்ளது</string>
-    <string name="dialog_product_exists_price_0nvariant_nunit_nstock">விலை: ₹0\nவகை: -\nஅலகு: -\nஇருப்பு: 0</string>
+    <string name="dialog_product_exists_price_0nvariant_nunit_nstock">விலை: 0\nவகை: -\nஅலகு: -\nஇருப்பு: 0</string>
     <string name="dialog_product_exists_product">தயாரிப்பு</string>
     <string name="dialog_product_exists_restore">மீட்டமை</string>
     <string name="dialog_product_exists_update_existing_or_replace">இருக்கும் ஒன்றை புதுப்பிக்கவா அல்லது புதியதாக மாற்றவா?</string>
@@ -1063,7 +1063,7 @@
     <!-- activity_localization_settings -->
     <string name="currency">நாணயம்</string>
     <string name="language">மொழி</string>
-    <string name="localization_currency_default_value">₹ INR</string>
+    <string name="localization_currency_default_value">INR</string>
     <string name="localization_language_default_value">English</string>
     <string name="localization_language_title_part1">மொழி</string>
     <string name="localization_language_title_part2">&amp; நாணயம்</string>
@@ -1254,8 +1254,8 @@
     <string name="dialog_premium_upgrade_title_part2">ப்ரீமியம்</string>
 
     <!-- dialog_product_filter -->
-    <string name="dialog_product_filter_max_price_hint">அதிகபட்சம் ₹</string>
-    <string name="dialog_product_filter_min_price_hint">குறைந்தபட்சம் ₹</string>
+    <string name="dialog_product_filter_max_price_hint">அதிகபட்சம்</string>
+    <string name="dialog_product_filter_min_price_hint">குறைந்தபட்சம்</string>
     <string name="dialog_product_filter_price_range">விலை வரம்பு</string>
     <string name="dialog_product_filter_product_type">பொருள் வகை</string>
     <string name="dialog_product_filter_select_all">அனைத்தையும் தேர்ந்தெடு</string>
@@ -1602,7 +1602,7 @@
 
     <!-- dialog_line_discount -->
     <string name="invoice_apply_discount">தள்ளுபடியைப் பயன்படுத்து</string>
-    <string name="invoice_discount_mode_amount">தொகை ₹</string>
+    <string name="invoice_discount_mode_amount">தொகை</string>
     <string name="invoice_discount_mode_percent">சதவீதம் %%</string>
     <string name="invoice_line_discount_header">வரி தள்ளுபடி</string>
     <string name="invoice_new_price_label">புதிய விலை</string>
@@ -1649,10 +1649,10 @@
     <string name="invoice_pdf_summary_loss">நஷ்டம்</string>
     <string name="invoice_pdf_summary_net_profit">நிகர இலாபம்</string>
     <string name="invoice_pdf_summary_revenue">வருவாய்</string>
-    <string name="invoice_pdf_table_balance_header">இருப்பு (₹)</string>
-    <string name="invoice_pdf_table_cr_header">கடன் (₹)</string>
+    <string name="invoice_pdf_table_balance_header">இருப்பு</string>
+    <string name="invoice_pdf_table_cr_header">கடன்</string>
     <string name="invoice_pdf_table_date_header">தேதி</string>
-    <string name="invoice_pdf_table_dr_header">பற்று (₹)</string>
+    <string name="invoice_pdf_table_dr_header">பற்று</string>
     <string name="invoice_pdf_table_type_header">வகை</string>
     <string name="invoice_pdf_tax_invoice_title">வரி விலைப்பட்டியல்</string>
     <string name="invoice_pdf_taxable_amount_label">வரி விதிக்கத்தக்க தொகை</string>
@@ -1685,7 +1685,7 @@
     <!-- item_peak_hour -->
     <string name="peak_hour_item_bills_placeholder">18 பில்கள்</string>
     <string name="peak_hour_item_hour_placeholder">12:00 PM</string>
-    <string name="peak_hour_item_revenue_placeholder">₹6,100</string>
+    <string name="peak_hour_item_revenue_placeholder">6,100</string>
 
     <!-- PeakHourAdapter -->
     <string name="peak_hour_status_avg">⚖ சராசரி</string>
@@ -1934,7 +1934,7 @@
 
     <!-- item_transaction -->
     <string name="txn_label_credit_sale">கடன் விற்பனை</string>
-    <string name="xml_transaction_left_placeholder">₹0 மீதம்</string>
+    <string name="xml_transaction_left_placeholder">0 மீதம்</string>
     <string name="xml_transaction_time_placeholder">காலை 11:02</string>
 
     <!-- TransactionAdapter -->
@@ -1951,12 +1951,12 @@
     <string name="xml_ai_insight_header_default">கவனம் தேவை</string>
 
     <!-- item_batch_pick -->
-    <string name="xml_batch_pick_date_cost_placeholder">14 ஜூலை 2026 · ₹42/அலகு</string>
+    <string name="xml_batch_pick_date_cost_placeholder">14 ஜூலை 2026 · 42/அலகு</string>
     <string name="xml_batch_pick_max_reducible_placeholder">அதிகபட்சம் குறைக்கக்கூடியது: 0</string>
     <string name="xml_batch_pick_number_placeholder">பேட்ச் #A102</string>
     <string name="xml_batch_pick_oldest_tag">பழையது</string>
     <string name="xml_batch_pick_reduce_qty_label">குறைக்கும் அளவு</string>
-    <string name="xml_batch_pick_reduce_value_placeholder">குறைக்கும் மதிப்பு: ₹0</string>
+    <string name="xml_batch_pick_reduce_value_placeholder">குறைக்கும் மதிப்பு: 0</string>
 
     <!-- dialog_batch_picker -->
     <string name="xml_batch_picker_cancel_button">ரத்து செய்</string>
@@ -2185,7 +2185,7 @@
 
     <!-- item_purchase_return_row -->
     <string name="xml_purchase_return_row_bought_placeholder">வாங்கியது 0</string>
-    <string name="xml_purchase_return_row_debit_value_placeholder">பற்று மதிப்பு: ₹0.00</string>
+    <string name="xml_purchase_return_row_debit_value_placeholder">பற்று மதிப்பு: 0.00</string>
     <string name="xml_purchase_return_row_hsn_placeholder">HSN: —</string>
     <string name="xml_purchase_return_row_max_returnable_label">அதிகபட்சம் திரும்ப அனுப்பக்கூடியது:</string>
     <string name="xml_purchase_return_row_product_placeholder">பொருள் பெயர்</string>

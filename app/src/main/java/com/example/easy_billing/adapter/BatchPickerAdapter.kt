@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
 import com.example.easy_billing.db.PurchaseBatch
+import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
@@ -134,8 +135,9 @@ class BatchPickerAdapter(
         else
             b.unitCostExcludingTax
 
-        holder.tvBatchMeta.text = "${dateFmt.format(Date(b.createdAt))} · ₹${formatNum(grossUnit)}/unit"
-        holder.tvUnitCost.text = "₹${formatNum(grossUnit)}"
+        val symbol = CurrencyHelper.getCurrencySymbol(holder.itemView.context)
+        holder.tvBatchMeta.text = "${dateFmt.format(Date(b.createdAt))} · $symbol${formatNum(grossUnit)}/unit"
+        holder.tvUnitCost.text = "$symbol${formatNum(grossUnit)}"
         holder.tvMaxReturn.text = "Max reducible: ${formatNum(b.quantityRemaining)}"
 
         val currentQty = selected[position] ?: 0.0
@@ -204,7 +206,7 @@ class BatchPickerAdapter(
     private fun updateAmountView(holder: BatchVH, qty: Double, unitCost: Double, stripeColor: Int) {
         if (qty > 0.0) {
             holder.tvBatchAmount.visibility = View.VISIBLE
-            holder.tvBatchAmount.text = "Reduce value: ₹${formatNum(qty * unitCost)}"
+            holder.tvBatchAmount.text = "Reduce value: ${CurrencyHelper.getCurrencySymbol(holder.itemView.context)}${formatNum(qty * unitCost)}"
             holder.tvBatchAmount.setTextColor(stripeColor)
         } else {
             holder.tvBatchAmount.visibility = View.GONE

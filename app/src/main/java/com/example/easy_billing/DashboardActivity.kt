@@ -2328,9 +2328,9 @@ class DashboardActivity : BaseActivity() {
             val mx = etPriceMax.text?.toString()?.trim()
             tvPriceSummary.text = when {
                 mn.isNullOrEmpty() && mx.isNullOrEmpty() -> getString(R.string.dashboard_filter_any)
-                mn.isNullOrEmpty() -> "Up to ₹$mx"
-                mx.isNullOrEmpty() -> "From ₹$mn"
-                else -> "₹$mn – ₹$mx"
+                mn.isNullOrEmpty() -> "Up to ${CurrencyHelper.getCurrencySymbol(this@DashboardActivity)}$mx"
+                mx.isNullOrEmpty() -> "From ${CurrencyHelper.getCurrencySymbol(this@DashboardActivity)}$mn"
+                else -> "${CurrencyHelper.getCurrencySymbol(this@DashboardActivity)}$mn – ${CurrencyHelper.getCurrencySymbol(this@DashboardActivity)}$mx"
             }
         }
 

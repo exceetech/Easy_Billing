@@ -111,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Inventory loss ₹0"
+                    android:text="Inventory loss 0"
                     android:textSize="10.5sp"
                     android:visibility="gone" />
             </LinearLayout>
@@ -127,7 +127,7 @@
                     android:id="@+id/tvReturnValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₹0"
+                    android:text="0"
                     android:textSize="18sp"
                     android:textColor="#8A6526"
                     android:fontFamily="serif"

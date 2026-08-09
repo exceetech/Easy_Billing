@@ -33,7 +33,7 @@ class LocalizationSettingsActivity : BaseActivity() {
         "English", "Hindi", "Tamil", "Malayalam", "Telugu", "Kannada"
     )
     private val codes = arrayOf("en", "hi", "ta", "ml", "te", "kn")
-    private val currencies = listOf("₹ INR", "$ USD", "€ EUR")
+    private val currencies = listOf("₹ INR")
 
     private var selectedLanguage = "English"
     private var selectedCurrency = "₹ INR"

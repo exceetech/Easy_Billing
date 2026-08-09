@@ -84,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="₹0"
+            android:text="0"
             android:textSize="16sp"
             android:textColor="#791F1F"
             android:fontFamily="serif"

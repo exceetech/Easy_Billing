@@ -612,7 +612,7 @@
 
                         <TextView
                             android:id="@+id/tvChargesSubtotal"
-                            android:text="₹0"
+                            android:text="0"
                             android:textColor="#18181B"
                             android:textSize="16sp"
                             android:layout_width="wrap_content"
@@ -665,7 +665,7 @@
                             android:paddingBottom="2dp">
 
                             <TextView
-                                android:text="₹"
+                                android:text=""
                                 android:textColor="#8A6526"
                                 android:textSize="13sp"
                                 android:layout_width="wrap_content"
@@ -714,7 +714,7 @@
 
                         <TextView
                             android:id="@+id/tvNetAmount"
-                            android:text="₹0"
+                            android:text="0"
                             android:textColor="#18181B"
                             android:textStyle="bold"
                             android:textSize="16sp"
@@ -1382,7 +1382,7 @@
 
                             <TextView
                                 android:id="@+id/tvCgstAmount"
-                                android:text="₹0.00"
+                                android:text="0.00"
                                 android:textColor="#18181B"
                                 android:textStyle="bold"
                                 android:textSize="13sp"
@@ -1427,7 +1427,7 @@
 
                             <TextView
                                 android:id="@+id/tvSgstAmount"
-                                android:text="₹0.00"
+                                android:text="0.00"
                                 android:textColor="#18181B"
                                 android:textStyle="bold"
                                 android:textSize="13sp"
@@ -1518,7 +1518,7 @@
 
                         <TextView
                             android:id="@+id/tvTotalTax"
-                            android:text="₹0.00"
+                            android:text="0.00"
                             android:textColor="#0F6E56"
                             android:textStyle="bold"
                             android:fontFamily="serif"
@@ -1592,7 +1592,7 @@
 
                         <TextView
                             android:id="@+id/tvSubtotal"
-                            android:text="₹0"
+                            android:text="0"
                             android:textColor="#18181B"
                             android:textSize="16sp"
                             android:layout_height="wrap_content"
@@ -1626,7 +1626,7 @@
 
                         <TextView
                             android:id="@+id/tvGst"
-                            android:text="₹0"
+                            android:text="0"
                             android:textColor="#18181B"
                             android:textSize="16sp"
                             android:layout_width="wrap_content"
@@ -1654,7 +1654,7 @@
 
                         <TextView
                             android:id="@+id/tvInvRoundOff"
-                            android:text="₹0.00"
+                            android:text="0.00"
                             android:textColor="#18181B"
                             android:textSize="16sp"
                             android:layout_width="wrap_content"
@@ -1707,7 +1707,7 @@
 
                         <TextView
                             android:id="@+id/tvTotal"
-                            android:text="₹0"
+                            android:text="0"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:fontFamily="serif"

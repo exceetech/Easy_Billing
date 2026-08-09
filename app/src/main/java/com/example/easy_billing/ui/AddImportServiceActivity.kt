@@ -1,6 +1,7 @@
 package com.example.easy_billing.ui
 
 import com.example.easy_billing.util.appNow
+import com.example.easy_billing.util.CurrencyHelper
 
 import android.app.DatePickerDialog
 import android.graphics.Color
@@ -249,8 +250,8 @@ class AddImportServiceActivity : BaseActivity() {
         val cessPaid = findViewById<TextInputEditText>(R.id.etCessPaid)
             .text.toString().toDoubleOrNull() ?: 0.0
 
-        findViewById<TextView>(R.id.tvAvailedIgstCap).text = "of ₹${num(igstPaid)} paid"
-        findViewById<TextView>(R.id.tvAvailedCessCap).text = "of ₹${num(cessPaid)} paid"
+        findViewById<TextView>(R.id.tvAvailedIgstCap).text = "of ${CurrencyHelper.getCurrencySymbol(this)}${num(igstPaid)} paid"
+        findViewById<TextView>(R.id.tvAvailedCessCap).text = "of ${CurrencyHelper.getCurrencySymbol(this)}${num(cessPaid)} paid"
     }
 
     private fun confirmDelete(record: ImportService) {

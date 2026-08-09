@@ -13,6 +13,7 @@ import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
 import com.example.easy_billing.db.PurchaseReturn
 import com.example.easy_billing.util.GstEngine
+import com.example.easy_billing.util.CurrencyHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -231,7 +232,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                 return@launch
             }
             if (noteRefundVoucherValue < rTaxable) {
-                _result.value = Result.ValidationError("Note/Refund Voucher Value must stay >= taxable value (₹%.2f).".format(rTaxable))
+                _result.value = Result.ValidationError("Note/Refund Voucher Value must stay >= taxable value (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f).".format(rTaxable))
                 return@launch
             }
             if (rate < 0) {
@@ -253,19 +254,19 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             if (availedItcIntegratedTax > rIgst) {
-                _result.value = Result.ValidationError("Availed ITC Integrated Tax (₹%.2f) cannot exceed IGST (₹%.2f).".format(availedItcIntegratedTax, rIgst))
+                _result.value = Result.ValidationError("Availed ITC Integrated Tax (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f) cannot exceed IGST (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f).".format(availedItcIntegratedTax, rIgst))
                 return@launch
             }
             if (availedItcCentralTax > rCgst) {
-                _result.value = Result.ValidationError("Availed ITC Central Tax (₹%.2f) cannot exceed CGST (₹%.2f).".format(availedItcCentralTax, rCgst))
+                _result.value = Result.ValidationError("Availed ITC Central Tax (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f) cannot exceed CGST (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f).".format(availedItcCentralTax, rCgst))
                 return@launch
             }
             if (availedItcStateTax > rSgst) {
-                _result.value = Result.ValidationError("Availed ITC State/UT Tax (₹%.2f) cannot exceed SGST (₹%.2f).".format(availedItcStateTax, rSgst))
+                _result.value = Result.ValidationError("Availed ITC State/UT Tax (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f) cannot exceed SGST (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f).".format(availedItcStateTax, rSgst))
                 return@launch
             }
             if (availedItcCess > rCess) {
-                _result.value = Result.ValidationError("Availed ITC Cess (₹%.2f) cannot exceed Cess (₹%.2f).".format(availedItcCess, rCess))
+                _result.value = Result.ValidationError("Availed ITC Cess (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f) cannot exceed Cess (${CurrencyHelper.getCurrencySymbol(getApplication())}%.2f).".format(availedItcCess, rCess))
                 return@launch
             }
             if (invoiceType.isBlank()) {

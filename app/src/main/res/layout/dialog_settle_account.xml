@@ -97,7 +97,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="₹0"
+            android:text="0"
             android:textColor="#B23A3A"
             android:textSize="28sp"
             android:fontFamily="serif"

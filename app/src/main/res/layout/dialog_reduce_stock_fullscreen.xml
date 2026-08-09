@@ -215,7 +215,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="₹0"
+                            android:text="0"
                             android:textSize="13.5sp"
                             android:fontFamily="@font/googlesans_semibold"
                             android:textColor="#0F6E56"/>

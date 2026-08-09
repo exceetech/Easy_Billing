@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.util.CurrencyHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -109,7 +110,7 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
             holder.tvDate.text =
                 (listOf(sdf.format(Date(item.timestamp))) + extras).joinToString(" · ")
 
-            val formatted = money(kotlin.math.abs(item.amount))
+            val formatted = money(context, kotlin.math.abs(item.amount))
 
             // Colour follows the direction the balance moves, matching the
             // accounts list where money owed is red. The old mapping had ADD
@@ -169,7 +170,7 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
 
             // Where the balance stood after this entry — already computed by
             // prepareUI and previously never shown.
-            holder.tvBalance.text = "${money(kotlin.math.abs(item.runningBalance))} left"
+            holder.tvBalance.text = "${money(holder.itemView.context, kotlin.math.abs(item.runningBalance))} left"
 
             // Rows are grouped under a date header, so the last one before the
             // next header must not draw a trailing hairline.
@@ -179,8 +180,10 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
         }
     }
 
-    private fun money(v: Double): String =
-        if (v % 1.0 == 0.0) "₹${v.toLong()}" else "₹${"%.2f".format(v)}"
+    private fun money(context: android.content.Context, v: Double): String {
+        val symbol = CurrencyHelper.getCurrencySymbol(context)
+        return if (v % 1.0 == 0.0) "$symbol${v.toLong()}" else "$symbol${"%.2f".format(v)}"
+    }
 
     // ================= VIEW HOLDERS =================
 

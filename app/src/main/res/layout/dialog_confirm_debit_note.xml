@@ -116,7 +116,7 @@
             android:id="@+id/tvConfirmDebitValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="₹0"
+            android:text="0"
             android:textColor="#8A6526"
             android:textSize="13sp"
             android:fontFamily="serif"

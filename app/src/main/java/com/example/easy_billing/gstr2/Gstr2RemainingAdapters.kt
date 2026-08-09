@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.R
+import com.example.easy_billing.util.CurrencyHelper
 
 /**
  * The remaining four GSTR-2 sections: CDNR, CDNUR, EXEMP and HSNSUM.
@@ -17,10 +18,11 @@ import com.example.easy_billing.R
  * carries no tax at all, and HSNSUM is product-level rather than party-level.
  */
 
-private fun g2Money(v: Double): String {
+private fun g2Money(context: android.content.Context, v: Double): String {
+    val symbol = CurrencyHelper.getCurrencySymbol(context)
     val sign = if (v < 0) "-" else ""
     val a = kotlin.math.abs(v)
-    return if (a % 1.0 == 0.0) "$sign₹%,.0f".format(a) else "$sign₹%,.2f".format(a)
+    return if (a % 1.0 == 0.0) "$sign$symbol%,.0f".format(a) else "$sign$symbol%,.2f".format(a)
 }
 
 private fun g2Rate(r: Double): String =
@@ -102,20 +104,20 @@ abstract class Gstr2BaseAdapter<T>(
         h.tvExtra.text = when {
             blocked -> "Credit was blocked — nothing to reverse"
             else -> listOfNotNull(
-                "ITC ${g2Money(sign * kotlin.math.abs(availed))}",
-                if (cess != 0.0) "cess ${g2Money(cess)}" else null,
-                if (noteValue != 0.0) "note ${g2Money(noteValue)}" else null
+                "ITC ${g2Money(h.itemView.context, sign * kotlin.math.abs(availed))}",
+                if (cess != 0.0) "cess ${g2Money(h.itemView.context, cess)}" else null,
+                if (noteValue != 0.0) "note ${g2Money(h.itemView.context, noteValue)}" else null
             ).joinToString("  ·  ")
         }
         h.tvExtra.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#A89E88"))
 
-        h.tvAmount.text = g2Money(sign * kotlin.math.abs(taxable))
+        h.tvAmount.text = g2Money(h.itemView.context, sign * kotlin.math.abs(taxable))
         h.tvAmount.setTextColor(Color.parseColor(if (isCredit) "#A32D2D" else "#1A1A18"))
 
         h.tvTax.text = when {
             blocked  -> "no reversal"
-            isCredit -> "${g2Money(-kotlin.math.abs(availed))} ITC"
-            else     -> "+${g2Money(kotlin.math.abs(availed))} ITC"
+            isCredit -> "${g2Money(h.itemView.context, -kotlin.math.abs(availed))} ITC"
+            else     -> "+${g2Money(h.itemView.context, kotlin.math.abs(availed))} ITC"
         }
         h.tvTax.setTextColor(Color.parseColor(if (isCredit || blocked) "#A32D2D" else "#0F6E56"))
 
@@ -196,7 +198,7 @@ class Gstr2ExempAdapter(
     override fun bindRow(h: VH, row: Pair<String, Double>, position: Int) {
         h.tvTitle.text = row.first
         h.tvMeta.text = h.itemView.context.getString(R.string.gstr2_exemp_no_itc)
-        h.tvAmount.text = g2Money(row.second)
+        h.tvAmount.text = g2Money(h.itemView.context, row.second)
         h.tvTax.text = h.itemView.context.getString(R.string.gstr2_exempt_label)
         h.tvTax.setTextColor(Color.parseColor("#9A8F79"))
         h.vStripe.backgroundTintList =
@@ -223,25 +225,25 @@ class Gstr2HsnsumAdapter(rows: List<Gstr2HsnsumRow>) : Gstr2BaseAdapter<Gstr2Hsn
         h.tvMeta.text = row.description.ifBlank { "—" }
 
         val split = when {
-            row.igstAmount > 0.0 -> "IGST ${g2Money(row.igstAmount)}"
+            row.igstAmount > 0.0 -> "IGST ${g2Money(h.itemView.context, row.igstAmount)}"
             row.cgstAmount > 0.0 || row.sgstAmount > 0.0 ->
-                "CGST ${g2Money(row.cgstAmount)} + SGST ${g2Money(row.sgstAmount)}"
+                "CGST ${g2Money(h.itemView.context, row.cgstAmount)} + SGST ${g2Money(h.itemView.context, row.sgstAmount)}"
             else -> "No tax"
         }
         h.tvExtra.visibility = View.VISIBLE
         h.tvExtra.text = listOfNotNull(
             split,
-            if (row.cessAmount != 0.0) "cess ${g2Money(row.cessAmount)}" else null,
+            if (row.cessAmount != 0.0) "cess ${g2Money(h.itemView.context, row.cessAmount)}" else null,
             "${g2Qty(row.totalQuantity)} ${row.uqc.ifBlank { "OTH" }.uppercase()}"
         ).joinToString("  ·  ")
 
-        h.tvAmount.text = g2Money(row.taxableValue)
-        h.tvTax.text = "+${g2Money(tax)} tax"
+        h.tvAmount.text = g2Money(h.itemView.context, row.taxableValue)
+        h.tvTax.text = "+${g2Money(h.itemView.context, tax)} tax"
         h.tvTax.setTextColor(Color.parseColor(if (hsnMissing) "#854F0B" else "#0F6E56"))
 
         if (row.totalValue != 0.0) {
             h.tvSubAmount.visibility = View.VISIBLE
-            h.tvSubAmount.text = "${g2Money(row.totalValue)} total"
+            h.tvSubAmount.text = "${g2Money(h.itemView.context, row.totalValue)} total"
         }
 
         h.vStripe.backgroundTintList = android.content.res.ColorStateList.valueOf(
