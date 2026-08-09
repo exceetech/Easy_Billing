@@ -104,6 +104,11 @@ def xml_escape_value(text: str) -> str:
     # file. A leading backslash forces it to be treated as literal text.
     if text.startswith("@") or text.startswith("?"):
         text = "\\" + text
+        
+    # Preserve leading and trailing spaces by wrapping in double quotes
+    if text.startswith(" ") or text.endswith(" "):
+        text = f'"{text}"'
+        
     return text
 
 
@@ -136,7 +141,11 @@ def load_rows():
         for lang_col in LANG_COLUMNS:
             idx = col_idx.get(lang_col)
             val = row[idx] if idx is not None and idx < len(row) else None
-            entry[lang_col] = (str(val).strip() if val is not None and str(val).strip() else None)
+            # Only check truthiness of stripped string to avoid saving pure-whitespace keys
+            if val is not None and str(val).strip():
+                entry[lang_col] = str(val).strip()
+            else:
+                entry[lang_col] = None
         rows.append(entry)
     return rows
 

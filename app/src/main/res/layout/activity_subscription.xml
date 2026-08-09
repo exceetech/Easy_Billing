@@ -48,7 +48,8 @@
                     android:fontFamily="@font/googlesans_bold"
                     android:textColor="#1A1A18"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"/>
 
                 <TextView
                     android:text="@string/subscription_title_part2"

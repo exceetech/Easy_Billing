@@ -41,7 +41,7 @@ class CreditAccountsActivity : BaseActivity() {
     private lateinit var btnAdd: MaterialButton
 
     private lateinit var adapter: CreditAdapter
-    private val list = mutableListOf<CreditAccount>()
+
 
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private var runnable: Runnable? = null
@@ -86,7 +86,7 @@ class CreditAccountsActivity : BaseActivity() {
     }
 
     private fun setupRecycler() {
-        adapter = CreditAdapter(list) { account ->
+        adapter = CreditAdapter(emptyList()) { account ->
             showAccountOptions(account)
         }
         rvCustomers.layoutManager = LinearLayoutManager(this)
@@ -125,8 +125,6 @@ class CreditAccountsActivity : BaseActivity() {
 
         val data = repository.getAll(shopId)
 
-        list.clear()
-        list.addAll(data)
 
         applyFilter(data)        // ✅ apply filter (also pushes rows into the adapter)
         updateSummary(data)  // ✅ IMPORTANT
@@ -316,8 +314,7 @@ class CreditAccountsActivity : BaseActivity() {
 
                     val updated = repository.getAll(shopId)
 
-                    list.clear()
-                    list.addAll(updated)
+
                     applyFilter(updated)
                     updateSummary(updated)
 

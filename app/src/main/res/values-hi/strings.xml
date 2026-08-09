@@ -2,7 +2,7 @@
 <resources>
 
     <!-- item_daily_report -->
-    <string name="_0_00">0.00</string>
+    <string name="_0_00">₹0.00</string>
     <string name="_0_bills">0 बिल</string>
     <string name="date">तारीख</string>
 
@@ -55,7 +55,7 @@
     <string name="saved_successfully">सफलतापूर्वक सेव हुआ</string>
 
     <!-- App -->
-    <string name="activity_add_import_service_of_000_paid">में से 0.00 का भुगतान किया गया</string>
+    <string name="activity_add_import_service_of_000_paid">में से ₹0.00 का भुगतान किया गया</string>
     <string name="activity_bill_details_additional_charge_debit_note">अतिरिक्त शुल्क/डेबिट नोट</string>
     <string name="activity_bill_details_b2c">B2C</string>
     <string name="activity_bill_details_cancel_void_invoice">रद्द/शून्य इनवॉइस</string>
@@ -85,7 +85,7 @@
     <string name="activity_debit_note_debit">डेबिट</string>
     <string name="activity_debit_note_enter_additional_quantity_per">प्रति आइटम अतिरिक्त मात्रा दर्ज करें</string>
     <string name="activity_debit_note_gst">जीएसटी</string>
-    <string name="activity_debit_note_invoice">इनवॉइस —</string>
+    <string name="activity_debit_note_invoice">इनवॉइस #—</string>
     <string name="activity_debit_note_note">नोट</string>
     <string name="activity_debit_note_taxable">कर योग्य</string>
     <string name="activity_debit_note_total_additional_value">कुल अतिरिक्त मूल्य</string>
@@ -106,14 +106,14 @@
     <string name="activity_invoice_b2c">B2C</string>
     <string name="activity_invoice_m">M</string>
     <string name="activity_purchase_details_inv">INV-—  ·  —</string>
-    <string name="activity_purchase_return_invoice">इनवॉइस —</string>
+    <string name="activity_purchase_return_invoice">इनवॉइस #—</string>
     <string name="activity_register_ex">Ex</string>
     <string name="activity_register_pos">POS</string>
     <string name="activity_sales_return_cancel">रद्द करें</string>
     <string name="activity_sales_return_confirm_and_issue_credit">पुष्टि करें और क्रेडिट नोट जारी करें</string>
     <string name="activity_sales_return_credit">क्रेडिट</string>
     <string name="activity_sales_return_gst_reversal">जीएसटी वापसी</string>
-    <string name="activity_sales_return_invoice">इनवॉइस —</string>
+    <string name="activity_sales_return_invoice">इनवॉइस #—</string>
     <string name="activity_sales_return_note">नोट</string>
     <string name="activity_sales_return_sales_return">बिक्री वापसी</string>
     <string name="activity_sales_return_select_items_and_quantity">वापस करने के लिए आइटम और मात्रा चुनें</string>
@@ -178,7 +178,7 @@
     <string name="dialog_audit_score_info_whats_the_audit">What\'s the audit</string>
     <string name="dialog_cancel_void_invoice_cancel">रद्द करें /</string>
     <string name="dialog_cancel_void_invoice_gst_reporting_and_inventory">जीएसटी रिपोर्टिंग और इन्वेंट्री तुरंत अपडेट की जाएगी।</string>
-    <string name="dialog_cancel_void_invoice_invoice">इनवॉइस —</string>
+    <string name="dialog_cancel_void_invoice_invoice">इनवॉइस #—</string>
     <string name="dialog_cancel_void_invoice_keep_invoice">इनवॉइस रखें</string>
     <string name="dialog_cancel_void_invoice_mark_this_invoice_as">क्या इस इनवॉइस को जीएसटी रिपोर्टिंग के लिए रद्द के रूप में चिह्नित करें? यह आपकी इन्वेंट्री में सभी बिल किए गए आइटमों को पुनर्स्थापित भी करेगा। इसे पूर्ववत नहीं किया जा सकता है।</string>
     <string name="dialog_cancel_void_invoice_void_invoice">शून्य इनवॉइस?</string>
@@ -220,7 +220,7 @@
     <string name="dialog_clear_stock_select_batches_to_clear">Select batches to clear</string>
     <string name="dialog_clear_stock_total_to_clear">Total to clear</string>
     <string name="dialog_confirm_debit_note_additional_value">अतिरिक्त मूल्य</string>
-    <string name="dialog_confirm_debit_note_invoice">इनवॉइस —</string>
+    <string name="dialog_confirm_debit_note_invoice">इनवॉइस #—</string>
     <string name="dialog_confirm_debit_note_issue_debit">डेबिट जारी करें</string>
     <string name="dialog_confirm_debit_note_note">नोट?</string>
     <string name="dialog_confirm_debit_note_review">समीक्षा</string>
@@ -292,7 +292,7 @@
     <string name="dialog_product_exists_create_new_instead">इसके बजाय नया बनाएं</string>
     <string name="dialog_product_exists_duplicate_found">डुप्लिकेट मिला</string>
     <string name="dialog_product_exists_exists">मौजूद है</string>
-    <string name="dialog_product_exists_price_0nvariant_nunit_nstock">मूल्य: 0\nवेरिएंट: -\nइकाई: -\nस्टॉक: 0</string>
+    <string name="dialog_product_exists_price_0nvariant_nunit_nstock">मूल्य: ₹0\nवेरिएंट: -\nइकाई: -\nस्टॉक: 0</string>
     <string name="dialog_product_exists_product">उत्पाद</string>
     <string name="dialog_product_exists_restore">पुनर्स्थापित करें</string>
     <string name="dialog_product_exists_update_existing_or_replace">मौजूदा अपडेट करें या नए से बदलें?</string>
@@ -1063,7 +1063,7 @@
     <!-- activity_localization_settings -->
     <string name="currency">मुद्रा</string>
     <string name="language">भाषा</string>
-    <string name="localization_currency_default_value">INR</string>
+    <string name="localization_currency_default_value">₹ INR</string>
     <string name="localization_language_default_value">English</string>
     <string name="localization_language_title_part1">भाषा</string>
     <string name="localization_language_title_part2">और मुद्रा</string>
@@ -1254,8 +1254,8 @@
     <string name="dialog_premium_upgrade_title_part2">करें प्रीमियम</string>
 
     <!-- dialog_product_filter -->
-    <string name="dialog_product_filter_max_price_hint">अधिकतम</string>
-    <string name="dialog_product_filter_min_price_hint">न्यूनतम</string>
+    <string name="dialog_product_filter_max_price_hint">अधिकतम ₹</string>
+    <string name="dialog_product_filter_min_price_hint">न्यूनतम ₹</string>
     <string name="dialog_product_filter_price_range">कीमत सीमा</string>
     <string name="dialog_product_filter_product_type">प्रोडक्ट टाइप</string>
     <string name="dialog_product_filter_select_all">सभी चुनें</string>
@@ -1602,7 +1602,7 @@
 
     <!-- dialog_line_discount -->
     <string name="invoice_apply_discount">छूट लागू करें</string>
-    <string name="invoice_discount_mode_amount">राशि</string>
+    <string name="invoice_discount_mode_amount">राशि ₹</string>
     <string name="invoice_discount_mode_percent">प्रतिशत %%</string>
     <string name="invoice_line_discount_header">लाइन छूट</string>
     <string name="invoice_new_price_label">नई कीमत</string>
@@ -1649,10 +1649,10 @@
     <string name="invoice_pdf_summary_loss">हानि</string>
     <string name="invoice_pdf_summary_net_profit">शुद्ध लाभ</string>
     <string name="invoice_pdf_summary_revenue">राजस्व</string>
-    <string name="invoice_pdf_table_balance_header">बकाया</string>
-    <string name="invoice_pdf_table_cr_header">क्रेडिट</string>
+    <string name="invoice_pdf_table_balance_header">बकाया (₹)</string>
+    <string name="invoice_pdf_table_cr_header">क्रेडिट (₹)</string>
     <string name="invoice_pdf_table_date_header">दिनांक</string>
-    <string name="invoice_pdf_table_dr_header">डेबिट</string>
+    <string name="invoice_pdf_table_dr_header">डेबिट (₹)</string>
     <string name="invoice_pdf_table_type_header">प्रकार</string>
     <string name="invoice_pdf_tax_invoice_title">टैक्स इनवॉइस</string>
     <string name="invoice_pdf_taxable_amount_label">कर योग्य राशि</string>
@@ -1685,7 +1685,7 @@
     <!-- item_peak_hour -->
     <string name="peak_hour_item_bills_placeholder">18 बिल</string>
     <string name="peak_hour_item_hour_placeholder">12:00 PM</string>
-    <string name="peak_hour_item_revenue_placeholder">6,100</string>
+    <string name="peak_hour_item_revenue_placeholder">₹6,100</string>
 
     <!-- PeakHourAdapter -->
     <string name="peak_hour_status_avg">⚖ औसत</string>
@@ -1934,7 +1934,7 @@
 
     <!-- item_transaction -->
     <string name="txn_label_credit_sale">क्रेडिट सेल</string>
-    <string name="xml_transaction_left_placeholder">0 शेष</string>
+    <string name="xml_transaction_left_placeholder">₹0 शेष</string>
     <string name="xml_transaction_time_placeholder">11:02 am</string>
 
     <!-- TransactionAdapter -->
@@ -1951,12 +1951,12 @@
     <string name="xml_ai_insight_header_default">ध्यान देने योग्य</string>
 
     <!-- item_batch_pick -->
-    <string name="xml_batch_pick_date_cost_placeholder">14 जुलाई 2026 · 42/यूनिट</string>
+    <string name="xml_batch_pick_date_cost_placeholder">14 जुलाई 2026 · ₹42/यूनिट</string>
     <string name="xml_batch_pick_max_reducible_placeholder">अधिकतम घटाया जा सकने वाला: 0</string>
     <string name="xml_batch_pick_number_placeholder">बैच #A102</string>
     <string name="xml_batch_pick_oldest_tag">सबसे पुराना</string>
     <string name="xml_batch_pick_reduce_qty_label">मात्रा घटाएं</string>
-    <string name="xml_batch_pick_reduce_value_placeholder">घटाई गई वैल्यू: 0</string>
+    <string name="xml_batch_pick_reduce_value_placeholder">घटाई गई वैल्यू: ₹0</string>
 
     <!-- dialog_batch_picker -->
     <string name="xml_batch_picker_cancel_button">रद्द करें</string>
@@ -1983,7 +1983,7 @@
     <!-- dialog_confirm_credit_note -->
     <string name="xml_confirm_credit_note_body">आप इस इनवॉइस से आइटम वापस कर रहे हैं। इससे इन्वेंटरी समायोजित होगी और एक GST क्रेडिट नोट बनेगा।</string>
     <string name="xml_confirm_credit_note_confirm_button">हां, क्रेडिट नोट जारी करें</string>
-    <string name="xml_confirm_credit_note_invoice_placeholder">इनवॉइस —</string>
+    <string name="xml_confirm_credit_note_invoice_placeholder">इनवॉइस #—</string>
     <string name="xml_confirm_credit_note_return_value_label">वापसी वैल्यू</string>
     <string name="xml_confirm_credit_note_review_button">समीक्षा करें</string>
     <string name="xml_confirm_credit_note_title_line1">क्रेडिट नोट जारी</string>
@@ -2185,7 +2185,7 @@
 
     <!-- item_purchase_return_row -->
     <string name="xml_purchase_return_row_bought_placeholder">खरीदा गया 0</string>
-    <string name="xml_purchase_return_row_debit_value_placeholder">डेबिट वैल्यू: 0.00</string>
+    <string name="xml_purchase_return_row_debit_value_placeholder">डेबिट वैल्यू: ₹0.00</string>
     <string name="xml_purchase_return_row_hsn_placeholder">HSN: —</string>
     <string name="xml_purchase_return_row_max_returnable_label">अधिकतम वापसी योग्य:</string>
     <string name="xml_purchase_return_row_product_placeholder">प्रोडक्ट का नाम</string>
@@ -2226,5 +2226,8 @@
     <string name="xml_restore_customer_title_line1">पुनर्स्थापित करें</string>
     <string name="xml_restore_customer_title_line2">ग्राहक</string>
     <string name="xml_restore_customer_you_typed_label">आपने टाइप किया</string>
+
+    <!-- Supplier -->
+    <string name="dialog_add_supplier_title_word">आपूर्तिकर्ता</string>
 
 </resources>

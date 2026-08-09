@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Add-supplier dialog — champagne theme, glass inputs.
-
-    State is derived from the GSTIN when one is given (its first two
-    characters are the state code), so the state row only becomes
-    tappable for unregistered suppliers.
+    "New supplier" dialog — rebuilt to match dialog_add_customer.xml exactly:
+    champagne theme, soft amber icon circle, eyebrow + two-tone serif title,
+    glass inputs, stacked leading-icon action buttons (green Save / outlined
+    red Cancel).
 
     Ids bound by SupplierPicker.showAddSupplierDialog: etSupName,
     etSupGstin, etSupState, tvSupStateHint, btnSupCancel, btnSupSave.
@@ -13,150 +12,278 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:layout_margin="20dp"
+    android:orientation="vertical"
     android:background="@drawable/bg_dialog_card"
-    android:paddingHorizontal="18dp"
-    android:paddingTop="18dp"
-    android:paddingBottom="18dp">
+    android:paddingHorizontal="22dp"
+    android:paddingTop="26dp"
+    android:paddingBottom="20dp">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-        <View android:layout_width="3dp" android:layout_height="12dp" android:background="#D4A574"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/dialog_add_supplier_supplier"
-            android:textColor="#8A6526"
-            android:textSize="10sp"
-            android:letterSpacing="0.14"
-            android:fontFamily="@font/googlesans_semibold"/>
-    </LinearLayout>
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_store"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
+    </FrameLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="@string/dialog_add_supplier_new_supplier"
-        android:textColor="#1A1A18"
-        android:textSize="20sp"
-        android:fontFamily="serif"/>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:text="@string/dialog_add_supplier_supplier"
+        android:textColor="#B8895A"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/invoice_new_word"
+            android:textColor="#1A1A18"
+            android:textSize="20sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/dialog_add_supplier_title_word"
+            android:textColor="#0F6E56"
+            android:textSize="20sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
         android:text="@string/dialog_add_supplier_gstin_is_optional_leave"
         android:textColor="#8A8272"
-        android:textSize="11.5sp"/>
+        android:textSize="12sp"
+        android:lineSpacingExtra="2dp" />
 
-    <!-- Name -->
+    <!-- ===================== NAME ===================== -->
     <TextView
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" android:layout_marginBottom="5dp"
-        android:text="@string/dialog_add_supplier_supplier_name" android:textColor="#9A8F79" android:textSize="10.5sp"
-        android:fontFamily="@font/googlesans_medium"/>
-    <LinearLayout
-        android:layout_width="match_parent" android:layout_height="50dp"
-        android:orientation="horizontal" android:gravity="center_vertical"
-        android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/dialog_add_supplier_supplier_name"
+        android:textSize="12.5sp"
+        android:textColor="#9A968C"
+        android:fontFamily="@font/googlesans_regular" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_glass_input">
         <ImageView
-            android:layout_width="19dp" android:layout_height="19dp" android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_lc_user" app:tint="#B8895A" android:contentDescription="@null"/>
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
+            android:src="@drawable/ic_lc_user"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSupName"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-            android:background="@null" android:hint="@string/dialog_add_supplier_supplier_name_1"
-            android:textColor="#1A1A18" android:textColorHint="#A99E88"
-            android:inputType="textCapWords" android:singleLine="true" android:textSize="14sp"/>
-    </LinearLayout>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:paddingStart="44dp"
+            android:paddingEnd="14dp"
+            android:gravity="center_vertical"
+            android:hint="@string/dialog_add_supplier_supplier_name_1"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
+            android:textSize="14sp"
+            android:inputType="textCapWords"
+            android:singleLine="true"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false" />
+    </FrameLayout>
 
-    <!-- GSTIN -->
+    <!-- ===================== GSTIN ===================== -->
     <TextView
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-        android:text="@string/dialog_add_supplier_gstin" android:textColor="#9A8F79" android:textSize="10.5sp"
-        android:fontFamily="@font/googlesans_medium"/>
-    <LinearLayout
-        android:layout_width="match_parent" android:layout_height="50dp"
-        android:orientation="horizontal" android:gravity="center_vertical"
-        android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/dialog_add_supplier_gstin"
+        android:textSize="12.5sp"
+        android:textColor="#9A968C"
+        android:fontFamily="@font/googlesans_regular" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_glass_input">
         <ImageView
-            android:layout_width="19dp" android:layout_height="19dp" android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_lc_id_card" app:tint="#B8895A" android:contentDescription="@null"/>
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
+            android:src="@drawable/ic_lc_id_card"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSupGstin"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-            android:background="@null" android:hint="@string/dialog_add_supplier_15character_gstin"
-            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:paddingStart="44dp"
+            android:paddingEnd="14dp"
+            android:gravity="center_vertical"
+            android:hint="@string/dialog_add_supplier_15character_gstin"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
             android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-            android:inputType="textCapCharacters" android:maxLength="15"
-            android:singleLine="true" android:textSize="14sp"/>
-    </LinearLayout>
+            android:inputType="textCapCharacters"
+            android:maxLength="15"
+            android:singleLine="true"
+            android:textSize="14sp"
+            android:importantForAutofill="no"
+            android:includeFontPadding="false" />
+    </FrameLayout>
 
-    <!-- State -->
+    <!-- ===================== STATE ===================== -->
     <TextView
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-        android:text="@string/dialog_add_supplier_state" android:textColor="#9A8F79" android:textSize="10.5sp"
-        android:fontFamily="@font/googlesans_medium"/>
-    <LinearLayout
-        android:layout_width="match_parent" android:layout_height="50dp"
-        android:orientation="horizontal" android:gravity="center_vertical"
-        android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/dialog_add_supplier_state"
+        android:textSize="12.5sp"
+        android:textColor="#9A968C"
+        android:fontFamily="@font/googlesans_regular" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_glass_input">
         <ImageView
-            android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_lc_map_pin" app:tint="#B8895A" android:contentDescription="@null"/>
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="14dp"
+            android:src="@drawable/ic_lc_map_pin"
+            app:tint="#B8895A"
+            android:contentDescription="@null" />
         <TextView
             android:id="@+id/etSupState"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:hint="@string/dialog_add_supplier_select_state" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-            android:singleLine="true" android:ellipsize="end" android:textSize="14sp"/>
+            android:paddingStart="44dp"
+            android:paddingEnd="38dp"
+            android:hint="@string/dialog_add_supplier_select_state"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="14sp"
+            android:includeFontPadding="false" />
         <ImageView
-            android:layout_width="18dp" android:layout_height="18dp"
-            android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
-    </LinearLayout>
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_lc_chevron_down"
+            app:tint="#C9C3B4"
+            android:contentDescription="@null" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tvSupStateHint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="6dp"
         android:text="@string/dialog_add_supplier_taken_from_the_gstin"
         android:textColor="#0F6E56"
         android:textSize="11sp"
-        android:visibility="gone"/>
+        android:fontFamily="@font/googlesans_regular"
+        android:visibility="gone" />
 
-    <!-- Buttons -->
-    <LinearLayout
+    <!-- ===================== ACTIONS ===================== -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSupSave"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:orientation="horizontal">
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="@string/dialog_add_supplier_save_supplier"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        app:icon="@drawable/ic_lc_store"
+        app:iconTint="@android:color/white"
+        app:iconSize="17dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF"
+        android:insetLeft="0dp"
+        android:insetRight="0dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSupCancel"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
-            android:text="@string/dialog_add_supplier_cancel" android:textAllCaps="false" android:textSize="13.5sp"
-            android:textColor="#8A8272"
-            android:insetTop="0dp" android:insetBottom="0dp"
-            app:cornerRadius="13dp" app:backgroundTint="#F1EBDD"
-            android:stateListAnimator="@null"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSupCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:text="@string/dialog_add_supplier_cancel"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#F6D8D4" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSupSave"
-            android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
-            android:layout_marginStart="10dp"
-            android:text="@string/dialog_add_supplier_save_supplier" android:textAllCaps="false" android:textSize="13.5sp"
-            android:textColor="@android:color/white"
-            android:insetTop="0dp" android:insetBottom="0dp"
-            app:cornerRadius="13dp" app:backgroundTint="#0F6E56"
-            android:stateListAnimator="@null"/>
-    </LinearLayout>
 </LinearLayout>
