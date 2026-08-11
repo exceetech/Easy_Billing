@@ -220,7 +220,8 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     val product = db.productDao().getById(bi.productId) ?: continue
                     if (!product.trackInventory) continue
 
-                    val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+                    val unitCostGross = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+                    val unitCostNet = if (bi.gstRate > 0.0) unitCostGross / (1.0 + bi.gstRate / 100.0) else unitCostGross
 
                     // Carry the original sale's GST split onto the restock batch so
                     // the synced purchase_batches row has the REAL rates (these were
@@ -232,25 +233,25 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     val sgstPct = if (interstate) 0.0 else bi.gstRate / 2.0
                     val igstPct = if (interstate) bi.gstRate else 0.0
 
-                    // Taxable = net cost × qty. Invoice value = taxable + GST (gross),
-                    // so the batch's invoice_value matches real purchase batches and
-                    // the reduce dialog (invoiceValue / qty) shows the GST-inclusive
-                    // per-unit price for sales-return lots too.
-                    val batchTaxable = round2(unitCost * line.returnQty)
-                    val batchInvoice = round2(batchTaxable * (1.0 + bi.gstRate / 100.0))
+                    // The original sale's average cost (costPriceUsed) is GROSS (tax-inclusive).
+                    // We must pass the Gross value as the invoiceValue, and the Net value as the taxableValue,
+                    // to prevent double-taxation bugs when creating the batch ledger.
+                    val batchInvoice = round2(unitCostGross * line.returnQty)
+                    val batchTaxable = round2(unitCostNet * line.returnQty)
 
                     InventoryManager.addStock(
                         db        = db,
                         productId = bi.productId,
                         quantity  = line.returnQty,
-                        costPrice = unitCost,
+                        costPrice = unitCostGross,
+                        logType = InventoryManager.LogType.SALES_RETURN,
                         batchMeta = InventoryManager.StockBatchMeta(
                             purchaseInvoiceId    = null,   // NOT a purchase
                             supplierName         = null,
                             supplierGstin        = null,
                             invoiceNumber        = null,
                             batchCode            = "SALES_RETURN-$noteId",
-                            unitCostExcludingTax = unitCost,
+                            unitCostExcludingTax = unitCostNet,
                             gstPercent           = bi.gstRate,
                             cgstPercent          = cgstPct,
                             sgstPercent          = sgstPct,

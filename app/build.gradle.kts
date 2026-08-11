@@ -41,7 +41,7 @@ android {
         //   • Physical device  → use the dev machine's LAN IP (e.g. http://192.168.1.100:8080/)
         //     and make sure the phone is on the same Wi-Fi and the server is running.
         // Default below targets the emulator; the release build overrides it (see buildTypes).
-        buildConfigField("String", "API_BASE_URL", "\"http://192.168.31.212:8080/\"")
+        buildConfigField("String", "API_BASE_URL", "\"http://192.168.31.128:8080/\"")
 
         buildConfigField("String", "SMTP_EMAIL", "\"$smtpEmail\"")
         buildConfigField("String", "SMTP_PASSWORD", "\"$smtpPassword\"")

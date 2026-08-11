@@ -33,6 +33,9 @@ object InventoryManager {
          *  item to the shop). Not currently written anywhere in this app —
          *  do NOT reuse this for supplier returns, see [PURCHASE_RETURN]. */
         const val RETURN = "RETURN"
+        /** Customer returning stock to the shop (Sales Return via Credit Note). 
+         *  Additive. Handled properly by the backend for profit analysis. */
+        const val SALES_RETURN = "SALES_RETURN"
         /** Stock returned to a supplier (leaves the shop). Subtractive —
          *  kept distinct from [RETURN] because the backend buckets log
          *  types by a fixed additive/subtractive sign, and a single

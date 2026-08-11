@@ -41,9 +41,6 @@ object PurchaseCancelRepository {
         object NotFound : CancelCheck()
     }
 
-    private fun fmt(v: Double): String =
-        if (v % 1.0 == 0.0) v.toLong().toString() else "%.2f".format(v)
-
     /**
      * Read-only test of whether [purchaseId] can be cancelled. Writes nothing.
      */
@@ -56,9 +53,8 @@ object PurchaseCancelRepository {
 
             val items = db.purchaseItemDao().getByPurchase(purchaseId)
             val batchDao = db.purchaseBatchDao()
-            val returnDao = db.purchaseReturnDao()
 
-            var soldUnits = 0.0
+            var hasConsumption = false
             var remainingValue = 0.0
 
             for (pid in items.mapNotNull { it.productId }.distinct()) {
@@ -69,14 +65,7 @@ object PurchaseCancelRepository {
                 val onHand = batches.sumOf { it.quantityRemaining }
                 val consumed = purchased - onHand
 
-                // Net returned booked against this purchase (D minus C). Only the
-                // part of consumption it explains is safe; the rest looks sold.
-                val returned = returnDao
-                    .getTotalReturnedForInvoiceProduct(purchaseId, pid)
-                    .coerceAtLeast(0.0)
-
-                val unexplained = consumed - returned
-                if (unexplained > EPS) soldUnits += unexplained
+                if (consumed > EPS) hasConsumption = true
 
                 remainingValue += batches.sumOf { b ->
                     val taxable = b.unitCostExcludingTax * b.quantityRemaining
@@ -85,10 +74,9 @@ object PurchaseCancelRepository {
                 }
             }
 
-            if (soldUnits > EPS)
+            if (hasConsumption)
                 return@withContext CancelCheck.Blocked(
-                    "${fmt(soldUnits)} unit(s) from this purchase are already sold, so it " +
-                        "can't be cancelled. Use a debit note / return for what's still in stock."
+                    "This purchase has been partially consumed or returned. Please use Debit Notes for any further returns."
                 )
 
             CancelCheck.Allowed(remainingValue)

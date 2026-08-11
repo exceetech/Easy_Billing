@@ -484,7 +484,8 @@ class BillDetailsActivity : AppCompatActivity() {
                         val qtyToRestore = bi.quantity + debitedQty - returnedQty
 
                         if (qtyToRestore > 0.0) {
-                            val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+                            val unitCostGross = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
+                            val unitCostNet = if (bi.gstRate > 0.0) unitCostGross / (1.0 + bi.gstRate / 100.0) else unitCostGross
 
                             // Report 1 F-5: the restock batch previously carried
                             // gstPercent/cgst/sgst/igst = 0, so if these units were
@@ -500,24 +501,27 @@ class BillDetailsActivity : AppCompatActivity() {
                             val restockSgstPercent = if (!isInterstate) bi.gstRate / 2.0 else 0.0
                             val restockIgstPercent = if (isInterstate) bi.gstRate else 0.0
 
+                            val batchInvoice = Math.round(unitCostGross * qtyToRestore * 100.0) / 100.0
+                            val batchTaxable = Math.round(unitCostNet * qtyToRestore * 100.0) / 100.0
+
                             InventoryManager.addStock(
                                 db        = db,
                                 productId = bi.productId,
                                 quantity  = qtyToRestore,
-                                costPrice = unitCost,
+                                costPrice = unitCostGross,
                                 batchMeta = InventoryManager.StockBatchMeta(
                                     purchaseInvoiceId    = null,
                                     supplierName         = null,
                                     supplierGstin        = null,
                                     invoiceNumber        = null,
                                     batchCode            = "CANCELLED_INVOICE-${localBill.id}",
-                                    unitCostExcludingTax = unitCost,
+                                    unitCostExcludingTax = unitCostNet,
                                     gstPercent           = bi.gstRate,
                                     cgstPercent          = restockCgstPercent,
                                     sgstPercent          = restockSgstPercent,
                                     igstPercent          = restockIgstPercent,
-                                    invoiceValue         = unitCost * qtyToRestore,
-                                    taxableValue         = unitCost * qtyToRestore
+                                    invoiceValue         = batchInvoice,
+                                    taxableValue         = batchTaxable
                                 ), logType = InventoryManager.LogType.CANCEL_RESTOCK
                             )
                         }
