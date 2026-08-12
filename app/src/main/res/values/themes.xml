@@ -61,12 +61,12 @@
          so the system splash actually appears before handoff to
          MainActivity. -->
     <style name="Theme.EasyBilling.Splash" parent="Theme.EasyBilling">
-        <item name="android:windowSplashScreenBackground">#F8F4EA</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">#F8F4EA</item>
-        <item name="android:windowBackground">#F8F4EA</item>
+        <item name="android:windowSplashScreenBackground">#79B782</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#79B782</item>
+        <item name="android:windowBackground">#79B782</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">#F8F4EA</item>
+        <item name="android:navigationBarColor">#79B782</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

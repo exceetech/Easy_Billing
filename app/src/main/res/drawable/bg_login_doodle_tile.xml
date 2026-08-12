@@ -4,5 +4,5 @@
      Firefly doodle sheet and repeated seamlessly across the login screen. -->
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
     android:src="@drawable/bg_login_doodle_pattern"
-    android:tileMode="repeat"
-    android:gravity="fill"/>
+    android:gravity="fill"
+    android:mipMap="true"/>
