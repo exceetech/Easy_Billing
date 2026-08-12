@@ -1271,7 +1271,7 @@
     <string name="dialog_register_success_continue_btn">തുടരുക</string>
     <string name="dialog_register_success_eyebrow">അക്കൗണ്ട് സൃഷ്ടിച്ചു</string>
     <string name="dialog_register_success_message">ഞങ്ങൾ നിങ്ങളുടെ ഇമെയിലിലേക്ക് ഒരു വെരിഫിക്കേഷൻ കോഡ് (OTP) അയച്ചിട്ടുണ്ട്.</string>
-    <string name="dialog_register_success_otp_expiry_note">കോഡ് 10 മിനിറ്റിനുള്ളിൽ കാലഹരണപ്പെടും. ലഭിച്ചില്ലെങ്കിൽ സ്പാം പരിശോധിക്കുക.</string>
+    <string name="dialog_register_success_otp_expiry_note">കോഡ് 5 മിനിറ്റിനുള്ളിൽ കാലഹരണപ്പെടും. ലഭിച്ചില്ലെങ്കിൽ സ്പാം പരിശോധിക്കുക.</string>
     <string name="dialog_register_success_title_part1">നിങ്ങൾ എല്ലാം</string>
     <string name="dialog_register_success_title_part2">തയ്യാർ</string>
 

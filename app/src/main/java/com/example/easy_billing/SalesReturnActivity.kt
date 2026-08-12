@@ -50,6 +50,7 @@ class SalesReturnActivity : AppCompatActivity() {
     private lateinit var rvReturnItems: RecyclerView
     private lateinit var tvTotalReturnValue: TextView
     private lateinit var tvGstReversal: TextView
+    private lateinit var tvTaxableTile: TextView
     private lateinit var btnConfirmReturn: MaterialButton
     private lateinit var btnCancelReturn: MaterialButton
 
@@ -79,6 +80,7 @@ class SalesReturnActivity : AppCompatActivity() {
         rvReturnItems    = findViewById(R.id.rvReturnItems)
         tvTotalReturnValue = findViewById(R.id.tvTotalReturnValue)
         tvGstReversal    = findViewById(R.id.tvGstReversal)
+        tvTaxableTile    = findViewById(R.id.tvTaxableTile)
         btnConfirmReturn = findViewById(R.id.btnConfirmReturn)
         btnCancelReturn  = findViewById(R.id.btnCancelReturn)
 
@@ -175,6 +177,7 @@ class SalesReturnActivity : AppCompatActivity() {
                         // discount, so the returned total is the correct refund.
                         tvTotalReturnValue.text = CurrencyHelper.format(this@SalesReturnActivity, total)
                         tvGstReversal.text      = CurrencyHelper.format(this@SalesReturnActivity, tax)
+                        tvTaxableTile.text      = CurrencyHelper.format(this@SalesReturnActivity, (total - tax).coerceAtLeast(0.0))
                     }
                 )
                 rvReturnItems.adapter = adapter

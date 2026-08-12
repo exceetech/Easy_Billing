@@ -1,663 +1,183 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<?xml version='1.0' encoding='utf-8'?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F3ECDD">
+<LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F3ECDD">
 
-    <!-- ================= NAVY HERO HEADER (common, spans both columns) ================= -->
+    
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_drawer_header_card"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="12dp"
-        android:paddingHorizontal="17dp"
-        android:paddingTop="18dp"
-        android:paddingBottom="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_drawer_header_card" android:layout_marginHorizontal="16dp" android:layout_marginTop="16dp" android:layout_marginBottom="12dp" android:paddingHorizontal="17dp" android:paddingTop="18dp" android:paddingBottom="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:baselineAligned="false">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:baselineAligned="false">
 
-            <FrameLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/bg_drawer_avatar_ring">
+            <FrameLayout android:layout_width="50dp" android:layout_height="50dp" android:background="@drawable/bg_drawer_avatar_ring">
 
-                <TextView
-                    android:id="@+id/tvStoreMonogram"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="2dp"
-                    android:background="@drawable/bg_drawer_avatar_inner"
-                    android:gravity="center"
-                    android:text="M"
-                    android:textColor="#F3E2C7"
-                    android:textSize="20sp"
-                    android:fontFamily="serif"
-                    android:textStyle="bold"/>
+                <TextView android:id="@+id/tvStoreMonogram" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_margin="2dp" android:background="@drawable/bg_drawer_avatar_inner" android:gravity="center" android:text="@string/activity_bill_details_m" android:textColor="#F3E2C7" android:textSize="20sp" android:fontFamily="serif" android:textStyle="bold" />
             </FrameLayout>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="13dp">
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="13dp">
 
-                <TextView
-                    android:id="@+id/tvBillInfo"
-                    android:text="Invoice · #0001"
-                    android:textColor="#9FB0D4"
-                    android:textSize="11sp"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tvBillInfo" android:text="@string/activity_bill_details_invoice_0001" android:textColor="#9FB0D4" android:textSize="11sp" android:singleLine="true" android:ellipsize="end" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
-                <TextView
-                    android:id="@+id/tvStoreName"
-                    android:text="My Store"
-                    android:textColor="#FFFFFF"
-                    android:textSize="22sp"
-                    android:fontFamily="serif"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:layout_marginTop="1dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tvStoreName" android:text="@string/activity_bill_details_my_store" android:textColor="#FFFFFF" android:textSize="22sp" android:fontFamily="serif" android:textStyle="bold" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" android:layout_marginTop="1dp" android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/containerStatusPill"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_navy_status_pill"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="5dp">
+            <LinearLayout android:id="@+id/containerStatusPill" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="top" android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/bg_navy_status_pill" android:paddingHorizontal="9dp" android:paddingVertical="5dp">
 
-                <View
-                    android:id="@+id/viewStatusDot"
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:background="@drawable/bg_status_dot"/>
+                <View android:id="@+id/viewStatusDot" android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_status_dot" />
 
-                <TextView
-                    android:id="@+id/tvCancelledBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="PAID"
-                    android:textColor="#FFFFFF"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:letterSpacing="0.1"/>
+                <TextView android:id="@+id/tvCancelledBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="@string/activity_bill_details_paid" android:textColor="#FFFFFF" android:textSize="10sp" android:fontFamily="@font/googlesans_semibold" android:letterSpacing="0.1" />
             </LinearLayout>
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="10dp"
-            android:background="#2C3A5C"/>
+        <View android:layout_width="match_parent" android:layout_height="0.5dp" android:layout_marginTop="14dp" android:layout_marginBottom="10dp" android:background="#2C3A5C" />
 
-        <TextView
-            android:id="@+id/tvBillDate"
-            android:text="—"
-            android:textColor="#9FB0D4"
-            android:textSize="11sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/tvBillDate" android:text="—" android:textColor="#9FB0D4" android:textSize="11sp" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
     </LinearLayout>
 
-    <!-- ================= TWO-COLUMN BODY ================= -->
+    
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal">
 
-    <!-- ===== LEFT COLUMN: LINE ITEMS (scrollable) ===== -->
+    
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1.1"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="8dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1.1" android:layout_height="match_parent" android:orientation="vertical" android:paddingStart="16dp" android:paddingEnd="8dp">
 
-        <!-- ================= ITEMS + NOTES (single scrollable column) =================
-             The items card is now sized to its content (wrap_content)
-             instead of forcing a fixed-height weight=1 card — a 2-item
-             bill no longer stretches to fill the column. The whole
-             column scrolls together so the Notes section underneath is
-             always reachable regardless of how many items/notes exist. -->
+        
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:fillViewport="true"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:scrollbars="none">
+        <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="never" android:scrollbars="none">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_inv_value_card"
-            android:paddingHorizontal="14dp"
-            android:layout_marginBottom="14dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_value_card" android:paddingHorizontal="14dp" android:layout_marginBottom="14dp">
 
-            <!-- ITEMS heading -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="12dp"
-                android:paddingBottom="8dp">
+            
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="12dp" android:paddingBottom="8dp">
 
-                <View
-                    android:layout_width="3dp"
-                    android:layout_height="14dp"
-                    android:background="#D4A574"/>
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574" />
 
-                <TextView
-                    android:text="ITEMS"
-                    android:textColor="#8A6526"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.13"
-                    android:layout_marginStart="9dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <TextView android:text="ITEMS" android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.13" android:layout_marginStart="9dp" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvBillItems"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="4dp"
-                android:paddingBottom="10dp"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never"
-                android:scrollbars="none"/>
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBillItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="4dp" android:paddingBottom="10dp" android:nestedScrollingEnabled="false" android:overScrollMode="never" android:scrollbars="none" />
 
         </LinearLayout>
 
-        <!-- ===================== CREDIT / DEBIT NOTES (inline, same
-             card list as PurchaseDetailsActivity.buildPriorReturns) ===================== -->
-        <LinearLayout
-            android:id="@+id/tvBillNotesHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone">
+        
+        <LinearLayout android:id="@+id/tvBillNotesHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp" android:visibility="gone">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="14dp"
-                android:background="#D4A574"/>
+            <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574" />
 
-            <TextView
-                android:text="DEBIT &amp; CREDIT NOTES"
-                android:textColor="#8A6526"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08"
-                android:layout_marginStart="9dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:text="DEBIT &amp; CREDIT NOTES" android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginStart="9dp" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/llBillNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:orientation="vertical"
-            android:background="@drawable/bg_inv_value_card"
-            android:visibility="gone" />
+        <LinearLayout android:id="@+id/llBillNotes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp" android:orientation="vertical" android:background="@drawable/bg_inv_value_card" android:visibility="gone" />
 
         </LinearLayout>
         </ScrollView>
 
     </LinearLayout>
 
-    <!-- ===== RIGHT COLUMN: SUMMARY CARD (same height as items card) ===== -->
+    
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingStart="8dp"
-        android:paddingEnd="16dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical" android:paddingStart="8dp" android:paddingEnd="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:background="@drawable/bg_inv_rail"
-        android:layout_marginBottom="14dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical" android:background="@drawable/bg_inv_rail" android:layout_marginBottom="14dp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:overScrollMode="never"
-        android:scrollbars="none">
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:overScrollMode="never" android:scrollbars="none">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
 
-        <!-- SUMMARY heading -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="14dp"
-                android:background="#D4A574"/>
+            <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574" />
 
-            <TextView
-                android:text="SUMMARY"
-                android:textColor="#8A6526"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.13"
-                android:layout_marginStart="9dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:text="SUMMARY" android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold" android:letterSpacing="0.13" android:layout_marginStart="9dp" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
         </LinearLayout>
 
-        <!-- ================= CUSTOMER ROW (avatar + inline tags) ================= -->
+        
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_customer_detail_card"
-            android:padding="14dp"
-            android:layout_marginBottom="14dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_customer_detail_card" android:padding="14dp" android:layout_marginBottom="14dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/tvCustomerAvatar"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:gravity="center"
-                    android:text="WC"
-                    android:textColor="#0F6E56"
-                    android:textSize="13sp"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:background="@drawable/bg_type_badge_teal"/>
+                <TextView android:id="@+id/tvCustomerAvatar" android:layout_width="38dp" android:layout_height="38dp" android:gravity="center" android:text="@string/activity_bill_details_wc" android:textColor="#0F6E56" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:background="@drawable/bg_type_badge_teal" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="11dp">
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="11dp">
 
-                    <TextView
-                        android:id="@+id/tvCustomerInfo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Walk-in customer"
-                        android:textColor="#1A1A18"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/googlesans_semibold"
-                        android:singleLine="true"
-                        android:ellipsize="end"/>
+                    <TextView android:id="@+id/tvCustomerInfo" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/activity_bill_details_walkin_customer" android:textColor="#1A1A18" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:singleLine="true" android:ellipsize="end" />
 
-                    <TextView
-                        android:id="@+id/tvCustomerPhone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:text="—"
-                        android:textColor="#9A8F79"
-                        android:textSize="10.5sp"
-                        android:visibility="gone"/>
+                    <TextView android:id="@+id/tvCustomerPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="—" android:textColor="#9A8F79" android:textSize="10.5sp" android:visibility="gone" />
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvInvoiceTypeBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="B2C"
-                    android:textColor="#0F6E56"
-                    android:textSize="9.5sp"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:letterSpacing="0.06"
-                    android:background="@drawable/bg_type_badge_teal"
-                    android:paddingHorizontal="9dp"
-                    android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/tvInvoiceTypeBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/activity_bill_details_b2c" android:textColor="#0F6E56" android:textSize="9.5sp" android:gravity="center" android:includeFontPadding="false" android:fontFamily="@font/googlesans_semibold" android:letterSpacing="0.06" android:background="@drawable/bg_type_badge_teal" android:paddingHorizontal="9dp" android:paddingVertical="4dp" />
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="10dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="10dp">
 
-                <ImageView
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    android:src="@drawable/ic_wallet"
-                    app:tint="#9A8F79"
-                    android:contentDescription="@null"/>
+                <ImageView android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_wallet" app:tint="#9A8F79" android:contentDescription="@null" />
 
-                <TextView
-                    android:id="@+id/tvPaidThrough"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="Paid via Cash"
-                    android:textColor="#9A8F79"
-                    android:textSize="11sp"/>
+                <TextView android:id="@+id/tvPaidThrough" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="@string/activity_bill_details_paid_via_cash" android:textColor="#9A8F79" android:textSize="11sp" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- SUBTOTAL -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
 
-            <TextView
-                android:text="Subtotal"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:text="Subtotal" android:textColor="#5A5647" android:textSize="12.5sp" android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/tvSubTotal"
-                android:text="0"
-                android:textColor="#1A1A18"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:id="@+id/tvSubTotal" android:text="0" android:textColor="#1A1A18" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- GST -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginTop="8dp"
-            android:layout_height="wrap_content">
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_marginTop="8dp" android:layout_height="wrap_content">
 
-            <TextView
-                android:text="GST"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:text="GST" android:textColor="#5A5647" android:textSize="12.5sp" android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/tvGst"
-                android:text="0"
-                android:textColor="#1A1A18"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:id="@+id/tvGst" android:text="0" android:textColor="#1A1A18" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- DISCOUNT -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginTop="8dp"
-            android:layout_height="wrap_content">
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_marginTop="8dp" android:layout_height="wrap_content">
 
-            <TextView
-                android:text="Discount"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:text="Discount" android:textColor="#5A5647" android:textSize="12.5sp" android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/tvDiscount"
-                android:text="0"
-                android:textColor="#B23A3A"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:id="@+id/tvDiscount" android:text="0" android:textColor="#B23A3A" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- DIVIDER -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginVertical="12dp"
-            android:background="#F1EBDD"/>
+        
+        <View android:layout_width="match_parent" android:layout_height="0.5dp" android:layout_marginVertical="12dp" android:background="#F1EBDD" />
 
-        <!-- TOTAL -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="bottom">
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="bottom">
 
-            <TextView
-                android:text="Total"
-                android:textColor="#1A1A18"
-                android:textSize="13.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:text="Total" android:textColor="#1A1A18" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/tvTotal"
-                android:text="0"
-                android:textSize="22sp"
-                android:textColor="#0F6E56"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            <TextView android:id="@+id/tvTotal" android:text="0" android:textSize="22sp" android:textColor="#0F6E56" android:fontFamily="serif" android:includeFontPadding="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- ================= ACTION BUTTONS (flat outline) ================= -->
+        
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPrint"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="46dp"
-                android:layout_marginEnd="10dp"
-                android:text="Print"
-                android:textColor="#1A1A18"
-                android:textAllCaps="false"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:includeFontPadding="false"
-                android:background="@drawable/bg_cta_champagne_outline"
-                app:backgroundTint="@null"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:stateListAnimator="@null"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_print"
-                app:iconTint="#1A1A18"
-                app:iconSize="15dp"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnPrint" android:layout_width="0dp" android:layout_weight="1" android:layout_height="46dp" android:layout_marginEnd="10dp" android:text="@string/activity_bill_details_print" android:textColor="#1A1A18" android:textAllCaps="false" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:background="@drawable/bg_cta_champagne_outline" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:stateListAnimator="@null" app:cornerRadius="14dp" app:icon="@drawable/ic_print" app:iconTint="#1A1A18" app:iconSize="15dp" app:iconGravity="textStart" app:iconPadding="6dp" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClose"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="46dp"
-                android:text="Close"
-                android:textColor="#B23A3A"
-                android:textAllCaps="false"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:includeFontPadding="false"
-                android:background="@drawable/bg_cta_rose_tonal"
-                app:backgroundTint="@null"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:stateListAnimator="@null"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_close"
-                app:iconTint="#B23A3A"
-                app:iconSize="15dp"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnClose" android:layout_width="0dp" android:layout_weight="1" android:layout_height="46dp" android:text="@string/activity_bill_details_close" android:textColor="#B23A3A" android:textAllCaps="false" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:background="@drawable/bg_cta_rose_tonal" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:stateListAnimator="@null" app:cornerRadius="14dp" app:icon="@drawable/ic_close" app:iconTint="#B23A3A" app:iconSize="15dp" app:iconGravity="textStart" app:iconPadding="6dp" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreditNote"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="9dp"
-            android:text="Partial return / credit note"
-            android:textColor="#0F6E56"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@drawable/bg_cta_teal_tonal"
-            app:backgroundTint="@null"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_lc_rotate_ccw"
-            app:iconTint="#0F6E56"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCreditNote" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="9dp" android:text="@string/activity_bill_details_partial_return_credit_note" android:textColor="#0F6E56" android:textAllCaps="false" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:background="@drawable/bg_cta_teal_tonal" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:stateListAnimator="@null" app:cornerRadius="14dp" app:icon="@drawable/ic_lc_rotate_ccw" app:iconTint="#0F6E56" app:iconSize="15dp" app:iconGravity="textStart" app:iconPadding="6dp" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDebitNote"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="9dp"
-            android:text="Additional charge / debit note"
-            android:textColor="#8A6526"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@drawable/bg_cta_gold_tonal"
-            app:backgroundTint="@null"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_receipt_tax"
-            app:iconTint="#8A6526"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnDebitNote" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="9dp" android:text="@string/activity_bill_details_additional_charge_debit_note" android:textColor="#8A6526" android:textAllCaps="false" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:background="@drawable/bg_cta_gold_tonal" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:stateListAnimator="@null" app:cornerRadius="14dp" app:icon="@drawable/ic_receipt_tax" app:iconTint="#8A6526" app:iconSize="15dp" app:iconGravity="textStart" app:iconPadding="6dp" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelBill"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="9dp"
-            android:text="Cancel / void invoice"
-            android:textColor="#B23A3A"
-            android:textAllCaps="false"
-            android:textSize="13sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@drawable/bg_cta_white_red_outline"
-            app:backgroundTint="@null"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_close"
-            app:iconTint="#B23A3A"
-            app:iconSize="16dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelBill" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="9dp" android:text="@string/activity_bill_details_cancel_void_invoice" android:textColor="#B23A3A" android:textAllCaps="false" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:background="@drawable/bg_cta_white_red_outline" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:stateListAnimator="@null" app:cornerRadius="14dp" app:icon="@drawable/ic_lucide_circle_x" app:iconTint="#B23A3A" app:iconSize="18dp" app:iconGravity="textStart" app:iconPadding="6dp" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
 
     </LinearLayout>
 
@@ -671,11 +191,6 @@
 
 </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBillDetails"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+    <ProgressBar android:id="@+id/progressBillDetails" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone" />
 
 </FrameLayout>

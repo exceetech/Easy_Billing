@@ -15,6 +15,12 @@ interface PurchaseDao {
     @Query("SELECT * FROM purchase_table ORDER BY created_at DESC LIMIT :limit")
     suspend fun getRecent(limit: Int = 50): List<Purchase>
 
+    @Query("SELECT COALESCE(SUM(invoiceValue), 0.0) FROM purchase_table WHERE is_cancelled = 0")
+    suspend fun getTotalExpenseAll(): Double
+
+    @Query("SELECT COALESCE(SUM(invoiceValue), 0.0) FROM purchase_table WHERE is_cancelled = 0 AND created_at >= :startMs AND created_at <= :endMs")
+    suspend fun getTotalExpenseBetween(startMs: Long, endMs: Long): Double
+
     @Query("SELECT * FROM purchase_table ORDER BY created_at DESC LIMIT :limit")
     fun observeRecent(limit: Int = 50): Flow<List<Purchase>>
 

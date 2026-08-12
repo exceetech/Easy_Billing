@@ -177,7 +177,11 @@ class RegisterActivity : BaseActivity() {
                         )
                     )
 
-                    showSuccessDialog(email)
+                    val intent = Intent(this@RegisterActivity, OtpVerificationActivity::class.java).apply {
+                        putExtra("EMAIL", email)
+                    }
+                    startActivity(intent)
+                    finish()
 
                 } catch (e: Exception) {
 

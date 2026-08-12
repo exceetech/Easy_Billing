@@ -101,4 +101,7 @@ interface BillDao {
 
     @Query("UPDATE bills SET sale_pulse_synced = 1 WHERE id = :billId")
     suspend fun markSalePulseSynced(billId: Int)
+
+    @Query("SELECT COUNT(*) FROM bills WHERE is_cancelled = 0")
+    suspend fun getValidBillCount(): Int
 }

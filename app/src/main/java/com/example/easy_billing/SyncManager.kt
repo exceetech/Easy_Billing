@@ -3060,6 +3060,7 @@ class SyncManager(private val context: Context) {
                         db.purchaseBatchDao().markAsSynced(listOf(dto.local_id))
                     }
                 }
+                db.purchaseBatchDao().clearEmptyBatchesGlobal()
             }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncPurchaseBatches: POST FAILED", e)
@@ -3092,6 +3093,7 @@ class SyncManager(private val context: Context) {
 
             db.withTransaction {
                 for (b in batches) {
+                    if (b.quantity_remaining <= 0.0) continue
                     // Map server product_id → local Room product ID (server sends 45,
                     // local queries use Room id 3; storing the server id hid batches).
                     val localProduct = productDao.getByServerId(b.product_id)

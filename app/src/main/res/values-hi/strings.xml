@@ -1271,7 +1271,7 @@
     <string name="dialog_register_success_continue_btn">जारी रखें</string>
     <string name="dialog_register_success_eyebrow">अकाउंट बन गया</string>
     <string name="dialog_register_success_message">हमने आपके ईमेल पर एक सत्यापन कोड (OTP) भेजा है।</string>
-    <string name="dialog_register_success_otp_expiry_note">कोड 10 मिनट में समाप्त हो जाएगा। न मिले तो स्पैम जांचें।</string>
+    <string name="dialog_register_success_otp_expiry_note">कोड 5 मिनट में समाप्त हो जाएगा। न मिले तो स्पैम जांचें।</string>
     <string name="dialog_register_success_title_part1">आप पूरी तरह</string>
     <string name="dialog_register_success_title_part2">तैयार हैं</string>
 

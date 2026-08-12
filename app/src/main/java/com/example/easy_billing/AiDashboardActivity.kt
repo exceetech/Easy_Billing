@@ -150,14 +150,31 @@ class AiDashboardActivity : BaseActivity() {
     /** Compute off the main thread, then write the report to the bento cards on Main. */
     private suspend fun renderOnline(response: AiReportResponse) {
         val ui = withContext(Dispatchers.Default) {
+            val isNewShop = withContext(Dispatchers.IO) {
+                val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@AiDashboardActivity)
+                db.billDao().getValidBillCount() == 0
+            }
+            val insights = if (isNewShop) {
+                response.insights.filterNot { insight ->
+                    val text = "${insight.title} ${insight.description}".lowercase()
+                    text.contains("zero sales") || text.contains("no sales") ||
+                    text.contains("0 sales") || text.contains("low sales") ||
+                    text.contains("sales drop") || text.contains("sales decline") ||
+                    text.contains("no revenue") || text.contains("sales leak") ||
+                    text.contains("no transactions")
+                }
+            } else {
+                response.insights
+            }
+
             val report = response.report_data
             // Real audit score: start at 100, penalise critical ("fire") and
             // warning ("leak") findings (counted across the full insight set). Floor at 40.
-            val fires = response.insights.count { it.type.equals("fire", ignoreCase = true) }
-            val leaks = response.insights.count { it.type.equals("leak", ignoreCase = true) }
+            val fires = insights.count { it.type.equals("fire", ignoreCase = true) }
+            val leaks = insights.count { it.type.equals("leak", ignoreCase = true) }
             val score = (100 - fires * 15 - leaks * 8).coerceIn(40, 100)
 
-            AiUiData(report, score, response.insights)
+            AiUiData(report, score, insights)
         }
 
         reportData = ui.report.toMutableList()

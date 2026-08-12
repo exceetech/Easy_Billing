@@ -41,17 +41,17 @@ interface PurchaseBatchDao {
     )
     suspend fun reduceBatchQuantity(batchId: Int, qty: Double): Int
 
-    /** Removes batches with 0 (or negative, defensively) qty left. */
-    @Query(
-        """
-        DELETE FROM purchase_batches
-        WHERE productId = :productId AND quantityRemaining <= 0
-        """
-    )
+    @Query("DELETE FROM purchase_batches WHERE productId = :productId AND quantityRemaining <= 0 AND is_synced = 1")
     suspend fun clearEmptyBatches(productId: Int): Int
+
+    @Query("DELETE FROM purchase_batches WHERE quantityRemaining <= 0 AND is_synced = 1")
+    suspend fun clearEmptyBatchesGlobal(): Int
 
     @Query("DELETE FROM purchase_batches WHERE productId = :productId")
     suspend fun clearAllBatchesForProduct(productId: Int): Int
+
+    @Query("DELETE FROM purchase_batches WHERE batchCode = 'DRIFT-CORRECTION'")
+    suspend fun purgeDriftCorrectionBatches(): Int
 
     /* ─── Reads ─── */
 

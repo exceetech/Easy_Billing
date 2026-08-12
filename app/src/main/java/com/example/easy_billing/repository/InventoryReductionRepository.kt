@@ -678,35 +678,8 @@ class InventoryReductionRepository private constructor(
         // outright). With reduceStock running first (the original order),
         // that log captured a stale pre-recompute average cost, and that
         // stale number is exactly what got pushed to the server as the
-        // "trusted" final value for this return.
-
-        // Debit the specific batches the user picked. This walks each
-        // line via PurchaseBatchDao.reduceBatchQuantity which refuses
-        // to drive a batch negative.
-        InventoryValuation.reduceBatches(
-            db = db,
-            productId = productId,
-            lines = resolved.map { (b, qty) ->
-                InventoryValuation.BatchReduction(batchId = b.id, quantity = qty)
-            }
-        )
-
-        // INV-3 fix: reduceStock's own callers already self-heal any drift
-        // between currentStock and the batch ledger via reconcileDrift, but
-        // this path debits specific batches directly and was never covered
-        // by that same check — so a mismatch here (e.g. a batch that
-        // couldn't be fully debited) used to persist silently forever.
-        runCatching {
-            InventoryValuation.reconcileDrift(db, productId)
-        }.onFailure {
-            android.util.Log.w(
-                "InventoryReductionRepository",
-                "Drift reconcile failed after purchase return for product=$productId: ${it.message}"
-            )
-        }
-
-        // Inventory row + log + transaction. skipBatchConsume = true
-        // because the per-batch debit already happened above.
+           // Inventory row + log + transaction. skipBatchConsume = true
+        // because the per-batch debit will happen below.
         InventoryManager.reduceStock(
             db = db,
             productId = productId,
@@ -715,15 +688,19 @@ class InventoryReductionRepository private constructor(
             skipBatchConsume = true
         )
 
+        // Debit the specific batches the user picked.
+        InventoryValuation.reduceBatches(
+            db = db,
+            productId = productId,
+            lines = resolved.map { (b, qty) ->
+                InventoryValuation.BatchReduction(batchId = b.id, quantity = qty)
+            }
+        )
+
         // Supplier-balance adjustment lifted OUT — the caller runs it through
         // CreditAdjustmentPrompt after this returns, so it is clamped to the
         // account balance and asks cash-vs-advance on an overshoot. The values
-        // needed are handed back on BatchReturnResult.creditAdjustment.
-        val creditAdj =
-            if (isCredit && creditAccountId != null)
-                CreditReturnInfo(creditAccountId, grandTotalInvoiceValue, grandReturnId)
-            else null
-
+        // returned in BatchReturnResult are what that prompt uses for totals.
         BatchReturnResult(
             returnId = grandReturnId,
             totalQuantity = grandTotalQuantity,
@@ -731,11 +708,14 @@ class InventoryReductionRepository private constructor(
             totalInvoiceValue = grandTotalInvoiceValue,
             totalCgst = grandTotalCgst,
             totalSgst = grandTotalSgst,
-            totalIgst = grandTotalIgst,
-            creditAdjustment = creditAdj
+            totalIgst = grandTotalIgst
         )
     }
 
+    /**
+     * Records scrap for multiple batches, valuing each batch at its own net cost.
+     * Returns null if requested lines are invalid.
+     */
     suspend fun scrapByBatches(
         productId: Int,
         productName: String,
@@ -746,18 +726,15 @@ class InventoryReductionRepository private constructor(
 
         if (lines.isEmpty()) return@withTransaction null
 
-        // Resolve every batch up-front so we can validate before we
-        // start mutating anything.
         val batchDao = db.purchaseBatchDao()
-        val resolved = lines.map { line ->
-            val b = batchDao.getBatchById(line.batchId)
-                ?: return@withTransaction null
+        val resolved = lines.mapNotNull { line ->
+            val b = batchDao.getBatchById(line.batchId) ?: return@withTransaction null
             if (b.productId != productId) return@withTransaction null
-            if (line.quantity <= 0.0 || line.quantity > b.quantityRemaining) {
-                return@withTransaction null
-            }
-            b to line.quantity
+            val qty = minOf(line.quantity, b.quantityRemaining)
+            if (qty <= 0.0) return@withTransaction null
+            b to qty
         }
+        if (resolved.isEmpty()) return@withTransaction null
 
         val store = db.storeInfoDao().get()
         val gst   = db.gstProfileDao().get()
@@ -888,18 +865,6 @@ class InventoryReductionRepository private constructor(
             }
         )
 
-        // INV-3 fix: same self-heal as returnToSupplierByBatches — this
-        // path also debits specific batches directly and was never covered
-        // by reduceStock's own drift check.
-        runCatching {
-            InventoryValuation.reconcileDrift(db, productId)
-        }.onFailure {
-            android.util.Log.w(
-                "InventoryReductionRepository",
-                "Drift reconcile failed after scrap for product=$productId: ${it.message}"
-            )
-        }
-
         BatchScrapResult(
             scrapId = grandScrapId,
             totalQuantity = grandTotalQuantity,
@@ -912,8 +877,10 @@ class InventoryReductionRepository private constructor(
     }
 
     /** Convenience for the batch-picker dialog — what's still on the shelf. */
-    suspend fun getRemainingBatchesForProduct(productId: Int) =
-        db.purchaseBatchDao().getRemainingBatches(productId)
+    suspend fun getRemainingBatchesForProduct(productId: Int): List<com.example.easy_billing.db.PurchaseBatch> {
+        db.purchaseBatchDao().purgeDriftCorrectionBatches()
+        return db.purchaseBatchDao().getRemainingBatches(productId)
+    }
 
     companion object {
         @Volatile private var INSTANCE: InventoryReductionRepository? = null
@@ -927,3 +894,4 @@ class InventoryReductionRepository private constructor(
         }
     }
 }
+

@@ -1517,9 +1517,25 @@ class DashboardActivity : BaseActivity() {
                 // Auth header is attached by AuthInterceptor, not passed here.
                 val response = repository.getAiReport()
 
+                val isNewShop = withContext(Dispatchers.IO) {
+                    val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@DashboardActivity)
+                    db.billDao().getValidBillCount() == 0
+                }
+
                 // Insights now live in the notification sheet (bell), not the
                 // inline ticker. Keep the old ticker views hidden.
-                allInsights = response.insights
+                allInsights = if (isNewShop) {
+                    response.insights.filterNot { insight ->
+                        val text = "${insight.title} ${insight.description}".lowercase()
+                        text.contains("zero sales") || text.contains("no sales") ||
+                        text.contains("0 sales") || text.contains("low sales") ||
+                        text.contains("sales drop") || text.contains("sales decline") ||
+                        text.contains("no revenue") || text.contains("sales leak") ||
+                        text.contains("no transactions")
+                    }
+                } else {
+                    response.insights
+                }
                 vpAiInsights.visibility = View.GONE
                 fabAiInsights.visibility = View.GONE
 

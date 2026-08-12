@@ -1271,7 +1271,7 @@
     <string name="dialog_register_success_continue_btn">Continue</string>
     <string name="dialog_register_success_eyebrow">ACCOUNT CREATED</string>
     <string name="dialog_register_success_message">We\'ve sent a verification code (OTP) to your email.</string>
-    <string name="dialog_register_success_otp_expiry_note">Code expires in 10 minutes. Check spam if it doesn\'t arrive.</string>
+    <string name="dialog_register_success_otp_expiry_note">Code expires in 5 minutes. Check spam if it doesn\'t arrive.</string>
     <string name="dialog_register_success_title_part1">You\'re all</string>
     <string name="dialog_register_success_title_part2">set</string>
 

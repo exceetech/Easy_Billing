@@ -1271,7 +1271,7 @@
     <string name="dialog_register_success_continue_btn">కొనసాగించండి</string>
     <string name="dialog_register_success_eyebrow">ఖాతా సృష్టించబడింది</string>
     <string name="dialog_register_success_message">మేము మీ ఇమెయిల్</string>
-    <string name="dialog_register_success_otp_expiry_note">కోడ్ 10 నిమిషాల్లో గడువు ముగుస్తుంది. రాకపోతే స్పామ్</string>
+    <string name="dialog_register_success_otp_expiry_note">కోడ్ 5 నిమిషాల్లో గడువు ముగుస్తుంది. రాకపోతే స్పామ్</string>
     <string name="dialog_register_success_title_part1">మీరు పూర్తిగా</string>
     <string name="dialog_register_success_title_part2">సిద్ధం</string>
 

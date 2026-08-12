@@ -134,33 +134,23 @@ object InventoryValuation {
                     qty = line.quantity
                 )
                 if (updated == 0) {
-                    // The conditional UPDATE refused — either the
-                    // batch is gone, belongs to a different product,
-                    // or doesn't have enough qty left. Surface the
-                    // most informative message we can.
                     val b = db.purchaseBatchDao().getBatchById(line.batchId)
                     if (b == null) {
                         throw IllegalStateException("Batch ${line.batchId} not found")
                     }
-                    throw IllegalStateException(
-                        "Batch ${b.id} only has ${b.quantityRemaining} remaining, " +
-                            "requested ${line.quantity}"
-                    )
+                    if (b.quantityRemaining > 0.0) {
+                        val available = b.quantityRemaining
+                        db.purchaseBatchDao().updateBatch(
+                            b.copy(quantityRemaining = 0.0, isSynced = false)
+                        )
+                        totalReduced += available
+                    }
+                } else {
+                    totalReduced += line.quantity
                 }
-                totalReduced += line.quantity
             }
 
             db.purchaseBatchDao().clearEmptyBatches(productId)
-            // Moving-average redesign (Phase 1): no average-cost recompute
-            // here anymore — a purchase return, like a sale, removes stock
-            // at the current average, which is mathematically neutral to
-            // that average. (The financial gap between "value removed at
-            // the current average" and "what the supplier actually
-            // refunds, at the original invoice price" is booked separately
-            // as an explicit purchase-return gain/loss — see
-            // PurchaseReturnViewModel / InventoryReductionRepository — it
-            // never gets folded back into inventory.averageCost.)
-
             totalReduced
         }
     }
@@ -226,6 +216,8 @@ object InventoryValuation {
      *     report more stock than the shop actually has.
      */
     suspend fun reconcileDrift(db: AppDatabase, productId: Int) {
+        db.purchaseBatchDao().purgeDriftCorrectionBatches()
+
         val totals = db.purchaseBatchDao().getValuationTotals(productId)
         val inventory = db.inventoryDao().getInventory(productId) ?: return
 
@@ -261,16 +253,9 @@ object InventoryValuation {
                     isSynced = true   // synthetic — never push to backend
                 )
             )
-        } else {
-            // Batches overstate stock — phantom leftover quantity that
-            // doesn't actually exist. Drain it via FIFO so batch-derived
-            // valuation reports can never show more stock than is real.
+        } else if (drift < 0.0) {
+            // Batches overstate stock — phantom leftover quantity. Drain via FIFO.
             val excess = -drift
-            android.util.Log.w(
-                "InventoryValuation",
-                "Drift correction: product=$productId batches held $excess " +
-                    "phantom unit(s) beyond currentStock=${inventory.currentStock} — draining"
-            )
             consumeFifo(db, productId, excess)
         }
 

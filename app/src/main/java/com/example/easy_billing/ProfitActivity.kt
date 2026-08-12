@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.ProductProfitRaw
 import com.example.easy_billing.network.ProfitResponse
 import com.example.easy_billing.network.RetrofitClient
@@ -336,11 +337,15 @@ class ProfitActivity : AppCompatActivity() {
                         )
 
                     val summary = response.summary
+                    val localPurchaseExpense = withContext(Dispatchers.IO) {
+                        fetchLocalPurchaseExpense()
+                    }
+                    val finalExpense = maxOf(summary.expense, localPurchaseExpense)
 
                     val currencySymbol = CurrencyHelper.getCurrencySymbol(this@ProfitActivity)
                     findViewById<TextView>(R.id.tvRevenue).text = "$currencySymbol${"%.2f".format(summary.revenue)}"
                     findViewById<TextView>(R.id.tvCost).text = "$currencySymbol${"%.2f".format(summary.cost)}"
-                    findViewById<TextView>(R.id.tvExpense).text = "$currencySymbol${"%.2f".format(summary.expense)}"
+                    findViewById<TextView>(R.id.tvExpense).text = "$currencySymbol${"%.2f".format(finalExpense)}"
 
                     // Moving-average redesign, Phase 5: the "Loss" tile now
                     // includes purchase-return gain/loss alongside scrap
@@ -413,7 +418,76 @@ class ProfitActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                runCatching {
+                    val localPurchaseExpense = withContext(Dispatchers.IO) {
+                        fetchLocalPurchaseExpense()
+                    }
+                    val currencySymbol = CurrencyHelper.getCurrencySymbol(this@ProfitActivity)
+                    findViewById<TextView>(R.id.tvExpense).text = "$currencySymbol${"%.2f".format(localPurchaseExpense)}"
+                }
             }
+        }
+    }
+
+    private suspend fun fetchLocalPurchaseExpense(): Double {
+        val db = AppDatabase.getDatabase(this@ProfitActivity)
+        val cal = AppTime.calendar()
+
+        val todayStart = cal.apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val todayEnd = cal.apply {
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.timeInMillis
+
+        return when (currentFilter) {
+            "today" -> db.purchaseDao().getTotalExpenseBetween(todayStart, todayEnd)
+            "week" -> {
+                val startCal = AppTime.calendar().apply {
+                    set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                db.purchaseDao().getTotalExpenseBetween(startCal.timeInMillis, todayEnd)
+            }
+            "month" -> {
+                val startCal = AppTime.calendar().apply {
+                    set(Calendar.DAY_OF_MONTH, 1)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                db.purchaseDao().getTotalExpenseBetween(startCal.timeInMillis, todayEnd)
+            }
+            "year" -> {
+                val startCal = AppTime.calendar().apply {
+                    set(Calendar.DAY_OF_YEAR, 1)
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                db.purchaseDao().getTotalExpenseBetween(startCal.timeInMillis, todayEnd)
+            }
+            "custom" -> {
+                val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                }
+                val startMs = customStartDate?.let { runCatching { format.parse(it)?.time }.getOrNull() } ?: 0L
+                val endMs = customEndDate?.let { runCatching { (format.parse(it)?.time ?: 0L) + 86399999L }.getOrNull() } ?: System.currentTimeMillis()
+                db.purchaseDao().getTotalExpenseBetween(startMs, endMs)
+            }
+            else -> db.purchaseDao().getTotalExpenseAll()
         }
     }
 

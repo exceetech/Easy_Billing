@@ -361,13 +361,12 @@
 />
                         <LinearLayout
                             android:id="@+id/tilSupplyClassificationPurchase"
-                            android:layout_width="0dp" android:layout_height="48dp"
+                            android:layout_width="match_parent" android:layout_height="48dp"
                             android:orientation="horizontal" android:gravity="center_vertical"
-
                             android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
                             <AutoCompleteTextView
                                 android:id="@+id/spinnerSupplyClassificationPurchase"
-                                android:layout_width="0dp" android:layout_height="match_parent"
+                                android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                 android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select"
                                 android:textColor="#1A1A18" android:textColorHint="#A99E88"
                                 android:inputType="none" android:focusable="false" android:clickable="true"
@@ -390,7 +389,7 @@
                             android:fontFamily="@font/googlesans_regular"
 />
                         <LinearLayout
-                            android:layout_width="0dp" android:layout_height="48dp"
+                            android:layout_width="match_parent" android:layout_height="48dp"
                             android:orientation="horizontal" android:gravity="center_vertical"
                             android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
                             <ImageView android:layout_width="16dp" android:layout_height="16dp"

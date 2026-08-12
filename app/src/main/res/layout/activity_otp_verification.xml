@@ -35,7 +35,7 @@
         app:layout_constraintWidth_max="660dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
@@ -121,6 +121,17 @@
                 android:textColor="#1A1A18"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>
+
+            <TextView
+                android:id="@+id/tvOtpExpiryNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/dialog_register_success_otp_expiry_note"
+                android:textColor="#B8895A"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_medium"/>
 
             <!-- OTP boxes -->
             <LinearLayout

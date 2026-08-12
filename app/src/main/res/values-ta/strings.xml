@@ -1271,7 +1271,7 @@
     <string name="dialog_register_success_continue_btn">தொடரவும்</string>
     <string name="dialog_register_success_eyebrow">கணக்கு உருவாக்கப்பட்டது</string>
     <string name="dialog_register_success_message">உங்கள் மின்னஞ்சலுக்கு சரிபார்ப்பு குறியீட்டை (OTP) அனுப்பியுள்ளோம்.</string>
-    <string name="dialog_register_success_otp_expiry_note">குறியீடு 10 நிமிடங்களில் காலாவதியாகும். வராவிட்டால் ஸ்பேமை சரிபார்க்கவும்.</string>
+    <string name="dialog_register_success_otp_expiry_note">குறியீடு 5 நிமிடங்களில் காலாவதியாகும். வராவிட்டால் ஸ்பேமை சரிபார்க்கவும்.</string>
     <string name="dialog_register_success_title_part1">எல்லாம்</string>
     <string name="dialog_register_success_title_part2">தயார்</string>
 

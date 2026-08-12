@@ -78,6 +78,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
                     android:text="@string/xml_gst_reports_title_accent"
                     android:textColor="#0F6E56"
                     android:textSize="22sp"

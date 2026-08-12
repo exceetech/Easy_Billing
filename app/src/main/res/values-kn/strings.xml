@@ -1271,7 +1271,7 @@
     <string name="dialog_register_success_continue_btn">ಮುಂದುವರಿಸಿ</string>
     <string name="dialog_register_success_eyebrow">ಖಾತೆ ರಚಿಸಲಾಗಿದೆ</string>
     <string name="dialog_register_success_message">ನಾವು ನಿಮ್ಮ ಇಮೇಲ್</string>
-    <string name="dialog_register_success_otp_expiry_note">ಕೋಡ್ 10 ನಿಮಿಷಗಳಲ್ಲಿ ಅವಧಿ ಮುಗಿಯುತ್ತದೆ. ಅದು ಬರದಿದ್ದರೆ ಸ್ಪ್ಯಾಮ್ ಪರಿಶೀಲಿಸಿ.</string>
+    <string name="dialog_register_success_otp_expiry_note">ಕೋಡ್ 5 ನಿಮಿಷಗಳಲ್ಲಿ ಅವಧಿ ಮುಗಿಯುತ್ತದೆ. ಅದು ಬರದಿದ್ದರೆ ಸ್ಪ್ಯಾಮ್ ಪರಿಶೀಲಿಸಿ.</string>
     <string name="dialog_register_success_title_part1">ನೀವು ಸಂಪೂರ್ಣವಾಗಿ</string>
     <string name="dialog_register_success_title_part2">ಸಿದ್ಧರಿದ್ದೀರಿ</string>
 

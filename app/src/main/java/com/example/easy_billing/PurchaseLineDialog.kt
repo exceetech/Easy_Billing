@@ -208,9 +208,14 @@ class PurchaseLineDialog(
      */
     private fun isIntraState(invoiceState: String): Boolean {
         val invoiceStateCode = com.example.easy_billing.util.GstEngine.getStateCodeFromName(invoiceState)
-        return shopStateCode.isNotBlank() &&
-                invoiceStateCode != null &&
-                shopStateCode == invoiceStateCode
+            ?: com.example.easy_billing.util.GstEngine.getStateCode(invoiceState)
+            ?: invoiceState.trim().takeIf { it.length == 2 && it.all { c -> c.isDigit() } }
+
+        return if (shopStateCode.isBlank() || invoiceStateCode.isNullOrBlank()) {
+            true
+        } else {
+            shopStateCode == invoiceStateCode
+        }
     }
 
     /**
@@ -868,6 +873,8 @@ class PurchaseLineDialog(
                 val store = db.storeInfoDao().get()
                 gst?.stateCode?.takeIf { it.isNotBlank() }
                     ?: com.example.easy_billing.util.GstEngine.getStateCode(store?.gstin)
+                    ?: store?.stateCode?.takeIf { it.isNotBlank() }
+                    ?: ""
             }
             // The intra/inter-state split depends on this, so redo the
             // supplier-tax derivation now that the code is known.
