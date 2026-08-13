@@ -272,6 +272,7 @@ class SalesReturnActivity : AppCompatActivity() {
 
         if (lines.isEmpty()) {
             Toast.makeText(this, getString(R.string.salesreturnactivity_please_select_at_least), Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("SalesReturn", "no_items_selected")
             return
         }
 

@@ -939,6 +939,9 @@ class GstReportsActivity : AppCompatActivity() {
                     try {
                         startActivity(intent)
                     } catch (e: Exception) {
+                        com.example.easy_billing.util.UserEventLogger.logError(
+                            "GstReports", "no_xlsx_viewer_app: ${e.javaClass.simpleName}"
+                        )
                         Toast.makeText(this, getString(R.string.gst_toast_no_xlsx_app), Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -1016,7 +1019,12 @@ class GstReportsActivity : AppCompatActivity() {
                         setDataAndType(event.uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
-                    try { startActivity(intent) } catch (e: Exception) { Toast.makeText(this, getString(R.string.gst_toast_no_app_found), Toast.LENGTH_SHORT).show() }
+                    try { startActivity(intent) } catch (e: Exception) {
+                        com.example.easy_billing.util.UserEventLogger.logError(
+                            "GstReports", "no_viewer_app: ${e.javaClass.simpleName}"
+                        )
+                        Toast.makeText(this, getString(R.string.gst_toast_no_app_found), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

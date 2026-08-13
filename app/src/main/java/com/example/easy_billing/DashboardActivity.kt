@@ -1020,6 +1020,9 @@ class DashboardActivity : BaseActivity() {
             // already tell the user the backend is unreachable for as long
             // as it actually is. Still worth a log line for debugging.
             Log.w("DashboardActivity", "loadProducts failed (network/backend issue)", e)
+            com.example.easy_billing.util.UserEventLogger.logError(
+                "DashboardActivity", "load_products_failed: ${e.javaClass.simpleName}"
+            )
         }
 
         // 🔥 UI update — shop-scoped so cross-shop ghost rows from
@@ -1733,6 +1736,9 @@ class DashboardActivity : BaseActivity() {
                 // toast on top of them. Network/timeout failures land here;
                 // still worth a log line for debugging.
                 Log.w("DashboardActivity", "checkSubscription failed (network/backend issue)", e)
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "DashboardActivity", "check_subscription_failed: ${e.javaClass.simpleName}"
+                )
             }
         }
     }

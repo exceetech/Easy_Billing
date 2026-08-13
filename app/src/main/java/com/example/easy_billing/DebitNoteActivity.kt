@@ -198,6 +198,7 @@ class DebitNoteActivity : BaseActivity() {
 
         if (lines.isEmpty()) {
             Toast.makeText(this, getString(R.string.debitnoteactivity_please_enter_additional_quantity), Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("DebitNote", "no_quantity_entered")
             return
         }
 

@@ -166,6 +166,9 @@ class ForgotPasswordActivity : BaseActivity() {
                     startCtaArrowAnimation(R.id.btnSubmit)
                     // Was surfacing the raw exception message to the user.
                     Log.e("ForgotPasswordActivity", "Send reset code failed", e)
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "ForgotPasswordActivity", "send_reset_code_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(this@ForgotPasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -216,6 +219,9 @@ class ForgotPasswordActivity : BaseActivity() {
                     }
                 } catch (e: Exception) {
                     Log.e("ForgotPasswordActivity", "Verify OTP failed", e)
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "ForgotPasswordActivity", "verify_otp_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(this@ForgotPasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                 } finally {
                     btnVerifyOtp.isEnabled = true

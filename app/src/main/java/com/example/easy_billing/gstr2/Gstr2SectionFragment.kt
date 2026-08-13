@@ -126,6 +126,9 @@ class Gstr2SectionFragment : Fragment() {
                 else -> emptyList()
             }
         } catch (e: Exception) {
+            com.example.easy_billing.util.UserEventLogger.logError(
+                "Gstr2SectionFragment", "build_rows_from_report_failed: ${e.javaClass.simpleName}"
+            )
             emptyList()
         }
     }
@@ -170,6 +173,9 @@ class Gstr2SectionFragment : Fragment() {
                 else -> emptyList()
             }
         } catch (e: Exception) {
+            com.example.easy_billing.util.UserEventLogger.logError(
+                "Gstr2SectionFragment", "build_rows_from_json_failed: ${e.javaClass.simpleName}"
+            )
             emptyList()
         }
     }

@@ -391,7 +391,9 @@ class AddProductActivity : BaseActivity() {
     private fun saveProduct() {
         val name = etName.text.toString().trim()
         if (name.isEmpty()) {
-            toast(getString(R.string.add_product_enter_name_toast)); etName.requestFocus(); return
+            toast(getString(R.string.add_product_enter_name_toast)); etName.requestFocus()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("AddProduct", "name_missing")
+            return
         }
         val price = etPrice.text.toString().toDoubleOrNull()
         if (price == null || price <= 0) {
@@ -438,6 +440,7 @@ class AddProductActivity : BaseActivity() {
                 withContext(Dispatchers.Main) {
                     toast(getString(R.string.add_product_hsn_mandatory_toast))
                     etHsn.error = getString(R.string.invoice_required)
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("AddProduct", "hsn_missing")
                 }
                 return@launch
             }
@@ -618,8 +621,12 @@ class AddProductActivity : BaseActivity() {
                     finish()
                 }
             } catch (e: Exception) {
+                // Was surfacing the raw exception message to the user.
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "AddProduct", "save_product_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
-                    toast("Could not save: ${e.message ?: "unknown error"}")
+                    toast(getString(R.string.something_went_wrong))
                 }
             }
         }
@@ -676,8 +683,12 @@ class AddProductActivity : BaseActivity() {
                         finish()
                     }
                 } catch (e: Exception) {
+                    // Was surfacing the raw exception message to the user.
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "AddProduct", "restore_product_failed: ${e.javaClass.simpleName}"
+                    )
                     withContext(Dispatchers.Main) {
-                        toast("Could not restore: ${e.message ?: "unknown error"}")
+                        toast(getString(R.string.something_went_wrong))
                     }
                 }
             }

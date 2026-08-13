@@ -223,6 +223,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "CustomerTransactions", "fetch_transactions_failed: ${e.javaClass.simpleName}"
+                )
                 Toast.makeText(
                     this@CustomerTransactionsActivity,
                     R.string.txn_server_unreachable,
@@ -801,12 +804,13 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    // Names the exception. This said only "Print failed", the
-                    // same wording the generator uses for a different failure,
-                    // so there was no way to tell them apart.
+                    // Was surfacing the raw exception message to the user.
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "CustomerTransactions", "print_statement_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(
                         this@CustomerTransactionsActivity,
-                        "Couldn't build the statement: ${e.message ?: e.javaClass.simpleName}",
+                        getString(R.string.something_went_wrong),
                         Toast.LENGTH_LONG
                     ).show()
                 }

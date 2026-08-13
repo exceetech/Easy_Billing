@@ -311,6 +311,7 @@ class MainActivity : BaseActivity() {
 
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, R.string.please_enter_all_fields, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Login", "credentials_missing")
                 return@setOnClickListener
             }
 
@@ -490,13 +491,13 @@ class MainActivity : BaseActivity() {
                     btnLogin.isEnabled = true
                     startCtaArrowAnimation(R.id.btnLogin)
 
-                    val message = if (e is retrofit2.HttpException) {
-                        e.response()?.errorBody()?.string() ?: "Login failed"
-                    } else {
-                        e.message ?: "Unknown error"
-                    }
-
-                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+                    // Was surfacing the raw backend error body / exception
+                    // message to the user — an info-disclosure risk.
+                    val code = (e as? retrofit2.HttpException)?.code()
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "Login", "login_failed: ${e.javaClass.simpleName}${if (code != null) "_$code" else ""}"
+                    )
+                    Toast.makeText(this@MainActivity, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
                 }
             }
         }

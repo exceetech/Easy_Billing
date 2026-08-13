@@ -1008,10 +1008,12 @@ class InvoiceActivity : AppCompatActivity() {
                 "Required for B2B: ${missing.joinToString(", ")}",
                 Toast.LENGTH_LONG
             ).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "buyer_details_missing")
             return false
         }
         if (gstin.length != 15) {
             Toast.makeText(this, R.string.invoice_gstin_length, Toast.LENGTH_LONG).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "buyer_details_missing")
             return false
         }
 
@@ -1030,11 +1032,13 @@ class InvoiceActivity : AppCompatActivity() {
         if (ecoGstin.isEmpty()) {
             Toast.makeText(this, R.string.invoice_eco_gstin_required, Toast.LENGTH_LONG).show()
             etEcommerceGstin.requestFocus()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "eco_gstin_missing")
             return false
         }
         if (ecoGstin.length != 15) {
             Toast.makeText(this, R.string.invoice_eco_gstin_length, Toast.LENGTH_LONG).show()
             etEcommerceGstin.requestFocus()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "eco_gstin_missing")
             return false
         }
         return true
@@ -1523,11 +1527,14 @@ class InvoiceActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 isBillSaved = false
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Invoice", "bill_save_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
                     setCosmeticEnabled(btnConfirm, true)
                     Toast.makeText(
                         this@InvoiceActivity,
-                        e.message ?: getString(R.string.invoice_error_saving_bill),
+                        getString(R.string.invoice_error_saving_bill),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -2085,7 +2092,9 @@ class InvoiceActivity : AppCompatActivity() {
             val name = etName.text.toString().trim()
             val phone = etPhone.text.toString().trim()
             if (name.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show(); return@setOnClickListener
+                Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "add_customer_fields_missing")
+                return@setOnClickListener
             }
             lifecycleScope.launch(Dispatchers.IO) {
                 // Same rule as the credit sale above: without a real shop id
@@ -2128,6 +2137,9 @@ class InvoiceActivity : AppCompatActivity() {
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "Invoice", "credit_account_create_failed: ${e.javaClass.simpleName}"
+                    )
                     repository.insertCreditAccount(
                         CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
                     )

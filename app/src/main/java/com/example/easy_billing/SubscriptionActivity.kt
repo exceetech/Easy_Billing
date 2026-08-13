@@ -201,6 +201,9 @@ class SubscriptionActivity : BaseActivity() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Subscription", "load_subscription_failed: ${e.javaClass.simpleName}"
+                )
                 com.google.android.material.snackbar.Snackbar.make(
                     tvPlan,
                     getString(R.string.subscriptionactivity_failed_to_load),
@@ -292,6 +295,9 @@ class SubscriptionActivity : BaseActivity() {
                 finish()
             } catch (e: retrofit2.HttpException) {
                 btnStartTrial.isEnabled = true
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Subscription", "start_trial_failed: HttpException_${e.code()}"
+                )
                 Toast.makeText(
                     this@SubscriptionActivity,
                     parseErrorDetail(e) ?: getString(R.string.couldnt_start_trial),
@@ -305,6 +311,9 @@ class SubscriptionActivity : BaseActivity() {
             } catch (e: Exception) {
                 btnStartTrial.isEnabled = true
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Subscription", "start_trial_failed: ${e.javaClass.simpleName}"
+                )
                 Toast.makeText(this@SubscriptionActivity, R.string.couldnt_start_trial, Toast.LENGTH_SHORT).show()
             }
         }
@@ -344,6 +353,9 @@ class SubscriptionActivity : BaseActivity() {
                 updateContinueButton()
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Subscription", "load_plans_failed: ${e.javaClass.simpleName}"
+                )
                 Toast.makeText(this@SubscriptionActivity, R.string.couldnt_load_plans, Toast.LENGTH_SHORT).show()
             }
         }

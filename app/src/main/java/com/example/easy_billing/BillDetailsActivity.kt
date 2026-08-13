@@ -570,6 +570,9 @@ class BillDetailsActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("BillDetailsActivity", "Bill cancellation failed", e)
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "BillDetailsActivity", "bill_cancellation_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
                     btnCancelBill.isEnabled = true
                     Toast.makeText(

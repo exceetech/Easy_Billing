@@ -92,6 +92,10 @@ class OtpVerificationActivity : BaseActivity() {
                     else
                         getString(R.string.couldnt_resend_otp_try_again)
 
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "OtpVerificationActivity", "resend_otp_failed: ${e.javaClass.simpleName}"
+                    )
+
                     Toast.makeText(
                         this@OtpVerificationActivity,
                         message,
@@ -163,6 +167,9 @@ class OtpVerificationActivity : BaseActivity() {
                 } catch (e: Exception) {
 
                     Log.e("OtpVerificationActivity", "Verify OTP failed", e)
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "OtpVerificationActivity", "verify_otp_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(
                         this@OtpVerificationActivity,
                         R.string.something_went_wrong,

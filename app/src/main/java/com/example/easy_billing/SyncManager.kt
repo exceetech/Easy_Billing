@@ -106,6 +106,7 @@ class SyncManager(private val context: Context) {
         runStep("syncPurchaseCancellations") { syncPurchaseCancellations() } // push voided purchases
         runStep("syncStoreInfo") { syncStoreInfo() }                 // pull latest
         runStep("syncBillingSettings") { syncBillingSettings() }     // pull settings
+        runStep("syncUserEvents") { syncUserEvents() }               // push breadcrumb log (support tool, non-critical)
 
         // Recompute the observable sync status so any open screen can
         // reflect what is still pending / failed / blocked (Issue 11).
@@ -3064,6 +3065,62 @@ class SyncManager(private val context: Context) {
             }
         } catch (e: Exception) {
             Log.e(SYNC_TAG, "syncPurchaseBatches: POST FAILED", e)
+        }
+    }
+
+    /**
+     * Pushes unsynced local breadcrumb rows (UserEventLogger) to the
+     * backend's user_event_logs table. Append-only — no pull side, no
+     * per-row local_id map to reconcile, since these are throwaway
+     * support/debugging events, not synced business records. Failures
+     * here are non-critical (runStep swallows them) and simply mean the
+     * breadcrumbs stay queued locally until the next sync pass; they're
+     * also capped locally (see UserEventLogDao.trimToMostRecent) so a
+     * long offline stretch never lets this grow unbounded on-device.
+     */
+    suspend fun syncUserEvents() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+        val token = prefs.getString("TOKEN", null)
+        if (token == null) {
+            Log.w(SYNC_TAG, "syncUserEvents skipped — no auth token")
+            return
+        }
+
+        val dao = db.userEventLogDao()
+        // Belt-and-braces cap — the same trim also runs here on every sync
+        // pass (not just relying on it happening elsewhere), so a device
+        // that never successfully syncs still doesn't grow this table
+        // without bound.
+        dao.trimToMostRecent()
+
+        val pending = dao.getUnsynced()
+        if (pending.isEmpty()) return
+
+        Log.d(SYNC_TAG, "syncUserEvents: ${pending.size} unsynced event(s)")
+
+        val dtoEvents = pending.map { e ->
+            com.example.easy_billing.network.UserEventDto(
+                event_type = e.eventType,
+                screen = e.screen,
+                detail = e.detail,
+                created_at = e.createdAt
+            )
+        }
+
+        try {
+            val response = api.syncUserEvents(
+                token,
+                com.example.easy_billing.network.UserEventSyncRequest(dtoEvents)
+            )
+            Log.d(SYNC_TAG, "syncUserEvents: server recorded ${response.success_count}")
+            dao.markAsSynced(pending.map { it.id })
+            // Local copy no longer needed once the backend has it —
+            // support investigations query the backend, not the device.
+            dao.deleteSynced()
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncUserEvents: POST FAILED", e)
         }
     }
 

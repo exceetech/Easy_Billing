@@ -233,6 +233,9 @@ class BillingSettingsActivity : BaseActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "BillingSettings", "settings_load_failed: ${e.javaClass.simpleName}"
+                )
             }
         }
     }
@@ -374,6 +377,7 @@ class BillingSettingsActivity : BaseActivity() {
                 R.string.enter_valid_state,
                 Toast.LENGTH_LONG
             ).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("BillingSettings", "state_code_unresolved")
             return
         }
         // Normalize the field to the canonical name so what's displayed always

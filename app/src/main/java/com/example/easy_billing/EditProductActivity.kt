@@ -401,6 +401,7 @@ class EditProductActivity : BaseActivity() {
                         getString(R.string.editproductactivity_hsn_code_is_mandatory),
                         Toast.LENGTH_SHORT
                     ).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("EditProduct", "hsn_missing")
                 } else {
                     commitSave(product, newPrice, hsn, cgst, sgst, igst,
                         officialUqcVal, hsnDescVal, cessRateVal, supplyClassVal)

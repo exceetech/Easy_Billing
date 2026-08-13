@@ -294,6 +294,9 @@ class ReportsActivity : BaseActivity() {
 
             } catch (e: Exception) {
 
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Reports", "email_report_failed: ${e.javaClass.simpleName}"
+                )
                 com.example.easy_billing.ui.ThemedDropdown.showResultDialog(
                     this@ReportsActivity,
                     success = false,

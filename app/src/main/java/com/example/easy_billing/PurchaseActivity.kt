@@ -804,6 +804,7 @@ class PurchaseActivity : BaseActivity() {
             val state = etState.text?.toString()?.trim().orEmpty()
             if (invoice.isEmpty() || supplier.isEmpty() || state.isEmpty()) {
                 Toast.makeText(this, R.string.purchase_fill_header, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "header_fields_missing")
                 return@setOnClickListener
             }
             // Auto-added lines (Inventory's "Add stock") start with
@@ -854,6 +855,7 @@ class PurchaseActivity : BaseActivity() {
             if (pickedInvoiceDate == null) {
                 etInvoiceDate.error = getString(R.string.purchase_pick_invoice_date_error)
                 Toast.makeText(this, R.string.purchase_invoice_date_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_date_missing")
                 return@setOnClickListener
             }
 
@@ -877,6 +879,7 @@ class PurchaseActivity : BaseActivity() {
             }
             if (placeOfSupplyCode.isEmpty()) {
                 Toast.makeText(this, R.string.purchase_place_of_supply_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "place_of_supply_missing")
                 return@setOnClickListener
             }
 
@@ -884,21 +887,25 @@ class PurchaseActivity : BaseActivity() {
                 val portCode = etPortCode.text?.toString()?.trim()
                 if (portCode.isNullOrEmpty()) {
                     Toast.makeText(this, R.string.purchase_port_code_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
                     return@setOnClickListener
                 }
                 val boeNumber = etBillOfEntryNumber.text?.toString()?.trim()
                 if (boeNumber.isNullOrEmpty()) {
                     Toast.makeText(this, R.string.purchase_boe_number_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
                     return@setOnClickListener
                 }
                 val pickedBoeDate = boeDateProvider()
                 if (pickedBoeDate == null) {
                     Toast.makeText(this, R.string.purchase_boe_date_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
                     return@setOnClickListener
                 }
                 val boeValue = etBillOfEntryValue.text?.toString()?.toDoubleOrNull()
                 if (boeValue == null) {
                     Toast.makeText(this, R.string.purchase_boe_value_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
                     return@setOnClickListener
                 }
                 val type = etInvoiceType.text?.toString() ?: ""
@@ -922,24 +929,28 @@ class PurchaseActivity : BaseActivity() {
             val invoiceType = etInvoiceType.text?.toString()?.trim().orEmpty()
             if (invoiceType.isEmpty()) {
                 Toast.makeText(this, R.string.purchase_invoice_type_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
                 return@setOnClickListener
             }
 
             val supplyType = etSupplyType.text?.toString()?.trim().orEmpty()
             if (supplyType != "intrastate" && supplyType != "interstate") {
                 Toast.makeText(this, R.string.purchase_supply_type_invalid, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
                 return@setOnClickListener
             }
 
             val cessPaid = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
             if (cessPaid < 0.0) {
                 Toast.makeText(this, R.string.purchase_cess_paid_invalid, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
                 return@setOnClickListener
             }
 
             val eligibility = etEligibilityForItc.text?.toString()?.trim().orEmpty()
             if (eligibility.isEmpty()) {
                 Toast.makeText(this, R.string.purchase_eligibility_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
                 return@setOnClickListener
             }
 

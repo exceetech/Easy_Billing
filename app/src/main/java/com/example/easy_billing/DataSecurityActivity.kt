@@ -121,6 +121,9 @@ class DataSecurityActivity : BaseActivity() {
 
             } catch (e: Exception) {
 
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "DataSecurity", "clear_bills_failed: ${e.javaClass.simpleName}"
+                )
                 Toast.makeText(
                     this@DataSecurityActivity,
                     R.string.failed_to_clear_bills,
@@ -217,10 +220,13 @@ class DataSecurityActivity : BaseActivity() {
                 }
 
             } catch (e: Exception) {
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "DataSecurity", "reset_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@DataSecurityActivity,
-                        "Reset failed: ${e.message ?: "Check internet connection"}",
+                        getString(R.string.something_went_wrong),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -324,6 +330,9 @@ class DataSecurityActivity : BaseActivity() {
 
                 } catch (e: Exception) {
 
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "DataSecurity", "password_change_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(
                         this@DataSecurityActivity,
                         R.string.failed_to_change_password,

@@ -232,6 +232,9 @@ class StoreSettingsActivity : BaseActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "StoreSettings", "settings_load_failed: ${e.javaClass.simpleName}"
+                )
             }
         }
     }
@@ -272,6 +275,7 @@ class StoreSettingsActivity : BaseActivity() {
 
         if (name.isEmpty()) {
             Toast.makeText(this, R.string.store_name_is_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("StoreSettings", "store_name_missing")
             return
         }
 

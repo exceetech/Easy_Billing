@@ -468,6 +468,9 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 updatePriceSummary()
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "ConfirmPaymentActivity", "coupon_validation_failed: ${e.javaClass.simpleName}"
+                )
                 Toast.makeText(this@ConfirmPaymentActivity, getString(R.string.confirmpaymentactivity_couldnt_validate_coupon), Toast.LENGTH_SHORT).show()
             }
         }
@@ -594,6 +597,9 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             } catch (e: Exception) {
                 setPaymentInProgress(false)
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "ConfirmPaymentActivity", "start_payment_failed: ${e.javaClass.simpleName}"
+                )
                 Toast.makeText(this@ConfirmPaymentActivity, getString(R.string.confirmpaymentactivity_couldnt_start_payment_please), Toast.LENGTH_LONG).show()
             }
         }
@@ -682,6 +688,9 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             reopenCardAfterCancelledOrFailedCheckout()
             setPaymentInProgress(false)
             e.printStackTrace()
+            com.example.easy_billing.util.UserEventLogger.logError(
+                "ConfirmPaymentActivity", "open_payment_screen_failed: ${e.javaClass.simpleName}"
+            )
             Toast.makeText(this, getString(R.string.confirmpaymentactivity_couldnt_open_payment_screen), Toast.LENGTH_LONG).show()
         }
     }
@@ -724,6 +733,9 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 // exists to catch independently. Don't tell the user the
                 // payment failed; it may well have gone through.
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "ConfirmPaymentActivity", "verify_payment_failed: ${e.javaClass.simpleName}"
+                )
                 setPaymentInProgress(false)
                 showPendingVerificationState()
             }

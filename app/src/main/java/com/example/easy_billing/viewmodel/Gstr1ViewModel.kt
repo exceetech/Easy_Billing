@@ -164,6 +164,9 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 // — an info-disclosure risk (internal exception text, file
                 // paths, etc. shown on screen) as well as unhelpful copy.
                 Log.e("Gstr1ViewModel", "Report generation failed", e)
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Gstr1ViewModel", "generate_report_failed: ${e.javaClass.simpleName}"
+                )
                 _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_generate_failed)
             } finally {
                 _isLoading.value = false
@@ -187,6 +190,9 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 _exportEvent.value = ExportEvent.DraftSaved
             } catch (e: Exception) {
                 Log.e("Gstr1ViewModel", "Save draft failed", e)
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Gstr1ViewModel", "save_draft_failed: ${e.javaClass.simpleName}"
+                )
                 _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_save_draft_failed)
             }
         }
@@ -230,6 +236,9 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 _exportEvent.value = ExportEvent.CsvExported(result.files, result.directory.absolutePath)
             } catch (e: Exception) {
                 Log.e("Gstr1ViewModel", "CSV export failed", e)
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Gstr1ViewModel", "csv_export_failed: ${e.javaClass.simpleName}"
+                )
                 _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_csv_export_failed)
             } finally {
                 _isLoading.value = false
@@ -248,6 +257,9 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 _exportEvent.value = ExportEvent.ExcelExported(result.uri, result.file.absolutePath)
             } catch (e: Exception) {
                 Log.e("Gstr1ViewModel", "Excel export failed", e)
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Gstr1ViewModel", "excel_export_failed: ${e.javaClass.simpleName}"
+                )
                 _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_excel_export_failed)
             } finally {
                 _isLoading.value = false

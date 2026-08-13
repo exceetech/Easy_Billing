@@ -144,6 +144,9 @@ class BillHistoryActivity : BaseActivity() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "BillHistory", "load_bills_failed: ${e.javaClass.simpleName}"
+                )
                 // Distinguish "no connection" from a genuine server error so
                 // the shop owner knows whether to check their internet or
                 // just retry — a flat "Failed to load bills" gave no hint.

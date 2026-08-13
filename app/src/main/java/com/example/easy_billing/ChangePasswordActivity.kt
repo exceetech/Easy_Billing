@@ -103,16 +103,25 @@ class ChangePasswordActivity : BaseActivity() {
 
             if (newPass.isEmpty() || confirmPass.isEmpty()) {
                 Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed(
+                    "ChangePasswordActivity", "empty_field"
+                )
                 return@setOnClickListener
             }
 
             if (newPass != confirmPass) {
                 Toast.makeText(this, R.string.passwords_do_not_match, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed(
+                    "ChangePasswordActivity", "passwords_do_not_match"
+                )
                 return@setOnClickListener
             }
 
             if (newPass.length < 6) {
                 Toast.makeText(this, R.string.password_min_length, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed(
+                    "ChangePasswordActivity", "password_too_short"
+                )
                 return@setOnClickListener
             }
 
@@ -176,6 +185,9 @@ class ChangePasswordActivity : BaseActivity() {
                     // ("Error: java.net.SocketTimeoutException..."). Log the
                     // real detail for debugging, show a friendly message.
                     Log.e("ChangePasswordActivity", "Password update failed", e)
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "ChangePasswordActivity", "password_update_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(this@ChangePasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                 } finally {
                     btnChangePassword.isEnabled = true

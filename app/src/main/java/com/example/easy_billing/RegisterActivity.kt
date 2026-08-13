@@ -155,6 +155,7 @@ class RegisterActivity : BaseActivity() {
 
             if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || shopName.isEmpty()) {
                 Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Register", "required_fields_missing")
                 resetButton(btnRegister)
                 return@setOnClickListener
             }
@@ -185,9 +186,13 @@ class RegisterActivity : BaseActivity() {
 
                 } catch (e: Exception) {
 
+                    // Was surfacing the raw exception message to the user.
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "Register", "register_failed: ${e.javaClass.simpleName}"
+                    )
                     Toast.makeText(
                         this@RegisterActivity,
-                        e.message ?: getString(R.string.generic_error),
+                        getString(R.string.generic_error),
                         Toast.LENGTH_SHORT
                     ).show()
 

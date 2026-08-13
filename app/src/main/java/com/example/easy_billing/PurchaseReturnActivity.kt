@@ -628,6 +628,7 @@ class PurchaseReturnActivity : BaseActivity() {
         if (lines.isEmpty()) {
             val msg = if (noteType == "C") getString(R.string.purchase_return_select_item_credit) else getString(R.string.purchase_return_select_item_debit)
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "no_return_lines")
             return
         }
 
@@ -654,57 +655,70 @@ class PurchaseReturnActivity : BaseActivity() {
         // Client-side validations
         if (docTypeVal.isBlank()) {
             Toast.makeText(this, R.string.purchase_return_doctype_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "doctype_or_reason_missing")
             return
         }
         if (reasonVal.isBlank()) {
             Toast.makeText(this, R.string.purchase_return_reason_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "doctype_or_reason_missing")
             return
         }
         if (voucherValueVal <= 0.0) {
             Toast.makeText(this, R.string.purchase_return_voucher_value_positive, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
             return
         }
         if (voucherValueVal < currentTaxableReturn) {
             Toast.makeText(this, getString(R.string.purchase_return_voucher_value_min).format(voucherValueVal, currentTaxableReturn), Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
             return
         }
         if (rateVal < 0.0) {
             Toast.makeText(this, R.string.purchase_return_rate_invalid, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
             return
         }
         if (eligibilityVal.isBlank()) {
             Toast.makeText(this, R.string.purchase_return_eligibility_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
             return
         }
         if (eligibilityVal in listOf(getString(R.string.purchase_eligibility_ineligible), getString(R.string.purchase_eligibility_none))) {
             if (availedIntegratedVal != 0.0 || availedCentralVal != 0.0 || availedStateVal != 0.0 || availedCessVal != 0.0) {
                 Toast.makeText(this, R.string.purchase_return_itc_must_be_zero, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
                 return
             }
         } else {
             if (availedIntegratedVal > currentIgstReturn) {
                 Toast.makeText(this, getString(R.string.purchase_return_itc_integrated_exceeds).format(currentIgstReturn), Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
                 return
             }
             if (availedCentralVal > currentCgstReturn) {
                 Toast.makeText(this, getString(R.string.purchase_return_itc_central_exceeds).format(currentCgstReturn), Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
                 return
             }
             if (availedStateVal > currentSgstReturn) {
                 Toast.makeText(this, getString(R.string.purchase_return_itc_state_exceeds).format(currentSgstReturn), Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
                 return
             }
             if (availedCessVal > currentCessReturn) {
                 Toast.makeText(this, getString(R.string.purchase_return_itc_cess_exceeds).format(currentCessReturn), Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
                 return
             }
         }
         if (invoiceTypeVal.isBlank()) {
             Toast.makeText(this, R.string.purchase_return_invoice_type_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
             return
         }
         if (placeOfSupplyCodeVal.isBlank()) {
             Toast.makeText(this, R.string.purchase_return_place_of_supply_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseReturn", "gst_fields_invalid")
             return
         }
 

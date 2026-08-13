@@ -636,6 +636,15 @@ interface ApiService {
         @Body body: PurchaseBatchSyncRequest
     ): PurchaseBatchSyncResponse
 
+    // Support/debugging breadcrumb trail — see UserEventLogger.kt.
+    // device_id is auto-attached to every request by AuthInterceptor, so
+    // (matching every other sync call in this file) it's not passed here.
+    @POST("events/sync")
+    suspend fun syncUserEvents(
+        @Header("Authorization") token: String,
+        @Body body: UserEventSyncRequest
+    ): UserEventSyncResponse
+
 
 
     @GET("purchase-return/{shop_id}")

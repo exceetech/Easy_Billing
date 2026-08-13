@@ -363,13 +363,16 @@ class InventoryActivity : BaseActivity() {
                 }
 
             } catch (e: Exception) {
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Inventory", "refresh_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
                     // Stale data staying on screen with no signal it's stale is
                     // risky for stock decisions — say plainly it didn't refresh
                     // and offer a retry rather than a flat "failed" toast.
                     Toast.makeText(
                         this@InventoryActivity,
-                        "Couldn't refresh inventory (${e.message ?: "unknown error"}) — showing last-known data. Pull down or reopen to retry.",
+                        "Couldn't refresh inventory — showing last-known data. Pull down or reopen to retry.",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -929,10 +932,13 @@ class InventoryActivity : BaseActivity() {
                     }
                 }
             } catch (e: Exception) {
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Inventory", "return_batches_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@InventoryActivity,
-                        e.message ?: getString(R.string.inventory_return_batches_failed_toast),
+                        getString(R.string.inventory_return_batches_failed_toast),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -965,10 +971,13 @@ class InventoryActivity : BaseActivity() {
                 }
                 if (result != null) SyncManager(this@InventoryActivity).syncInventory()
             } catch (e: Exception) {
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Inventory", "scrap_batches_failed: ${e.javaClass.simpleName}"
+                )
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@InventoryActivity,
-                        e.message ?: getString(R.string.inventory_scrap_batches_failed_toast),
+                        getString(R.string.inventory_scrap_batches_failed_toast),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -1332,10 +1341,13 @@ class InventoryActivity : BaseActivity() {
                                     }
                                 }
                         } catch (e: Exception) {
+                            com.example.easy_billing.util.UserEventLogger.logError(
+                                "Inventory", "clear_stock_failed: ${e.javaClass.simpleName}"
+                            )
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(
                                     this@InventoryActivity,
-                                    "Couldn't clear stock: ${e.message ?: "unknown error"}",
+                                    getString(R.string.something_went_wrong),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }

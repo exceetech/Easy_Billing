@@ -550,6 +550,9 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                     _result.value = Result.Success(noteNumber, adjustment)
                 }
             } catch (e: Exception) {
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "PurchaseReturn", "save_failed: ${e.javaClass.simpleName}"
+                )
                 _result.value = Result.SaveError(e)
             } finally {
                 _isLoading.value = false

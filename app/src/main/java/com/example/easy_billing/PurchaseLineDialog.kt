@@ -941,6 +941,7 @@ class PurchaseLineDialog(
                 Toast.makeText(activity,
                     activity.getString(R.string.purchase_line_fill_required_toast),
                     Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseLine", "line_values_invalid")
                 return@setOnClickListener
             }
 
@@ -963,10 +964,12 @@ class PurchaseLineDialog(
             }
             if (eligibility.isEmpty()) {
                 Toast.makeText(activity, activity.getString(R.string.purchase_line_eligibility_required_toast), Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseLine", "eligibility_or_uqc_missing")
                 return@setOnClickListener
             }
             if (officialUqc.isNullOrBlank()) {
                 Toast.makeText(activity, activity.getString(R.string.purchase_line_uqc_required_toast), Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseLine", "eligibility_or_uqc_missing")
                 return@setOnClickListener
             }
 

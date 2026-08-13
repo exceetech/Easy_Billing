@@ -212,6 +212,7 @@ class CreditAccountsActivity : BaseActivity() {
 
             if (name.isEmpty() || phone.isEmpty()) {
                 Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("CreditAccounts", "customer_fields_invalid")
                 return@setOnClickListener
             }
 
@@ -222,6 +223,7 @@ class CreditAccountsActivity : BaseActivity() {
             val digitsOnly = phone.filter { it.isDigit() }
             if (digitsOnly.length != 10) {
                 Toast.makeText(this, R.string.credit_invalid_phone, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("CreditAccounts", "customer_fields_invalid")
                 return@setOnClickListener
             }
 
@@ -299,6 +301,9 @@ class CreditAccountsActivity : BaseActivity() {
                 } catch (e: Exception) {
 
                     e.printStackTrace()
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "CreditAccounts", "create_account_failed: ${e.javaClass.simpleName}"
+                    )
 
                     repository.insertLocal(
                         CreditAccount(

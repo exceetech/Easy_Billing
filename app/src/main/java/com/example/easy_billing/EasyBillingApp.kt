@@ -23,6 +23,9 @@ class EasyBillingApp : Application() {
         // Must be initialised before any timestamp is read.
         com.example.easy_billing.util.AppClock.init(this)
         com.example.easy_billing.util.AppTime.init(this)
+        // Support/debugging breadcrumb trail — see UserEventLogger's doc
+        // comment. Must be initialised before any UserEventLogger.log() call.
+        com.example.easy_billing.util.UserEventLogger.init(this)
         startPeriodicSyncRetry()
         scheduleDurableSync()
         scheduleSessionTimeoutCheck()

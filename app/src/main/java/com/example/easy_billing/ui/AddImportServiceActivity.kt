@@ -347,6 +347,7 @@ class AddImportServiceActivity : BaseActivity() {
 
         if (invoiceNumber.isEmpty()) {
             Toast.makeText(this, R.string.invoice_number_is_required, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("AddImportService", "invoice_number_missing")
             return
         }
 

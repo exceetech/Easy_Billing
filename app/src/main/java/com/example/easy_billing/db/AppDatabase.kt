@@ -71,9 +71,12 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
 
         // Supplier autofill index (v47) — a convenience lookup only;
         // purchase_table keeps its own denormalised supplier fields.
-        Supplier::class
+        Supplier::class,
+
+        // Support/debugging breadcrumb trail (v61) — see [UserEventLog].
+        UserEventLog::class
     ],
-    version = 60
+    version = 61
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -132,6 +135,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun customerDao(): CustomerDao
 
     abstract fun supplierDao(): SupplierDao
+
+    // Support/debugging breadcrumb trail (v61)
+    abstract fun userEventLogDao(): UserEventLogDao
 
     companion object {
 
@@ -1662,6 +1668,44 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v60 → v61 — Support/debugging breadcrumb trail.
+         *
+         * `user_event_logs`: a local rolling log of screens opened,
+         * actions tapped, validation failures, and sync/exception errors
+         * (see [UserEventLog]). Synced to the backend's own
+         * `user_event_logs` table so that when a shop reports a bug,
+         * support can pull up their recent events and tell a real app
+         * bug from an expected validation error / user mistake — not
+         * analytics, purely a support tool. Local rows are trimmed to
+         * the most recent 500 (UserEventLogDao.trimToMostRecent) so an
+         * offline device never lets this grow unbounded.
+         */
+        val MIGRATION_60_61 = object : Migration(60, 61) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `user_event_logs` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `event_type` TEXT NOT NULL,
+                        `screen` TEXT,
+                        `detail` TEXT,
+                        `created_at` INTEGER NOT NULL,
+                        `is_synced` INTEGER NOT NULL DEFAULT 0
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_user_event_logs_is_synced` " +
+                        "ON `user_event_logs`(`is_synced`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_user_event_logs_created_at` " +
+                        "ON `user_event_logs`(`created_at`)"
+                )
+            }
+        }
+
         val MIGRATION_46_47 = object : Migration(46, 47) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""
@@ -1743,7 +1787,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_56_57,
                         MIGRATION_57_58,
                         MIGRATION_58_59,
-                        MIGRATION_59_60
+                        MIGRATION_59_60,
+                        MIGRATION_60_61
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future
