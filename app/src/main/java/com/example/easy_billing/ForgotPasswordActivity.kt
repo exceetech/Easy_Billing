@@ -164,7 +164,9 @@ class ForgotPasswordActivity : BaseActivity() {
                     btnSubmit.isEnabled = true
                     btnSubmit.text = getString(R.string.send_reset_code)
                     startCtaArrowAnimation(R.id.btnSubmit)
-                    Toast.makeText(this@ForgotPasswordActivity, "Server error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Was surfacing the raw exception message to the user.
+                    Log.e("ForgotPasswordActivity", "Send reset code failed", e)
+                    Toast.makeText(this@ForgotPasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -194,8 +196,15 @@ class ForgotPasswordActivity : BaseActivity() {
                                 .apply()
 
                             Toast.makeText(this@ForgotPasswordActivity, R.string.otp_verified_successfully, Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this@ForgotPasswordActivity, ChangePasswordActivity::class.java))
-                            finish()
+                            // Was navigating away in the same instant as
+                            // showing the toast — ChangePasswordActivity
+                            // covers this screen before the toast has any
+                            // real chance to be read. A short delay lets it
+                            // actually register before we move on.
+                            android.os.Handler(mainLooper).postDelayed({
+                                startActivity(Intent(this@ForgotPasswordActivity, ChangePasswordActivity::class.java))
+                                finish()
+                            }, 600)
                         }
                     } else {
                         when (response.code()) {
@@ -206,7 +215,8 @@ class ForgotPasswordActivity : BaseActivity() {
                         }
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(this@ForgotPasswordActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ForgotPasswordActivity", "Verify OTP failed", e)
+                    Toast.makeText(this@ForgotPasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                 } finally {
                     btnVerifyOtp.isEnabled = true
                     btnVerifyOtp.text = getString(R.string.verify_code)

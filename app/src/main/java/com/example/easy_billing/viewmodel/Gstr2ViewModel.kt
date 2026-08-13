@@ -2,6 +2,7 @@ package com.example.easy_billing.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easy_billing.R
@@ -155,7 +156,12 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                     returnType = _returnType.value
                 )
             } catch (e: Exception) {
-                _error.value = "Failed to generate report: ${e.message}"
+                // Was surfacing the raw exception message to the user via
+                // Toast (see GstReportsActivity's viewModel2.error collector)
+                // — an info-disclosure risk (internal exception text, file
+                // paths, etc. shown on screen) as well as unhelpful copy.
+                Log.e("Gstr2ViewModel", "Report generation failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_generate_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -227,7 +233,8 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                 loadDrafts()
                 _exportEvent.value = ExportEvent.DraftSaved
             } catch (e: Exception) {
-                _error.value = "Failed to save draft: ${e.message}"
+                Log.e("Gstr2ViewModel", "Save draft failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_save_draft_failed)
             }
         }
     }
@@ -252,7 +259,8 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
             _returnType.value = draft.returnType
             _gstin.value = draft.gstin
         } catch (e: Exception) {
-            _error.value = "Failed to open draft: ${e.message}"
+            Log.e("Gstr2ViewModel", "Open draft failed", e)
+            _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_open_draft_failed)
         } finally {
             _isLoading.value = false
         }
@@ -270,7 +278,8 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                 val result = Gstr2CsvExporter.export(context, r)
                 _exportEvent.value = ExportEvent.CsvExported(result.files, result.directory.absolutePath)
             } catch (e: Exception) {
-                _error.value = "CSV Export failed: ${e.message}"
+                Log.e("Gstr2ViewModel", "CSV export failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_csv_export_failed)
             }
         }
     }
@@ -286,7 +295,8 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                 val result = Gstr2ExcelExporter.export(context, r)
                 _exportEvent.value = ExportEvent.ExcelExported(result.uri, result.file.absolutePath)
             } catch (e: Exception) {
-                _error.value = "Excel Export failed: ${e.message}"
+                Log.e("Gstr2ViewModel", "Excel export failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_excel_export_failed)
             }
         }
     }

@@ -9,6 +9,7 @@ import android.graphics.pdf.PdfDocument
 import android.os.Environment
 import android.print.PrintAttributes
 import android.print.PrintManager
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.example.easy_billing.ShopManager
@@ -985,7 +986,8 @@ object InvoicePdfGenerator {
             printManager.print(activity.getString(R.string.invoice_pdf_profit_print_job_name), adapter, attrs)
 
         } catch (e: Exception) {
-            Toast.makeText(activity, "Print failed: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e("InvoicePdfGenerator", "Print failed", e)
+            Toast.makeText(activity, R.string.profitactivity_print_failed, Toast.LENGTH_LONG).show()
         }
     }
 }

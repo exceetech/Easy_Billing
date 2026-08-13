@@ -116,7 +116,10 @@ class PurchaseReturnActivity : BaseActivity() {
         noteType = intent.getStringExtra("NOTE_TYPE") ?: "D"
         if (purchaseId == -1) {
             Toast.makeText(this, R.string.purchase_return_invalid_id, Toast.LENGTH_SHORT).show()
-            finish()
+            // Was calling finish() in the same instant as the toast, which
+            // tears the toast down with the activity before it's readable.
+            // Rare path (bad intent extra), but still worth a beat to read.
+            android.os.Handler(mainLooper).postDelayed({ finish() }, 600)
             return
         }
 

@@ -1079,7 +1079,6 @@
     <string name="dashboard_cart_empty_toast">कार्ट खाली है</string>
     <string name="dashboard_email_subject_subscription_support">सब्सक्रिप्शन सहायता</string>
     <string name="dashboard_enter_valid_quantity">सही मात्रा दर्ज करें</string>
-    <string name="dashboard_failed_load_products">प्रोडक्ट लोड नहीं हो सके</string>
     <string name="dashboard_failed_remove_product">प्रोडक्ट हटाया नहीं जा सका</string>
     <string name="dashboard_feature_ai_insights">AI इनसाइट्स</string>
     <string name="dashboard_feature_gst_reports">GST रिपोर्ट</string>
@@ -1105,7 +1104,6 @@
     <string name="dashboard_sort_most_profitable">सबसे ज़्यादा मुनाफ़ा</string>
     <string name="dashboard_sort_top_revenue">सबसे ज़्यादा कमाई</string>
     <string name="dashboard_title_fallback">डैशबोर्ड</string>
-    <string name="dashboard_unable_verify_subscription">सब्सक्रिप्शन वेरीफ़ाई नहीं हो सका</string>
     <string name="dashboard_unauthorized_device">अनधिकृत डिवाइस</string>
     <string name="dashboard_upgrade_to_unlock">अनलॉक करने के लिए अपग्रेड करें</string>
     <string name="dashboard_view_categorized">कैटेगरी अनुसार</string>

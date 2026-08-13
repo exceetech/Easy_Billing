@@ -2,6 +2,7 @@ package com.example.easy_billing.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.easy_billing.R
@@ -158,7 +159,12 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 _report.value = report
                 _validationResult.value = Gstr1Validator.validate(report)
             } catch (e: Exception) {
-                _error.value = "Failed to generate report: ${e.message}"
+                // Was surfacing the raw exception message to the user via
+                // Toast (see GstReportsActivity's viewModel1.error collector)
+                // — an info-disclosure risk (internal exception text, file
+                // paths, etc. shown on screen) as well as unhelpful copy.
+                Log.e("Gstr1ViewModel", "Report generation failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_generate_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -180,7 +186,8 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 loadDrafts()
                 _exportEvent.value = ExportEvent.DraftSaved
             } catch (e: Exception) {
-                _error.value = "Failed to save draft: ${e.message}"
+                Log.e("Gstr1ViewModel", "Save draft failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_save_draft_failed)
             }
         }
     }
@@ -222,7 +229,8 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 _exportEvent.value = ExportEvent.CsvExported(result.files, result.directory.absolutePath)
             } catch (e: Exception) {
-                _error.value = "CSV export failed: ${e.message}"
+                Log.e("Gstr1ViewModel", "CSV export failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_csv_export_failed)
             } finally {
                 _isLoading.value = false
             }
@@ -239,7 +247,8 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 _exportEvent.value = ExportEvent.ExcelExported(result.uri, result.file.absolutePath)
             } catch (e: Exception) {
-                _error.value = "Excel export failed: ${e.message}"
+                Log.e("Gstr1ViewModel", "Excel export failed", e)
+                _error.value = getApplication<Application>().getString(R.string.gstr1_vm_error_excel_export_failed)
             } finally {
                 _isLoading.value = false
             }

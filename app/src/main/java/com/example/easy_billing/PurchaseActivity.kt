@@ -1173,7 +1173,12 @@ class PurchaseActivity : BaseActivity() {
                             // push actually worked.
                             val msg = state.message ?: getString(R.string.purchase_saved_default_msg)
                             Toast.makeText(this@PurchaseActivity, msg, Toast.LENGTH_LONG).show()
-                            finish()
+                            // Was calling finish() in the same instant as the
+                            // toast — this message is the user's only
+                            // confirmation of whether the backend push
+                            // actually worked, so it's worth a beat to read
+                            // rather than getting torn down immediately.
+                            android.os.Handler(mainLooper).postDelayed({ finish() }, 600)
                         }
                     }
                 }

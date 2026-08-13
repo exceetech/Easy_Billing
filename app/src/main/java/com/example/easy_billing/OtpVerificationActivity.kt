@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
@@ -161,9 +162,10 @@ class OtpVerificationActivity : BaseActivity() {
 
                 } catch (e: Exception) {
 
+                    Log.e("OtpVerificationActivity", "Verify OTP failed", e)
                     Toast.makeText(
                         this@OtpVerificationActivity,
-                        "Network error: ${e.message}",
+                        R.string.something_went_wrong,
                         Toast.LENGTH_SHORT
                     ).show()
 

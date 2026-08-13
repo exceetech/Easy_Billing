@@ -1079,7 +1079,6 @@
     <string name="dashboard_cart_empty_toast">కార్ట్ ఖాళీగా ఉంది</string>
     <string name="dashboard_email_subject_subscription_support">సబ్</string>
     <string name="dashboard_enter_valid_quantity">సరైన పరిమాణం నమోదు చేయండి</string>
-    <string name="dashboard_failed_load_products">ఉత్పత్తులను లోడ్ చేయడంలో విఫలమైంది</string>
     <string name="dashboard_failed_remove_product">ఉత్పత్తిని తీసివేయడంలో విఫలమైంది</string>
     <string name="dashboard_feature_ai_insights">AI అంతర్దృష్టులు</string>
     <string name="dashboard_feature_gst_reports">GST రిపోర్ట్</string>
@@ -1105,7 +1104,6 @@
     <string name="dashboard_sort_most_profitable">అత్యధిక లాభదాయకం</string>
     <string name="dashboard_sort_top_revenue">టాప్ రెవెన్యూ</string>
     <string name="dashboard_title_fallback">డాష్</string>
-    <string name="dashboard_unable_verify_subscription">సబ్</string>
     <string name="dashboard_unauthorized_device">అనధికార పరికరం</string>
     <string name="dashboard_upgrade_to_unlock">అన్</string>
     <string name="dashboard_view_categorized">కేటగిరీల వారీగా</string>

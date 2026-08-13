@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -114,7 +115,10 @@ class BillDetailsActivity : AppCompatActivity() {
 
         if (billId == -1) {
             Toast.makeText(this, getString(R.string.billdetailsactivity_invalid_bill_id), Toast.LENGTH_SHORT).show()
-            finish()
+            // Was calling finish() in the same instant as the toast, which
+            // tears the toast down with the activity before it's readable.
+            // Rare path (bad intent extra), but still worth a beat to read.
+            android.os.Handler(mainLooper).postDelayed({ finish() }, 600)
             return
         }
 
@@ -565,12 +569,12 @@ class BillDetailsActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("BillDetailsActivity", "Bill cancellation failed", e)
                 withContext(Dispatchers.Main) {
                     btnCancelBill.isEnabled = true
                     Toast.makeText(
                         this@BillDetailsActivity,
-                        "Cancellation failed: ${e.message}",
+                        R.string.billdetailsactivity_cancellation_failed,
                         Toast.LENGTH_LONG
                     ).show()
                 }

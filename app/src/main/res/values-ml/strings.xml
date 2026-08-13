@@ -1079,7 +1079,6 @@
     <string name="dashboard_cart_empty_toast">കാർട്ട് ശൂന്യമാണ്</string>
     <string name="dashboard_email_subject_subscription_support">സബ്സ്ക്രിപ്ഷൻ സഹായം</string>
     <string name="dashboard_enter_valid_quantity">ശരിയായ ക്വാണ്ടിറ്റി നൽകുക</string>
-    <string name="dashboard_failed_load_products">ഉൽപ്പന്നങ്ങൾ ലോഡ് ചെയ്യാനായില്ല</string>
     <string name="dashboard_failed_remove_product">ഉൽപ്പന്നം നീക്കം ചെയ്യാനായില്ല</string>
     <string name="dashboard_feature_ai_insights">AI ഇൻസൈറ്റുകൾ</string>
     <string name="dashboard_feature_gst_reports">GST റിപ്പോർട്ടുകൾ</string>
@@ -1105,7 +1104,6 @@
     <string name="dashboard_sort_most_profitable">ഏറ്റവും ലാഭകരം</string>
     <string name="dashboard_sort_top_revenue">ടോപ്പ് റവന്യൂ</string>
     <string name="dashboard_title_fallback">ഡാഷ്ബോർഡ്</string>
-    <string name="dashboard_unable_verify_subscription">സബ്സ്ക്രിപ്ഷൻ പരിശോധിക്കാനായില്ല</string>
     <string name="dashboard_unauthorized_device">അനധികൃത ഉപകരണം</string>
     <string name="dashboard_upgrade_to_unlock">അൺലോക്ക് ചെയ്യാൻ അപ്ഗ്രേഡ് ചെയ്യുക</string>
     <string name="dashboard_view_categorized">വിഭാഗം തിരിച്ച്</string>

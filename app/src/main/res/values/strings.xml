@@ -123,6 +123,7 @@
     <string name="billdetailsactivity_bill_not_loaded_yet">Bill not loaded yet</string>
     <string name="billdetailsactivity_bill_not_loaded_yet_1">Bill not loaded yet. Please wait.</string>
     <string name="billdetailsactivity_bill_number_not_resolved">Bill number not resolved yet</string>
+    <string name="billdetailsactivity_cancellation_failed">Cancellation failed. Please try again.</string>
     <string name="billdetailsactivity_cannot_issue_a_credit">Cannot issue a credit note for a cancelled invoice.</string>
     <string name="billdetailsactivity_cannot_issue_a_debit">Cannot issue a debit note for a cancelled invoice.</string>
     <string name="billdetailsactivity_couldnt_save_the_invoice">Couldn\'t save the invoice — storage permission is needed</string>
@@ -1079,7 +1080,6 @@
     <string name="dashboard_cart_empty_toast">Cart is empty</string>
     <string name="dashboard_email_subject_subscription_support">Subscription support</string>
     <string name="dashboard_enter_valid_quantity">Enter valid quantity</string>
-    <string name="dashboard_failed_load_products">Failed to load products</string>
     <string name="dashboard_failed_remove_product">Failed to remove product</string>
     <string name="dashboard_feature_ai_insights">AI insights</string>
     <string name="dashboard_feature_gst_reports">GST reports</string>
@@ -1105,7 +1105,6 @@
     <string name="dashboard_sort_most_profitable">Most Profitable</string>
     <string name="dashboard_sort_top_revenue">Top Revenue</string>
     <string name="dashboard_title_fallback">Dashboard</string>
-    <string name="dashboard_unable_verify_subscription">Unable to verify subscription</string>
     <string name="dashboard_unauthorized_device">Unauthorized device</string>
     <string name="dashboard_upgrade_to_unlock">Upgrade to unlock</string>
     <string name="dashboard_view_categorized">Categorized</string>
@@ -1493,6 +1492,10 @@
     <string name="gstr1_vm_error_select_fy_period">Please select Financial Year and Period.</string>
     <string name="gstr1_vm_error_server_unreachable">Couldn\'t reach the server to generate GSTR-1. Check your internet connection and try again.</string>
     <string name="gstr1_vm_error_unsynced_data">Some bills, credit/debit notes or cancellations on this device haven\'t synced yet, so the report would be incomplete. Sync and try again.</string>
+    <string name="gstr1_vm_error_generate_failed">Couldn\'t generate the report. Please try again.</string>
+    <string name="gstr1_vm_error_save_draft_failed">Couldn\'t save the draft. Please try again.</string>
+    <string name="gstr1_vm_error_csv_export_failed">CSV export failed. Please try again.</string>
+    <string name="gstr1_vm_error_excel_export_failed">Excel export failed. Please try again.</string>
 
     <!-- Gstr2RemainingAdapters -->
     <string name="gstr2_exemp_no_itc">no input tax credit</string>
@@ -1512,6 +1515,11 @@
     <string name="gstr2_vm_error_generate_report_first">Generate the report first.</string>
     <string name="gstr2_vm_error_select_fy_period">Please select Financial Year and Period.</string>
     <string name="gstr2_vm_error_unsynced_data">Some purchases, returns or cancellations on this device haven\'t synced yet, so the report would be incomplete. Sync and try again.</string>
+    <string name="gstr2_vm_error_generate_failed">Couldn\'t generate the report. Please try again.</string>
+    <string name="gstr2_vm_error_save_draft_failed">Couldn\'t save the draft. Please try again.</string>
+    <string name="gstr2_vm_error_open_draft_failed">Couldn\'t open the draft. Please try again.</string>
+    <string name="gstr2_vm_error_csv_export_failed">CSV export failed. Please try again.</string>
+    <string name="gstr2_vm_error_excel_export_failed">Excel export failed. Please try again.</string>
 
     <!-- activity_purchase_return -->
     <string name="input_tax_credit_label">INPUT TAX CREDIT</string>

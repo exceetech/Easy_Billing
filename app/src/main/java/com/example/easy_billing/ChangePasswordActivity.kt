@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.PasswordTransformationMethod
@@ -171,7 +172,11 @@ class ChangePasswordActivity : BaseActivity() {
                     }
 
                 } catch (e: Exception) {
-                    Toast.makeText(this@ChangePasswordActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Was surfacing the raw exception message to the user
+                    // ("Error: java.net.SocketTimeoutException..."). Log the
+                    // real detail for debugging, show a friendly message.
+                    Log.e("ChangePasswordActivity", "Password update failed", e)
+                    Toast.makeText(this@ChangePasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                 } finally {
                     btnChangePassword.isEnabled = true
                     btnChangePassword.text = getString(R.string.update_password)

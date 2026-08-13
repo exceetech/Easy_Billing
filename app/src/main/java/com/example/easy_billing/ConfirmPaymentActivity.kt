@@ -498,6 +498,21 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         btnPay.text = if (finalPaise == 0) "Activate" else "Pay ${formatRupees(finalPaise)} securely"
     }
 
+    // ================= SHARED SUCCESS HANDLER =================
+    // Both the zero-amount-coupon path (order.is_free, above) and the
+    // Razorpay-verified payment path (handlePaymentSuccess, below) end the
+    // same way: subscription is now active, tell the user, report OK back
+    // to SubscriptionActivity, close this screen. Was two near-identical
+    // toast+setResult+finish() blocks. Also: finish() used to run in the
+    // same instant as the toast, so SubscriptionActivity would cover this
+    // screen before the toast had any real chance to be read — the short
+    // delay here gives it a moment to actually register.
+    private fun completeWithSuccess(messageRes: Int) {
+        Toast.makeText(this, messageRes, Toast.LENGTH_LONG).show()
+        setResult(Activity.RESULT_OK)
+        android.os.Handler(mainLooper).postDelayed({ finish() }, 600)
+    }
+
     // ================= PAY =================
 
     private fun onPayClicked() {
@@ -531,9 +546,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                     // (zero-amount coupon) — nothing left to do here except
                     // report success back to SubscriptionActivity.
                     setPaymentInProgress(false)
-                    Toast.makeText(this@ConfirmPaymentActivity, R.string.subscription_activated, Toast.LENGTH_LONG).show()
-                    setResult(Activity.RESULT_OK)
-                    finish()
+                    completeWithSuccess(R.string.subscription_activated)
                     return@launch
                 }
 
@@ -704,9 +717,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                     VerifyPaymentRequest(orderDbId, razorpayOrderId, razorpayPaymentId, razorpaySignature)
                 )
                 setPaymentInProgress(false)
-                Toast.makeText(this@ConfirmPaymentActivity, R.string.payment_successful_subscription_activated, Toast.LENGTH_LONG).show()
-                setResult(Activity.RESULT_OK)
-                finish()
+                completeWithSuccess(R.string.payment_successful_subscription_activated)
             } catch (e: Exception) {
                 // Network drop right after Razorpay's success callback —
                 // the exact case the webhook (razorpay-webhook, backend)

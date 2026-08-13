@@ -1079,7 +1079,6 @@
     <string name="dashboard_cart_empty_toast">கார்ட் காலியாக உள்ளது</string>
     <string name="dashboard_email_subject_subscription_support">சந்தா ஆதரவு</string>
     <string name="dashboard_enter_valid_quantity">சரியான அளவை உள்ளிடவும்</string>
-    <string name="dashboard_failed_load_products">பொருட்களை ஏற்ற முடியவில்லை</string>
     <string name="dashboard_failed_remove_product">பொருளை அகற்ற முடியவில்லை</string>
     <string name="dashboard_feature_ai_insights">AI பகுப்பாய்வு</string>
     <string name="dashboard_feature_gst_reports">GST அறிக்கைகள்</string>
@@ -1105,7 +1104,6 @@
     <string name="dashboard_sort_most_profitable">அதிக லாபம்</string>
     <string name="dashboard_sort_top_revenue">அதிக வருவாய்</string>
     <string name="dashboard_title_fallback">டாஷ்போர்டு</string>
-    <string name="dashboard_unable_verify_subscription">சந்தாவை சரிபார்க்க முடியவில்லை</string>
     <string name="dashboard_unauthorized_device">அங்கீகரிக்கப்படாத சாதனம்</string>
     <string name="dashboard_upgrade_to_unlock">திறக்க அப்கிரேட் செய்யவும்</string>
     <string name="dashboard_view_categorized">வகைப்படுத்தப்பட்டது</string>

@@ -1079,7 +1079,6 @@
     <string name="dashboard_cart_empty_toast">ಕಾರ್ಟ್ ಖಾಲಿಯಿದೆ</string>
     <string name="dashboard_email_subject_subscription_support">ಚಂದಾದಾರಿಕೆ ಬೆಂಬಲ</string>
     <string name="dashboard_enter_valid_quantity">ಮಾನ್ಯ ಪ್ರಮಾಣ ನಮೂದಿಸಿ</string>
-    <string name="dashboard_failed_load_products">ಉತ್ಪನ್ನಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ</string>
     <string name="dashboard_failed_remove_product">ಉತ್ಪನ್ನವನ್ನು ತೆಗೆಯಲು ವಿಫಲವಾಗಿದೆ</string>
     <string name="dashboard_feature_ai_insights">AI ಒಳನೋಟಗಳು</string>
     <string name="dashboard_feature_gst_reports">GST ವರದಿಗಳು</string>
@@ -1105,7 +1104,6 @@
     <string name="dashboard_sort_most_profitable">ಹೆಚ್ಚು ಲಾಭದಾಯಕ</string>
     <string name="dashboard_sort_top_revenue">ಹೆಚ್ಚಿನ ಆದಾಯ</string>
     <string name="dashboard_title_fallback">ಡ್ಯಾಶ್</string>
-    <string name="dashboard_unable_verify_subscription">ಚಂದಾದಾರಿಕೆ ಪರಿಶೀಲಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ</string>
     <string name="dashboard_unauthorized_device">ಅನಧಿಕೃತ ಸಾಧನ</string>
     <string name="dashboard_upgrade_to_unlock">ಅನ್</string>
     <string name="dashboard_view_categorized">ವರ್ಗೀಕೃತ</string>

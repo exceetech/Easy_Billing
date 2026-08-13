@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -1009,13 +1010,16 @@ class DashboardActivity : BaseActivity() {
                 }
             }
         } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    this@DashboardActivity,
-                    R.string.dashboard_failed_load_products,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            // Was a one-shot Toast here — loadProducts() runs twice per
+            // onResume() (see caller), so a real outage meant this could
+            // fire twice back-to-back, on top of checkSubscription()'s own
+            // toast, every single time the user returned to Dashboard.
+            // Local data (from the last successful sync) is still shown —
+            // this only means today's refresh didn't land — and the
+            // persistent bannerBackendUnreachable + LIVE/OFFLINE pill
+            // already tell the user the backend is unreachable for as long
+            // as it actually is. Still worth a log line for debugging.
+            Log.w("DashboardActivity", "loadProducts failed (network/backend issue)", e)
         }
 
         // 🔥 UI update — shop-scoped so cross-shop ghost rows from
@@ -1717,11 +1721,18 @@ class DashboardActivity : BaseActivity() {
 
             } catch (e: Exception) {
 
-                Toast.makeText(
-                    this@DashboardActivity,
-                    R.string.dashboard_unable_verify_subscription,
-                    Toast.LENGTH_SHORT
-                ).show()
+                // Was a one-shot Toast here — but checkSubscription() runs
+                // on every onResume(), so a real outage meant this fired
+                // again every time the user came back to Dashboard (out of
+                // Inventory, back in; out of Reports, back in; ...),
+                // stacking with loadProducts()'s own failure toast below.
+                // observeBackendHealth()'s persistent banner + the LIVE/
+                // OFFLINE pill already cover "backend unreachable" — that's
+                // literally why they were built (see the comment on
+                // observeBackendHealth) — so this doesn't need its own
+                // toast on top of them. Network/timeout failures land here;
+                // still worth a log line for debugging.
+                Log.w("DashboardActivity", "checkSubscription failed (network/backend issue)", e)
             }
         }
     }
