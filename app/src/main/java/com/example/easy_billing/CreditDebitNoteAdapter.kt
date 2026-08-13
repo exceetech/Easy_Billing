@@ -95,7 +95,7 @@ class CreditDebitNoteAdapter(
         holder.tvDate.text = dateFmt.format(Date(note.noteDate))
 
         val amountText = CurrencyHelper.format(holder.itemView.context, note.totalAmount)
-        holder.tvAmount.text = if (isCredit) "−$amountText" else "+$amountText"
+        holder.tvAmount.text = if (isCredit) "− $amountText" else "+ $amountText"
         holder.tvAmount.setTextColor(
             Color.parseColor(if (isCredit) "#791F1F" else "#0F6E56")
         )

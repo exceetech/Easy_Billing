@@ -1142,8 +1142,16 @@
     <string name="inventory_batches_not_loaded">Batches not loaded yet</string>
     <string name="inventory_confirm_return_batches_button">Return</string>
     <string name="inventory_confirm_return_title">Confirm return to supplier</string>
+    <string name="inventory_return_supplier_eyebrow">SUPPLIER RETURN</string>
+    <string name="inventory_confirm_return_title_line1">Confirm</string>
+    <string name="inventory_confirm_return_title_line2">return</string>
+    <string name="inventory_confirm_return_body">Return %1$s %2$s of %3$s to the supplier? This removes it from stock and can\'t be undone from here.</string>
     <string name="inventory_confirm_scrap_batches_button">Scrap</string>
     <string name="inventory_confirm_scrap_title">Confirm scrap</string>
+    <string name="inventory_scrap_eyebrow">SCRAP / DAMAGE</string>
+    <string name="inventory_confirm_scrap_title_line1">Confirm</string>
+    <string name="inventory_confirm_scrap_title_line2">scrap</string>
+    <string name="inventory_confirm_scrap_body">Scrap %1$s %2$s of %3$s? This is irreversible and removes it from stock permanently.</string>
     <string name="inventory_credit_needs_account">Credit needs an account — adjustment turned off</string>
     <string name="inventory_enter_batch_quantity">Enter quantity for at least one batch</string>
     <string name="inventory_filter_all_products">All products</string>

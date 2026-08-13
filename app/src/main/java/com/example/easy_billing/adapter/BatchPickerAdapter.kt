@@ -171,10 +171,14 @@ class BatchPickerAdapter(
             override fun afterTextChanged(s: Editable?) {
                 val typed = s?.toString()?.toDoubleOrNull() ?: 0.0
                 val clamped = typed.coerceIn(0.0, b.quantityRemaining)
-                if (kotlin.math.abs(clamped - typed) > 0.0001 && typed > b.quantityRemaining) {
+                if (typed > b.quantityRemaining) {
+                    holder.watcher?.let { holder.etQty.removeTextChangedListener(it) }
+                    holder.etQty.setText(if (clamped > 0.0) formatNum(clamped) else "")
+                    holder.etQty.setSelection(holder.etQty.text?.length ?: 0)
+                    holder.watcher?.let { holder.etQty.addTextChangedListener(it) }
                     android.widget.Toast.makeText(
                         holder.itemView.context,
-                        "Only ${formatNum(b.quantityRemaining)} available in this batch. Debit the rest from the next batch.",
+                        "Only ${formatNum(b.quantityRemaining)} available in this batch.",
                         android.widget.Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -185,6 +189,18 @@ class BatchPickerAdapter(
         }
         holder.etQty.addTextChangedListener(watcher)
         holder.watcher = watcher
+
+        holder.etQty.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val typed = holder.etQty.text?.toString()?.toDoubleOrNull() ?: 0.0
+                if (typed > b.quantityRemaining) {
+                    val clamped = b.quantityRemaining.coerceAtLeast(0.0)
+                    holder.watcher?.let { holder.etQty.removeTextChangedListener(it) }
+                    holder.etQty.setText(if (clamped > 0.0) formatNum(clamped) else "")
+                    holder.watcher?.let { holder.etQty.addTextChangedListener(it) }
+                }
+            }
+        }
     }
 
     private fun setQty(

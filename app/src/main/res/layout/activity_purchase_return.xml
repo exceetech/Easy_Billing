@@ -1031,6 +1031,7 @@
                 android:id="@+id/tvItcReclaim"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
                 android:text="0.00"
                 android:textSize="12.5sp"
                 android:textColor="#8A6526"

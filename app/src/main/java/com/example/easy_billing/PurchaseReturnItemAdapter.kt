@@ -219,6 +219,18 @@ class PurchaseReturnItemAdapter(
         }
         holder.etReturnQty.addTextChangedListener(watcher)
         holder.watcher = watcher
+
+        holder.etReturnQty.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus && noteType != "C") {
+                val typed = holder.etReturnQty.text?.toString()?.toDoubleOrNull() ?: 0.0
+                if (typed > max) {
+                    val clamped = max.coerceAtLeast(0.0)
+                    holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
+                    holder.etReturnQty.setText(if (clamped > 0.0) formatQty(clamped) else "")
+                    holder.watcher?.let { holder.etReturnQty.addTextChangedListener(it) }
+                }
+            }
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

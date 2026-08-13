@@ -176,10 +176,34 @@ class SalesReturnItemAdapter(
                 returnQtyMap[item.id] = clamped
                 updateReturnAmountView(holder, item, clamped, ctx)
                 notifyGrandTotal()
+
+                if (typed > max) {
+                    holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
+                    holder.etReturnQty.setText(if (clamped > 0.0) formatQty(clamped) else "")
+                    holder.etReturnQty.setSelection(holder.etReturnQty.text?.length ?: 0)
+                    holder.watcher?.let { holder.etReturnQty.addTextChangedListener(it) }
+                    android.widget.Toast.makeText(
+                        ctx,
+                        "Maximum returnable is ${formatQty(max)}",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
         holder.etReturnQty.addTextChangedListener(watcher)
         holder.watcher = watcher
+
+        holder.etReturnQty.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val typed = holder.etReturnQty.text?.toString()?.toDoubleOrNull() ?: 0.0
+                if (typed > max) {
+                    val clamped = max.coerceAtLeast(0.0)
+                    holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
+                    holder.etReturnQty.setText(if (clamped > 0.0) formatQty(clamped) else "")
+                    holder.watcher?.let { holder.etReturnQty.addTextChangedListener(it) }
+                }
+            }
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

@@ -788,11 +788,22 @@ class InventoryActivity : BaseActivity() {
                     return@setOnClickListener
                 }
 
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.inventory_confirm_return_title)
-                    .setMessage("Return ${formatStock(total)} ${product.unit ?: "unit(s)"} of ${product.name}? This removes it from stock and can't be undone from here.")
-                    .setPositiveButton(getString(R.string.inventory_confirm_return_batches_button)) { d, _ ->
-                        d.dismiss()
+                val returnView = layoutInflater.inflate(R.layout.dialog_confirm_return_supplier, null)
+                val returnDialog = AlertDialog.Builder(this)
+                    .setView(returnView)
+                    .create()
+                returnDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                returnView.findViewById<android.widget.TextView>(R.id.tvReturnSupplierMessage).text =
+                    getString(
+                        R.string.inventory_confirm_return_body,
+                        formatStock(total),
+                        product.unit ?: "unit(s)",
+                        product.name
+                    )
+                returnView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmReturnSupplier)
+                    .setOnClickListener {
+                        returnDialog.dismiss()
                         dialog.dismiss()
                         runReturnByBatches(
                             product = product,
@@ -801,8 +812,10 @@ class InventoryActivity : BaseActivity() {
                             creditAccountId = creditAccountId
                         )
                     }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
+                returnView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelReturnSupplier)
+                    .setOnClickListener { returnDialog.dismiss() }
+
+                returnDialog.show()
                 return@setOnClickListener
             }
 
@@ -836,19 +849,32 @@ class InventoryActivity : BaseActivity() {
                     )
                 }
 
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.inventory_confirm_scrap_title)
-                    .setMessage("Scrap ${formatStock(total)} ${product.unit ?: "unit(s)"} of ${product.name}? This is irreversible and removes it from stock permanently.")
-                    .setPositiveButton(getString(R.string.inventory_confirm_scrap_batches_button)) { d, _ ->
-                        d.dismiss()
+                val scrapView = layoutInflater.inflate(R.layout.dialog_confirm_scrap, null)
+                val scrapDialog = AlertDialog.Builder(this)
+                    .setView(scrapView)
+                    .create()
+                scrapDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                scrapView.findViewById<android.widget.TextView>(R.id.tvScrapMessage).text =
+                    getString(
+                        R.string.inventory_confirm_scrap_body,
+                        formatStock(total),
+                        product.unit ?: "unit(s)",
+                        product.name
+                    )
+                scrapView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmScrap)
+                    .setOnClickListener {
+                        scrapDialog.dismiss()
                         dialog.dismiss()
                         runScrapByBatches(
                             product = product,
                             lines = scrapLines
                         )
                     }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
+                scrapView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelScrap)
+                    .setOnClickListener { scrapDialog.dismiss() }
+
+                scrapDialog.show()
                 return@setOnClickListener
             }
         }
@@ -1059,6 +1085,7 @@ class InventoryActivity : BaseActivity() {
         var batchAdapter: com.example.easy_billing.adapter.BatchClearAdapter? = null
         var isPurchasedProduct = false
         var currentProduct: Product? = null
+        var currentStockValue = 0.0
 
         fun applyReason() {
             layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
@@ -1132,6 +1159,7 @@ class InventoryActivity : BaseActivity() {
 
             withContext(Dispatchers.Main) {
                 currentProduct = product
+                currentStockValue = current
                 tvStock.text = "${formatStock(current)} ${product?.unit ?: "piece"}"
                 if (product != null) {
                     tvName.text = product.name
@@ -1227,89 +1255,136 @@ class InventoryActivity : BaseActivity() {
                     return@setOnClickListener
                 }
 
-                dialog.dismiss()
+                val batchTotal = selectedBatches.sumOf { it.quantityRemaining }
 
                 if (isReturn) {
-                    val lines = selectedBatches.map {
-                        InventoryReductionRepository.BatchReturnLine(
-                            batchId = it.id,
-                            quantity = it.quantityRemaining
-                        )
-                    }
-                    runReturnByBatches(
-                        product = product,
-                        lines = lines,
-                        isCredit = isCredit,
-                        creditAccountId = creditAccountId
-                    )
-                } else {
-                    val lines = selectedBatches.map {
-                        InventoryReductionRepository.BatchScrapLine(
-                            batchId = it.id,
-                            quantity = it.quantityRemaining
-                        )
-                    }
-                    runScrapByBatches(
-                        product = product,
-                        lines = lines
-                    )
-                }
-            } else {
-                // Non-purchased (manual) product - clear all stock using the standard weighted average reduction
-                dialog.dismiss()
-                lifecycleScope.launch(Dispatchers.IO) {
-                    try {
-                        val repo = InventoryReductionRepository.get(this@InventoryActivity)
-                        val result = repo.clearRemainingStock(
-                            productId   = productId,
-                            productName = product.name,
-                            variantName = product.variant,
-                            hsnCode     = product.hsnCode,
-                            reason      = if (isReturn) InventoryReductionRepository.ClearReason.PURCHASE_RETURN else InventoryReductionRepository.ClearReason.SCRAP,
-                            purchaseTaxCgst = product.cgstPercentage,
-                            purchaseTaxSgst = product.sgstPercentage,
-                            purchaseTaxIgst = product.igstPercentage,
+                    showConfirmReturnDialog(batchTotal, product.unit, product.name) {
+                        dialog.dismiss()
+                        val lines = selectedBatches.map {
+                            InventoryReductionRepository.BatchReturnLine(
+                                batchId = it.id,
+                                quantity = it.quantityRemaining
+                            )
+                        }
+                        runReturnByBatches(
+                            product = product,
+                            lines = lines,
                             isCredit = isCredit,
                             creditAccountId = creditAccountId
                         )
-
-                        withContext(Dispatchers.Main) {
-                            loadInventory()
-                            val msg = when (result) {
-                                is InventoryReductionRepository.ClearStockResult.Cleared ->
-                                    "Cleared ${formatStock(result.quantity)} units"
-                                else -> getString(R.string.inventory_no_stock_to_clear)
-                            }
-                            Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    showConfirmScrapDialog(batchTotal, product.unit, product.name) {
+                        dialog.dismiss()
+                        val lines = selectedBatches.map {
+                            InventoryReductionRepository.BatchScrapLine(
+                                batchId = it.id,
+                                quantity = it.quantityRemaining
+                            )
                         }
-                        SyncManager(this@InventoryActivity).syncInventory()
+                        runScrapByBatches(
+                            product = product,
+                            lines = lines
+                        )
+                    }
+                }
+            } else {
+                // Non-purchased (manual) product - clear all stock using the standard weighted average reduction
+                fun doClear() {
+                    dialog.dismiss()
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            val repo = InventoryReductionRepository.get(this@InventoryActivity)
+                            val result = repo.clearRemainingStock(
+                                productId   = productId,
+                                productName = product.name,
+                                variantName = product.variant,
+                                hsnCode     = product.hsnCode,
+                                reason      = if (isReturn) InventoryReductionRepository.ClearReason.PURCHASE_RETURN else InventoryReductionRepository.ClearReason.SCRAP,
+                                purchaseTaxCgst = product.cgstPercentage,
+                                purchaseTaxSgst = product.sgstPercentage,
+                                purchaseTaxIgst = product.igstPercentage,
+                                isCredit = isCredit,
+                                creditAccountId = creditAccountId
+                            )
 
-                        (result as? InventoryReductionRepository.ClearStockResult.Cleared)
-                            ?.creditAdjustment?.let { adj ->
-                                withContext(Dispatchers.Main) {
-                                    CreditAdjustmentPrompt.handleAccountReturn(
-                                        activity = this@InventoryActivity,
-                                        accountId = adj.accountId,
-                                        amount = adj.amount,
-                                        documentLocalId = adj.documentId,
-                                        onDone = { }
-                                    )
+                            withContext(Dispatchers.Main) {
+                                loadInventory()
+                                val msg = when (result) {
+                                    is InventoryReductionRepository.ClearStockResult.Cleared ->
+                                        "Cleared ${formatStock(result.quantity)} units"
+                                    else -> getString(R.string.inventory_no_stock_to_clear)
                                 }
+                                Toast.makeText(this@InventoryActivity, msg, Toast.LENGTH_SHORT).show()
                             }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                this@InventoryActivity,
-                                "Couldn't clear stock: ${e.message ?: "unknown error"}",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            SyncManager(this@InventoryActivity).syncInventory()
+
+                            (result as? InventoryReductionRepository.ClearStockResult.Cleared)
+                                ?.creditAdjustment?.let { adj ->
+                                    withContext(Dispatchers.Main) {
+                                        CreditAdjustmentPrompt.handleAccountReturn(
+                                            activity = this@InventoryActivity,
+                                            accountId = adj.accountId,
+                                            amount = adj.amount,
+                                            documentLocalId = adj.documentId,
+                                            onDone = { }
+                                        )
+                                    }
+                                }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@InventoryActivity,
+                                    "Couldn't clear stock: ${e.message ?: "unknown error"}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     }
+                }
+
+                if (isReturn) {
+                    showConfirmReturnDialog(currentStockValue, product.unit, product.name) { doClear() }
+                } else {
+                    showConfirmScrapDialog(currentStockValue, product.unit, product.name) { doClear() }
                 }
             }
         }
 
         dialog.show()
+    }
+
+    /** Shared "Confirm return to supplier" popup — champagne card, used by
+     *  both the reduce-stock and clear-stock flows so the confirmation
+     *  step looks identical everywhere it appears. */
+    private fun showConfirmReturnDialog(qty: Double, unit: String?, productName: String, onConfirm: () -> Unit) {
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_return_supplier, null)
+        val d = AlertDialog.Builder(this).setView(view).create()
+        d.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvReturnSupplierMessage).text =
+            getString(R.string.inventory_confirm_return_body, formatStock(qty), unit ?: "unit(s)", productName)
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmReturnSupplier)
+            .setOnClickListener { d.dismiss(); onConfirm() }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelReturnSupplier)
+            .setOnClickListener { d.dismiss() }
+        d.show()
+    }
+
+    /** Shared "Confirm scrap" popup — champagne card, same reuse pattern
+     *  as showConfirmReturnDialog above. */
+    private fun showConfirmScrapDialog(qty: Double, unit: String?, productName: String, onConfirm: () -> Unit) {
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_scrap, null)
+        val d = AlertDialog.Builder(this).setView(view).create()
+        d.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvScrapMessage).text =
+            getString(R.string.inventory_confirm_scrap_body, formatStock(qty), unit ?: "unit(s)", productName)
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmScrap)
+            .setOnClickListener { d.dismiss(); onConfirm() }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelScrap)
+            .setOnClickListener { d.dismiss() }
+        d.show()
     }
 
     private fun isDecimalAllowed(unit: String?): Boolean {

@@ -88,8 +88,6 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                 ?: GstEngine.getStateCode(store?.gstin)
             _shopStateCode.value = stateCode
 
-            _purchaseItems.value = items
-
             val map = mutableMapOf<Int?, Double>()
             val batchMap = mutableMapOf<Int?, Double>()
             for (item in items) {
@@ -109,12 +107,16 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
             }
             _alreadyReturned.value = map
             _remainingBatchStock.value = batchMap
+            _purchaseItems.value   = items
             _isLoading.value       = false
         }
     }
 
     fun maxReturnableQty(productId: Int?, purchasedQty: Double): Double {
         val returned = _alreadyReturned.value[productId] ?: 0.0
+        if (productId == null) {
+            return (purchasedQty - returned).coerceAtLeast(0.0)
+        }
         val remainingInBatch = _remainingBatchStock.value[productId] ?: 0.0
         return minOf(purchasedQty - returned, remainingInBatch).coerceAtLeast(0.0)
     }
