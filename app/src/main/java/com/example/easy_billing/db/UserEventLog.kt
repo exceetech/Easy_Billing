@@ -12,10 +12,24 @@ import androidx.room.PrimaryKey
  * opened, button tapped, validation failure, sync/exception error).
  *
  * Purely a support/debugging trail, NOT analytics: when a shop reports a
- * bug, these rows (once synced to the backend's `user_event_logs` table,
- * see UserEventSyncApi) let support reconstruct exactly what the shop did
+ * bug, these rows let support reconstruct exactly what the shop did
  * leading up to the report, to tell a real app bug from an expected
  * validation error / user mistake.
+ *
+ * Two tiers, both stored in this same table but handled very differently:
+ *  - "error" / "validation_failed" rows are low-volume and sync to the
+ *    backend automatically in the background (see SyncManager.syncUserEvents
+ *    and UserEventLogDao.getUnsynced, which deliberately excludes "action"
+ *    rows) — these are what GET /admin/events shows without asking the
+ *    shop owner to do anything.
+ *  - "action" rows (screen opens, every Save/Cancel/Confirm/Delete tap —
+ *    full click-level detail) are LOCAL ONLY and never auto-sync; the
+ *    volume is too high to stream continuously without bloating the
+ *    server table. They only leave the device when the shop owner (or
+ *    support, walking them through it) triggers the one-shot "Send
+ *    diagnostic report" action — see util/DiagnosticReportUploader.kt —
+ *    which uploads the whole local table silently to the short-retention
+ *    `diagnostic_reports` table.
  *
  * Deliberately capped locally (see UserEventLogDao.trimToMostRecent) and
  * only ever holds non-sensitive detail — [detail] should be a category or
@@ -34,7 +48,7 @@ data class UserEventLog(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
-    /** e.g. "screen_opened", "action_tapped", "validation_failed", "error" */
+    /** "action" (local-only, click-level), "validation_failed", or "error" (both sync automatically). */
     @ColumnInfo(name = "event_type")
     val eventType: String,
 

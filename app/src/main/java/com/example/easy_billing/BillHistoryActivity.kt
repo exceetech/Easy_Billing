@@ -60,6 +60,7 @@ class BillHistoryActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bill_history)
+        com.example.easy_billing.util.UserEventLogger.logAction("BillHistory", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
@@ -234,6 +235,7 @@ class BillHistoryActivity : BaseActivity() {
         btnFilter.setOnClickListener { showFilterPopup() }
         btnSort.setOnClickListener { showSortPopup() }
         btnResetFilters.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("BillHistory", "reset_filters_clicked")
             activeFilter = "ALL"
             activeSort = "NEWEST"
             refreshList()
@@ -314,6 +316,7 @@ class BillHistoryActivity : BaseActivity() {
     private fun showFilterPopup() {
         showOptionsPopup(btnFilter, filterKeys, filterLabels, activeFilter) { picked ->
             activeFilter = picked
+            com.example.easy_billing.util.UserEventLogger.logAction("BillHistory", "filter_changed: $picked")
             refreshList()
         }
     }
@@ -321,6 +324,7 @@ class BillHistoryActivity : BaseActivity() {
     private fun showSortPopup() {
         showOptionsPopup(btnSort, sortKeys, sortLabels, activeSort) { picked ->
             activeSort = picked
+            com.example.easy_billing.util.UserEventLogger.logAction("BillHistory", "sort_changed: $picked")
             refreshList()
         }
     }

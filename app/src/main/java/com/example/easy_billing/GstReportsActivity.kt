@@ -159,6 +159,7 @@ class GstReportsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gst_reports)
+        com.example.easy_billing.util.UserEventLogger.logAction("GstReports", "opened")
 
         bindViews()
         setSupportActionBar(findViewById(R.id.toolbar))
@@ -581,8 +582,12 @@ class GstReportsActivity : AppCompatActivity() {
 
     
     private fun setupButtons() {
-        btnGenerate.setOnClickListener { if (isGstr1) viewModel1.generateReport() else viewModel2.generateReport() }
+        btnGenerate.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("GstReports", "generate_clicked: report=${if (isGstr1) "GSTR1" else "GSTR2"}")
+            if (isGstr1) viewModel1.generateReport() else viewModel2.generateReport()
+        }
         btnValidate.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("GstReports", "validate_clicked: report=${if (isGstr1) "GSTR1" else "GSTR2"}")
             if (isGstr1) {
                 if (viewModel1.report.value == null) {
                     // validateReport() no-ops when no report exists yet — without
@@ -606,9 +611,18 @@ class GstReportsActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.gst_toast_validation_not_available_gstr2), Toast.LENGTH_SHORT).show()
             }
         }
-        btnSaveDraft.setOnClickListener { if (isGstr1) viewModel1.saveDraft() else viewModel2.saveDraft() }
-        btnExportCsv.setOnClickListener { if (isGstr1) viewModel1.exportCsv() else viewModel2.exportCsv() }
-        btnExportExcel.setOnClickListener { if (isGstr1) viewModel1.exportExcel() else viewModel2.exportExcel() }
+        btnSaveDraft.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("GstReports", "save_draft_clicked: report=${if (isGstr1) "GSTR1" else "GSTR2"}")
+            if (isGstr1) viewModel1.saveDraft() else viewModel2.saveDraft()
+        }
+        btnExportCsv.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("GstReports", "export_csv_clicked: report=${if (isGstr1) "GSTR1" else "GSTR2"}")
+            if (isGstr1) viewModel1.exportCsv() else viewModel2.exportCsv()
+        }
+        btnExportExcel.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("GstReports", "export_excel_clicked: report=${if (isGstr1) "GSTR1" else "GSTR2"}")
+            if (isGstr1) viewModel1.exportExcel() else viewModel2.exportExcel()
+        }
     }
 
 
@@ -737,7 +751,13 @@ class GstReportsActivity : AppCompatActivity() {
             titleAccent = getString(R.string.gst_delete_draft_title_accent),
             message = "GSTR-1 draft for ${draft.period} ${draft.financialYear} will be permanently removed.",
             positiveLabel = getString(R.string.gst_delete_draft_positive_label)
-        ) { viewModel1.deleteDraft(draft.id) }
+        ) {
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "GstReports",
+                "delete_gstr1_draft_clicked: period=${draft.period}, financial_year=${draft.financialYear}, id=${draft.id}"
+            )
+            viewModel1.deleteDraft(draft.id)
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -972,14 +992,19 @@ class GstReportsActivity : AppCompatActivity() {
         rvDrafts.layoutManager = LinearLayoutManager(this)
         rvDrafts.adapter = Gstr2DraftsAdapter(drafts,
             onOpen   = { viewModel2.loadDraft(it) },
-            onDelete = {
+            onDelete = { draftId ->
                 showGstConfirmDialog(
                     eyebrow = getString(R.string.gst_delete_draft_eyebrow),
                     titleBold = getString(R.string.gst_delete_draft_title_bold),
                     titleAccent = getString(R.string.gst_delete_draft_title_accent),
                     message = getString(R.string.gst_delete_draft_gstr2_message),
                     positiveLabel = getString(R.string.gst_delete_draft_positive_label)
-                ) { viewModel2.deleteDraft(it) }
+                ) {
+                    com.example.easy_billing.util.UserEventLogger.logAction(
+                        "GstReports", "delete_gstr2_draft_clicked: id=$draftId"
+                    )
+                    viewModel2.deleteDraft(draftId)
+                }
             }
         )
     }

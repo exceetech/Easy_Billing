@@ -78,6 +78,7 @@ class WorkspaceChangedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_workspace_changed)
+        com.example.easy_billing.util.UserEventLogger.logAction("WorkspaceChanged", "opened")
 
         // Prevent back-navigation — user must reload.
         // (FLAG_ACTIVITY_CLEAR_TASK already handles the back stack via interceptor.)

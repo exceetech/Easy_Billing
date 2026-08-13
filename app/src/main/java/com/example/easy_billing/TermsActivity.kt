@@ -49,6 +49,7 @@ class TermsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_terms)
+        com.example.easy_billing.util.UserEventLogger.logAction("Terms", "opened")
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)

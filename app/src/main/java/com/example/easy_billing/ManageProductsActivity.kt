@@ -56,6 +56,7 @@ class ManageProductsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_products)
+        com.example.easy_billing.util.UserEventLogger.logAction("ManageProducts", "opened")
 
         setupToolbar(R.id.toolbar)
 
@@ -309,6 +310,7 @@ class ManageProductsActivity : BaseActivity() {
             tvEmptySub.text = getString(R.string.manage_products_empty_no_products_sub)
             btnEmptyAction.text = getString(R.string.manage_products_add_product_action)
             btnEmptyAction.setOnClickListener {
+                com.example.easy_billing.util.UserEventLogger.logAction("ManageProducts", "add_product_clicked")
                 startActivity(Intent(this, AddProductActivity::class.java))
             }
         } else {

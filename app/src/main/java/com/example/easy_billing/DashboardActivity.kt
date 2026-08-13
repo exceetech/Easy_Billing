@@ -209,6 +209,7 @@ class DashboardActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+        com.example.easy_billing.util.UserEventLogger.logAction("Dashboard", "opened")
 
         NetworkReceiver(this).startListening()
         validateLocalDevice()
@@ -812,6 +813,7 @@ class DashboardActivity : BaseActivity() {
             signOutDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
             signOutView.findViewById<View>(R.id.btnConfirmSignOut).setOnClickListener {
+                com.example.easy_billing.util.UserEventLogger.logAction("Dashboard", "sign_out_clicked")
                 signOutDialog.dismiss()
                 getSharedPreferences("auth", MODE_PRIVATE)
                     .edit {
@@ -1417,6 +1419,9 @@ class DashboardActivity : BaseActivity() {
                 btnDelete.text = getString(R.string.dashboard_remove_button)
 
                 btnDelete.setOnClickListener {
+                    com.example.easy_billing.util.UserEventLogger.logAction(
+                        "Dashboard", "product_delete_clicked: product=${product.name}, id=${product.id}"
+                    )
 
                     dialog.dismiss()
 

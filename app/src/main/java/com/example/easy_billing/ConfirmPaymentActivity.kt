@@ -163,6 +163,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_confirm_payment)
+        com.example.easy_billing.util.UserEventLogger.logAction("ConfirmPayment", "opened")
 
         // Size the floating window itself — same percentage-of-screen-
         // width + capped-max technique already used for every Dialog
@@ -430,8 +431,12 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
 
     private fun onApplyCouponClicked() {
         val code = etCoupon.text.toString().trim().uppercase()
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "ConfirmPayment", "apply_coupon_clicked: code=${code.ifEmpty { "-" }}"
+        )
         if (code.isEmpty()) {
             Toast.makeText(this, R.string.enter_a_coupon_code, Toast.LENGTH_SHORT).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("ConfirmPayment", "coupon_code_empty")
             return
         }
 
@@ -519,6 +524,9 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
     // ================= PAY =================
 
     private fun onPayClicked() {
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "ConfirmPayment", "pay_clicked: coupon_applied=${etCoupon.text?.toString()?.isNotBlank() == true}"
+        )
         setPaymentInProgress(true)
 
         lifecycleScope.launch {

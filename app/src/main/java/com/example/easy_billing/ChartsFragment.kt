@@ -38,6 +38,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("ChartsFragment", "opened")
 
         chart = view.findViewById(R.id.chartSalesTrend)
         tvPeriodTotal = view.findViewById(R.id.tvPeriodTotal)

@@ -63,6 +63,7 @@ class BillingSettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_billing_settings)
+        com.example.easy_billing.util.UserEventLogger.logAction("BillingSettings", "opened")
 
         isOnboardingFlow = intent.getBooleanExtra(EXTRA_ONBOARDING, false)
 
@@ -371,6 +372,16 @@ class BillingSettingsActivity : BaseActivity() {
             GstEngine.getStateCodeFromName(typedState) != null -> GstEngine.getStateCodeFromName(typedState)!!
             else -> ""
         }
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "BillingSettings",
+            "save_clicked: state_typed=${typedState.ifBlank { "-" }}, resolved=${resolvedStateCode.ifBlank { "-" }}, " +
+                "scheme=$selectedScheme, reg_type=$selectedRegType, " +
+                "gstin=${etGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                "legal_name=${etLegalName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                "trade_name=${etTradeName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                "address=${etAddress.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                "printer_layout=${selectedPrinter.ifEmpty { "-" }}"
+        )
         if (resolvedStateCode.isBlank()) {
             Toast.makeText(
                 this,

@@ -49,6 +49,7 @@ class ImportServicesActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_import_services)
+        com.example.easy_billing.util.UserEventLogger.logAction("ImportServices", "opened")
 
         rvImportServices = findViewById(R.id.rvImportServices)
         layoutEmpty = findViewById(R.id.layoutEmpty)
@@ -78,6 +79,7 @@ class ImportServicesActivity : BaseActivity() {
         findViewById<View>(R.id.cardRecords).clipToOutline = true
 
         findViewById<View>(R.id.fabAdd).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("ImportServices", "add_record_clicked")
             startActivity(Intent(this, AddImportServiceActivity::class.java))
         }
 

@@ -44,6 +44,7 @@ class ReportsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reports)
+        com.example.easy_billing.util.UserEventLogger.logAction("Reports", "opened")
 
         // ✅ Toolbar
         setupToolbar(R.id.toolbar)

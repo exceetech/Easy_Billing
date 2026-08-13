@@ -145,6 +145,7 @@ class MainActivity : BaseActivity() {
         
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        com.example.easy_billing.util.UserEventLogger.logAction("Login", "opened")
 
         // If a token is already saved, hide the login screen immediately —
         // before the very first frame — so it never flashes on screen while
@@ -309,6 +310,9 @@ class MainActivity : BaseActivity() {
             val password = etPassword.text.toString().trim()
             val deviceId = DeviceUtils.getDeviceId(this)
 
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Login", "login_clicked: username=${username.ifEmpty { "-" }}"
+            )
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, R.string.please_enter_all_fields, Toast.LENGTH_SHORT).show()
                 com.example.easy_billing.util.UserEventLogger.logValidationFailed("Login", "credentials_missing")

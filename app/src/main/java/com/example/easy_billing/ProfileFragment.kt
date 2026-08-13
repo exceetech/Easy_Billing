@@ -43,6 +43,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("ProfileFragment", "opened")
 
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
 
@@ -81,8 +82,14 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         rows[R.id.rowScheme]?.label?.setText(R.string.profile_label_scheme)
         rows[R.id.rowState]?.label?.setText(R.string.profile_label_state)
 
-        view.findViewById<View>(R.id.btnCopyGstin).setOnClickListener { copyGstin() }
-        view.findViewById<View>(R.id.btnSignOut).setOnClickListener { signOut() }
+        view.findViewById<View>(R.id.btnCopyGstin).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("ProfileFragment", "copy_gstin_clicked")
+            copyGstin()
+        }
+        view.findViewById<View>(R.id.btnSignOut).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("ProfileFragment", "sign_out_clicked")
+            signOut()
+        }
 
         swipeRefresh.setOnRefreshListener {
             // Refresh profile data…

@@ -50,6 +50,7 @@ class CreditDebitNotesActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_credit_debit_notes)
+        com.example.easy_billing.util.UserEventLogger.logAction("CreditDebitNotes", "opened")
         db = AppDatabase.getDatabase(this)
 
         scopedBillId = intent.getIntExtra(EXTRA_BILL_ID, -1)
@@ -86,8 +87,14 @@ class CreditDebitNotesActivity : BaseActivity() {
         rvNotes.layoutManager = LinearLayoutManager(this)
         rvNotes.adapter = adapter
 
-        tabCredit.setOnClickListener { selectTab("C") }
-        tabDebit.setOnClickListener { selectTab("D") }
+        tabCredit.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("CreditDebitNotes", "tab_credit_clicked")
+            selectTab("C")
+        }
+        tabDebit.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("CreditDebitNotes", "tab_debit_clicked")
+            selectTab("D")
+        }
 
         loadNotes()
     }

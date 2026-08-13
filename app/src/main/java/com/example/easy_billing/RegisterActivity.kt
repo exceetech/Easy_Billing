@@ -48,6 +48,7 @@ class RegisterActivity : BaseActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+        com.example.easy_billing.util.UserEventLogger.logAction("Register", "opened")
 
         // Cinematic Entrance choreography: Focus on branding and form headings
         val animatedItems = listOf(
@@ -153,6 +154,11 @@ class RegisterActivity : BaseActivity() {
             val phone = etPhoneNumber.text.toString().trim()
             val shopName = etShopName.text.toString().trim()
 
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Register",
+                "register_clicked: name=${name.ifEmpty { "-" }}, email=${email.ifEmpty { "-" }}, " +
+                    "phone=${phone.ifEmpty { "-" }}, shop_name=${shopName.ifEmpty { "-" }}"
+            )
             if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || shopName.isEmpty()) {
                 Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
                 com.example.easy_billing.util.UserEventLogger.logValidationFailed("Register", "required_fields_missing")

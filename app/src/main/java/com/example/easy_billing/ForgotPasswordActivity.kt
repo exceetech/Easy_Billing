@@ -34,6 +34,7 @@ class ForgotPasswordActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_forgot_password)
+        com.example.easy_billing.util.UserEventLogger.logAction("ForgotPassword", "opened")
         // Setup View References
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etOtp = findViewById<EditText>(R.id.etOtp)

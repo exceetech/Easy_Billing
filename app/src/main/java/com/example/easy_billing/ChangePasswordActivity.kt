@@ -27,6 +27,7 @@ class ChangePasswordActivity : BaseActivity() {
     override fun onCreate(animatedInstanceState: Bundle?) {
         super.onCreate(animatedInstanceState)
         setContentView(R.layout.activity_change_password)
+        com.example.easy_billing.util.UserEventLogger.logAction("ChangePassword", "opened")
 
         // Setup View References
         val etNewPassword = findViewById<EditText>(R.id.etNewPassword)

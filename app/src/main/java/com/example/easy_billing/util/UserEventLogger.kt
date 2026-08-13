@@ -19,15 +19,26 @@ import kotlinx.coroutines.launch
  * Fire-and-forget by design: [log] never blocks or throws back into the
  * caller — a failure to write a breadcrumb must never break the actual
  * user-facing action it's describing. Writes to the local Room table
- * only; SyncCoordinator uploads unsynced rows to the backend as part of
- * its normal sync pass (see UserEventLogSync.kt).
+ * only.
+ *
+ * Two tiers — see UserEventLog.kt for the full rationale:
+ *  - [logError] / [logValidationFailed] sync to the backend automatically
+ *    (SyncManager.syncUserEvents), low volume, always available for a
+ *    support lookup.
+ *  - [logAction] is LOCAL ONLY — full click-level detail (screen opens,
+ *    every Save/Cancel/Confirm/Delete tap). Never auto-syncs; only leaves
+ *    the device via the one-shot "Send diagnostic report" action (see
+ *    DiagnosticReportUploader.kt).
  *
  * Call [init] once from Application.onCreate before any [log] call —
  * same pattern as [AppClock.init] / [AppTime.init].
  *
- * IMPORTANT: [detail] must be a short, non-sensitive category or code
- * ("otp_invalid", "quantity_exceeds_stock", "sync_failed: purchases") —
- * NEVER a raw password, OTP, token, or full card/GSTIN value.
+ * IMPORTANT: [detail] may include real business data (product names,
+ * prices, customer name/phone, GSTIN, form field values, etc.) — that's
+ * the point, it's what makes a support read-through useful. The ONLY
+ * things that must never appear here are password, OTP, and auth
+ * token/secret values — those stay masked or omitted everywhere, no
+ * exceptions.
  */
 object UserEventLogger {
 
@@ -65,4 +76,12 @@ object UserEventLogger {
 
     /** Convenience for a validation failure the user needs to fix themselves. */
     fun logValidationFailed(screen: String, detail: String) = log("validation_failed", screen, detail)
+
+    /**
+     * Local-only click-level breadcrumb — screen opened, or a terminal
+     * button tapped (Save/Add, Cancel, Confirm, Delete). Deliberately NOT
+     * for every field edit/keystroke/focus change — that would be noise,
+     * not a readable trail. Never syncs automatically; see class doc.
+     */
+    fun logAction(screen: String, detail: String) = log("action", screen, detail)
 }

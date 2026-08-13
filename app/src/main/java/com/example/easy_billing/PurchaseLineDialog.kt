@@ -928,7 +928,13 @@ class PurchaseLineDialog(
         listOf(etProduct, etQty, etTax, etSelling).forEach { it.addTextChangedListener { recompute() } }
         recompute()
 
-        btnCancel.setOnClickListener { dialog.dismiss() }
+        btnCancel.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "PurchaseLine",
+                "cancel_clicked: product=${etProduct.text?.toString()?.trim().orEmpty().ifEmpty { "-" }}"
+            )
+            dialog.dismiss()
+        }
 
         btnAdd.setOnClickListener {
             val name = etProduct.text?.toString()?.trim().orEmpty()
@@ -936,6 +942,13 @@ class PurchaseLineDialog(
             val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
             val selling = etSelling.text?.toString()?.toDoubleOrNull() ?: 0.0
             val invoice = etInv.text?.toString()?.toDoubleOrNull() ?: invoiceValueFor(taxable)
+
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "PurchaseLine",
+                "add_clicked: product=${name.ifEmpty { "-" }}, qty=$qty, " +
+                    "taxable=$taxable, selling=$selling, invoice=$invoice, " +
+                    "invoice_overridden=$userOverroteInvoice"
+            )
 
             if (name.isEmpty() || qty <= 0 || taxable <= 0 || selling <= 0) {
                 Toast.makeText(activity,
@@ -1035,13 +1048,28 @@ class PurchaseLineDialog(
 
             rememberCustomCategory(etCategoryPurchase.text?.toString()?.trim().orEmpty())
 
+            val fullDetail = "product=${draft.productName}, variant=${draft.variant ?: "-"}, " +
+                "hsn=${draft.hsnCode ?: "-"}, unit=${draft.unit ?: "-"}, qty=${draft.quantity}, " +
+                "taxable=${draft.taxableAmount}, discount=${draft.discountAmount}, " +
+                "invoice=${draft.invoiceValue}, cost=${draft.costPrice}, selling=${draft.sellingPrice}, " +
+                "tax_inclusive=${draft.isTaxInclusive}, purchase_cgst=${draft.purchaseCgst}, " +
+                "purchase_sgst=${draft.purchaseSgst}, purchase_igst=${draft.purchaseIgst}, " +
+                "sales_cgst=${draft.salesCgst}, sales_sgst=${draft.salesSgst}, sales_igst=${draft.salesIgst}, " +
+                "uqc=${draft.officialUqc}, hsn_desc=${draft.hsnDescription?.ifBlank { "-" } ?: "-"}, " +
+                "cess_rate=${draft.cessRate}, cess_amount=${draft.cessAmount}, eligibility=${draft.eligibilityForItc}, " +
+                "availed_igst=${draft.availedItcIgst}, availed_cgst=${draft.availedItcCgst}, " +
+                "availed_sgst=${draft.availedItcSgst}, availed_cess=${draft.availedItcCess}, " +
+                "supply_class=${draft.supplyClassification}, category=${draft.category.ifBlank { "-" }}"
+
             if (editIndex != null) {
                 // Editing a line already in this purchase's list — no
                 // existing-product conflict check needed, it's not a new
                 // product being added, just this draft's values changing.
+                com.example.easy_billing.util.UserEventLogger.logAction("PurchaseLine", "line_edited: $fullDetail")
                 viewModel.replaceLine(editIndex, draft)
                 dialog.dismiss()
             } else {
+                com.example.easy_billing.util.UserEventLogger.logAction("PurchaseLine", "line_added: $fullDetail")
                 resolveExistingProductAndAdd(draft, qty, dialog)
             }
         }

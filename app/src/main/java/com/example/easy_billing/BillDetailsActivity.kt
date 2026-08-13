@@ -84,6 +84,7 @@ class BillDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bill_details)
+        com.example.easy_billing.util.UserEventLogger.logAction("BillDetails", "opened")
 
         tvBillInfo       = findViewById(R.id.tvBillInfo)
         tvBillDate       = findViewById(R.id.tvBillDate)
@@ -438,6 +439,9 @@ class BillDetailsActivity : AppCompatActivity() {
      * Never deletes rows — only sets is_cancelled flags.
      */
     private fun performCancellation() {
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "BillDetails", "cancel_bill_confirmed: bill_number=${resolvedBillNumber.ifBlank { "-" }}"
+        )
         if (resolvedBillNumber.isBlank()) {
             Toast.makeText(this, getString(R.string.billdetailsactivity_bill_number_not_resolved), Toast.LENGTH_SHORT).show()
             return

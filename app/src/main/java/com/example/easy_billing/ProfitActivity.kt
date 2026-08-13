@@ -94,6 +94,7 @@ class ProfitActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profit)
+        com.example.easy_billing.util.UserEventLogger.logAction("Profit", "opened")
 
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)

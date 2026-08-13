@@ -20,10 +20,12 @@ class DataSecurityActivity : BaseActivity() {
     private lateinit var btnClearBills: View
     private lateinit var btnFactoryReset: View
     private lateinit var btnChangePassword: View
+    private lateinit var btnSendDiagnosticReport: View
 
     private lateinit var icChangePassword: ImageView
     private lateinit var icClearBills: ImageView
     private lateinit var icFactoryReset: ImageView
+    private lateinit var icSendDiagnosticReport: ImageView
 
     private lateinit var btnUnlock: View
     private lateinit var tvUnlock: TextView
@@ -34,6 +36,7 @@ class DataSecurityActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_security)
+        com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -41,10 +44,12 @@ class DataSecurityActivity : BaseActivity() {
         btnClearBills     = findViewById(R.id.btnClearBills)
         btnFactoryReset   = findViewById(R.id.btnFactoryReset)
         btnChangePassword = findViewById(R.id.btnChangePassword)
+        btnSendDiagnosticReport = findViewById(R.id.btnSendDiagnosticReport)
 
         icChangePassword = findViewById(R.id.icChangePassword)
         icClearBills     = findViewById(R.id.icClearBills)
         icFactoryReset   = findViewById(R.id.icFactoryReset)
+        icSendDiagnosticReport = findViewById(R.id.icSendDiagnosticReport)
 
         btnUnlock = findViewById(R.id.btnUnlock)
         tvUnlock  = findViewById(R.id.tvUnlock)
@@ -57,15 +62,32 @@ class DataSecurityActivity : BaseActivity() {
         // Each action stays gated: locked guard + per-action password verification.
         btnChangePassword.setOnClickListener {
             if (!isEditMode) return@setOnClickListener
+            com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "change_password_clicked")
             showPasswordVerificationDialog { showChangePinDialog() }
         }
         btnClearBills.setOnClickListener {
             if (!isEditMode) return@setOnClickListener
+            com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "clear_bills_clicked")
             showPasswordVerificationDialog { clearBills() }
         }
         btnFactoryReset.setOnClickListener {
             if (!isEditMode) return@setOnClickListener
+            com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "factory_reset_clicked")
             showPasswordVerificationDialog { performFactoryReset() }
+        }
+
+        // Now gated the same way as the other three actions — locked by
+        // default, requires Unlock + a password re-check before it fires.
+        // The report itself is harmless, but it does leave the device, so
+        // it gets the same "confirm it's really you" friction as the rest.
+        btnSendDiagnosticReport.setOnClickListener {
+            if (!isEditMode) return@setOnClickListener
+            com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "send_diagnostic_report_clicked")
+            showPasswordVerificationDialog {
+                lifecycleScope.launch {
+                    com.example.easy_billing.util.DiagnosticReportUploader.upload(this@DataSecurityActivity)
+                }
+            }
         }
     }
 
@@ -78,7 +100,7 @@ class DataSecurityActivity : BaseActivity() {
 
     /** locked = actions disabled (default); unlocked = actions tappable. */
     private fun setLocked(locked: Boolean) {
-        val rows = listOf(btnChangePassword, btnClearBills, btnFactoryReset)
+        val rows = listOf(btnChangePassword, btnClearBills, btnFactoryReset, btnSendDiagnosticReport)
         rows.forEach {
             it.isEnabled = !locked
             it.isClickable = !locked
@@ -87,7 +109,7 @@ class DataSecurityActivity : BaseActivity() {
 
         // Trailing glyph: lock when locked, chevron when unlocked.
         val trailing = if (locked) R.drawable.ic_si_lock else R.drawable.ic_chevron_right
-        listOf(icChangePassword, icClearBills, icFactoryReset).forEach {
+        listOf(icChangePassword, icClearBills, icFactoryReset, icSendDiagnosticReport).forEach {
             it.setImageResource(trailing)
         }
 

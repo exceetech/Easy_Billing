@@ -645,6 +645,16 @@ interface ApiService {
         @Body body: UserEventSyncRequest
     ): UserEventSyncResponse
 
+    // One-shot full local event-log upload, triggered manually by the
+    // shop owner (or support, walking them through it) — see
+    // util/DiagnosticReportUploader.kt. NOT called automatically like
+    // syncUserEvents above.
+    @POST("diagnostic-reports/upload")
+    suspend fun uploadDiagnosticReport(
+        @Header("Authorization") token: String,
+        @Body body: DiagnosticReportUploadRequest
+    ): DiagnosticReportUploadResponse
+
 
 
     @GET("purchase-return/{shop_id}")

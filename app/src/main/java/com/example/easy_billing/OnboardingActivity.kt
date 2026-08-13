@@ -73,6 +73,7 @@ class OnboardingActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding)
+        com.example.easy_billing.util.UserEventLogger.logAction("Onboarding", "opened")
 
         // No back navigation — onboarding is non-skippable, so the toolbar
         // is shown for consistent spacing/branding only, no back arrow.
@@ -209,7 +210,12 @@ class OnboardingActivity : BaseActivity() {
                     val outValue = TypedValue()
                     theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
                     foreground = ContextCompat.getDrawable(this@OnboardingActivity, outValue.resourceId)
-                    setOnClickListener { launchStep(step.activityClass) }
+                    setOnClickListener {
+                        com.example.easy_billing.util.UserEventLogger.logAction(
+                            "Onboarding", "step_clicked: step=${index + 1}"
+                        )
+                        launchStep(step.activityClass)
+                    }
                 }
             }
 

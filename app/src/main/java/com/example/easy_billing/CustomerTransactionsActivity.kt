@@ -65,6 +65,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer_transactions)
+        com.example.easy_billing.util.UserEventLogger.logAction("CustomerTransactions", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -123,14 +124,17 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         setupOutsideTouch()
 
         findViewById<View>(R.id.btnFilter).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("CustomerTransactions", "date_filter_clicked")
             showDateFilter()
         }
 
         findViewById<View>(R.id.btnSummary).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("CustomerTransactions", "summary_clicked")
             showSummary()
         }
 
         findViewById<View>(R.id.btnPrint).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("CustomerTransactions", "print_clicked")
             printReport()
         }
 
@@ -600,8 +604,13 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             val e = draftEnd
             if (s != null && e != null && s > e) {
                 Toast.makeText(this, R.string.txn_from_after_to_date, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("CustomerTransactions", "date_range_invalid")
                 return@setOnClickListener
             }
+
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "CustomerTransactions", "date_filter_applied: start_set=${s != null}, end_set=${e != null}"
+            )
 
             // An empty result is applied rather than refused: the count above
             // already showed it, and refusing would leave the ledger showing

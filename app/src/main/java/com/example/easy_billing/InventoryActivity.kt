@@ -74,6 +74,7 @@ class InventoryActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inventory)
+        com.example.easy_billing.util.UserEventLogger.logAction("Inventory", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
@@ -892,6 +893,9 @@ class InventoryActivity : BaseActivity() {
         isCredit: Boolean,
         creditAccountId: Int?
     ) {
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "Inventory", "return_to_supplier_clicked: product=${product.name}, product_id=${product.id}, batches=${lines.size}, is_credit=$isCredit"
+        )
         lifecycleScope.launch(Dispatchers.IO) {
             val repo = InventoryReductionRepository.get(this@InventoryActivity)
             try {
@@ -950,6 +954,9 @@ class InventoryActivity : BaseActivity() {
         product: Product,
         lines: List<InventoryReductionRepository.BatchScrapLine>
     ) {
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "Inventory", "scrap_clicked: product=${product.name}, product_id=${product.id}, batches=${lines.size}"
+        )
         lifecycleScope.launch(Dispatchers.IO) {
             val repo = InventoryReductionRepository.get(this@InventoryActivity)
             try {
@@ -1300,6 +1307,11 @@ class InventoryActivity : BaseActivity() {
             } else {
                 // Non-purchased (manual) product - clear all stock using the standard weighted average reduction
                 fun doClear() {
+                    com.example.easy_billing.util.UserEventLogger.logAction(
+                        "Inventory",
+                        "clear_stock_clicked: product=${product.name}, product_id=${product.id}, " +
+                            "reason=${if (isReturn) "purchase_return" else "scrap"}, is_credit=$isCredit"
+                    )
                     dialog.dismiss()
                     lifecycleScope.launch(Dispatchers.IO) {
                         try {

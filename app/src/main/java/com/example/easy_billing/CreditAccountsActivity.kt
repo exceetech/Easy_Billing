@@ -54,6 +54,7 @@ class CreditAccountsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_credit_accounts)
+        com.example.easy_billing.util.UserEventLogger.logAction("CreditAccounts", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
@@ -202,6 +203,7 @@ class CreditAccountsActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnCancel.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("CreditAccounts", "add_customer_cancel_clicked")
             dialog.dismiss()
         }
 
@@ -209,6 +211,10 @@ class CreditAccountsActivity : BaseActivity() {
 
             val name = etName.text.toString().trim()
             val phone = etPhone.text.toString().trim()
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "CreditAccounts",
+                "save_clicked: name=${name.ifBlank { "-" }}, phone=${phone.ifBlank { "-" }}"
+            )
 
             if (name.isEmpty() || phone.isEmpty()) {
                 Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show()
@@ -390,6 +396,9 @@ class CreditAccountsActivity : BaseActivity() {
         // Restoring under either name is the same operation with a different
         // argument, so both buttons run this.
         fun restoreWith(chosenName: String) {
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "CreditAccounts", "restore_clicked: name=${chosenName.ifBlank { "-" }}, phone=${phone.ifBlank { "-" }}"
+            )
             dialog.dismiss()
 
             lifecycleScope.launch(Dispatchers.IO) {
@@ -687,8 +696,13 @@ class CreditAccountsActivity : BaseActivity() {
 
             val amount = etAmount.text.toString().toDoubleOrNull()
 
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "CreditAccounts", "pay_clicked: customer=${account.name}, amount=${amount ?: "-"}"
+            )
+
             if (amount == null || amount <= 0) {
                 etAmount.error = getString(R.string.credit_enter_valid_amount)
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("CreditAccounts", "pay_amount_invalid")
                 return@setOnClickListener
             }
 
@@ -759,6 +773,11 @@ class CreditAccountsActivity : BaseActivity() {
         }
 
         btnConfirm.setOnClickListener {
+
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "CreditAccounts",
+                "settle_clicked: customer=${account.name}, due_amount=${account.dueAmount}"
+            )
 
             dialog.dismiss()
 
@@ -1032,6 +1051,10 @@ class CreditAccountsActivity : BaseActivity() {
         else {
 
             btnRemove.setOnClickListener {
+
+                com.example.easy_billing.util.UserEventLogger.logAction(
+                    "CreditAccounts", "delete_clicked: customer=${account.name}"
+                )
 
                 lifecycleScope.launch(Dispatchers.IO) {
 

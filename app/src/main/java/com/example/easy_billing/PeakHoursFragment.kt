@@ -62,6 +62,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("PeakHoursFragment", "opened")
 
         tvPeakRevenue = view.findViewById(R.id.tvPeakRevenue)
         tvDelta       = view.findViewById(R.id.tvDelta)

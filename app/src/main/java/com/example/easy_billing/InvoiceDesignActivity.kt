@@ -34,6 +34,7 @@ class InvoiceDesignActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_invoice_design)
+        com.example.easy_billing.util.UserEventLogger.logAction("InvoiceDesign", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -136,6 +137,12 @@ class InvoiceDesignActivity : BaseActivity() {
     // ===== SAVE =====
     private fun setupSave() {
         btnSave.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "InvoiceDesign",
+                "save_clicked: logo=${switchLogo.isChecked}, gstin=${switchGstin.isChecked}, " +
+                    "phone=${switchPhone.isChecked}, discount=${switchDiscount.isChecked}, round_off=${switchRoundOff.isChecked}, " +
+                    "footer=${etFooter.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
+            )
             showPasswordVerificationDialog { saveDesignSettings() }
         }
     }

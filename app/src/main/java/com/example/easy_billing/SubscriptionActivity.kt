@@ -82,6 +82,7 @@ class SubscriptionActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subscription)
+        com.example.easy_billing.util.UserEventLogger.logAction("Subscription", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
@@ -278,6 +279,7 @@ class SubscriptionActivity : BaseActivity() {
     // ================= TRIAL =================
 
     private fun onStartTrialClicked() {
+        com.example.easy_billing.util.UserEventLogger.logAction("Subscription", "start_trial_clicked")
         btnStartTrial.isEnabled = false
 
         lifecycleScope.launch {
@@ -681,6 +683,9 @@ class SubscriptionActivity : BaseActivity() {
 
     private fun onContinueClicked() {
         val plan = selectedPlan ?: return
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "Subscription", "continue_clicked: tier=${plan.tier}, duration_days=${plan.duration_days}"
+        )
 
         // Mirrors the backend's downgrade block (create-order rejects a
         // Base purchase while an active_premium subscription is running,

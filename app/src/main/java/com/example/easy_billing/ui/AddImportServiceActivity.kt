@@ -63,6 +63,7 @@ class AddImportServiceActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_import_service)
+        com.example.easy_billing.util.UserEventLogger.logAction("AddImportService", "opened")
 
         val tvInvoiceDate = findViewById<TextView>(R.id.tvInvoiceDate)
         // No "Date: " prefix — the field already has an "Invoice date" label
@@ -344,6 +345,14 @@ class AddImportServiceActivity : BaseActivity() {
         
         val pos = selectedPos
         val itc = selectedItc
+
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "AddImportService",
+            "save_clicked: invoice_number=${invoiceNumber.ifEmpty { "-" }}, invoice_value=$invoiceValue, " +
+                "rate=$rate, taxable_value=$taxableValue, igst_paid=$igstPaid, cess_paid=$cessPaid, " +
+                "availed_itc_igst=$availedIgst, availed_itc_cess=$availedCess, place_of_supply=${pos.ifEmpty { "-" }}, " +
+                "itc_eligibility=${itc.ifEmpty { "-" }}"
+        )
 
         if (invoiceNumber.isEmpty()) {
             Toast.makeText(this, R.string.invoice_number_is_required, Toast.LENGTH_SHORT).show()

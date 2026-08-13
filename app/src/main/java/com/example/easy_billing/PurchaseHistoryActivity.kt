@@ -73,6 +73,7 @@ class PurchaseHistoryActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase_history)
+        com.example.easy_billing.util.UserEventLogger.logAction("PurchaseHistory", "opened")
         setupToolbar(R.id.toolbar)
 
         filterLabels = listOf(
@@ -118,6 +119,7 @@ class PurchaseHistoryActivity : BaseActivity() {
         btnFilter.setOnClickListener { showFilterPopup() }
         btnSort.setOnClickListener { showSortPopup() }
         btnResetFilters.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("PurchaseHistory", "reset_filters_clicked")
             activeFilter = "ALL"
             activeSort = "NEWEST"
             applyFilter()

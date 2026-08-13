@@ -762,12 +762,14 @@
     <string name="clear_all_bills">Clear All Bills</string>
     <string name="danger_zone_section">DANGER ZONE</string>
     <string name="data_section">DATA</string>
+    <string name="diagnose_section">DIAGNOSE</string>
     <string name="data_word">Data</string>
     <string name="factory_reset_app">Factory Reset App</string>
     <string name="protected_eyebrow">PROTECTED</string>
     <string name="risk_high_badge">HIGH</string>
     <string name="risk_low_badge">LOW</string>
     <string name="risk_medium_badge">MEDIUM</string>
+    <string name="risk_safe_badge">SAFE</string>
     <string name="security_section">SECURITY</string>
     <string name="tap_unlock_helper">Tap Unlock, then confirm your password to run an action.</string>
     <string name="update_login_pin_sub">Update your login PIN</string>
@@ -889,6 +891,11 @@
     <string name="factory_reset_complete">Factory reset complete. Starting fresh workspace.</string>
     <string name="failed_to_change_password">Failed to change password</string>
     <string name="failed_to_clear_bills">Failed to clear bills</string>
+    <string name="diagnostic_report_sent">Report sent to support</string>
+    <string name="diagnostic_report_failed">Couldn\'t send the report — check your connection and try again</string>
+    <string name="diagnostic_report_no_session">Please log in again before sending a report</string>
+    <string name="send_diagnostic_report">Send diagnostic report to support</string>
+    <string name="send_diagnostic_report_desc">Uploads your recent activity to help support diagnose an issue you\'ve reported</string>
     <string name="not_logged_in_2">Not logged in.</string>
     <string name="password_changed_login_again">Password changed. Please login again.</string>
     <string name="password_min_length">Password must be at least 6 characters</string>

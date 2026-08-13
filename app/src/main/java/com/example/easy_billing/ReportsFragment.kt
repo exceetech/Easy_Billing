@@ -81,6 +81,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports), Filterable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("ReportsFragment", "opened")
 
         tvPeriodChip = view.findViewById(R.id.tvPeriodChip)
         segContainer = view.findViewById(R.id.segContainer)

@@ -57,6 +57,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("ProductsFragment", "opened")
 
         tvSortChip  = view.findViewById(R.id.tvSortChip)
         pieChart    = view.findViewById(R.id.pieChart)

@@ -31,6 +31,7 @@ class OtpVerificationActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_otp_verification)
+        com.example.easy_billing.util.UserEventLogger.logAction("OtpVerification", "opened")
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "

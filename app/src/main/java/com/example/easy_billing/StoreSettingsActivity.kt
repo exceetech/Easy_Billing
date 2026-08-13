@@ -66,6 +66,7 @@ class StoreSettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_store_settings)
+        com.example.easy_billing.util.UserEventLogger.logAction("StoreSettings", "opened")
 
         isOnboardingFlow = intent.getBooleanExtra(EXTRA_ONBOARDING, false)
 
@@ -259,6 +260,11 @@ class StoreSettingsActivity : BaseActivity() {
         val address = etStoreAddress.text.toString().trim()
         val phone   = etStorePhone.text.toString().trim()
         val gstin   = etStoreGstin.text.toString().trim().uppercase()
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "StoreSettings",
+            "save_clicked: name=${name.ifBlank { "-" }}, address=${address.ifBlank { "-" }}, " +
+                "phone=${phone.ifBlank { "-" }}, gstin=${gstin.ifBlank { "-" }}, shop_type=$selectedShopType"
+        )
 
         val type = when (selectedShopType.lowercase()) {
             "hotel"               -> "hotel"

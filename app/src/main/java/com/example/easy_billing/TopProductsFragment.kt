@@ -21,6 +21,7 @@ class TopProductsFragment : Fragment(R.layout.fragment_top_products) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("TopProductsFragment", "opened")
 
         recyclerView = view.findViewById(R.id.rvProfit)
         etSearch = view.findViewById(R.id.etSearchProfit)

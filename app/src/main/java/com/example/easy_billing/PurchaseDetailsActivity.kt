@@ -88,6 +88,7 @@ class PurchaseDetailsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase_details)
+        com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "opened")
 
         purchaseId = intent.getIntExtra("PURCHASE_ID", -1)
         if (purchaseId == -1) {
@@ -130,9 +131,18 @@ class PurchaseDetailsActivity : BaseActivity() {
         llPriorReturns.clipToOutline = true
 
         btnClose.setOnClickListener { finish() }
-        btnDebitNote.setOnClickListener { openNote("D") }
-        btnCreditNote.setOnClickListener { openNote("C") }
-        btnCancelPurchase.setOnClickListener { confirmCancelPurchase() }
+        btnDebitNote.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "debit_note_clicked")
+            openNote("D")
+        }
+        btnCreditNote.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "credit_note_clicked")
+            openNote("C")
+        }
+        btnCancelPurchase.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "cancel_purchase_clicked")
+            confirmCancelPurchase()
+        }
 
         observeViewModel()
         viewModel.loadPurchaseDetail(purchaseId)
@@ -515,6 +525,10 @@ class PurchaseDetailsActivity : BaseActivity() {
             currentInvoiceNumber.ifBlank { "PURCHASE $purchaseId" }
 
         view.findViewById<MaterialButton>(R.id.btnConfirmCancelPurchase).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "PurchaseDetails",
+                "confirm_cancel_purchase_clicked: invoice=${currentInvoiceNumber.ifBlank { "-" }}, purchase_id=$purchaseId"
+            )
             dialog.dismiss()
             runCancel()
         }

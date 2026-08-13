@@ -102,6 +102,7 @@ class EditProductActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_product)
+        com.example.easy_billing.util.UserEventLogger.logAction("EditProduct", "opened")
 
         setupToolbar(R.id.toolbar)
 
@@ -200,7 +201,10 @@ class EditProductActivity : BaseActivity() {
         etSgst.addTextChangedListener { recomputeIgst() }
 
         btnSave.setOnClickListener { onSaveClicked() }
-        btnCancel.setOnClickListener { finish() }
+        btnCancel.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("EditProduct", "cancel_clicked")
+            finish()
+        }
 
         // Debounced HSN backend verify — same UX as Add Product, shown
         // via the small status line under the field (tvHsnStatus).
@@ -384,6 +388,13 @@ class EditProductActivity : BaseActivity() {
         val hsnDescVal      = etHsnDescription.text?.toString()?.trim()?.ifBlank { null }
         val cessRateVal     = etCessRate.text?.toString()?.toDoubleOrNull() ?: 0.0
         val supplyClassVal  = spinnerSupplyClassification.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
+
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "EditProduct",
+            "save_clicked: selling_price=$newPrice, hsn=${hsn.ifBlank { "-" }}, hsn_desc=${hsnDescVal ?: "-"}, " +
+                "cgst=$cgst, sgst=$sgst, igst=$igst, cess_rate=$cessRateVal, supply_class=$supplyClassVal, " +
+                "official_uqc=${officialUqcVal ?: "-"}"
+        )
 
         // GST billing needs an HSN on every product. Add Product blocks this
         // at creation; without the same gate here a product could be created

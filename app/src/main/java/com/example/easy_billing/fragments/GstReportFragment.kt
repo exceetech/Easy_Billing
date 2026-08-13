@@ -27,6 +27,7 @@ class GstReportFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_gst_report, container, false)
+        com.example.easy_billing.util.UserEventLogger.logAction("GstReportFragment", "opened")
         rvRecords = view.findViewById(R.id.rvRecords)
         tvEmpty = view.findViewById(R.id.tvEmpty)
         

@@ -87,6 +87,7 @@ class AddProductActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_product)
+        com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "opened")
 
         setupToolbar(R.id.toolbar)
 
@@ -112,12 +113,19 @@ class AddProductActivity : BaseActivity() {
         etHsnDesc = findViewById(R.id.etHsnDesc)
         etCessRate = findViewById(R.id.etCessRate)
 
-        findViewById<View>(R.id.btnCancel).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnCancel).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "cancel_clicked: ${fieldTouchSummary()}")
+            finish()
+        }
 
         // ── Opening-stock reveal ──
         val groupOpeningStock = findViewById<View>(R.id.groupOpeningStock)
         switchOpeningStock.setOnCheckedChangeListener { _, checked ->
             groupOpeningStock.visibility = if (checked) View.VISIBLE else View.GONE
+            com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "toggle:opening_stock=$checked")
+        }
+        switchTaxInclusive.setOnCheckedChangeListener { _, checked ->
+            com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "toggle:tax_inclusive=$checked")
         }
 
         // ── IGST auto = CGST + SGST (read-only) ──
@@ -387,8 +395,37 @@ class AddProductActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Full snapshot of what's currently in the form, as actual values —
+     * not just which fields were touched. Only password/OTP/token fields
+     * are ever masked app-wide; product data itself isn't a secret.
+     */
+    private fun fieldTouchSummary(): String {
+        fun v(value: String) = value.trim().ifEmpty { "-" }
+        val name = v(etName.text.toString())
+        val price = v(etPrice.text.toString())
+        val variant = v(etVariant.text.toString())
+        val category = v(etCategory.text.toString())
+        val hsn = v(etHsn.text.toString())
+        val cgst = v(etCgst.text.toString())
+        val sgst = v(etSgst.text.toString())
+        val hsnDesc = v(etHsnDesc.text.toString())
+        val cessRate = v(etCessRate.text.toString())
+        val unit = v(etUnit.text.toString())
+        val uqc = v(spinnerUqc.text.toString())
+        val supplyClass = v(spinnerSupplyClass.text.toString())
+        val qty = v(etQty.text.toString())
+        val cost = v(etCost.text.toString())
+        val stockPart = if (switchOpeningStock.isChecked) "stock=on" else "stock=off"
+        val taxPart = if (switchTaxInclusive.isChecked) "tax_inclusive=on" else "tax_inclusive=off"
+        return "name=$name, price=$price, variant=$variant, category=$category, hsn=$hsn, " +
+            "cgst=$cgst, sgst=$sgst, hsn_desc=$hsnDesc, cess_rate=$cessRate, unit=$unit, " +
+            "uqc=$uqc, supply_class=$supplyClass, qty=$qty, cost=$cost; $stockPart; $taxPart"
+    }
+
     // ============================================================
     private fun saveProduct() {
+        com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "save_clicked: ${fieldTouchSummary()}")
         val name = etName.text.toString().trim()
         if (name.isEmpty()) {
             toast(getString(R.string.add_product_enter_name_toast)); etName.requestFocus()
@@ -616,6 +653,9 @@ class AddProductActivity : BaseActivity() {
                     runCatching { SyncManager(this@AddProductActivity).syncInventory() }
                 }
 
+                com.example.easy_billing.util.UserEventLogger.logAction(
+                    "AddProduct", "product_saved: with_stock=$withStock, gst_enabled=$isGstEnabled"
+                )
                 withContext(Dispatchers.Main) {
                     toast(getString(R.string.add_product_added_toast))
                     finish()

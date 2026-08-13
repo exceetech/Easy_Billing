@@ -196,6 +196,7 @@ class InvoiceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_invoice)
+        com.example.easy_billing.util.UserEventLogger.logAction("Invoice", "opened")
 
         bindViews()
 
@@ -275,6 +276,19 @@ class InvoiceActivity : AppCompatActivity() {
         recalculate()
 
         btnConfirm.setOnClickListener {
+            val ecomPart = if (invoiceType == "ECOMMERCE") {
+                ", ecom_gstin=${etEcommerceGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "ecom_operator=${etEcommerceOperatorName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
+            } else ""
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Invoice",
+                "confirm_clicked: invoice_type=$invoiceType, payment_method=${getPaymentMethod()}, " +
+                    "customer_name=${etCustomerName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "customer_phone=${etCustomerPhone.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "customer_gstin=${etCustomerGst.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "discount=${etDiscount.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}" +
+                    ecomPart
+            )
             if (!validateB2BFields()) return@setOnClickListener
             if (!validateEcommerceFields()) return@setOnClickListener
             if (getPaymentMethod() == "CREDIT") {
@@ -289,6 +303,7 @@ class InvoiceActivity : AppCompatActivity() {
         }
         btnPrint.setOnClickListener { generatePdfAndPrint() }
         btnClose.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("Invoice", "close_clicked: bill_saved=$isBillSaved")
             setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
             finish()
         }

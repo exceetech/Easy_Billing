@@ -47,6 +47,7 @@ class DebitNoteActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_debit_note)
+        com.example.easy_billing.util.UserEventLogger.logAction("DebitNote", "opened")
 
         setupToolbar(R.id.toolbar)
 
@@ -195,6 +196,10 @@ class DebitNoteActivity : BaseActivity() {
     private fun confirmAndSubmit() {
         val adapter = rvDebitItems.adapter as? DebitNoteItemAdapter ?: return
         val lines   = adapter.getDebitLines()
+        val linesDetail = lines.joinToString("; ") { (item, qty) -> "${item.productName}=$qty" }
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "DebitNote", "submit_clicked: lines_selected=${lines.size}, items=[$linesDetail]"
+        )
 
         if (lines.isEmpty()) {
             Toast.makeText(this, getString(R.string.debitnoteactivity_please_enter_additional_quantity), Toast.LENGTH_SHORT).show()

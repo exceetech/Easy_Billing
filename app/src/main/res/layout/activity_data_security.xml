@@ -214,6 +214,43 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- ===================== DIAGNOSE ===================== -->
+            <LinearLayout android:id="@+id/btnSendDiagnosticReport" style="@style/DsCard"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:paddingTop="18dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="@string/diagnose_section"
+                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
+                        android:src="@drawable/ic_send_report" app:tint="#0F6E56"/>
+                    <LinearLayout style="@style/DsText">
+                        <TextView style="@style/DsTitle" android:text="@string/send_diagnostic_report"/>
+                        <TextView style="@style/DsSub" android:text="@string/send_diagnostic_report_desc"/>
+                    </LinearLayout>
+                    <TextView style="@style/DsChip"
+                        android:background="@drawable/bg_chip_low"
+                        android:textColor="#3B6D11"
+                        android:text="@string/risk_safe_badge"/>
+                    <ImageView android:id="@+id/icSendDiagnosticReport" style="@style/DsTrailing"
+                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- ===================== DANGER ZONE ===================== -->
             <LinearLayout android:id="@+id/btnFactoryReset" style="@style/DsCard"
                 android:background="@drawable/bg_danger_card"

@@ -143,6 +143,7 @@ class PurchaseActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase)
+        com.example.easy_billing.util.UserEventLogger.logAction("Purchase", "opened")
 
         setupToolbar(R.id.toolbar)
 
@@ -169,6 +170,10 @@ class PurchaseActivity : BaseActivity() {
         val header = findViewById<View>(R.id.headerGstrToggle)
         val group = findViewById<View>(R.id.groupGstrDetails)
         val chevron = findViewById<android.widget.ImageView>(R.id.ivGstrChevron)
+        // Starts expanded (layout default is visible) so supply type, cess,
+        // and ITC fields are visible without an extra tap — chevron starts
+        // rotated to match.
+        chevron.rotation = 180f
         header.setOnClickListener {
             val expand = group.visibility != View.VISIBLE
             group.visibility = if (expand) View.VISIBLE else View.GONE
@@ -288,7 +293,12 @@ class PurchaseActivity : BaseActivity() {
         rv              = findViewById(R.id.rvLines)
         btnAddLine      = findViewById(R.id.btnAddLine)
         btnSave         = findViewById(R.id.btnSavePurchase)
-        findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener { finish() }
+        findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Purchase", "cancel_clicked: lines=${viewModel.lines.value.size}"
+            )
+            finish()
+        }
         tvTaxableTotal  = findViewById(R.id.tvTaxableTotal)
         tvInvoiceTotal  = findViewById(R.id.tvInvoiceTotal)
 
@@ -799,6 +809,32 @@ class PurchaseActivity : BaseActivity() {
         }
 
         btnSave.setOnClickListener {
+            val importPart = if (switchImportedGoods.isChecked) {
+                ", port_code=${etPortCode.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "boe_number=${etBillOfEntryNumber.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "boe_date=${boeDateProvider() ?: "-"}, " +
+                    "boe_value=${etBillOfEntryValue.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "sez_gstin=${etSezSupplierGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
+            } else ""
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Purchase",
+                "save_clicked: lines=${viewModel.lines.value.size}, " +
+                    "invoice_number=${etInvoiceNumber.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "supplier=${etSupplierName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "state=${etState.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "gstin=${etSupplierGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "invoice_date=${invoiceDateProvider() ?: "-"}, " +
+                    "place_of_supply=${etPlaceOfSupplyCode.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "invoice_type=${etInvoiceType.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "supply_type=${etSupplyType.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "cess_paid=${etCessPaid.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_integrated=${etAvailedItcIntegrated.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_central=${etAvailedItcCentral.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_state=${etAvailedItcState.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_cess=${etAvailedItcCess.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "imported_goods=${switchImportedGoods.isChecked}, reverse_charge=${switchReverseCharge.isChecked}" +
+                    importPart
+            )
             val invoice = etInvoiceNumber.text?.toString()?.trim().orEmpty()
             val supplier = etSupplierName.text?.toString()?.trim().orEmpty()
             val state = etState.text?.toString()?.trim().orEmpty()

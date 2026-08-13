@@ -29,6 +29,7 @@ class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("Splash", "opened")
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         val token = prefs.getString("TOKEN", null)

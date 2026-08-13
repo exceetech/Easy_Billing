@@ -56,6 +56,7 @@ class AiDashboardActivity : BaseActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ai_dashboard)
+        com.example.easy_billing.util.UserEventLogger.logAction("AiDashboard", "opened")
 
         setupToolbar(R.id.toolbar)
         // Hide the default action-bar title; the toolbar shows a custom title view instead.

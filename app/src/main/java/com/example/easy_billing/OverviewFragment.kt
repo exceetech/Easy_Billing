@@ -83,6 +83,7 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("OverviewFragment", "opened")
 
         // Hero
         tvRevenue       = view.findViewById(R.id.tvRevenue)

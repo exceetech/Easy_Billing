@@ -109,6 +109,7 @@ class PurchaseReturnActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase_return)
+        com.example.easy_billing.util.UserEventLogger.logAction("PurchaseReturn", "opened")
 
         setupToolbar(R.id.toolbar)
 
@@ -651,6 +652,16 @@ class PurchaseReturnActivity : BaseActivity() {
         val invoiceTypeVal = actvInvoiceType.text.toString()
         val placeOfSupplyCodeRaw = actvPlaceOfSupplyCode.text.toString()
         val placeOfSupplyCodeVal = placeOfSupplyCodeRaw.split("-").firstOrNull()?.trim() ?: ""
+
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "PurchaseReturn",
+            "submit_clicked: note_type=$noteType, lines_selected=${lines.size}, pre_gst=$preGst, " +
+                "doc_type=${docTypeVal.ifBlank { "-" }}, reason=${reasonVal.ifBlank { "-" }}, " +
+                "voucher_value=$voucherValueVal, rate=$rateVal, eligibility=${eligibilityVal.ifBlank { "-" }}, " +
+                "availed_integrated=$availedIntegratedVal, availed_central=$availedCentralVal, " +
+                "availed_state=$availedStateVal, availed_cess=$availedCessVal, " +
+                "invoice_type=${invoiceTypeVal.ifBlank { "-" }}, place_of_supply=${placeOfSupplyCodeVal.ifBlank { "-" }}"
+        )
 
         // Client-side validations
         if (docTypeVal.isBlank()) {

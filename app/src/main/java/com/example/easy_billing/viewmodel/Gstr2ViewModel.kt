@@ -117,8 +117,12 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
     fun generateReport() {
         val fy = _financialYear.value
         val p  = _period.value
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "Gstr2ViewModel", "generate_clicked: return_type=${_returnType.value}, financial_year=${fy.ifBlank { "-" }}, period=$p"
+        )
         if (fy.isBlank() || p.isBlank()) {
             _error.value = getApplication<Application>().getString(R.string.gstr2_vm_error_select_fy_period)
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Gstr2ViewModel", "fy_or_period_missing")
             return
         }
 

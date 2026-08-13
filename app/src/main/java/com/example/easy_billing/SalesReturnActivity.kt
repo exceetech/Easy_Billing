@@ -60,6 +60,7 @@ class SalesReturnActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sales_return)
+        com.example.easy_billing.util.UserEventLogger.logAction("SalesReturn", "opened")
 
         findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
             setNavigationIcon(R.drawable.ic_back_arrow)
@@ -269,6 +270,11 @@ class SalesReturnActivity : AppCompatActivity() {
     private fun confirmAndSubmit() {
         val adapter = rvReturnItems.adapter as? SalesReturnItemAdapter ?: return
         val lines   = adapter.getReturnLines()
+        val linesDetail = lines.joinToString("; ") { (item, qty) -> "${item.productName}=$qty" }
+        com.example.easy_billing.util.UserEventLogger.logAction(
+            "SalesReturn",
+            "submit_clicked: lines_selected=${lines.size}, total_value=${tvTotalReturnValue.text}, items=[$linesDetail]"
+        )
 
         if (lines.isEmpty()) {
             Toast.makeText(this, getString(R.string.salesreturnactivity_please_select_at_least), Toast.LENGTH_SHORT).show()

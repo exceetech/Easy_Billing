@@ -15,20 +15,44 @@ interface UserEventLogDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(event: UserEventLog): Long
 
-    /** Unsynced rows to push, oldest first so the uploaded order matches the real timeline. */
-    @Query("SELECT * FROM user_event_logs WHERE is_synced = 0 ORDER BY created_at ASC LIMIT :limit")
+    /**
+     * Unsynced rows to push, oldest first so the uploaded order matches
+     * the real timeline. Deliberately excludes "action" rows — those are
+     * local-only, full click-level detail that's too high-volume to sync
+     * automatically; they only leave the device via the one-shot
+     * diagnostic-report upload (see [getAllOrderedByTime]).
+     */
+    @Query(
+        """
+        SELECT * FROM user_event_logs
+        WHERE is_synced = 0 AND event_type != 'action'
+        ORDER BY created_at ASC LIMIT :limit
+        """
+    )
     suspend fun getUnsynced(limit: Int = 200): List<UserEventLog>
 
     @Query("UPDATE user_event_logs SET is_synced = 1 WHERE id IN (:ids)")
     suspend fun markAsSynced(ids: List<Int>)
 
     /**
+     * The FULL local table — every action, error, and validation row,
+     * regardless of sync state — for the one-shot diagnostic report
+     * upload (see util/DiagnosticReportUploader.kt). Oldest first so it
+     * reads like a timeline.
+     */
+    @Query("SELECT * FROM user_event_logs ORDER BY created_at ASC")
+    suspend fun getAllOrderedByTime(): List<UserEventLog>
+
+    /**
      * Caps the local table so a device that's offline for a long stretch
-     * doesn't let this grow unbounded — keeps only the most recent
-     * [keep] rows. Already-synced rows are the ones dropped first since
-     * the backend is the durable copy once synced; if the cap still has
-     * to eat into unsynced rows, the oldest breadcrumbs go first (least
-     * useful for a "what just happened" investigation anyway).
+     * — or just generating a lot of click-level "action" rows day to day
+     * — doesn't let this grow unbounded on the device. Keeps only the
+     * most recent [keep] rows; older ones are dropped regardless of sync
+     * state, since "action" rows never sync at all and would otherwise
+     * never be cleared out. The cap is intentionally generous (tens of
+     * thousands) since a single busy billing day can generate hundreds of
+     * click-level events and this is now the only retention control for
+     * those.
      */
     @Query(
         """
@@ -38,8 +62,14 @@ interface UserEventLogDao {
         )
         """
     )
-    suspend fun trimToMostRecent(keep: Int = 500)
+    suspend fun trimToMostRecent(keep: Int = 20000)
 
+    /**
+     * Only ever removes already-synced error/validation rows — "action"
+     * rows are never marked synced, so this never touches them. Local
+     * storage pressure from those is handled entirely by
+     * [trimToMostRecent].
+     */
     @Query("DELETE FROM user_event_logs WHERE is_synced = 1")
     suspend fun deleteSynced()
 }

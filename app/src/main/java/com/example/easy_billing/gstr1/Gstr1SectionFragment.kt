@@ -155,7 +155,8 @@ class Gstr1SectionFragment : Fragment() {
      */
     private fun buildRows(report: Gstr1Report, position: Int): List<Pair<String, String>> {
         val symbol = CurrencyHelper.getCurrencySymbol(requireContext())
-        return when (position) {
+        return try {
+        when (position) {
             0 -> report.b2b.map {
                 Pair(
                     "${it.invoiceNumber}  ·  ${it.invoiceDate}",
@@ -235,6 +236,12 @@ class Gstr1SectionFragment : Fragment() {
                 )
             }
             else -> emptyList()
+        }
+        } catch (e: Exception) {
+            com.example.easy_billing.util.UserEventLogger.logError(
+                "Gstr1SectionFragment", "build_rows_failed: ${e.javaClass.simpleName}"
+            )
+            emptyList()
         }
     }
 }
