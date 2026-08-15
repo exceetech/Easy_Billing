@@ -36,12 +36,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // API host — single source of truth (read via BuildConfig.API_BASE_URL).
-        // NOTE on reachability (this is what makes the app "load"):
+        // Points at the hosted Cloud Run test deployment (scalancer-pos-test,
+        // RAZORPAY_MODE=test) as of 2026-08-15 — no local backend or LAN IP
+        // needed to test against this anymore. If you ever need to point back
+        // at a local backend instead, override in the debug buildType below:
         //   • Android emulator → the host machine is 10.0.2.2, NOT localhost/127.0.0.1.
         //   • Physical device  → use the dev machine's LAN IP (e.g. http://192.168.1.100:8080/)
         //     and make sure the phone is on the same Wi-Fi and the server is running.
-        // Default below targets the emulator; the release build overrides it (see buildTypes).
-        buildConfigField("String", "API_BASE_URL", "\"http://192.168.31.128:8080/\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://scalancer-pos-test-70344915678.asia-south1.run.app/\"")
 
         buildConfigField("String", "SMTP_EMAIL", "\"$smtpEmail\"")
         buildConfigField("String", "SMTP_PASSWORD", "\"$smtpPassword\"")
