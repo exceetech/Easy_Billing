@@ -436,6 +436,18 @@ class MainActivity : BaseActivity() {
                                 e.printStackTrace()
                             }
                         }
+
+                        // Drop delta-pull cursors — the DB was just wiped for the
+                        // outgoing workspace, so stale per-shop cursors (e.g.
+                        // "bills_after_id_<shopId>") must not carry over. Without
+                        // this, logging back into a shop later resumes pulling
+                        // from its old cursor position against an empty local DB,
+                        // silently skipping everything that was already synced
+                        // before that cursor — rows vanish locally even though
+                        // they're still fine on the server. Same fix already
+                        // applied in DataSecurityActivity.kt's factory-reset flow
+                        // (R6); this was the one path that never got it.
+                        getSharedPreferences("sync_cursors", MODE_PRIVATE).edit().clear().apply()
                     }
 
                     // ✅ SAVE TOKEN

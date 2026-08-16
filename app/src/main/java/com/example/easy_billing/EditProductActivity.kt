@@ -21,6 +21,7 @@ import com.example.easy_billing.viewmodel.EditProductViewModel
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import com.example.easy_billing.util.UqcMapper
+import com.example.easy_billing.util.SupplyClassMapper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
@@ -150,8 +151,7 @@ class EditProductActivity : BaseActivity() {
             }
         }
         spinnerSupplyClassification.setOnClickListener {
-            val options = listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")
-            showSortStylePopup(spinnerSupplyClassification, options, spinnerSupplyClassification.text.toString()) { picked ->
+            showSortStylePopup(spinnerSupplyClassification, SupplyClassMapper.ALL_DISPLAY, spinnerSupplyClassification.text.toString()) { picked ->
                 spinnerSupplyClassification.text = picked
             }
         }
@@ -343,7 +343,7 @@ class EditProductActivity : BaseActivity() {
         spinnerOfficialUqc.text = UqcMapper.codeToDisplay(product.officialUqc) ?: ""
         etHsnDescription.setText(product.hsnDescription ?: "")
         etCessRate.setText(formatRate(product.cessRate))
-        spinnerSupplyClassification.text = product.supplyClassification
+        spinnerSupplyClassification.text = SupplyClassMapper.codeToDisplay(product.supplyClassification) ?: ""
         etCategory.setText(product.category, false)
 
         // Inventory section toggles by isPurchased.
@@ -387,7 +387,7 @@ class EditProductActivity : BaseActivity() {
         val officialUqcVal  = UqcMapper.displayToCode(spinnerOfficialUqc.text?.toString())
         val hsnDescVal      = etHsnDescription.text?.toString()?.trim()?.ifBlank { null }
         val cessRateVal     = etCessRate.text?.toString()?.toDoubleOrNull() ?: 0.0
-        val supplyClassVal  = spinnerSupplyClassification.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE"
+        val supplyClassVal  = SupplyClassMapper.displayToCode(spinnerSupplyClassification.text?.toString()?.trim()) ?: "TAXABLE"
 
         com.example.easy_billing.util.UserEventLogger.logAction(
             "EditProduct",

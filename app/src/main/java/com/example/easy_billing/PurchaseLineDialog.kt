@@ -21,6 +21,7 @@ import com.example.easy_billing.repository.PurchaseRepository.PurchaseItemDraft
 import com.example.easy_billing.util.CatalogAutofill
 import com.example.easy_billing.util.HsnHelpLauncher
 import com.example.easy_billing.util.UqcMapper
+import com.example.easy_billing.util.SupplyClassMapper
 import com.example.easy_billing.viewmodel.PurchaseViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -418,14 +419,14 @@ class PurchaseLineDialog(
         val etAvailedItcSgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcSgstPurchase)
         val etAvailedItcCessPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcCessPurchase)
 
-        val eligibilityOptions = listOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
         spinnerEligibilityItemPurchase.setText("Inputs", false)
-        spinnerEligibilityItemPurchase.setOnClickListener {
-            showSortStylePopup(
-                spinnerEligibilityItemPurchase, eligibilityOptions,
-                spinnerEligibilityItemPurchase.text.toString()
-            ) { picked -> spinnerEligibilityItemPurchase.setText(picked, false) }
-        }
+        // Display-only: no click listener attached (this field is auto-computed,
+        // not user-selectable, in the Input Tax Credit section). Intentionally
+        // NOT calling setOnClickListener here, since doing so would silently
+        // re-enable clickable=true at runtime and reopen the picker popup,
+        // overriding the layout's android:clickable="false".
+        spinnerEligibilityItemPurchase.isClickable = false
+        spinnerEligibilityItemPurchase.isFocusable = false
 
         etCessAmountPurchase.addTextChangedListener {
             if (etCessAmountPurchase.isFocused) userOverroteCess = true
@@ -576,7 +577,7 @@ class PurchaseLineDialog(
                                 spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
                                 etHsnDescPurchase.setText(match.hsnDescription ?: "")
                                 etCessRatePurchase.setText(match.cessRate.toString())
-                                spinnerSupplyClassPurchase.setText(match.supplyClassification, false)
+                                spinnerSupplyClassPurchase.setText(SupplyClassMapper.codeToDisplay(match.supplyClassification) ?: "", false)
                                 etCategoryPurchase.setText(match.category, false)
                                 applyingAutofill = false
                                 autofilledForVariant = vName
@@ -585,7 +586,7 @@ class PurchaseLineDialog(
                             }
                         } else {
                             withContext(Dispatchers.Main) {
-                                spinnerSupplyClassPurchase.setText("TAXABLE", false)
+                                spinnerSupplyClassPurchase.setText(SupplyClassMapper.codeToDisplay("TAXABLE"), false)
                                 setProductMasterFieldsEnabled(true)
                                 // Not in this shop yet — fall back to the
                                 // global catalog entry for the chosen variant.
@@ -786,7 +787,7 @@ class PurchaseLineDialog(
                         spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(existingDraft.officialUqc) ?: "", false)
                         etHsnDescPurchase.setText(existingDraft.hsnDescription.orEmpty())
                         etCessRatePurchase.setText(trimNum(existingDraft.cessRate))
-                        spinnerSupplyClassPurchase.setText(existingDraft.supplyClassification, false)
+                        spinnerSupplyClassPurchase.setText(SupplyClassMapper.codeToDisplay(existingDraft.supplyClassification) ?: "", false)
                         etCategoryPurchase.setText(existingDraft.category, false)
                     } finally {
                         applyingAutofill = false
@@ -1042,7 +1043,7 @@ class PurchaseLineDialog(
                 availedItcCgst = availedCgst,
                 availedItcSgst = availedSgst,
                 availedItcCess = availedCess,
-                supplyClassification = spinnerSupplyClassPurchase.text?.toString()?.trim()?.ifBlank { "TAXABLE" } ?: "TAXABLE",
+                supplyClassification = SupplyClassMapper.displayToCode(spinnerSupplyClassPurchase.text?.toString()?.trim()) ?: "TAXABLE",
                 category = etCategoryPurchase.text?.toString()?.trim().orEmpty()
             )
 
@@ -1084,15 +1085,13 @@ class PurchaseLineDialog(
         spinnerSupplyClass: AutoCompleteTextView,
         etCategory: AutoCompleteTextView
     ) {
-        val supplyClasses = listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")
-
         spinnerUqc.setOnClickListener {
             showSortStylePopup(spinnerUqc, UqcMapper.ALL_UQC_DISPLAY, spinnerUqc.text.toString()) { picked ->
                 spinnerUqc.setText(picked, false)
             }
         }
         spinnerSupplyClass.setOnClickListener {
-            showSortStylePopup(spinnerSupplyClass, supplyClasses, spinnerSupplyClass.text.toString()) { picked ->
+            showSortStylePopup(spinnerSupplyClass, SupplyClassMapper.ALL_DISPLAY, spinnerSupplyClass.text.toString()) { picked ->
                 spinnerSupplyClass.setText(picked, false)
             }
         }
