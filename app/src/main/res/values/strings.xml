@@ -867,6 +867,7 @@
     <string name="bill_history_status_cancelled">cancelled</string>
     <string name="bill_history_status_on_credit">on credit</string>
     <string name="bill_history_status_paid">paid</string>
+    <string name="bill_history_status_pending_payment">pending payment</string>
 
     <!-- BillingSettingsActivity -->
     <string name="billing_settings_enter_password_error">Enter password</string>
@@ -1655,6 +1656,7 @@
     <string name="invoice_pdf_detail_phone">Phone</string>
     <string name="invoice_pdf_detail_state">State</string>
     <string name="invoice_pdf_discount_label">Discount</string>
+    <string name="invoice_pdf_gross_amount_label">Gross Amount</string>
     <string name="invoice_pdf_final_balance_label">Final Balance:</string>
     <string name="invoice_pdf_footer_default">Thank You! Visit Again</string>
     <string name="invoice_pdf_igst_label">IGST</string>
@@ -1668,6 +1670,59 @@
     <string name="invoice_pdf_statement_job_name">Statement</string>
     <string name="invoice_pdf_statement_title">Credit / Debit Report</string>
     <string name="invoice_pdf_store_default_name">My Store</string>
+    <string name="invoice_pdf_walk_in_customer">Walk-in customer</string>
+
+    <!-- ── Send to customer (UPI payment link) ─────────────────────── -->
+    <string name="send_to_customer_title">Send to customer</string>
+    <string name="send_to_customer_dialog_title_part1">Choose</string>
+    <string name="send_to_customer_dialog_title_part2">a channel</string>
+    <string name="send_to_customer_whatsapp_option">WhatsApp</string>
+    <string name="send_to_customer_whatsapp_row_subtitle">Opens WhatsApp with the invoice and pay link ready to send</string>
+    <string name="send_to_customer_sms_option">SMS</string>
+    <string name="send_to_customer_sms_row_subtitle">Texts a link to view the invoice and pay</string>
+    <string name="send_to_customer_sending">Preparing invoice…</string>
+    <string name="send_to_customer_bill_not_synced">This bill hasn\'t synced yet — try again once it\'s online.</string>
+    <string name="send_to_customer_pdf_failed">Couldn\'t prepare the invoice PDF.</string>
+    <string name="send_to_customer_link_failed">Couldn\'t create the payment link. Please try again.</string>
+    <string name="send_to_customer_whatsapp_not_installed">WhatsApp isn\'t installed on this device.</string>
+    <string name="send_to_customer_sms_failed">Couldn\'t send the SMS.</string>
+    <string name="send_to_customer_sms_sent">SMS sent to customer.</string>
+    <string name="send_to_customer_sms_no_phone">Add the customer\'s phone number first.</string>
+    <string name="send_to_customer_sms_permission_needed">SMS permission is needed to text the customer directly.</string>
+    <string name="send_to_customer_whatsapp_message">Hi! Here\'s your invoice %1$s for %2$s.\n\nPay via UPI: %3$s</string>
+    <string name="send_to_customer_sms_message">Invoice %1$s — %2$s. Pay via UPI: %3$s</string>
+    <string name="send_to_customer_sms_message_with_pdf">Invoice %1$s — %2$s. View: %3$s\nPay via UPI: %4$s</string>
+    <string name="send_to_customer_paid_badge">Paid via UPI</string>
+    <string name="send_to_customer_whatsapp_message_no_pay">Hi! Here\'s your invoice %1$s for %2$s.</string>
+    <string name="send_to_customer_sms_message_no_pay">Invoice %1$s — %2$s. View: %3$s</string>
+    <string name="send_to_customer_sms_message_no_pay_no_pdf">Invoice %1$s — %2$s.</string>
+    <string name="mark_as_paid_button">Mark as paid</string>
+    <string name="mark_as_paid_confirm_title">Mark this bill as paid?</string>
+    <string name="mark_as_paid_confirm_message">Only do this if you\'ve independently confirmed the customer\'s UPI payment went through (e.g. checked your Razorpay dashboard). This overrides the automatic status.</string>
+    <string name="mark_as_paid_dialog_title_part1">Mark this</string>
+    <string name="mark_as_paid_dialog_title_part2">bill paid?</string>
+    <string name="mark_as_paid_dialog_bill_label">Invoice</string>
+    <string name="qr_payment_title_part1">Scan to</string>
+    <string name="qr_payment_title_part2">pay</string>
+    <string name="qr_payment_waiting">Waiting for payment…</string>
+    <string name="qr_payment_success">Payment received</string>
+    <string name="qr_payment_failed">Couldn\'t load the QR code. Check your connection and try again.</string>
+    <string name="qr_payment_failed_retry">Couldn\'t load the QR code. Tap to retry.</string>
+    <string name="qr_show_button">Show QR to customer</string>
+    <string name="qr_already_paid">This bill is already paid</string>
+    <string name="qr_payment_expired_retry">QR expired. Tap to generate a new one.</string>
+    <string name="mark_as_paid_success">Marked as paid</string>
+    <string name="mark_as_paid_failed">Couldn\'t update payment status. Check your connection and try again.</string>
+    <string name="razorpay_section_title">RAZORPAY (UPI PAYMENTS)</string>
+    <string name="razorpay_not_connected">Not connected — customers can\'t pay via UPI link yet</string>
+    <string name="razorpay_connected">Connected — payment links are live</string>
+    <string name="razorpay_key_id_label">Key ID</string>
+    <string name="razorpay_key_id_hint">rzp_live_xxxxxxxxxxxx</string>
+    <string name="razorpay_key_secret_label">Key Secret</string>
+    <string name="razorpay_key_secret_hint">Leave blank to keep unchanged</string>
+    <string name="razorpay_webhook_secret_label">Webhook Secret</string>
+    <string name="razorpay_webhook_secret_hint">Leave blank to keep unchanged</string>
+    <string name="razorpay_helper_text">Create a Razorpay account, then paste your Key ID, Key Secret, and Webhook Secret here. Payments customers make via UPI link go straight to your own bank account.</string>
     <string name="invoice_pdf_sub_total_label">Sub Total</string>
     <string name="invoice_pdf_summary_cost">Cost</string>
     <string name="invoice_pdf_summary_expense">Expense</string>

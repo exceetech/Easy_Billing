@@ -445,4 +445,33 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Shown only while checkExistingSession() (an auto-login network
+         call, up to 35s worst-case on slow/no connectivity) is deciding
+         whether to keep this screen hidden and jump straight to
+         Dashboard. This is a separate opaque overlay drawn ON TOP of
+         mainContainerCard rather than mainContainerCard itself being
+         hidden — mainContainerCard is a shared-element transition target
+         (transitionName via brandingPane) animating in from
+         SplashActivity, and toggling ITS visibility mid-transition is
+         what caused the silent crash/quit this replaced. See
+         MainActivity.checkExistingSession(). -->
+    <FrameLayout
+        android:id="@+id/sessionCheckOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_login_doodle"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progressSessionCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#0F6E56" />
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

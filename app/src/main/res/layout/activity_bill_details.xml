@@ -490,10 +490,66 @@
 
         <!-- ================= ACTION BUTTONS (flat outline) ================= -->
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendToCustomer"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/send_to_customer_title"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:backgroundTint="#0F6E56"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_lc_send"
+            app:iconTint="#FFFFFF"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+
+        <!-- UPI-only manual override — shown when the bill's payment_method
+             is UPI and the payment link hasn't been confirmed paid yet, for
+             when the customer paid but the Razorpay webhook hasn't landed. -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMarkAsPaid"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/mark_as_paid_button"
+            android:textColor="#0F6E56"
+            android:textAllCaps="false"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:background="@android:color/transparent"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:strokeColor="#0F6E56"
+            app:strokeWidth="1.2dp"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_lc_check"
+            app:iconTint="#0F6E56"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:visibility="gone"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton

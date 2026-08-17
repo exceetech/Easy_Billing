@@ -12,6 +12,7 @@ import android.print.PrintManager
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.core.content.res.ResourcesCompat
 import com.example.easy_billing.ShopManager
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.db.AppDatabase
@@ -47,8 +48,19 @@ object InvoicePdfGenerator {
         billItems: List<BillItem>,
         storeInfo: StoreInfo?,
         gstScheme: String? = null,
-        gstInvoice: GstSalesInvoice? = null
-    ) {
+        gstInvoice: GstSalesInvoice? = null,
+        printerLayout: String = "80mm",
+        // Additive, defaults to true so every existing call site (print
+        // button flows) behaves byte-for-byte as before. Only the new
+        // "send to customer" flow passes false, to get the saved File
+        // back without popping the system print dialog.
+        printAfterSave: Boolean = true
+    ): File {
+        // Only branches when printerLayout == "A4" — every other value
+        // (including the "80mm" default) falls through to the exact same
+        // pageWidth/pageInfo/PrintAttributes code that already existed, so
+        // the 80mm path is byte-for-byte unchanged.
+        val isA4 = printerLayout.equals("A4", ignoreCase = true)
 
         // ── Resolve GST mode from the value saved with the invoice ──
         // Fall back (only when scheme is genuinely missing) to the
@@ -81,14 +93,39 @@ object InvoicePdfGenerator {
 
         val currencySymbol = CurrencyHelper.getCurrencySymbol(context)
 
+        val document = PdfDocument()
+
+        // A4 gets its own dedicated bordered-table design (see
+        // drawA4InvoicePages below). The 80mm thermal path keeps its exact
+        // dimensions/spacing untouched below — only its typography changed
+        // (per explicit request) from monospace to the app's Google Sans
+        // family + serif accents, matching the visual style approved for
+        // the A4 design. Never change pageWidth, margins, or any y-advance
+        // amount in the code below — only Typeface/color/line-style.
+        if (isA4) {
+            drawA4InvoicePages(
+                context, document, bill, billItems, storeInfo, gstInvoice,
+                isComposition, footerMessage, roundOff, currencySymbol, showDiscount
+            )
+            return saveAndPrint(context, document, storeName, bill, isA4 = true, printAfterSave = printAfterSave)
+        }
+
+        // 300f is the original, untouched 80mm thermal width.
         val pageWidth = 300f
         val leftMargin = 10f
         val rightMargin = pageWidth - 10f
 
-        val document = PdfDocument()
-        val paint = Paint()
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-        paint.typeface = Typeface.MONOSPACE
+        val receiptFontRegular = ResourcesCompat.getFont(context, R.font.googlesans_regular) ?: Typeface.DEFAULT
+        val receiptFontMedium = ResourcesCompat.getFont(context, R.font.googlesans_medium) ?: Typeface.DEFAULT_BOLD
+        val receiptFontSerifBold = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+        val discountColor80 = Color.parseColor("#A32D2D")
+        val mutedColor80 = Color.parseColor("#5A5A55")
+        val inkColor80 = Color.BLACK
+
+        paint.typeface = receiptFontRegular
+        paint.color = inkColor80
         paint.textSize = 14f
 
         // ✅ SAFE HEIGHT — Regular bills print extra per-line tax rows,
@@ -109,16 +146,31 @@ object InvoicePdfGenerator {
 
         fun dashedLine() {
             val dashPaint = Paint()
+            dashPaint.color = mutedColor80
             dashPaint.pathEffect = DashPathEffect(floatArrayOf(8f, 8f), 0f)
             canvas.drawLine(leftMargin, y.toFloat(), rightMargin, y.toFloat(), dashPaint)
             y += 18
         }
 
-        fun centerText(text: String, size: Float, bold: Boolean = false) {
+        // Solid rule — used at the two places that read as real section
+        // boundaries (item table header, above the grand total) instead of
+        // the softer dashed break used everywhere else.
+        fun solidLine(strokeWidth: Float = 1.2f) {
+            val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+            linePaint.color = inkColor80
+            linePaint.strokeWidth = strokeWidth
+            canvas.drawLine(leftMargin, y.toFloat(), rightMargin, y.toFloat(), linePaint)
+            y += 18
+        }
+
+        fun centerText(text: String, size: Float, bold: Boolean = false, serif: Boolean = false, color: Int = inkColor80) {
             paint.textSize = size
-            paint.typeface =
-                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-                else Typeface.MONOSPACE
+            paint.color = color
+            paint.typeface = when {
+                serif -> receiptFontSerifBold
+                bold -> receiptFontMedium
+                else -> receiptFontRegular
+            }
 
             val width = paint.measureText(text)
             canvas.drawText(text, (pageWidth - width) / 2, y.toFloat(), paint)
@@ -126,32 +178,30 @@ object InvoicePdfGenerator {
         }
 
         // Right-aligned text at current baseline (does not advance y).
-        fun rightText(text: String, size: Float = 14f, bold: Boolean = false) {
+        fun rightText(text: String, size: Float = 14f, bold: Boolean = false, color: Int = inkColor80) {
             paint.textSize = size
-            paint.typeface =
-                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-                else Typeface.MONOSPACE
+            paint.color = color
+            paint.typeface = if (bold) receiptFontMedium else receiptFontRegular
             canvas.drawText(text, rightMargin - paint.measureText(text), y.toFloat(), paint)
         }
 
-        fun leftText(text: String, size: Float = 14f, bold: Boolean = false) {
+        fun leftText(text: String, size: Float = 14f, bold: Boolean = false, color: Int = inkColor80) {
             paint.textSize = size
-            paint.typeface =
-                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-                else Typeface.MONOSPACE
+            paint.color = color
+            paint.typeface = if (bold) receiptFontMedium else receiptFontRegular
             canvas.drawText(text, leftMargin, y.toFloat(), paint)
         }
 
         // ================= HEADER =================
 
-        centerText(storeName, 22f, true)
+        centerText(storeName, 22f, serif = true)
 
         // Document title reflects the saved GST mode.
-        if (!isComposition) centerText(context.getString(R.string.invoice_pdf_tax_invoice_title), 14f, true)
+        if (!isComposition) centerText(context.getString(R.string.invoice_pdf_tax_invoice_title), 14f, bold = true)
 
-        if (storeAddress.isNotEmpty()) centerText(storeAddress, 14f)
-        if (showPhone && storePhone.isNotEmpty()) centerText("Phone : $storePhone", 14f)
-        if (showGstin && storeGstin.isNotEmpty()) centerText("GSTIN : $storeGstin", 14f)
+        if (storeAddress.isNotEmpty()) centerText(storeAddress, 14f, color = mutedColor80)
+        if (showPhone && storePhone.isNotEmpty()) centerText("Phone : $storePhone", 14f, color = mutedColor80)
+        if (showGstin && storeGstin.isNotEmpty()) centerText("GSTIN : $storeGstin", 14f, color = mutedColor80)
 
         dashedLine()
 
@@ -198,7 +248,8 @@ object InvoicePdfGenerator {
         val colItem = leftMargin
         val colAmount = rightMargin
 
-        paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        paint.typeface = receiptFontMedium
+        paint.color = inkColor80
         paint.textSize = 14f
 
         val amtHeader = "Amt($currencySymbol)"
@@ -206,9 +257,9 @@ object InvoicePdfGenerator {
         canvas.drawText(amtHeader, colAmount - paint.measureText(amtHeader), y.toFloat(), paint)
 
         y += 20
-        dashedLine()
+        solidLine()
 
-        paint.typeface = Typeface.MONOSPACE
+        paint.typeface = receiptFontRegular
 
         // ================= ITEMS =================
         // Composition → name + (qty × rate) + amount    (NO tax columns)
@@ -243,12 +294,13 @@ object InvoicePdfGenerator {
             val rateText = "$currencySymbol%.2f/$unit".format(it.price)
 
             // ================= LINE 1 (NAME) =================
-            paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            paint.typeface = receiptFontMedium
+            paint.color = inkColor80
             paint.textSize = 14f
             canvas.drawText(displayName, colItem, y.toFloat(), paint)
             y += 20
 
-            paint.typeface = Typeface.MONOSPACE
+            paint.typeface = receiptFontRegular
             paint.textSize = 13f
 
             // Per-line detail (Option A): gross amount → its share of the bill
@@ -263,13 +315,13 @@ object InvoicePdfGenerator {
             val gstAmt       = it.cgstAmount + it.sgstAmount + it.igstAmount
             val lineTotal    = netTaxable + gstAmt
 
-            leftText("$qtyText × $rateText", 13f)
-            rightText("$currencySymbol%.2f".format(grossTaxable), 13f)
+            leftText("$qtyText × $rateText", 13f, color = mutedColor80)
+            rightText("$currencySymbol%.2f".format(grossTaxable), 13f, color = mutedColor80)
             y += 18
 
             if (lineDiscount >= 0.01) {
-                leftText(context.getString(R.string.invoice_pdf_discount_label), 13f)
-                rightText("- $currencySymbol%.2f".format(lineDiscount), 13f)
+                leftText(context.getString(R.string.invoice_pdf_discount_label), 13f, color = discountColor80)
+                rightText("- $currencySymbol%.2f".format(lineDiscount), 13f, color = discountColor80)
                 y += 18
             }
 
@@ -282,12 +334,12 @@ object InvoicePdfGenerator {
                     if (it.gstRate % 1 == 0.0) "${it.gstRate.toInt()}%"
                     else String.format("%.2f%%", it.gstRate)
 
-                leftText(context.getString(R.string.invoice_pdf_taxable_label), 13f)
-                rightText("$currencySymbol%.2f".format(netTaxable), 13f)
+                leftText(context.getString(R.string.invoice_pdf_taxable_label), 13f, color = mutedColor80)
+                rightText("$currencySymbol%.2f".format(netTaxable), 13f, color = mutedColor80)
                 y += 18
 
-                leftText("GST $gstPctText", 13f)
-                rightText("$currencySymbol%.2f".format(gstAmt), 13f)
+                leftText("GST $gstPctText", 13f, color = mutedColor80)
+                rightText("$currencySymbol%.2f".format(gstAmt), 13f, color = mutedColor80)
                 y += 18
 
                 rightText("Total $currencySymbol%.2f".format(lineTotal), 13f, bold = true)
@@ -306,7 +358,8 @@ object InvoicePdfGenerator {
 
         // ================= SUMMARY =================
 
-        paint.typeface = Typeface.MONOSPACE
+        paint.typeface = receiptFontRegular
+        paint.color = inkColor80
         paint.textSize = 14f
 
         // Per line already shows gross → discount → net taxable, so the summary
@@ -347,8 +400,13 @@ object InvoicePdfGenerator {
         }
 
         // ================= TOTAL =================
+        // A solid rule (not dashed) right above the grand total, same
+        // treatment as the item table header — this is the one number on
+        // the receipt that should read as final.
+        solidLine(1.4f)
 
-        paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+        paint.typeface = receiptFontMedium
+        paint.color = inkColor80
         paint.textSize = 18f
 
         canvas.drawText(context.getString(R.string.invoice_pdf_total_header), colItem, y.toFloat(), paint)
@@ -369,16 +427,18 @@ object InvoicePdfGenerator {
         if (isComposition) {
             centerText(
                 context.getString(R.string.invoice_pdf_composition_declaration_1),
-                11f
+                11f,
+                color = mutedColor80
             )
             centerText(
                 context.getString(R.string.invoice_pdf_composition_declaration_2),
-                11f
+                11f,
+                color = mutedColor80
             )
             y += 6
         }
 
-        centerText(footerMessage ?: context.getString(R.string.invoice_pdf_footer_default), 14f)
+        centerText(footerMessage ?: context.getString(R.string.invoice_pdf_footer_default), 14f, color = mutedColor80)
 
         document.finishPage(page)
 
@@ -411,22 +471,486 @@ object InvoicePdfGenerator {
         }
         document.close()
 
-// ================= PRINT =================
+        // ================= PRINT =================
+        // Gated by printAfterSave — false only for the "send to customer"
+        // flow, which wants the saved File back without popping the
+        // system print dialog. Every existing call site defaults to
+        // true, so this block still always runs exactly as before them.
+        if (printAfterSave) {
+            val printManager = context.getSystemService(PrintManager::class.java)
 
-        val printManager = context.getSystemService(PrintManager::class.java)
+            val printAdapter = PdfPrintAdapter(
+                context,
+                file.absolutePath,
+                baseName
+            )
 
-        val printAdapter = PdfPrintAdapter(
-            context,
-            file.absolutePath,
-            baseName
+            // 80mm keeps UNKNOWN_PORTRAIT exactly as before (untouched). A4
+            // declares the standard ISO_A4 media size so the print
+            // service/dialog treats it as a real A4 page.
+            val printAttributes = PrintAttributes.Builder()
+                .setMediaSize(if (isA4) PrintAttributes.MediaSize.ISO_A4 else PrintAttributes.MediaSize.UNKNOWN_PORTRAIT)
+                .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                .build()
+
+            printManager.print(baseName, printAdapter, printAttributes)
+        }
+
+        return file
+    }
+
+    /**
+     * Save + print tail used only by the A4 path — the 80mm path keeps its
+     * own inline save/print code untouched above.
+     */
+    private fun saveAndPrint(
+        context: Context,
+        document: PdfDocument,
+        storeName: String,
+        bill: Bill,
+        isA4: Boolean,
+        printAfterSave: Boolean = true
+    ): File {
+        val shopNameSafe = storeName.trim().replace("\\s+".toRegex(), "_").ifEmpty { "Store" }
+        val billNoSafe = bill.billNumber?.trim()?.ifEmpty { "NA" } ?: "NA"
+        val dateString = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+        val baseName = listOf(shopNameSafe, billNoSafe, dateString).filter { it.isNotBlank() }.joinToString("_")
+        val fileName = "$baseName.pdf"
+
+        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
+
+        FileOutputStream(file).use { document.writeTo(it) }
+        document.close()
+
+        if (printAfterSave) {
+            val printManager = context.getSystemService(PrintManager::class.java)
+            val printAdapter = PdfPrintAdapter(context, file.absolutePath, baseName)
+
+            val printAttributes = PrintAttributes.Builder()
+                .setMediaSize(if (isA4) PrintAttributes.MediaSize.ISO_A4 else PrintAttributes.MediaSize.UNKNOWN_PORTRAIT)
+                .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                .build()
+
+            printManager.print(baseName, printAdapter, printAttributes)
+        }
+
+        return file
+    }
+
+    /**
+     * Dedicated A4 invoice design: teal header band, billed-to/details
+     * cards, a bordered zebra-striped item table, and a solid grand-total
+     * pill. Uses the app's bundled Google Sans font family (the same
+     * family used in the outgoing HTML emails) with a system serif for
+     * the store-name / invoice-number / total accents (substituting the
+     * emails' 'Marcellus', which isn't embeddable on Android).
+     *
+     * Fully independent of the 80mm thermal drawing code above — sharing
+     * only the final save/print step.
+     */
+    private fun drawA4InvoicePages(
+        context: Context,
+        document: PdfDocument,
+        bill: Bill,
+        billItems: List<BillItem>,
+        storeInfo: StoreInfo?,
+        gstInvoice: GstSalesInvoice?,
+        isComposition: Boolean,
+        footerMessage: String?,
+        roundOff: Boolean,
+        currencySymbol: String,
+        showDiscount: Boolean
+    ) {
+        val pageWidth = 595
+        val pageHeight = 842
+        val margin = 32f
+
+        val fontRegular = ResourcesCompat.getFont(context, R.font.googlesans_regular) ?: Typeface.DEFAULT
+        val fontMedium = ResourcesCompat.getFont(context, R.font.googlesans_medium) ?: Typeface.DEFAULT_BOLD
+        val fontSemibold = ResourcesCompat.getFont(context, R.font.googlesans_semibold) ?: Typeface.DEFAULT_BOLD
+        val fontSerif = Typeface.SERIF
+
+        val teal = Color.parseColor("#0F6E56")
+        val champagne = Color.parseColor("#F3ECDD")
+        val champagneLabel = Color.parseColor("#8A6526")
+        val zebra = Color.parseColor("#FAF8F3")
+        val muted = Color.parseColor("#8A8272")
+        val ink = Color.parseColor("#1A1A18")
+        val hairline = Color.parseColor("#E4DFD0")
+
+        var pageNumber = 1
+        var page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
+        var canvas = page.canvas
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        var y = 0f
+
+        val storeName = storeInfo?.name ?: context.getString(R.string.invoice_pdf_store_default_name)
+
+        fun drawHeaderBand(continuation: Boolean) {
+            if (!continuation) {
+                // Store name — centered, serif, no color band.
+                paint.color = ink
+                paint.typeface = fontSerif
+                paint.textSize = 21f
+                canvas.drawText(storeName, (pageWidth - paint.measureText(storeName)) / 2f, 44f, paint)
+
+                paint.color = muted
+                paint.typeface = fontRegular
+                paint.textSize = 10f
+                val addrLine = listOfNotNull(
+                    storeInfo?.address?.takeIf { it.isNotBlank() },
+                    storeInfo?.phone?.takeIf { it.isNotBlank() }?.let { "Phone $it" },
+                    storeInfo?.gstin?.takeIf { it.isNotBlank() }?.let { "GSTIN $it" }
+                ).joinToString("   ·   ")
+                canvas.drawText(addrLine, (pageWidth - paint.measureText(addrLine)) / 2f, 62f, paint)
+
+                paint.color = teal
+                paint.strokeWidth = 1.6f
+                canvas.drawLine(margin, 78f, pageWidth - margin, 78f, paint)
+
+                // Outlined pill — "TAX INVOICE" / "INVOICE" — left of the meta row.
+                val pillLabel = if (isComposition) "INVOICE" else "TAX INVOICE"
+                paint.typeface = fontMedium
+                paint.textSize = 10f
+                val pillTextWidth = paint.measureText(pillLabel)
+                val pillPadX = 12f
+                val pillTop = 94f
+                val pillHeight = 22f
+                val pillWidth = pillTextWidth + pillPadX * 2
+                paint.style = Paint.Style.STROKE
+                paint.strokeWidth = 1f
+                paint.color = teal
+                canvas.drawRoundRect(margin, pillTop, margin + pillWidth, pillTop + pillHeight, pillHeight / 2, pillHeight / 2, paint)
+                paint.style = Paint.Style.FILL
+                paint.color = teal
+                canvas.drawText(pillLabel, margin + pillPadX, pillTop + pillHeight / 2 + 3.5f, paint)
+
+                // Invoice no. / Date — each column's label and value are
+                // centered under a shared column center, not left-started,
+                // so they read as two balanced blocks rather than a
+                // left-ragged list.
+                val metaRowLabelY = pillTop + 8f
+                val metaRowValueY = pillTop + 22f
+                val colDateCenter = pageWidth - margin - 55f
+                val colInvoiceCenter = colDateCenter - 110f
+
+                fun metaColumnCentered(centerX: Float, label: String, value: String) {
+                    paint.typeface = fontMedium
+                    paint.textSize = 8.5f
+                    paint.color = muted
+                    canvas.drawText(label, centerX - paint.measureText(label) / 2f, metaRowLabelY, paint)
+                    paint.typeface = fontRegular
+                    paint.textSize = 11.5f
+                    paint.color = ink
+                    canvas.drawText(value, centerX - paint.measureText(value) / 2f, metaRowValueY, paint)
+                }
+
+                metaColumnCentered(colInvoiceCenter, "INVOICE NO.", bill.billNumber)
+                metaColumnCentered(colDateCenter, "DATE", bill.date)
+
+                y = pillTop + pillHeight + 24f
+            } else {
+                paint.color = ink
+                paint.typeface = fontMedium
+                paint.textSize = 11f
+                canvas.drawText("$storeName — continued", margin, 30f, paint)
+                paint.color = teal
+                paint.strokeWidth = 1.6f
+                canvas.drawLine(margin, 40f, pageWidth - margin, 40f, paint)
+                y = 40f + 26f
+            }
+        }
+
+        drawHeaderBand(false)
+
+        // ── Billed to / details cards ──
+        // Both cards share one top-anchored rhythm — same label baseline,
+        // same first content line, same line height — and the card height
+        // is derived from whichever side has more lines, so neither box is
+        // ever taller/shorter than what it needs and content never
+        // overflows the champagne background (which is what read as
+        // "misaligned" when the height was a fixed guess).
+        run {
+            val boxTop = y
+            val boxW = (pageWidth - margin * 2 - 14f) / 2f
+            val padX = 14f
+            val labelTopPad = 16f
+            val labelToFirstLine = 32f
+            val lineHeight = 14f
+            val padBottom = 14f
+
+            val isB2B = (gstInvoice?.invoiceType ?: bill.customerType).equals("B2B", ignoreCase = true)
+
+            val billedLines = if (isB2B) {
+                listOfNotNull(gstInvoice?.businessName, gstInvoice?.customerName, gstInvoice?.customerGst ?: bill.customerGstin, gstInvoice?.customerState)
+            } else {
+                listOfNotNull(gstInvoice?.customerName, gstInvoice?.customerPhone, gstInvoice?.customerState)
+            }.ifEmpty { listOf(context.getString(R.string.invoice_pdf_walk_in_customer)) }
+
+            val detailLines = listOfNotNull(
+                bill.placeOfSupply.takeIf { it.isNotBlank() }?.let { "Place of supply: $it" },
+                bill.paymentMethod.takeIf { it.isNotBlank() }?.let { "Payment: $it" },
+                "Type: ${if (isB2B) "B2B" else "B2C"}"
+            )
+
+            val maxLines = maxOf(billedLines.size, detailLines.size)
+            val boxH = labelToFirstLine + (maxLines - 1) * lineHeight + padBottom
+
+            paint.style = Paint.Style.FILL
+            paint.color = champagne
+            canvas.drawRoundRect(margin, boxTop, margin + boxW, boxTop + boxH, 8f, 8f, paint)
+            canvas.drawRoundRect(margin + boxW + padX, boxTop, margin + boxW + padX + boxW, boxTop + boxH, 8f, 8f, paint)
+
+            val col1X = margin + 12f
+            val col2X = margin + boxW + padX + 12f
+            val labelY = boxTop + labelTopPad
+            val firstLineY = boxTop + labelToFirstLine
+
+            paint.color = champagneLabel
+            paint.typeface = fontSemibold
+            paint.textSize = 8.5f
+            canvas.drawText("BILLED TO", col1X, labelY, paint)
+            canvas.drawText("DETAILS", col2X, labelY, paint)
+
+            paint.color = ink
+            paint.typeface = fontRegular
+            paint.textSize = 10f
+            billedLines.forEachIndexed { i, line -> canvas.drawText(line, col1X, firstLineY + i * lineHeight, paint) }
+            detailLines.forEachIndexed { i, line -> canvas.drawText(line, col2X, firstLineY + i * lineHeight, paint) }
+
+            y = boxTop + boxH + 22f
+        }
+
+        // ── Table columns ── generous gutters so amounts with more
+        // digits (larger shops, bigger invoices) still have breathing
+        // room and never crowd the neighboring column. Discount gets its
+        // own column (rather than a note under the item name) so it reads
+        // as a real line item, not an afterthought.
+        val colNum = margin
+        val colItem = margin + 20f
+        val colTotalRight = pageWidth - margin
+        val colGst = colTotalRight - 76f
+        // GST% is a short value ("18%") sitting right next to Taxable, so
+        // it doesn't need as wide a gutter as the money columns — that
+        // space is better spent giving Discount/Rate/Qty/HSN more room.
+        val colTaxable = colGst - 42f
+        val colDiscount = colTaxable - 68f
+        val colRate = colDiscount - 74f
+        val colQty = colRate - 58f
+        val colHsn = colQty - 54f
+
+        // Qty and GST% are short, low-variance values — centering them on
+        // their column looks more like a real invoice table than the
+        // right-aligned numeric convention used for the money columns.
+        fun drawCentered(text: String, centerX: Float, y: Float) {
+            canvas.drawText(text, centerX - paint.measureText(text) / 2f, y, paint)
+        }
+
+        fun drawTableHeader() {
+            paint.color = teal
+            paint.typeface = fontSemibold
+            paint.textSize = 9.5f
+            canvas.drawText("#", colNum, y, paint)
+            canvas.drawText(context.getString(R.string.invoice_pdf_item_description_header), colItem, y, paint)
+            if (!isComposition) canvas.drawText("HSN", colHsn, y, paint)
+            drawCentered("Qty", colQty, y)
+            val rateLabel = "Rate ($currencySymbol)"; canvas.drawText(rateLabel, colRate - paint.measureText(rateLabel), y, paint)
+            if (showDiscount) {
+                val discLabel = "Discount ($currencySymbol)"; canvas.drawText(discLabel, colDiscount - paint.measureText(discLabel), y, paint)
+            }
+            if (!isComposition) {
+                val taxLabel = "Taxable ($currencySymbol)"; canvas.drawText(taxLabel, colTaxable - paint.measureText(taxLabel), y, paint)
+                drawCentered("GST%", colGst, y)
+            }
+            val totalLabel = "Total ($currencySymbol)"; canvas.drawText(totalLabel, colTotalRight - paint.measureText(totalLabel), y, paint)
+            y += 6f
+            paint.strokeWidth = 1.4f
+            canvas.drawLine(margin, y, pageWidth - margin, y, paint)
+            y += 16f
+        }
+
+        drawTableHeader()
+
+        // Column widths are fixed, so a long product name drawn with a
+        // blind take(30) could run past the item column's right edge and
+        // visually crowd/overlap the HSN or Qty header — which is what
+        // read as columns being "not aligned". Instead, measure and clip
+        // to the actual available width for that column, with an ellipsis
+        // when it's cut.
+        val itemColMaxWidth = (if (isComposition) colQty else colHsn) - colItem - 8f
+
+        fun truncateToWidth(text: String, maxWidth: Float): String {
+            if (paint.measureText(text) <= maxWidth) return text
+            val ellipsis = "…"
+            val ellipsisWidth = paint.measureText(ellipsis)
+            var fitChars = paint.breakText(text, true, maxWidth - ellipsisWidth, null)
+            if (fitChars <= 0) return ellipsis
+            return text.substring(0, fitChars) + ellipsis
+        }
+
+        fun ensureSpace(needed: Float) {
+            if (y + needed > pageHeight - 170f) {
+                document.finishPage(page)
+                pageNumber += 1
+                page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
+                canvas = page.canvas
+                drawHeaderBand(true)
+                drawTableHeader()
+            }
+        }
+
+        val discountColor = Color.parseColor("#A32D2D")
+
+        billItems.forEachIndexed { index, item ->
+            // Same derivation the 80mm receipt uses — gross (price × qty)
+            // vs. the stored net taxableValue — not the raw discountAmount
+            // field, so this always matches what prints on the thermal
+            // receipt for the same bill. It's its own column now (not a
+            // note under the item name) so it reads as a real line item.
+            val rawGross = item.price * item.quantity
+            val netTaxable = item.taxableValue
+            val lineDiscount = if (netTaxable < rawGross - 0.01) rawGross - netTaxable else 0.0
+            val hasLineDiscount = lineDiscount >= 0.01
+            val rowHeight = 22f
+
+            ensureSpace(rowHeight)
+
+            val rowTop = y - 10f
+            if (index % 2 == 0) {
+                paint.style = Paint.Style.FILL
+                paint.color = zebra
+                canvas.drawRect(margin, rowTop, pageWidth - margin, rowTop + rowHeight - 2f, paint)
+            }
+
+            val displayName = if (!item.variant.isNullOrBlank()) "${item.productName} (${item.variant})" else item.productName
+
+            paint.color = ink
+            paint.typeface = fontRegular
+            paint.textSize = 9.5f
+            canvas.drawText("${index + 1}", colNum, y, paint)
+            canvas.drawText(truncateToWidth(displayName, itemColMaxWidth), colItem, y, paint)
+
+            if (!isComposition) {
+                paint.color = muted
+                canvas.drawText(item.hsnCode.takeIf { it.isNotBlank() } ?: "-", colHsn, y, paint)
+                paint.color = ink
+            }
+
+            val qtyText = if (item.quantity % 1 == 0.0) item.quantity.toInt().toString() else "%.2f".format(item.quantity)
+            drawCentered(qtyText, colQty, y)
+
+            val rateText = "%.2f".format(item.price)
+            canvas.drawText(rateText, colRate - paint.measureText(rateText), y, paint)
+
+            if (showDiscount) {
+                paint.color = if (hasLineDiscount) discountColor else muted
+                val discText = if (hasLineDiscount) "-%.2f".format(lineDiscount) else "-"
+                canvas.drawText(discText, colDiscount - paint.measureText(discText), y, paint)
+                paint.color = ink
+            }
+
+            val gstAmt = item.cgstAmount + item.sgstAmount + item.igstAmount
+            val lineTotal = item.taxableValue + gstAmt
+
+            if (!isComposition) {
+                val taxText = "%.2f".format(item.taxableValue)
+                canvas.drawText(taxText, colTaxable - paint.measureText(taxText), y, paint)
+
+                val gstPctText = if (item.gstRate % 1 == 0.0) "${item.gstRate.toInt()}%" else "%.1f%%".format(item.gstRate)
+                drawCentered(gstPctText, colGst, y)
+            }
+
+            paint.typeface = fontMedium
+            val totalText = "%.2f".format(if (isComposition) item.taxableValue else lineTotal)
+            canvas.drawText(totalText, colTotalRight - paint.measureText(totalText), y, paint)
+
+            y += rowHeight
+        }
+
+        paint.color = hairline
+        paint.strokeWidth = 0.7f
+        canvas.drawLine(margin, y, pageWidth - margin, y, paint)
+        y += 18f
+
+        ensureSpace(140f)
+
+        val taxable = billItems.sumOf { it.taxableValue }
+        val totalDiscount = billItems.sumOf { item ->
+            val rawGross = item.price * item.quantity
+            if (item.taxableValue < rawGross - 0.01) rawGross - item.taxableValue else 0.0
+        }
+        val grossTaxable = taxable + totalDiscount
+        val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount
+        var finalTotal = bill.total
+        if (roundOff) finalTotal = Math.round(finalTotal).toDouble()
+        val computed = if (isComposition) taxable else taxable + totalTax
+        val roundDiff = finalTotal - computed
+
+        val boxRight = pageWidth - margin
+        val boxLeft = boxRight - 220f
+
+        fun totalsRow(label: String, value: String, bold: Boolean = false) {
+            paint.typeface = if (bold) fontMedium else fontRegular
+            paint.color = if (bold) ink else muted
+            paint.textSize = 10.5f
+            canvas.drawText(label, boxLeft, y, paint)
+            paint.color = ink
+            canvas.drawText(value, boxRight - paint.measureText(value), y, paint)
+            y += 16f
+        }
+
+        val hasDiscount = showDiscount && totalDiscount >= 0.01
+        if (hasDiscount) {
+            totalsRow(context.getString(R.string.invoice_pdf_gross_amount_label), "$currencySymbol%.2f".format(grossTaxable))
+            totalsRow(context.getString(R.string.invoice_pdf_discount_label), "- $currencySymbol%.2f".format(totalDiscount))
+        }
+
+        totalsRow(
+            if (isComposition) context.getString(R.string.invoice_pdf_sub_total_label) else context.getString(R.string.invoice_pdf_taxable_amount_label),
+            "$currencySymbol%.2f".format(taxable)
         )
 
-        val printAttributes = PrintAttributes.Builder()
-            .setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT)
-            .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
-            .build()
+        if (!isComposition) {
+            if (bill.igstAmount > 0.0) {
+                totalsRow(context.getString(R.string.invoice_pdf_igst_label), "$currencySymbol%.2f".format(bill.igstAmount))
+            } else {
+                totalsRow(context.getString(R.string.invoice_pdf_cgst_label), "$currencySymbol%.2f".format(bill.cgstAmount))
+                totalsRow(context.getString(R.string.invoice_pdf_sgst_label), "$currencySymbol%.2f".format(bill.sgstAmount))
+            }
+        }
+        if (kotlin.math.abs(roundDiff) >= 0.01) {
+            totalsRow(context.getString(R.string.invoice_pdf_round_off_label), "$currencySymbol%.2f".format(roundDiff))
+        }
 
-        printManager.print(baseName, printAdapter, printAttributes)
+        y += 10f
+        paint.strokeWidth = 1.2f
+        paint.color = teal
+        canvas.drawLine(boxLeft, y - 10f, boxRight, y - 10f, paint)
+        y += 8f
+
+        paint.color = teal
+        paint.typeface = fontMedium
+        paint.textSize = 12f
+        canvas.drawText(context.getString(R.string.invoice_pdf_total_header), boxLeft, y, paint)
+        paint.typeface = fontSerif
+        paint.textSize = 16f
+        val totalText = "$currencySymbol%.2f".format(finalTotal)
+        canvas.drawText(totalText, boxRight - paint.measureText(totalText), y, paint)
+        y += 30f
+
+        paint.color = teal
+        paint.strokeWidth = 1.6f
+        canvas.drawLine(margin, y, pageWidth - margin, y, paint)
+        y += 20f
+
+        paint.color = muted
+        paint.typeface = fontRegular
+        paint.textSize = 9.5f
+        val footer = footerMessage ?: context.getString(R.string.invoice_pdf_footer_default)
+        canvas.drawText(footer, (pageWidth - paint.measureText(footer)) / 2f, y, paint)
+
+        document.finishPage(page)
     }
 
     private fun extractUnitAndVariant(name: String): Pair<String, String?> {

@@ -152,15 +152,28 @@ class MainActivity : BaseActivity() {
         // checkExistingSession() verifies it and (usually) redirects
         // straight to Dashboard. Only revealed if the check concludes the
         // user genuinely needs to log in (no token, or a stale one).
-        val rootView = findViewById<View>(android.R.id.content)
+        // NOTE: an opaque overlay drawn ON TOP of mainContainerCard, not
+        // mainContainerCard's own visibility being touched — an earlier
+        // version hid mainContainerCard itself (or the whole content
+        // view) while checkExistingSession() ran, but mainContainerCard
+        // is a shared-element transition target animating in from
+        // SplashActivity, and toggling its visibility mid-transition
+        // crashed the app silently on some devices. This overlay just
+        // sits in front of it instead, transition untouched underneath.
+        val sessionCheckOverlay = findViewById<View>(R.id.sessionCheckOverlay)
         val hasStoredToken = !getSharedPreferences("auth", MODE_PRIVATE)
             .getString("TOKEN", null).isNullOrEmpty()
         if (hasStoredToken) {
-            rootView.visibility = View.INVISIBLE
+            // Without this, a device with a saved token but slow/no
+            // connectivity just sat on a totally blank white screen for
+            // up to ~35s (RetrofitClient's connect+read timeout) with
+            // zero feedback that anything was happening — see
+            // checkExistingSession()/SessionCheck.run().
+            sessionCheckOverlay.visibility = View.VISIBLE
         }
 
         checkExistingSession {
-            rootView.visibility = View.VISIBLE
+            sessionCheckOverlay.visibility = View.GONE
         }
 
               // Cinematic Entrance choreography: Focus on branding and form headings

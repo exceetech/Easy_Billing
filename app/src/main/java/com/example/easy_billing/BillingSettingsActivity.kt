@@ -44,6 +44,14 @@ class BillingSettingsActivity : BaseActivity() {
 
     private lateinit var cardGstProfile: View
     private lateinit var cardPrinter: View
+    private lateinit var cardRazorpay: View
+
+    // Razorpay (per-shop UPI payment link credentials)
+    private lateinit var tvRazorpayStatus: TextView
+    private lateinit var etRazorpayKeyId: EditText
+    private lateinit var etRazorpayKeySecret: EditText
+    private lateinit var etRazorpayWebhookSecret: EditText
+    private var razorpayConfigured = false
 
     private var isEditMode = false
     private var snapshot: BillingSnapshot? = null
@@ -119,6 +127,12 @@ class BillingSettingsActivity : BaseActivity() {
 
         cardGstProfile = findViewById(R.id.cardGstProfile)
         cardPrinter    = findViewById(R.id.cardPrinter)
+        cardRazorpay   = findViewById(R.id.cardRazorpay)
+
+        tvRazorpayStatus        = findViewById(R.id.tvRazorpayStatus)
+        etRazorpayKeyId         = findViewById(R.id.etRazorpayKeyId)
+        etRazorpayKeySecret     = findViewById(R.id.etRazorpayKeySecret)
+        etRazorpayWebhookSecret = findViewById(R.id.etRazorpayWebhookSecret)
 
         btnEdit.setOnClickListener { toggleEditMode() }
     }
@@ -153,6 +167,12 @@ class BillingSettingsActivity : BaseActivity() {
     private fun applyRegType(v: String) { selectedRegType = v; tvRegType.text = v }
     private fun applyPrinter(v: String) { selectedPrinter = v; tvPrinter.text = v }
 
+    private fun applyRazorpayStatus(configured: Boolean) {
+        razorpayConfigured = configured
+        tvRazorpayStatus.text = if (configured)
+            getString(R.string.razorpay_connected) else getString(R.string.razorpay_not_connected)
+    }
+
     // ---------------- LOAD ----------------
 
     private fun loadData() {
@@ -171,6 +191,8 @@ class BillingSettingsActivity : BaseActivity() {
                 applyScheme(localGst?.gstScheme ?: "REGULAR")
                 applyRegType(localGst?.registrationType ?: "Regular")
                 applyPrinter(billing?.printerLayout ?: "80mm")
+                etRazorpayKeyId.setText(billing?.razorpayKeyId.orEmpty())
+                applyRazorpayStatus(billing?.razorpayConfigured ?: false)
             }
 
             val token = getSharedPreferences("auth", MODE_PRIVATE)
@@ -226,11 +248,17 @@ class BillingSettingsActivity : BaseActivity() {
                 val updatedBilling = (billing ?: BillingSettings(
                     defaultGst = 0f,
                     printerLayout = billingResp.printer_layout
-                )).copy(printerLayout = billingResp.printer_layout)
+                )).copy(
+                    printerLayout = billingResp.printer_layout,
+                    razorpayKeyId = billingResp.razorpay_key_id,
+                    razorpayConfigured = billingResp.razorpay_configured
+                )
                 db.billingSettingsDao().insert(updatedBilling)
 
                 withContext(Dispatchers.Main) {
                     applyPrinter(updatedBilling.printerLayout)
+                    etRazorpayKeyId.setText(updatedBilling.razorpayKeyId.orEmpty())
+                    applyRazorpayStatus(updatedBilling.razorpayConfigured)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -254,7 +282,8 @@ class BillingSettingsActivity : BaseActivity() {
                 address = etAddress.text.toString(),
                 scheme = selectedScheme,
                 regType = selectedRegType,
-                printer = selectedPrinter
+                printer = selectedPrinter,
+                razorpayKeyId = etRazorpayKeyId.text.toString()
             )
         } else {
             snapshot?.let { s ->
@@ -265,7 +294,13 @@ class BillingSettingsActivity : BaseActivity() {
                 applyScheme(s.scheme)
                 applyRegType(s.regType)
                 applyPrinter(s.printer)
+                etRazorpayKeyId.setText(s.razorpayKeyId)
             }
+            // Secret fields are write-only/never round-tripped from the
+            // server — always clear them on discard rather than trying
+            // to restore a value we never had.
+            etRazorpayKeySecret.setText("")
+            etRazorpayWebhookSecret.setText("")
         }
         setEditable(isEditMode)
     }
@@ -292,11 +327,20 @@ class BillingSettingsActivity : BaseActivity() {
         controlRow(rowRegType, icRegTypeChevron)
         controlRow(rowPrinter, icPrinterChevron)
 
+        listOf(etRazorpayKeyId, etRazorpayKeySecret, etRazorpayWebhookSecret).forEach {
+            it.isEnabled = enable
+            it.isFocusable = enable
+            it.isFocusableInTouchMode = enable
+            it.isClickable = enable
+            it.isCursorVisible = enable
+        }
+
         // Faded until Edit is tapped — same locked/unlocked feel as
         // InvoiceDesignActivity.setEditable() / DataSecurityActivity.setLocked().
         val alpha = if (enable) 1f else 0.6f
         cardGstProfile.alpha = alpha
         cardPrinter.alpha = alpha
+        cardRazorpay.alpha = alpha
 
         tvEdit.text = if (enable) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enable) View.VISIBLE else View.GONE
@@ -406,11 +450,22 @@ class BillingSettingsActivity : BaseActivity() {
             // ================= PRINTER =================
             val printer = selectedPrinter.ifEmpty { "80mm" }
 
+            // ================= RAZORPAY =================
+            // Blank means "not edited this time" — the field's real value
+            // (if any) is write-only on the server and never round-tripped
+            // back down, so an untouched blank must not be sent as a clear.
+            val typedKeyId = etRazorpayKeyId.text.toString().trim()
+            val typedKeySecret = etRazorpayKeySecret.text.toString().trim()
+            val typedWebhookSecret = etRazorpayWebhookSecret.text.toString().trim()
+
             val existingBilling = db.billingSettingsDao().get()
             val updatedBilling = (existingBilling ?: BillingSettings(
                 defaultGst = 0f,
                 printerLayout = printer
-            )).copy(printerLayout = printer)
+            )).copy(
+                printerLayout = printer,
+                razorpayKeyId = typedKeyId.ifBlank { existingBilling?.razorpayKeyId }
+            )
             db.billingSettingsDao().insert(updatedBilling)
 
             // ================= GST =================
@@ -446,13 +501,30 @@ class BillingSettingsActivity : BaseActivity() {
                 }
 
                 runCatching {
-                    RetrofitClient.api.updateBillingSettings(
+                    val resp = RetrofitClient.api.updateBillingSettings(
                         token,
                         BillingSettingsUpdateRequest(
                             default_gst = 0f,
-                            printer_layout = printer
+                            printer_layout = printer,
+                            razorpay_key_id = typedKeyId.ifBlank { null },
+                            razorpay_key_secret = typedKeySecret.ifBlank { null },
+                            razorpay_webhook_secret = typedWebhookSecret.ifBlank { null }
                         )
                     )
+                    // Reflect the server's authoritative connected-state back
+                    // into Room, and never keep a typed secret in memory
+                    // longer than the request that carried it.
+                    db.billingSettingsDao().insert(
+                        updatedBilling.copy(
+                            razorpayKeyId = resp.razorpay_key_id,
+                            razorpayConfigured = resp.razorpay_configured
+                        )
+                    )
+                    withContext(Dispatchers.Main) {
+                        etRazorpayKeySecret.setText("")
+                        etRazorpayWebhookSecret.setText("")
+                        applyRazorpayStatus(resp.razorpay_configured)
+                    }
                 }
             }
 
@@ -490,6 +562,7 @@ class BillingSettingsActivity : BaseActivity() {
         val address: String,
         val scheme: String,
         val regType: String,
-        val printer: String
+        val printer: String,
+        val razorpayKeyId: String = ""
     )
 }

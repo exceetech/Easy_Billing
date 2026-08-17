@@ -73,6 +73,18 @@ class BillHistoryActivity : BaseActivity() {
         loadBills()
     }
 
+    // Re-fetches every time this screen comes back into view — e.g.
+    // after marking a UPI bill as paid (or cancelling one) inside
+    // BillDetailsActivity and pressing back. Cheap enough (one GET) to
+    // just always do this rather than thread a "did anything change"
+    // result back through the Activity result API.
+    private var hasLoadedOnce = false
+    override fun onResume() {
+        super.onResume()
+        if (hasLoadedOnce) loadBills()
+        hasLoadedOnce = true
+    }
+
 // ================= INIT =================
 
     private fun initViews() {

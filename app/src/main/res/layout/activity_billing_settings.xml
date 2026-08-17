@@ -328,6 +328,84 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- ===================== RAZORPAY (UPI payment links) ===================== -->
+            <LinearLayout android:id="@+id/cardRazorpay" style="@style/AddCard"
+                android:layout_marginTop="16dp"
+                android:paddingTop="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#0F6E56"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="9dp" android:text="@string/razorpay_section_title"
+                        android:textColor="#0F6E56" android:textSize="12sp" android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvRazorpayStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/razorpay_not_connected"
+                    android:textColor="#8A8272"
+                    android:textSize="11.5sp"
+                    android:fontFamily="@font/googlesans_regular"/>
+
+                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/razorpay_key_id_label"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_lc_id_card" app:tint="#0F6E56"/>
+                        <EditText
+                            android:id="@+id/etRazorpayKeyId"
+                            style="@style/SiEdit"
+                            android:hint="@string/razorpay_key_id_hint"
+                            android:inputType="text"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/razorpay_key_secret_label"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_lc_lock" app:tint="#0F6E56"/>
+                        <EditText
+                            android:id="@+id/etRazorpayKeySecret"
+                            style="@style/SiEdit"
+                            android:hint="@string/razorpay_key_secret_hint"
+                            android:inputType="textPassword"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/SiBlock">
+                    <TextView style="@style/SiFieldLabel" android:text="@string/razorpay_webhook_secret_label"/>
+                    <LinearLayout style="@style/SiFieldBox">
+                        <ImageView style="@style/SiIcon"
+                            android:src="@drawable/ic_lc_lock" app:tint="#0F6E56"/>
+                        <EditText
+                            android:id="@+id/etRazorpayWebhookSecret"
+                            style="@style/SiEdit"
+                            android:hint="@string/razorpay_webhook_secret_hint"
+                            android:inputType="textPassword"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/razorpay_helper_text"
+                    android:textColor="#8A8272"
+                    android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_regular"
+                    android:lineSpacingExtra="2dp"/>
+            </LinearLayout>
+
             <!-- Save — solid teal CTA matching the app's other confirm
                  buttons, instead of SiSavePill's navy. -->
             <com.google.android.material.button.MaterialButton

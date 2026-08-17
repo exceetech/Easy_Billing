@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Mark as paid" confirmation — same card shell as
+    dialog_send_to_customer.xml (soft teal circle icon + centered title),
+    used by BillDetailsActivity.confirmMarkAsPaid() in place of a bare
+    AlertDialog.Builder(...).setTitle/setMessage(...).
+
+    Ids: tvMarkPaidBillInfo, btnMarkPaidConfirm, btnMarkPaidCancel —
+    bound by BillDetailsActivity.confirmMarkAsPaid().
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_teal">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_check"
+            app:tint="#0F6E56"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mark_as_paid_dialog_title_part1"
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/mark_as_paid_dialog_title_part2"
+            android:textColor="#0F6E56"
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="@string/mark_as_paid_confirm_message"
+        android:textSize="12sp"
+        android:lineSpacingExtra="2dp"
+        android:textColor="#9A8F79" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_send_option_row">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/mark_as_paid_dialog_bill_label"
+            android:textSize="12sp"
+            android:textColor="#9A8F79" />
+        <TextView
+            android:id="@+id/tvMarkPaidBillInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#1A1A18"
+            tools:text="INV-2026-70 · ₹1,240.00" />
+    </LinearLayout>
+
+    <!-- Stacked, not side-by-side — the confirming action reads first
+         since it's the more common tap (cashier confirming a genuine
+         payment), Cancel sits below it as the quieter escape hatch. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMarkPaidConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/mark_as_paid_button"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_lc_check"
+        app:iconTint="#FFFFFF"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMarkPaidCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/cancel"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#F6D8D4" />
+
+</LinearLayout>

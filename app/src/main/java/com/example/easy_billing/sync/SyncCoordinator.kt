@@ -140,6 +140,8 @@ class SyncCoordinator private constructor(
                             runCatching { sm.pullBills() }
                             // Propagate voids made on other terminals.
                             runCatching { sm.pullBillCancellations() }
+                            // Propagate UPI payment-link confirmations (webhook-driven).
+                            runCatching { sm.pullPaymentStatus() }
                             lastFullPullAt = now
                         }
                     }

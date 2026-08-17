@@ -106,11 +106,17 @@ class BillHistoryAdapter(
         holder.tvBillAmount.text = CurrencyHelper.format(context, bill.total_amount)
 
         val isCredit = bill.payment_method.contains("credit", ignoreCase = true)
+        val isUpi = bill.payment_method.equals("UPI", ignoreCase = true)
 
         // Status caption text mirrors purchase-history's plain lowercase style.
+        // UPI is the only payment method with a real, webhook-confirmed
+        // payment_status behind it — every other method keeps the old
+        // static "paid" label, since there's no payment-link concept for
+        // Cash/Card/Credit sales.
         holder.tvPaymentMethod.text = when {
             bill.is_cancelled -> context.getString(R.string.bill_history_status_cancelled)
             isCredit -> context.getString(R.string.bill_history_status_on_credit)
+            isUpi && bill.payment_status != "paid" -> context.getString(R.string.bill_history_status_pending_payment)
             else -> context.getString(R.string.bill_history_status_paid)
         }
 
@@ -138,6 +144,12 @@ class BillHistoryAdapter(
             holder.tvBillNumber.paintFlags =
                 holder.tvBillNumber.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             holder.itemView.alpha = 1f
+
+            // Pending-payment UPI rows get a distinct amber tint, applied
+            // after the base palette colour above so it isn't overwritten.
+            if (isUpi && bill.payment_status != "paid") {
+                holder.tvPaymentMethod.setTextColor(Color.parseColor("#B2792E"))
+            }
         }
 
         holder.divider.visibility = if (position == currentList.lastIndex) View.GONE else View.VISIBLE

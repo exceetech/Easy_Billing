@@ -2,6 +2,7 @@ package com.example.easy_billing.network
 
 import com.example.easy_billing.api.*
 import com.example.easy_billing.db.CreditTransaction
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -123,6 +124,46 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = all
     ): List<BillCancellationDto>
+
+    @GET("bills/payment-status")
+    suspend fun getBillPaymentStatusUpdates(
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = all
+    ): List<BillPaymentStatusDto>
+
+    // Keyed on bill_number, not a local id — the app's local Room Bill.id
+    // is never the server's bill id, only bill_number is a reliable
+    // cross-system key (same reason the payment-status pull matches on it).
+    @POST("pos-payments/{billNumber}/create-link")
+    suspend fun createPaymentLink(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String,
+        @Body request: CreatePaymentLinkRequest
+    ): CreatePaymentLinkResponse
+
+    @Multipart
+    @POST("pos-payments/{billNumber}/upload-pdf")
+    suspend fun uploadInvoicePdf(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String,
+        @Part file: MultipartBody.Part
+    ): UploadPdfResponse
+
+    // Scan-to-pay in-person alternative to createPaymentLink above — no
+    // SIM/phone number needed, the customer just scans this off screen.
+    @POST("pos-payments/{billNumber}/create-qr")
+    suspend fun createQrCode(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String
+    ): CreateQrCodeResponse
+
+    // Manual "customer already paid, webhook hasn't caught up" override —
+    // no request body, just the shop's own auth on their own bill.
+    @POST("pos-payments/{billNumber}/mark-paid")
+    suspend fun markBillPaid(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String
+    ): MarkPaidResponse
 
     @GET("bills/{id}")
     suspend fun getBillDetails(
@@ -282,7 +323,7 @@ interface ApiService {
     suspend fun updateBillingSettings(
         @Header("Authorization") token: String,
         @Body request: BillingSettingsUpdateRequest
-    ): Map<String,String>
+    ): BillingSettingsResponse
 
     @PUT("security/clear-bills")
     suspend fun clearBills(

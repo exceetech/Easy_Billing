@@ -89,6 +89,24 @@ interface BillDao {
     @Query("UPDATE bills SET cancel_synced = 1 WHERE id = :billId")
     suspend fun markCancelSynced(billId: Int)
 
+    // ===== "Send to customer" UPI payment link (v65) =====
+
+    @Query("""
+        UPDATE bills
+        SET razorpay_payment_link_id = :linkId, razorpay_payment_link_url = :linkUrl
+        WHERE id = :billId
+    """)
+    suspend fun savePaymentLink(billId: Int, linkId: String, linkUrl: String)
+
+    // Guarded like markBillCancelled — only flips unpaid -> paid once,
+    // idempotent against a webhook-confirmed delta arriving twice.
+    @Query("""
+        UPDATE bills
+        SET payment_status = :status, razorpay_payment_id = :razorpayPaymentId
+        WHERE billNumber = :billNumber AND payment_status != 'paid'
+    """)
+    suspend fun markPaymentStatus(billNumber: String, status: String, razorpayPaymentId: String?): Int
+
     // ===== Profit-analytics pulse (Report 5 fix) =====
 
     // Only bills that already have a real server bill number (is_synced=1)

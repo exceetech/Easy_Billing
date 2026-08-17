@@ -9,6 +9,15 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- "Send to customer" → SMS channel sends the invoice/pay-link text
+         directly to the customer's number without opening a messaging
+         app — see CustomerShareHelper.sendViaSms(). READ_PHONE_STATE is
+         required too: on dual-SIM devices SmsManager.getDefault()
+         internally reads subscription info (getGroupIdLevel) and throws
+         a SecurityException without it, even though SEND_SMS is granted. -->
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
     <application
         android:name=".EasyBillingApp"
         android:allowBackup="true"

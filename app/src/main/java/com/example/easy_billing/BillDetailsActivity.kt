@@ -39,6 +39,10 @@ import java.util.Locale
 
 class BillDetailsActivity : AppCompatActivity() {
 
+    companion object {
+        private const val REQUEST_CODE_SEND_SMS = 101
+    }
+
     private lateinit var tvBillInfo: TextView
     private lateinit var tvBillDate: TextView
     private lateinit var tvCancelledBadge: TextView
@@ -58,6 +62,8 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var rvBillItems: RecyclerView
     private lateinit var progressBillDetails: android.widget.ProgressBar
     private lateinit var btnPrint: Button
+    private lateinit var btnSendToCustomer: Button
+    private lateinit var btnMarkAsPaid: MaterialButton
     private lateinit var btnClose: Button
     private lateinit var btnCancelBill: MaterialButton
     private lateinit var btnCreditNote: MaterialButton
@@ -104,6 +110,8 @@ class BillDetailsActivity : AppCompatActivity() {
         rvBillItems      = findViewById(R.id.rvBillItems)
         progressBillDetails = findViewById(R.id.progressBillDetails)
         btnPrint         = findViewById(R.id.btnPrint)
+        btnSendToCustomer = findViewById(R.id.btnSendToCustomer)
+        btnMarkAsPaid    = findViewById(R.id.btnMarkAsPaid)
         btnClose         = findViewById(R.id.btnClose)
         btnCancelBill    = findViewById(R.id.btnCancelBill)
         btnCreditNote    = findViewById(R.id.btnCreditNote)
@@ -128,6 +136,16 @@ class BillDetailsActivity : AppCompatActivity() {
         loadBillDetails()
 
         btnPrint.setOnClickListener { generatePdfAndPrint() }
+        // Send to customer needs an active SIM (SmsManager has no other
+        // way to send) — on a SIM-less device (e.g. a WiFi-only tablet)
+        // it's hidden entirely rather than shown-then-failing, falling
+        // back to the original save-invoice/print-only flow untouched.
+        if (com.example.easy_billing.util.CustomerShareHelper.hasActiveSim(this)) {
+            btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
+        } else {
+            btnSendToCustomer.visibility = View.GONE
+        }
+        btnMarkAsPaid.setOnClickListener { confirmMarkAsPaid() }
         btnClose.setOnClickListener { finish() }
         btnCancelBill.setOnClickListener { confirmCancellation() }
         btnCreditNote.setOnClickListener { openSalesReturn() }
@@ -260,7 +278,28 @@ class BillDetailsActivity : AppCompatActivity() {
                 val alreadyCancelled =
                     bill.is_cancelled || localBill?.isCancelled == true
                 localBillId = localBill?.id ?: -1
-                applyBillCancellationState(alreadyCancelled)
+
+                val isUpiBill = bill.payment_method.equals("UPI", ignoreCase = true)
+                // Server is the source of truth for payment_status (it's
+                // set only by the Razorpay webhook); localBill's synced
+                // copy is the fallback for an offline reopen.
+                val upiPaid = bill.payment_status == "paid" || localBill?.paymentStatus == "paid"
+                applyBillCancellationState(alreadyCancelled, isUpiBill, upiPaid)
+
+                // Manual override — only relevant while there's actually
+                // something to override: a UPI bill, not cancelled, and
+                // not already confirmed paid.
+                btnMarkAsPaid.visibility =
+                    if (isUpiBill && !upiPaid && !alreadyCancelled) View.VISIBLE else View.GONE
+
+                // Reflects a webhook-confirmed "send to customer" UPI
+                // payment — independent of payment_method above, which is
+                // how the sale was recorded at checkout, not whether a
+                // separately-sent pay link was paid.
+                if (upiPaid) {
+                    tvPaidThrough.text = "${tvPaidThrough.text} · ${getString(R.string.send_to_customer_paid_badge)}"
+                    tvPaidThrough.setTextColor(Color.parseColor("#0F6E56"))
+                }
 
                 if (localBillId != -1) {
                     lifecycleScope.launch(Dispatchers.IO) {
@@ -361,20 +400,53 @@ class BillDetailsActivity : AppCompatActivity() {
 
     // ===== Cancellation flow =====
 
+    // Remembered so the post-cancellation call site (which has no fresh
+    // bill data to hand) can still render the pill correctly.
+    private var lastIsUpiBill = false
+    private var lastUpiPaid = false
+
     /**
-     * Toggles UI to reflect whether this bill is already cancelled.
-     * Called both after load (existing state) and after a successful
-     * cancel action.
+     * Toggles UI to reflect whether this bill is already cancelled — and,
+     * for UPI bills only, whether the Razorpay payment link has actually
+     * been paid. Called both after load (existing state) and after a
+     * successful cancel action.
      */
-    private fun applyBillCancellationState(cancelled: Boolean) {
-        if (cancelled) {
-            tvCancelledBadge.text = "CANCELLED"
-            viewStatusDot.backgroundTintList =
-                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F09595"))
-        } else {
-            tvCancelledBadge.text = "PAID"
-            viewStatusDot.backgroundTintList =
-                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#5DCAA5"))
+    private fun applyBillCancellationState(
+        cancelled: Boolean,
+        isUpiBill: Boolean = lastIsUpiBill,
+        upiPaid: Boolean = lastUpiPaid
+    ) {
+        lastIsUpiBill = isUpiBill
+        lastUpiPaid = upiPaid
+
+        when {
+            cancelled -> {
+                tvCancelledBadge.text = "CANCELLED"
+                viewStatusDot.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F09595"))
+            }
+            // UPI bills get a real payment-status pill instead of the
+            // generic "not cancelled" one — this is the only payment
+            // method with an actual webhook-confirmed paid/unpaid state.
+            isUpiBill && !upiPaid -> {
+                tvCancelledBadge.text = "PENDING PAYMENT"
+                viewStatusDot.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D99C3F"))
+            }
+            isUpiBill -> {
+                tvCancelledBadge.text = "PAID"
+                viewStatusDot.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#5DCAA5"))
+            }
+            else -> {
+                // Renamed from "PAID" — this badge has only ever meant "not
+                // cancelled," never anything about actual payment collection.
+                // Kept it distinct from the real UPI-paid badge above so
+                // the two don't read as the same signal.
+                tvCancelledBadge.text = "ACTIVE"
+                viewStatusDot.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#5DCAA5"))
+            }
         }
         btnCancelBill.visibility    = if (cancelled) View.GONE   else View.VISIBLE
         btnCreditNote.isEnabled     = !cancelled
@@ -774,6 +846,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 val printBill = if (localBill != null) localBill else bill
                 val printItems = if (localBill != null && localItems.isNotEmpty())
                     localItems else billItems
+                val printerLayout = db.billingSettingsDao().get()?.printerLayout ?: "80mm"
 
                 InvoicePdfGenerator.generatePdfFromBill(
                     context = this@BillDetailsActivity,
@@ -781,7 +854,8 @@ class BillDetailsActivity : AppCompatActivity() {
                     billItems = printItems,
                     storeInfo = storeInfo,
                     gstScheme = savedInvoice?.gstScheme,
-                    gstInvoice = savedInvoice
+                    gstInvoice = savedInvoice,
+                    printerLayout = printerLayout
                 )
 
             } catch (e: SecurityException) {
@@ -798,6 +872,191 @@ class BillDetailsActivity : AppCompatActivity() {
                     "Couldn't generate the invoice PDF: ${e.message ?: "unknown error"}",
                     Toast.LENGTH_LONG
                 ).show()
+            }
+        }
+    }
+
+    // SMS-only — see CustomerShareHelper's doc comment for why WhatsApp
+    // was removed from this flow (no silent-send API without the
+    // separate WhatsApp Business Cloud API).
+
+    /** SMS is sent directly via SmsManager (no messaging app opens) — needs SEND_SMS at runtime. */
+    private fun showSendToCustomerOptions() {
+        if (com.example.easy_billing.util.CustomerShareHelper.hasSmsPermission(this)) {
+            sendToCustomer()
+        } else {
+            androidx.core.app.ActivityCompat.requestPermissions(
+                this,
+                com.example.easy_billing.util.CustomerShareHelper.SMS_PERMISSIONS,
+                REQUEST_CODE_SEND_SMS
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_SEND_SMS) {
+            if (grantResults.isNotEmpty() && grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }) {
+                sendToCustomer()
+            } else {
+                Toast.makeText(this, getString(R.string.send_to_customer_sms_permission_needed), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    // Deliberately its own fetch, not reusing generatePdfAndPrint() —
+    // that function ends in a print call, this one ends in a share
+    // intent; keeping them independent means a change to either can
+    // never accidentally alter the other's behavior.
+    private fun sendToCustomer() {
+        lifecycleScope.launch {
+            val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null) ?: return@launch
+
+            Toast.makeText(this@BillDetailsActivity, getString(R.string.send_to_customer_sending), Toast.LENGTH_SHORT).show()
+
+            try {
+                val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+                val response = RetrofitClient.api.getBillDetails(token, billId)
+
+                val bill = Bill(
+                    id = response.bill.bill_id,
+                    billNumber = response.bill.bill_number,
+                    date = response.bill.created_at,
+                    subTotal = response.bill.total_amount - response.bill.gst + response.bill.discount,
+                    gst = response.bill.gst,
+                    discount = response.bill.discount,
+                    total = response.bill.total_amount,
+                    paymentMethod = response.bill.payment_method,
+                    customerType = response.bill.invoice_type ?: "B2C",
+                    placeOfSupply = response.bill.customer_state_code ?: "",
+                    supplyType = response.bill.supply_type ?: "intrastate",
+                    paymentStatus = response.bill.payment_status
+                )
+
+                val billItems = response.items.map {
+                    val safeUnit = when (it.unit?.lowercase()) {
+                        "kilogram" -> "kg"
+                        "gram" -> "g"
+                        "litre" -> "l"
+                        "millilitre" -> "ml"
+                        else -> it.unit ?: "unit"
+                    }
+                    BillItem(
+                        billId = response.bill.bill_id,
+                        productId = it.shop_product_id,
+                        productName = it.product_name,
+                        variant = it.variant ?: "",
+                        unit = safeUnit,
+                        price = it.price,
+                        quantity = it.quantity,
+                        subTotal = it.subtotal
+                    )
+                }
+
+                val storeInfo = db.storeInfoDao().get()
+
+                val localBill = if (localBillId != -1) db.billDao().getBillById(localBillId) else null
+                val localItems = if (localBillId != -1) db.billItemDao().getItemsForBill(localBillId) else emptyList()
+                val savedInvoice = if (localBillId != -1) db.gstSalesInvoiceDao().getByBillId(localBillId) else null
+
+                // Server (`bill`, just fetched above) is the source of
+                // truth for payment_status, but a local mark-as-paid can
+                // beat it to the punch before the next sync pulls the
+                // server's own copy forward — same "either wins" merge
+                // loadBillDetails() uses, so this can't miss a paid
+                // status and accidentally attach a stale payment link.
+                val isPaid = bill.paymentStatus.equals("paid", ignoreCase = true) ||
+                    localBill?.paymentStatus.equals("paid", ignoreCase = true)
+                val sendBill = (localBill ?: bill).let {
+                    if (isPaid) it.copy(paymentStatus = "paid") else it
+                }
+                val sendItems = if (localBill != null && localItems.isNotEmpty()) localItems else billItems
+                val printerLayout = db.billingSettingsDao().get()?.printerLayout ?: "80mm"
+
+                val customerName = savedInvoice?.customerName
+                val customerPhone = savedInvoice?.customerPhone
+
+                com.example.easy_billing.util.CustomerShareHelper.sendToCustomer(
+                    context = this@BillDetailsActivity,
+                    bill = sendBill,
+                    billItems = sendItems,
+                    storeInfo = storeInfo,
+                    gstScheme = savedInvoice?.gstScheme,
+                    gstInvoice = savedInvoice,
+                    printerLayout = printerLayout,
+                    customerName = customerName,
+                    customerPhone = customerPhone
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(
+                    this@BillDetailsActivity,
+                    "Couldn't send the invoice: ${e.message ?: "unknown error"}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    // ===== Manual "mark as paid" override =====
+
+    private fun confirmMarkAsPaid() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_mark_as_paid, null)
+
+        val tvBillInfo = dialogView.findViewById<TextView>(R.id.tvMarkPaidBillInfo)
+        val btnConfirm = dialogView.findViewById<View>(R.id.btnMarkPaidConfirm)
+        val btnCancel = dialogView.findViewById<View>(R.id.btnMarkPaidCancel)
+
+        // Reuses the total already rendered on screen (tvTotal) rather
+        // than re-deriving it — this dialog is purely a confirmation
+        // over what's already showing, no new data fetch needed.
+        val amountText = tvTotal.text?.toString().orEmpty()
+        tvBillInfo.text = when {
+            resolvedBillNumber.isNotBlank() && amountText.isNotBlank() -> "$resolvedBillNumber · $amountText"
+            resolvedBillNumber.isNotBlank() -> resolvedBillNumber
+            else -> amountText
+        }
+
+        val dialog = AlertDialog.Builder(this).setView(dialogView).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnConfirm.setOnClickListener {
+            dialog.dismiss()
+            markAsPaid()
+        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
+    }
+
+    private fun markAsPaid() {
+        val billNumber = resolvedBillNumber
+        if (billNumber.isBlank()) {
+            Toast.makeText(this, getString(R.string.mark_as_paid_failed), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            val status = com.example.easy_billing.repository.PosPaymentRepository.markPaid(
+                this@BillDetailsActivity, billNumber
+            )
+
+            if (status == "paid") {
+                // Mirror the same local write the webhook-driven sync path
+                // uses, so the pill/badge stay correct even before the
+                // next full sync pass.
+                withContext(Dispatchers.IO) {
+                    val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+                    db.billDao().markPaymentStatus(billNumber, "paid", null)
+                }
+                Toast.makeText(this@BillDetailsActivity, getString(R.string.mark_as_paid_success), Toast.LENGTH_SHORT).show()
+                loadBillDetails()
+            } else {
+                Toast.makeText(this@BillDetailsActivity, getString(R.string.mark_as_paid_failed), Toast.LENGTH_LONG).show()
             }
         }
     }

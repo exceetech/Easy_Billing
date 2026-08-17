@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Scan-to-pay QR — shown right after a UPI bill is saved, on every
+    device (no SIM required, nothing gets sent anywhere, this just
+    displays). Same card shell as the other themed dialogs. See
+    InvoiceActivity.showQrPaymentDialog()/startQrPaymentPolling().
+
+    Ids: tvQrBillInfo, ivQrCode, progressQrLoading, tvQrStatus, btnQrClose
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp"
+    android:gravity="center_horizontal">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/qr_payment_title_part1"
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/qr_payment_title_part2"
+            android:textColor="#0F6E56"
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvQrBillInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textColor="#9A8F79"
+        tools:text="INV-2026-70 · ₹1,240.00" />
+
+    <FrameLayout
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_send_option_row">
+
+        <ProgressBar
+            android:id="@+id/progressQrLoading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#0F6E56" />
+
+        <ImageView
+            android:id="@+id/ivQrCode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:contentDescription="@string/qr_payment_title_part1"
+            tools:visibility="visible"
+            tools:src="@drawable/ic_lc_check" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvQrStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:gravity="center"
+        android:textSize="12.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#0F6E56"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        tools:text="Couldn't load the QR code. Tap to retry." />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnQrClose"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="18dp"
+        android:text="@string/cancel"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#F6D8D4" />
+
+</LinearLayout>

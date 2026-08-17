@@ -16,5 +16,11 @@ data class BillResponse(
 
     // N1: voided (cancelled) bills stay visible in history with a badge.
     // Default false so older backend responses still parse.
-    val is_cancelled: Boolean = false
+    val is_cancelled: Boolean = false,
+
+    // UPI "send to customer" link status — "unpaid" for every bill until
+    // a Razorpay webhook confirms payment. Only meaningful when
+    // payment_method == "UPI"; other payment methods never touch this
+    // column so it just stays "unpaid" and is ignored in the UI.
+    val payment_status: String = "unpaid"
 )

@@ -2613,6 +2613,42 @@ class SyncManager(private val context: Context) {
         }
     }
 
+    // ===== "Send to customer" UPI payment link (v65) =====
+    // Same cursor/propagation pattern as pullBillCancellations above —
+    // a bill's payment_status flips from "unpaid" to "paid" server-side
+    // (Razorpay webhook) after the bill already exists locally, so this
+    // is a delta PULL onto an existing row, not part of pullBills().
+    suspend fun pullPaymentStatus() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+
+        val cursorPrefs = context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
+        val shopId = currentShopIdOrNull() ?: -1
+        val cursorKey = "bills_payment_since_$shopId"
+        val since = cursorPrefs.getLong(cursorKey, 0L)
+
+        try {
+            val updates = api.getBillPaymentStatusUpdates(token, since)
+            Log.d(SYNC_TAG, "pullPaymentStatus: ${updates.size} paid bill(s) since $since")
+            val billDao = db.billDao()
+            var maxUpdatedAt = since
+
+            for (u in updates) {
+                u.updated_at?.let { if (it > maxUpdatedAt) maxUpdatedAt = it }
+                if (u.bill_number.isBlank()) continue
+                billDao.markPaymentStatus(u.bill_number, u.payment_status, u.razorpay_payment_id)
+            }
+
+            if (maxUpdatedAt > since) {
+                cursorPrefs.edit().putLong(cursorKey, maxUpdatedAt).apply()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     suspend fun syncGstProfile() {
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api

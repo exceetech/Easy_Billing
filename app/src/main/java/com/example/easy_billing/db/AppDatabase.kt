@@ -76,7 +76,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // Support/debugging breadcrumb trail (v61) — see [UserEventLog].
         UserEventLog::class
     ],
-    version = 64
+    version = 66
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1882,6 +1882,39 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * "Send to customer" UPI payment link (v65). payment_status is
+         * independent of the existing paymentMethod column — paymentMethod
+         * records how the sale was recorded at checkout (Cash/Card/UPI/
+         * Credit), payment_status tracks whether a separately-sent
+         * Razorpay Payment Link has been paid, confirmed via
+         * pullPaymentStatus() in SyncManager. Every existing bill defaults
+         * to "unpaid".
+         */
+        val MIGRATION_64_65 = object : Migration(64, 65) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `payment_status` TEXT NOT NULL DEFAULT 'unpaid'")
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `razorpay_payment_link_id` TEXT")
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `razorpay_payment_link_url` TEXT")
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `razorpay_payment_id` TEXT")
+            }
+        }
+
+        /**
+         * Per-shop Razorpay account for "send to customer" UPI links (v65
+         * follow-up). Corrects an earlier mistake where every shop would
+         * have shared one platform Razorpay test account — each shop now
+         * connects their own, so customer payments deposit into that
+         * shop's own bank account. Only the public key id + a connected
+         * flag are cached locally; the secrets are write-only fields.
+         */
+        val MIGRATION_65_66 = object : Migration(65, 66) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `billing_settings` ADD COLUMN `razorpayKeyId` TEXT")
+                db.execSQL("ALTER TABLE `billing_settings` ADD COLUMN `razorpayConfigured` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1936,7 +1969,9 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_60_61,
                         MIGRATION_61_62,
                         MIGRATION_62_63,
-                        MIGRATION_63_64
+                        MIGRATION_63_64,
+                        MIGRATION_64_65,
+                        MIGRATION_65_66
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

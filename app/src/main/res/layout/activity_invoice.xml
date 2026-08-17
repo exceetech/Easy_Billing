@@ -1865,6 +1865,66 @@
                         </LinearLayout>
                     </FrameLayout>
 
+                    <!-- Send to customer — standalone, directly under Generate, so
+                         it reads as the natural next step once a bill exists. -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSendToCustomer"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/send_to_customer_title"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:background="@drawable/bg_login_cta_green"
+                        android:stateListAnimator="@null"
+                        app:rippleColor="#0B5544"
+                        app:icon="@drawable/ic_lc_send"
+                        app:iconTint="#FFFFFF"
+                        app:iconGravity="textStart"
+                        app:iconPadding="7dp"
+                        app:cornerRadius="13dp"
+                        app:backgroundTint="#0F6E56"
+                        android:includeFontPadding="false"
+                        android:gravity="center"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"/>
+
+                    <!-- Show QR — re-opens the scan-to-pay dialog for a UPI
+                         bill any time after save, in case the customer
+                         asks again after the first attempt failed/expired
+                         or the dialog was closed. GONE unless the saved
+                         bill's payment method is UPI. -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnShowQr"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/qr_show_button"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#0F6E56"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:background="@drawable/bg_send_option_row"
+                        android:stateListAnimator="@null"
+                        app:rippleColor="#CDEAE1"
+                        app:icon="@drawable/ic_lc_check"
+                        app:iconTint="#0F6E56"
+                        app:iconGravity="textStart"
+                        app:iconPadding="7dp"
+                        app:cornerRadius="13dp"
+                        app:backgroundTint="@null"
+                        android:includeFontPadding="false"
+                        android:gravity="center"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"
+                        android:visibility="gone"/>
+
                     <!-- Secondary premium buttons -->
                     <LinearLayout
                         android:layout_width="match_parent"

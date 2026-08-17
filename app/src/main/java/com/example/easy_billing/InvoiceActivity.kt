@@ -4,10 +4,12 @@ import com.example.easy_billing.util.appNow
 
 import com.example.easy_billing.util.AppTime
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
+import androidx.core.app.ActivityCompat
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -69,6 +71,10 @@ import java.util.*
  *     `gst_sales_items_table`.
  */
 class InvoiceActivity : AppCompatActivity() {
+
+    companion object {
+        private const val REQUEST_CODE_SEND_SMS = 101
+    }
 
     // Repository for the pure I/O functions only (store info, billing
     // settings, customer lookup/upsert, print reads, credit-picker/add-
@@ -142,6 +148,8 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var rgPaymentMethod: RadioGroup
     private lateinit var btnConfirm: View
     private lateinit var btnPrint: View
+    private lateinit var btnSendToCustomer: View
+    private lateinit var btnShowQr: View
     private lateinit var btnClose: View
 
     // ---- State ----
@@ -233,6 +241,7 @@ class InvoiceActivity : AppCompatActivity() {
         playEntryAnimations()
         attachPressFeedback(btnConfirm, scaleTo = 0.97f)
         attachPressFeedback(btnPrint,   scaleTo = 0.96f)
+        attachPressFeedback(btnSendToCustomer, scaleTo = 0.96f)
         attachPressFeedback(btnClose,   scaleTo = 0.96f)
         attachPressFeedback(chipB2C,    scaleTo = 0.95f)
         attachPressFeedback(chipB2B,    scaleTo = 0.95f)
@@ -309,6 +318,23 @@ class InvoiceActivity : AppCompatActivity() {
         }
         // Print stays cosmetically disabled until the invoice is generated.
         setCosmeticEnabled(btnPrint, false)
+
+        // Send to customer needs an active SIM (SmsManager has no other
+        // way to send) — on a SIM-less device (e.g. a WiFi-only tablet)
+        // it's hidden entirely rather than shown-then-failing, falling
+        // back to the original save-invoice/print-only flow untouched.
+        if (com.example.easy_billing.util.CustomerShareHelper.hasActiveSim(this)) {
+            btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
+            setCosmeticEnabled(btnSendToCustomer, false)
+        } else {
+            btnSendToCustomer.visibility = View.GONE
+        }
+
+        // Show QR — stays hidden until a UPI bill is actually saved (see
+        // saveBill()'s post-save block), then lets the cashier re-open the
+        // scan-to-pay dialog as many times as needed: first attempt
+        // failed, dialog got closed, customer wants to scan again, etc.
+        btnShowQr.setOnClickListener { reopenQrDialog() }
     }
 
     // ================= BIND =================
@@ -368,6 +394,8 @@ class InvoiceActivity : AppCompatActivity() {
         rgPaymentMethod = findViewById(R.id.rgPaymentMethod)
         btnConfirm     = findViewById(R.id.btnConfirm)
         btnPrint       = findViewById(R.id.btnPrint)
+        btnSendToCustomer = findViewById(R.id.btnSendToCustomer)
+        btnShowQr = findViewById(R.id.btnShowQr)
         btnClose       = findViewById(R.id.btnClose)
 
         setupStateDropdown()
@@ -1075,6 +1103,21 @@ class InvoiceActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Locks the payment-method chips once the invoice is generated —
+     * changing it afterwards would desync the saved bill's paymentMethod
+     * from what "Send to customer" reads (UPI vs everything else decides
+     * whether a pay-link gets attached). Setting isEnabled on the
+     * RadioGroup alone doesn't disable its children in Android, so each
+     * chip is walked individually.
+     */
+    private fun setPaymentMethodLocked(locked: Boolean) {
+        setCosmeticEnabled(rgPaymentMethod, !locked)
+        for (i in 0 until rgPaymentMethod.childCount) {
+            rgPaymentMethod.getChildAt(i)?.isEnabled = !locked
+        }
+    }
+
     private fun saveBill() {
 
         if (isBillSaved) return
@@ -1528,15 +1571,42 @@ class InvoiceActivity : AppCompatActivity() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    // Invoice generated → enable Print, lock Generate + Discount.
+                    // Invoice generated → enable Print + Send to customer, lock Generate + Discount.
                     setCosmeticEnabled(btnPrint, true)
+                    setCosmeticEnabled(btnSendToCustomer, true)
                     // Restore the arrow (clears the spinner) before re-locking
                     // the button, so "locked" reads as disabled, not stuck loading.
                     setCosmeticEnabled(btnConfirm, true)
                     btnConfirm.isEnabled = false
                     btnConfirm.alpha = 0.45f
                     setCosmeticEnabled(etDiscount, false)
+                    setPaymentMethodLocked(true)
                     Toast.makeText(this@InvoiceActivity, R.string.invoice_bill_saved, Toast.LENGTH_SHORT).show()
+
+                    // UPI bill → show the scan-to-pay QR immediately, on
+                    // EVERY device (SIM or not) — it needs nothing sent
+                    // anywhere, just displayed, so it's the one UPI path
+                    // that always gets automatic paid/pending tracking.
+                    // "Send to customer" (SMS) stays available separately
+                    // as the secondary "pay later" option, SIM-gated.
+                    if (getPaymentMethod() == "UPI") {
+                        setCosmeticEnabled(btnShowQr, true)
+                        btnShowQr.visibility = View.VISIBLE
+                        // The activity's own `billNumber` field is never
+                        // actually populated (stays " " / blank) — the
+                        // real formatted bill number only exists on the
+                        // saved Room row, same place "Send to customer"
+                        // reads it from via repository.getBillById().
+                        lifecycleScope.launch {
+                            val savedBill = withContext(Dispatchers.IO) {
+                                repository.getBillById(savedBillId)
+                            }
+                            val realBillNumber = savedBill?.billNumber.orEmpty()
+                            if (realBillNumber.isNotBlank()) {
+                                showQrPaymentDialog(realBillNumber, total)
+                            }
+                        }
+                    }
                 }
 
             } catch (e: Exception) {
@@ -1708,10 +1778,258 @@ class InvoiceActivity : AppCompatActivity() {
             // GST invoice saved with THIS bill — drives the print layout
             // (GST mode) and supplies the captured B2B/B2C customer details.
             val savedInvoice = repository.getGstInvoiceByBillId(savedBillId)
+            val printerLayout = com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity)
+                .billingSettingsDao().get()?.printerLayout ?: "80mm"
             withContext(Dispatchers.Main) {
                 InvoicePdfGenerator.generatePdfFromBill(
                     this@InvoiceActivity, bill, billItems, storeInfo,
-                    savedInvoice?.gstScheme, savedInvoice
+                    savedInvoice?.gstScheme, savedInvoice, printerLayout
+                )
+            }
+        }
+    }
+
+    // ================= UPI: SCAN-TO-PAY QR =================
+    // Shown right after every UPI bill is saved, on ANY device — unlike
+    // the SMS payment link, a QR code needs nothing sent anywhere, it
+    // just needs to be visible on screen, so this is the one UPI path
+    // that always gets automatic paid/pending tracking regardless of
+    // whether the device has a SIM. Replaces the old no-SIM "mark as
+    // paid now or later" prompt entirely — that manual fallback is no
+    // longer needed since this covers every device.
+
+    private var qrPollJob: kotlinx.coroutines.Job? = null
+
+    /** btnShowQr's click target — re-fetches the saved bill so it always
+     *  uses the current total (matters if a discount was ever editable
+     *  post-save; harmless if not) and re-opens the QR dialog on demand. */
+    private fun reopenQrDialog() {
+        if (savedBillId == -1) return
+        lifecycleScope.launch {
+            // Pull first so a payment that landed while this screen sat
+            // idle (webhook fired minutes ago, cashier only just tapped
+            // the button again) is reflected before deciding anything —
+            // same reasoning as sendToCustomer()'s pre-send pull.
+            try {
+                withContext(Dispatchers.IO) { SyncManager(this@InvoiceActivity).pullPaymentStatus() }
+            } catch (_: Exception) {
+                // offline/best-effort — falls back to whatever's cached locally
+            }
+
+            val savedBill = withContext(Dispatchers.IO) { repository.getBillById(savedBillId) } ?: return@launch
+
+            if (savedBill.paymentStatus == "paid") {
+                // Already paid — no reason to burn a fresh single-use QR
+                // code on a bill that's settled. Also stops the button
+                // from offering a live QR for money already collected.
+                Toast.makeText(this@InvoiceActivity, R.string.qr_already_paid, Toast.LENGTH_SHORT).show()
+                setCosmeticEnabled(btnShowQr, false)
+                return@launch
+            }
+
+            val realBillNumber = savedBill.billNumber
+            if (realBillNumber.isNotBlank()) {
+                showQrPaymentDialog(realBillNumber, savedBill.total)
+            }
+        }
+    }
+
+    private fun showQrPaymentDialog(billNumber: String, amount: Double) {
+        if (billNumber.isBlank()) return
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_qr_payment, null)
+        val tvBillInfo = dialogView.findViewById<TextView>(R.id.tvQrBillInfo)
+        val ivQr = dialogView.findViewById<ImageView>(R.id.ivQrCode)
+        val progressQr = dialogView.findViewById<View>(R.id.progressQrLoading)
+        val tvQrStatus = dialogView.findViewById<TextView>(R.id.tvQrStatus)
+        val btnClose = dialogView.findViewById<View>(R.id.btnQrClose)
+
+        val amountText = com.example.easy_billing.util.CurrencyHelper.format(this, amount)
+        tvBillInfo.text = "${billNumber.trim()} · $amountText"
+
+        val dialog = AlertDialog.Builder(this).setView(dialogView).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        fun stopPolling() {
+            qrPollJob?.cancel()
+            qrPollJob = null
+        }
+
+        btnClose.setOnClickListener {
+            stopPolling()
+            dialog.dismiss()
+        }
+        dialog.setOnDismissListener { stopPolling() }
+
+        dialog.show()
+
+        // Pulled out so a failure (network hiccup, backend hiccup, whatever)
+        // can be retried from the same dialog instead of forcing the
+        // cashier to close it and lose the bill's QR entirely — nothing
+        // upstream re-triggers showQrPaymentDialog after the initial call.
+        fun loadQr() {
+            progressQr.visibility = View.VISIBLE
+            ivQr.visibility = View.GONE
+            tvQrStatus.text = ""
+
+            lifecycleScope.launch {
+                val qr = com.example.easy_billing.repository.PosPaymentRepository.createQrCode(this@InvoiceActivity, billNumber)
+                if (qr == null) {
+                    progressQr.visibility = View.GONE
+                    tvQrStatus.text = getString(R.string.qr_payment_failed_retry)
+                    return@launch
+                }
+
+                val bitmap = withContext(Dispatchers.IO) {
+                    try {
+                        val stream = java.net.URL(qr.qr_image_url).openStream()
+                        android.graphics.BitmapFactory.decodeStream(stream)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+
+                progressQr.visibility = View.GONE
+                if (bitmap != null) {
+                    ivQr.setImageBitmap(bitmap)
+                    ivQr.visibility = View.VISIBLE
+                    tvQrStatus.text = getString(R.string.qr_payment_waiting)
+                    startQrPaymentPolling(billNumber, dialog, tvQrStatus, qr.close_by)
+                } else {
+                    tvQrStatus.text = getString(R.string.qr_payment_failed_retry)
+                }
+            }
+        }
+
+        tvQrStatus.setOnClickListener { loadQr() }
+        loadQr()
+    }
+
+    /** Checks payment_status every few seconds while the QR dialog is open, auto-closing it once paid.
+     *  [closeByEpochSeconds] is Razorpay's own expiry for this QR (echoed back by create-qr) — once
+     *  that passes, Razorpay has already killed the code server-side, so polling forever afterward
+     *  would never see "paid" and would just drain battery/network. Stops and shows an expired,
+     *  tap-to-retry state instead. */
+    private fun startQrPaymentPolling(
+        billNumber: String,
+        dialog: androidx.appcompat.app.AlertDialog,
+        tvQrStatus: TextView,
+        closeByEpochSeconds: Long? = null
+    ) {
+        qrPollJob = lifecycleScope.launch {
+            while (true) {
+                if (closeByEpochSeconds != null && System.currentTimeMillis() / 1000 >= closeByEpochSeconds) {
+                    tvQrStatus.text = getString(R.string.qr_payment_expired_retry)
+                    break
+                }
+
+                kotlinx.coroutines.delay(4000)
+                try {
+                    SyncManager(this@InvoiceActivity).pullPaymentStatus()
+                } catch (_: Exception) {
+                    // offline/best-effort — just retry on the next tick
+                }
+                val bill = withContext(Dispatchers.IO) {
+                    com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity).billDao().getByBillNumber(billNumber)
+                }
+                if (bill?.paymentStatus == "paid") {
+                    tvQrStatus.text = getString(R.string.qr_payment_success)
+                    setCosmeticEnabled(btnShowQr, false)
+                    kotlinx.coroutines.delay(1200)
+                    if (dialog.isShowing) dialog.dismiss()
+                    Toast.makeText(this@InvoiceActivity, getString(R.string.qr_payment_success), Toast.LENGTH_SHORT).show()
+                    break
+                }
+            }
+        }
+    }
+
+    // ================= SEND TO CUSTOMER =================
+    // SMS-only — see CustomerShareHelper's doc comment for why WhatsApp
+    // was removed from this flow (no silent-send API without the
+    // separate WhatsApp Business Cloud API).
+
+    /** SMS is sent directly via SmsManager (no messaging app opens) — needs SEND_SMS at runtime. */
+    private fun showSendToCustomerOptions() {
+        if (savedBillId == -1) {
+            Toast.makeText(this, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (com.example.easy_billing.util.CustomerShareHelper.hasSmsPermission(this)) {
+            sendToCustomer()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                com.example.easy_billing.util.CustomerShareHelper.SMS_PERMISSIONS,
+                REQUEST_CODE_SEND_SMS
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_SEND_SMS) {
+            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                sendToCustomer()
+            } else {
+                Toast.makeText(this, getString(R.string.send_to_customer_sms_permission_needed), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun sendToCustomer() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            // Staying on this screen after Generate Invoice means the
+            // periodic sync that would normally pull a Razorpay webhook's
+            // "paid" flip onto this bill's local row never runs — without
+            // this, a UPI bill paid moments ago (while still on this
+            // exact screen) would read back as "unpaid" here and send a
+            // redundant/stale payment link. This is a cheap delta pull
+            // (SyncManager.pullPaymentStatus), safe to call every send.
+            try {
+                SyncManager(this@InvoiceActivity).pullPaymentStatus()
+            } catch (_: Exception) {
+                // offline/best-effort — falls back to whatever payment_status
+                // is already cached locally, same as before this call existed.
+            }
+
+            val bill = repository.getBillById(savedBillId)
+            val billItems = repository.getItemsForBill(savedBillId)
+            val storeInfo = repository.getStoreInfo()
+            val savedInvoice = repository.getGstInvoiceByBillId(savedBillId)
+            val printerLayout = com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity)
+                .billingSettingsDao().get()?.printerLayout ?: "80mm"
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@InvoiceActivity, getString(R.string.send_to_customer_sending), Toast.LENGTH_SHORT).show()
+            }
+
+            if (bill == null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@InvoiceActivity, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
+
+            val customerName = etCustomerName.text?.toString()?.trim().orEmpty().ifBlank { savedInvoice?.customerName }
+            val customerPhone = etCustomerPhone.text?.toString()?.trim().orEmpty().ifBlank { savedInvoice?.customerPhone }
+
+            withContext(Dispatchers.Main) {
+                com.example.easy_billing.util.CustomerShareHelper.sendToCustomer(
+                    context = this@InvoiceActivity,
+                    bill = bill,
+                    billItems = billItems,
+                    storeInfo = storeInfo,
+                    gstScheme = savedInvoice?.gstScheme,
+                    gstInvoice = savedInvoice,
+                    printerLayout = printerLayout,
+                    customerName = customerName,
+                    customerPhone = customerPhone
                 )
             }
         }

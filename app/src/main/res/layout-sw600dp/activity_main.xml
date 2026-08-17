@@ -96,4 +96,10 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- See sessionCheckOverlay's comment in layout/activity_main.xml —
+         same purpose, kept in sync here. -->
+    <FrameLayout android:id="@+id/sessionCheckOverlay" android:layout_width="0dp" android:layout_height="0dp" android:background="@drawable/bg_login_doodle" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+        <ProgressBar android:id="@+id/progressSessionCheck" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:indeterminateTint="#0F6E56" />
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

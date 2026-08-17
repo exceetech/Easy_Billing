@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Send to customer" channel picker — champagne redesign, same card
+    shell as dialog_verify_password.xml (soft teal circle icon + centered
+    title), reused by both InvoiceActivity and BillDetailsActivity in
+    place of a bare AlertDialog.Builder(...).setItems(...) list.
+
+    Ids: tvSendSubtitle, rowWhatsapp, rowSms, btnSendCancel — bound by
+    both activities' showSendToCustomerOptions().
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_teal">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_send"
+            app:tint="#0F6E56"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/send_to_customer_dialog_title_part1"
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/send_to_customer_dialog_title_part2"
+            android:textColor="#0F6E56"
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSendSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textColor="#9A8F79"
+        tools:text="Invoice #INV-2026-70 · ₹10.00" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="18dp">
+
+        <LinearLayout
+            android:id="@+id/rowWhatsapp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
+            android:background="@drawable/bg_send_option_row"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <FrameLayout
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_circle_soft_teal">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_send"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send_to_customer_whatsapp_option"
+                    android:textColor="#1A1A18"
+                    android:textSize="13.5sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:includeFontPadding="false" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/send_to_customer_whatsapp_row_subtitle"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="1dp"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_lc_chevron_right"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowSms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_send_option_row"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <FrameLayout
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_circle_soft_teal">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_si_message"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send_to_customer_sms_option"
+                    android:textColor="#1A1A18"
+                    android:textSize="13.5sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:includeFontPadding="false" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/send_to_customer_sms_row_subtitle"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="1dp"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_lc_chevron_right"
+                android:contentDescription="@null" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Cancel — same ghost-destructive style as dialog_verify_password's btnCancel. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSendCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/cancel"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#F6D8D4" />
+
+</LinearLayout>

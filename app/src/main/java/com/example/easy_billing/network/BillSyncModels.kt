@@ -34,6 +34,39 @@ data class BillCancellationDto(
     val updated_at: Long? = null   // server-set; cursor
 )
 
+/** A paid bill echoed by GET /bills/payment-status for cross-terminal
+ *  "customer paid the UPI link" propagation — see SyncManager.pullPaymentStatus. */
+data class BillPaymentStatusDto(
+    val bill_number: String,
+    val payment_status: String,
+    val razorpay_payment_id: String? = null,
+    val updated_at: Long? = null   // server-set; cursor
+)
+
+data class CreatePaymentLinkRequest(
+    val customer_name: String? = null,
+    val customer_phone: String? = null
+)
+
+data class CreatePaymentLinkResponse(
+    val payment_link_id: String,
+    val payment_link_url: String
+)
+
+data class UploadPdfResponse(
+    val pdf_url: String
+)
+
+data class MarkPaidResponse(
+    val payment_status: String
+)
+
+data class CreateQrCodeResponse(
+    val qr_code_id: String,
+    val qr_image_url: String,
+    val close_by: Long? = null
+)
+
 data class BillItemSyncDto(
     val shop_product_id: Int,
     val product_name: String,

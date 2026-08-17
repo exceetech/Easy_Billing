@@ -71,5 +71,24 @@ data class Bill(
      * SyncManager find and backfill any bill whose pulse never landed.
      */
     @ColumnInfo(name = "sale_pulse_synced", defaultValue = "0")
-    var salePulseSynced: Boolean = false
+    var salePulseSynced: Boolean = false,
+
+    // ── "Send to customer" UPI payment link (v65) ──────────────────────
+    /**
+     * "unpaid" until the backend's Razorpay webhook confirms the
+     * customer actually paid the link (see pullPaymentStatus in
+     * SyncManager) — independent of [paymentMethod], which records how
+     * the sale itself was recorded at checkout.
+     */
+    @ColumnInfo(name = "payment_status", defaultValue = "unpaid")
+    var paymentStatus: String = "unpaid",
+
+    @ColumnInfo(name = "razorpay_payment_link_id")
+    var razorpayPaymentLinkId: String? = null,
+
+    @ColumnInfo(name = "razorpay_payment_link_url")
+    var razorpayPaymentLinkUrl: String? = null,
+
+    @ColumnInfo(name = "razorpay_payment_id")
+    var razorpayPaymentId: String? = null
 )

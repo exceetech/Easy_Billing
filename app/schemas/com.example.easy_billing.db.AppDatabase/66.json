@@ -1,0 +1,3691 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 66,
+    "identityHash": "d03123fcdaca234b9f1fca2aad0bb205",
+    "entities": [
+      {
+        "tableName": "products",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `variant` TEXT, `unit` TEXT, `price` REAL NOT NULL, `serverId` INTEGER, `trackInventory` INTEGER NOT NULL, `isCustom` INTEGER NOT NULL, `isActive` INTEGER NOT NULL, `activeStateSynced` INTEGER NOT NULL, `isTaxInclusive` INTEGER NOT NULL, `is_purchased` INTEGER NOT NULL, `category` TEXT NOT NULL, `shop_id` TEXT NOT NULL, `hsnCode` TEXT, `defaultGstRate` REAL NOT NULL, `cgst_percentage` REAL NOT NULL, `sgst_percentage` REAL NOT NULL, `igst_percentage` REAL NOT NULL, `official_uqc` TEXT, `hsn_description` TEXT, `cess_rate` REAL NOT NULL, `supply_classification` TEXT NOT NULL, `pending_field_sync` INTEGER NOT NULL DEFAULT 0, `pending_deactivate_sync` INTEGER NOT NULL DEFAULT 0, `isSellable` INTEGER NOT NULL DEFAULT 1, `isRawMaterial` INTEGER NOT NULL DEFAULT 0)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variant",
+            "columnName": "variant",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "unit",
+            "columnName": "unit",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "serverId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "trackInventory",
+            "columnName": "trackInventory",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCustom",
+            "columnName": "isCustom",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeStateSynced",
+            "columnName": "activeStateSynced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isTaxInclusive",
+            "columnName": "isTaxInclusive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPurchased",
+            "columnName": "is_purchased",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsnCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "defaultGstRate",
+            "columnName": "defaultGstRate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstPercentage",
+            "columnName": "cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstPercentage",
+            "columnName": "sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstPercentage",
+            "columnName": "igst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "officialUqc",
+            "columnName": "official_uqc",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnDescription",
+            "columnName": "hsn_description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cessRate",
+            "columnName": "cess_rate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplyClassification",
+            "columnName": "supply_classification",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pendingFieldSync",
+            "columnName": "pending_field_sync",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "pendingDeactivateSync",
+            "columnName": "pending_deactivate_sync",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "isSellable",
+            "columnName": "isSellable",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "isRawMaterial",
+            "columnName": "isRawMaterial",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_products_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_products_name` ON `${TABLE_NAME}` (`name`)"
+          },
+          {
+            "name": "index_products_hsnCode",
+            "unique": false,
+            "columnNames": [
+              "hsnCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_products_hsnCode` ON `${TABLE_NAME}` (`hsnCode`)"
+          },
+          {
+            "name": "index_products_shop_id",
+            "unique": false,
+            "columnNames": [
+              "shop_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_products_shop_id` ON `${TABLE_NAME}` (`shop_id`)"
+          },
+          {
+            "name": "index_products_shop_id_name_variant",
+            "unique": true,
+            "columnNames": [
+              "shop_id",
+              "name",
+              "variant"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_products_shop_id_name_variant` ON `${TABLE_NAME}` (`shop_id`, `name`, `variant`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "bills",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `billNumber` TEXT NOT NULL, `date` TEXT NOT NULL, `subTotal` REAL NOT NULL, `gst` REAL NOT NULL, `discount` REAL NOT NULL, `total` REAL NOT NULL, `paymentMethod` TEXT NOT NULL, `customerType` TEXT NOT NULL, `customerGstin` TEXT, `placeOfSupply` TEXT NOT NULL, `supplyType` TEXT NOT NULL, `cgstAmount` REAL NOT NULL, `sgstAmount` REAL NOT NULL, `igstAmount` REAL NOT NULL, `is_synced` INTEGER NOT NULL, `is_cancelled` INTEGER NOT NULL, `cancelled_at` INTEGER, `cancel_synced` INTEGER NOT NULL, `credit_account_id` INTEGER, `sale_pulse_synced` INTEGER NOT NULL DEFAULT 0, `payment_status` TEXT NOT NULL DEFAULT 'unpaid', `razorpay_payment_link_id` TEXT, `razorpay_payment_link_url` TEXT, `razorpay_payment_id` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billNumber",
+            "columnName": "billNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subTotal",
+            "columnName": "subTotal",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gst",
+            "columnName": "gst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discount",
+            "columnName": "discount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "total",
+            "columnName": "total",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentMethod",
+            "columnName": "paymentMethod",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerType",
+            "columnName": "customerType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerGstin",
+            "columnName": "customerGstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "placeOfSupply",
+            "columnName": "placeOfSupply",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplyType",
+            "columnName": "supplyType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgstAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgstAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igstAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCancelled",
+            "columnName": "is_cancelled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cancelledAt",
+            "columnName": "cancelled_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cancelSynced",
+            "columnName": "cancel_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creditAccountId",
+            "columnName": "credit_account_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "salePulseSynced",
+            "columnName": "sale_pulse_synced",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "paymentStatus",
+            "columnName": "payment_status",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'unpaid'"
+          },
+          {
+            "fieldPath": "razorpayPaymentLinkId",
+            "columnName": "razorpay_payment_link_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "razorpayPaymentLinkUrl",
+            "columnName": "razorpay_payment_link_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "razorpayPaymentId",
+            "columnName": "razorpay_payment_id",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "bill_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `billId` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `productName` TEXT NOT NULL, `variant` TEXT, `unit` TEXT NOT NULL, `price` REAL NOT NULL, `quantity` REAL NOT NULL, `subTotal` REAL NOT NULL, `costPriceUsed` REAL NOT NULL, `profit` REAL NOT NULL, `hsnCode` TEXT NOT NULL, `gstRate` REAL NOT NULL, `cgstAmount` REAL NOT NULL, `sgstAmount` REAL NOT NULL, `igstAmount` REAL NOT NULL, `taxableValue` REAL NOT NULL, `discountAmount` REAL NOT NULL, `is_synced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billId",
+            "columnName": "billId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variant",
+            "columnName": "variant",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "unit",
+            "columnName": "unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subTotal",
+            "columnName": "subTotal",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "costPriceUsed",
+            "columnName": "costPriceUsed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profit",
+            "columnName": "profit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsnCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstRate",
+            "columnName": "gstRate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgstAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgstAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igstAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableValue",
+            "columnName": "taxableValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discountAmount",
+            "columnName": "discountAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "default_products",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "store_info",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `address` TEXT NOT NULL, `phone` TEXT NOT NULL, `gstin` TEXT NOT NULL, `type` TEXT NOT NULL, `legalName` TEXT NOT NULL, `tradeName` TEXT NOT NULL, `gstScheme` TEXT NOT NULL, `stateCode` TEXT NOT NULL, `registrationType` TEXT NOT NULL, `is_synced` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "legalName",
+            "columnName": "legalName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tradeName",
+            "columnName": "tradeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstScheme",
+            "columnName": "gstScheme",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "stateCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "registrationType",
+            "columnName": "registrationType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "billing_settings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `defaultGst` REAL NOT NULL, `printerLayout` TEXT NOT NULL, `razorpayKeyId` TEXT, `razorpayConfigured` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultGst",
+            "columnName": "defaultGst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "printerLayout",
+            "columnName": "printerLayout",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "razorpayKeyId",
+            "columnName": "razorpayKeyId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "razorpayConfigured",
+            "columnName": "razorpayConfigured",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "credit_accounts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `serverId` INTEGER, `name` TEXT NOT NULL, `phone` TEXT NOT NULL, `dueAmount` REAL NOT NULL, `isSynced` INTEGER NOT NULL, `isActive` INTEGER NOT NULL, `shopId` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "serverId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dueAmount",
+            "columnName": "dueAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "isSynced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shopId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_credit_accounts_phone_shopId",
+            "unique": true,
+            "columnNames": [
+              "phone",
+              "shopId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_credit_accounts_phone_shopId` ON `${TABLE_NAME}` (`phone`, `shopId`)"
+          },
+          {
+            "name": "index_credit_accounts_serverId_shopId",
+            "unique": true,
+            "columnNames": [
+              "serverId",
+              "shopId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_credit_accounts_serverId_shopId` ON `${TABLE_NAME}` (`serverId`, `shopId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "credit_transactions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` INTEGER NOT NULL, `shopId` INTEGER NOT NULL, `amount` REAL NOT NULL, `type` TEXT NOT NULL, `referenceInvoice` TEXT, `billId` INTEGER, `purchaseId` INTEGER, `sourceDoc` TEXT, `timestamp` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shopId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "referenceInvoice",
+            "columnName": "referenceInvoice",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "billId",
+            "columnName": "billId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "purchaseId",
+            "columnName": "purchaseId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sourceDoc",
+            "columnName": "sourceDoc",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "isSynced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "inventory",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `currentStock` REAL NOT NULL, `averageCost` REAL NOT NULL, `isActive` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentStock",
+            "columnName": "currentStock",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "averageCost",
+            "columnName": "averageCost",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "isSynced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_inventory_productId",
+            "unique": true,
+            "columnNames": [
+              "productId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_inventory_productId` ON `${TABLE_NAME}` (`productId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "inventory_log",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `type` TEXT NOT NULL, `quantity` REAL NOT NULL, `price` REAL NOT NULL, `date` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL, `resultingAverageCost` REAL NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "isSynced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resultingAverageCost",
+            "columnName": "resultingAverageCost",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "gst_profile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `shop_id` TEXT NOT NULL, `gstin` TEXT NOT NULL, `legal_name` TEXT NOT NULL, `trade_name` TEXT NOT NULL, `gst_scheme` TEXT NOT NULL, `registration_type` TEXT NOT NULL, `state_code` TEXT NOT NULL, `address` TEXT NOT NULL, `sync_status` TEXT NOT NULL, `device_id` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "legalName",
+            "columnName": "legal_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tradeName",
+            "columnName": "trade_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstScheme",
+            "columnName": "gst_scheme",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "registrationType",
+            "columnName": "registration_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "state_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "sync_status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "device_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "gst_sales_invoice_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bill_id` INTEGER NOT NULL, `shop_id` TEXT NOT NULL, `invoice_type` TEXT NOT NULL, `gst_scheme` TEXT NOT NULL, `customer_name` TEXT, `business_name` TEXT, `customer_phone` TEXT, `customer_gst` TEXT, `customer_state` TEXT, `subtotal` REAL NOT NULL, `total_cgst` REAL NOT NULL, `total_sgst` REAL NOT NULL, `total_igst` REAL NOT NULL, `total_tax` REAL NOT NULL, `grand_total` REAL NOT NULL, `created_at` INTEGER NOT NULL, `sync_status` TEXT NOT NULL, `server_id` INTEGER, `invoice_number` TEXT NOT NULL, `invoice_date` INTEGER NOT NULL, `reverse_charge` TEXT NOT NULL, `gstr_invoice_type` TEXT NOT NULL, `customer_state_code` TEXT, `ecommerce_gstin` TEXT, `ecommerce_operator_name` TEXT, `is_cancelled` INTEGER NOT NULL, `cancelled_at` INTEGER, `eco_nature_of_supply` TEXT, `eco_document_type` TEXT, `eco_supplier_gstin` TEXT, `eco_supplier_name` TEXT, `eco_recipient_gstin` TEXT, `eco_recipient_name` TEXT, `eco_role` TEXT, `document_type` TEXT NOT NULL, `document_nature` TEXT NOT NULL, `document_series` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billId",
+            "columnName": "bill_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceType",
+            "columnName": "invoice_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstScheme",
+            "columnName": "gst_scheme",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerName",
+            "columnName": "customer_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "businessName",
+            "columnName": "business_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "customerPhone",
+            "columnName": "customer_phone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "customerGst",
+            "columnName": "customer_gst",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "customerState",
+            "columnName": "customer_state",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "subtotal",
+            "columnName": "subtotal",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalCgst",
+            "columnName": "total_cgst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalSgst",
+            "columnName": "total_sgst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalIgst",
+            "columnName": "total_igst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalTax",
+            "columnName": "total_tax",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grandTotal",
+            "columnName": "grand_total",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "sync_status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "server_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "invoiceNumber",
+            "columnName": "invoice_number",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceDate",
+            "columnName": "invoice_date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reverseCharge",
+            "columnName": "reverse_charge",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstrInvoiceType",
+            "columnName": "gstr_invoice_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerStateCode",
+            "columnName": "customer_state_code",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecommerceGstin",
+            "columnName": "ecommerce_gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecommerceOperatorName",
+            "columnName": "ecommerce_operator_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isCancelled",
+            "columnName": "is_cancelled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cancelledAt",
+            "columnName": "cancelled_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoNatureOfSupply",
+            "columnName": "eco_nature_of_supply",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoDocumentType",
+            "columnName": "eco_document_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoSupplierGstin",
+            "columnName": "eco_supplier_gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoSupplierName",
+            "columnName": "eco_supplier_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoRecipientGstin",
+            "columnName": "eco_recipient_gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoRecipientName",
+            "columnName": "eco_recipient_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ecoRole",
+            "columnName": "eco_role",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "documentType",
+            "columnName": "document_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentNature",
+            "columnName": "document_nature",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentSeries",
+            "columnName": "document_series",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_gst_sales_invoice_table_bill_id",
+            "unique": false,
+            "columnNames": [
+              "bill_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_gst_sales_invoice_table_bill_id` ON `${TABLE_NAME}` (`bill_id`)"
+          },
+          {
+            "name": "index_gst_sales_invoice_table_shop_id",
+            "unique": false,
+            "columnNames": [
+              "shop_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_gst_sales_invoice_table_shop_id` ON `${TABLE_NAME}` (`shop_id`)"
+          },
+          {
+            "name": "index_gst_sales_invoice_table_sync_status",
+            "unique": false,
+            "columnNames": [
+              "sync_status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_gst_sales_invoice_table_sync_status` ON `${TABLE_NAME}` (`sync_status`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "gst_sales_items_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gst_invoice_id` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `variant_name` TEXT, `hsn_code` TEXT NOT NULL, `quantity` REAL NOT NULL, `selling_price` REAL NOT NULL, `taxable_amount` REAL NOT NULL, `sales_cgst_percentage` REAL NOT NULL, `sales_sgst_percentage` REAL NOT NULL, `sales_igst_percentage` REAL NOT NULL, `cgst_amount` REAL NOT NULL, `sgst_amount` REAL NOT NULL, `igst_amount` REAL NOT NULL, `net_value` REAL NOT NULL, `cess_rate` REAL NOT NULL, `cess_amount` REAL NOT NULL, `uqc` TEXT, `hsn_description` TEXT, `supply_classification` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstInvoiceId",
+            "columnName": "gst_invoice_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "product_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "product_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variantName",
+            "columnName": "variant_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsn_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sellingPrice",
+            "columnName": "selling_price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableAmount",
+            "columnName": "taxable_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesCgstPercentage",
+            "columnName": "sales_cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesSgstPercentage",
+            "columnName": "sales_sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesIgstPercentage",
+            "columnName": "sales_igst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "netValue",
+            "columnName": "net_value",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessRate",
+            "columnName": "cess_rate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessAmount",
+            "columnName": "cess_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uqc",
+            "columnName": "uqc",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnDescription",
+            "columnName": "hsn_description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "supplyClassification",
+            "columnName": "supply_classification",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_gst_sales_items_table_gst_invoice_id",
+            "unique": false,
+            "columnNames": [
+              "gst_invoice_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_gst_invoice_id` ON `${TABLE_NAME}` (`gst_invoice_id`)"
+          },
+          {
+            "name": "index_gst_sales_items_table_product_id",
+            "unique": false,
+            "columnNames": [
+              "product_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_product_id` ON `${TABLE_NAME}` (`product_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "purchase_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `invoiceNumber` TEXT NOT NULL, `supplierGstin` TEXT, `supplierName` TEXT NOT NULL, `state` TEXT NOT NULL, `taxableAmount` REAL NOT NULL, `cgst_percentage` REAL NOT NULL, `sgst_percentage` REAL NOT NULL, `igst_percentage` REAL NOT NULL, `cgst_amount` REAL NOT NULL, `sgst_amount` REAL NOT NULL, `igst_amount` REAL NOT NULL, `invoiceValue` REAL NOT NULL, `invoice_date` INTEGER, `created_at` INTEGER NOT NULL, `is_synced` INTEGER NOT NULL, `server_id` INTEGER, `is_credit` INTEGER NOT NULL, `credit_account_id` INTEGER, `credit_transaction_id` INTEGER, `place_of_supply_code` TEXT NOT NULL, `reverse_charge` TEXT NOT NULL, `invoice_type` TEXT NOT NULL, `supply_type` TEXT NOT NULL, `cess_paid` REAL NOT NULL, `availed_itc_integrated_tax` REAL NOT NULL, `availed_itc_central_tax` REAL NOT NULL, `availed_itc_state_tax` REAL NOT NULL, `availed_itc_cess` REAL NOT NULL, `purchase_source` TEXT NOT NULL, `is_cancelled` INTEGER NOT NULL, `cancelled_at` INTEGER, `cancel_synced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceNumber",
+            "columnName": "invoiceNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplierGstin",
+            "columnName": "supplierGstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "supplierName",
+            "columnName": "supplierName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableAmount",
+            "columnName": "taxableAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstPercentage",
+            "columnName": "cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstPercentage",
+            "columnName": "sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstPercentage",
+            "columnName": "igst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceValue",
+            "columnName": "invoiceValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceDate",
+            "columnName": "invoice_date",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "server_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isCredit",
+            "columnName": "is_credit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creditAccountId",
+            "columnName": "credit_account_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "creditTransactionId",
+            "columnName": "credit_transaction_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "placeOfSupplyCode",
+            "columnName": "place_of_supply_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reverseCharge",
+            "columnName": "reverse_charge",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceType",
+            "columnName": "invoice_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplyType",
+            "columnName": "supply_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessPaid",
+            "columnName": "cess_paid",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcIntegratedTax",
+            "columnName": "availed_itc_integrated_tax",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcCentralTax",
+            "columnName": "availed_itc_central_tax",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcStateTax",
+            "columnName": "availed_itc_state_tax",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcCess",
+            "columnName": "availed_itc_cess",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseSource",
+            "columnName": "purchase_source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCancelled",
+            "columnName": "is_cancelled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cancelledAt",
+            "columnName": "cancelled_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cancelSynced",
+            "columnName": "cancel_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_purchase_table_invoiceNumber",
+            "unique": false,
+            "columnNames": [
+              "invoiceNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_table_invoiceNumber` ON `${TABLE_NAME}` (`invoiceNumber`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "purchase_items_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `purchaseId` INTEGER NOT NULL, `productId` INTEGER, `productName` TEXT NOT NULL, `variant` TEXT, `hsnCode` TEXT, `quantity` REAL NOT NULL, `unit` TEXT, `taxableAmount` REAL NOT NULL, `invoiceValue` REAL NOT NULL, `cost_price` REAL NOT NULL, `discount_amount` REAL NOT NULL, `purchase_cgst_percentage` REAL NOT NULL, `purchase_sgst_percentage` REAL NOT NULL, `purchase_igst_percentage` REAL NOT NULL, `purchase_cgst_amount` REAL NOT NULL, `purchase_sgst_amount` REAL NOT NULL, `purchase_igst_amount` REAL NOT NULL, `sales_cgst_percentage` REAL NOT NULL, `sales_sgst_percentage` REAL NOT NULL, `sales_igst_percentage` REAL NOT NULL, `cess_percentage` REAL NOT NULL, `cess_amount` REAL NOT NULL, `eligibility_for_itc` TEXT NOT NULL, `availed_itc_igst` REAL NOT NULL, `availed_itc_cgst` REAL NOT NULL, `availed_itc_sgst` REAL NOT NULL, `availed_itc_cess` REAL NOT NULL, `hsn_description` TEXT NOT NULL, `official_uqc` TEXT NOT NULL, `supply_classification` TEXT NOT NULL, `is_synced` INTEGER NOT NULL, `is_raw_material` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`purchaseId`) REFERENCES `purchase_table`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseId",
+            "columnName": "purchaseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variant",
+            "columnName": "variant",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsnCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unit",
+            "columnName": "unit",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "taxableAmount",
+            "columnName": "taxableAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceValue",
+            "columnName": "invoiceValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "costPrice",
+            "columnName": "cost_price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discountAmount",
+            "columnName": "discount_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseCgstPercentage",
+            "columnName": "purchase_cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseSgstPercentage",
+            "columnName": "purchase_sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseIgstPercentage",
+            "columnName": "purchase_igst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseCgstAmount",
+            "columnName": "purchase_cgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseSgstAmount",
+            "columnName": "purchase_sgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseIgstAmount",
+            "columnName": "purchase_igst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesCgstPercentage",
+            "columnName": "sales_cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesSgstPercentage",
+            "columnName": "sales_sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesIgstPercentage",
+            "columnName": "sales_igst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessPercentage",
+            "columnName": "cess_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessAmount",
+            "columnName": "cess_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eligibilityForItc",
+            "columnName": "eligibility_for_itc",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcIgst",
+            "columnName": "availed_itc_igst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcCgst",
+            "columnName": "availed_itc_cgst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcSgst",
+            "columnName": "availed_itc_sgst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcCess",
+            "columnName": "availed_itc_cess",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hsnDescription",
+            "columnName": "hsn_description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "officialUqc",
+            "columnName": "official_uqc",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplyClassification",
+            "columnName": "supply_classification",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRawMaterial",
+            "columnName": "is_raw_material",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_purchase_items_table_purchaseId",
+            "unique": false,
+            "columnNames": [
+              "purchaseId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_items_table_purchaseId` ON `${TABLE_NAME}` (`purchaseId`)"
+          },
+          {
+            "name": "index_purchase_items_table_hsnCode",
+            "unique": false,
+            "columnNames": [
+              "hsnCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_items_table_hsnCode` ON `${TABLE_NAME}` (`hsnCode`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "purchase_table",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "purchaseId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "purchase_return_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `shop_id` TEXT NOT NULL, `productId` INTEGER, `productName` TEXT NOT NULL, `variantName` TEXT, `hsnCode` TEXT, `quantityReturned` REAL NOT NULL, `taxableAmount` REAL NOT NULL, `invoiceValue` REAL NOT NULL, `cgst_percentage` REAL NOT NULL DEFAULT 0.0, `sgst_percentage` REAL NOT NULL DEFAULT 0.0, `igst_percentage` REAL NOT NULL DEFAULT 0.0, `cgst_amount` REAL NOT NULL DEFAULT 0.0, `sgst_amount` REAL NOT NULL DEFAULT 0.0, `igst_amount` REAL NOT NULL DEFAULT 0.0, `state` TEXT NOT NULL, `supplierGstin` TEXT, `supplierName` TEXT, `created_at` INTEGER NOT NULL, `is_synced` INTEGER NOT NULL DEFAULT 0, `is_credit` INTEGER NOT NULL DEFAULT 0, `credit_account_id` INTEGER, `credit_transaction_id` INTEGER, `note_number` TEXT, `note_date` INTEGER, `note_type` TEXT, `original_invoice_id` INTEGER, `original_invoice_number` TEXT, `original_invoice_date` INTEGER, `place_of_supply` TEXT NOT NULL DEFAULT '', `supply_type` TEXT NOT NULL DEFAULT 'intrastate', `cess_amount` REAL NOT NULL DEFAULT 0.0, `document_type` TEXT NOT NULL DEFAULT 'Debit Note', `document_nature` TEXT, `document_series` TEXT, `pre_gst` TEXT NOT NULL DEFAULT 'N', `reason_for_issuing_document` TEXT NOT NULL DEFAULT 'Purchase return', `note_refund_voucher_value` REAL NOT NULL DEFAULT 0.0, `rate` REAL NOT NULL DEFAULT 0.0, `eligibility_for_itc` TEXT NOT NULL DEFAULT 'Inputs', `availed_itc_integrated_tax` REAL NOT NULL DEFAULT 0.0, `availed_itc_central_tax` REAL NOT NULL DEFAULT 0.0, `availed_itc_state_tax` REAL NOT NULL DEFAULT 0.0, `availed_itc_cess` REAL NOT NULL DEFAULT 0.0, `invoice_type` TEXT NOT NULL DEFAULT 'Regular', `place_of_supply_code` TEXT NOT NULL DEFAULT '', `inventory_valuation_variance` REAL NOT NULL DEFAULT 0.0)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variantName",
+            "columnName": "variantName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsnCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "quantityReturned",
+            "columnName": "quantityReturned",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableAmount",
+            "columnName": "taxableAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceValue",
+            "columnName": "invoiceValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstPercentage",
+            "columnName": "cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "sgstPercentage",
+            "columnName": "sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "igstPercentage",
+            "columnName": "igst_percentage",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgst_amount",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgst_amount",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igst_amount",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplierGstin",
+            "columnName": "supplierGstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "supplierName",
+            "columnName": "supplierName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "isCredit",
+            "columnName": "is_credit",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "creditAccountId",
+            "columnName": "credit_account_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "creditTransactionId",
+            "columnName": "credit_transaction_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "noteNumber",
+            "columnName": "note_number",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "noteDate",
+            "columnName": "note_date",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "noteType",
+            "columnName": "note_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "originalInvoiceId",
+            "columnName": "original_invoice_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "originalInvoiceNumber",
+            "columnName": "original_invoice_number",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "originalInvoiceDate",
+            "columnName": "original_invoice_date",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "placeOfSupply",
+            "columnName": "place_of_supply",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "supplyType",
+            "columnName": "supply_type",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'intrastate'"
+          },
+          {
+            "fieldPath": "cessAmount",
+            "columnName": "cess_amount",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "documentType",
+            "columnName": "document_type",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'Debit Note'"
+          },
+          {
+            "fieldPath": "documentNature",
+            "columnName": "document_nature",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "documentSeries",
+            "columnName": "document_series",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "preGst",
+            "columnName": "pre_gst",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'N'"
+          },
+          {
+            "fieldPath": "reasonForIssuingDocument",
+            "columnName": "reason_for_issuing_document",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'Purchase return'"
+          },
+          {
+            "fieldPath": "noteRefundVoucherValue",
+            "columnName": "note_refund_voucher_value",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "rate",
+            "columnName": "rate",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "eligibilityForItc",
+            "columnName": "eligibility_for_itc",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'Inputs'"
+          },
+          {
+            "fieldPath": "availedItcIntegratedTax",
+            "columnName": "availed_itc_integrated_tax",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "availedItcCentralTax",
+            "columnName": "availed_itc_central_tax",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "availedItcStateTax",
+            "columnName": "availed_itc_state_tax",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "availedItcCess",
+            "columnName": "availed_itc_cess",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "invoiceType",
+            "columnName": "invoice_type",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'Regular'"
+          },
+          {
+            "fieldPath": "placeOfSupplyCode",
+            "columnName": "place_of_supply_code",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "inventoryValuationVariance",
+            "columnName": "inventory_valuation_variance",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_purchase_return_table_productId",
+            "unique": false,
+            "columnNames": [
+              "productId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_return_table_productId` ON `${TABLE_NAME}` (`productId`)"
+          },
+          {
+            "name": "index_purchase_return_table_hsnCode",
+            "unique": false,
+            "columnNames": [
+              "hsnCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_return_table_hsnCode` ON `${TABLE_NAME}` (`hsnCode`)"
+          },
+          {
+            "name": "index_purchase_return_table_shop_id",
+            "unique": false,
+            "columnNames": [
+              "shop_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_return_table_shop_id` ON `${TABLE_NAME}` (`shop_id`)"
+          },
+          {
+            "name": "index_purchase_return_table_note_number",
+            "unique": false,
+            "columnNames": [
+              "note_number"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_return_table_note_number` ON `${TABLE_NAME}` (`note_number`)"
+          },
+          {
+            "name": "index_purchase_return_table_original_invoice_id",
+            "unique": false,
+            "columnNames": [
+              "original_invoice_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_return_table_original_invoice_id` ON `${TABLE_NAME}` (`original_invoice_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "scrap_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `shop_id` TEXT NOT NULL, `productId` INTEGER, `productName` TEXT NOT NULL, `variantName` TEXT, `hsnCode` TEXT, `quantity` REAL NOT NULL, `taxableAmount` REAL NOT NULL, `invoiceValue` REAL NOT NULL, `cgst_percentage` REAL NOT NULL, `sgst_percentage` REAL NOT NULL, `igst_percentage` REAL NOT NULL, `cgst_amount` REAL NOT NULL, `sgst_amount` REAL NOT NULL, `igst_amount` REAL NOT NULL, `state` TEXT NOT NULL, `reason` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `is_synced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variantName",
+            "columnName": "variantName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsnCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableAmount",
+            "columnName": "taxableAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceValue",
+            "columnName": "invoiceValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstPercentage",
+            "columnName": "cgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstPercentage",
+            "columnName": "sgst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstPercentage",
+            "columnName": "igst_percentage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_scrap_table_productId",
+            "unique": false,
+            "columnNames": [
+              "productId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_scrap_table_productId` ON `${TABLE_NAME}` (`productId`)"
+          },
+          {
+            "name": "index_scrap_table_hsnCode",
+            "unique": false,
+            "columnNames": [
+              "hsnCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_scrap_table_hsnCode` ON `${TABLE_NAME}` (`hsnCode`)"
+          },
+          {
+            "name": "index_scrap_table_shop_id",
+            "unique": false,
+            "columnNames": [
+              "shop_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_scrap_table_shop_id` ON `${TABLE_NAME}` (`shop_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "purchase_batches",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `purchaseInvoiceId` INTEGER, `supplierName` TEXT, `supplierGstin` TEXT, `invoiceNumber` TEXT, `batchCode` TEXT, `quantityPurchased` REAL NOT NULL, `quantityRemaining` REAL NOT NULL, `unit_cost_excluding_tax` REAL NOT NULL, `gst_percent` REAL NOT NULL, `cgst_percent` REAL NOT NULL, `sgst_percent` REAL NOT NULL, `igst_percent` REAL NOT NULL, `invoiceValue` REAL NOT NULL, `taxableValue` REAL NOT NULL, `created_at` INTEGER NOT NULL, `is_synced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseInvoiceId",
+            "columnName": "purchaseInvoiceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "supplierName",
+            "columnName": "supplierName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "supplierGstin",
+            "columnName": "supplierGstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "invoiceNumber",
+            "columnName": "invoiceNumber",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "batchCode",
+            "columnName": "batchCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "quantityPurchased",
+            "columnName": "quantityPurchased",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantityRemaining",
+            "columnName": "quantityRemaining",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unitCostExcludingTax",
+            "columnName": "unit_cost_excluding_tax",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstPercent",
+            "columnName": "gst_percent",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstPercent",
+            "columnName": "cgst_percent",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstPercent",
+            "columnName": "sgst_percent",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstPercent",
+            "columnName": "igst_percent",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceValue",
+            "columnName": "invoiceValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableValue",
+            "columnName": "taxableValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_purchase_batches_productId",
+            "unique": false,
+            "columnNames": [
+              "productId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_batches_productId` ON `${TABLE_NAME}` (`productId`)"
+          },
+          {
+            "name": "index_purchase_batches_purchaseInvoiceId",
+            "unique": false,
+            "columnNames": [
+              "purchaseInvoiceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_batches_purchaseInvoiceId` ON `${TABLE_NAME}` (`purchaseInvoiceId`)"
+          },
+          {
+            "name": "index_purchase_batches_is_synced",
+            "unique": false,
+            "columnNames": [
+              "is_synced"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_batches_is_synced` ON `${TABLE_NAME}` (`is_synced`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "credit_notes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `noteNumber` TEXT NOT NULL, `noteDate` INTEGER NOT NULL, `noteType` TEXT NOT NULL, `noteSupplyType` TEXT NOT NULL, `originalInvoiceId` INTEGER NOT NULL, `originalInvoiceNumber` TEXT NOT NULL, `originalInvoiceDate` INTEGER NOT NULL, `customerName` TEXT NOT NULL, `customerGstin` TEXT, `placeOfSupply` TEXT NOT NULL, `reverseCharge` TEXT NOT NULL, `supplyType` TEXT NOT NULL, `urType` TEXT NOT NULL, `taxableValue` REAL NOT NULL, `taxAmount` REAL NOT NULL, `cessAmount` REAL NOT NULL, `totalAmount` REAL NOT NULL, `cgst_amount` REAL NOT NULL, `sgst_amount` REAL NOT NULL, `igst_amount` REAL NOT NULL, `document_type` TEXT NOT NULL, `document_nature` TEXT NOT NULL, `document_series` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteNumber",
+            "columnName": "noteNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteDate",
+            "columnName": "noteDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteType",
+            "columnName": "noteType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteSupplyType",
+            "columnName": "noteSupplyType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalInvoiceId",
+            "columnName": "originalInvoiceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalInvoiceNumber",
+            "columnName": "originalInvoiceNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalInvoiceDate",
+            "columnName": "originalInvoiceDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerName",
+            "columnName": "customerName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerGstin",
+            "columnName": "customerGstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "placeOfSupply",
+            "columnName": "placeOfSupply",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reverseCharge",
+            "columnName": "reverseCharge",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplyType",
+            "columnName": "supplyType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "urType",
+            "columnName": "urType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableValue",
+            "columnName": "taxableValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxAmount",
+            "columnName": "taxAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessAmount",
+            "columnName": "cessAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalAmount",
+            "columnName": "totalAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentType",
+            "columnName": "document_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentNature",
+            "columnName": "document_nature",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentSeries",
+            "columnName": "document_series",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "syncStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_credit_notes_noteNumber",
+            "unique": true,
+            "columnNames": [
+              "noteNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_credit_notes_noteNumber` ON `${TABLE_NAME}` (`noteNumber`)"
+          },
+          {
+            "name": "index_credit_notes_originalInvoiceId",
+            "unique": false,
+            "columnNames": [
+              "originalInvoiceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_credit_notes_originalInvoiceId` ON `${TABLE_NAME}` (`originalInvoiceId`)"
+          },
+          {
+            "name": "index_credit_notes_syncStatus",
+            "unique": false,
+            "columnNames": [
+              "syncStatus"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_credit_notes_syncStatus` ON `${TABLE_NAME}` (`syncStatus`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "credit_note_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `noteId` INTEGER NOT NULL, `productId` INTEGER NOT NULL, `productName` TEXT NOT NULL, `variant` TEXT, `hsnCode` TEXT NOT NULL, `unit` TEXT NOT NULL, `quantitySold` REAL NOT NULL, `quantityReturned` REAL NOT NULL, `rate` REAL NOT NULL, `costPriceUsed` REAL NOT NULL, `taxableValue` REAL NOT NULL, `gst_rate` REAL NOT NULL, `cgst_amount` REAL NOT NULL, `sgst_amount` REAL NOT NULL, `igst_amount` REAL NOT NULL, `cessAmount` REAL NOT NULL, `taxAmount` REAL NOT NULL, `totalAmount` REAL NOT NULL, `originalBillItemId` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteId",
+            "columnName": "noteId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variant",
+            "columnName": "variant",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hsnCode",
+            "columnName": "hsnCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unit",
+            "columnName": "unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantitySold",
+            "columnName": "quantitySold",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantityReturned",
+            "columnName": "quantityReturned",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rate",
+            "columnName": "rate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "costPriceUsed",
+            "columnName": "costPriceUsed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableValue",
+            "columnName": "taxableValue",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstRate",
+            "columnName": "gst_rate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cgstAmount",
+            "columnName": "cgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sgstAmount",
+            "columnName": "sgst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstAmount",
+            "columnName": "igst_amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessAmount",
+            "columnName": "cessAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxAmount",
+            "columnName": "taxAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalAmount",
+            "columnName": "totalAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalBillItemId",
+            "columnName": "originalBillItemId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_credit_note_items_noteId",
+            "unique": false,
+            "columnNames": [
+              "noteId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_credit_note_items_noteId` ON `${TABLE_NAME}` (`noteId`)"
+          },
+          {
+            "name": "index_credit_note_items_productId",
+            "unique": false,
+            "columnNames": [
+              "productId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_credit_note_items_productId` ON `${TABLE_NAME}` (`productId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "gstr1_drafts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gstin` TEXT NOT NULL, `financial_year` TEXT NOT NULL, `period` TEXT NOT NULL, `return_type` TEXT NOT NULL, `report_json` TEXT NOT NULL, `generated_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "financialYear",
+            "columnName": "financial_year",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "period",
+            "columnName": "period",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "returnType",
+            "columnName": "return_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportJson",
+            "columnName": "report_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generatedAt",
+            "columnName": "generated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "gstr2_drafts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gstin` TEXT NOT NULL, `financial_year` TEXT NOT NULL, `period` TEXT NOT NULL, `return_type` TEXT NOT NULL, `report_json` TEXT NOT NULL, `generated_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "financialYear",
+            "columnName": "financial_year",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "period",
+            "columnName": "period",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "returnType",
+            "columnName": "return_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportJson",
+            "columnName": "report_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generatedAt",
+            "columnName": "generated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "purchase_import_details",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `purchase_id` INTEGER NOT NULL, `shop_id` TEXT NOT NULL, `local_purchase_id` INTEGER NOT NULL, `port_code` TEXT NOT NULL, `bill_of_entry_number` TEXT NOT NULL, `bill_of_entry_date` INTEGER NOT NULL, `bill_of_entry_value` REAL NOT NULL, `document_type` TEXT NOT NULL, `sez_supplier_gstin` TEXT, `sync_status` TEXT NOT NULL, `device_id` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "purchaseId",
+            "columnName": "purchase_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localPurchaseId",
+            "columnName": "local_purchase_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "portCode",
+            "columnName": "port_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billOfEntryNumber",
+            "columnName": "bill_of_entry_number",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billOfEntryDate",
+            "columnName": "bill_of_entry_date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "billOfEntryValue",
+            "columnName": "bill_of_entry_value",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentType",
+            "columnName": "document_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sezSupplierGstin",
+            "columnName": "sez_supplier_gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "sync_status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "device_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_purchase_import_details_purchase_id",
+            "unique": false,
+            "columnNames": [
+              "purchase_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_import_details_purchase_id` ON `${TABLE_NAME}` (`purchase_id`)"
+          },
+          {
+            "name": "index_purchase_import_details_local_purchase_id",
+            "unique": false,
+            "columnNames": [
+              "local_purchase_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_import_details_local_purchase_id` ON `${TABLE_NAME}` (`local_purchase_id`)"
+          },
+          {
+            "name": "index_purchase_import_details_sync_status",
+            "unique": false,
+            "columnNames": [
+              "sync_status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_import_details_sync_status` ON `${TABLE_NAME}` (`sync_status`)"
+          },
+          {
+            "name": "index_purchase_import_details_bill_of_entry_number",
+            "unique": false,
+            "columnNames": [
+              "bill_of_entry_number"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_purchase_import_details_bill_of_entry_number` ON `${TABLE_NAME}` (`bill_of_entry_number`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "import_services",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `invoice_number` TEXT NOT NULL, `invoice_date` INTEGER NOT NULL, `invoice_value` REAL NOT NULL, `place_of_supply` TEXT NOT NULL, `rate` REAL NOT NULL, `taxable_value` REAL NOT NULL, `igst_paid` REAL NOT NULL, `cess_paid` REAL NOT NULL, `eligibility_for_itc` TEXT NOT NULL, `availed_itc_igst` REAL NOT NULL, `availed_itc_cess` REAL NOT NULL, `sync_status` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceNumber",
+            "columnName": "invoice_number",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceDate",
+            "columnName": "invoice_date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "invoiceValue",
+            "columnName": "invoice_value",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeOfSupply",
+            "columnName": "place_of_supply",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rate",
+            "columnName": "rate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableValue",
+            "columnName": "taxable_value",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "igstPaid",
+            "columnName": "igst_paid",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cessPaid",
+            "columnName": "cess_paid",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eligibilityForItc",
+            "columnName": "eligibility_for_itc",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcIgst",
+            "columnName": "availed_itc_igst",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availedItcCess",
+            "columnName": "availed_itc_cess",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "sync_status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "product_categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `serverId` INTEGER, `shop_id` TEXT NOT NULL, `name` TEXT NOT NULL, `isCustom` INTEGER NOT NULL, `isActive` INTEGER NOT NULL, `created_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "serverId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCustom",
+            "columnName": "isCustom",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_product_categories_shop_id_name",
+            "unique": true,
+            "columnNames": [
+              "shop_id",
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_product_categories_shop_id_name` ON `${TABLE_NAME}` (`shop_id`, `name`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "customers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `serverId` INTEGER, `shop_id` INTEGER NOT NULL, `phone` TEXT NOT NULL, `name` TEXT NOT NULL, `customer_type` TEXT NOT NULL, `business_name` TEXT, `gstin` TEXT, `state` TEXT, `state_code` TEXT, `credit_account_id` INTEGER, `isActive` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "serverId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shop_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerType",
+            "columnName": "customer_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "businessName",
+            "columnName": "business_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "state_code",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "creditAccountId",
+            "columnName": "credit_account_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_customers_shop_id_phone_customer_type",
+            "unique": true,
+            "columnNames": [
+              "shop_id",
+              "phone",
+              "customer_type"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_customers_shop_id_phone_customer_type` ON `${TABLE_NAME}` (`shop_id`, `phone`, `customer_type`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "supplier_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `serverId` INTEGER, `gstin` TEXT, `name` TEXT NOT NULL, `nameKey` TEXT NOT NULL, `state` TEXT NOT NULL, `lastUsedAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL, `isActive` INTEGER NOT NULL, `shopId` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "serverId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameKey",
+            "columnName": "nameKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUsedAt",
+            "columnName": "lastUsedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "isSynced",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shopId",
+            "columnName": "shopId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_supplier_table_shopId_gstin",
+            "unique": true,
+            "columnNames": [
+              "shopId",
+              "gstin"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_supplier_table_shopId_gstin` ON `${TABLE_NAME}` (`shopId`, `gstin`)"
+          },
+          {
+            "name": "index_supplier_table_shopId_nameKey",
+            "unique": false,
+            "columnNames": [
+              "shopId",
+              "nameKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_supplier_table_shopId_nameKey` ON `${TABLE_NAME}` (`shopId`, `nameKey`)"
+          },
+          {
+            "name": "index_supplier_table_lastUsedAt",
+            "unique": false,
+            "columnNames": [
+              "lastUsedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_supplier_table_lastUsedAt` ON `${TABLE_NAME}` (`lastUsedAt`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "user_event_logs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `event_type` TEXT NOT NULL, `screen` TEXT, `detail` TEXT, `created_at` INTEGER NOT NULL, `is_synced` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventType",
+            "columnName": "event_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "screen",
+            "columnName": "screen",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "detail",
+            "columnName": "detail",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynced",
+            "columnName": "is_synced",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_user_event_logs_is_synced",
+            "unique": false,
+            "columnNames": [
+              "is_synced"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_user_event_logs_is_synced` ON `${TABLE_NAME}` (`is_synced`)"
+          },
+          {
+            "name": "index_user_event_logs_created_at",
+            "unique": false,
+            "columnNames": [
+              "created_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_user_event_logs_created_at` ON `${TABLE_NAME}` (`created_at`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd03123fcdaca234b9f1fca2aad0bb205')"
+    ]
+  }
+}
