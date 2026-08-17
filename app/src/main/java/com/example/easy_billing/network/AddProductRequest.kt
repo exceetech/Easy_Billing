@@ -35,5 +35,9 @@ data class AddProductRequest(
 
     val is_purchased: Boolean = false,
 
-    val is_tax_inclusive: Boolean = false
+    val is_tax_inclusive: Boolean = false,
+
+    val is_sellable: Boolean = true,
+
+    val is_raw_material: Boolean = false
 )

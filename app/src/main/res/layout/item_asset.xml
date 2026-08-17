@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Assets row — adapted from item_manage_product.xml. Read-only: no
+  chevron, no swipe/click affordance. Rows live inside one continuous
+  card (the RecyclerView), separated by the bottom hairline (vDivider),
+  hidden on the last row by the adapter.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Accent stripe — teal for eligibility-driven assets (Capital
+             goods / Input services), gold for raw materials. Bound per
+             row by the adapter so a row reads its category at a glance,
+             matching the Inventory screen's per-row stripe pattern. -->
+        <View
+            android:id="@+id/vStripe"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#0F6E56"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
+
+            <!-- Avatar tile -->
+            <FrameLayout
+                android:id="@+id/avatarTile"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_credit_tile_teal">
+                <TextView
+                    android:id="@+id/tvAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="#085041"
+                    android:textSize="11.5sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:includeFontPadding="false"
+                    tools:text="CO"/>
+            </FrameLayout>
+
+            <!-- Name + meta lines -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="11dp">
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#1A1A18"
+                    android:textSize="13.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="Display Fridge   ·   250L"/>
+
+                <TextView
+                    android:id="@+id/tvMeta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:textColor="#9A8F79"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="Capital goods · 12 Jul 2026"/>
+
+                <TextView
+                    android:id="@+id/tvSubNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textColor="#0F6E56"
+                    android:textSize="10.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="Asset · not sellable"/>
+            </LinearLayout>
+
+            <!-- Cost -->
+            <TextView
+                android:id="@+id/tvPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textColor="#1A1A18"
+                android:textSize="17sp"
+                android:fontFamily="serif"
+                tools:text="₹18,500"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Divider — inset under the text (not full width), hidden on the
+         last row by the adapter. -->
+    <View
+        android:id="@+id/vDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="58dp"
+        android:background="#F1EBDD"/>
+</LinearLayout>

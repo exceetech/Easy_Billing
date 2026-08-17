@@ -69,9 +69,22 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="Eligibility for ITC" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
+                <LinearLayout android:id="@+id/tilEligibility" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_tag" app:tint="#B8895A" android:contentDescription="@null" />
+                    <AutoCompleteTextView android:id="@+id/spinnerEligibility" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp" />
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="12dp">
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_lc_package" app:tint="#B8895A" android:contentDescription="@null" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp" android:text="It\'s a raw material (not for direct sale)" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_medium" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchRawMaterial" style="@style/EpSwitch" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                </LinearLayout>
             </LinearLayout>
 
-            
+
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp" android:layout_marginTop="12dp">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
@@ -132,7 +145,7 @@
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
 
             
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp">
+            <LinearLayout android:id="@+id/cardSellingDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                     <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574" />
@@ -236,14 +249,8 @@
 
             <LinearLayout android:id="@+id/llGstr2ItemDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp" android:layout_marginTop="12dp" android:visibility="gone">
 
-                
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:layout_marginBottom="5dp" android:text="Eligibility for ITC" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:id="@+id/tilEligibilityItemPurchase" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_shield_check" app:tint="#B8895A" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/spinnerEligibilityItemPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select" android:textColor="#A99E88" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="false" android:focusableInTouchMode="false" android:cursorVisible="false" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
 
-                
+
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="Cess amount" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
                     <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="9dp" android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null" />

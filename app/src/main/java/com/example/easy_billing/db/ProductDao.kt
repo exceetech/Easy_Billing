@@ -20,7 +20,7 @@ interface ProductDao {
 
     /* ------------ Reads ------------ */
 
-    @Query("SELECT * FROM products WHERE isActive = 1 ORDER BY name ASC")
+    @Query("SELECT * FROM products WHERE isActive = 1 AND isSellable = 1 ORDER BY name ASC")
     suspend fun getAll(): List<Product>
 
     @Query("SELECT * FROM products ORDER BY name ASC")
@@ -54,11 +54,30 @@ interface ProductDao {
         """
         SELECT * FROM products
          WHERE isActive = 1
+           AND isSellable = 1
            AND (shop_id = :shopId OR shop_id = '')
          ORDER BY name ASC
         """
     )
     suspend fun getAllForShop(shopId: String): List<Product>
+
+    /**
+     * Assets — products created for record-keeping only (purchase lines
+     * with ITC eligibility "Capital goods" / "Input services"). Excluded
+     * from the sellable catalog above; shown on the read-only Assets
+     * screen instead. Pass an empty string to include rows that pre-date
+     * the v15 shop-scoping migration (shopId = '').
+     */
+    @Query(
+        """
+        SELECT * FROM products
+         WHERE isActive = 1
+           AND isSellable = 0
+           AND (shop_id = :shopId OR shop_id = '')
+         ORDER BY name ASC
+        """
+    )
+    suspend fun getAssetsForShop(shopId: String): List<Product>
 
     /**
      * Restricted edit — for purchased products we only allow these.
@@ -128,6 +147,12 @@ interface ProductDao {
      *
      * For *detecting* a near-duplicate before an insert, use
      * [findConflictIgnoringCase] instead.
+     *
+     * [isSellable]-scoped: a sellable "Fridge" and a non-sellable/asset
+     * "Fridge" are deliberately different rows (see Assets feature — Capital
+     * goods / Input services purchases must never merge into, or be merged
+     * from, a sellable catalog row of the same name+variant). Callers must
+     * say which bucket they're matching against; there is no "either" mode.
      */
     @Query(
         """
@@ -135,10 +160,11 @@ interface ProductDao {
          WHERE name = :name
            AND ((variant IS NULL AND :variant IS NULL) OR variant = :variant)
            AND shop_id IN (:shopIds)
+           AND isSellable = :isSellable
          LIMIT 1
         """
     )
-    suspend fun getByNameAndVariant(name: String, variant: String?, shopIds: List<String>): Product?
+    suspend fun getByNameAndVariant(name: String, variant: String?, shopIds: List<String>, isSellable: Boolean): Product?
 
     /**
      * Case-insensitive **detection only** — never use it to decide which
@@ -151,6 +177,11 @@ interface ProductDao {
      * error instead of the friendly "already exists" prompt.
      *
      * Ordered so the result is at least stable when several rows collide.
+     *
+     * [isSellable]-scoped for the same reason as [getByNameAndVariant] — a
+     * near-duplicate check must not cross the sellable/asset boundary either,
+     * or a Capital-goods purchase would "detect a conflict" against an
+     * unrelated sellable row and get routed into editing/restoring it.
      */
     @Query(
         """
@@ -159,11 +190,12 @@ interface ProductDao {
            AND ((variant IS NULL AND :variant IS NULL)
                 OR variant = :variant COLLATE NOCASE)
            AND shop_id IN (:shopIds)
+           AND isSellable = :isSellable
          ORDER BY isActive DESC, id ASC
          LIMIT 1
         """
     )
-    suspend fun findConflictIgnoringCase(name: String, variant: String?, shopIds: List<String>): Product?
+    suspend fun findConflictIgnoringCase(name: String, variant: String?, shopIds: List<String>, isSellable: Boolean): Product?
 
     /* ------------ Soft delete ------------ */
 

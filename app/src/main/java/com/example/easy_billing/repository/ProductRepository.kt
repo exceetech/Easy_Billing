@@ -65,11 +65,27 @@ class ProductRepository private constructor(
         return productDao.getAll().filter { it.shopId in validIds }
     }
 
+    /**
+     * Assets — products created for record-keeping only (purchase lines
+     * with ITC eligibility "Capital goods" / "Input services",
+     * isSellable = false). Backs [com.example.easy_billing.AssetsActivity].
+     */
+    suspend fun getAssetsForCurrentShop(): List<Product> {
+        val validIds = getValidShopIds()
+        return validIds.flatMap { productDao.getAssetsForShop(it) }
+            .distinctBy { it.id }
+    }
+
     suspend fun getById(id: Int): Product? = productDao.getById(id)
 
-    suspend fun getByNameAndVariant(name: String, variant: String?): Product? =
-        productDao.getByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds())
-        
+    /**
+     * @param isSellable which bucket to match against — a sellable-catalog
+     * lookup (`true`) must never return an asset row of the same
+     * name+variant, and vice versa. See [ProductDao.getByNameAndVariant].
+     */
+    suspend fun getByNameAndVariant(name: String, variant: String?, isSellable: Boolean = true): Product? =
+        productDao.getByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds(), isSellable)
+
     suspend fun getInactiveByNameAndVariant(name: String, variant: String?): Product? =
         productDao.getInactiveByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds())
 
@@ -78,9 +94,11 @@ class ProductRepository private constructor(
      * unique (shop_id, name, variant) index is case-*sensitive*, so this is
      * how a caller spots a clash it would otherwise only learn about from a
      * constraint error. Never use the result to decide what to update.
+     *
+     * @param isSellable same sellable/asset scoping as [getByNameAndVariant].
      */
-    suspend fun findConflictIgnoringCase(name: String, variant: String?): Product? =
-        productDao.findConflictIgnoringCase(capitalize(name), variant?.let(::capitalize), getValidShopIds())
+    suspend fun findConflictIgnoringCase(name: String, variant: String?, isSellable: Boolean = true): Product? =
+        productDao.findConflictIgnoringCase(capitalize(name), variant?.let(::capitalize), getValidShopIds(), isSellable)
 
     /**
      * Auto-fill: when the user enters a product name *or* an HSN
@@ -116,6 +134,16 @@ class ProductRepository private constructor(
      * product has been purchased it stays marked, even if a later
      * manual upsert tries to clear it.
      *
+     * Matching is [Product.isSellable]-scoped: a sellable "Fridge" and a
+     * non-sellable/asset "Fridge" (see the Assets feature — Capital goods /
+     * Input services purchases) are separate rows by design, even though
+     * they share the same (shop_id, name, variant) key modulo that flag.
+     * `product.isSellable` (as set by the caller — PurchaseRepository.doSave
+     * derives it from the line's ITC eligibility) decides which bucket this
+     * upsert can land in; it will never reuse or overwrite a row in the
+     * other bucket. If no row exists in the intended bucket, a new one is
+     * created even if a same-named row exists in the other bucket.
+     *
      * @return the row id (existing or newly inserted).
      */
     suspend fun upsert(product: Product): Int {
@@ -125,7 +153,7 @@ class ProductRepository private constructor(
             shopId = product.shopId.ifBlank { currentShopId() }
         )
         val validShopIds = getValidShopIds()
-        var existing = productDao.getByNameAndVariant(normalized.name, normalized.variant, validShopIds)
+        var existing = productDao.getByNameAndVariant(normalized.name, normalized.variant, validShopIds, normalized.isSellable)
 
         // [capitalize] only fixes the FIRST letter of each word and leaves the
         // rest of the casing exactly as typed — so "Potato Chips" and "Potato
@@ -142,7 +170,7 @@ class ProductRepository private constructor(
         // path Purchases (and everything else) actually use to decide
         // whether a product already exists.
         if (existing == null) {
-            existing = productDao.findConflictIgnoringCase(normalized.name, normalized.variant, validShopIds)
+            existing = productDao.findConflictIgnoringCase(normalized.name, normalized.variant, validShopIds, normalized.isSellable)
         }
 
         return if (existing == null) {
@@ -246,7 +274,8 @@ class ProductRepository private constructor(
                     supply_classification = supplyClassification,
                     category         = product.category,
                     is_purchased     = product.isPurchased,
-                    is_tax_inclusive = isTaxInclusive
+                    is_tax_inclusive = isTaxInclusive,
+                    is_sellable      = product.isSellable
                 )
             )
         }.onSuccess {
@@ -334,7 +363,8 @@ class ProductRepository private constructor(
                     supply_classification = product.supplyClassification,
                     category = product.category,
                     is_purchased = product.isPurchased,
-                    is_tax_inclusive = product.isTaxInclusive
+                    is_tax_inclusive = product.isTaxInclusive,
+                    is_sellable = product.isSellable
                 )
             )
         }

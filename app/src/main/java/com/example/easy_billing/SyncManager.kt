@@ -229,7 +229,9 @@ class SyncManager(private val context: Context) {
                         supply_classification = product.supplyClassification ?: "TAXABLE",
                         category         = product.category,
                         is_purchased     = product.isPurchased,
-                        is_tax_inclusive = product.isTaxInclusive
+                        is_tax_inclusive = product.isTaxInclusive,
+                        is_sellable      = product.isSellable,
+                        is_raw_material  = product.isRawMaterial
                     )
                 )
                 if (response.product_id > 0) {
@@ -315,7 +317,9 @@ class SyncManager(private val context: Context) {
                         supply_classification = product.supplyClassification ?: "TAXABLE",
                         category         = product.category,
                         is_purchased     = product.isPurchased,
-                        is_tax_inclusive = product.isTaxInclusive
+                        is_tax_inclusive = product.isTaxInclusive,
+                        is_sellable      = product.isSellable,
+                        is_raw_material  = product.isRawMaterial
                     )
                 )
                 db.productDao().markFieldSynced(product.id)
@@ -765,7 +769,8 @@ class SyncManager(private val context: Context) {
                     availed_itc_cess         = item.availedItcCess,
                     hsn_description          = item.hsnDescription,
                     official_uqc             = item.officialUqc,
-                    supply_classification    = item.supplyClassification
+                    supply_classification    = item.supplyClassification,
+                    is_raw_material          = item.isRawMaterial
                 )
             }
             val shopId = currentShopIdOrNull()
@@ -799,7 +804,6 @@ class SyncManager(private val context: Context) {
                 invoice_type     = p.invoiceType,
                 supply_type      = p.supplyType,
                 cess_paid        = p.cessPaid,
-                eligibility_for_itc = p.eligibilityForItc,
                 availed_itc_integrated_tax = p.availedItcIntegratedTax,
                 availed_itc_central_tax = p.availedItcCentralTax,
                 availed_itc_state_tax = p.availedItcStateTax,
@@ -2148,7 +2152,12 @@ class SyncManager(private val context: Context) {
                             if (alreadyLocal == null) {
                                 // Try fallback check by name and variant to prevent breaking UNIQUE constraint
                                 val validShopIds = listOf(missingShopId, "")
-                                alreadyLocal = productDao.getByNameAndVariant(bp.name, bp.variant ?: "", validShopIds)
+                                // Scope to the same sellable/asset bucket the backend
+                                // row reports — a synced asset must not fall back onto
+                                // a local sellable row of the same name+variant (or
+                                // vice versa). See Assets feature / isSellable-aware
+                                // product matching.
+                                alreadyLocal = productDao.getByNameAndVariant(bp.name, bp.variant ?: "", validShopIds, bp.is_sellable)
                             }
 
                             if (alreadyLocal != null) {
@@ -2172,7 +2181,9 @@ class SyncManager(private val context: Context) {
                                         hsnDescription = bp.hsn_description ?: alreadyLocal.hsnDescription,
                                         cessRate       = bp.cess_rate,
                                         category       = bp.category.ifBlank { alreadyLocal.category },
-                                        isTaxInclusive = bp.is_tax_inclusive
+                                        isTaxInclusive = bp.is_tax_inclusive,
+                                        isSellable     = bp.is_sellable,
+                                        isRawMaterial  = bp.is_raw_material
                                     )
                                 )
                             } else {
@@ -2202,7 +2213,9 @@ class SyncManager(private val context: Context) {
                                         hsnDescription = bp.hsn_description,
                                         cessRate       = bp.cess_rate,
                                         category       = bp.category,
-                                        isTaxInclusive = bp.is_tax_inclusive
+                                        isTaxInclusive = bp.is_tax_inclusive,
+                                        isSellable     = bp.is_sellable,
+                                        isRawMaterial  = bp.is_raw_material
                                     )
                                 )
                             }
@@ -2300,7 +2313,6 @@ class SyncManager(private val context: Context) {
                             invoiceType = p.invoice_type,
                             supplyType = p.supply_type,
                             cessPaid = p.cess_paid,
-                            eligibilityForItc = p.eligibility_for_itc,
                             availedItcIntegratedTax = p.availed_itc_integrated_tax,
                             availedItcCentralTax = p.availed_itc_central_tax,
                             availedItcStateTax = p.availed_itc_state_tax,
@@ -2348,7 +2360,8 @@ class SyncManager(private val context: Context) {
                                 hsnDescription = item.hsn_description,
                                 officialUqc = item.official_uqc,
                                 supplyClassification = item.supply_classification,
-                                isSynced = true
+                                isSynced = true,
+                                isRawMaterial = item.is_raw_material
                             )
                         )
                     }

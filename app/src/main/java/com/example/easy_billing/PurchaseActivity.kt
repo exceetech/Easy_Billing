@@ -118,7 +118,6 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var etInvoiceType: AutoCompleteTextView
     private lateinit var etSupplyType: AutoCompleteTextView
     private lateinit var etCessPaid: TextInputEditText
-    private lateinit var etEligibilityForItc: AutoCompleteTextView
     private lateinit var etAvailedItcIntegrated: TextInputEditText
     private lateinit var etAvailedItcCentral: TextInputEditText
     private lateinit var etAvailedItcState: TextInputEditText
@@ -160,7 +159,7 @@ class PurchaseActivity : BaseActivity() {
 
     /**
      * The GST compliance block (Place of Supply, Reverse Charge, Invoice
-     * Type, Supply Type, Eligibility, Availed ITC) already has sensible
+     * Type, Supply Type, Availed ITC) already has sensible
      * defaults set on open — most purchases never need to touch it. It
      * starts collapsed behind a single row and expands on tap; nothing
      * about validation or the fields themselves changes, they're just
@@ -316,7 +315,6 @@ class PurchaseActivity : BaseActivity() {
         etInvoiceType = findViewById(R.id.etInvoiceType)
         etSupplyType = findViewById(R.id.etSupplyType)
         etCessPaid = findViewById(R.id.etCessPaid)
-        etEligibilityForItc = findViewById(R.id.etEligibilityForItc)
         etAvailedItcIntegrated = findViewById(R.id.etAvailedItcIntegrated)
         etAvailedItcCentral = findViewById(R.id.etAvailedItcCentral)
         etAvailedItcState = findViewById(R.id.etAvailedItcState)
@@ -608,21 +606,6 @@ class PurchaseActivity : BaseActivity() {
                 etSupplyType.setText(picked, false)
             }
         }
-
-        // Eligibility For ITC
-        val eligibilityTypes = listOf(
-            getString(R.string.purchase_eligibility_inputs),
-            getString(R.string.purchase_eligibility_capital_goods),
-            getString(R.string.purchase_eligibility_input_services),
-            getString(R.string.purchase_eligibility_ineligible),
-            getString(R.string.purchase_eligibility_none)
-        )
-        etEligibilityForItc.setText(getString(R.string.purchase_eligibility_inputs), false)
-        etEligibilityForItc.setOnClickListener {
-            showSortStylePopup(etEligibilityForItc, eligibilityTypes, etEligibilityForItc.text.toString()) { picked ->
-                etEligibilityForItc.setText(picked, false)
-            }
-        }
     }
 
     private fun fetchShopStateCode() {
@@ -660,43 +643,28 @@ class PurchaseActivity : BaseActivity() {
     }
 
     private fun updateAvailedItcValues() {
-        val eligibility = etEligibilityForItc.text.toString().trim()
+        // Header-level ITC eligibility was removed — GST filing reads each
+        // line item's own eligibility instead (gst_routes.py). The
+        // Ineligible/None zeroing branch that used to key off the header
+        // value is gone with it; Availed ITC always defaults to the tax
+        // actually paid, subject to the user's own overrides.
         val totals = computeTotals()
         val cess = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
 
         settingItc = true
         try {
-            if (eligibility == getString(R.string.purchase_eligibility_ineligible) || eligibility == getString(R.string.purchase_eligibility_none)) {
-                // Statutory zero — overrides anything typed, and clears the
-                // override flags so the defaults come back if the user
-                // switches eligibility again.
-                etAvailedItcIntegrated.setText("0.0")
-                etAvailedItcCentral.setText("0.0")
-                etAvailedItcState.setText("0.0")
-                etAvailedItcCess.setText("0.0")
-                itcIntegratedUserSet = false
-                itcCentralUserSet = false
-                itcStateUserSet = false
-                itcCessUserSet = false
+            etAvailedItcIntegrated.isEnabled = true
+            etAvailedItcCentral.isEnabled = true
+            etAvailedItcState.isEnabled = true
+            etAvailedItcCess.isEnabled = true
 
-                etAvailedItcIntegrated.isEnabled = false
-                etAvailedItcCentral.isEnabled = false
-                etAvailedItcState.isEnabled = false
-                etAvailedItcCess.isEnabled = false
-            } else {
-                etAvailedItcIntegrated.isEnabled = true
-                etAvailedItcCentral.isEnabled = true
-                etAvailedItcState.isEnabled = true
-                etAvailedItcCess.isEnabled = true
-
-                // Default to the tax actually paid — but only where the user
-                // hasn't claimed a different amount themselves. Partial ITC
-                // claims are normal, and this runs on every line change.
-                if (!itcIntegratedUserSet) etAvailedItcIntegrated.setText(totals.igstAmt.toString())
-                if (!itcCentralUserSet) etAvailedItcCentral.setText(totals.cgstAmt.toString())
-                if (!itcStateUserSet) etAvailedItcState.setText(totals.sgstAmt.toString())
-                if (!itcCessUserSet) etAvailedItcCess.setText(cess.toString())
-            }
+            // Default to the tax actually paid — but only where the user
+            // hasn't claimed a different amount themselves. Partial ITC
+            // claims are normal, and this runs on every line change.
+            if (!itcIntegratedUserSet) etAvailedItcIntegrated.setText(totals.igstAmt.toString())
+            if (!itcCentralUserSet) etAvailedItcCentral.setText(totals.cgstAmt.toString())
+            if (!itcStateUserSet) etAvailedItcState.setText(totals.sgstAmt.toString())
+            if (!itcCessUserSet) etAvailedItcCess.setText(cess.toString())
         } finally {
             settingItc = false
         }
@@ -766,11 +734,7 @@ class PurchaseActivity : BaseActivity() {
             updateAvailedItcValues()
         }
 
-        etEligibilityForItc.addTextChangedListener {
-            updateAvailedItcValues()
-        }
-
-        switchImportedGoods.setOnClickListener { 
+        switchImportedGoods.setOnClickListener {
             if (viewModel.lines.value.isNotEmpty()) {
                 switchImportedGoods.isChecked = !switchImportedGoods.isChecked
                 Toast.makeText(this, R.string.purchase_imported_toggle_locked, Toast.LENGTH_SHORT).show()
@@ -983,13 +947,6 @@ class PurchaseActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            val eligibility = etEligibilityForItc.text?.toString()?.trim().orEmpty()
-            if (eligibility.isEmpty()) {
-                Toast.makeText(this, R.string.purchase_eligibility_required, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
-                return@setOnClickListener
-            }
-
             val availedItcIntegrated = etAvailedItcIntegrated.text?.toString()?.toDoubleOrNull() ?: 0.0
             val availedItcCentral = etAvailedItcCentral.text?.toString()?.toDoubleOrNull() ?: 0.0
             val availedItcState = etAvailedItcState.text?.toString()?.toDoubleOrNull() ?: 0.0
@@ -1016,13 +973,6 @@ class PurchaseActivity : BaseActivity() {
             if (availedItcCess > cessPaid) {
                 Toast.makeText(this, "Availed ITC Cess cannot exceed Cess Paid ($cessPaid)", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }
-
-            if (eligibility == getString(R.string.purchase_eligibility_ineligible) || eligibility == getString(R.string.purchase_eligibility_none)) {
-                if (availedItcIntegrated != 0.0 || availedItcCentral != 0.0 || availedItcState != 0.0 || availedItcCess != 0.0) {
-                    Toast.makeText(this, R.string.purchase_itc_must_be_zero, Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
             }
 
             // A credit purchase must name the account that owes it, else the
@@ -1072,7 +1022,6 @@ class PurchaseActivity : BaseActivity() {
                     invoiceType    = invoiceType,
                     supplyType     = supplyType,
                     cessPaid       = cessPaid,
-                    eligibilityForItc = eligibility,
                     availedItcIntegratedTax = availedItcIntegrated,
                     availedItcCentralTax = availedItcCentral,
                     availedItcStateTax = availedItcState,

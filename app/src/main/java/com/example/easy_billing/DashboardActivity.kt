@@ -782,6 +782,11 @@ class DashboardActivity : BaseActivity() {
             drawerLayout.closeDrawers()
         }
 
+        findViewById<View>(R.id.btnAssets).setOnClickListener {
+            startActivity(Intent(this, AssetsActivity::class.java))
+            drawerLayout.closeDrawers()
+        }
+
         findViewById<View>(R.id.btnImportServices).setOnClickListener {
             startActivity(Intent(this, com.example.easy_billing.ui.ImportServicesActivity::class.java))
             drawerLayout.closeDrawers()

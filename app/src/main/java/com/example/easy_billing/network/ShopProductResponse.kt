@@ -21,5 +21,7 @@ data class ShopProductResponse(
     val cess_rate: Double = 0.0,
     val category: String = "",
     val is_purchased: Boolean = false,
-    val is_tax_inclusive: Boolean = false
+    val is_tax_inclusive: Boolean = false,
+    val is_sellable: Boolean = true,
+    val is_raw_material: Boolean = false
 )

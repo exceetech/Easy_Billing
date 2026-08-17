@@ -43,7 +43,7 @@ android {
         //   • Android emulator → the host machine is 10.0.2.2, NOT localhost/127.0.0.1.
         //   • Physical device  → use the dev machine's LAN IP (e.g. http://192.168.1.100:8080/)
         //     and make sure the phone is on the same Wi-Fi and the server is running.
-        buildConfigField("String", "API_BASE_URL", "\"https://scalancer-pos-test-70344915678.asia-south1.run.app/\"")
+//        buildConfigField("String", "API_BASE_URL", "\"https://scalancer-pos-test-70344915678.asia-south1.run.app/\"")
 
         buildConfigField("String", "SMTP_EMAIL", "\"$smtpEmail\"")
         buildConfigField("String", "SMTP_PASSWORD", "\"$smtpPassword\"")
@@ -56,7 +56,7 @@ android {
     buildTypes {
         getByName("debug") {
             // Override here if you test on a physical device instead of the emulator.
-            // buildConfigField("String", "API_BASE_URL", "\"http://192.168.1.100:8080/\"")
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.1.6:8080/\"")
         }
         getByName("release") {
             isMinifyEnabled = true

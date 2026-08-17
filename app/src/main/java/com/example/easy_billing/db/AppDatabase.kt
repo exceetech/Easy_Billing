@@ -76,7 +76,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // Support/debugging breadcrumb trail (v61) — see [UserEventLog].
         UserEventLog::class
     ],
-    version = 61
+    version = 64
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1737,6 +1737,151 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v61 → v62 — Assets feature.
+         *
+         * `products` gains `isSellable` — true (default) for normal
+         * resale inventory, false for purchase lines recorded purely as
+         * business assets ("Capital goods" / "Input services" ITC
+         * eligibility). Those still get a Product row for record-keeping
+         * but are excluded from the sellable billing/POS catalog
+         * (ProductDao.getAll / getAllForShop) and shown instead on the
+         * read-only Assets screen. Historical data is left untouched —
+         * this migration only adds the column with a default of 1
+         * (sellable), it does not reclassify any existing product.
+         */
+        val MIGRATION_61_62 = object : Migration(61, 62) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `isSellable` INTEGER NOT NULL DEFAULT 1")
+            }
+        }
+
+        /**
+         * v62 → v63 — drop the unused Purchase-header `eligibility_for_itc`
+         * column.
+         *
+         * GST reporting was moved to read each PurchaseItem line's own
+         * eligibility instead of this header-level copy, and the Android UI
+         * that used to set it was removed — the field has been dead weight
+         * ever since, hardcoded to "Inputs" purely to satisfy the non-null
+         * column. `PurchaseItem.eligibility_for_itc` is untouched; it's a
+         * different column on a different table and is still load-bearing.
+         *
+         * minSdk is 26 and Room here uses the framework's bundled SQLite
+         * (no androidx.sqlite:sqlite-bundled dependency), so `ALTER TABLE
+         * ... DROP COLUMN` — only supported natively from SQLite 3.35.5
+         * (shipped starting Android 12/API 31) — isn't safe to call
+         * directly on older devices. Instead this rebuilds `purchase_table`
+         * without the column: create the new table, copy every remaining
+         * column (existing rows keep their now-meaningless
+         * `eligibility_for_itc` values, which are simply dropped), swap the
+         * old table out, and recreate the `invoiceNumber` index.
+         */
+        val MIGRATION_62_63 = object : Migration(62, 63) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // purchase_items_table has an ON DELETE CASCADE foreign key into
+                // purchase_table (see PurchaseItem.kt). Room only turns foreign-key
+                // enforcement ON in onOpen(), which runs after migrations — so this
+                // DROP TABLE below doesn't cascade-delete purchase items today. That
+                // is an ordering coincidence, not something this migration should
+                // rely on, so foreign keys are explicitly disabled for this rebuild
+                // and restored afterward, rather than trusting Room's callback order.
+                db.execSQL("PRAGMA foreign_keys=OFF")
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `purchase_table_new` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `invoiceNumber` TEXT NOT NULL,
+                        `supplierGstin` TEXT,
+                        `supplierName` TEXT NOT NULL,
+                        `state` TEXT NOT NULL,
+                        `taxableAmount` REAL NOT NULL,
+                        `cgst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `igst_percentage` REAL NOT NULL DEFAULT 0.0,
+                        `cgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `sgst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `igst_amount` REAL NOT NULL DEFAULT 0.0,
+                        `invoiceValue` REAL NOT NULL,
+                        `invoice_date` INTEGER,
+                        `created_at` INTEGER NOT NULL,
+                        `is_synced` INTEGER NOT NULL DEFAULT 0,
+                        `server_id` INTEGER,
+                        `is_credit` INTEGER NOT NULL DEFAULT 0,
+                        `credit_account_id` INTEGER,
+                        `credit_transaction_id` INTEGER,
+                        `place_of_supply_code` TEXT NOT NULL DEFAULT '',
+                        `reverse_charge` TEXT NOT NULL DEFAULT 'N',
+                        `invoice_type` TEXT NOT NULL DEFAULT 'Regular',
+                        `supply_type` TEXT NOT NULL DEFAULT 'intrastate',
+                        `cess_paid` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_integrated_tax` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_central_tax` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_state_tax` REAL NOT NULL DEFAULT 0.0,
+                        `availed_itc_cess` REAL NOT NULL DEFAULT 0.0,
+                        `purchase_source` TEXT NOT NULL DEFAULT 'DOMESTIC',
+                        `is_cancelled` INTEGER NOT NULL DEFAULT 0,
+                        `cancelled_at` INTEGER,
+                        `cancel_synced` INTEGER NOT NULL DEFAULT 0
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO `purchase_table_new` (
+                        `id`, `invoiceNumber`, `supplierGstin`, `supplierName`, `state`,
+                        `taxableAmount`, `cgst_percentage`, `sgst_percentage`, `igst_percentage`,
+                        `cgst_amount`, `sgst_amount`, `igst_amount`, `invoiceValue`,
+                        `invoice_date`, `created_at`, `is_synced`, `server_id`,
+                        `is_credit`, `credit_account_id`, `credit_transaction_id`,
+                        `place_of_supply_code`, `reverse_charge`, `invoice_type`, `supply_type`,
+                        `cess_paid`, `availed_itc_integrated_tax`, `availed_itc_central_tax`,
+                        `availed_itc_state_tax`, `availed_itc_cess`, `purchase_source`,
+                        `is_cancelled`, `cancelled_at`, `cancel_synced`
+                    )
+                    SELECT
+                        `id`, `invoiceNumber`, `supplierGstin`, `supplierName`, `state`,
+                        `taxableAmount`, `cgst_percentage`, `sgst_percentage`, `igst_percentage`,
+                        `cgst_amount`, `sgst_amount`, `igst_amount`, `invoiceValue`,
+                        `invoice_date`, `created_at`, `is_synced`, `server_id`,
+                        `is_credit`, `credit_account_id`, `credit_transaction_id`,
+                        `place_of_supply_code`, `reverse_charge`, `invoice_type`, `supply_type`,
+                        `cess_paid`, `availed_itc_integrated_tax`, `availed_itc_central_tax`,
+                        `availed_itc_state_tax`, `availed_itc_cess`, `purchase_source`,
+                        `is_cancelled`, `cancelled_at`, `cancel_synced`
+                    FROM `purchase_table`
+                    """.trimIndent()
+                )
+                db.execSQL("DROP TABLE `purchase_table`")
+                db.execSQL("ALTER TABLE `purchase_table_new` RENAME TO `purchase_table`")
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_purchase_table_invoiceNumber` " +
+                        "ON `purchase_table` (`invoiceNumber`)"
+                )
+                db.execSQL("PRAGMA foreign_keys=ON")
+            }
+        }
+
+        /**
+         * v63 → v64 — Raw-material toggle.
+         *
+         * `products` and `purchase_items_table` both gain `isRawMaterial` /
+         * `is_raw_material` — true when a purchase line was tagged "raw
+         * material" (e.g. flour, sugar) rather than an eligibility-driven
+         * asset (Capital goods / Input services). It shares the same
+         * asset-like inventory gating in PurchaseRepository.doSave (no
+         * stock, not sellable) but is an independent tag from
+         * [Product.isSellable] / the eligibility classification, purely so
+         * the Assets screen can distinguish "Raw material" from "Asset".
+         * Both columns default to 0/false — existing rows are unaffected.
+         */
+        val MIGRATION_63_64 = object : Migration(63, 64) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `isRawMaterial` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `purchase_items_table` ADD COLUMN `is_raw_material` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1788,7 +1933,10 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_57_58,
                         MIGRATION_58_59,
                         MIGRATION_59_60,
-                        MIGRATION_60_61
+                        MIGRATION_60_61,
+                        MIGRATION_61_62,
+                        MIGRATION_62_63,
+                        MIGRATION_63_64
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

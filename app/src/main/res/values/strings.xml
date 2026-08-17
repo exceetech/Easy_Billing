@@ -423,6 +423,7 @@
     <string name="dashboard_add_purchase">Add Purchase</string>
     <string name="dashboard_all_caught">All caught</string>
     <string name="dashboard_app_name_placeholder">Easy Billing</string>
+    <string name="dashboard_assets">Assets</string>
     <string name="dashboard_cart_bar_summary_placeholder">0 items</string>
     <string name="dashboard_checkout_print_receipt">Checkout &amp; print receipt</string>
     <string name="dashboard_clear_all">Clear all</string>
@@ -448,6 +449,7 @@
     <string name="dashboard_purchase_history">Purchase History</string>
     <string name="dashboard_section_analytics_reports">ANALYTICS &amp; REPORTS</string>
     <string name="dashboard_section_core_operations">CORE OPERATIONS</string>
+    <string name="dashboard_sub_assets">Capital goods &amp; business assets</string>
     <string name="dashboard_sub_bulk_service_import">Bulk service import</string>
     <string name="dashboard_sub_catalog_pricing">Catalog &amp; pricing</string>
     <string name="dashboard_sub_customer_dues">Customer dues</string>
@@ -1692,6 +1694,35 @@
     <!-- LocalizationSettingsActivity -->
     <string name="localization_settings_enter_password_error">Enter password</string>
 
+    <!-- activity_assets -->
+    <string name="assets_header_title">Assets</string>
+    <string name="assets_header_title_lead">Your</string>
+    <string name="assets_header_title_accent">assets</string>
+    <string name="assets_header_subtitle">ASSETS</string>
+    <string name="assets_total_value_label">Total asset value</string>
+    <string name="assets_total_value_caption">across all assets</string>
+    <string name="assets_total_value_caption_capital_goods">for Capital goods</string>
+    <string name="assets_total_value_caption_input_services">for Input services</string>
+    <string name="assets_total_value_caption_raw_material">for Raw material</string>
+    <string name="assets_sort_value_desc">Value: High → Low</string>
+    <string name="assets_sort_value_asc">Value: Low → High</string>
+    <string name="assets_kpi_capital_goods">Capital goods</string>
+    <string name="assets_kpi_input_services">Input services</string>
+    <string name="assets_kpi_raw_material">Raw material</string>
+    <string name="assets_search_hint">Search assets</string>
+    <string name="assets_section_all">All assets</string>
+    <string name="assets_footer_hint">Assets are recorded from purchases — they aren\'t part of your sellable stock.</string>
+    <string name="assets_empty_title">No assets yet</string>
+    <string name="assets_empty_title_lead">No</string>
+    <string name="assets_empty_title_accent">assets</string>
+    <string name="assets_empty_sub">Purchases marked as Capital goods, Input services, or Raw material will show up here.</string>
+    <string name="assets_tip_purchase_title">Record a purchase</string>
+    <string name="assets_tip_purchase_body">Mark a line as Capital goods, Input services, or Raw material.</string>
+    <string name="assets_tip_search_title">Search and filter</string>
+    <string name="assets_tip_search_body">Use the search bar or chips once you have assets.</string>
+    <string name="assets_meta_asset_tag">Asset · not sellable</string>
+    <string name="assets_meta_raw_material_tag">Raw material · not sellable</string>
+
     <!-- activity_manage_products -->
     <string name="manage_products_footer_hint">Swipe left on a product to edit its details.</string>
     <string name="manage_products_header_manage">Manage</string>
@@ -1821,6 +1852,8 @@
     <string name="purchase_return_raise_debit">Raise debit</string>
     <string name="purchase_return_rate_invalid">Rate must be &gt;= 0.</string>
     <string name="purchase_return_reason_correction">Correction in invoice</string>
+    <string name="purchase_return_reason_rate_difference">Rate difference</string>
+    <string name="purchase_return_reason_excess_billed">Excess quantity/amount billed</string>
     <string name="purchase_return_reason_deficiency">Deficiency in services</string>
     <string name="purchase_return_reason_discount">Post sale discount</string>
     <string name="purchase_return_reason_other">Other</string>
@@ -1870,6 +1903,11 @@
     <string name="purchase_line_eligibility_required_toast">Eligibility for ITC is required</string>
     <string name="purchase_line_fill_required_toast">Fill product, quantity, selling price and taxable</string>
     <string name="purchase_line_itc_must_be_zero_toast">Availed ITC must be 0 when Ineligible or None</string>
+    <string name="purchase_line_switch_confirm_title">Change ITC eligibility?</string>
+    <string name="purchase_line_switch_to_asset_confirm">Switching to Capital goods/Input services will remove this item from your sellable stock and mark it as a business asset instead. Continue?</string>
+    <string name="purchase_line_switch_to_sellable_confirm">Switching back to Inputs will make this item sellable again and may need stock to be re-added. Continue?</string>
+    <string name="purchase_line_switch_confirm_continue">Continue</string>
+    <string name="purchase_line_switch_confirm_cancel">Cancel</string>
     <string name="purchase_line_negative_gstr2_toast">Negative GSTR-2 values are not allowed</string>
     <string name="purchase_line_restore_button">Restore</string>
     <string name="purchase_line_restore_new_values_button">Restore with New Values</string>
@@ -2170,6 +2208,7 @@
     <string name="xml_purchase_line_dialog_disc_label">Disc</string>
     <string name="xml_purchase_line_dialog_eligibility_label">Eligibility for ITC</string>
     <string name="xml_purchase_line_dialog_gross_label">Gross</string>
+    <string name="xml_purchase_line_dialog_raw_material_label">It\'s a raw material (not for direct sale)</string>
     <string name="xml_purchase_line_dialog_hsn_description_label">HSN description</string>
     <string name="xml_purchase_line_dialog_hsn_label">HSN / SAC</string>
     <string name="xml_purchase_line_dialog_if_any_hint">If any</string>

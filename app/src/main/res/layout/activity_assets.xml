@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Assets — read-only list of products created purely for asset
+  record-keeping (purchase lines with ITC eligibility "Capital goods" /
+  "Input services"). Modeled closely on activity_manage_products.xml,
+  trimmed down to the parts this screen needs (no KPI tiles, chips,
+  search or sort — this list is read-only and usually small).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3ECDD"
+    android:orientation="vertical">
+
+    <!-- ══ Usual toolbar (back arrow) ══ -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18"/>
+
+    <!-- ══ Header — same design language as Inventory ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/assets_header_subtitle"
+            android:textColor="#B8895A"
+            android:textSize="10sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/assets_header_title_lead"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_bold"
+                android:includeFontPadding="false"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/assets_header_title_accent"
+                android:textColor="#0F6E56"
+                android:textSize="21sp"
+                android:fontFamily="serif"
+                android:textStyle="italic"
+                android:includeFontPadding="false"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ══ Hero value card — same shape as Inventory's "Total stock value" card ══ -->
+    <LinearLayout
+        android:id="@+id/cardHero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/assets_total_value_label"
+            android:textColor="#9A8F79"
+            android:textSize="11sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:layout_marginTop="2dp">
+            <TextView
+                android:id="@+id/tvTotalValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#1A1A18"
+                android:textSize="30sp"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                tools:text="₹1,11,150"/>
+            <TextView
+                android:id="@+id/tvTotalValueCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:paddingBottom="2dp"
+                android:text="@string/assets_total_value_caption"
+                android:textColor="#8A8272"
+                android:textSize="11sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp">
+
+            <LinearLayout
+                android:id="@+id/tileCapitalGoods"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_amber"
+                android:padding="9dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView
+                    android:id="@+id/tvCapitalGoodsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#854F0B"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_medium"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/assets_kpi_capital_goods"
+                    android:textColor="#BA7517"
+                    android:textSize="9.5sp"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <View android:layout_width="8dp" android:layout_height="1dp"/>
+
+            <LinearLayout
+                android:id="@+id/tileInputServices"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_teal"
+                android:padding="9dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView
+                    android:id="@+id/tvInputServicesCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#085041"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_medium"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/assets_kpi_input_services"
+                    android:textColor="#0F6E56"
+                    android:textSize="9.5sp"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <View android:layout_width="8dp" android:layout_height="1dp"/>
+
+            <LinearLayout
+                android:id="@+id/tileRawMaterial"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_red"
+                android:padding="9dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView
+                    android:id="@+id/tvRawMaterialCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#791F1F"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_medium"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/assets_kpi_raw_material"
+                    android:textColor="#A32D2D"
+                    android:textSize="9.5sp"
+                    android:singleLine="true"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="#9A8F79"
+        android:textSize="11sp"
+        android:fontFamily="@font/googlesans_medium"
+        tools:text="14 assets · not counted as sellable stock"/>
+
+    <!-- ══ Search + filter + sort — same chrome as Inventory ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_stat_card"
+            android:paddingHorizontal="12dp">
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/ic_search"
+                app:tint="#B8895A"
+                android:contentDescription="@null"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearch"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:hint="@string/assets_search_hint"
+                android:textColorHint="#C4B9A6"
+                android:textColor="#1A1A18"
+                android:textSize="12.5sp"
+                android:inputType="text"
+                android:singleLine="true"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/btnFilter"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_inv_stat_card"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_filter"
+                app:tint="#B8895A"
+                android:contentDescription="@null"/>
+            <TextView
+                android:id="@+id/tvFilterBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="1dp"
+                android:minWidth="13dp"
+                android:minHeight="13dp"
+                android:gravity="center"
+                android:background="@drawable/bg_hdr_badge_red"
+                android:text="1"
+                android:textColor="#FFFFFF"
+                android:textSize="8sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:visibility="gone"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btnSort"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_inv_stat_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lc_sliders"
+                app:tint="#B8895A"
+                android:contentDescription="@string/manage_products_sort_content_desc"/>
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- ══ Filter chips ══ -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:paddingHorizontal="16dp"
+        android:scrollbars="none"
+        android:clipToPadding="false">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:singleLine="true"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:checked="true"
+                android:checkable="true"
+                android:text="@string/manage_filter_all"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="@color/chip_stroke_inv_selector"
+                app:chipStrokeWidth="1.5dp"
+                app:chipCornerRadius="8dp"
+                app:chipStartPadding="12dp"
+                app:chipEndPadding="12dp"
+                app:checkedIconVisible="false"
+                app:chipMinTouchTargetSize="0dp"
+                android:textColor="@color/chip_text_inv_selector"
+                android:fontFamily="@font/googlesans_medium"
+                android:textSize="12sp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCapitalGoods"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:checkable="true"
+                android:text="@string/assets_kpi_capital_goods"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="@color/chip_stroke_inv_selector"
+                app:chipStrokeWidth="1.5dp"
+                app:chipCornerRadius="8dp"
+                app:chipStartPadding="12dp"
+                app:chipEndPadding="12dp"
+                app:checkedIconVisible="false"
+                app:chipMinTouchTargetSize="0dp"
+                android:textColor="@color/chip_text_inv_selector"
+                android:fontFamily="@font/googlesans_medium"
+                android:textSize="12sp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipInputServices"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:checkable="true"
+                android:text="@string/assets_kpi_input_services"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="@color/chip_stroke_inv_selector"
+                app:chipStrokeWidth="1.5dp"
+                app:chipCornerRadius="8dp"
+                app:chipStartPadding="12dp"
+                app:chipEndPadding="12dp"
+                app:checkedIconVisible="false"
+                app:chipMinTouchTargetSize="0dp"
+                android:textColor="@color/chip_text_inv_selector"
+                android:fontFamily="@font/googlesans_medium"
+                android:textSize="12sp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipRawMaterial"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:checkable="true"
+                android:text="@string/assets_kpi_raw_material"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="@color/chip_stroke_inv_selector"
+                app:chipStrokeWidth="1.5dp"
+                app:chipCornerRadius="8dp"
+                app:chipStartPadding="12dp"
+                app:chipEndPadding="12dp"
+                app:checkedIconVisible="false"
+                app:chipMinTouchTargetSize="0dp"
+                android:textColor="@color/chip_text_inv_selector"
+                android:fontFamily="@font/googlesans_medium"
+                android:textSize="12sp"/>
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- ══ Section label ══ -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/assets_section_all"
+        android:textColor="#9CA3AF"
+        android:textSize="11sp"/>
+
+    <!-- ══ List — background lives on this outer card, not the
+         RecyclerView, so the card stays visible when the empty state
+         replaces it (same structure as Inventory's cardInventory). ══ -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_inv_value_card"
+        android:clipToOutline="true">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAssets"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"/>
+
+        <!-- Empty state — same shape as Inventory's: centred icon
+             circle, title with the italic serif accent word, centred
+             body copy, hairline, then two tip rows. -->
+        <ScrollView
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="26dp"
+                android:paddingTop="30dp"
+                android:paddingBottom="26dp">
+
+                <FrameLayout
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_imp_empty_circle">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_box"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp">
+                    <TextView
+                        android:id="@+id/tvEmptyTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/assets_empty_title_lead"
+                        android:textSize="19sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/assets_empty_title_accent"
+                        android:textSize="19sp"
+                        android:textColor="#0F6E56"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvEmptySub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:gravity="center"
+                    android:text="@string/assets_empty_sub"
+                    android:textSize="12.5sp"
+                    android:textColor="#8A8272"
+                    android:lineSpacingExtra="3dp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#F1EBDD"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="11dp">
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:src="@drawable/ic_lc_box"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/assets_tip_purchase_title"
+                            android:textSize="12sp"
+                            android:textColor="#1A1A18"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/assets_tip_purchase_body"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginTop="1dp"
+                        android:src="@drawable/ic_search"
+                        app:tint="#B8895A"
+                        android:contentDescription="@null"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/assets_tip_search_title"
+                            android:textSize="12sp"
+                            android:textColor="#1A1A18"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/assets_tip_search_body"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+    <!-- ══ Footer hint ══ -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        android:text="@string/assets_footer_hint"
+        android:textColor="#A99E88"
+        android:textSize="12.5sp"/>
+
+</LinearLayout>

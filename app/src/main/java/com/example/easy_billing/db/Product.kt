@@ -156,6 +156,32 @@ data class Product(
      * retry the backend call until it's confirmed.
      */
     @ColumnInfo(name = "pending_deactivate_sync", defaultValue = "0")
-    val pendingDeactivateSync: Boolean = false
+    val pendingDeactivateSync: Boolean = false,
+
+    /**
+     * True when this product is part of the sellable billing/POS catalog
+     * (default). False for purchase lines recorded purely for asset
+     * record-keeping — e.g. "Capital goods" / "Input services" eligibility
+     * for ITC — which still create a Product row (so the purchase and any
+     * future GST reporting have something to point at) but must never
+     * appear in Manage Products' sellable list, the POS billing picker, or
+     * receive stock via InventoryManager. See PurchaseRepository.doSave
+     * and the Assets screen (AssetsActivity).
+     */
+    @ColumnInfo(name = "isSellable", defaultValue = "1")
+    val isSellable: Boolean = true,
+
+    /**
+     * True when this product was purchased as a genuine raw material
+     * (e.g. flour, sugar) — legally still "Inputs" for GST purposes, but
+     * not itself sold/billed as-is. Shares the same asset-like inventory
+     * gating as [isSellable] == false (no stock, hidden from Manage
+     * Products / POS) but is a distinct, independent tag from the
+     * Capital-goods/Input-services asset classification, purely so the
+     * Assets screen can label it "Raw material" instead of "Asset". See
+     * PurchaseRepository.doSave and AssetsAdapter.
+     */
+    @ColumnInfo(name = "isRawMaterial", defaultValue = "0")
+    val isRawMaterial: Boolean = false
 
 ) : Serializable

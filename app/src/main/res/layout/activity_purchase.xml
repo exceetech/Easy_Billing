@@ -554,27 +554,6 @@
                             </FrameLayout>
 
                             <TextView
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp" android:layout_marginBottom="5dp"
-                                android:text="@string/purchase_eligibility_label" android:textColor="#9A8F79" android:textSize="12.5sp"
-                                android:fontFamily="@font/googlesans_regular"
-                                />
-                            <LinearLayout
-                                android:layout_width="match_parent" android:layout_height="50dp"
-                                android:orientation="horizontal" android:gravity="center_vertical"
-                                android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="9dp"
-                                    android:src="@drawable/ic_lc_shield_check" app:tint="#B8895A" android:contentDescription="@null"/>
-                                <AutoCompleteTextView
-                                    android:id="@+id/etEligibilityForItc"
-                                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
-                                    android:background="@null" android:hint="@string/invoice_hint_tap_to_select" android:textColor="#1A1A18" android:textColorHint="#A99E88"
-                                    android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp"/>
-                                <ImageView android:layout_width="18dp" android:layout_height="18dp"
-                                    android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
-                            </LinearLayout>
-
-                            <TextView
                                 android:id="@+id/tvItcHelperText"
                                 android:layout_width="match_parent" android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"

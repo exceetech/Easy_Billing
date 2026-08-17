@@ -61,7 +61,6 @@ data class Purchase(
     @ColumnInfo(name = "invoice_type") val invoiceType: String = "Regular",
     @ColumnInfo(name = "supply_type") val supplyType: String = "intrastate",
     @ColumnInfo(name = "cess_paid") val cessPaid: Double = 0.0,
-    @ColumnInfo(name = "eligibility_for_itc") val eligibilityForItc: String = "Inputs",
     @ColumnInfo(name = "availed_itc_integrated_tax") val availedItcIntegratedTax: Double = 0.0,
     @ColumnInfo(name = "availed_itc_central_tax") val availedItcCentralTax: Double = 0.0,
     @ColumnInfo(name = "availed_itc_state_tax") val availedItcStateTax: Double = 0.0,

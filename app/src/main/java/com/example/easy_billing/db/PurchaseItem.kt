@@ -91,5 +91,15 @@ data class PurchaseItem(
     @ColumnInfo(name = "official_uqc") val officialUqc: String = "",
     @ColumnInfo(name = "supply_classification") val supplyClassification: String = "TAXABLE",
 
-    @ColumnInfo(name = "is_synced") val isSynced: Boolean = false
+    @ColumnInfo(name = "is_synced") val isSynced: Boolean = false,
+
+    /**
+     * True when the user marked this purchase line as a raw material
+     * (not for direct resale) via the "This is a raw material" toggle
+     * in the purchase line dialog. Persisted so an existing line can be
+     * restored with the toggle in its original state when re-edited.
+     * Independent of [eligibilityForItc] — GST eligibility is unaffected.
+     */
+    @ColumnInfo(name = "is_raw_material", defaultValue = "0")
+    val isRawMaterial: Boolean = false
 )

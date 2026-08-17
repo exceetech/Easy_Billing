@@ -1137,6 +1137,16 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
+                    <LinearLayout android:id="@+id/btnAssets" style="@style/SettingsRow">
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#F3E4DC"
+                            android:src="@drawable/ic_lc_box" app:tint="#A05A3C"/>
+                        <LinearLayout style="@style/SettingsRowText">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dashboard_assets"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_assets"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
                     <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
                             android:src="@drawable/ic_drawer_import" app:tint="#854F0B"/>

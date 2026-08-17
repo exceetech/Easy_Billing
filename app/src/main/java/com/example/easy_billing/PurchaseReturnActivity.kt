@@ -379,15 +379,34 @@ class PurchaseReturnActivity : BaseActivity() {
             showGstr2ChooserPopup(actvDocumentType, docTypes.toList(), tvLabelDocumentType)
         }
 
-        val reasons = arrayOf(
-            getString(R.string.purchase_return_reason_sales_return),
-            getString(R.string.reason_purchase_return),
-            getString(R.string.purchase_return_reason_discount),
-            getString(R.string.purchase_return_reason_deficiency),
-            getString(R.string.purchase_return_reason_correction),
-            getString(R.string.purchase_return_reason_other)
-        )
-        actvReason.setText(getString(R.string.reason_purchase_return), false)
+        // Debit Note (noteType "D") means goods are physically going back
+        // to the supplier, so its reasons describe a return. Credit Note
+        // (noteType "C") is issued for a value adjustment — no goods
+        // movement — so it needs adjustment-style reasons instead; reusing
+        // the return-only list there (e.g. defaulting to "Purchase return")
+        // was misleading for credit notes raised for a rate correction,
+        // extra quantity billed, or a post-sale discount.
+        val reasons: Array<String>
+        val defaultReason: String
+        if (noteType == "C") {
+            reasons = arrayOf(
+                getString(R.string.purchase_return_reason_discount),
+                getString(R.string.purchase_return_reason_correction),
+                getString(R.string.purchase_return_reason_rate_difference),
+                getString(R.string.purchase_return_reason_excess_billed),
+                getString(R.string.purchase_return_reason_other)
+            )
+            defaultReason = getString(R.string.purchase_return_reason_correction)
+        } else {
+            reasons = arrayOf(
+                getString(R.string.purchase_return_reason_sales_return),
+                getString(R.string.reason_purchase_return),
+                getString(R.string.purchase_return_reason_deficiency),
+                getString(R.string.purchase_return_reason_other)
+            )
+            defaultReason = getString(R.string.reason_purchase_return)
+        }
+        actvReason.setText(defaultReason, false)
         actvReason.setOnClickListener {
             showGstr2ChooserPopup(actvReason, reasons.toList(), tvLabelReason)
         }

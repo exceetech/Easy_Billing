@@ -41,11 +41,16 @@ import kotlinx.coroutines.withContext
  * @param activity      host, used for inflation / dialogs / coroutines
  * @param viewModel     receives the finished line via `addLine`
  * @param supplierState supplier state name taken from the invoice header
+ * @param headerEligibility ITC eligibility ("Inputs"/"Capital goods"/"Input services"/
+ *   "Ineligible"/"None") taken from the invoice header's own Eligibility For ITC field.
+ *   Used to seed each new line item so the user doesn't have to re-pick it per item;
+ *   still overridable per line via the picker.
  */
 class PurchaseLineDialog(
     private val activity: AppCompatActivity,
     private val viewModel: PurchaseViewModel,
-    private val supplierState: () -> String
+    private val supplierState: () -> String,
+    private val headerEligibility: () -> String = { "Inputs" }
 ) {
 
     private val productRepo = ProductRepository.get(activity)
@@ -202,6 +207,27 @@ class PurchaseLineDialog(
         if (d % 1.0 == 0.0) d.toLong().toString() else d.toString()
 
     /**
+     * The eligibility options, in display order — must match
+     * PurchaseRepository.isAssetLine and backend purchase_routes.py's
+     * comparisons verbatim, so no casing/spacing variation here.
+     */
+    private val eligibilityOptions = listOf(
+        "Inputs", "Capital goods", "Input services", "Ineligible", "None"
+    )
+
+    /** Reads the currently selected eligibility text; defaults to "Inputs" if empty/unrecognized. */
+    private fun getSelectedEligibility(spinner: AutoCompleteTextView): String {
+        val text = spinner.text?.toString()?.trim()
+        return if (text.isNullOrEmpty() || text !in eligibilityOptions) "Inputs" else text
+    }
+
+    /** Sets the spinner text to [value], defaulting to "Inputs" for an unknown value. */
+    private fun setSelectedEligibility(spinner: AutoCompleteTextView, value: String) {
+        val resolved = if (value in eligibilityOptions) value else "Inputs"
+        spinner.setText(resolved, false)
+    }
+
+    /**
      * True when the supplier is in the shop's own state, so the purchase is
      * taxed CGST + SGST rather than IGST. Until the shop's state code has
      * loaded this reports false (inter-state), matching the invoice-value
@@ -304,6 +330,8 @@ class PurchaseLineDialog(
         val etSelling = view.findViewById<TextInputEditText>(R.id.etSellingPrice)
         val switchTaxInclusive =
             view.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchTaxInclusive)
+        val switchRawMaterial =
+            view.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchRawMaterial)
         val etQty = view.findViewById<TextInputEditText>(R.id.etQuantity)
         val etGross = view.findViewById<TextInputEditText>(R.id.etGrossAmount)
         val etDiscount = view.findViewById<TextInputEditText>(R.id.etDiscountAmount)
@@ -316,6 +344,21 @@ class PurchaseLineDialog(
         val etSCgst = view.findViewById<TextInputEditText>(R.id.etSalesCgst)
         val etSSgst = view.findViewById<TextInputEditText>(R.id.etSalesSgst)
         val etSIgst = view.findViewById<TextInputEditText>(R.id.etSalesIgst)
+        val cardSellingDetails = view.findViewById<View>(R.id.cardSellingDetails)
+
+        /**
+         * Shows/hides the "You will sell at" card based on ITC eligibility.
+         * "Capital goods" / "Input services" mark this line as a business
+         * asset (see PurchaseRepository.doSave / isAssetLine) — it will
+         * never be resold, so the selling-price / sales-GST fields are
+         * irrelevant and hidden. Values already typed there are left
+         * untouched so they reappear if the user switches back to "Inputs".
+         */
+        fun updateAssetLineUi(eligibility: String) {
+            val isAsset = eligibility == "Capital goods" || eligibility == "Input services" ||
+                switchRawMaterial.isChecked
+            cardSellingDetails.visibility = if (isAsset) View.GONE else View.VISIBLE
+        }
 
         if (viewModel.isImportedGoods.value) {
             etPCgst.setText("0.0")
@@ -412,21 +455,17 @@ class PurchaseLineDialog(
         setupGstr2Toggle(view)
 
         val etCessAmountPurchase = view.findViewById<TextInputEditText>(R.id.etCessAmountPurchase)
-        val spinnerEligibilityItemPurchase =
-            view.findViewById<AutoCompleteTextView>(R.id.spinnerEligibilityItemPurchase)
+        val chipGroupEligibility = view.findViewById<AutoCompleteTextView>(R.id.spinnerEligibility)
         val etAvailedItcIgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcIgstPurchase)
         val etAvailedItcCgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcCgstPurchase)
         val etAvailedItcSgstPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcSgstPurchase)
         val etAvailedItcCessPurchase = view.findViewById<TextInputEditText>(R.id.etAvailedItcCessPurchase)
 
-        spinnerEligibilityItemPurchase.setText("Inputs", false)
-        // Display-only: no click listener attached (this field is auto-computed,
-        // not user-selectable, in the Input Tax Credit section). Intentionally
-        // NOT calling setOnClickListener here, since doing so would silently
-        // re-enable clickable=true at runtime and reopen the picker popup,
-        // overriding the layout's android:clickable="false".
-        spinnerEligibilityItemPurchase.isClickable = false
-        spinnerEligibilityItemPurchase.isFocusable = false
+        // Always-visible chip selector, seeded from the invoice header's own
+        // Eligibility For ITC field but still overridable per line — see
+        // getSelectedEligibility/setSelectedEligibility above.
+        setSelectedEligibility(chipGroupEligibility, headerEligibility())
+        updateAssetLineUi(getSelectedEligibility(chipGroupEligibility))
 
         etCessAmountPurchase.addTextChangedListener {
             if (etCessAmountPurchase.isFocused) userOverroteCess = true
@@ -449,7 +488,7 @@ class PurchaseLineDialog(
                 }
             }
 
-            val eligibility = spinnerEligibilityItemPurchase.text.toString().trim()
+            val eligibility = getSelectedEligibility(chipGroupEligibility)
             val cessAmountVal = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: computedCessAmount
 
             val cgstPercent = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
@@ -486,10 +525,8 @@ class PurchaseLineDialog(
         listOf(etTax, etCessRatePurchase, etPCgst, etPSgst, etPIgst).forEach {
             it.addTextChangedListener { recomputeCessAndItc() }
         }
-        spinnerEligibilityItemPurchase.addTextChangedListener { recomputeCessAndItc() }
-
         etCessAmountPurchase.addTextChangedListener {
-            val eligibility = spinnerEligibilityItemPurchase.text.toString().trim()
+            val eligibility = getSelectedEligibility(chipGroupEligibility)
             if (eligibility !in listOf("Ineligible", "None") && !userOverroteAvailedCess) {
                 val cessVal = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
                 etAvailedItcCessPurchase.setText("%.2f".format(cessVal))
@@ -562,7 +599,14 @@ class PurchaseLineDialog(
                     variantLookup?.cancel()
                     variantLookup = activity.lifecycleScope.launch {
                         val match = withContext(Dispatchers.IO) {
-                            productRepo.getByNameAndVariant(pName, vName)
+                            // Only autofill from a row in the same sellable/asset
+                            // bucket the current eligibility selection implies —
+                            // otherwise a Capital-goods line could silently pull
+                            // pricing/tax from an unrelated sellable "Fridge" (or
+                            // vice versa). See Assets feature.
+                            val wantsSellable = getSelectedEligibility(chipGroupEligibility) !in
+                                setOf("Capital goods", "Input services")
+                            productRepo.getByNameAndVariant(pName, vName, wantsSellable)
                         }
                         if (match != null && match.isActive) {
                             withContext(Dispatchers.Main) {
@@ -803,9 +847,11 @@ class PurchaseLineDialog(
                     etPIgst.setText(trimNum(existingDraft.purchaseIgst))
 
                     etCessAmountPurchase.setText(trimNum(existingDraft.cessAmount))
-                    spinnerEligibilityItemPurchase.setText(
-                        existingDraft.eligibilityForItc.ifBlank { "Inputs" }, false
+                    setSelectedEligibility(
+                        chipGroupEligibility, existingDraft.eligibilityForItc.ifBlank { "Inputs" }
                     )
+                    switchRawMaterial.isChecked = existingDraft.isRawMaterial
+                    updateAssetLineUi(getSelectedEligibility(chipGroupEligibility))
                     etAvailedItcIgstPurchase.setText(trimNum(existingDraft.availedItcIgst))
                     etAvailedItcCgstPurchase.setText(trimNum(existingDraft.availedItcCgst))
                     etAvailedItcSgstPurchase.setText(trimNum(existingDraft.availedItcSgst))
@@ -919,14 +965,47 @@ class PurchaseLineDialog(
         }
         listOf(etTax, etPCgst, etPSgst, etPIgst).forEach { it.addTextChangedListener { recomputeInvoice() } }
 
-        // Enable "Add" only when product, quantity, taxable and selling are populated.
+        // Enable "Add" only when product, quantity, taxable and selling are
+        // populated. Selling price is irrelevant for asset lines (Capital
+        // goods / Input services — see isAssetLine in PurchaseRepository),
+        // since they're never resold, so it's skipped for those.
+        fun isAssetEligibilityNow() =
+            getSelectedEligibility(chipGroupEligibility) in
+                setOf("Capital goods", "Input services") ||
+                switchRawMaterial.isChecked
+
         val recompute = {
             btnAdd.isEnabled = !etProduct.text.isNullOrBlank() &&
                     (etQty.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0 &&
                     (etTax.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0 &&
-                    (etSelling.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0
+                    (isAssetEligibilityNow() || (etSelling.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0)
         }
         listOf(etProduct, etQty, etTax, etSelling).forEach { it.addTextChangedListener { recompute() } }
+
+        // Popup-card picker — same pattern as Supply Classification/Unit/
+        // Category. Every side effect a selection change used to trigger
+        // (ITC recompute, the asset-card visibility, and Add-button
+        // enablement) is consolidated here.
+        chipGroupEligibility.setOnClickListener {
+            showSortStylePopup(
+                chipGroupEligibility, eligibilityOptions, getSelectedEligibility(chipGroupEligibility)
+            ) { picked ->
+                setSelectedEligibility(chipGroupEligibility, picked)
+                val selected = getSelectedEligibility(chipGroupEligibility)
+                recomputeCessAndItc()
+                updateAssetLineUi(selected)
+                recompute()
+            }
+        }
+
+        // Raw-material toggle: shares the same asset-like inventory gating
+        // as the eligibility chips (see isAssetEligibilityNow /
+        // updateAssetLineUi above), so flipping it must re-run the same
+        // side effects a chip change does.
+        switchRawMaterial.setOnCheckedChangeListener { _, _ ->
+            updateAssetLineUi(getSelectedEligibility(chipGroupEligibility))
+            recompute()
+        }
         recompute()
 
         btnCancel.setOnClickListener {
@@ -951,7 +1030,7 @@ class PurchaseLineDialog(
                     "invoice_overridden=$userOverroteInvoice"
             )
 
-            if (name.isEmpty() || qty <= 0 || taxable <= 0 || selling <= 0) {
+            if (name.isEmpty() || qty <= 0 || taxable <= 0 || (!isAssetEligibilityNow() && selling <= 0)) {
                 Toast.makeText(activity,
                     activity.getString(R.string.purchase_line_fill_required_toast),
                     Toast.LENGTH_SHORT).show()
@@ -961,7 +1040,7 @@ class PurchaseLineDialog(
 
             val cessPercent = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
             val cessAmt = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val eligibility = spinnerEligibilityItemPurchase.text?.toString()?.trim().orEmpty()
+            val eligibility = getSelectedEligibility(chipGroupEligibility)
             val availedIgst = etAvailedItcIgstPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
             val availedCgst = etAvailedItcCgstPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
             val availedSgst = etAvailedItcSgstPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
@@ -1044,7 +1123,8 @@ class PurchaseLineDialog(
                 availedItcSgst = availedSgst,
                 availedItcCess = availedCess,
                 supplyClassification = SupplyClassMapper.displayToCode(spinnerSupplyClassPurchase.text?.toString()?.trim()) ?: "TAXABLE",
-                category = etCategoryPurchase.text?.toString()?.trim().orEmpty()
+                category = etCategoryPurchase.text?.toString()?.trim().orEmpty(),
+                isRawMaterial = switchRawMaterial.isChecked
             )
 
             rememberCustomCategory(etCategoryPurchase.text?.toString()?.trim().orEmpty())
@@ -1066,9 +1146,55 @@ class PurchaseLineDialog(
                 // Editing a line already in this purchase's list — no
                 // existing-product conflict check needed, it's not a new
                 // product being added, just this draft's values changing.
-                com.example.easy_billing.util.UserEventLogger.logAction("PurchaseLine", "line_edited: $fullDetail")
-                viewModel.replaceLine(editIndex, draft)
-                dialog.dismiss()
+                //
+                // Assets feature: if eligibility crosses the sellable/asset
+                // boundary ("Inputs"/other ↔ "Capital goods"/"Input
+                // services"), warn before applying — flipping this flag
+                // changes whether the tied product carries stock and shows
+                // up in the sellable catalog (see PurchaseRepository.doSave
+                // / Task 4 gating), so it shouldn't happen silently on a
+                // simple field edit.
+                val originalEligibility = existingDraft?.eligibilityForItc
+                fun isAssetEligibility(v: String?) =
+                    v == "Capital goods" || v == "Input services"
+                // Raw-material toggle has the identical real consequence as
+                // crossing the eligibility asset boundary (converts between
+                // sellable-with-stock and non-sellable-no-stock — see
+                // PurchaseRepository.doSave's isAssetLine), so a change to
+                // it also warns, not just an eligibility chip change.
+                val eligibilityCrossed = originalEligibility != null &&
+                    isAssetEligibility(originalEligibility) != isAssetEligibility(eligibility)
+                val rawMaterialChanged = existingDraft != null &&
+                    existingDraft.isRawMaterial != switchRawMaterial.isChecked
+                val crossedBoundary = eligibilityCrossed || rawMaterialChanged
+
+                fun applyEdit() {
+                    com.example.easy_billing.util.UserEventLogger.logAction("PurchaseLine", "line_edited: $fullDetail")
+                    viewModel.replaceLine(editIndex, draft)
+                    dialog.dismiss()
+                }
+
+                if (crossedBoundary) {
+                    val message = if (isAssetEligibility(eligibility) || switchRawMaterial.isChecked) {
+                        activity.getString(R.string.purchase_line_switch_to_asset_confirm)
+                    } else {
+                        activity.getString(R.string.purchase_line_switch_to_sellable_confirm)
+                    }
+                    AlertDialog.Builder(activity)
+                        .setTitle(R.string.purchase_line_switch_confirm_title)
+                        .setMessage(message)
+                        .setPositiveButton(R.string.purchase_line_switch_confirm_continue) { d, _ ->
+                            d.dismiss()
+                            applyEdit()
+                        }
+                        .setNegativeButton(R.string.purchase_line_switch_confirm_cancel) { d, _ ->
+                            d.dismiss()
+                            // Cancelled — do not proceed with the save.
+                        }
+                        .show()
+                } else {
+                    applyEdit()
+                }
             } else {
                 com.example.easy_billing.util.UserEventLogger.logAction("PurchaseLine", "line_added: $fullDetail")
                 resolveExistingProductAndAdd(draft, qty, dialog)
@@ -1258,18 +1384,29 @@ class PurchaseLineDialog(
      * Checks for an existing product with the same name+variant before
      * adding the line: active manual → blocked, active purchased → added,
      * inactive → restore prompt.
+     *
+     * The match is scoped to the sellable/asset bucket the line's ITC
+     * eligibility implies (see [PurchaseRepository.doSave]'s `isAssetLine`) —
+     * a Capital-goods/Input-services line only ever matches/reuses an
+     * existing asset (isSellable = false) row, and every other eligibility
+     * only ever matches/reuses an existing sellable row. A same-named row in
+     * the other bucket is never treated as "existing" here; if none exists
+     * in the right bucket, [viewModel.addLine] (→ ProductRepository.upsert,
+     * itself scoped the same way) creates a brand-new row.
      */
     private fun resolveExistingProductAndAdd(
         draft: PurchaseItemDraft,
         qty: Double,
         dialog: Dialog
     ) {
+        val wantsSellable = draft.eligibilityForItc != "Capital goods" &&
+            draft.eligibilityForItc != "Input services"
         activity.lifecycleScope.launch {
             val db = com.example.easy_billing.db.AppDatabase.getDatabase(activity)
             val validShopIds = productRepo.getValidShopIds()
 
             val existingMatch = withContext(Dispatchers.IO) {
-                db.productDao().getByNameAndVariant(draft.productName, draft.variant, validShopIds)
+                db.productDao().getByNameAndVariant(draft.productName, draft.variant, validShopIds, wantsSellable)
                     // Exact match only fixes the first letter of each word, so
                     // "Potato Chips" vs "Potato CHIPS" (or any other mid-word
                     // case difference) slips past it as two different
@@ -1277,7 +1414,7 @@ class PurchaseLineDialog(
                     // — without it, a restock typed with slightly different
                     // capitalization silently created a second product +
                     // inventory row instead of adding to the existing one.
-                    ?: db.productDao().findConflictIgnoringCase(draft.productName, draft.variant, validShopIds)
+                    ?: db.productDao().findConflictIgnoringCase(draft.productName, draft.variant, validShopIds, wantsSellable)
             }
 
             withContext(Dispatchers.Main) {

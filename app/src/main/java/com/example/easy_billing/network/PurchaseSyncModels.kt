@@ -99,7 +99,6 @@ data class PurchaseDto(
     val invoice_type: String = "Regular",
     val supply_type: String = "intrastate",
     val cess_paid: Double = 0.0,
-    val eligibility_for_itc: String = "Inputs",
     val availed_itc_integrated_tax: Double = 0.0,
     val availed_itc_central_tax: Double = 0.0,
     val availed_itc_state_tax: Double = 0.0,
@@ -141,7 +140,8 @@ data class PurchaseItemDto(
     val availed_itc_cess: Double = 0.0,
     val hsn_description: String = "",
     val official_uqc: String = "",
-    val supply_classification: String = "TAXABLE"
+    val supply_classification: String = "TAXABLE",
+    val is_raw_material: Boolean = false
 )
 
 data class PurchaseSyncResponse(
@@ -263,7 +263,6 @@ data class PurchaseResponse(
     val invoice_type: String = "Regular",
     val supply_type: String = "intrastate",
     val cess_paid: Double = 0.0,
-    val eligibility_for_itc: String = "Inputs",
     val availed_itc_integrated_tax: Double = 0.0,
     val availed_itc_central_tax: Double = 0.0,
     val availed_itc_state_tax: Double = 0.0,
@@ -305,5 +304,6 @@ data class PurchaseItemResponse(
     val availed_itc_cess: Double = 0.0,
     val hsn_description: String = "",
     val official_uqc: String = "",
-    val supply_classification: String = "TAXABLE"
+    val supply_classification: String = "TAXABLE",
+    val is_raw_material: Boolean = false
 )

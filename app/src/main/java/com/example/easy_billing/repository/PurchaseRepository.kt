@@ -183,11 +183,28 @@ class PurchaseRepository private constructor(
             //    brand-new row is inserted even when an inactive product with
             //    the same key already exists (user chose "Create New" in the
             //    restore dialog).
+            // Assets feature: "Capital goods" / "Input services" ITC
+            // eligibility means this purchase line is a business asset, not
+            // resale inventory — the Product row is still created (for
+            // record-keeping / the Assets screen) but isSellable = false so
+            // it never appears in the billing/POS catalog, and stock is
+            // never added for it (see the addStock skip below). Any other
+            // eligibility ("Inputs", "Ineligible", "None") keeps today's
+            // exact sellable behaviour.
+            // Raw-material toggle: a line tagged "raw material" gets the
+            // same asset-like inventory gating as Capital goods/Input
+            // services eligibility (no stock, not sellable), but is an
+            // independent tag from eligibility/isSellable — see
+            // Product.isRawMaterial and AssetsAdapter.
+            val isAssetLine = line.eligibilityForItc == "Capital goods" ||
+                line.eligibilityForItc == "Input services" ||
+                line.isRawMaterial
+
             val newProductData = Product(
                 name            = line.productName,
                 variant         = line.variant,
                 unit            = line.unit,
-                price           = line.sellingPrice ?: line.costPrice,
+                price           = if (isAssetLine) line.costPrice else (line.sellingPrice ?: line.costPrice),
                 trackInventory  = true,
                 isActive        = true,
                 isPurchased     = true,
@@ -202,7 +219,9 @@ class PurchaseRepository private constructor(
                 hsnDescription  = line.hsnDescription,
                 cessRate        = line.cessRate,
                 supplyClassification = line.supplyClassification,
-                category        = line.category
+                category        = line.category,
+                isSellable      = !isAssetLine,
+                isRawMaterial   = line.isRawMaterial
             )
             val productId = if (line.forceCreate) {
                 db.productDao().insert(newProductData).toInt()
@@ -262,7 +281,8 @@ class PurchaseRepository private constructor(
                     availedItcCess = line.availedItcCess,
                     hsnDescription = line.hsnDescription ?: "",
                     officialUqc = line.officialUqc ?: "",
-                    supplyClassification = line.supplyClassification
+                    supplyClassification = line.supplyClassification,
+                    isRawMaterial = line.isRawMaterial
                 )
             )
 
@@ -284,26 +304,30 @@ class PurchaseRepository private constructor(
                               else line.costPrice
             val combinedGst = (line.purchaseCgst + line.purchaseSgst)
                 .takeIf { it > 0 } ?: line.purchaseIgst
-            InventoryManager.addStock(
-                db = db,
-                productId = productId,
-                quantity = line.quantity,
-                costPrice = unitCostGross,
-                batchMeta = InventoryManager.StockBatchMeta(
-                    purchaseInvoiceId = purchaseId,
-                    supplierName = safeHeader.supplierName,
-                    supplierGstin = safeHeader.supplierGstin,
-                    invoiceNumber = safeHeader.invoiceNumber,
-                    batchCode = null,
-                    unitCostExcludingTax = unitCostNet,
-                    gstPercent = combinedGst,
-                    cgstPercent = line.purchaseCgst,
-                    sgstPercent = line.purchaseSgst,
-                    igstPercent = line.purchaseIgst,
-                    invoiceValue = line.invoiceValue,
-                    taxableValue = line.taxableAmount
+            // Asset lines (Capital goods / Input services) never receive
+            // stock — they aren't sellable inventory. See isAssetLine above.
+            if (!isAssetLine) {
+                InventoryManager.addStock(
+                    db = db,
+                    productId = productId,
+                    quantity = line.quantity,
+                    costPrice = unitCostGross,
+                    batchMeta = InventoryManager.StockBatchMeta(
+                        purchaseInvoiceId = purchaseId,
+                        supplierName = safeHeader.supplierName,
+                        supplierGstin = safeHeader.supplierGstin,
+                        invoiceNumber = safeHeader.invoiceNumber,
+                        batchCode = null,
+                        unitCostExcludingTax = unitCostNet,
+                        gstPercent = combinedGst,
+                        cgstPercent = line.purchaseCgst,
+                        sgstPercent = line.purchaseSgst,
+                        igstPercent = line.purchaseIgst,
+                        invoiceValue = line.invoiceValue,
+                        taxableValue = line.taxableAmount
+                    )
                 )
-            )
+            }
 
             // 4. (Removed) The per-line GST purchase-register row that fed the
             //    gst_purchase_records table. That table was retired — it was
@@ -346,7 +370,10 @@ class PurchaseRepository private constructor(
                             supply_classification = l.supplyClassification,
                             category         = l.category,
                             is_purchased     = true,
-                            is_tax_inclusive = l.isTaxInclusive
+                            is_tax_inclusive = l.isTaxInclusive,
+                            is_sellable      = l.eligibilityForItc != "Capital goods" &&
+                                l.eligibilityForItc != "Input services" && !l.isRawMaterial,
+                            is_raw_material  = l.isRawMaterial
                         )
                     )
                 }.onSuccess {
@@ -408,6 +435,16 @@ class PurchaseRepository private constructor(
         val availedItcCgst: Double = 0.0,
         val availedItcSgst: Double = 0.0,
         val availedItcCess: Double = 0.0,
+
+        /**
+         * True when the user marked this line a raw material (e.g. flour,
+         * sugar) via the purchase line dialog's "This is a raw material"
+         * switch — legally still whatever [eligibilityForItc] says for GST
+         * (usually "Inputs"), but shares the same asset-like inventory
+         * gating as a Capital-goods/Input-services line (no stock, not
+         * sellable). See isAssetLine in [savePurchase].
+         */
+        val isRawMaterial: Boolean = false,
 
         /**
          * When true, bypass the name+variant upsert lookup and force-insert
