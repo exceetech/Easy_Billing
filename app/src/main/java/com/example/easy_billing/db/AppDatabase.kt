@@ -1420,23 +1420,31 @@ abstract class AppDatabase : RoomDatabase() {
                 // It matches all three type names because rows already
                 // converted by this same statement must still act as
                 // boundaries.
+                // SQLite does not support aliasing the target table of an
+                // UPDATE statement (only tables pulled in via FROM can be
+                // aliased) — "UPDATE credit_transactions AS r" is a syntax
+                // error on every device, which crashed the whole app on
+                // this migration. Fixed below by referencing the target
+                // table by its real name directly; only the correlated
+                // subqueries' own scans (t, s) need aliases, since those
+                // are separate references to the same table.
                 val balanceBefore = """
                     (SELECT COALESCE(SUM(CASE
                         WHEN t.type IN ('ADD','PURCHASE_CREDIT','PURCHASE_RETURN') THEN t.amount
                         WHEN t.type = 'PAY' THEN -t.amount
                         ELSE 0 END), 0)
                      FROM credit_transactions t
-                     WHERE t.accountId = r.accountId AND t.shopId = r.shopId
-                       AND (t.timestamp < r.timestamp
-                            OR (t.timestamp = r.timestamp AND t.id < r.id))
+                     WHERE t.accountId = credit_transactions.accountId AND t.shopId = credit_transactions.shopId
+                       AND (t.timestamp < credit_transactions.timestamp
+                            OR (t.timestamp = credit_transactions.timestamp AND t.id < credit_transactions.id))
                        AND NOT EXISTS (
                             SELECT 1 FROM credit_transactions s
-                            WHERE s.accountId = r.accountId AND s.shopId = r.shopId
+                            WHERE s.accountId = credit_transactions.accountId AND s.shopId = credit_transactions.shopId
                               AND s.type IN ('SETTLE','WRITE_OFF','REFUND')
                               AND (s.timestamp > t.timestamp
                                    OR (s.timestamp = t.timestamp AND s.id > t.id))
-                              AND (s.timestamp < r.timestamp
-                                   OR (s.timestamp = r.timestamp AND s.id < r.id))))
+                              AND (s.timestamp < credit_transactions.timestamp
+                                   OR (s.timestamp = credit_transactions.timestamp AND s.id < credit_transactions.id))))
                 """.trimIndent()
 
                 // Only rows already pushed to the server are re-typed.
@@ -1447,10 +1455,10 @@ abstract class AppDatabase : RoomDatabase() {
                 // — which now holds back every later transaction for that
                 // customer. SETTLE is understood by every backend version.
                 db.execSQL("""
-                    UPDATE credit_transactions AS r
+                    UPDATE credit_transactions
                        SET type   = CASE WHEN $balanceBefore < 0 THEN 'REFUND' ELSE 'WRITE_OFF' END,
                            amount = ABS($balanceBefore)
-                     WHERE r.type = 'SETTLE' AND r.isSynced = 1
+                     WHERE credit_transactions.type = 'SETTLE' AND credit_transactions.isSynced = 1
                 """.trimIndent())
             }
         }
