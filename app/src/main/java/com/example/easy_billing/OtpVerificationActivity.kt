@@ -171,10 +171,11 @@ class OtpVerificationActivity : BaseActivity() {
                     com.example.easy_billing.util.UserEventLogger.logError(
                         "OtpVerificationActivity", "verify_otp_failed: ${e.javaClass.simpleName}"
                     )
+                    val errorMsg = com.example.easy_billing.util.ApiErrorParser.parse(e, this@OtpVerificationActivity)
                     Toast.makeText(
                         this@OtpVerificationActivity,
-                        R.string.something_went_wrong,
-                        Toast.LENGTH_SHORT
+                        errorMsg,
+                        Toast.LENGTH_LONG
                     ).show()
 
                 } finally {

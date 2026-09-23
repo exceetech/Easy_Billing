@@ -9,74 +9,83 @@
     android:paddingTop="20dp"
     android:paddingBottom="22dp">
 
-    <!-- Title row -->
-    <LinearLayout
+    <!-- Themed header -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-            <LinearLayout
+            <FrameLayout
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:background="@drawable/bg_circle_soft_teal">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_tag"
+                    app:tint="#0F6E56"/>
+            </FrameLayout>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                <View android:layout_width="3dp" android:layout_height="12dp" android:background="#D4A574"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/invoice_line_discount_header"
-                    android:textColor="#8A6526"
-                    android:textSize="10sp"
-                    android:letterSpacing="0.14"
-                    android:fontFamily="@font/googlesans_semibold"/>
-            </LinearLayout>
+                android:layout_marginTop="14dp"
+                android:text="@string/invoice_line_discount_header"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
 
             <TextView
                 android:id="@+id/tvDiscProduct"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
+                android:layout_gravity="center_horizontal"
                 android:text="@string/item"
                 android:textColor="#1A1A18"
                 android:textSize="19sp"
-                android:fontFamily="serif"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_bold"
                 android:maxLines="1"
-                android:ellipsize="end"/>
+                android:maxWidth="240dp"
+                android:ellipsize="end"
+                android:gravity="center"/>
 
             <TextView
                 android:id="@+id/tvDiscLineTotal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="6dp"
                 android:text="0"
-                android:textColor="#9A8F79"
+                android:textColor="#8A8474"
                 android:textSize="12sp"/>
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/btnCloseDiscount"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="top|end"
             android:background="@drawable/bg_disc_close_circle"
             android:clickable="true"
             android:focusable="true">
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lc_x"
                 app:tint="#8A8272"
                 android:contentDescription="Close"/>
         </FrameLayout>
-    </LinearLayout>
+    </FrameLayout>
+
 
     <!-- % / ₹ toggle -->
     <LinearLayout
@@ -262,61 +271,49 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRemoveDiscount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="54dp"
-            android:layout_marginEnd="10dp"
-            android:text="@string/dashboard_remove_button"
-            android:textAllCaps="false"
-            android:textSize="13.5sp"
-            android:textStyle="bold"
-            android:textColor="#9A2E2E"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:background="@drawable/bg_inv_action_close"
-            android:stateListAnimator="@null"
-            app:icon="@drawable/ic_lc_trash"
-            app:iconTint="#9A2E2E"
-            app:iconSize="17dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            app:cornerRadius="13dp"
-            app:backgroundTint="@null"
-            android:includeFontPadding="false"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+        android:orientation="vertical"
+        android:layout_marginTop="18dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnApplyDiscount"
-            android:layout_width="0dp"
-            android:layout_weight="1.5"
-            android:layout_height="54dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
             android:text="@string/invoice_apply_discount"
             android:textAllCaps="false"
-            android:textSize="14sp"
+            android:textSize="13.5sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textColor="#FCF3E5"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:background="@drawable/bg_login_cta_green"
             android:stateListAnimator="@null"
+            app:backgroundTint="#0F6E56"
+            app:rippleColor="#085041"
+            app:cornerRadius="14dp"
             app:icon="@drawable/ic_lc_check"
-            app:iconTint="#FFFFFF"
+            app:iconTint="#FCF3E5"
             app:iconSize="18dp"
             app:iconGravity="textStart"
-            app:iconPadding="7dp"
-            app:cornerRadius="13dp"
-            app:backgroundTint="@null"
+            app:iconPadding="8dp"
             android:includeFontPadding="false"
             android:gravity="center"
             android:insetLeft="0dp"
             android:insetRight="0dp"/>
+
+        <TextView
+            android:id="@+id/btnRemoveDiscount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/dashboard_remove_button"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textStyle="bold"
+            android:textColor="#9A2E2E"
+            android:gravity="center"
+            android:padding="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"/>
     </LinearLayout>
 
 </LinearLayout>

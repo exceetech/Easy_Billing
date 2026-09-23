@@ -141,153 +141,426 @@
             </LinearLayout>
 
             <!-- ===================== SECURITY ===================== -->
-            <LinearLayout android:id="@+id/btnChangePassword" style="@style/DsCard"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="16dp"
-                android:paddingTop="18dp">
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_inv_card_cream">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/security_section"
-                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_inv_customer_header">
+
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_si_lock"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ds_card_title_security"
+                            android:textColor="#1A1A18"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/security_card_subtitle"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_green"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
+                        android:text="@string/security_card_count"
+                        android:textColor="#16A34A"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"/>
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
-                        android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
-                    <LinearLayout style="@style/DsText">
-                        <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
-                        <TextView style="@style/DsSub" android:text="@string/update_login_pin_sub"/>
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout
+                        android:id="@+id/btnChangePassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <ImageView style="@style/SettingsIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:backgroundTint="#DDEEEE"
+                            android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/DsText">
+                            <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
+                            <TextView style="@style/DsSub" android:text="@string/update_login_pin_sub"/>
+                        </LinearLayout>
+                        <TextView style="@style/DsChip"
+                            android:background="@drawable/bg_chip_low"
+                            android:textColor="#3B6D11"
+                            android:text="@string/risk_low_badge"/>
+                        <ImageView android:id="@+id/icChangePassword" style="@style/DsTrailing"
+                            android:src="@drawable/ic_si_lock" app:tint="#B0A48C"/>
                     </LinearLayout>
-                    <TextView style="@style/DsChip"
-                        android:background="@drawable/bg_chip_low"
-                        android:textColor="#3B6D11"
-                        android:text="@string/risk_low_badge"/>
-                    <ImageView android:id="@+id/icChangePassword" style="@style/DsTrailing"
-                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
+
+                    <LinearLayout
+                        android:id="@+id/btnQuickUnlock"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <ImageView style="@style/SettingsIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:backgroundTint="#DDEEEE"
+                            android:src="@drawable/ic_lucide_shield_check" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/DsText">
+                            <TextView style="@style/DsTitle" android:text="@string/quick_unlock_settings_title"/>
+                            <TextView android:id="@+id/tvQuickUnlockSub" style="@style/DsSub" android:text="@string/quick_unlock_enable_sub"/>
+                        </LinearLayout>
+                        <TextView android:id="@+id/chipQuickUnlockStatus" style="@style/DsChip"
+                            android:background="@drawable/bg_chip_low"
+                            android:textColor="#3B6D11"
+                            android:text="@string/quick_unlock_status_off"/>
+                        <ImageView android:id="@+id/icQuickUnlock" style="@style/DsTrailing"
+                            android:src="@drawable/ic_si_lock" app:tint="#B0A48C"/>
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== DATA ===================== -->
-            <LinearLayout android:id="@+id/btnClearBills" style="@style/DsCard"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="16dp"
-                android:paddingTop="18dp">
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_inv_card_cream">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/data_section"
-                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_inv_items_header">
+
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring_champagne">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_si_archive"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ds_card_title_data"
+                            android:textColor="#1A1A18"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/data_card_subtitle"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_amber"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
+                        android:text="@string/data_card_count"
+                        android:textColor="#8A6526"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"/>
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                        android:src="@drawable/ic_si_archive" app:tint="#8A6526"/>
-                    <LinearLayout style="@style/DsText">
-                        <TextView style="@style/DsTitle" android:text="@string/clear_all_bills"/>
-                        <TextView style="@style/DsSub" android:text="@string/archive_remove_bill_history_sub"/>
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout
+                        android:id="@+id/btnClearBills"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <ImageView style="@style/SettingsIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:backgroundTint="#FAEEDA"
+                            android:src="@drawable/ic_si_archive" app:tint="#8A6526"/>
+                        <LinearLayout style="@style/DsText">
+                            <TextView style="@style/DsTitle" android:text="@string/clear_all_bills"/>
+                            <TextView style="@style/DsSub" android:text="@string/archive_remove_bill_history_sub"/>
+                        </LinearLayout>
+                        <TextView style="@style/DsChip"
+                            android:background="@drawable/bg_chip_med"
+                            android:textColor="#854F0B"
+                            android:text="@string/risk_medium_badge"/>
+                        <ImageView android:id="@+id/icClearBills" style="@style/DsTrailing"
+                            android:src="@drawable/ic_si_lock" app:tint="#B0A48C"/>
                     </LinearLayout>
-                    <TextView style="@style/DsChip"
-                        android:background="@drawable/bg_chip_med"
-                        android:textColor="#854F0B"
-                        android:text="@string/risk_medium_badge"/>
-                    <ImageView android:id="@+id/icClearBills" style="@style/DsTrailing"
-                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== DIAGNOSE ===================== -->
-            <LinearLayout android:id="@+id/btnSendDiagnosticReport" style="@style/DsCard"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="16dp"
-                android:paddingTop="18dp">
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_inv_card_cream">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/diagnose_section"
-                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_inv_tax_header">
+
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_send_report"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ds_card_title_diagnose"
+                            android:textColor="#1A1A18"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/diagnose_card_subtitle"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_teal_outline"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
+                        android:text="@string/diagnose_card_count"
+                        android:textColor="#0F6E56"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"/>
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
-                        android:src="@drawable/ic_send_report" app:tint="#0F6E56"/>
-                    <LinearLayout style="@style/DsText">
-                        <TextView style="@style/DsTitle" android:text="@string/send_diagnostic_report"/>
-                        <TextView style="@style/DsSub" android:text="@string/send_diagnostic_report_desc"/>
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout
+                        android:id="@+id/btnSendDiagnosticReport"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <ImageView style="@style/SettingsIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:backgroundTint="#DDEEEE"
+                            android:src="@drawable/ic_send_report" app:tint="#0F6E56"/>
+                        <LinearLayout style="@style/DsText">
+                            <TextView style="@style/DsTitle" android:text="@string/send_diagnostic_report"/>
+                            <TextView style="@style/DsSub" android:text="@string/send_diagnostic_report_desc"/>
+                        </LinearLayout>
+                        <TextView style="@style/DsChip"
+                            android:background="@drawable/bg_chip_low"
+                            android:textColor="#3B6D11"
+                            android:text="@string/risk_safe_badge"/>
+                        <ImageView android:id="@+id/icSendDiagnosticReport" style="@style/DsTrailing"
+                            android:src="@drawable/ic_si_lock" app:tint="#B0A48C"/>
                     </LinearLayout>
-                    <TextView style="@style/DsChip"
-                        android:background="@drawable/bg_chip_low"
-                        android:textColor="#3B6D11"
-                        android:text="@string/risk_safe_badge"/>
-                    <ImageView android:id="@+id/icSendDiagnosticReport" style="@style/DsTrailing"
-                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
                 </LinearLayout>
             </LinearLayout>
 
             <!-- ===================== DANGER ZONE ===================== -->
-            <LinearLayout android:id="@+id/btnFactoryReset" style="@style/DsCard"
-                android:background="@drawable/bg_danger_card"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="16dp"
-                android:paddingTop="18dp">
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_inv_card_danger">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#B23A3A"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/danger_zone_section"
-                        android:textColor="#791F1F" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_inv_danger_header">
+
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring_red">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_si_alert"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ds_card_title_danger_zone"
+                            android:textColor="#791F1F"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/danger_card_subtitle"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_danger_outline"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
+                        android:text="@string/danger_card_count"
+                        android:textColor="#A32D2D"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"/>
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
-                        android:src="@drawable/ic_si_alert" app:tint="#791F1F"/>
-                    <LinearLayout style="@style/DsText">
-                        <TextView style="@style/DsTitle"
-                            android:textColor="#791F1F"
-                            android:text="@string/factory_reset_app"/>
-                        <TextView style="@style/DsSub" android:text="@string/wipe_workspace_sub"/>
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout
+                        android:id="@+id/btnFactoryReset"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_danger_light"
+                        android:paddingHorizontal="12dp">
+                        <ImageView style="@style/SettingsIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:backgroundTint="#FBEDED"
+                            android:src="@drawable/ic_si_alert" app:tint="#791F1F"/>
+                        <LinearLayout style="@style/DsText">
+                            <TextView style="@style/DsTitle"
+                                android:textColor="#791F1F"
+                                android:text="@string/factory_reset_app"/>
+                            <TextView style="@style/DsSub" android:text="@string/wipe_workspace_sub"/>
+                        </LinearLayout>
+                        <TextView style="@style/DsChip"
+                            android:background="@drawable/bg_chip_high"
+                            android:textColor="#A32D2D"
+                            android:text="@string/risk_high_badge"/>
+                        <ImageView android:id="@+id/icFactoryReset" style="@style/DsTrailing"
+                            android:src="@drawable/ic_si_lock" app:tint="#B0A48C"/>
                     </LinearLayout>
-                    <TextView style="@style/DsChip"
-                        android:background="@drawable/bg_chip_high"
-                        android:textColor="#A32D2D"
-                        android:text="@string/risk_high_badge"/>
-                    <ImageView android:id="@+id/icFactoryReset" style="@style/DsTrailing"
-                        android:src="@drawable/ic_si_lock" app:tint="#C9C3B4"/>
                 </LinearLayout>
             </LinearLayout>
 

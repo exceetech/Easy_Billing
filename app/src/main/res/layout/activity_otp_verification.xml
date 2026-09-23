@@ -122,36 +122,25 @@
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"/>
 
-            <TextView
-                android:id="@+id/tvOtpExpiryNote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:text="@string/dialog_register_success_otp_expiry_note"
-                android:textColor="#B8895A"
-                android:textSize="11.5sp"
-                android:fontFamily="@font/googlesans_medium"/>
-
             <!-- OTP boxes -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/otpBox1"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_width="42dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="3dp"
                     android:background="@drawable/bg_otp_box"
                     android:gravity="center"
                     android:padding="0dp"
                     android:includeFontPadding="false"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textSize="18sp"
+                    android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
@@ -160,16 +149,16 @@
 
                 <EditText
                     android:id="@+id/otpBox2"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_width="42dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="3dp"
                     android:background="@drawable/bg_otp_box"
                     android:gravity="center"
                     android:padding="0dp"
                     android:includeFontPadding="false"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textSize="18sp"
+                    android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
@@ -178,16 +167,16 @@
 
                 <EditText
                     android:id="@+id/otpBox3"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_width="42dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="3dp"
                     android:background="@drawable/bg_otp_box"
                     android:gravity="center"
                     android:padding="0dp"
                     android:includeFontPadding="false"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textSize="18sp"
+                    android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
@@ -196,16 +185,16 @@
 
                 <EditText
                     android:id="@+id/otpBox4"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_width="42dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="3dp"
                     android:background="@drawable/bg_otp_box"
                     android:gravity="center"
                     android:padding="0dp"
                     android:includeFontPadding="false"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textSize="18sp"
+                    android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
@@ -214,16 +203,16 @@
 
                 <EditText
                     android:id="@+id/otpBox5"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_width="42dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="3dp"
                     android:background="@drawable/bg_otp_box"
                     android:gravity="center"
                     android:padding="0dp"
                     android:includeFontPadding="false"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textSize="18sp"
+                    android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
@@ -232,16 +221,16 @@
 
                 <EditText
                     android:id="@+id/otpBox6"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginHorizontal="2dp"
+                    android:layout_width="42dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="3dp"
                     android:background="@drawable/bg_otp_box"
                     android:gravity="center"
                     android:padding="0dp"
                     android:includeFontPadding="false"
                     android:inputType="number"
                     android:maxLength="1"
-                    android:textSize="18sp"
+                    android:textSize="19sp"
                     android:textColor="#1A1A18"
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
@@ -268,8 +257,8 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
                 <ImageView
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:layout_marginEnd="6dp"
                     android:src="@drawable/ic_lc_clock"
                     app:tint="#0F6E56"
@@ -279,7 +268,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/code_valid_5_minutes"
                     android:textColor="#9A8F79"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:fontFamily="@font/googlesans_regular"/>
             </LinearLayout>
 
             <!-- Verify button -->

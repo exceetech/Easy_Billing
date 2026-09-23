@@ -118,47 +118,12 @@
             <!-- cardFooter/cardShowOnReceipt: faded (alpha 0.55) until
                  Edit is tapped, same locked/unlocked feel as
                  activity_data_security.xml's protected rows. -->
-            <LinearLayout android:id="@+id/cardFooter" style="@style/AddCard"
-                android:layout_marginTop="16dp"
-                android:paddingTop="18dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/receipt_footer_section"
-                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
-                </LinearLayout>
-                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
-                    <TextView style="@style/SiFieldLabel" android:text="@string/footer_message"/>
-                    <LinearLayout style="@style/SiFieldBox">
-                        <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_si_message" app:tint="#0F6E56"/>
-                        <EditText
-                            android:id="@+id/etFooter"
-                            style="@style/SiEdit"
-                            android:hint="@string/footer_message"
-                            android:inputType="textCapSentences"/>
-                    </LinearLayout>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:layout_marginStart="2dp"
-                        android:text="@string/printed_bottom_receipt_helper"
-                        android:textColor="#9A8F79"
-                        android:textSize="11sp"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- ===================== SHOW ON RECEIPT ===================== -->
-            <LinearLayout
-                android:id="@+id/cardShowOnReceipt"
-                style="@style/SettingsCard"
+            <!-- ===================== RECEIPT FOOTER ===================== -->
+            <LinearLayout android:id="@+id/cardFooter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -166,69 +131,243 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingTop="18dp"
-                    android:paddingBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/show_on_receipt_section"
-                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
+                    android:background="@drawable/bg_inv_items_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_si_message"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="Receipt footer" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Custom message on printed bills" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="1 field" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <!-- Store logo -->
-                <LinearLayout android:id="@+id/rowLogo" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EFE5F7"
-                        android:src="@drawable/ic_si_image" app:tint="#7A4FA3"/>
-                    <LinearLayout style="@style/IdToggleText">
-                        <TextView style="@style/IdToggleTitle" android:text="@string/show_store_logo"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/footer_message"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_message"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etFooter"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/footer_message"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="textCapSentences"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
                     </LinearLayout>
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowLogo" style="@style/EpSwitch"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/printed_bottom_receipt_helper"
+                        android:textColor="#9A8F79"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== SHOW ON RECEIPT ===================== -->
+            <!-- ===================== SHOW ON RECEIPT ===================== -->
+            <LinearLayout
+                android:id="@+id/cardShowOnReceipt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_tax_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_lucide_eye"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="Show on receipt" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Choose what appears on invoices" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="5 toggles" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <!-- GSTIN -->
-                <LinearLayout android:id="@+id/rowGstin" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
-                        android:src="@drawable/ic_si_tax" app:tint="#791F1F"/>
-                    <LinearLayout style="@style/IdToggleText">
-                        <TextView style="@style/IdToggleTitle" android:text="@string/show_gstin"/>
-                    </LinearLayout>
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowGstin" style="@style/EpSwitch"/>
-                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
 
-                <!-- Phone number -->
-                <LinearLayout android:id="@+id/rowPhone" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                        android:src="@drawable/ic_si_phone" app:tint="#8A6526"/>
-                    <LinearLayout style="@style/IdToggleText">
-                        <TextView style="@style/IdToggleTitle" android:text="@string/show_phone_number"/>
+                    <!-- Store logo -->
+                    <LinearLayout android:id="@+id/rowLogo"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_purple">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_image"
+                                app:tint="#7A4FA3" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp" android:text="@string/show_store_logo"
+                            android:textColor="#1A1A18" android:textSize="13.5sp" android:textStyle="bold"/>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchShowLogo" style="@style/EpSwitch"/>
                     </LinearLayout>
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowPhone" style="@style/EpSwitch"/>
-                </LinearLayout>
 
-                <!-- Discount section -->
-                <LinearLayout android:id="@+id/rowDiscount" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
-                        android:src="@drawable/ic_si_percent" app:tint="#0F6E56"/>
-                    <LinearLayout style="@style/IdToggleText">
-                        <TextView style="@style/IdToggleTitle" android:text="@string/show_discount_section"/>
+                    <!-- GSTIN -->
+                    <LinearLayout android:id="@+id/rowGstin"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_rose">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_tax"
+                                app:tint="#791F1F" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp" android:text="@string/show_gstin"
+                            android:textColor="#1A1A18" android:textSize="13.5sp" android:textStyle="bold"/>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchShowGstin" style="@style/EpSwitch"/>
                     </LinearLayout>
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchShowDiscount" style="@style/EpSwitch"/>
-                </LinearLayout>
 
-                <!-- Round off total -->
-                <LinearLayout android:id="@+id/rowRoundOff" style="@style/IdToggleRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#F3ECDD"
-                        android:src="@drawable/ic_si_calc" app:tint="#B8895A"/>
-                    <LinearLayout style="@style/IdToggleText">
-                        <TextView style="@style/IdToggleTitle" android:text="@string/enable_round_off"/>
-                        <TextView style="@style/IdToggleSub" android:text="@string/round_grand_total_helper"/>
+                    <!-- Phone number -->
+                    <LinearLayout android:id="@+id/rowPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_phone"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp" android:text="@string/show_phone_number"
+                            android:textColor="#1A1A18" android:textSize="13.5sp" android:textStyle="bold"/>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchShowPhone" style="@style/EpSwitch"/>
                     </LinearLayout>
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchRoundOff" style="@style/EpSwitch"/>
+
+                    <!-- Discount section -->
+                    <LinearLayout android:id="@+id/rowDiscount"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_percent"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp" android:text="@string/show_discount_section"
+                            android:textColor="#1A1A18" android:textSize="13.5sp" android:textStyle="bold"/>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchShowDiscount" style="@style/EpSwitch"/>
+                    </LinearLayout>
+
+                    <!-- Round off total -->
+                    <LinearLayout android:id="@+id/rowRoundOff"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp"
+                        android:minHeight="58dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_calc"
+                                app:tint="#B8895A" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:text="@string/enable_round_off" android:textColor="#1A1A18"
+                                android:textSize="13.5sp" android:textStyle="bold"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:text="@string/round_grand_total_helper" android:textColor="#9A8F79"
+                                android:textSize="10.5sp" android:layout_marginTop="1dp"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchRoundOff" style="@style/EpSwitch"/>
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 

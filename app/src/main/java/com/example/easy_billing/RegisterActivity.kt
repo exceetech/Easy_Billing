@@ -172,6 +172,12 @@ class RegisterActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
+            if (phone.length < 10 || !phone.all { it.isDigit() }) {
+                Toast.makeText(this, R.string.credit_invalid_phone, Toast.LENGTH_SHORT).show()
+                resetButton(btnRegister)
+                return@setOnClickListener
+            }
+
             lifecycleScope.launch {
                 try {
 
@@ -192,14 +198,14 @@ class RegisterActivity : BaseActivity() {
 
                 } catch (e: Exception) {
 
-                    // Was surfacing the raw exception message to the user.
                     com.example.easy_billing.util.UserEventLogger.logError(
                         "Register", "register_failed: ${e.javaClass.simpleName}"
                     )
+                    val errorMsg = com.example.easy_billing.util.ApiErrorParser.parse(e, this@RegisterActivity)
                     Toast.makeText(
                         this@RegisterActivity,
-                        getString(R.string.generic_error),
-                        Toast.LENGTH_SHORT
+                        errorMsg,
+                        Toast.LENGTH_LONG
                     ).show()
 
                     resetButton(btnRegister)

@@ -15,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.network.ProfileResponse
 import com.example.easy_billing.network.RetrofitClient
@@ -132,6 +133,11 @@ class OnboardingActivity : BaseActivity() {
             try {
                 val profile = RetrofitClient.api.getProfile(token)
                 progressOnboarding.visibility = View.GONE
+
+                getSharedPreferences("auth", MODE_PRIVATE).edit {
+                    putString("OWNER_NAME", profile.owner_name)
+                    putString("SHOP_NAME", profile.shop_name)
+                }
 
                 // Fast path for a returning, already-onboarded shop
                 // (e.g. MainActivity routes every non-first-login here

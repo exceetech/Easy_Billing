@@ -131,6 +131,10 @@ object SessionTimeoutGuard {
     }
 
     private fun forceLogout(activity: Activity) {
+        // Capture BEFORE the clear below wipes "auth" (including USERNAME).
+        val currentUsername = activity.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("USERNAME", null)
+
         // SessionClearGate is a JVM-monitor-backed choke point, correct even
         // against SessionTimeoutWorker's separate background-executor thread
         // (a plain "TOKEN == null" guard checked independently on two
@@ -141,7 +145,10 @@ object SessionTimeoutGuard {
 
         Toast.makeText(activity, activity.getString(R.string.session_expired_toast), Toast.LENGTH_LONG).show()
 
-        val intent = Intent(activity, MainActivity::class.java)
+        // Same reasoning as BaseActivity.forceLogout(): an automatic
+        // session-timeout logout should still land on Quick Unlock (or the
+        // account picker), not force a full email+password re-entry.
+        val intent = QuickUnlockManager.buildLoginIntent(activity, currentUsername)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         activity.startActivity(intent)
     }

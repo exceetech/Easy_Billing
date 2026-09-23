@@ -30,9 +30,21 @@ import kotlinx.coroutines.withContext
 class StoreSettingsActivity : BaseActivity() {
 
     private lateinit var etStoreName: EditText
-    private lateinit var etStoreAddress: EditText
+    private lateinit var etStorePincode: EditText
+    private lateinit var progressPincode: ProgressBar
+    private lateinit var tvPinStatus: TextView
+    private lateinit var etStoreState: EditText
+    private lateinit var etStoreCity: EditText
+    private lateinit var rowStoreArea: View
+    private lateinit var etStoreArea: EditText
+    private lateinit var icAreaDropdown: ImageView
+    private lateinit var etStoreStreet: EditText
+    private lateinit var layoutAddressPreview: View
+    private lateinit var tvAddressPreview: TextView
     private lateinit var etStorePhone: EditText
     private lateinit var etStoreGstin: EditText
+    private lateinit var progressGstin: ProgressBar
+    private lateinit var tvGstinStatus: TextView
 
     private lateinit var rowShopType: View
     private lateinit var tvShopType: TextView
@@ -54,6 +66,9 @@ class StoreSettingsActivity : BaseActivity() {
 
     private var snapshot: StoreSnapshot? = null
     private var isEditMode = false
+    private var lastLookedUpPin: String = ""
+    private var lastLookedUpGstin: String = ""
+    private var availableLocalities: List<String> = emptyList()
 
     // Set when launched from OnboardingActivity — re-verifying a
     // password the user set thirty seconds earlier (during the forced
@@ -102,36 +117,247 @@ class StoreSettingsActivity : BaseActivity() {
     }
 
     /* ------------------------------------------------------------------
-     *  UI
+     *  UI & Address Helpers
      * ------------------------------------------------------------------ */
 
     private fun bindViews() {
-        etStoreName       = findViewById(R.id.etStoreName)
-        etStoreAddress    = findViewById(R.id.etStoreAddress)
-        etStorePhone      = findViewById(R.id.etStorePhone)
-        etStoreGstin      = findViewById(R.id.etStoreGstin)
-        rowShopType       = findViewById(R.id.rowShopType)
-        tvShopType        = findViewById(R.id.tvShopType)
-        icShopTypeChevron = findViewById(R.id.icShopTypeChevron)
-        btnEdit           = findViewById(R.id.btnEdit)
-        tvEdit            = findViewById(R.id.tvEdit)
-        btnSave           = findViewById(R.id.btnSave)
+        etStoreName          = findViewById(R.id.etStoreName)
+        etStorePincode       = findViewById(R.id.etStorePincode)
+        progressPincode      = findViewById(R.id.progressPincode)
+        tvPinStatus          = findViewById(R.id.tvPinStatus)
+        etStoreState         = findViewById(R.id.etStoreState)
+        etStoreCity          = findViewById(R.id.etStoreCity)
+        rowStoreArea         = findViewById(R.id.rowStoreArea)
+        etStoreArea          = findViewById(R.id.etStoreArea)
+        icAreaDropdown       = findViewById(R.id.icAreaDropdown)
+        etStoreStreet        = findViewById(R.id.etStoreStreet)
+        layoutAddressPreview = findViewById(R.id.layoutAddressPreview)
+        tvAddressPreview     = findViewById(R.id.tvAddressPreview)
+        etStorePhone         = findViewById(R.id.etStorePhone)
+        etStoreGstin         = findViewById(R.id.etStoreGstin)
+        progressGstin        = findViewById(R.id.progressGstin)
+        tvGstinStatus        = findViewById(R.id.tvGstinStatus)
+        rowShopType          = findViewById(R.id.rowShopType)
+        tvShopType           = findViewById(R.id.tvShopType)
+        icShopTypeChevron    = findViewById(R.id.icShopTypeChevron)
+        btnEdit              = findViewById(R.id.btnEdit)
+        tvEdit               = findViewById(R.id.tvEdit)
+        btnSave              = findViewById(R.id.btnSave)
 
-        cardIdentity      = findViewById(R.id.cardIdentity)
-        cardContact       = findViewById(R.id.cardContact)
-        cardTax           = findViewById(R.id.cardTax)
+        cardIdentity         = findViewById(R.id.cardIdentity)
+        cardContact          = findViewById(R.id.cardContact)
+        cardTax              = findViewById(R.id.cardTax)
 
         btnEdit.setOnClickListener { toggleEditMode() }
+        icAreaDropdown.setOnClickListener { showLocalityDropdown() }
+        setupAddressWatchers()
+    }
+
+    private fun showLocalityDropdown() {
+        if (!isEditMode) return
+        if (availableLocalities.isEmpty()) {
+            val pin = etStorePincode.text.toString().trim()
+            if (pin.length == 6) {
+                performPincodeLookup(pin)
+            }
+            return
+        }
+        val currentText = etStoreArea.text.toString().trim()
+        val currentIdx = availableLocalities.indexOfFirst { it.equals(currentText, ignoreCase = true) }
+        ThemedDropdown.show(
+            anchor = rowStoreArea,
+            options = availableLocalities,
+            selectedIndex = if (currentIdx >= 0) currentIdx else -1
+        ) { idx ->
+            etStoreArea.setText(availableLocalities[idx])
+            etStoreArea.setSelection(etStoreArea.text.length)
+            updateAddressPreview()
+        }
+    }
+
+    private fun getFormattedAddress(): String {
+        return com.example.easy_billing.util.AddressHelper.formatAddress(
+            street  = etStoreStreet.text.toString(),
+            area    = etStoreArea.text.toString(),
+            city    = etStoreCity.text.toString(),
+            state   = etStoreState.text.toString(),
+            pincode = etStorePincode.text.toString()
+        )
+    }
+
+    private fun populateAddressFields(addressStr: String?) {
+        val parsed = com.example.easy_billing.util.AddressHelper.parseAddress(addressStr)
+        etStorePincode.setText(parsed.pincode)
+        etStoreState.setText(parsed.state)
+        etStoreCity.setText(parsed.city)
+        etStoreArea.setText(parsed.area)
+        etStoreStreet.setText(parsed.street)
+        lastLookedUpPin = parsed.pincode
+        updateAddressPreview()
+    }
+
+    private fun updateAddressPreview() {
+        val formatted = getFormattedAddress()
+        if (formatted.isNotBlank()) {
+            layoutAddressPreview.visibility = View.VISIBLE
+            tvAddressPreview.text = formatted
+        } else {
+            layoutAddressPreview.visibility = View.GONE
+        }
+    }
+
+    private fun setupAddressWatchers() {
+        // 6-digit PIN code auto-fetch TextWatcher
+        etStorePincode.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                updateAddressPreview()
+                val pin = s?.toString()?.trim() ?: ""
+                if (pin.length == 6 && pin != lastLookedUpPin) {
+                    performPincodeLookup(pin)
+                } else if (pin.length < 6) {
+                    progressPincode.visibility = View.GONE
+                    tvPinStatus.visibility = View.GONE
+                    availableLocalities = emptyList()
+                    icAreaDropdown.visibility = View.GONE
+                }
+            }
+        })
+
+        // 15-character GSTIN auto-lookup TextWatcher
+        etStoreGstin.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val gstin = s?.toString()?.trim()?.uppercase() ?: ""
+                if (gstin.length == 15 && GstEngine.isValidGstin(gstin) && gstin != lastLookedUpGstin) {
+                    performGstinLookup(gstin)
+                } else if (gstin.length < 15) {
+                    progressGstin.visibility = View.GONE
+                    tvGstinStatus.visibility = View.GONE
+                }
+            }
+        })
+
+        // Live preview updates on other address fields
+        val previewWatcher = object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                updateAddressPreview()
+            }
+        }
+        etStoreStreet.addTextChangedListener(previewWatcher)
+        etStoreArea.addTextChangedListener(previewWatcher)
+        etStoreCity.addTextChangedListener(previewWatcher)
+        etStoreState.addTextChangedListener(previewWatcher)
+    }
+
+    private fun performGstinLookup(gstin: String) {
+        lastLookedUpGstin = gstin
+        progressGstin.visibility = View.VISIBLE
+        tvGstinStatus.visibility = View.VISIBLE
+        tvGstinStatus.text = getString(R.string.verifying_gstin_hint)
+
+        val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null) ?: run {
+            progressGstin.visibility = View.GONE
+            tvGstinStatus.visibility = View.GONE
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val res = RetrofitClient.api.lookupGstin(token, gstin)
+                progressGstin.visibility = View.GONE
+                if (res.legal_name.isNotBlank() || res.trade_name.isNotBlank()) {
+                    val displayName = res.legal_name.ifBlank { res.trade_name }
+                    tvGstinStatus.text = "✓ $displayName"
+
+                    // Save looked-up GST profile to Room so BillingSettings has the official data
+                    withContext(Dispatchers.IO) {
+                        val db = AppDatabase.getDatabase(this@StoreSettingsActivity)
+                        val profile = GstProfile(
+                            gstin = gstin,
+                            legalName = res.legal_name,
+                            tradeName = res.trade_name.ifBlank { etStoreName.text.toString().trim() },
+                            gstScheme = if (res.gst_scheme.contains("compos", ignoreCase = true)) "Composition" else "Regular",
+                            registrationType = res.registration_type.ifBlank { "Active" },
+                            stateCode = res.state_code.ifBlank { GstEngine.getStateCode(gstin) },
+                            address = res.address ?: "",
+                            syncStatus = "pending",
+                            updatedAt = appNow()
+                        )
+                        db.gstProfileDao().insert(profile)
+                    }
+                } else {
+                    tvGstinStatus.text = "✓ ${GstEngine.getStateCode(gstin)}"
+                }
+            } catch (e: Exception) {
+                progressGstin.visibility = View.GONE
+                tvGstinStatus.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun performPincodeLookup(pin: String) {
+        lastLookedUpPin = pin
+        progressPincode.visibility = View.VISIBLE
+        tvPinStatus.visibility = View.VISIBLE
+        tvPinStatus.text = getString(R.string.finding_location_hint)
+
+        lifecycleScope.launch {
+            val info = com.example.easy_billing.util.PostalLookupHelper.lookup(pin)
+            progressPincode.visibility = View.GONE
+            if (info != null) {
+                // Auto-fill State if empty or matching previous
+                if (info.state.isNotEmpty() && (etStoreState.text.isNullOrBlank() || etStoreState.text.toString().trim() != info.state)) {
+                    etStoreState.setText(info.state)
+                }
+                // Auto-fill City/District if empty or matching previous
+                if (info.district.isNotEmpty() && etStoreCity.text.isNullOrBlank()) {
+                    etStoreCity.setText(info.district)
+                }
+                // Populate post office suggestions for Locality/Area
+                availableLocalities = info.localities
+                if (availableLocalities.isNotEmpty()) {
+                    if (etStoreArea.text.isNullOrBlank()) {
+                        etStoreArea.setText(availableLocalities.first())
+                    }
+                    if (availableLocalities.size > 1) {
+                        icAreaDropdown.visibility = if (isEditMode) View.VISIBLE else View.GONE
+                        if (isEditMode) {
+                            showLocalityDropdown()
+                        }
+                    } else {
+                        icAreaDropdown.visibility = View.GONE
+                    }
+                } else {
+                    icAreaDropdown.visibility = View.GONE
+                }
+                tvPinStatus.text = if (info.district.isNotEmpty()) "✓ ${info.district}" else "✓ ${info.state}"
+                updateAddressPreview()
+            } else {
+                availableLocalities = emptyList()
+                icAreaDropdown.visibility = View.GONE
+                tvPinStatus.visibility = View.GONE
+            }
+        }
     }
 
     private fun setEditMode(enabled: Boolean) {
-        listOf(etStoreName, etStoreAddress, etStorePhone, etStoreGstin).forEach {
+        listOf(
+            etStoreName, etStorePincode, etStoreState, etStoreCity,
+            etStoreArea, etStoreStreet, etStorePhone, etStoreGstin
+        ).forEach {
             it.isEnabled = enabled
             it.isFocusable = enabled
             it.isFocusableInTouchMode = enabled
             it.isClickable = enabled
             it.isCursorVisible = enabled
         }
+
+        icAreaDropdown.visibility = if (enabled && availableLocalities.size > 1) View.VISIBLE else View.GONE
 
         rowShopType.isEnabled = enabled
         rowShopType.isClickable = enabled
@@ -153,20 +379,29 @@ class StoreSettingsActivity : BaseActivity() {
         if (isEditMode) {
             // Entering edit: snapshot current values so "Discard" can revert.
             snapshot = StoreSnapshot(
-                etStoreName.text.toString(),
-                etStoreAddress.text.toString(),
-                etStorePhone.text.toString(),
-                etStoreGstin.text.toString(),
-                selectedShopType
+                name    = etStoreName.text.toString(),
+                pincode = etStorePincode.text.toString(),
+                state   = etStoreState.text.toString(),
+                city    = etStoreCity.text.toString(),
+                area    = etStoreArea.text.toString(),
+                street  = etStoreStreet.text.toString(),
+                phone   = etStorePhone.text.toString(),
+                gstin   = etStoreGstin.text.toString(),
+                type    = selectedShopType
             )
         } else {
             // Discard: restore the snapshot taken when edit mode began.
             snapshot?.let { s ->
                 etStoreName.setText(s.name)
-                etStoreAddress.setText(s.address)
+                etStorePincode.setText(s.pincode)
+                etStoreState.setText(s.state)
+                etStoreCity.setText(s.city)
+                etStoreArea.setText(s.area)
+                etStoreStreet.setText(s.street)
                 etStorePhone.setText(s.phone)
                 etStoreGstin.setText(s.gstin)
                 applyShopType(s.type)
+                updateAddressPreview()
             }
         }
         setEditMode(isEditMode)
@@ -174,7 +409,11 @@ class StoreSettingsActivity : BaseActivity() {
 
     private data class StoreSnapshot(
         val name: String,
-        val address: String,
+        val pincode: String,
+        val state: String,
+        val city: String,
+        val area: String,
+        val street: String,
         val phone: String,
         val gstin: String,
         val type: String
@@ -196,7 +435,7 @@ class StoreSettingsActivity : BaseActivity() {
             withContext(Dispatchers.Main) {
                 local?.let {
                     etStoreName.setText(it.name)
-                    etStoreAddress.setText(it.address)
+                    populateAddressFields(it.address)
                     etStorePhone.setText(it.phone)
                     etStoreGstin.setText(it.gstin)
                     applyShopTypeFromStored(it.type)
@@ -225,7 +464,7 @@ class StoreSettingsActivity : BaseActivity() {
 
                     withContext(Dispatchers.Main) {
                         etStoreName.setText(updated.name)
-                        etStoreAddress.setText(updated.address)
+                        populateAddressFields(updated.address)
                         etStorePhone.setText(updated.phone)
                         etStoreGstin.setText(updated.gstin)
                         applyShopTypeFromStored(type)
@@ -257,7 +496,7 @@ class StoreSettingsActivity : BaseActivity() {
     private fun saveStoreSettings() {
 
         val name    = etStoreName.text.toString().trim()
-        val address = etStoreAddress.text.toString().trim()
+        val address = getFormattedAddress()
         val phone   = etStorePhone.text.toString().trim()
         val gstin   = etStoreGstin.text.toString().trim().uppercase()
         com.example.easy_billing.util.UserEventLogger.logAction(
@@ -317,15 +556,26 @@ class StoreSettingsActivity : BaseActivity() {
             //         from the GSTIN prefix only as a convenience.
             if (gstin.isNotBlank()) {
                 val existingProfile = db.gstProfileDao().get()
-                val merged = (existingProfile ?: GstProfile(gstin = gstin)).copy(
-                    gstin     = gstin,
-                    stateCode = existingProfile?.stateCode
-                        ?.takeIf { it.isNotBlank() }
-                        ?: GstEngine.getStateCode(gstin),
-                    syncStatus = "pending",
-                    updatedAt  = appNow()
-                )
+                val merged = if (existingProfile != null && existingProfile.gstin == gstin) {
+                    existingProfile.copy(
+                        gstin     = gstin,
+                        stateCode = existingProfile.stateCode
+                            .takeIf { it.isNotBlank() }
+                            ?: GstEngine.getStateCode(gstin),
+                        syncStatus = "pending",
+                        updatedAt  = appNow()
+                    )
+                } else {
+                    GstProfile(
+                        gstin      = gstin,
+                        stateCode  = GstEngine.getStateCode(gstin),
+                        syncStatus = "pending",
+                        updatedAt  = appNow()
+                    )
+                }
                 db.gstProfileDao().insert(merged)
+            } else {
+                db.gstProfileDao().clear()
             }
 
             // ---- 3. Push to backend (best-effort) ----

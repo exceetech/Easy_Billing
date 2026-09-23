@@ -222,7 +222,18 @@ open class BaseActivity : AppCompatActivity() {
                 this is RegisterActivity ||
                 this is ForgotPasswordActivity ||
                 this is OtpVerificationActivity ||
-                this is ChangePasswordActivity
+                this is ChangePasswordActivity ||
+                this is com.example.easy_billing.AccountSelectionActivity ||
+                // Covers all three QuickUnlockActivity modes, including
+                // MODE_LOCK — even though MODE_LOCK is shown WHILE a valid
+                // session token still exists, this 5s loop running
+                // underneath it could otherwise call forceLogout() mid-PIN
+                // entry (an offline timeout, or a transient UNAUTHORIZED
+                // probe) and yank the user out from under the lock screen.
+                // Safe to skip entirely here: if the token really did
+                // expire, Dashboard's own loop catches it right after the
+                // user successfully unlocks and resumes there.
+                this is com.example.easy_billing.QuickUnlockActivity
         if (isAuthScreen) return
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
@@ -304,6 +315,12 @@ open class BaseActivity : AppCompatActivity() {
 
     fun forceLogout() {
 
+        // Capture BEFORE the clear below wipes the whole "auth" prefs
+        // (including USERNAME) — buildLoginIntent uses this to self-heal an
+        // account whose Quick Unlock predates the accounts list.
+        val currentUsername = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("USERNAME", null)
+
         // DashboardActivity runs TWO independent loops on the same instance
         // (BaseActivity's own 5s checkOfflineSession() loop and its own 20s
         // startBackendHealthPolling() loop), and both can independently reach
@@ -317,7 +334,11 @@ open class BaseActivity : AppCompatActivity() {
 
         Toast.makeText(this, R.string.session_expired_login_again, Toast.LENGTH_LONG).show()
 
-        val intent = Intent(this, MainActivity::class.java)
+        // Route through Quick Unlock (or the account picker) exactly like a
+        // manual Sign Out — an automatic session-expiry logout is still a
+        // logout the user will want to get back in from with just their PIN,
+        // not a forced full email+password re-entry.
+        val intent = com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(this, currentUsername)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }
@@ -381,7 +402,53 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        checkAppLock()
         startSessionLoop()
+    }
+
+    /**
+     * Quick Unlock as a real lock screen: if PIN/fingerprint is set up and
+     * the app was just brought to the foreground (AppLockState.isLocked —
+     * see EasyBillingApp's lifecycle tracking), show the lock screen on
+     * top of whatever Activity just resumed, for EVERY app open/resume —
+     * not just when a fresh server login happens to be needed.
+     *
+     * Excluded on purpose: QuickUnlockActivity itself (it IS the lock
+     * screen — checking here would loop), MainActivity (the real login
+     * form — showing a lock screen over it would be redundant/confusing
+     * since Quick Unlock isn't relevant there), and SplashActivity (it
+     * does its own routing decision before anything else can render).
+     */
+    private fun checkAppLock() {
+        if (this is com.example.easy_billing.QuickUnlockActivity) return
+        if (this is com.example.easy_billing.MainActivity) return
+        if (this is com.example.easy_billing.SplashActivity) return
+        if (this is com.example.easy_billing.AccountSelectionActivity) return
+
+        if (!com.example.easy_billing.util.AppLockState.isLocked) return
+
+        // Must be the account whose session is ACTUALLY active right now
+        // (from the live "auth" prefs), not QuickUnlockManager's own
+        // "last active" pointer — that pointer only moves on a full
+        // login/setup, so on a multi-account device it can still point at
+        // a previous account after switching to a different one via the
+        // account picker, which would challenge the wrong account's PIN
+        // while a different account's session is the one actually open.
+        val currentUsername = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("USERNAME", null) ?: return
+
+        if (com.example.easy_billing.util.QuickUnlockManager.isConfigured(this, currentUsername)) {
+            val intent = Intent(this, com.example.easy_billing.QuickUnlockActivity::class.java)
+            intent.putExtra(
+                com.example.easy_billing.QuickUnlockActivity.EXTRA_MODE,
+                com.example.easy_billing.QuickUnlockActivity.MODE_LOCK
+            )
+            intent.putExtra(
+                com.example.easy_billing.QuickUnlockActivity.EXTRA_USERNAME,
+                currentUsername
+            )
+            startActivity(intent)
+        }
     }
 
     /**

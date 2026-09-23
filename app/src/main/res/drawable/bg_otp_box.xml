@@ -4,7 +4,7 @@
     <!-- Active / focused box -->
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <corners android:radius="100dp"/>
+            <corners android:radius="10dp"/>
             <solid android:color="#FFFFFF"/>
             <stroke android:width="1.8dp" android:color="#0F6E56"/>
         </shape>
@@ -13,7 +13,7 @@
     <!-- Default box -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="100dp"/>
+            <corners android:radius="10dp"/>
             <solid android:color="#FFFFFF"/>
             <stroke android:width="1.4dp" android:color="#E3D9C4"/>
         </shape>

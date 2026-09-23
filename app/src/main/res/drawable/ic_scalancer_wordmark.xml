@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- True vector trace of the Scalancer mark (potrace): exact
-     mathematical edges, crisp at every size and density, no raster
-     grain or aliasing possible. Source: user-provided Firefly PNG. -->
+<!-- Scalancer Wordmark vector with matching brand color from Scalancer website -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
@@ -16,8 +14,8 @@
                 android:startY="0"
                 android:endX="802.0"
                 android:endY="64.0"
-                android:startColor="#FFF8A309"
-                android:endColor="#FF915301"/>
+                android:startColor="#1B7FA3"
+                android:endColor="#0D3B4F"/>
         </aapt:attr>
     </path>
 </vector>

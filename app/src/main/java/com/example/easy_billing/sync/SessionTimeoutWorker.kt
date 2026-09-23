@@ -89,6 +89,9 @@ class SessionTimeoutWorker(
      *  short-circuit above — same DEVICE_ID-preserving clear, same
      *  best-effort background-launch caveat either way. */
     private fun clearSessionAndRedirect(prefs: android.content.SharedPreferences) {
+        // Capture BEFORE the clear below wipes "auth" (including USERNAME).
+        val currentUsername = prefs.getString("USERNAME", null)
+
         // This worker runs on WorkManager's own background executor thread —
         // NOT the Main dispatcher a foreground Activity's forceLogout() runs
         // on. A plain "TOKEN == null" boolean guard checked independently on
@@ -101,9 +104,10 @@ class SessionTimeoutWorker(
         if (!com.example.easy_billing.util.SessionClearGate.clearIfNeeded(applicationContext)) return
 
         // No toast here (nothing is foregrounded to show it on) — just
-        // pre-clear the session so the next app open goes straight to
-        // MainActivity's login screen instead of a stale Dashboard.
-        val intent = Intent(applicationContext, MainActivity::class.java)
+        // pre-clear the session so the next app open goes straight to Quick
+        // Unlock (or the account picker) instead of a stale Dashboard —
+        // same as every other forced-logout path, not a bare full login.
+        val intent = com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(applicationContext, currentUsername)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         // Only launch if nothing is already handling it in the foreground;
         // starting an Activity from the background on modern Android is

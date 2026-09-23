@@ -390,17 +390,6 @@
                 android:orientation="horizontal"/>
         </HorizontalScrollView>
 
-        <!-- ================= AI INSIGHTS (RULE OF 3) ================= -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/vpAiInsights"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:clipChildren="false"
-            android:paddingHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"/>
-
         <!-- ================= PRODUCTS ================= -->
 
         <androidx.recyclerview.widget.RecyclerView
@@ -435,48 +424,6 @@
         ============================================================ -->
 
         </LinearLayout>
-        
-        <!-- ================= MINIMIZED AI DASHBOARD RESTORE ================= -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/fabAiInsights"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="160dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="8dp"
-            app:cardBackgroundColor="#0F172A"
-            android:visibility="gone"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
-            
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🤖"
-                    android:textSize="18sp"/>
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ai_insights"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- ================= FLOATING CART BAR ================= -->
         <LinearLayout
@@ -1441,6 +1388,42 @@
                 </LinearLayout>
 
             </LinearLayout>
+        </LinearLayout>
+
+        <!-- Action row -->
+        <LinearLayout
+            android:id="@+id/llCartActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:id="@+id/tvCartActionSubtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/dashboard_items_in_bill"
+                android:textColor="#6E6A60"
+                android:textSize="12sp"
+                android:fontFamily="@font/googlesans_medium"/>
+
+            <TextView
+                android:id="@+id/tvCartClearAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dashboard_clear_all"
+                android:textColor="#A3392B"
+                android:textSize="12.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"/>
         </LinearLayout>
 
         <!-- CART ITEMS -->

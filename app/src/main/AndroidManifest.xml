@@ -3,20 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!-- "Send to customer" → SMS channel sends the invoice/pay-link text
-         directly to the customer's number without opening a messaging
-         app — see CustomerShareHelper.sendViaSms(). READ_PHONE_STATE is
-         required too: on dual-SIM devices SmsManager.getDefault()
-         internally reads subscription info (getGroupIdLevel) and throws
-         a SecurityException without it, even though SEND_SMS is granted. -->
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:name=".EasyBillingApp"
@@ -90,6 +82,9 @@
             android:screenOrientation="unspecified" />
         <activity
             android:name=".BillingSettingsActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".PaymentSetupActivity"
             android:screenOrientation="unspecified" />
         <activity
             android:name=".ProfileActivity"
@@ -189,6 +184,18 @@
 
         <activity android:name=".MainActivity"
             android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling.Auth"/>
+
+        <!-- ── Quick Unlock (PIN + fingerprint) — faster re-login screen ──── -->
+        <activity android:name=".QuickUnlockActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:theme="@style/Theme.EasyBilling.Auth"/>
+
+        <!-- ── Account picker — shown before Quick Unlock when 2+ accounts on this device ──── -->
+        <activity android:name=".AccountSelectionActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
             android:theme="@style/Theme.EasyBilling.Auth"/>
 
         <!-- ── Workspace Rotation ────────────────────────────────────────── -->

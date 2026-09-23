@@ -392,7 +392,7 @@ class MainActivity : BaseActivity() {
 
                     // ✅ CHECK SHOP_ID CHANGES
                     val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-                    val oldShopId = prefs.getInt("SHOP_ID", -1)
+                    val oldShopId = prefs.getInt("LAST_SHOP_ID", prefs.getInt("SHOP_ID", -1))
 
                     if (oldShopId != -1 && oldShopId != response.shop_id) {
                         // User logged into a different workspace (or a restored one).
@@ -467,7 +467,9 @@ class MainActivity : BaseActivity() {
                     prefs.edit {
                         putString("TOKEN", response.access_token)
                         putString("DEVICE_ID", deviceId)
+                        putString("USERNAME", username)
                         putInt("SHOP_ID", response.shop_id)
+                        putInt("LAST_SHOP_ID", response.shop_id)
                     }
 
                     // Post-login sync. Use flushPending(force=true), not the
@@ -512,7 +514,44 @@ class MainActivity : BaseActivity() {
                         OnboardingActivity::class.java
                     }
 
-                    startActivity(Intent(this@MainActivity, next))
+                    // A real email+password login just proved who this is —
+                    // the app-wide lock screen (BaseActivity.checkAppLock,
+                    // gated on AppLockState.isLocked, which otherwise
+                    // defaults to true on every fresh process start) must
+                    // NOT immediately re-challenge the user for a PIN they
+                    // haven't even set up yet, or right after they just
+                    // typed their full password. Without this, anyone
+                    // logging in on a device with Quick Unlock already
+                    // configured would land on Dashboard only to be
+                    // immediately hit with a second PIN prompt.
+                    com.example.easy_billing.util.AppLockState.unlock()
+
+                    // Quick Unlock (PIN/fingerprint): the first time this
+                    // user completes a real login, offer to remember it so
+                    // future logins on this device don't need the full
+                    // email+password form — see QuickUnlockActivity. Only
+                    // offered once ever (never nags again after a Skip).
+                    val quickUnlockConfigured =
+                        com.example.easy_billing.util.QuickUnlockManager.isConfigured(this@MainActivity, username)
+                    if (quickUnlockConfigured) {
+                        com.example.easy_billing.util.QuickUnlockManager
+                            .updateCredentials(this@MainActivity, username, password)
+                    }
+
+                    if (!quickUnlockConfigured &&
+                        !com.example.easy_billing.util.QuickUnlockManager.wasSetupOffered(this@MainActivity, username)
+                    ) {
+                        com.example.easy_billing.util.QuickUnlockManager.markSetupOffered(this@MainActivity, username)
+                        val setupIntent = Intent(this@MainActivity, QuickUnlockActivity::class.java).apply {
+                            putExtra(QuickUnlockActivity.EXTRA_MODE, QuickUnlockActivity.MODE_SETUP)
+                            putExtra(QuickUnlockActivity.EXTRA_USERNAME, username)
+                            putExtra(QuickUnlockActivity.EXTRA_PASSWORD, password)
+                            putExtra(QuickUnlockActivity.EXTRA_NEXT_CLASS, next.name)
+                        }
+                        startActivity(setupIntent)
+                    } else {
+                        startActivity(Intent(this@MainActivity, next))
+                    }
                     finish()
 
                 } catch (e: Exception) {
@@ -520,13 +559,12 @@ class MainActivity : BaseActivity() {
                     btnLogin.isEnabled = true
                     startCtaArrowAnimation(R.id.btnLogin)
 
-                    // Was surfacing the raw backend error body / exception
-                    // message to the user — an info-disclosure risk.
                     val code = (e as? retrofit2.HttpException)?.code()
                     com.example.easy_billing.util.UserEventLogger.logError(
                         "Login", "login_failed: ${e.javaClass.simpleName}${if (code != null) "_$code" else ""}"
                     )
-                    Toast.makeText(this@MainActivity, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
+                    val errorMsg = com.example.easy_billing.util.ApiErrorParser.parse(e, this@MainActivity)
+                    Toast.makeText(this@MainActivity, errorMsg, Toast.LENGTH_LONG).show()
                 }
             }
         }

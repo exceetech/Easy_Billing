@@ -4,12 +4,10 @@ import com.example.easy_billing.util.appNow
 
 import com.example.easy_billing.util.AppTime
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
-import androidx.core.app.ActivityCompat
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -73,7 +71,6 @@ import java.util.*
 class InvoiceActivity : AppCompatActivity() {
 
     companion object {
-        private const val REQUEST_CODE_SEND_SMS = 101
     }
 
     // Repository for the pure I/O functions only (store info, billing
@@ -93,21 +90,23 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var tvSchemeBadge: TextView
 
     // ---- Type selector ----
-    private lateinit var cgInvoiceType: RadioGroup
-    private lateinit var chipB2C: RadioButton
-    private lateinit var chipB2B: RadioButton
-    private lateinit var tvInvoiceTypeHint: TextView
+    private lateinit var switchBusinessCustomer: com.google.android.material.materialswitch.MaterialSwitch
 
     // ---- Customer card ----
     private lateinit var cardCustomer: View
     private lateinit var tvCustomerRequirement: TextView
     private lateinit var etCustomerName: EditText
+    // Wraps tilBusinessName + tilCustomerGst as one visually separated
+    // sub-card (green accent border) — shown/hidden as a unit alongside
+    // the two fields it contains, so B2C never sees an empty GST box.
+    private lateinit var groupBusinessGst: View
     private lateinit var tilBusinessName: View
     private lateinit var etBusinessName: EditText
     private lateinit var etCustomerPhone: EditText
     private lateinit var tilCustomerGst: View
     private lateinit var etCustomerGst: EditText
     private lateinit var tilCustomerState: View
+    private lateinit var rowCustomerState: View
     private lateinit var etCustomerState: AutoCompleteTextView
 
     // ---- GST summary ----
@@ -145,7 +144,15 @@ class InvoiceActivity : AppCompatActivity() {
     /** Mirrors the "Round off" toggle in Invoice Design (app_settings). */
     private var roundOffEnabled: Boolean = false
     private lateinit var etDiscount: EditText
+    private lateinit var tvAddExtraDiscount: View
+    private lateinit var rowExtraDiscount: View
     private lateinit var rgPaymentMethod: RadioGroup
+    private lateinit var tvPaymentMethodHelper: TextView
+    private lateinit var layoutBillSavedBanner: View
+    private lateinit var tvBillSavedTitle: TextView
+    private lateinit var tvBillSavedSubtitle: TextView
+    private lateinit var tvConfirmTitle: TextView
+    private lateinit var tvConfirmSubtitle: TextView
     private lateinit var btnConfirm: View
     private lateinit var btnPrint: View
     private lateinit var btnSendToCustomer: View
@@ -175,7 +182,8 @@ class InvoiceActivity : AppCompatActivity() {
 
     private var invoiceType: String = "B2C"
 
-    // ---- GST Options section (collapsible) ----
+    // ---- GST Options section (collapsible; whole card hidden on B2C) ----
+    private lateinit var cardGstOptions: View
     private lateinit var rowGstOptionsHeader: View
     private lateinit var tvGstOptionsToggle: android.widget.ImageView
     private lateinit var layoutGstOptionsBody: View
@@ -222,11 +230,10 @@ class InvoiceActivity : AppCompatActivity() {
         )
         rvItems.adapter = invoiceAdapter
 
-        // "Add more items to cart" → return to the dashboard cart.
-        findViewById<View>(R.id.btnAddItem).setOnClickListener {
-            setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
-            finish()
-        }
+        // Item-count pill in the Line Items header banner.
+        findViewById<TextView?>(R.id.tvItemCount)?.text =
+            if (items.size == 1) "1 item" else "${items.size} items"
+
         // Per-row "fall in" animation when the screen first appears.
         rvItems.layoutAnimation = AnimationUtils.loadLayoutAnimation(
             this, R.anim.layout_animation_fall_down
@@ -243,8 +250,6 @@ class InvoiceActivity : AppCompatActivity() {
         attachPressFeedback(btnPrint,   scaleTo = 0.96f)
         attachPressFeedback(btnSendToCustomer, scaleTo = 0.96f)
         attachPressFeedback(btnClose,   scaleTo = 0.96f)
-        attachPressFeedback(chipB2C,    scaleTo = 0.95f)
-        attachPressFeedback(chipB2B,    scaleTo = 0.95f)
 
         wireInvoiceTypeSelector()
         wireGstOptionsSection()
@@ -280,11 +285,21 @@ class InvoiceActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
+        rgPaymentMethod.setOnCheckedChangeListener { _, _ ->
+            updatePaymentMethodCues()
+        }
+        updatePaymentMethodCues()
+
         loadStoreInfo()
         loadBillingSettings()
         recalculate()
 
         btnConfirm.setOnClickListener {
+            if (isBillSaved) {
+                setResult(RESULT_OK)
+                finish()
+                return@setOnClickListener
+            }
             val ecomPart = if (invoiceType == "ECOMMERCE") {
                 ", ecom_gstin=${etEcommerceGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
                     "ecom_operator=${etEcommerceOperatorName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
@@ -316,18 +331,21 @@ class InvoiceActivity : AppCompatActivity() {
             setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
             finish()
         }
-        // Print stays cosmetically disabled until the invoice is generated.
-        setCosmeticEnabled(btnPrint, false)
+        // Print and Send-to-customer only make sense once a bill actually
+        // exists — both stay hidden entirely until saveBill() succeeds
+        // (see the post-save block), instead of being shown-but-dimmed.
+        btnPrint.visibility = View.GONE
+        btnSendToCustomer.visibility = View.GONE
+        btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
 
-        // Send to customer needs an active SIM (SmsManager has no other
-        // way to send) — on a SIM-less device (e.g. a WiFi-only tablet)
-        // it's hidden entirely rather than shown-then-failing, falling
-        // back to the original save-invoice/print-only flow untouched.
-        if (com.example.easy_billing.util.CustomerShareHelper.hasActiveSim(this)) {
-            btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
-            setCosmeticEnabled(btnSendToCustomer, false)
-        } else {
-            btnSendToCustomer.visibility = View.GONE
+        // "+ Add extra discount on the whole bill" — reveals the
+        // bill-level discount field only when tapped; the per-item
+        // discount chips (InvoiceAdapter) stay available regardless and
+        // both mechanisms deliberately coexist.
+        tvAddExtraDiscount.setOnClickListener {
+            rowExtraDiscount.visibility = View.VISIBLE
+            tvAddExtraDiscount.visibility = View.GONE
+            etDiscount.requestFocus()
         }
 
         // Show QR — stays hidden until a UPI bill is actually saved (see
@@ -345,20 +363,19 @@ class InvoiceActivity : AppCompatActivity() {
         tvBillInfo        = findViewById(R.id.tvBillInfo)
         tvSchemeBadge     = findViewById(R.id.tvSchemeBadge)
 
-        cgInvoiceType     = findViewById(R.id.cgInvoiceType)
-        chipB2C           = findViewById(R.id.chipB2C)
-        chipB2B           = findViewById(R.id.chipB2B)
-        tvInvoiceTypeHint = findViewById(R.id.tvInvoiceTypeHint)
+        switchBusinessCustomer = findViewById(R.id.switchBusinessCustomer)
 
         cardCustomer          = findViewById(R.id.cardCustomer)
         tvCustomerRequirement = findViewById(R.id.tvCustomerRequirement)
         etCustomerName        = findViewById(R.id.etCustomerName)
+        groupBusinessGst      = findViewById(R.id.groupBusinessGst)
         tilBusinessName       = findViewById(R.id.tilBusinessName)
         etBusinessName        = findViewById(R.id.etBusinessName)
         etCustomerPhone       = findViewById(R.id.etCustomerPhone)
         tilCustomerGst        = findViewById(R.id.tilCustomerGst)
         etCustomerGst         = findViewById(R.id.etCustomerGst)
         tilCustomerState      = findViewById(R.id.tilCustomerState)
+        rowCustomerState      = findViewById(R.id.rowCustomerState)
         etCustomerState       = findViewById(R.id.etCustomerState)
 
         cardGstSummary    = findViewById(R.id.cardGstSummary)
@@ -391,8 +408,16 @@ class InvoiceActivity : AppCompatActivity() {
         rowInvRoundOff = findViewById(R.id.rowInvRoundOff)
         tvInvRoundOff  = findViewById(R.id.tvInvRoundOff)
         etDiscount     = findViewById(R.id.etDiscount)
-        rgPaymentMethod = findViewById(R.id.rgPaymentMethod)
-        btnConfirm     = findViewById(R.id.btnConfirm)
+        tvAddExtraDiscount = findViewById(R.id.tvAddExtraDiscount)
+        rowExtraDiscount   = findViewById(R.id.rowExtraDiscount)
+        rgPaymentMethod       = findViewById(R.id.rgPaymentMethod)
+        tvPaymentMethodHelper = findViewById(R.id.tvPaymentMethodHelper)
+        layoutBillSavedBanner = findViewById(R.id.layoutBillSavedBanner)
+        tvBillSavedTitle      = findViewById(R.id.tvBillSavedTitle)
+        tvBillSavedSubtitle   = findViewById(R.id.tvBillSavedSubtitle)
+        tvConfirmTitle        = findViewById(R.id.tvConfirmTitle)
+        tvConfirmSubtitle     = findViewById(R.id.tvConfirmSubtitle)
+        btnConfirm            = findViewById(R.id.btnConfirm)
         btnPrint       = findViewById(R.id.btnPrint)
         btnSendToCustomer = findViewById(R.id.btnSendToCustomer)
         btnShowQr = findViewById(R.id.btnShowQr)
@@ -401,6 +426,7 @@ class InvoiceActivity : AppCompatActivity() {
         setupStateDropdown()
 
         // ---- GST Options section ----
+        cardGstOptions         = findViewById(R.id.cardGstOptions)
         rowGstOptionsHeader    = findViewById(R.id.rowGstOptionsHeader)
         tvGstOptionsToggle     = findViewById(R.id.tvGstOptionsToggle)
         layoutGstOptionsBody   = findViewById(R.id.layoutGstOptionsBody)
@@ -431,7 +457,8 @@ class InvoiceActivity : AppCompatActivity() {
         // Add Import Service) instead of the default autocomplete list.
         etCustomerState.isFocusable = false
         etCustomerState.isFocusableInTouchMode = false
-        etCustomerState.setOnClickListener { showStatePopup(it as android.widget.TextView) }
+        etCustomerState.isClickable = false
+        rowCustomerState.setOnClickListener { showStatePopup(etCustomerState) }
     }
 
     private fun dpPx(v: Int): Int =
@@ -638,8 +665,8 @@ class InvoiceActivity : AppCompatActivity() {
     }
 
     private fun wireInvoiceTypeSelector() {
-        cgInvoiceType.setOnCheckedChangeListener { _, checkedId ->
-            invoiceType = if (checkedId == R.id.chipB2B) "B2B" else "B2C"
+        switchBusinessCustomer.setOnCheckedChangeListener { _, isChecked ->
+            invoiceType = if (isChecked) "B2B" else "B2C"
 
             // Clear all customer detail boxes when toggling B2C ⇄ B2B.
             etCustomerName.setText("")
@@ -666,6 +693,7 @@ class InvoiceActivity : AppCompatActivity() {
             )
         }
 
+        groupBusinessGst.visibility = if (isB2B) View.VISIBLE else View.GONE
         tilBusinessName.visibility  = if (isB2B) View.VISIBLE else View.GONE
         tilCustomerGst.visibility   = if (isB2B) View.VISIBLE else View.GONE
         // State stays available on B2C as well. Without it a B2C bill is
@@ -675,6 +703,11 @@ class InvoiceActivity : AppCompatActivity() {
         // has to be *possible* to enter.
         tilCustomerState.visibility = View.VISIBLE
 
+        // GST Options (reverse charge / e-commerce / GSTR invoice type) only
+        // matters for a B2B sale — hidden entirely for B2C instead of just
+        // being collapsed, so a cash-counter B2C sale never even sees it.
+        cardGstOptions.visibility = if (isB2B) View.VISIBLE else View.GONE
+
         tvCustomerRequirement.text = if (isB2B) getString(R.string.invoice_required) else getString(R.string.invoice_optional)
         tvCustomerRequirement.setBackgroundResource(
             if (isB2B) R.drawable.bg_pill_red else R.drawable.bg_pill_green
@@ -682,15 +715,6 @@ class InvoiceActivity : AppCompatActivity() {
         tvCustomerRequirement.setTextColor(
             if (isB2B) 0xFFB91C1C.toInt() else 0xFF16A34A.toInt()
         )
-
-        tvInvoiceTypeHint.text = if (isB2B)
-            getString(R.string.invoice_b2b_hint)
-        else
-            getString(R.string.invoice_b2c_hint)
-
-        // Pop the active chip so the selection feels tactile.
-        val activeChip = if (isB2B) chipB2B else chipB2C
-        popChip(activeChip)
     }
 
     // ================= ANIMATION HELPERS =================
@@ -703,7 +727,6 @@ class InvoiceActivity : AppCompatActivity() {
     private fun playEntryAnimations() {
         val targets = listOfNotNull(
             findViewById(R.id.heroCard),
-            findViewById(R.id.chipsCard),
             findViewById(R.id.cardCustomer),
             findViewById(R.id.itemsCard),
             findViewById(R.id.cardGstSummary),
@@ -872,6 +895,7 @@ class InvoiceActivity : AppCompatActivity() {
         tile: View, label: TextView, amount: TextView, rate: TextView,
         active: Boolean, taxAmount: Double, subtotal: Double
     ) {
+        tile.alpha = if (active) 1f else 0.55f
         if (active) {
             tile.setBackgroundResource(R.drawable.bg_inv_tax_tile)
             label.setTextColor(0xFF8A6526.toInt())
@@ -880,7 +904,7 @@ class InvoiceActivity : AppCompatActivity() {
             val pct = if (subtotal > 0) taxAmount / subtotal * 100.0 else 0.0
             val pretty = if (pct % 1.0 == 0.0) pct.toInt().toString()
                          else String.format("%.2f", pct).trimEnd('0').trimEnd('.')
-            rate.setTextColor(0xFFB7AB91.toInt())
+            rate.setTextColor(0xFFB0A48C.toInt())
             rate.text = "$pretty%"
         } else {
             tile.setBackgroundResource(R.drawable.bg_inv_tax_tile_muted)
@@ -1571,15 +1595,27 @@ class InvoiceActivity : AppCompatActivity() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    // Invoice generated → enable Print + Send to customer, lock Generate + Discount.
+                    // Invoice generated → reveal Print + Send to customer
+                    // (hidden until now), lock Generate + both discount
+                    // mechanisms.
+                    btnPrint.visibility = View.VISIBLE
+                    btnSendToCustomer.visibility = View.VISIBLE
                     setCosmeticEnabled(btnPrint, true)
                     setCosmeticEnabled(btnSendToCustomer, true)
-                    // Restore the arrow (clears the spinner) before re-locking
-                    // the button, so "locked" reads as disabled, not stuck loading.
+                    // Restore the arrow (clears the spinner) and transform
+                    // the primary button into "Start next bill →"
                     setCosmeticEnabled(btnConfirm, true)
-                    btnConfirm.isEnabled = false
-                    btnConfirm.alpha = 0.45f
+                    layoutBillSavedBanner.visibility = View.VISIBLE
+                    tvConfirmTitle.text = getString(R.string.invoice_btn_start_next_bill)
+                    tvConfirmSubtitle.text = getString(R.string.invoice_sub_ready_next)
+                    btnConfirm.isEnabled = true
+                    btnConfirm.alpha = 1f
                     setCosmeticEnabled(etDiscount, false)
+                    tvAddExtraDiscount.isEnabled = false
+                    rowExtraDiscount.isEnabled = false
+                    // Per-item discount chips read as locked too (visual
+                    // only — InvoiceAdapter already toasts on tap).
+                    invoiceAdapter.setBillLocked(true)
                     setPaymentMethodLocked(true)
                     Toast.makeText(this@InvoiceActivity, R.string.invoice_bill_saved, Toast.LENGTH_SHORT).show()
 
@@ -1946,40 +1982,15 @@ class InvoiceActivity : AppCompatActivity() {
     }
 
     // ================= SEND TO CUSTOMER =================
-    // SMS-only — see CustomerShareHelper's doc comment for why WhatsApp
-    // was removed from this flow (no silent-send API without the
-    // separate WhatsApp Business Cloud API).
+    // WhatsApp wa.me deep link — see CustomerShareHelper's doc comment.
+    // No runtime permission and no SIM check needed.
 
-    /** SMS is sent directly via SmsManager (no messaging app opens) — needs SEND_SMS at runtime. */
     private fun showSendToCustomerOptions() {
         if (savedBillId == -1) {
             Toast.makeText(this, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
             return
         }
-        if (com.example.easy_billing.util.CustomerShareHelper.hasSmsPermission(this)) {
-            sendToCustomer()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                com.example.easy_billing.util.CustomerShareHelper.SMS_PERMISSIONS,
-                REQUEST_CODE_SEND_SMS
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_SEND_SMS) {
-            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                sendToCustomer()
-            } else {
-                Toast.makeText(this, getString(R.string.send_to_customer_sms_permission_needed), Toast.LENGTH_LONG).show()
-            }
-        }
+        sendToCustomer()
     }
 
     private fun sendToCustomer() {
@@ -2148,6 +2159,32 @@ class InvoiceActivity : AppCompatActivity() {
                 }
             } catch (_: Exception) {
                 // offline → ignore
+            }
+        }
+    }
+
+    private fun updatePaymentMethodCues() {
+        if (isBillSaved) return
+        when (rgPaymentMethod.checkedRadioButtonId) {
+            R.id.rbCash -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_cash)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_cash)
+            }
+            R.id.rbUpi -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_upi)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_upi)
+            }
+            R.id.rbCard -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_card)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_card)
+            }
+            R.id.rbCredit -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_credit)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_credit)
+            }
+            else -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_cash)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_cash)
             }
         }
     }

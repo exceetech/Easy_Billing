@@ -199,33 +199,73 @@
                     android:singleLine="true"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/ivAddProduct"
+            <!-- "+ Add" and "✓ N in bill" occupy the exact same slot,
+                 same 30dp height, and crossfade between each other (see
+                 ProductAdapter) instead of the badge floating in the
+                 corner where it used to collide with the stock pill. -->
+            <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:background="@drawable/bg_product_add_tinted"
-                android:paddingStart="10dp"
-                android:paddingEnd="12dp">
+                android:layout_height="30dp">
 
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_plus"
-                    app:tint="#0F6E56"
-                    android:contentDescription="@null"/>
-
-                <TextView
+                <LinearLayout
+                    android:id="@+id/ivAddProduct"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="@string/item_product_add_button"
-                    android:textSize="12sp"
-                    android:textColor="#0F6E56"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:includeFontPadding="false"/>
-            </LinearLayout>
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:background="@drawable/bg_product_add_tinted"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="12dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_plus"
+                        app:tint="#0F6E56"
+                        android:contentDescription="@null"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/item_product_add_button"
+                        android:textSize="12sp"
+                        android:textColor="#0F6E56"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/chipInBill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:background="@drawable/bg_in_bill_badge"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="12dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_lucide_check"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+
+                    <TextView
+                        android:id="@+id/tvInBillCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="1 in bill"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11.5sp"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"/>
+                </LinearLayout>
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
     </LinearLayout>

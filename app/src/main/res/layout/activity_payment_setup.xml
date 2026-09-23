@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    UPI Payments (Razorpay) — moved out of Billing Settings into its own
+    screen, one level below it in the main Settings list. It was living as
+    a card at the bottom of Billing Settings, which read as if UPI setup
+    were part of GST/tax configuration, and it was confusingly visible
+    during the first-login onboarding flow (which routes through Billing
+    Settings). Same champagne visual language as the rest of Settings.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="28dp">
+
+            <!-- Title, matching every other Settings sub-screen's heading:
+                 gold uppercase eyebrow + bold/serif-italic split title. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/payment_setup_eyebrow"
+                    android:textColor="#B8895A"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.16"
+                    android:fontFamily="@font/googlesans_semibold"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="2dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/payment_setup_title_bold"
+                        android:textColor="#1A1A18"
+                        android:textSize="21sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"
+                        android:accessibilityHeading="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/payment_setup_title_italic"
+                        android:textColor="#0F6E56"
+                        android:textSize="21sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Helper — same info-row treatment as Data & Security's
+                 "tap unlock" hint, explaining why this exists separately
+                 from Billing Settings. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:paddingHorizontal="4dp">
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginEnd="7dp"
+                    android:src="@drawable/ic_info_circle"
+                    app:tint="#9A968C"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/payment_setup_explainer"
+                    android:textColor="#9A8F79"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="2dp"/>
+            </LinearLayout>
+
+            <!-- ===================== CREDENTIALS ===================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginTop="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lucide_credit_card"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView
+                            android:text="@string/payment_setup_card_title"
+                            android:textColor="#1A1A18"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:text="@string/payment_setup_card_sub"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvRazorpayStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_amber"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
+                        android:text="@string/razorpay_status_not_connected"
+                        android:textColor="#8A6526"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="16dp">
+
+                    <!-- Key ID -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/razorpay_key_id_label"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_id_card"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etRazorpayKeyId"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/razorpay_key_id_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Key Secret -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/razorpay_key_secret_label"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_si_key"
+                                app:tint="#8A6526"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etRazorpayKeySecret"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/razorpay_key_secret_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Webhook Secret -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/razorpay_webhook_secret_label"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_blue">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_shield_check"
+                                app:tint="#185FA5"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etRazorpayWebhookSecret"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/razorpay_webhook_secret_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#A99E88"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Helper callout inside the card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_pill_teal_outline"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp"
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_info_circle"
+                            app:tint="#0F6E56"
+                            android:contentDescription="@null"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/razorpay_helper_text"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/googlesans_regular"
+                            android:lineSpacingExtra="2dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSavePaymentSetup"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_login_cta_green"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="@string/payment_setup_save"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
+                app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#33FFFFFF"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

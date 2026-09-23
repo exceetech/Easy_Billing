@@ -88,16 +88,28 @@ internal class InvoiceAdapter(
         const val SCHEME_NORMAL = "Normal GST Scheme"
         const val SCHEME_COMPOSITION = "Composition Scheme"
 
-        // Avatar tints (alternate per row).
-        private val AVATAR_BG    = intArrayOf(R.drawable.bg_inv_avatar_green, R.drawable.bg_inv_avatar_gold)
-        private val AVATAR_INK   = intArrayOf(0xFF0B5544.toInt(), 0xFF8A6526.toInt())
+        // Avatar tints (cycle per row) -- teal / blue / amber circle chips,
+        // matching the Line Items card's colored icon-chip language.
+        private val AVATAR_BG    = intArrayOf(R.drawable.bg_inv_avatar_squircle_teal, R.drawable.bg_inv_avatar_squircle_blue, R.drawable.bg_inv_avatar_squircle_amber)
+        private val AVATAR_INK   = intArrayOf(0xFF085041.toInt(), 0xFF2A5CA8.toInt(), 0xFF8A6526.toInt())
     }
 
     /** Per-line discounted breakdown (parallel to [items]); null when no discount. */
     private var lineCalcs: List<GstBillingCalculator.LineBreakdown>? = null
 
+    /** True once the bill is saved — the discount chip then reads as
+     *  locked (dimmed, no pencil icon) instead of still looking editable,
+     *  even though tapping it still shows the "can't modify" toast. */
+    private var billLocked: Boolean = false
+
     init {
         submitList(buildRows())
+    }
+
+    fun setBillLocked(locked: Boolean) {
+        if (billLocked == locked) return
+        billLocked = locked
+        notifyDataSetChanged()
     }
 
     private fun buildRows(): List<InvoiceRow> = items.mapIndexed { index, cartItem ->
@@ -121,6 +133,7 @@ internal class InvoiceAdapter(
         val price: TextView  = view.findViewById(R.id.tvPrice)
         val tax: TextView    = view.findViewById(R.id.tvTax)
         val discountChip: TextView = view.findViewById(R.id.tvDiscountChip)
+        val divider: View = view.findViewById(R.id.viewRowDivider)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvoiceViewHolder {
@@ -157,7 +170,7 @@ internal class InvoiceAdapter(
 
         // ---- Avatar (initials + alternating tint) ----
         holder.avatar.text = initialsOf(product.name)
-        val slot = position % 2
+        val slot = position % 3
         holder.avatar.setBackgroundResource(AVATAR_BG[slot])
         holder.avatar.setTextColor(AVATAR_INK[slot])
 
@@ -218,18 +231,30 @@ internal class InvoiceAdapter(
             context.getString(R.string.invoice_no_tax)
 
         // Discoverable discount chip — shows current state, opens the dialog.
+        // Once the bill is saved (billLocked), it reads as locked instead
+        // of still looking editable: no pencil icon, dimmed color/alpha.
+        // Tapping it still works and shows the "can't modify" toast (see
+        // InvoiceActivity.showLineDiscountDialog) — this just stops the
+        // chip from visually inviting a tap that can't do anything.
         if (row.discountAmount > 0.0) {
-            holder.discountChip.text =
+            holder.discountChip.text = if (billLocked)
+                "${CurrencyHelper.format(context, row.discountAmount)} off"
+            else
                 "✎  ${CurrencyHelper.format(context, row.discountAmount)} off · edit"
-            holder.discountChip.setTextColor(0xFF0F6E56.toInt())
+            holder.discountChip.setTextColor(if (billLocked) 0xFFB0A48C.toInt() else 0xFF0F6E56.toInt())
         } else {
             holder.discountChip.text = context.getString(R.string.invoice_add_discount)
-            holder.discountChip.setTextColor(0xFF8A6526.toInt())
+            holder.discountChip.setTextColor(if (billLocked) 0xFFB0A48C.toInt() else 0xFF8A6526.toInt())
         }
+        holder.discountChip.alpha = if (billLocked) 0.55f else 1f
         // Passes the LIVE CartItem, not the snapshot — the discount dialog
         // needs to mutate the object InvoiceActivity's saveBill() will
         // actually read from.
         holder.discountChip.setOnClickListener { onItemClick(row.liveItem) }
+
+        // No divider under the last row -- the surrounding
+        // bg_inv_items_list_container border already closes the list.
+        holder.divider.visibility = if (position == itemCount - 1) View.GONE else View.VISIBLE
     }
 
     /** Feed the calculator's per-line breakdown so rows can show discounted amounts. */

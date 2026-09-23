@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Manage Quick Unlock" action sheet — champagne redesign, same card shell
+    as dialog_verify_password.xml (soft circle icon + centered title split
+    bold/serif-italic). Replaces a plain AlertDialog#setItems picker with
+    two labeled rows that each state the friction they carry before being
+    tapped, plus a neutral (non-destructive) Cancel.
+
+    Ids bound by DataSecurityActivity.showManageQuickUnlockDialog():
+    tvManageQuickUnlockAccount, btnQuickUnlockChangeOption,
+    btnQuickUnlockOffOption, btnCancel.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_teal">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_shield_check"
+            app:tint="#0F6E56"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_word"
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/quick_unlock_settings_title"
+            android:textColor="#0F6E56"
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvManageQuickUnlockAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textColor="#9A8F79"
+        tools:text="Signed in as priya@theshop.in" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="18dp">
+
+        <LinearLayout
+            android:id="@+id/btnQuickUnlockChangeOption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_send_option_row"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="11dp">
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_circle_soft_teal">
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_si_key"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/quick_unlock_change_pin_option"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/quick_unlock_change_pin_option_sub"
+                    android:textSize="9.5sp"
+                    android:textColor="#9A8F79"/>
+            </LinearLayout>
+            <ImageView
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="#C9C3B4"
+                android:contentDescription="@null"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnQuickUnlockOffOption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_send_option_row"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="11dp"
+            android:layout_marginTop="8dp">
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_circle_soft_red">
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_power"
+                    app:tint="#B23A3A"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/quick_unlock_turn_off_option"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    android:textColor="#9A2E2E"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/quick_unlock_turn_off_option_sub"
+                    android:textSize="9.5sp"
+                    android:textColor="#9A8F79"/>
+            </LinearLayout>
+            <ImageView
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="#C9C3B4"
+                android:contentDescription="@null"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="14dp"
+        android:text="@string/cancel"
+        android:textColor="#8A8272"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/bg_dialog_cancel_neutral"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#E4DAC4" />
+
+</LinearLayout>

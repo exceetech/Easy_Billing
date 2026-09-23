@@ -423,7 +423,7 @@
     <string name="dashboard_all_caught">அனைத்தும் பார்க்கப்பட்டது</string>
     <string name="dashboard_app_name_placeholder">Easy Billing</string>
     <string name="dashboard_cart_bar_summary_placeholder">0 பொருட்கள்</string>
-    <string name="dashboard_checkout_print_receipt">செக்அவுட் &amp; ரசீது அச்சிடு</string>
+    <string name="dashboard_checkout_print_receipt">பணம் &amp; ரசீது அச்சிடு</string>
     <string name="dashboard_clear_all">அனைத்தையும் அழி</string>
     <string name="dashboard_credit_accounts">கடன் கணக்குகள்</string>
     <string name="dashboard_greeting_morning_2">காலை வணக்கம்</string>
@@ -462,7 +462,7 @@
     <string name="dashboard_taxes_applied_at_billing">பில்லிங்கின் போது வரி விதிக்கப்படும்</string>
     <string name="dashboard_view_cart">கார்ட்டைப் பார்</string>
     <string name="dashboard_welcome_back">மீண்டும் வரவேற்கிறோம்</string>
-    <string name="generate_bill">பில் உருவாக்கு</string>
+    <string name="generate_bill">பில் போடு</string>
     <string name="logout">வெளியேறு</string>
     <string name="reports">அறிக்கைகள்</string>
     <string name="search_products">பொருட்களை தேடு</string>
@@ -489,16 +489,21 @@
     <string name="invoice_charges_header">கட்டணங்கள்</string>
     <string name="invoice_composition_note_full">கம்போசிஷன் திட்டம் — வரி விற்பனை விலையில் சேர்க்கப்பட்டுள்ளது. CGST / SGST / IGST தனியாக வசூலிக்கப்படாது.</string>
     <string name="invoice_customer_details_header">வாடிக்கையாளர் விவரங்கள்</string>
-    <string name="invoice_ecommerce_examples">அமேசான், ஃபிளிப்கார்ட் போன்றவை</string>
-    <string name="invoice_generate_invoice">விலைப்பட்டியல் உருவாக்கு</string>
+    <string name="invoice_ecommerce_examples">ஆன்லைன் ஆப் ஆர்டர்களுக்கு மட்டும் ஆன் செய்யவும்</string>
+    <string name="invoice_generate_invoice">இன்வாய்ஸை சேமிக்கவும்</string>
+    <string name="invoice_btn_start_next_bill">அடுத்த பில் தொடங்குக →</string>
     <string name="invoice_grand_total_label">மொத்தத் தொகை</string>
-    <string name="invoice_gst_options_header">GST விருப்பங்கள்</string>
-    <string name="invoice_gstr_invoice_type_label">GSTR விலைப்பட்டியல் வகை</string>
+    <string name="invoice_gst_options_header">சிறப்பு GST விருப்பங்கள் (விருப்பத்திற்குரியது)</string>
+    <string name="invoice_gst_options_subtitle">வழக்கமான கடை விற்பனைக்கு மூடப்பட்டிருக்கட்டும்</string>
+    <string name="invoice_gst_options_status_default">சாதாரண பில் ✓</string>
+    <string name="invoice_gst_options_status_rcm">RCM செயலில் உள்ளது</string>
+    <string name="invoice_gst_options_status_ecom">ஆன்லைன் ஆர்டர்</string>
+    <string name="invoice_gstr_invoice_type_label">பில் வகை</string>
     <string name="invoice_hint_business_name">வணிக பெயர்</string>
     <string name="invoice_hint_customer_name">வாடிக்கையாளர் பெயர்</string>
     <string name="invoice_hint_gst_number">GST எண்</string>
-    <string name="invoice_hint_operator_gstin">ஆபரேட்டர் GSTIN</string>
-    <string name="invoice_hint_operator_name">ஆபரேட்டர் பெயர் (விருப்பத்திற்குரியது)</string>
+    <string name="invoice_hint_operator_gstin">பிளாட்பார்ம் GST எண் (15 இலக்கங்கள்)</string>
+    <string name="invoice_hint_operator_name">பிளாட்பார்ம் பெயர் (உ.ம். Amazon, Flipkart, Swiggy)</string>
     <string name="invoice_hint_phone_number">தொலைபேசி எண்</string>
     <string name="invoice_hint_recipient_gstin">பெறுநர் GSTIN</string>
     <string name="invoice_hint_recipient_name">பெறுநர் பெயர்</string>
@@ -511,16 +516,27 @@
     <string name="invoice_nature_of_supply_label">சப்ளை வகை</string>
     <string name="invoice_net_amount_header">நிகர தொகை</string>
     <string name="invoice_normal_gst_scheme">சாதாரண GST திட்டம்</string>
-    <string name="invoice_payment_header">பணம் செலுத்துதல்</string>
-    <string name="invoice_print_button">அச்சிடு</string>
-    <string name="invoice_reverse_charge">ரிவர்ஸ் சார்ஜ்</string>
-    <string name="invoice_reverse_charge_desc">வரி பெறுநரால் செலுத்தப்படும்</string>
+    <string name="invoice_payment_header">பணம் செலுத்தும் முறை</string>
+    <string name="invoice_payment_helper_cash">💵 வாடிக்கையாளர் பணமாகச் செலுத்துவார்</string>
+    <string name="invoice_payment_helper_upi">📱 வாடிக்கையாளர் ஸ்கேன் செய்து செலுத்த திரையில் QR குறியீடு தோன்றும்</string>
+    <string name="invoice_payment_helper_card">💳 வாடிக்கையாளர் கார்டு மெஷினில் செலுத்துவார்</string>
+    <string name="invoice_payment_helper_credit">📖 இந்த பில் வாடிக்கையாளரின் கடன் கணக்கில் சேர்க்கப்படும்</string>
+    <string name="invoice_sub_cash">பில்லைச் சேமித்து பணம் பெறவும்</string>
+    <string name="invoice_sub_upi">பில்லைச் சேமித்து QR குறியீட்டைக் காட்டவும்</string>
+    <string name="invoice_sub_card">பில்லைச் சேமிக்கவும் (கார்டு மூலம்)</string>
+    <string name="invoice_sub_credit">வாடிக்கையாளரைத் தேர்ந்தெடுத்து கடனில் சேர்க்கவும்</string>
+    <string name="invoice_sub_ready_next">அடுத்த வாடிக்கையாளருக்கு தயார்</string>
+    <string name="invoice_bill_saved_success">✓ பில் வெற்றிகரமாக சேமிக்கப்பட்டது!</string>
+    <string name="invoice_share_whatsapp">வாடிக்கையாளருக்கு அனுப்பவும்</string>
+    <string name="invoice_print_button">ரசீதை அச்சிடு</string>
+    <string name="invoice_reverse_charge">வாடிக்கையாளர் நேரடியாக GST செலுத்துவார் (RCM)</string>
+    <string name="invoice_reverse_charge_desc">வாங்குபவர் நேரடியாக வரி செலுத்தினால் மட்டும் ஆன் செய்யவும் (அரிது)</string>
     <string name="invoice_role_label">பங்கு</string>
     <string name="invoice_role_supplier">சப்ளையர்</string>
     <string name="invoice_round_off_label">ரவுண்ட் ஆஃப்</string>
-    <string name="invoice_save_print_receipt">சேமித்து ரசீது அச்சிடு</string>
+    <string name="invoice_save_print_receipt">பில்லைச் சேமி</string>
     <string name="invoice_sgst_label">SGST</string>
-    <string name="invoice_sold_via_ecommerce">இ-காமர்ஸ் மூலம் விற்கப்பட்டது</string>
+    <string name="invoice_sold_via_ecommerce">ஆன்லைன் ஆப்பில் விற்கப்பட்டது (Amazon / Flipkart)</string>
     <string name="invoice_tax_header">வரி</string>
     <string name="invoice_taxable_label">வரி விதிக்கக்கூடியது</string>
     <string name="invoice_total_tax_header">மொத்த வரி</string>
@@ -768,9 +784,25 @@
     <string name="risk_low_badge">குறைவு</string>
     <string name="risk_medium_badge">நடுத்தரம்</string>
     <string name="security_section">பாதுகாப்பு</string>
+    <string name="select_another_account">மற்றொரு கணக்கைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="use_password_instead">கடவுச்சொல்லைப் பயன்படுத்தவும்</string>
     <string name="tap_unlock_helper">Unlock-ஐ தட்டவும், பின் ஒரு செயலை இயக்க உங்கள் கடவுச்சொல்லை உறுதிப்படுத்தவும்.</string>
     <string name="update_login_pin_sub">உங்கள் உள்நுழைவு PIN-ஐ புதுப்பிக்கவும்</string>
     <string name="wipe_workspace_sub">பணியிடத்தை அழித்து புதிதாகத் தொடங்கவும்</string>
+    <string name="pincode_label">பின் கோடு</string>
+    <string name="pincode_hint">6-இலக்க பின் (எ.கா. 673602)</string>
+    <string name="locality_area_label">பகுதி / இடம்</string>
+    <string name="locality_area_hint">எ.கா. முக்கம்</string>
+    <string name="city_district_label">நகரம் / மாவட்டம்</string>
+    <string name="city_district_hint">எ.கா. பாலுஸ்ஸேரி / கோழிக்கோடு</string>
+    <string name="state_label">மாநிலம்</string>
+    <string name="state_hint">எ.கா. கேரளா</string>
+    <string name="street_building_label">கடை எண், கட்டிடம், தெரு</string>
+    <string name="street_building_hint">எ.கா. மெயின் ரோடு, பேருந்து நிலையம் அருகில்</string>
+    <string name="address_preview_label">விலைப்பட்டியலில் முகவரி</string>
+    <string name="finding_location_hint">இடத்தை தேடுகிறது…</string>
+    <string name="verifying_gstin_hint">GSTIN சரிபார்க்கப்படுகிறது…</string>
+    <string name="gstin_verified_badge">சரிபார்க்கப்பட்டது</string>
 
     <!-- activity_settings -->
     <string name="and_store_word">&amp; கடை</string>
@@ -814,14 +846,14 @@
     <string name="app_name">ExPOS</string>
 
     <!-- activity_register -->
-    <string name="as_per_your_id_hint">உங்கள் அடையாள அட்டையின்படி</string>
+    <string name="as_per_your_id_hint">உங்கள் பெயரை உள்ளிடவும்</string>
     <string name="create_account_3">கணக்கை உருவாக்கவும்</string>
-    <string name="digit_mobile_hint">10-இலக்க மொபைல்</string>
-    <string name="for_login_receipts_hint">உள்நுழைவு &amp; ரசீதுகளுக்கு</string>
+    <string name="digit_mobile_hint">10 இலக்க மொபைல் எண்ணை உள்ளிடவும்</string>
+    <string name="for_login_receipts_hint">உங்கள் மின்னஞ்சலை உள்ளிடவும்</string>
     <string name="full_name_2">முழுப் பெயர்</string>
     <string name="login_2">உள்நுழை</string>
     <string name="shop_name_2">கடை பெயர்</string>
-    <string name="shown_on_your_bills_hint">உங்கள் பில்களில் காட்டப்படும்</string>
+    <string name="shown_on_your_bills_hint">உங்கள் கடையின் பெயரை உள்ளிடவும்</string>
 
     <!-- EditProductActivity -->
     <string name="badge_manual">மேனுவல்</string>
@@ -874,7 +906,7 @@
     <string name="print_layout">அச்சிடு தளவமைப்பு</string>
     <string name="printer_80mm">80mm</string>
     <string name="printer_section_2">பிரிண்டர்</string>
-    <string name="profile_label_reg_type">பதிவு வகை</string>
+    <string name="profile_label_reg_type">GST பதிவு நிலை</string>
     <string name="regular_badge">வழக்கமான</string>
     <string name="save_billing_settings">பில்லிங் அமைப்புகளை சேமிக்கவும்</string>
     <string name="set_in_store_information">கடை தகவலில் அமைக்கவும்</string>
@@ -888,6 +920,11 @@
     <string name="factory_reset_complete">ஃபேக்டரி மீட்டமைப்பு முடிந்தது. புதிய பணியிடத்தைத் தொடங்குகிறது.</string>
     <string name="failed_to_change_password">கடவுச்சொல்லை மாற்ற முடியவில்லை</string>
     <string name="failed_to_clear_bills">பில்களை அழிக்க முடியவில்லை</string>
+    <string name="diagnostic_report_sent">அறிக்கை ஆதரவுக்கு அனுப்பப்பட்டது</string>
+    <string name="diagnostic_report_failed">அறிக்கையை அனுப்ப முடியவில்லை — உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்</string>
+    <string name="diagnostic_report_no_session">அறிக்கையை அனுப்புவதற்கு முன் மீண்டும் உள்நுழையவும்</string>
+    <string name="send_diagnostic_report">கண்டறிதல் அறிக்கையை அனுப்பவும்</string>
+    <string name="send_diagnostic_report_desc">சிக்கலைக் கண்டறிய ஆதரவுக்கு உதவ உங்கள் சமீபத்திய செயல்பாட்டைப் பதிவேற்றுகிறது</string>
     <string name="not_logged_in_2">உள்நுழையவில்லை.</string>
     <string name="password_changed_login_again">கடவுச்சொல் மாற்றப்பட்டது. மீண்டும் உள்நுழையவும்.</string>
     <string name="password_min_length">கடவுச்சொல் குறைந்தது 6 எழுத்துகள் இருக்க வேண்டும்</string>
@@ -910,7 +947,7 @@
 
     <!-- PurchaseHistoryActivity -->
     <string name="cash">பணம்</string>
-    <string name="invoice_payment_credit">கடன்</string>
+    <string name="invoice_payment_credit">கடன் (Udhar)</string>
     <string name="purchase_history_empty_yet">இன்னும்</string>
     <string name="purchase_history_filter_all_label">அனைத்து வாங்குதல்கள்</string>
     <string name="purchase_history_filter_cancelled_label">ரத்து செய்யப்பட்டது</string>
@@ -1122,13 +1159,15 @@
     <string name="dashboard_owner_fallback">உரிமையாளர்</string>
     <string name="gstin_copied">GSTIN நகலெடுக்கப்பட்டது</string>
     <string name="profile_label_address">முகவரி</string>
-    <string name="profile_label_legal_name">சட்டப்பூர்வ பெயர்</string>
+    <string name="profile_label_legal_name">வணிகம் / உரிமையாளர் பெயர் (GST சுயவிவரத்தில் சட்டப்பூர்வ பெயர்)</string>
     <string name="profile_label_owner">உரிமையாளர் / சட்டப்பூர்வ பெயர்</string>
     <string name="profile_label_phone">தொடர்பு</string>
-    <string name="profile_label_scheme">ஜிஎஸ்டி திட்டம்</string>
+    <string name="profile_label_scheme">GST பதிவுத் திட்டம் (GST சுயவிவரத்தில் உள்ள திட்டம்)</string>
     <string name="profile_label_state">மாநில குறியீடு</string>
     <string name="profile_label_store_name">கடையின் பெயர்</string>
-    <string name="profile_label_trade_name">வர்த்தக பெயர்</string>
+    <string name="profile_label_trade_name">கடை / பிராண்ட் பெயர் (GST சுயவிவரத்தில் வர்த்தக பெயர்)</string>
+    <string name="profile_hint_legal_name">வணிகம் அல்லது உரிமையாளர் பெயரை உள்ளிடவும்</string>
+    <string name="profile_hint_trade_name">கடை அல்லது பிராண்ட் பெயரை உள்ளிடவும்</string>
 
     <!-- InventoryActivity -->
     <string name="dashboard_sort_name_asc">பெயர்: A → Z</string>
@@ -1601,7 +1640,7 @@
     <!-- dialog_line_discount -->
     <string name="invoice_apply_discount">தள்ளுபடியைப் பயன்படுத்து</string>
     <string name="invoice_discount_mode_amount">தொகை ₹</string>
-    <string name="invoice_discount_mode_percent">சதவீதம் %%</string>
+    <string name="invoice_discount_mode_percent" formatted="false">சதவீதம் %</string>
     <string name="invoice_line_discount_header">வரி தள்ளுபடி</string>
     <string name="invoice_new_price_label">புதிய விலை</string>
     <string name="invoice_you_save_label">நீங்கள் மிச்சப்படுத்துவது</string>
@@ -2227,5 +2266,20 @@
 
     <!-- Supplier -->
     <string name="dialog_add_supplier_title_word">சப்ளையர்</string>
+
+    <!-- Payment Setup - UPI / Razorpay -->
+    <string name="payment_setup_eyebrow">கட்டணங்கள்</string>
+    <string name="payment_setup_title_bold">UPI</string>
+    <string name="payment_setup_title_italic">கட்டணங்கள்</string>
+    <string name="payment_setup_explainer">உங்கள் இன்வாய்ஸ்களில் நேரடியாக UPI மற்றும் கார்டு கட்டணங்களை ஏற்க Razorpay ஐ இணைக்கவும்.</string>
+    <string name="payment_setup_card_title">கட்டணச் சான்றுகள்</string>
+    <string name="payment_setup_card_sub">Razorpay API விசைகள்</string>
+    <string name="razorpay_status_connected">இணைக்கப்பட்டது</string>
+    <string name="razorpay_status_not_connected">இணைக்கப்படவில்லை</string>
+    <string name="payment_setup_save">கட்டண அமைப்பைச் சேமி</string>
+    <string name="payment_setup_row_title">UPI கட்டணங்கள்</string>
+    <string name="payment_setup_row_sub">Razorpay அமைப்பு</string>
+    <string name="payment_setup_saved_toast">கட்டண அமைப்பு சேமிக்கப்பட்டது</string>
+    <string name="payment_setup_save_failed_toast">கட்டண அமைப்பைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
 
 </resources>

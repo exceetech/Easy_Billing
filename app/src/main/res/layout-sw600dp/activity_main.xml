@@ -53,16 +53,41 @@
 
                 <LinearLayout android:id="@+id/loginForm" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="16dp">
 
-                    <TextView android:id="@+id/lblEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/email_address" android:visibility="gone" android:fontFamily="@font/googlesans_regular" android:textColor="#9A968C" android:textSize="12.5sp" />
+                    <TextView
+                        android:id="@+id/lblEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/email_address"
+                        android:textSize="12.5sp"
+                        android:textColor="#9A968C"
+                        android:fontFamily="@font/googlesans_regular" />
 
-                    <FrameLayout android:id="@+id/usernameContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_glass_input">
+                    <FrameLayout
+                        android:id="@+id/usernameContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_glass_input">
                         <ImageView android:id="@+id/iconUsername" android:layout_width="19dp" android:layout_height="19dp" android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp" android:src="@drawable/ic_lc_mail" app:tint="#B8895A" android:contentDescription="@null" />
                         <EditText android:id="@+id/etUsername" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="50dp" android:background="@null" android:paddingVertical="10dp" android:paddingStart="44dp" android:paddingEnd="14dp" android:hint="@string/email" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="textEmailAddress" android:singleLine="true" android:textSize="14sp" />
                     </FrameLayout>
 
-                    <TextView android:id="@+id/lblPassword" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/password" android:visibility="gone" android:fontFamily="@font/googlesans_regular" android:textColor="#9A968C" android:textSize="12.5sp" />
+                    <TextView
+                        android:id="@+id/lblPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="11dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/password"
+                        android:textSize="12.5sp"
+                        android:textColor="#9A968C"
+                        android:fontFamily="@font/googlesans_regular" />
 
-                    <FrameLayout android:id="@+id/passwordContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="11dp" android:background="@drawable/bg_glass_input">
+                    <FrameLayout
+                        android:id="@+id/passwordContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_glass_input">
                         <ImageView android:id="@+id/iconPassword" android:layout_width="19dp" android:layout_height="19dp" android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp" android:src="@drawable/ic_lc_lock" app:tint="#B8895A" android:contentDescription="@null" />
                         <EditText android:id="@+id/etPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="50dp" android:background="@null" android:paddingVertical="10dp" android:paddingStart="44dp" android:paddingEnd="46dp" android:hint="@string/enter_your_password_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="textPassword" android:singleLine="true" android:textSize="14sp" />
                         <ImageView android:id="@+id/btnTogglePassword" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center_vertical|end" android:layout_marginEnd="14dp" android:src="@drawable/ic_lc_eye_off" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:tint="#B8895A" android:contentDescription="@null" />
@@ -83,12 +108,9 @@
 
                 <LinearLayout android:id="@+id/poweredByFooter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:orientation="vertical" android:gravity="center_horizontal" android:layout_marginTop="12dp">
 
-                    <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_powered_by_seal">
+                    <ImageView android:layout_width="36dp" android:layout_height="36dp" android:layout_gravity="center_horizontal" android:adjustViewBounds="true" android:src="@drawable/ic_scalancer_emblem" android:contentDescription="@string/powered_by_scalancer" />
 
-                        <ImageView android:layout_width="wrap_content" android:layout_height="19dp" android:layout_gravity="center" android:adjustViewBounds="true" android:src="@drawable/ic_scalancer_emblem" android:contentDescription="@string/powered_by_scalancer" />
-                    </FrameLayout>
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/powered_by_label" android:textColor="#B4A98F" android:textSize="7sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_medium" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/powered_by_label" android:textColor="#5A7A85" android:textSize="7sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_medium" />
 
                     <ImageView android:layout_width="wrap_content" android:layout_height="10dp" android:layout_marginTop="3dp" android:adjustViewBounds="true" android:src="@drawable/ic_scalancer_wordmark" android:contentDescription="@null" />
                 </LinearLayout>

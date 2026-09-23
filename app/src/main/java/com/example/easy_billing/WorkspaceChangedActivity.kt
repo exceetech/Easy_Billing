@@ -93,6 +93,11 @@ class WorkspaceChangedActivity : AppCompatActivity() {
     }
 
     private fun reloadWorkspace() {
+        // Capture BEFORE step 3 below wipes "auth" (including USERNAME) —
+        // buildLoginIntent uses this to self-heal an account whose Quick
+        // Unlock predates the accounts list.
+        val currentUsername = getSharedPreferences("auth", MODE_PRIVATE)
+            .getString("USERNAME", null)
         lifecycleScope.launch {
             val coordinator = com.example.easy_billing.sync.SyncCoordinator.get(applicationContext)
 
@@ -133,7 +138,12 @@ class WorkspaceChangedActivity : AppCompatActivity() {
             }
 
             // ── 4. Go to login ────────────────────────────────────────────────
-            val intent = Intent(this@WorkspaceChangedActivity, MainActivity::class.java)
+            // The account that's about to log in here may be a DIFFERENT
+            // one than whichever last set up Quick Unlock on this device
+            // (that's the whole point of "workspace changed") — route
+            // through the same picker/PIN logic as every other login entry
+            // point rather than assuming a bare full-login form is right.
+            val intent = com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(this@WorkspaceChangedActivity, currentUsername)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()

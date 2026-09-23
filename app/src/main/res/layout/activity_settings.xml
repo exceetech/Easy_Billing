@@ -69,109 +69,267 @@
                     android:includeFontPadding="false"/>
             </LinearLayout>
 
-            <!-- ===================== STORE ===================== -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="@string/store_section"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginBottom="20dp">
 
-            <LinearLayout style="@style/SettingsCard">
-
-                <LinearLayout android:id="@+id/btnStoreSettings" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#F3ECDD"
-                        android:src="@drawable/ic_set_store" app:tint="#B8895A"/>
-                    <LinearLayout style="@style/SettingsRowText">
-                        <TextView style="@style/SettingsRowTitle" android:text="@string/store_information"/>
-                        <TextView style="@style/SettingsRowSub" android:text="@string/name_address_contact_sub"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_set_store"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="Store setup" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Business identity &amp; regional format" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <ImageView style="@style/SettingsChevron"/>
+                    <TextView android:text="2 items" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#16A34A" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <LinearLayout android:id="@+id/btnLocalization" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#EFE5F7"
-                        android:src="@drawable/ic_set_languages" app:tint="#7A4FA3"/>
-                    <LinearLayout style="@style/SettingsRowText">
-                        <TextView style="@style/SettingsRowTitle" android:text="@string/localization_settings"/>
-                        <TextView style="@style/SettingsRowSub" android:text="@string/language_currency_format_sub"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout android:id="@+id/btnStoreSettings"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true" android:focusable="true"
+                        android:paddingHorizontal="12dp" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_soft_green">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_store"
+                                app:tint="#16A34A" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout style="@style/SettingsRowText" android:layout_marginStart="12dp">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/store_information"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/name_address_contact_sub"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
-                    <ImageView style="@style/SettingsChevron"/>
+
+                    <LinearLayout android:id="@+id/btnLocalization"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true" android:focusable="true"
+                        android:layout_marginTop="8dp"
+                        android:paddingHorizontal="12dp" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_soft_blue">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_languages"
+                                app:tint="#2A5CA8" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout style="@style/SettingsRowText" android:layout_marginStart="12dp">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/localization_settings"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/language_currency_format_sub"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
                 </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
             </LinearLayout>
 
-            <!-- ===================== BILLING ===================== -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="@string/bill_history_eyebrow"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginBottom="20dp">
 
-            <LinearLayout style="@style/SettingsCard">
-
-                <LinearLayout android:id="@+id/btnBillingSettings" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#DDEEEE"
-                        android:src="@drawable/ic_set_receipt" app:tint="#0F6E56"/>
-                    <LinearLayout style="@style/SettingsRowText">
-                        <TextView style="@style/SettingsRowTitle" android:text="@string/billing_settings"/>
-                        <TextView style="@style/SettingsRowSub" android:text="@string/gst_tax_rates_defaults_sub"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_items_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_set_receipt"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="Billing setup" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Tax, payments &amp; invoice design" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <ImageView style="@style/SettingsChevron"/>
+                    <TextView android:text="3 items" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <LinearLayout android:id="@+id/btnInvoiceDesign" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
-                        android:src="@drawable/ic_set_file_text" app:tint="#8A6526"/>
-                    <LinearLayout style="@style/SettingsRowText">
-                        <TextView style="@style/SettingsRowTitle" android:text="@string/invoice_design"/>
-                        <TextView style="@style/SettingsRowSub" android:text="@string/template_branding_sub"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout android:id="@+id/btnBillingSettings"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true" android:focusable="true"
+                        android:paddingHorizontal="12dp" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_receipt"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout style="@style/SettingsRowText" android:layout_marginStart="12dp">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/billing_settings"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/gst_tax_rates_defaults_sub"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
-                    <ImageView style="@style/SettingsChevron"/>
+
+                    <LinearLayout android:id="@+id/btnPaymentSetup"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true" android:focusable="true"
+                        android:layout_marginTop="8dp"
+                        android:paddingHorizontal="12dp" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_lucide_credit_card"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout style="@style/SettingsRowText" android:layout_marginStart="12dp">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/payment_setup_row_title"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/payment_setup_row_sub"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/btnInvoiceDesign"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true" android:focusable="true"
+                        android:layout_marginTop="8dp"
+                        android:paddingHorizontal="12dp" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_file_text"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout style="@style/SettingsRowText" android:layout_marginStart="12dp">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/invoice_design"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/template_branding_sub"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
                 </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
             </LinearLayout>
 
-            <!-- ===================== DATA ===================== -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp" android:text="@string/data_section"
-                    android:textColor="#8A6526" android:textSize="11sp" android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-            </LinearLayout>
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginBottom="20dp">
 
-            <LinearLayout style="@style/SettingsCard">
-
-                <LinearLayout android:id="@+id/btnDataManagement" style="@style/SettingsRow">
-                    <ImageView style="@style/SettingsIcon" android:backgroundTint="#FBEDED"
-                        android:src="@drawable/ic_set_shield" app:tint="#791F1F"/>
-                    <LinearLayout style="@style/SettingsRowText">
-                        <TextView style="@style/SettingsRowTitle" android:text="@string/data_security_management"/>
-                        <TextView style="@style/SettingsRowSub" android:text="@string/backup_workspace_reset_sub"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_tax_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_set_shield"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="Data &amp; security" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Backup, workspace &amp; reset" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <ImageView style="@style/SettingsChevron"/>
+                    <TextView android:text="1 item" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout android:id="@+id/btnDataManagement"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true" android:focusable="true"
+                        android:paddingHorizontal="12dp" android:paddingVertical="10dp">
+                        <FrameLayout android:layout_width="32dp" android:layout_height="32dp"
+                            android:background="@drawable/bg_circle_soft_rose">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_shield"
+                                app:tint="#B91C1C" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <LinearLayout style="@style/SettingsRowText" android:layout_marginStart="12dp">
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/data_security_management"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/backup_workspace_reset_sub"/>
+                        </LinearLayout>
+                        <ImageView style="@style/SettingsChevron"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
             </LinearLayout>
+
 
             <TextView
                 android:id="@+id/tvVersion"

@@ -28,7 +28,14 @@ interface ApiService {
     suspend fun login(
         @Field("username") username: String,
         @Field("password") password: String,
-        @Header("device-id") deviceId: String
+        @Header("device-id") deviceId: String,
+        // Set to "true" ONLY for QuickUnlockActivity's silent PIN/fingerprint
+        // replay login — never for a real interactive password submission
+        // (MainActivity omits it, defaulting to "false"). Lets the backend
+        // refuse to let a silent replay (re)bind a device whose association
+        // was just reset by an admin, forcing a real password login instead
+        // — see auth_routes.py's login() for the full reasoning.
+        @Header("quick-unlock") quickUnlock: String = "false"
     ): LoginResponse
 
     @POST("auth/register")

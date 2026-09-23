@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "Turn off Quick Unlock?" confirmation — same card shell as
+    dialog_sign_out.xml (soft-red icon tile, centered title/message,
+    solid destructive CTA then a rose ghost Cancel), since disabling
+    Quick Unlock is destructive to that account's saved PIN/biometric data.
+
+    Ids bound by DataSecurityActivity.confirmDisableQuickUnlock():
+    btnConfirmTurnOff, btnCancelTurnOff.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_card"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="20dp">
+
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_soft_red">
+        <ImageView
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_power"
+            app:tint="#9A2E2E"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_marginTop="14dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/quick_unlock_turn_off_title_part1"
+            android:textColor="#1A1A18"
+            android:textSize="19sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/quick_unlock_turn_off_title_part2"
+            android:textColor="#B23A3A"
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/quick_unlock_disable_confirm_message"
+        android:textColor="#8A8272"
+        android:textSize="12.5sp"
+        android:lineSpacingExtra="3dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmTurnOff"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_cta_red"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="@string/quick_unlock_turn_off"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_power"
+        app:iconTint="@android:color/white"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#33FFFFFF"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelTurnOff"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/cancel"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="14dp"
+        app:rippleColor="#F6D8D4" />
+
+</LinearLayout>

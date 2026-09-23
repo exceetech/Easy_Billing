@@ -1,12 +1,10 @@
 package com.example.easy_billing.util
 
-import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.telephony.SmsManager
-import android.telephony.TelephonyManager
+import android.net.Uri
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import com.example.easy_billing.R
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
@@ -17,51 +15,39 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * "Send to customer" — turns an invoice into a direct SMS to the
- * customer's number carrying a UPI payment link. Reuses
- * [InvoicePdfGenerator] with printAfterSave=false (no system print
- * dialog) and [PosPaymentRepository] for the Razorpay link + hosted-PDF
- * URL.
+ * "Send to customer" — opens WhatsApp with a message to the customer's
+ * number already filled in (bill number, amount, and a UPI pay link when
+ * one applies), via the wa.me deep link. Reuses [InvoicePdfGenerator]
+ * with printAfterSave=false (no system print dialog) and
+ * [PosPaymentRepository] for the Razorpay link + hosted-PDF URL.
  *
- * Sent straight via [SmsManager] — no messaging app opened at all, see
- * [sendViaSms]. That needs the SEND_SMS (+ READ_PHONE_STATE) runtime
- * permissions; [hasSmsPermission] lets the calling Activity check/request
- * them BEFORE invoking [sendToCustomer], since a permission prompt can
- * only be driven from an Activity, not from here.
- *
- * WhatsApp was removed from this flow: a regular WhatsApp install has no
- * API for a silent, no-app-opened send — that requires the separate
- * WhatsApp Business Cloud API (Meta business verification, a dedicated
- * business number, pre-approved message templates, per-message cost),
- * which is a different integration entirely, not a permission this app
- * can just request. If that's ever wanted, it needs its own backend
- * integration project, not a change here.
+ * This is a real WhatsApp compose screen the cashier still has to tap
+ * Send on — there's no silent, no-app-opened API for a regular WhatsApp
+ * install (that requires the separate WhatsApp Business Cloud API: Meta
+ * business verification, a dedicated business number, pre-approved
+ * message templates, per-message cost — a different integration
+ * entirely). Since the target user already lives in WhatsApp day to day,
+ * one extra tap to hit Send there is the simplest, most familiar option
+ * — simpler than the old SMS path, in fact: no SEND_SMS/READ_PHONE_STATE
+ * runtime permission, and no dependency on the device having an active
+ * SIM (works on a WiFi-only device too, as long as WhatsApp is installed).
  */
 object CustomerShareHelper {
 
-    /** READ_PHONE_STATE is required alongside SEND_SMS — see AndroidManifest.xml comment. */
-    val SMS_PERMISSIONS = arrayOf(Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE)
-
-    fun hasSmsPermission(context: Context): Boolean =
-        SMS_PERMISSIONS.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
-
-    /**
-     * True only when there's an active SIM capable of sending SMS —
-     * checked once, at bind time, to decide whether "Send to customer"
-     * appears at all. A WiFi-only tablet with no SIM slot/card has no
-     * path to SMS ever working (SmsManager needs a real carrier line,
-     * no app or permission can substitute for that), so on those
-     * devices this whole feature is hidden rather than shown and then
-     * failing — falls back to the pre-existing save-invoice/print flow,
-     * unchanged. TelephonyManager.simState doesn't need a runtime
-     * permission to read, just the SIM's basic ready/absent state.
-     */
-    fun hasActiveSim(context: Context): Boolean {
-        val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return false
-        return tm.simState == TelephonyManager.SIM_STATE_READY
+    /** True when WhatsApp (regular or Business) is installed on this device. */
+    fun isWhatsAppInstalled(context: Context): Boolean {
+        val pm = context.packageManager
+        return listOf("com.whatsapp", "com.whatsapp.w4b").any { pkg ->
+            try {
+                pm.getPackageInfo(pkg, 0)
+                true
+            } catch (e: PackageManager.NameNotFoundException) {
+                false
+            }
+        }
     }
 
-    /** Returns true on success (SMS sent); false and shows its own Toast on failure. */
+    /** Returns true if WhatsApp was opened successfully; false and shows its own Toast on failure. */
     suspend fun sendToCustomer(
         context: Context,
         bill: Bill,
@@ -111,61 +97,50 @@ object CustomerShareHelper {
         } else null
 
         val amountText = CurrencyHelper.format(context, bill.total)
-        val pdfUrl = PosPaymentRepository.uploadInvoicePdf(context, bill.billNumber, pdfFile)
+        // Still uploaded for the backend's own record/view-invoice link,
+        // even though the WhatsApp message itself only needs payLinkUrl.
+        PosPaymentRepository.uploadInvoicePdf(context, bill.billNumber, pdfFile)
 
-        return sendViaSms(context, customerPhone, bill.billNumber, amountText, payLinkUrl, pdfUrl)
+        return openWhatsAppChat(context, customerPhone, amountText, bill.billNumber, payLinkUrl)
     }
 
     /**
-     * Sends the message straight to [phone] via [SmsManager] — no
-     * messaging app opened. Caller (the Activity) must have already
-     * confirmed [hasSmsPermission]; this still checks defensively so we
-     * never crash on a SecurityException if that contract is violated.
+     * Opens the customer's WhatsApp chat directly (via the wa.me deep
+     * link) with the message already typed in — the cashier just taps
+     * WhatsApp's own Send button. Needs the customer's phone number
+     * (10-digit Indian mobile numbers are assumed and given the +91
+     * country code automatically); anything already carrying a country
+     * code (11+ digits) is passed through as-is.
      */
-    private fun sendViaSms(context: Context, phone: String?, billNumber: String, amountText: String, payLinkUrl: String?, pdfUrl: String?): Boolean {
+    private fun openWhatsAppChat(context: Context, phone: String?, amountText: String, billNumber: String, payLinkUrl: String?): Boolean {
         if (phone.isNullOrBlank()) {
             Toast.makeText(context, context.getString(R.string.send_to_customer_sms_no_phone), Toast.LENGTH_LONG).show()
             return false
         }
 
-        if (!hasSmsPermission(context)) {
-            Toast.makeText(context, context.getString(R.string.send_to_customer_sms_permission_needed), Toast.LENGTH_LONG).show()
+        if (!isWhatsAppInstalled(context)) {
+            Toast.makeText(context, context.getString(R.string.send_to_customer_whatsapp_not_installed), Toast.LENGTH_LONG).show()
             return false
         }
 
-        val message = when {
-            payLinkUrl != null && pdfUrl != null ->
-                context.getString(R.string.send_to_customer_sms_message_with_pdf, billNumber, amountText, pdfUrl, payLinkUrl)
-            payLinkUrl != null ->
-                context.getString(R.string.send_to_customer_sms_message, billNumber, amountText, payLinkUrl)
-            pdfUrl != null ->
-                context.getString(R.string.send_to_customer_sms_message_no_pay, billNumber, amountText, pdfUrl)
-            else ->
-                context.getString(R.string.send_to_customer_sms_message_no_pay_no_pdf, billNumber, amountText)
-        }
+        val message = if (payLinkUrl != null)
+            context.getString(R.string.send_to_customer_whatsapp_message, billNumber, amountText, payLinkUrl)
+        else
+            context.getString(R.string.send_to_customer_whatsapp_message_no_pay, billNumber, amountText)
+
+        val digitsOnly = phone.filter { it.isDigit() }
+        val internationalPhone = if (digitsOnly.length == 10) "91$digitsOnly" else digitsOnly
 
         return try {
-            val smsManager = SmsManager.getDefault()
-            val parts = smsManager.divideMessage(message)
-            if (parts.size > 1) {
-                smsManager.sendMultipartTextMessage(phone.trim(), null, parts, null, null)
-            } else {
-                smsManager.sendTextMessage(phone.trim(), null, message, null, null)
+            val uri = Uri.parse("https://wa.me/$internationalPhone?text=${Uri.encode(message)}")
+            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            Toast.makeText(context, context.getString(R.string.send_to_customer_sms_sent), Toast.LENGTH_SHORT).show()
+            context.startActivity(intent)
             true
         } catch (e: Exception) {
-            // Surface the real reason instead of a generic message — the
-            // usual culprits on a physical device are: no SIM / no active
-            // mobile line (IllegalStateException / "unable to send"), or a
-            // dual-SIM phone with no default SIM chosen for SMS (throws a
-            // SecurityException even though the permission is granted).
-            android.util.Log.e("CustomerShareHelper", "sendViaSms failed", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.send_to_customer_sms_failed) + " (${e.javaClass.simpleName}: ${e.message})",
-                Toast.LENGTH_LONG
-            ).show()
+            android.util.Log.e("CustomerShareHelper", "openWhatsAppChat failed", e)
+            Toast.makeText(context, context.getString(R.string.send_to_customer_whatsapp_not_installed), Toast.LENGTH_LONG).show()
             false
         }
     }

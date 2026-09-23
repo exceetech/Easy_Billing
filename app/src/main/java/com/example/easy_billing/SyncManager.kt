@@ -2708,17 +2708,11 @@ class SyncManager(private val context: Context) {
 
                 // 404 = the server holds no profile for this shop.
                 //
-                // Recoverable, and it has to be recovered here. A device
-                // whose local row says "synced" never enters the push branch
-                // above, so if the server row is gone — database reset,
-                // restored from an older backup, shop re-created, or a push
-                // that was marked synced without ever landing — the pull 404s
-                // on every single sync pass and the profile is never restored.
-                // That is the repeating "GET /gst/profile 404" in the log.
-                //
-                // We hold the only surviving copy, so upload it.
-                if (profile != null && profile.gstin.isNotBlank()) {
-                    Log.w(SYNC_TAG, "syncGstProfile: server has no profile — re-pushing local copy")
+                // Only push if there is an un-synced dirty local edit. If the
+                // local profile was marked "synced" (e.g. from an old session),
+                // do NOT re-push it to a fresh shop that has no profile configured.
+                if (profile != null && profile.syncStatus != "synced" && profile.gstin.isNotBlank()) {
+                    Log.w(SYNC_TAG, "syncGstProfile: server has no profile — pushing local copy")
                     push(profile)
                 } else {
                     // Nothing here either: GST genuinely isn't set up yet.

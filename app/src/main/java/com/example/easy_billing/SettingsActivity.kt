@@ -32,6 +32,11 @@ class SettingsActivity : BaseActivity() {
             startActivity(Intent(this, BillingSettingsActivity::class.java))
         }
 
+        findViewById<View>(R.id.btnPaymentSetup).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("Settings", "open_payment_setup_clicked")
+            startActivity(Intent(this, PaymentSetupActivity::class.java))
+        }
+
         findViewById<View>(R.id.btnInvoiceDesign).setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction("Settings", "open_invoice_design_clicked")
             startActivity(Intent(this, InvoiceDesignActivity::class.java))

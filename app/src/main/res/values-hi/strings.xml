@@ -489,16 +489,21 @@
     <string name="invoice_charges_header">शुल्क</string>
     <string name="invoice_composition_note_full">कंपोज़िशन स्कीम — टैक्स बिक्री कीमत में शामिल है। CGST / SGST / IGST अलग से नहीं लगेगा।</string>
     <string name="invoice_customer_details_header">ग्राहक विवरण</string>
-    <string name="invoice_ecommerce_examples">Amazon, Flipkart आदि</string>
-    <string name="invoice_generate_invoice">इनवॉइस बनाएं</string>
+    <string name="invoice_ecommerce_examples">केवल तभी चालू करें जब ऑर्डर ऑनलाइन ऐप से आया हो</string>
+    <string name="invoice_generate_invoice">इनवॉइस सेव करें</string>
+    <string name="invoice_btn_start_next_bill">अगला बिल बनाएं →</string>
     <string name="invoice_grand_total_label">कुल राशि</string>
-    <string name="invoice_gst_options_header">GST विकल्प</string>
-    <string name="invoice_gstr_invoice_type_label">GSTR इनवॉइस टाइप</string>
+    <string name="invoice_gst_options_header">विशेष GST विकल्प (वैकल्पिक)</string>
+    <string name="invoice_gst_options_subtitle">दुकान की सामान्य बिक्री के लिए बंद रखें</string>
+    <string name="invoice_gst_options_status_default">सामान्य बिल ✓</string>
+    <string name="invoice_gst_options_status_rcm">RCM सक्रिय</string>
+    <string name="invoice_gst_options_status_ecom">ऑनलाइन ऑर्डर</string>
+    <string name="invoice_gstr_invoice_type_label">बिल श्रेणी</string>
     <string name="invoice_hint_business_name">बिज़नेस नाम</string>
     <string name="invoice_hint_customer_name">ग्राहक का नाम</string>
     <string name="invoice_hint_gst_number">GST नंबर</string>
-    <string name="invoice_hint_operator_gstin">ऑपरेटर GSTIN</string>
-    <string name="invoice_hint_operator_name">ऑपरेटर नाम (वैकल्पिक)</string>
+    <string name="invoice_hint_operator_gstin">प्लेटफॉर्म GST नंबर (15 अंक)</string>
+    <string name="invoice_hint_operator_name">प्लेटफॉर्म नाम (जैसे Amazon, Flipkart, Swiggy)</string>
     <string name="invoice_hint_phone_number">फोन नंबर</string>
     <string name="invoice_hint_recipient_gstin">प्राप्तकर्ता GSTIN</string>
     <string name="invoice_hint_recipient_name">प्राप्तकर्ता नाम</string>
@@ -511,16 +516,27 @@
     <string name="invoice_nature_of_supply_label">सप्लाई का प्रकार</string>
     <string name="invoice_net_amount_header">नेट राशि</string>
     <string name="invoice_normal_gst_scheme">सामान्य GST स्कीम</string>
-    <string name="invoice_payment_header">भुगतान</string>
-    <string name="invoice_print_button">प्रिंट</string>
-    <string name="invoice_reverse_charge">रिवर्स चार्ज</string>
-    <string name="invoice_reverse_charge_desc">टैक्स प्राप्तकर्ता द्वारा भुगतान</string>
+    <string name="invoice_payment_header">भुगतान का तरीका</string>
+    <string name="invoice_payment_helper_cash">💵 ग्राहक काउंटर पर नकद भुगतान करेगा</string>
+    <string name="invoice_payment_helper_upi">📱 ग्राहक के स्कैन करने के लिए स्क्रीन पर QR कोड दिखाई देगा</string>
+    <string name="invoice_payment_helper_card">💳 ग्राहक स्वाइप मशीन पर कार्ड से भुगतान करेगा</string>
+    <string name="invoice_payment_helper_credit">📖 यह बिल ग्राहक के उधार / खाता में जोड़ा जाएगा</string>
+    <string name="invoice_sub_cash">बिल सहेजें और नकद लें</string>
+    <string name="invoice_sub_upi">बिल सहेजें और QR दिखाएं</string>
+    <string name="invoice_sub_card">बिल सहेजें (कार्ड भुगतान)</string>
+    <string name="invoice_sub_credit">ग्राहक चुनें और उधार खाते में जोड़ें</string>
+    <string name="invoice_sub_ready_next">अगले ग्राहक के लिए तैयार</string>
+    <string name="invoice_bill_saved_success">✓ बिल सफलतापूर्वक सहेजा गया!</string>
+    <string name="invoice_share_whatsapp">ग्राहक को भेजें</string>
+    <string name="invoice_print_button">रसीद प्रिंट करें</string>
+    <string name="invoice_reverse_charge">ग्राहक सीधे GST भरेगा (RCM)</string>
+    <string name="invoice_reverse_charge_desc">केवल तभी चालू करें जब खरीदार सीधे सरकार को टैक्स भरे (दुर्लभ)</string>
     <string name="invoice_role_label">भूमिका</string>
     <string name="invoice_role_supplier">सप्लायर</string>
     <string name="invoice_round_off_label">राउंड ऑफ</string>
-    <string name="invoice_save_print_receipt">सेव करें और रसीद प्रिंट करें</string>
+    <string name="invoice_save_print_receipt">बिल सेव करें</string>
     <string name="invoice_sgst_label">SGST</string>
-    <string name="invoice_sold_via_ecommerce">ई-कॉमर्स के ज़रिए बेचा गया</string>
+    <string name="invoice_sold_via_ecommerce">ऑनलाइन ऐप पर बिका (Amazon / Flipkart)</string>
     <string name="invoice_tax_header">टैक्स</string>
     <string name="invoice_taxable_label">कर योग्य</string>
     <string name="invoice_total_tax_header">कुल टैक्स</string>
@@ -768,9 +784,25 @@
     <string name="risk_low_badge">कम</string>
     <string name="risk_medium_badge">मध्यम</string>
     <string name="security_section">सुरक्षा</string>
+    <string name="select_another_account">दूसरा खाता चुनें</string>
+    <string name="use_password_instead">पासवर्ड का उपयोग करें</string>
     <string name="tap_unlock_helper">अनलॉक पर टैप करें, फिर एक्शन चलाने के लिए अपना पासवर्ड कन्फर्म करें।</string>
     <string name="update_login_pin_sub">अपना लॉगिन पिन अपडेट करें</string>
     <string name="wipe_workspace_sub">वर्कस्पेस मिटाएं और नए सिरे से शुरू करें</string>
+    <string name="pincode_label">पिन कोड</string>
+    <string name="pincode_hint">6-अंकों का पिन (उदा. 673602)</string>
+    <string name="locality_area_label">क्षेत्र / इलाका</string>
+    <string name="locality_area_hint">उदा. मुक्कम</string>
+    <string name="city_district_label">शहर / ज़िला</string>
+    <string name="city_district_hint">उदा. बालुस्सेरी / कोझिकोड</string>
+    <string name="state_label">राज्य</string>
+    <string name="state_hint">उदा. केरल</string>
+    <string name="street_building_label">दुकान नं., भवन, सड़क</string>
+    <string name="street_building_hint">उदा. मेन रोड, बस स्टैंड के पास</string>
+    <string name="address_preview_label">इनवॉइस पर पता</string>
+    <string name="finding_location_hint">स्थान खोजा जा रहा है…</string>
+    <string name="verifying_gstin_hint">GSTIN सत्यापित किया जा रहा है…</string>
+    <string name="gstin_verified_badge">सत्यापित</string>
 
     <!-- activity_settings -->
     <string name="and_store_word">और स्टोर</string>
@@ -814,14 +846,14 @@
     <string name="app_name">ExPOS</string>
 
     <!-- activity_register -->
-    <string name="as_per_your_id_hint">अपने आईडी के अनुसार</string>
+    <string name="as_per_your_id_hint">अपना नाम दर्ज करें</string>
     <string name="create_account_3">खाता बनाएं</string>
-    <string name="digit_mobile_hint">10 अंकों का मोबाइल</string>
-    <string name="for_login_receipts_hint">लॉगिन और रसीदों के लिए</string>
+    <string name="digit_mobile_hint">10 अंकों का मोबाइल नंबर दर्ज करें</string>
+    <string name="for_login_receipts_hint">अपना ईमेल दर्ज करें</string>
     <string name="full_name_2">पूरा नाम</string>
     <string name="login_2">लॉगिन</string>
     <string name="shop_name_2">दुकान का नाम</string>
-    <string name="shown_on_your_bills_hint">आपके बिलों पर दिखेगा</string>
+    <string name="shown_on_your_bills_hint">अपनी दुकान का नाम दर्ज करें</string>
 
     <!-- EditProductActivity -->
     <string name="badge_manual">मैनुअल</string>
@@ -874,7 +906,7 @@
     <string name="print_layout">प्रिंट लेआउट</string>
     <string name="printer_80mm">80mm</string>
     <string name="printer_section_2">प्रिंटर</string>
-    <string name="profile_label_reg_type">पंजीकरण का प्रकार</string>
+    <string name="profile_label_reg_type">GST पंजीकरण स्थिति</string>
     <string name="regular_badge">रेगुलर</string>
     <string name="save_billing_settings">बिलिंग सेटिंग्स सहेजें</string>
     <string name="set_in_store_information">स्टोर जानकारी में सेट करें</string>
@@ -888,6 +920,11 @@
     <string name="factory_reset_complete">फैक्ट्री रीसेट पूरा हुआ। नया वर्कस्पेस शुरू हो रहा है।</string>
     <string name="failed_to_change_password">पासवर्ड बदला नहीं जा सका</string>
     <string name="failed_to_clear_bills">बिल क्लियर नहीं हो सके</string>
+    <string name="diagnostic_report_sent">सपोर्ट को रिपोर्ट भेजी गई</string>
+    <string name="diagnostic_report_failed">रिपोर्ट नहीं भेजी जा सकी — अपना कनेक्शन जांचें और पुन: प्रयास करें</string>
+    <string name="diagnostic_report_no_session">रिपोर्ट भेजने से पहले कृपया दोबारा लॉगिन करें</string>
+    <string name="send_diagnostic_report">डायग्नोस्टिक रिपोर्ट भेजें</string>
+    <string name="send_diagnostic_report_desc">समस्या के समाधान में सहायता के लिए हालिया गतिविधि अपलोड करता है</string>
     <string name="not_logged_in_2">लॉगिन नहीं है।</string>
     <string name="password_changed_login_again">पासवर्ड बदल गया। कृपया दोबारा लॉगिन करें।</string>
     <string name="password_min_length">पासवर्ड कम से कम 6 अक्षरों का होना चाहिए</string>
@@ -910,7 +947,7 @@
 
     <!-- PurchaseHistoryActivity -->
     <string name="cash">नकद</string>
-    <string name="invoice_payment_credit">क्रेडिट</string>
+    <string name="invoice_payment_credit">उधार / खाता</string>
     <string name="purchase_history_empty_yet">अभी तक</string>
     <string name="purchase_history_filter_all_label">सभी खरीद</string>
     <string name="purchase_history_filter_cancelled_label">रद्द</string>
@@ -1122,13 +1159,15 @@
     <string name="dashboard_owner_fallback">मालिक</string>
     <string name="gstin_copied">GSTIN कॉपी हुआ</string>
     <string name="profile_label_address">पता</string>
-    <string name="profile_label_legal_name">कानूनी नाम</string>
+    <string name="profile_label_legal_name">व्यापार / मालिक का नाम (GST प्रोफ़ाइल में लीगल नाम)</string>
     <string name="profile_label_owner">मालिक / कानूनी नाम</string>
     <string name="profile_label_phone">संपर्क</string>
-    <string name="profile_label_scheme">जीएसटी योजना</string>
+    <string name="profile_label_scheme">GST पंजीकरण योजना (GST प्रोफ़ाइल में स्कीम)</string>
     <string name="profile_label_state">राज्य कोड</string>
     <string name="profile_label_store_name">स्टोर का नाम</string>
-    <string name="profile_label_trade_name">व्यापार का नाम</string>
+    <string name="profile_label_trade_name">दुकान / ब्रांड का नाम (GST प्रोफ़ाइल में ट्रेड नाम)</string>
+    <string name="profile_hint_legal_name">व्यापार या मालिक का नाम दर्ज करें</string>
+    <string name="profile_hint_trade_name">दुकान या ब्रांड का नाम दर्ज करें</string>
 
     <!-- InventoryActivity -->
     <string name="dashboard_sort_name_asc">नाम: A → Z</string>
@@ -1601,7 +1640,7 @@
     <!-- dialog_line_discount -->
     <string name="invoice_apply_discount">छूट लागू करें</string>
     <string name="invoice_discount_mode_amount">राशि ₹</string>
-    <string name="invoice_discount_mode_percent">प्रतिशत %%</string>
+    <string name="invoice_discount_mode_percent" formatted="false">प्रतिशत %</string>
     <string name="invoice_line_discount_header">लाइन छूट</string>
     <string name="invoice_new_price_label">नई कीमत</string>
     <string name="invoice_you_save_label">आपकी बचत</string>
@@ -2227,5 +2266,20 @@
 
     <!-- Supplier -->
     <string name="dialog_add_supplier_title_word">आपूर्तिकर्ता</string>
+
+    <!-- Payment Setup - UPI / Razorpay -->
+    <string name="payment_setup_eyebrow">भुगतान</string>
+    <string name="payment_setup_title_bold">UPI</string>
+    <string name="payment_setup_title_italic">भुगतान</string>
+    <string name="payment_setup_explainer">अपने इनवॉइस पर सीधे UPI और कार्ड से भुगतान स्वीकार करने के लिए Razorpay कनेक्ट करें।</string>
+    <string name="payment_setup_card_title">भुगतान क्रेडेंशियल</string>
+    <string name="payment_setup_card_sub">Razorpay API कुंजियाँ</string>
+    <string name="razorpay_status_connected">कनेक्टेड</string>
+    <string name="razorpay_status_not_connected">कनेक्ट नहीं है</string>
+    <string name="payment_setup_save">भुगतान सेटअप सेव करें</string>
+    <string name="payment_setup_row_title">UPI भुगतान</string>
+    <string name="payment_setup_row_sub">Razorpay सेटअप</string>
+    <string name="payment_setup_saved_toast">भुगतान सेटअप सेव हो गया</string>
+    <string name="payment_setup_save_failed_toast">भुगतान सेटअप सेव नहीं हो सका। पुनः प्रयास करें।</string>
 
 </resources>

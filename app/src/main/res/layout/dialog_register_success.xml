@@ -71,44 +71,11 @@
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="18dp"
-        android:background="#EAE2D1"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal"
-        android:gravity="top">
-
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginTop="1dp"
-            android:src="@drawable/ic_lc_mail"
-            app:tint="#B8895A"
-            android:contentDescription="@null"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:text="@string/dialog_register_success_otp_expiry_note"
-            android:textColor="#9A8F79"
-            android:textSize="11.5sp"
-            android:lineSpacingExtra="2dp"/>
-
-    </LinearLayout>
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnContinue"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/bg_login_cta_green"
         app:backgroundTint="@null"
         android:text="@string/dialog_register_success_continue_btn"

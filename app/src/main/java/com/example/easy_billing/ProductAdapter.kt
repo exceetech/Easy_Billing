@@ -17,9 +17,92 @@ import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.*
 
 class ProductAdapter(
-    private val onItemClick: (Product) -> Unit,
+    // Normal (piece/packet) items: single tap adds 1 to the bill.
+    private val onQuickAdd: (Product) -> Unit,
+    // Any item: opens the number pad. Used as-is (additive, blank start)
+    // for weighed items on every tap, and for normal items on a fast
+    // second tap — see [TapArbiter].
+    private val onOpenQuantityPad: (Product) -> Unit,
+    // Normal items only, fired on a fast second tap: opens the number
+    // pad pre-filled with whatever is already in the bill, so the typed
+    // number REPLACES it instead of adding on top — lets someone type an
+    // exact large quantity (e.g. 1000) instead of tapping 1000 times.
+    private val onSetExactQuantity: (Product) -> Unit,
     private val onItemLongClick: (Product) -> Unit
 ) : ListAdapter<ProductAdapter.Row, RecyclerView.ViewHolder>(RowDiff()) {
+
+    /**
+     * Arbitrates single-tap vs double-tap on a product card.
+     *
+     * Weighed items (kg/litre) never use this — they keep their original
+     * behaviour of opening the number pad on every tap, since a decimal
+     * weight can't be entered by tapping anyway.
+     *
+     * Normal items: a single tap waits out the *system's own* double-tap
+     * window (the same timeout Android uses everywhere, e.g. double-tapping
+     * a photo to like it) before adding 1 — so a fast second tap can
+     * instead open the pad to type an exact number. One instance is reused
+     * across row recycling; [reset] MUST run at the very top of every
+     * bind() so a pending "add 1" left over from whatever product this row
+     * showed *before* being recycled can never fire against the new one.
+     */
+    private class TapArbiter(private val view: View) {
+        private var pendingSingleTap: Runnable? = null
+        private var lastTapAtMs = 0L
+        private var lastDebouncedOpenAtMs = 0L
+        private val doubleTapWindowMs =
+            android.view.ViewConfiguration.getDoubleTapTimeout().toLong()
+
+        fun reset() {
+            pendingSingleTap?.let { view.removeCallbacks(it) }
+            pendingSingleTap = null
+            lastTapAtMs = 0L
+            lastDebouncedOpenAtMs = 0L
+        }
+
+        fun onTap(onSingleTap: () -> Unit, onDoubleTap: () -> Unit) {
+            val now = System.currentTimeMillis()
+            val pending = pendingSingleTap
+            if (pending != null && now - lastTapAtMs <= doubleTapWindowMs) {
+                view.removeCallbacks(pending)
+                pendingSingleTap = null
+                lastTapAtMs = 0L
+                onDoubleTap()
+            } else {
+                lastTapAtMs = now
+                val runnable = Runnable {
+                    pendingSingleTap = null
+                    onSingleTap()
+                }
+                pendingSingleTap = runnable
+                view.postDelayed(runnable, doubleTapWindowMs)
+            }
+        }
+
+        /**
+         * For weighed items: every tap should open the pad — including a
+         * fast double-tap, which should still count as "open the pad,"
+         * just once, not twice. A plain OnClickListener fires once per tap,
+         * so a real double-tap (two taps inside the system's double-tap
+         * window) was opening the dialog twice — a second AlertDialog
+         * stacking on top of the first. This swallows any tap that lands
+         * within that same window as the one before it.
+         */
+        fun onTapDebounced(action: () -> Unit) {
+            val now = System.currentTimeMillis()
+            if (now - lastDebouncedOpenAtMs <= doubleTapWindowMs) return
+            lastDebouncedOpenAtMs = now
+            action()
+        }
+    }
+
+    /** Same weighed-unit definition used app-wide (DashboardActivity's
+     *  quantity pad, InventoryActivity) — kept identical so a product
+     *  never behaves as "weighed" in one place and "counted" in another. */
+    private fun isWeighed(product: Product): Boolean = when (product.unit?.lowercase()) {
+        "kilogram", "kg", "litre", "l" -> true
+        else -> false
+    }
 
     /** A row is either a category header or a product tile. */
     sealed class Row {
@@ -40,6 +123,11 @@ class ProductAdapter(
 
     private var inventoryMap: Map<Int, Double> = emptyMap()
 
+    // Product id -> quantity currently in the bill, so cards can show the
+    // "✓ N in bill" badge and a green border without the adapter needing
+    // to know anything about CartItem/DashboardActivity's cart internals.
+    private var cartQtyMap: Map<Int, Double> = emptyMap()
+
     // Premium card palette (High-contrast pastels) - Optimized for light theme
     private val cardPastels = listOf(
         "#FFE4E6", "#DCFCE7", "#DBEAFE", "#FEF9C3", "#F3E8FF",
@@ -57,6 +145,13 @@ class ProductAdapter(
 
     fun setInventoryMap(map: Map<Int, Double>) {
         inventoryMap = map
+        notifyDataSetChanged()
+    }
+
+    /** Called whenever the bill changes (add/remove/quantity edit) so every
+     *  visible card's "in bill" badge and border stay in sync. */
+    fun setCartQtyMap(map: Map<Int, Double>) {
+        cartQtyMap = map
         notifyDataSetChanged()
     }
 
@@ -165,6 +260,7 @@ class ProductAdapter(
     }
 
     inner class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val tapArbiter = TapArbiter(itemView)
         private val card: MaterialCardView = view.findViewById(R.id.cardView)
         private val name: TextView         = view.findViewById(R.id.tvProductName)
         private val variant: TextView      = view.findViewById(R.id.tvVariantName)
@@ -180,8 +276,22 @@ class ProductAdapter(
         private val accentStripe: View     = view.findViewById(R.id.viewAccentStripe)
         // Category chip (now shown in the grid tile too).
         private val category: TextView?    = view.findViewById(R.id.tvListCategory)
+        private val chipInBill: View       = view.findViewById(R.id.chipInBill)
+        private val tvInBillCount: TextView = view.findViewById(R.id.tvInBillCount)
+
+        // Tracks what THIS row last showed, so a crossfade only plays when
+        // the same product's in-bill state actually flips (i.e. the tap
+        // that just added/cleared it) — not on every unrelated rebind
+        // (scrolling to a different product, an inventory refresh, etc.).
+        private var lastBoundProductId: Int? = null
+        private var lastHadQtyInBill: Boolean? = null
 
         fun bind(product: Product) {
+            // MUST be first: cancels any pending "add 1" left over from
+            // whatever product this recycled row showed before, so it can
+            // never fire against the product now being bound.
+            tapArbiter.reset()
+
             val context = itemView.context
             val colorIdx = getStableIndex(product.name)
 
@@ -267,16 +377,101 @@ class ProductAdapter(
                     setClickListeners(product)
                 }
             }
+
+            // ── "In bill" chip (replaces "+ Add" in place) + green border ──
+            // Computed after the stock branch above so it always reflects
+            // the bill regardless of which stock state the card is in.
+            val inBillQty = cartQtyMap[product.id]
+            val hasQtyInBill = inBillQty != null && inBillQty > 0
+
+            if (hasQtyInBill) {
+                tvInBillCount.text = "${fmtQty(inBillQty!!)} in bill"
+                card.strokeColor = Color.parseColor("#0F6E56")
+                card.strokeWidth = dpToPx(context, 2)
+            } else {
+                card.strokeColor = Color.parseColor("#ECE7DA")
+                card.strokeWidth = dpToPx(context, 1)
+            }
+
+            // Same product, state actually flipped just now (this tap) →
+            // crossfade. Anything else (fresh bind, a different product
+            // after recycling, an unrelated rebind that left the state
+            // unchanged) → snap straight to the right state, no animation.
+            val sameProductStillBound = lastBoundProductId == product.id
+            if (sameProductStillBound && lastHadQtyInBill != null && lastHadQtyInBill != hasQtyInBill) {
+                crossfadeAddButtonAndBillChip(hasQtyInBill)
+            } else {
+                snapAddButtonAndBillChip(hasQtyInBill)
+            }
+            lastBoundProductId = product.id
+            lastHadQtyInBill = hasQtyInBill
+        }
+
+        /** Instant, no-animation state — used on first bind and whenever a
+         *  row is recycled to a *different* product, so a stale animation
+         *  can never bleed onto the wrong card. */
+        private fun snapAddButtonAndBillChip(showChip: Boolean) {
+            addBtn.animate().cancel()
+            chipInBill.animate().cancel()
+            addBtn.alpha = if (showChip) 0f else 1f
+            addBtn.visibility = if (showChip) View.GONE else View.VISIBLE
+            chipInBill.alpha = if (showChip) 1f else 0f
+            chipInBill.visibility = if (showChip) View.VISIBLE else View.GONE
+        }
+
+        /** Smooth crossfade between "+ Add" and "✓ N in bill" in the exact
+         *  same spot — played only when THIS row's own state just changed
+         *  (see the caller), so tapping a card feels like the button
+         *  morphing into the badge rather than a jump-cut. */
+        private fun crossfadeAddButtonAndBillChip(showChip: Boolean) {
+            val fadeInView = if (showChip) chipInBill else addBtn
+            val fadeOutView = if (showChip) addBtn else chipInBill
+
+            fadeOutView.animate().cancel()
+            fadeInView.animate().cancel()
+
+            fadeInView.alpha = 0f
+            fadeInView.visibility = View.VISIBLE
+            fadeInView.animate()
+                .alpha(1f)
+                .setDuration(180)
+                .setStartDelay(40) // lets the fade-out lead very slightly
+                .start()
+
+            fadeOutView.animate()
+                .alpha(0f)
+                .setDuration(150)
+                .withEndAction { fadeOutView.visibility = View.GONE }
+                .start()
         }
 
         private fun setClickListeners(product: Product) {
-            itemView.setOnClickListener { onItemClick(product) }
-            itemView.setOnLongClickListener { onItemLongClick(product); true }
+            if (isWeighed(product)) {
+                // Every tap opens the pad, additive, blank start — but a
+                // fast double-tap must only open it once, not stack two
+                // dialogs on top of each other.
+                itemView.setOnClickListener {
+                    tapArbiter.onTapDebounced { onOpenQuantityPad(product) }
+                }
+            } else {
+                itemView.setOnClickListener {
+                    tapArbiter.onTap(
+                        onSingleTap = { onQuickAdd(product) },
+                        onDoubleTap = { onSetExactQuantity(product) }
+                    )
+                }
+            }
+            itemView.setOnLongClickListener {
+                tapArbiter.reset()
+                onItemLongClick(product)
+                true
+            }
         }
     }
 
     /** Flat, column-aligned row for List view: Item · Category · Price · Stock. */
     inner class ListRowViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val tapArbiter = TapArbiter(itemView)
         private val row: View          = view.findViewById(R.id.listRow)
         private val name: TextView     = view.findViewById(R.id.tvListName)
         private val variant: TextView  = view.findViewById(R.id.tvListVariant)
@@ -284,8 +479,13 @@ class ProductAdapter(
         private val stock: TextView    = view.findViewById(R.id.tvListStock)
         private val monogram: TextView = view.findViewById(R.id.tvListMonogram)
         private val monogramBg: View   = view.findViewById(R.id.viewListMonogramBg)
+        private val inBillStripe: View? = view.findViewById(R.id.viewListInBillStripe)
+        private val inBillBadge: TextView = view.findViewById(R.id.tvListInBillBadge)
 
         fun bind(product: Product) {
+            // MUST be first — see TapArbiter's kdoc.
+            tapArbiter.reset()
+
             val context = itemView.context
 
             name.text = product.name
@@ -334,11 +534,35 @@ class ProductAdapter(
                     setClickListeners(product)
                 }
             }
+
+            // Compact "N in bill" badge on the right side
+            val inBillQty = cartQtyMap[product.id]
+            if (inBillQty != null && inBillQty > 0) {
+                inBillBadge.visibility = View.VISIBLE
+                inBillBadge.text = "${fmtQty(inBillQty)} in bill"
+            } else {
+                inBillBadge.visibility = View.GONE
+            }
         }
 
         private fun setClickListeners(product: Product) {
-            itemView.setOnClickListener { onItemClick(product) }
-            itemView.setOnLongClickListener { onItemLongClick(product); true }
+            if (isWeighed(product)) {
+                itemView.setOnClickListener {
+                    tapArbiter.onTapDebounced { onOpenQuantityPad(product) }
+                }
+            } else {
+                itemView.setOnClickListener {
+                    tapArbiter.onTap(
+                        onSingleTap = { onQuickAdd(product) },
+                        onDoubleTap = { onSetExactQuantity(product) }
+                    )
+                }
+            }
+            itemView.setOnLongClickListener {
+                tapArbiter.reset()
+                onItemLongClick(product)
+                true
+            }
         }
     }
 

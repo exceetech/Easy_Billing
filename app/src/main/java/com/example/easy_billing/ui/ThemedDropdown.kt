@@ -40,12 +40,30 @@ object ThemedDropdown {
             setPadding(dp(5), dp(5), dp(5), dp(5))
         }
 
+        val scroll = android.widget.ScrollView(ctx).apply {
+            isVerticalScrollBarEnabled = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val itemsList = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+
         val width = maxOf(anchor.width, dp(minWidthDp))
         val popup = PopupWindow(
             container, width, ViewGroup.LayoutParams.WRAP_CONTENT, true
         ).apply {
             elevation = dp(10).toFloat()
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            if (options.size > 5) {
+                height = dp(240)
+            }
         }
 
         options.forEachIndexed { i, label ->
@@ -76,8 +94,11 @@ object ThemedDropdown {
                 })
             }
             row.setOnClickListener { onSelect(i); popup.dismiss() }
-            container.addView(row)
+            itemsList.addView(row)
         }
+
+        scroll.addView(itemsList)
+        container.addView(scroll)
 
         val xoff = if (rightAlign) anchor.width - width else 0
         popup.showAsDropDown(anchor, xoff, dp(6))

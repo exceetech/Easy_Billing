@@ -115,71 +115,133 @@
             </LinearLayout>
 
             <!-- ===================== PREFERENCES ===================== -->
-            <!-- cardPreferences: faded (alpha 0.6) until Edit is tapped,
-                 same locked/unlocked feel as the other settings screens. -->
-            <LinearLayout android:id="@+id/cardPreferences" style="@style/AddCard"
-                android:layout_marginTop="16dp"
-                android:paddingTop="18dp">
+            <LinearLayout android:id="@+id/cardPreferences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginTop="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginStart="9dp" android:text="@string/localization_preferences_label"
-                        android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold"
-                        android:letterSpacing="0.08"/>
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_set_languages"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="Preferences" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="Language &amp; currency format" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="2 fields" android:textSize="10sp" android:textStyle="bold"
+                        android:textColor="#16A34A" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <!-- Language -->
-                <LinearLayout style="@style/SiBlock" android:layout_marginTop="0dp">
-                    <TextView style="@style/SiFieldLabel" android:text="@string/language"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <!-- Language -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/language"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
                     <LinearLayout
                         android:id="@+id/rowLanguage"
-                        style="@style/SiFieldBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground">
-                        <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_set_languages" app:tint="#534AB7"/>
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_purple">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_languages"
+                                app:tint="#7A4FA3" android:contentDescription="@null"/>
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvLanguage"
-                            style="@style/SiValue"
-                            android:text="@string/localization_language_default_value"/>
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/localization_language_default_value"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"/>
                         <ImageView
                             android:id="@+id/icLanguageChevron"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_chevron_down"
-                            app:tint="#C9C3B4"
+                            app:tint="#B0A48C"
                             android:contentDescription="@null"/>
                     </LinearLayout>
-                </LinearLayout>
 
-                <!-- Currency -->
-                <LinearLayout style="@style/SiBlock">
-                    <TextView style="@style/SiFieldLabel" android:text="@string/currency"/>
+                    <!-- Currency -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/currency"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
                     <LinearLayout
                         android:id="@+id/rowCurrency"
-                        style="@style/SiFieldBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground">
-                        <ImageView style="@style/SiIcon"
-                            android:src="@drawable/ic_si_currency" app:tint="#8A6526"/>
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_currency"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvCurrency"
-                            style="@style/SiValue"
-                            android:text="@string/localization_currency_default_value"/>
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/localization_currency_default_value"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"/>
                         <ImageView
                             android:id="@+id/icCurrencyChevron"
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_chevron_down"
-                            app:tint="#C9C3B4"
+                            app:tint="#B0A48C"
                             android:contentDescription="@null"/>
                     </LinearLayout>
                 </LinearLayout>

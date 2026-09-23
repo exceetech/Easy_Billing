@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/champagne_bg">
+
+    <!-- Center App Branding -->
+    <LinearLayout
+        android:id="@+id/centerBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/poweredByFooter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="78dp"
+            android:layout_height="78dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:id="@+id/brandTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ex_word"
+                android:textColor="#1A1A18"
+                android:textSize="34sp"
+                android:fontFamily="@font/marcellus"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pos_word"
+                android:textColor="#B8895A"
+                android:textSize="34sp"
+                android:fontFamily="@font/marcellus"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/brandTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/point_of_sale_tagline"
+            android:textColor="#9A8F79"
+            android:textSize="10.5sp"
+            android:letterSpacing="0.18"
+            android:fontFamily="@font/googlesans_semibold" />
+    </LinearLayout>
+
+    <!-- Bottom Powered By Scalancer Footer -->
+    <LinearLayout
+        android:id="@+id/poweredByFooter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="54dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_scalancer_emblem"
+            android:contentDescription="@string/powered_by_scalancer" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/powered_by_label"
+            android:textColor="#5A7A85"
+            android:textSize="7sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_medium" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"
+            android:layout_marginTop="3dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_scalancer_wordmark"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

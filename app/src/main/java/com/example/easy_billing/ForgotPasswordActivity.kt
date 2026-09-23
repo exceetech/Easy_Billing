@@ -165,12 +165,12 @@ class ForgotPasswordActivity : BaseActivity() {
                     btnSubmit.isEnabled = true
                     btnSubmit.text = getString(R.string.send_reset_code)
                     startCtaArrowAnimation(R.id.btnSubmit)
-                    // Was surfacing the raw exception message to the user.
                     Log.e("ForgotPasswordActivity", "Send reset code failed", e)
                     com.example.easy_billing.util.UserEventLogger.logError(
                         "ForgotPasswordActivity", "send_reset_code_failed: ${e.javaClass.simpleName}"
                     )
-                    Toast.makeText(this@ForgotPasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
+                    val errorMsg = com.example.easy_billing.util.ApiErrorParser.parse(e, this@ForgotPasswordActivity)
+                    Toast.makeText(this@ForgotPasswordActivity, errorMsg, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -223,7 +223,8 @@ class ForgotPasswordActivity : BaseActivity() {
                     com.example.easy_billing.util.UserEventLogger.logError(
                         "ForgotPasswordActivity", "verify_otp_failed: ${e.javaClass.simpleName}"
                     )
-                    Toast.makeText(this@ForgotPasswordActivity, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
+                    val errorMsg = com.example.easy_billing.util.ApiErrorParser.parse(e, this@ForgotPasswordActivity)
+                    Toast.makeText(this@ForgotPasswordActivity, errorMsg, Toast.LENGTH_LONG).show()
                 } finally {
                     btnVerifyOtp.isEnabled = true
                     btnVerifyOtp.text = getString(R.string.verify_code)

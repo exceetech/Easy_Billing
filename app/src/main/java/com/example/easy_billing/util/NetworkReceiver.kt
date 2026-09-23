@@ -139,6 +139,10 @@ class NetworkReceiver(context: Context) {
 
     private fun forceLogout(reason: String) {
 
+        // Capture BEFORE the clear below wipes "auth" (including USERNAME).
+        val currentUsername = appCtx.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("USERNAME", null)
+
         // This ran on its own raw clear+restore pattern, missed when
         // BaseActivity/SessionTimeoutGuard/SessionTimeoutWorker were migrated
         // to SessionClearGate. That migration's whole point was closing races
@@ -157,7 +161,7 @@ class NetworkReceiver(context: Context) {
         scope.launch(Dispatchers.Main) {
             Toast.makeText(appCtx, reason, Toast.LENGTH_LONG).show()
 
-            val intent = Intent(appCtx, MainActivity::class.java)
+            val intent = QuickUnlockManager.buildLoginIntent(appCtx, currentUsername)
             intent.flags =
                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 

@@ -5,44 +5,40 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.util.SessionCheck
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Launcher activity — opaque-themed so Android 12+ actually shows its
- * system splash (the app icon on a champagne background); MainActivity
- * can't hold the launcher slot itself because its translucent Auth theme
- * makes the OS skip the splash entirely.
- *
- * Does the session/token check itself (via the shared SessionCheck, also
- * used by MainActivity) and routes straight to Dashboard (or
- * WorkspaceChanged) when a valid session already exists, so a cold start
- * with an active session is a single hop (Splash → Dashboard) instead of
- * bouncing through MainActivity first. Each activity swap is a full
- * window transition, and since the app is landscape-locked while the
- * home screen is portrait, every extra hop re-triggers a rotation
- * transition — that's what read as "starting screen, then home screen,
- * then it loads again." Only falls through to MainActivity (login) when
- * there's no token or the token turned out to be invalid.
+ * Launcher activity — displays the brand splash screen with the center app logo
+ * and the Powered by Scalancer emblem footer at the bottom before routing.
  */
 class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_splash)
         com.example.easy_billing.util.UserEventLogger.logAction("Splash", "opened")
 
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         val token = prefs.getString("TOKEN", null)
 
-        if (token.isNullOrEmpty()) {
-            goToLogin()
-            return
-        }
-
         lifecycleScope.launch {
+            val startTime = System.currentTimeMillis()
+
+            if (token.isNullOrEmpty()) {
+                val elapsed = System.currentTimeMillis() - startTime
+                if (elapsed < 2000) delay(2000 - elapsed)
+                goToLogin()
+                return@launch
+            }
+
             val result = withContext(Dispatchers.IO) {
                 SessionCheck.run(this@SplashActivity, token)
             }
+
+            val elapsed = System.currentTimeMillis() - startTime
+            if (elapsed < 2000) delay(2000 - elapsed)
 
             when (result) {
                 SessionCheck.Result.VALID -> {
@@ -68,7 +64,13 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun goToLogin() {
-        startActivity(Intent(this, MainActivity::class.java))
+        // If any account has already set up Quick Unlock (PIN/fingerprint),
+        // send the user there instead of the full email+password form —
+        // straight to the PIN screen for a single saved account, or an
+        // account picker first when more than one exists on this device.
+        // See QuickUnlockManager.buildLoginIntent and QuickUnlockActivity's
+        // doc comment for the full flow.
+        startActivity(com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(this))
         finish()
     }
 }

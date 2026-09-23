@@ -40,7 +40,6 @@ import java.util.Locale
 class BillDetailsActivity : AppCompatActivity() {
 
     companion object {
-        private const val REQUEST_CODE_SEND_SMS = 101
     }
 
     private lateinit var tvBillInfo: TextView
@@ -136,15 +135,10 @@ class BillDetailsActivity : AppCompatActivity() {
         loadBillDetails()
 
         btnPrint.setOnClickListener { generatePdfAndPrint() }
-        // Send to customer needs an active SIM (SmsManager has no other
-        // way to send) — on a SIM-less device (e.g. a WiFi-only tablet)
-        // it's hidden entirely rather than shown-then-failing, falling
-        // back to the original save-invoice/print-only flow untouched.
-        if (com.example.easy_billing.util.CustomerShareHelper.hasActiveSim(this)) {
-            btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
-        } else {
-            btnSendToCustomer.visibility = View.GONE
-        }
+        // WhatsApp share needs no runtime permission or SIM, so the
+        // button just stays wired — CustomerShareHelper itself shows a
+        // toast if WhatsApp turns out not to be installed.
+        btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
         btnMarkAsPaid.setOnClickListener { confirmMarkAsPaid() }
         btnClose.setOnClickListener { finish() }
         btnCancelBill.setOnClickListener { confirmCancellation() }
@@ -876,36 +870,13 @@ class BillDetailsActivity : AppCompatActivity() {
         }
     }
 
-    // SMS-only — see CustomerShareHelper's doc comment for why WhatsApp
-    // was removed from this flow (no silent-send API without the
-    // separate WhatsApp Business Cloud API).
+    // Opens WhatsApp directly (wa.me deep link) — see CustomerShareHelper's
+    // doc comment for why this needs one extra tap from the cashier
+    // (WhatsApp's own Send button) instead of a fully silent send.
 
-    /** SMS is sent directly via SmsManager (no messaging app opens) — needs SEND_SMS at runtime. */
+    /** Opens WhatsApp with the message ready to send — no runtime permission needed. */
     private fun showSendToCustomerOptions() {
-        if (com.example.easy_billing.util.CustomerShareHelper.hasSmsPermission(this)) {
-            sendToCustomer()
-        } else {
-            androidx.core.app.ActivityCompat.requestPermissions(
-                this,
-                com.example.easy_billing.util.CustomerShareHelper.SMS_PERMISSIONS,
-                REQUEST_CODE_SEND_SMS
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_SEND_SMS) {
-            if (grantResults.isNotEmpty() && grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED }) {
-                sendToCustomer()
-            } else {
-                Toast.makeText(this, getString(R.string.send_to_customer_sms_permission_needed), Toast.LENGTH_LONG).show()
-            }
-        }
+        sendToCustomer()
     }
 
     // Deliberately its own fetch, not reusing generatePdfAndPrint() —

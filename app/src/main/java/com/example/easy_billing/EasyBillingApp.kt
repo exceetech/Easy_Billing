@@ -16,8 +16,41 @@ class EasyBillingApp : Application() {
     // Process-lived scope. Cancelled implicitly when the OS kills the process.
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    // Standard "is the app actually in the background" counter: goes 0→1
+    // only when the FIRST Activity of a fresh foreground entry starts, and
+    // back to 0 only when the LAST one stops — normal navigation between
+    // this app's own Activities never touches 0, so it doesn't falsely
+    // re-lock mid-navigation. See AppLockState's doc comment for why this
+    // exists (Quick Unlock as a real lock screen, not just a re-login aid).
+    private var startedActivityCount = 0
+
+    private fun registerAppLockLifecycleTracking() {
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: android.app.Activity) {
+                startedActivityCount++
+            }
+            override fun onActivityStopped(activity: android.app.Activity) {
+                startedActivityCount--
+                if (startedActivityCount <= 0) {
+                    startedActivityCount = 0
+                    // The whole app just left the foreground — relock so
+                    // the next time any Activity resumes, BaseActivity's
+                    // lock check sends the user to the PIN/fingerprint
+                    // screen first.
+                    com.example.easy_billing.util.AppLockState.lock()
+                }
+            }
+            override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle?) {}
+            override fun onActivityResumed(activity: android.app.Activity) {}
+            override fun onActivityPaused(activity: android.app.Activity) {}
+            override fun onActivitySaveInstanceState(activity: android.app.Activity, outState: android.os.Bundle) {}
+            override fun onActivityDestroyed(activity: android.app.Activity) {}
+        })
+    }
+
     override fun onCreate() {
         super.onCreate()
+        registerAppLockLifecycleTracking()
         RetrofitClient.setContext(this)
         // Phase 0: corrected (internet-anchored) clock + shop-timezone source.
         // Must be initialised before any timestamp is read.

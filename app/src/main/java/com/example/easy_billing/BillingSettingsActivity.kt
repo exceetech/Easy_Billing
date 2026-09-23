@@ -30,10 +30,6 @@ class BillingSettingsActivity : BaseActivity() {
     private lateinit var tvScheme: TextView
     private lateinit var icSchemeChevron: ImageView
 
-    private lateinit var rowRegType: View
-    private lateinit var tvRegType: TextView
-    private lateinit var icRegTypeChevron: ImageView
-
     private lateinit var rowPrinter: View
     private lateinit var tvPrinter: TextView
     private lateinit var icPrinterChevron: ImageView
@@ -44,14 +40,6 @@ class BillingSettingsActivity : BaseActivity() {
 
     private lateinit var cardGstProfile: View
     private lateinit var cardPrinter: View
-    private lateinit var cardRazorpay: View
-
-    // Razorpay (per-shop UPI payment link credentials)
-    private lateinit var tvRazorpayStatus: TextView
-    private lateinit var etRazorpayKeyId: EditText
-    private lateinit var etRazorpayKeySecret: EditText
-    private lateinit var etRazorpayWebhookSecret: EditText
-    private var razorpayConfigured = false
 
     private var isEditMode = false
     private var snapshot: BillingSnapshot? = null
@@ -60,13 +48,12 @@ class BillingSettingsActivity : BaseActivity() {
     // in StoreSettingsActivity for the full reasoning (plan §2.3).
     private var isOnboardingFlow = false
 
-    private val schemeOptions  = listOf("REGULAR", "COMPOSITION")
-    private val regTypeOptions = listOf("Regular", "Composition", "Casual", "SEZ", "Non-Resident")
+    private val schemeOptions  = listOf("Regular", "Composition")
     private val printerOptions = listOf("80mm", "A4")
 
-    private var selectedScheme  = "REGULAR"
-    private var selectedRegType = "Regular"
-    private var selectedPrinter = "80mm"
+    private var selectedScheme          = "Regular"
+    private var currentRegistrationType = "Active"
+    private var selectedPrinter         = "80mm"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,10 +100,6 @@ class BillingSettingsActivity : BaseActivity() {
         tvScheme         = findViewById(R.id.tvScheme)
         icSchemeChevron  = findViewById(R.id.icSchemeChevron)
 
-        rowRegType       = findViewById(R.id.rowRegType)
-        tvRegType        = findViewById(R.id.tvRegType)
-        icRegTypeChevron = findViewById(R.id.icRegTypeChevron)
-
         rowPrinter       = findViewById(R.id.rowPrinter)
         tvPrinter        = findViewById(R.id.tvPrinter)
         icPrinterChevron = findViewById(R.id.icPrinterChevron)
@@ -127,12 +110,6 @@ class BillingSettingsActivity : BaseActivity() {
 
         cardGstProfile = findViewById(R.id.cardGstProfile)
         cardPrinter    = findViewById(R.id.cardPrinter)
-        cardRazorpay   = findViewById(R.id.cardRazorpay)
-
-        tvRazorpayStatus        = findViewById(R.id.tvRazorpayStatus)
-        etRazorpayKeyId         = findViewById(R.id.etRazorpayKeyId)
-        etRazorpayKeySecret     = findViewById(R.id.etRazorpayKeySecret)
-        etRazorpayWebhookSecret = findViewById(R.id.etRazorpayWebhookSecret)
 
         btnEdit.setOnClickListener { toggleEditMode() }
     }
@@ -147,13 +124,6 @@ class BillingSettingsActivity : BaseActivity() {
                 selectedIndex = schemeOptions.indexOf(selectedScheme).coerceAtLeast(0)
             ) { idx -> applyScheme(schemeOptions[idx]) }
         }
-        rowRegType.setOnClickListener {
-            ThemedDropdown.show(
-                anchor = rowRegType,
-                options = regTypeOptions,
-                selectedIndex = regTypeOptions.indexOf(selectedRegType).coerceAtLeast(0)
-            ) { idx -> applyRegType(regTypeOptions[idx]) }
-        }
         rowPrinter.setOnClickListener {
             ThemedDropdown.show(
                 anchor = rowPrinter,
@@ -164,14 +134,7 @@ class BillingSettingsActivity : BaseActivity() {
     }
 
     private fun applyScheme(v: String)  { selectedScheme = v;  tvScheme.text = v }
-    private fun applyRegType(v: String) { selectedRegType = v; tvRegType.text = v }
     private fun applyPrinter(v: String) { selectedPrinter = v; tvPrinter.text = v }
-
-    private fun applyRazorpayStatus(configured: Boolean) {
-        razorpayConfigured = configured
-        tvRazorpayStatus.text = if (configured)
-            getString(R.string.razorpay_connected) else getString(R.string.razorpay_not_connected)
-    }
 
     // ---------------- LOAD ----------------
 
@@ -181,22 +144,64 @@ class BillingSettingsActivity : BaseActivity() {
             val db = AppDatabase.getDatabase(this@BillingSettingsActivity)
             val localGst = db.gstProfileDao().get()
             val billing  = db.billingSettingsDao().get()
+            val storeInfo = db.storeInfoDao().get()
+            val prefs = getSharedPreferences("auth", MODE_PRIVATE)
+            val token = prefs.getString("TOKEN", null)
 
-            withContext(Dispatchers.Main) {
-                etGstin.setText(localGst?.gstin.orEmpty())
-                etLegalName.setText(localGst?.legalName.orEmpty())
-                etTradeName.setText(localGst?.tradeName.orEmpty())
-                etStateCode.setText(localGst?.stateCode.orEmpty())
-                etAddress.setText(localGst?.address.orEmpty())
-                applyScheme(localGst?.gstScheme ?: "REGULAR")
-                applyRegType(localGst?.registrationType ?: "Regular")
-                applyPrinter(billing?.printerLayout ?: "80mm")
-                etRazorpayKeyId.setText(billing?.razorpayKeyId.orEmpty())
-                applyRazorpayStatus(billing?.razorpayConfigured ?: false)
+            val cachedOwnerName = prefs.getString("OWNER_NAME", null)
+            val ownerName = if (!cachedOwnerName.isNullOrBlank()) {
+                cachedOwnerName
+            } else if (token != null) {
+                try {
+                    val prof = RetrofitClient.api.getProfile(token)
+                    prefs.edit().putString("OWNER_NAME", prof.owner_name).apply()
+                    prof.owner_name
+                } catch (e: Exception) {
+                    ""
+                }
+            } else {
+                ""
             }
 
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null) ?: return@launch
+            withContext(Dispatchers.Main) {
+                val gstinToShow = storeInfo?.gstin?.takeIf { it.isNotBlank() } ?: localGst?.gstin.orEmpty()
+                etGstin.setText(gstinToShow)
+
+                val hasValidLocalGst = localGst != null && localGst.gstin.isNotBlank() &&
+                        (storeInfo == null || storeInfo.gstin.isBlank() || storeInfo.gstin == localGst.gstin)
+
+                val defaultLegalName = ownerName.ifBlank { storeInfo?.name.orEmpty() }
+                val defaultTradeName = storeInfo?.name.orEmpty()
+                val defaultAddress = storeInfo?.address.orEmpty()
+
+                val rawLocalScheme = localGst?.gstScheme?.ifBlank { "Regular" } ?: "Regular"
+                val normalizedScheme = if (rawLocalScheme.contains("compos", ignoreCase = true)) "Composition" else "Regular"
+
+                val rawLocalStatus = localGst?.registrationType?.ifBlank { "Active" } ?: "Active"
+                currentRegistrationType = when {
+                    rawLocalStatus.contains("suspend", ignoreCase = true) -> "Suspended"
+                    rawLocalStatus.contains("cancel", ignoreCase = true) -> "Cancelled"
+                    rawLocalStatus.contains("provis", ignoreCase = true) -> "Provisional"
+                    else -> "Active"
+                }
+
+                if (hasValidLocalGst) {
+                    etLegalName.setText(localGst!!.legalName.ifBlank { defaultLegalName })
+                    etTradeName.setText(localGst.tradeName.ifBlank { defaultTradeName })
+                    etStateCode.setText(localGst.stateCode.ifBlank { GstEngine.getStateCode(gstinToShow) })
+                    etAddress.setText(localGst.address.ifBlank { defaultAddress })
+                    applyScheme(normalizedScheme)
+                } else {
+                    etLegalName.setText(defaultLegalName)
+                    etTradeName.setText(defaultTradeName)
+                    etAddress.setText(defaultAddress)
+                    etStateCode.setText(GstEngine.getStateCode(gstinToShow))
+                    applyScheme("Regular")
+                }
+                applyPrinter(billing?.printerLayout ?: "80mm")
+            }
+
+            if (token == null) return@launch
 
             // The GST profile and the printer setting are two unrelated
             // reads, so they get two separate try blocks.
@@ -214,14 +219,30 @@ class BillingSettingsActivity : BaseActivity() {
                 // an empty server row must never overwrite a populated local
                 // profile. With no GSTIN there is nothing worth adopting.
                 if (gstResp.gstin.isNotBlank()) {
+                    val defaultLegalName = ownerName.ifBlank { storeInfo?.name.orEmpty() }
+                    val defaultTradeName = storeInfo?.name.orEmpty()
+                    val defaultAddress = storeInfo?.address.orEmpty()
+
+                    val rawRemoteScheme = gstResp.gst_scheme.ifBlank { "Regular" }
+                    val normRemoteScheme = if (rawRemoteScheme.contains("compos", ignoreCase = true)) "Composition" else "Regular"
+
+                    val rawRemoteStatus = gstResp.registration_type.ifBlank { "Active" }
+                    val normRemoteStatus = when {
+                        rawRemoteStatus.contains("suspend", ignoreCase = true) -> "Suspended"
+                        rawRemoteStatus.contains("cancel", ignoreCase = true) -> "Cancelled"
+                        rawRemoteStatus.contains("provis", ignoreCase = true) -> "Provisional"
+                        else -> "Active"
+                    }
+                    currentRegistrationType = normRemoteStatus
+
                     val updatedGst = GstProfile(
                         gstin = gstResp.gstin,
-                        legalName = gstResp.legal_name,
-                        tradeName = gstResp.trade_name,
-                        gstScheme = gstResp.gst_scheme,
-                        registrationType = gstResp.registration_type,
+                        legalName = gstResp.legal_name.ifBlank { defaultLegalName },
+                        tradeName = gstResp.trade_name.ifBlank { defaultTradeName },
+                        gstScheme = normRemoteScheme,
+                        registrationType = normRemoteStatus,
                         stateCode = gstResp.state_code,
-                        address = gstResp.address ?: "",
+                        address = gstResp.address?.takeIf { it.isNotBlank() } ?: defaultAddress,
                         syncStatus = "synced",
                         updatedAt = appNow()
                     )
@@ -231,10 +252,9 @@ class BillingSettingsActivity : BaseActivity() {
                         etGstin.setText(updatedGst.gstin)
                         etLegalName.setText(updatedGst.legalName)
                         etTradeName.setText(updatedGst.tradeName)
-                        etStateCode.setText(updatedGst.stateCode)
+                        etStateCode.setText(updatedGst.stateCode.ifBlank { GstEngine.getStateCode(updatedGst.gstin) })
                         etAddress.setText(updatedGst.address)
-                        applyScheme(updatedGst.gstScheme)
-                        applyRegType(updatedGst.registrationType)
+                        applyScheme(normRemoteScheme)
                     }
                 }
             } catch (e: Exception) {
@@ -249,16 +269,12 @@ class BillingSettingsActivity : BaseActivity() {
                     defaultGst = 0f,
                     printerLayout = billingResp.printer_layout
                 )).copy(
-                    printerLayout = billingResp.printer_layout,
-                    razorpayKeyId = billingResp.razorpay_key_id,
-                    razorpayConfigured = billingResp.razorpay_configured
+                    printerLayout = billingResp.printer_layout
                 )
                 db.billingSettingsDao().insert(updatedBilling)
 
                 withContext(Dispatchers.Main) {
                     applyPrinter(updatedBilling.printerLayout)
-                    etRazorpayKeyId.setText(updatedBilling.razorpayKeyId.orEmpty())
-                    applyRazorpayStatus(updatedBilling.razorpayConfigured)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -281,9 +297,7 @@ class BillingSettingsActivity : BaseActivity() {
                 stateCode = etStateCode.text.toString(),
                 address = etAddress.text.toString(),
                 scheme = selectedScheme,
-                regType = selectedRegType,
-                printer = selectedPrinter,
-                razorpayKeyId = etRazorpayKeyId.text.toString()
+                printer = selectedPrinter
             )
         } else {
             snapshot?.let { s ->
@@ -292,15 +306,8 @@ class BillingSettingsActivity : BaseActivity() {
                 etStateCode.setText(s.stateCode)
                 etAddress.setText(s.address)
                 applyScheme(s.scheme)
-                applyRegType(s.regType)
                 applyPrinter(s.printer)
-                etRazorpayKeyId.setText(s.razorpayKeyId)
             }
-            // Secret fields are write-only/never round-tripped from the
-            // server — always clear them on discard rather than trying
-            // to restore a value we never had.
-            etRazorpayKeySecret.setText("")
-            etRazorpayWebhookSecret.setText("")
         }
         setEditable(isEditMode)
     }
@@ -324,23 +331,13 @@ class BillingSettingsActivity : BaseActivity() {
             chevron.visibility = if (enable) View.VISIBLE else View.INVISIBLE
         }
         controlRow(rowScheme, icSchemeChevron)
-        controlRow(rowRegType, icRegTypeChevron)
         controlRow(rowPrinter, icPrinterChevron)
-
-        listOf(etRazorpayKeyId, etRazorpayKeySecret, etRazorpayWebhookSecret).forEach {
-            it.isEnabled = enable
-            it.isFocusable = enable
-            it.isFocusableInTouchMode = enable
-            it.isClickable = enable
-            it.isCursorVisible = enable
-        }
 
         // Faded until Edit is tapped — same locked/unlocked feel as
         // InvoiceDesignActivity.setEditable() / DataSecurityActivity.setLocked().
         val alpha = if (enable) 1f else 0.6f
         cardGstProfile.alpha = alpha
         cardPrinter.alpha = alpha
-        cardRazorpay.alpha = alpha
 
         tvEdit.text = if (enable) "Discard" else getString(R.string.edit)
         btnSave.visibility = if (enable) View.VISIBLE else View.GONE
@@ -419,7 +416,7 @@ class BillingSettingsActivity : BaseActivity() {
         com.example.easy_billing.util.UserEventLogger.logAction(
             "BillingSettings",
             "save_clicked: state_typed=${typedState.ifBlank { "-" }}, resolved=${resolvedStateCode.ifBlank { "-" }}, " +
-                "scheme=$selectedScheme, reg_type=$selectedRegType, " +
+                "scheme=$selectedScheme, reg_type=$currentRegistrationType, " +
                 "gstin=${etGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
                 "legal_name=${etLegalName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
                 "trade_name=${etTradeName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
@@ -450,81 +447,57 @@ class BillingSettingsActivity : BaseActivity() {
             // ================= PRINTER =================
             val printer = selectedPrinter.ifEmpty { "80mm" }
 
-            // ================= RAZORPAY =================
-            // Blank means "not edited this time" — the field's real value
-            // (if any) is write-only on the server and never round-tripped
-            // back down, so an untouched blank must not be sent as a clear.
-            val typedKeyId = etRazorpayKeyId.text.toString().trim()
-            val typedKeySecret = etRazorpayKeySecret.text.toString().trim()
-            val typedWebhookSecret = etRazorpayWebhookSecret.text.toString().trim()
-
             val existingBilling = db.billingSettingsDao().get()
             val updatedBilling = (existingBilling ?: BillingSettings(
                 defaultGst = 0f,
                 printerLayout = printer
             )).copy(
-                printerLayout = printer,
-                razorpayKeyId = typedKeyId.ifBlank { existingBilling?.razorpayKeyId }
+                printerLayout = printer
             )
             db.billingSettingsDao().insert(updatedBilling)
 
             // ================= GST =================
             val updatedGst = GstProfile(
-                gstin = etGstin.text.toString(),
-                legalName = etLegalName.text.toString(),
-                tradeName = etTradeName.text.toString(),
+                gstin = etGstin.text.toString().trim(),
+                legalName = etLegalName.text.toString().trim(),
+                tradeName = etTradeName.text.toString().trim(),
                 gstScheme = selectedScheme,
-                registrationType = selectedRegType,
+                registrationType = currentRegistrationType,
                 stateCode = resolvedStateCode,
-                address = etAddress.text.toString(),
-                syncStatus = "pending",
+                address = etAddress.text.toString().trim(),
+                syncStatus = if (etGstin.text.toString().trim().isNotBlank()) "pending" else "synced",
                 updatedAt = appNow()
             )
             db.gstProfileDao().insert(updatedGst)
 
             // ================= BACKEND SYNC =================
             if (token != null) {
-                runCatching {
-                    RetrofitClient.api.upsertGstProfile(
-                        token,
-                        GstProfileRequest(
-                            gstin = updatedGst.gstin,
-                            legal_name = updatedGst.legalName,
-                            trade_name = updatedGst.tradeName,
-                            gst_scheme = updatedGst.gstScheme,
-                            registration_type = updatedGst.registrationType,
-                            state_code = updatedGst.stateCode,
-                            address = updatedGst.address
+                if (updatedGst.gstin.isNotBlank()) {
+                    runCatching {
+                        RetrofitClient.api.upsertGstProfile(
+                            token,
+                            GstProfileRequest(
+                                gstin = updatedGst.gstin,
+                                legal_name = updatedGst.legalName,
+                                trade_name = updatedGst.tradeName,
+                                gst_scheme = updatedGst.gstScheme,
+                                registration_type = updatedGst.registrationType,
+                                state_code = updatedGst.stateCode,
+                                address = updatedGst.address
+                            )
                         )
-                    )
-                    db.gstProfileDao().updateSyncStatus("synced")
+                        db.gstProfileDao().updateSyncStatus("synced")
+                    }
                 }
 
                 runCatching {
-                    val resp = RetrofitClient.api.updateBillingSettings(
+                    RetrofitClient.api.updateBillingSettings(
                         token,
                         BillingSettingsUpdateRequest(
                             default_gst = 0f,
-                            printer_layout = printer,
-                            razorpay_key_id = typedKeyId.ifBlank { null },
-                            razorpay_key_secret = typedKeySecret.ifBlank { null },
-                            razorpay_webhook_secret = typedWebhookSecret.ifBlank { null }
+                            printer_layout = printer
                         )
                     )
-                    // Reflect the server's authoritative connected-state back
-                    // into Room, and never keep a typed secret in memory
-                    // longer than the request that carried it.
-                    db.billingSettingsDao().insert(
-                        updatedBilling.copy(
-                            razorpayKeyId = resp.razorpay_key_id,
-                            razorpayConfigured = resp.razorpay_configured
-                        )
-                    )
-                    withContext(Dispatchers.Main) {
-                        etRazorpayKeySecret.setText("")
-                        etRazorpayWebhookSecret.setText("")
-                        applyRazorpayStatus(resp.razorpay_configured)
-                    }
                 }
             }
 
@@ -561,8 +534,6 @@ class BillingSettingsActivity : BaseActivity() {
         val stateCode: String,
         val address: String,
         val scheme: String,
-        val regType: String,
-        val printer: String,
-        val razorpayKeyId: String = ""
+        val printer: String
     )
 }

@@ -31,6 +31,11 @@ class DataSecurityActivity : BaseActivity() {
     private lateinit var tvUnlock: TextView
     private lateinit var icUnlock: ImageView
 
+    private lateinit var btnQuickUnlock: View
+    private lateinit var tvQuickUnlockSub: TextView
+    private lateinit var chipQuickUnlockStatus: TextView
+    private lateinit var icQuickUnlock: ImageView
+
     private var isEditMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +60,13 @@ class DataSecurityActivity : BaseActivity() {
         tvUnlock  = findViewById(R.id.tvUnlock)
         icUnlock  = findViewById(R.id.icUnlock)
 
+        btnQuickUnlock = findViewById(R.id.btnQuickUnlock)
+        tvQuickUnlockSub = findViewById(R.id.tvQuickUnlockSub)
+        chipQuickUnlockStatus = findViewById(R.id.chipQuickUnlockStatus)
+        icQuickUnlock = findViewById(R.id.icQuickUnlock)
+
         setLocked(true)
+        refreshQuickUnlockRow()
 
         btnUnlock.setOnClickListener { toggleLock() }
 
@@ -64,6 +75,11 @@ class DataSecurityActivity : BaseActivity() {
             if (!isEditMode) return@setOnClickListener
             com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "change_password_clicked")
             showPasswordVerificationDialog { showChangePinDialog() }
+        }
+        btnQuickUnlock.setOnClickListener {
+            if (!isEditMode) return@setOnClickListener
+            com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "quick_unlock_clicked")
+            handleQuickUnlockClick()
         }
         btnClearBills.setOnClickListener {
             if (!isEditMode) return@setOnClickListener
@@ -100,7 +116,7 @@ class DataSecurityActivity : BaseActivity() {
 
     /** locked = actions disabled (default); unlocked = actions tappable. */
     private fun setLocked(locked: Boolean) {
-        val rows = listOf(btnChangePassword, btnClearBills, btnFactoryReset, btnSendDiagnosticReport)
+        val rows = listOf(btnChangePassword, btnQuickUnlock, btnClearBills, btnFactoryReset, btnSendDiagnosticReport)
         rows.forEach {
             it.isEnabled = !locked
             it.isClickable = !locked
@@ -109,7 +125,7 @@ class DataSecurityActivity : BaseActivity() {
 
         // Trailing glyph: lock when locked, chevron when unlocked.
         val trailing = if (locked) R.drawable.ic_si_lock else R.drawable.ic_chevron_right
-        listOf(icChangePassword, icClearBills, icFactoryReset, icSendDiagnosticReport).forEach {
+        listOf(icChangePassword, icQuickUnlock, icClearBills, icFactoryReset, icSendDiagnosticReport).forEach {
             it.setImageResource(trailing)
         }
 
@@ -336,13 +352,30 @@ class DataSecurityActivity : BaseActivity() {
                         Toast.LENGTH_LONG
                     ).show()
 
-                    // logout user
+                    // If Quick Unlock is set up for this account, refresh its
+                    // saved credentials with the new password NOW, while we
+                    // still have it in hand — otherwise the account's PIN
+                    // would silently stop working (replay would use the old,
+                    // now-invalid password) until the user next typed the
+                    // new one into the full login form. This keeps "just use
+                    // your PIN" true even right after a password change.
+                    val currentUsername = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("USERNAME", null)
+                    if (currentUsername != null &&
+                        com.example.easy_billing.util.QuickUnlockManager.isConfigured(this@DataSecurityActivity, currentUsername)
+                    ) {
+                        com.example.easy_billing.util.QuickUnlockManager
+                            .updateCredentials(this@DataSecurityActivity, currentUsername, newPin)
+                    }
+
+                    // logout user (still required — the session token itself
+                    // is invalidated server-side by a password change)
                     getSharedPreferences("auth", MODE_PRIVATE)
                         .edit {
                             remove("TOKEN")
                         }
 
-                    val intent = Intent(this@DataSecurityActivity, MainActivity::class.java)
+                    val intent = com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(this@DataSecurityActivity, currentUsername)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
 
@@ -371,7 +404,7 @@ class DataSecurityActivity : BaseActivity() {
         dialog.show()
     }
 
-    private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
+    private fun showPasswordVerificationDialog(onVerified: (String) -> Unit) {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
 
@@ -410,13 +443,148 @@ class DataSecurityActivity : BaseActivity() {
 
             verifyPassword(password) {
                 dialog.dismiss()
-                onVerified()
+                onVerified(password)
             }
         }
 
         btnCancel.setOnClickListener {
             dialog.dismiss()
         }
+
+        dialog.show()
+    }
+
+    // ================= QUICK UNLOCK SETTINGS =================
+
+    private fun currentAccountUsername(): String? =
+        getSharedPreferences("auth", MODE_PRIVATE).getString("USERNAME", null)
+
+    private fun refreshQuickUnlockRow() {
+        val username = currentAccountUsername()
+        val configured = username != null &&
+            com.example.easy_billing.util.QuickUnlockManager.isConfigured(this, username)
+
+        if (configured) {
+            tvQuickUnlockSub.text = getString(R.string.quick_unlock_change_sub)
+            chipQuickUnlockStatus.text = getString(R.string.quick_unlock_status_on)
+            chipQuickUnlockStatus.setBackgroundResource(R.drawable.bg_chip_low)
+            chipQuickUnlockStatus.setTextColor(android.graphics.Color.parseColor("#3B6D11"))
+        } else {
+            tvQuickUnlockSub.text = getString(R.string.quick_unlock_enable_sub)
+            chipQuickUnlockStatus.text = getString(R.string.quick_unlock_status_off)
+            chipQuickUnlockStatus.setBackgroundResource(R.drawable.bg_chip_med)
+            chipQuickUnlockStatus.setTextColor(android.graphics.Color.parseColor("#854F0B"))
+        }
+    }
+
+    private fun handleQuickUnlockClick() {
+        val username = currentAccountUsername() ?: return
+        val configured = com.example.easy_billing.util.QuickUnlockManager.isConfigured(this, username)
+
+        if (!configured) {
+            // ENABLE: need the plaintext password to store for replay —
+            // reuse the same password-verification dialog, now handed the
+            // verified password instead of discarding it.
+            showPasswordVerificationDialog { password ->
+                launchQuickUnlockSetup(username, password, isChange = false)
+            }
+            return
+        }
+
+        // Already configured: offer either "change PIN" or "turn off".
+        // Both are security-relevant, so — same as every other gated action
+        // on this screen (change password, clear bills, factory reset) —
+        // they each require a fresh password re-check, even though the
+        // screen itself is already unlocked. Being unlocked only proves it
+        // was really the account owner a moment ago; it shouldn't be enough
+        // on its own to disable a security control or swap its PIN.
+        showManageQuickUnlockDialog(
+            username = username,
+            onChangePin = {
+                showPasswordVerificationDialog {
+                    // CHANGE PIN: password re-verified above; reuse the
+                    // already-stored replay credentials rather than the
+                    // just-typed password, since QuickUnlockManager's
+                    // saved copy is what a PIN replay actually uses.
+                    val creds = com.example.easy_billing.util.QuickUnlockManager.getCredentials(this, username)
+                    if (creds != null) {
+                        launchQuickUnlockSetup(creds.first, creds.second, isChange = true)
+                    } else {
+                        launchQuickUnlockSetup(username, it, isChange = true)
+                    }
+                }
+            },
+            onTurnOff = {
+                showPasswordVerificationDialog {
+                    confirmDisableQuickUnlock(username)
+                }
+            }
+        )
+    }
+
+    /** Themed replacement for a plain AlertDialog#setItems picker — same
+     *  champagne card shell as the rest of this screen's dialogs. */
+    private fun showManageQuickUnlockDialog(
+        username: String,
+        onChangePin: () -> Unit,
+        onTurnOff: () -> Unit
+    ) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_manage_quick_unlock, null)
+
+        val tvAccount = dialogView.findViewById<TextView>(R.id.tvManageQuickUnlockAccount)
+        val btnChangePin = dialogView.findViewById<View>(R.id.btnQuickUnlockChangeOption)
+        val btnTurnOff = dialogView.findViewById<View>(R.id.btnQuickUnlockOffOption)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+
+        tvAccount.text = getString(R.string.quick_unlock_signed_in_as, username)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnChangePin.setOnClickListener {
+            dialog.dismiss()
+            onChangePin()
+        }
+        btnTurnOff.setOnClickListener {
+            dialog.dismiss()
+            onTurnOff()
+        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
+    }
+
+    private fun launchQuickUnlockSetup(username: String, password: String, isChange: Boolean) {
+        val intent = Intent(this, QuickUnlockActivity::class.java).apply {
+            putExtra(QuickUnlockActivity.EXTRA_MODE, QuickUnlockActivity.MODE_SETUP)
+            putExtra(QuickUnlockActivity.EXTRA_USERNAME, username)
+            putExtra(QuickUnlockActivity.EXTRA_PASSWORD, password)
+            putExtra(QuickUnlockActivity.EXTRA_NEXT_CLASS, DataSecurityActivity::class.java.name)
+            putExtra(QuickUnlockActivity.EXTRA_IS_CHANGE, isChange)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun confirmDisableQuickUnlock(username: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_turn_off_quick_unlock, null)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmTurnOff)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancelTurnOff)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnConfirm.setOnClickListener {
+            com.example.easy_billing.util.QuickUnlockManager.clear(this, username)
+            dialog.dismiss()
+            Toast.makeText(this, R.string.quick_unlock_disabled_toast, Toast.LENGTH_SHORT).show()
+            refreshQuickUnlockRow()
+        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }

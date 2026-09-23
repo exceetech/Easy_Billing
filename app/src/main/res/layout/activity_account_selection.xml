@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Account picker — shown instead of Quick Unlock's PIN screen when more
+    than one account has completed Quick Unlock setup on this device.
+    Picking an account routes straight to ITS PIN/fingerprint screen
+    (AccountSelectionActivity never itself asks for a PIN).
+
+    Champagne redesign: same teal icon-tile + pulsing-ring treatment as
+    activity_quick_unlock.xml (bg_circle_soft_teal + ring_pulse_outline,
+    animated in AccountSelectionActivity), a bold + serif-italic split
+    title, and pill-style footer actions instead of plain text links.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
+
+    <!-- Icon tile + two ambient pulsing rings, matching Quick Unlock. -->
+    <View
+        android:id="@+id/ringPulse1"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/ring_pulse_outline"
+        app:layout_constraintTop_toTopOf="@id/circleUsersIcon"
+        app:layout_constraintBottom_toBottomOf="@id/circleUsersIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <View
+        android:id="@+id/ringPulse2"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/ring_pulse_outline"
+        app:layout_constraintTop_toTopOf="@id/ringPulse1"
+        app:layout_constraintStart_toStartOf="@id/ringPulse1"
+        app:layout_constraintEnd_toEndOf="@id/ringPulse1"
+        app:layout_constraintBottom_toBottomOf="@id/ringPulse1"/>
+
+    <FrameLayout
+        android:id="@+id/circleUsersIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_circle_soft_teal"
+        android:layout_marginTop="56dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_circle_user"
+            app:tint="#0F6E56"
+            android:contentDescription="@null"/>
+    </FrameLayout>
+
+    <!-- Bold + serif-italic split title, matching Quick Unlock/dialogs. -->
+    <LinearLayout
+        android:id="@+id/titleRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/circleUsersIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Who's"
+            android:textSize="21sp"
+            android:textColor="#1A1A18"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="signing in?"
+            android:textSize="21sp"
+            android:textColor="#0F6E56"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAccountsSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Choose an account to continue"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/titleRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ScrollView
+        android:id="@+id/accountsScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/tvAccountsSubtitle"
+        app:layout_constraintBottom_toTopOf="@id/accountsFooter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/accountsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp"/>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/accountsFooter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="14dp">
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#EAE2D1"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:text="OR"
+                android:textAllCaps="true"
+                android:textSize="9.5sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:textColor="#B8AF9C"/>
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#EAE2D1"/>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tvLoginWithPassword"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginBottom="9dp"
+            android:text="Log in with email &amp; password"
+            android:textAllCaps="false"
+            android:textColor="#0F6E56"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            app:backgroundTint="@android:color/white"
+            app:strokeColor="#0F6E56"
+            app:strokeWidth="1.3dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_lucide_lock"
+            app:iconTint="#0F6E56"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp"
+            app:rippleColor="#CFEBE1"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tvCreateAccount"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:text="Create a new account"
+            android:textAllCaps="false"
+            android:textColor="#8A8272"
+            android:textStyle="bold"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:background="@android:color/transparent"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_lucide_plus"
+            app:iconTint="#8A8272"
+            app:iconSize="13dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp"
+            app:rippleColor="#00000000"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -488,14 +488,25 @@
     <string name="invoice_add_more_items">+  Add more items to cart</string>
     <string name="invoice_b2c_hint_default">B2C — quick sale (customer details optional)</string>
     <string name="invoice_bill_summary_header">BILL SUMMARY</string>
+    <string name="invoice_bill_summary_title">Bill summary</string>
+    <string name="invoice_bill_summary_step_subtitle">Step 5 · what’s owed &amp; how they’re paying</string>
+    <string name="invoice_payment_method_label">PAYMENT METHOD</string>
     <string name="invoice_cgst_label">CGST</string>
     <string name="invoice_charges_header">CHARGES</string>
     <string name="invoice_composition_note_full">Composition Scheme — tax is included in the selling price. No CGST / SGST / IGST is charged separately.</string>
     <string name="invoice_customer_details_header">CUSTOMER DETAILS</string>
+    <string name="invoice_contact_subheader">CONTACT</string>
+    <string name="invoice_business_gst_subheader">BUSINESS &amp; GST</string>
+    <string name="invoice_business_gst_badge">B2B only</string>
+    <string name="invoice_customer_title">Customer details</string>
+    <string name="invoice_customer_step_subtitle">Step 1 · who this bill is for</string>
     <string name="invoice_ecommerce_examples">Amazon, Flipkart, etc.</string>
-    <string name="invoice_generate_invoice">Generate invoice</string>
+    <string name="invoice_generate_invoice">Save Invoice</string>
     <string name="invoice_grand_total_label">GRAND TOTAL</string>
     <string name="invoice_gst_options_header">GST OPTIONS</string>
+    <string name="invoice_gst_options_title">GST options</string>
+    <string name="invoice_gst_options_step_subtitle">Optional · reverse charge, GSTR type, e-commerce</string>
+    <string name="invoice_ecommerce_details_header">E-COMMERCE DETAILS</string>
     <string name="invoice_gstr_invoice_type_label">GSTR invoice type</string>
     <string name="invoice_hint_business_name">Business name</string>
     <string name="invoice_hint_customer_name">Customer name</string>
@@ -511,6 +522,8 @@
     <string name="invoice_incl_all_taxes">incl. all taxes</string>
     <string name="invoice_label_state_of_customer">State of customer</string>
     <string name="invoice_line_items_header">LINE ITEMS</string>
+    <string name="invoice_line_items_title">Line items</string>
+    <string name="invoice_line_items_step_subtitle">Step 2 · what you\'re billing for</string>
     <string name="invoice_nature_of_supply_label">Nature of supply</string>
     <string name="invoice_net_amount_header">NET AMOUNT</string>
     <string name="invoice_normal_gst_scheme">Normal GST scheme</string>
@@ -525,6 +538,8 @@
     <string name="invoice_sgst_label">SGST</string>
     <string name="invoice_sold_via_ecommerce">Sold via e-commerce</string>
     <string name="invoice_tax_header">TAX</string>
+    <string name="invoice_tax_title">Tax</string>
+    <string name="invoice_tax_step_subtitle">Step 3 · GST on this sale</string>
     <string name="invoice_taxable_label">TAXABLE</string>
     <string name="invoice_total_tax_header">TOTAL TAX</string>
     <string name="invoice_type_label">Invoice type</string>
@@ -763,6 +778,18 @@
     <string name="change_login_password">Change Login Password</string>
     <string name="clear_all_bills">Clear All Bills</string>
     <string name="danger_zone_section">DANGER ZONE</string>
+    <string name="ds_card_title_security">Security</string>
+    <string name="security_card_subtitle">Password &amp; quick unlock</string>
+    <string name="security_card_count">2 actions</string>
+    <string name="ds_card_title_data">Data</string>
+    <string name="data_card_subtitle">Manage stored bills</string>
+    <string name="data_card_count">1 action</string>
+    <string name="ds_card_title_diagnose">Diagnose</string>
+    <string name="diagnose_card_subtitle">Send a diagnostic report</string>
+    <string name="diagnose_card_count">1 action</string>
+    <string name="ds_card_title_danger_zone">Danger zone</string>
+    <string name="danger_card_subtitle">Irreversible actions</string>
+    <string name="danger_card_count">1 action</string>
     <string name="data_section">DATA</string>
     <string name="diagnose_section">DIAGNOSE</string>
     <string name="data_word">Data</string>
@@ -897,8 +924,8 @@
     <string name="diagnostic_report_sent">Report sent to support</string>
     <string name="diagnostic_report_failed">Couldn\'t send the report — check your connection and try again</string>
     <string name="diagnostic_report_no_session">Please log in again before sending a report</string>
-    <string name="send_diagnostic_report">Send diagnostic report to support</string>
-    <string name="send_diagnostic_report_desc">Uploads your recent activity to help support diagnose an issue you\'ve reported</string>
+    <string name="send_diagnostic_report">Send diagnostic report</string>
+    <string name="send_diagnostic_report_desc">Uploads your recent activity to help support diagnose an issue</string>
     <string name="not_logged_in_2">Not logged in.</string>
     <string name="password_changed_login_again">Password changed. Please login again.</string>
     <string name="password_min_length">Password must be at least 6 characters</string>
@@ -1136,7 +1163,7 @@
     <string name="profile_label_legal_name">Legal name</string>
     <string name="profile_label_owner">Owner / Legal name</string>
     <string name="profile_label_phone">Contact</string>
-    <string name="profile_label_scheme">GST scheme</string>
+    <string name="profile_label_scheme">Gst scheme</string>
     <string name="profile_label_state">State code</string>
     <string name="profile_label_store_name">Store name</string>
     <string name="profile_label_trade_name">Trade name</string>
@@ -1629,7 +1656,7 @@
     <!-- dialog_line_discount -->
     <string name="invoice_apply_discount">Apply discount</string>
     <string name="invoice_discount_mode_amount">Amount ₹</string>
-    <string name="invoice_discount_mode_percent">Percent %%</string>
+    <string name="invoice_discount_mode_percent" formatted="false">Percent %</string>
     <string name="invoice_line_discount_header">LINE DISCOUNT</string>
     <string name="invoice_new_price_label">NEW PRICE</string>
     <string name="invoice_you_save_label">YOU SAVE</string>
@@ -1673,7 +1700,7 @@
     <string name="invoice_pdf_walk_in_customer">Walk-in customer</string>
 
     <!-- ── Send to customer (UPI payment link) ─────────────────────── -->
-    <string name="send_to_customer_title">Send to customer</string>
+    <string name="send_to_customer_title">Send to Customer</string>
     <string name="send_to_customer_dialog_title_part1">Choose</string>
     <string name="send_to_customer_dialog_title_part2">a channel</string>
     <string name="send_to_customer_whatsapp_option">WhatsApp</string>
@@ -2346,5 +2373,135 @@
 
     <!-- Supplier -->
     <string name="dialog_add_supplier_title_word">supplier</string>
+
+    <!-- Recovered strings (see recovery note): these were uncommitted local
+         string resources lost when strings.xml was reverted to the last git
+         commit while undoing an unrelated invoice-wizard feature. Values
+         below were reconstructed from layout context, style names, and
+         (for the invoice/GSTIN group) the still-intact translated strings
+         in values-hi/values-ta/values-te/values-ml/values-kn. Please review
+         wording. -->
+
+    <!-- Store Information - address fields (activity_store_settings.xml) -->
+    <string name="pincode_label">Pincode</string>
+    <string name="pincode_hint">6-digit pincode (e.g. 673602)</string>
+    <string name="locality_area_label">Area / Locality</string>
+    <string name="locality_area_hint">e.g. Mukkam</string>
+    <string name="city_district_label">City / District</string>
+    <string name="city_district_hint">e.g. Balussery / Kozhikode</string>
+    <string name="state_label">State</string>
+    <string name="state_hint">e.g. Kerala</string>
+    <string name="street_building_label">Shop No., Building, Street</string>
+    <string name="street_building_hint">e.g. Main Road, near Bus Stand</string>
+    <string name="address_preview_label">Address on invoice</string>
+    <string name="finding_location_hint">Finding location…</string>
+    <string name="verifying_gstin_hint">Verifying GSTIN…</string>
+    <string name="gstin_verified_badge">Verified</string>
+
+    <!-- Billing Settings - legal / trade name hints (activity_billing_settings.xml) -->
+    <string name="profile_hint_legal_name">Enter business or owner\'s name</string>
+    <string name="profile_hint_trade_name">Enter shop or brand name</string>
+
+    <!-- Quick Unlock (activity_quick_unlock.xml, activity_data_security.xml) -->
+    <string name="quick_unlock_step_1">STEP 1 OF 2</string>
+    <string name="select_another_account">Select another account</string>
+    <string name="use_password_instead">Use password instead</string>
+    <string name="quick_unlock_settings_title">Quick Unlock</string>
+    <string name="quick_unlock_enable_sub">Unlock with a PIN or fingerprint instead of your password</string>
+    <string name="quick_unlock_status_off">Off</string>
+
+    <!-- Payment Setup - UPI / Razorpay (activity_payment_setup.xml, activity_settings.xml) -->
+    <string name="payment_setup_eyebrow">PAYMENTS</string>
+    <string name="payment_setup_title_bold">UPI</string>
+    <string name="payment_setup_title_italic">payments</string>
+    <string name="payment_setup_explainer">Connect Razorpay to accept UPI and card payments directly on your invoices.</string>
+    <string name="payment_setup_card_title">Payment credentials</string>
+    <string name="payment_setup_card_sub">Razorpay API keys</string>
+    <string name="razorpay_status_connected">Connected</string>
+    <string name="razorpay_status_not_connected">Not connected</string>
+    <string name="payment_setup_save">Save payment setup</string>
+    <string name="payment_setup_row_title">UPI Payments</string>
+    <string name="payment_setup_row_sub">Razorpay setup</string>
+
+    <!-- Dashboard - cart action row (activity_dashboard.xml) -->
+    <string name="dashboard_items_in_bill">Items in this bill</string>
+
+    <!-- Invoice screen - GST options, payment helpers, save confirmation
+         (values reconstructed from values-hi/ta/te/ml/kn translations) -->
+    <string name="invoice_gst_options_subtitle">Keep this off for regular shop sales</string>
+    <string name="invoice_gst_options_status_default">Normal bill ✓</string>
+    <string name="invoice_gst_options_status_rcm">RCM active</string>
+    <string name="invoice_gst_options_status_ecom">Online order</string>
+    <string name="invoice_payment_helper_cash">💵 Customer will pay cash at the counter</string>
+    <string name="invoice_payment_helper_upi">📱 A QR code will appear on screen for the customer to scan and pay</string>
+    <string name="invoice_payment_helper_card">💳 Customer will pay on the card machine</string>
+    <string name="invoice_payment_helper_credit">📖 This bill will be added to the customer\'s credit account</string>
+    <string name="invoice_sub_cash">Save bill and collect cash</string>
+    <string name="invoice_sub_upi">Save bill and show QR code</string>
+    <string name="invoice_sub_card">Save bill (card payment)</string>
+    <string name="invoice_sub_credit">Select customer and add to credit account</string>
+    <string name="invoice_sub_ready_next">Ready for next customer</string>
+    <string name="invoice_bill_saved_success">✓ Bill saved successfully!</string>
+    <string name="invoice_share_whatsapp">Send to Customer</string>
+    <string name="invoice_btn_start_next_bill">Start next bill →</string>
+
+    <!-- Recovered strings (round 2): more uncommitted dialog strings lost
+         when strings.xml was reverted to the last git commit. Reconstructed
+         from the layout context in dialog_clear_cart.xml, dialog_confirm_delete.xml,
+         dialog_enable_biometric.xml, dialog_manage_quick_unlock.xml,
+         dialog_turn_off_quick_unlock.xml -->
+    <string name="dialog_clear_cart_eyebrow">CLEAR CART</string>
+    <string name="dialog_clear_cart_title">Clear this bill?</string>
+    <string name="dialog_clear_cart_message">All items added to this bill will be removed. This cannot be undone.</string>
+    <string name="dialog_clear_cart_confirm">Clear Bill</string>
+    <string name="dialog_clear_cart_cancel">Keep Bill</string>
+    <string name="dialog_cant_remove_stock_label">IN STOCK</string>
+    <string name="dialog_cant_remove_tip">Reduce the stock count first, then you can remove this item.</string>
+    <string name="biometric_dialog_title_part1">Also use</string>
+    <string name="biometric_dialog_title_part2">fingerprint?</string>
+    <string name="biometric_dialog_message">Unlock even faster next time with your fingerprint instead of typing your PIN.</string>
+    <string name="biometric_dialog_enable">Enable Fingerprint</string>
+    <string name="biometric_dialog_decline">Just Use PIN</string>
+    <string name="manage_word">Manage</string>
+    <string name="quick_unlock_change_pin_option">Change PIN</string>
+    <string name="quick_unlock_change_pin_option_sub">Set a new PIN for Quick Unlock</string>
+    <string name="quick_unlock_turn_off_option">Turn Off Quick Unlock</string>
+    <string name="quick_unlock_turn_off_option_sub">You\'ll need your password to sign in</string>
+    <string name="quick_unlock_turn_off_title_part1">Turn off</string>
+    <string name="quick_unlock_turn_off_title_part2">Quick Unlock?</string>
+    <string name="quick_unlock_disable_confirm_message">You\'ll need to type your full password to sign in from now on.</string>
+
+    <!-- Recovered strings (round 3) -->
+    <string name="quick_unlock_turn_off">Turn Off</string>
+    <string name="invoice_business_customer_switch">Business customer (needs GST bill)</string>
+    <string name="invoice_business_customer_title">Business Customer</string>
+    <string name="invoice_business_customer_desc">Needs a GST bill</string>
+    <string name="invoice_add_extra_discount_link">+  Add extra discount on the whole bill</string>
+    <string name="invoice_complete_sale">Complete Sale</string>
+    <string name="invoice_complete_sale_subtitle">Save the bill and generate the invoice</string>
+
+    <!-- Recovered strings (round 4) -->
+    <string name="dialog_quantity_pad_eyebrow_set">EDIT QUANTITY</string>
+    <string name="dialog_quantity_pad_update_button">Update</string>
+
+    <!-- Recovered strings (round 5) -->
+    <string name="dialog_cant_remove_eyebrow">CAN\'T REMOVE</string>
+    <string name="dialog_cant_remove_title_part1">Still in</string>
+    <string name="dialog_cant_remove_title_part2">stock</string>
+    <string name="dialog_cant_remove_body">This item still has stock left, so it can\'t be removed. Reduce the stock to zero first if you want to remove it.</string>
+    <string name="dialog_cant_remove_got_it">Got It</string>
+    <string name="dialog_confirm_remove_eyebrow">REMOVE ITEM</string>
+    <string name="dialog_confirm_remove_title_part1">Remove this</string>
+    <string name="dialog_confirm_remove_title_part2">product?</string>
+    <string name="dialog_confirm_remove_body">This product will no longer show up when billing. You can add it back again later.</string>
+    <string name="dialog_confirm_remove_yes">Remove</string>
+    <string name="dialog_confirm_remove_keep">Keep It</string>
+    <string name="payment_setup_saved_toast">Payment setup saved</string>
+    <string name="payment_setup_save_failed_toast">Couldn\'t save payment setup. Try again.</string>
+    <string name="quick_unlock_step_2">STEP 2 OF 2</string>
+    <string name="quick_unlock_change_sub">Change your PIN or turn Quick Unlock off</string>
+    <string name="quick_unlock_status_on">On</string>
+    <string name="quick_unlock_signed_in_as">Signed in as %1$s</string>
+    <string name="quick_unlock_disabled_toast">Quick Unlock turned off</string>
 
 </resources>

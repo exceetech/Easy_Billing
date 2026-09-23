@@ -409,26 +409,19 @@
                     android:gravity="center_horizontal"
                     android:layout_marginTop="12dp">
 
-                    <FrameLayout
+                    <ImageView
                         android:layout_width="36dp"
                         android:layout_height="36dp"
-                        android:background="@drawable/bg_powered_by_seal">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="19dp"
-                            android:layout_gravity="center"
-                            android:adjustViewBounds="true"
-                            android:src="@drawable/ic_scalancer_emblem"
-                            android:contentDescription="@string/powered_by_scalancer"/>
-                    </FrameLayout>
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/ic_scalancer_emblem"
+                        android:contentDescription="@string/powered_by_scalancer"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:text="@string/powered_by_label"
-                        android:textColor="#B4A98F"
+                        android:textColor="#5A7A85"
                         android:textSize="7sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_medium"/>

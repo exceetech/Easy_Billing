@@ -38,7 +38,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private lateinit var chipPhone: View
     private lateinit var tvPhoneChip: TextView
     private lateinit var tvGstinValue: TextView
-    private lateinit var tvRegTypeBadge: TextView
     private var currentGstin: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,7 +53,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         chipPhone = view.findViewById(R.id.chipPhone)
         tvPhoneChip = view.findViewById(R.id.tvPhoneChip)
         tvGstinValue = view.findViewById(R.id.tvGstinValue)
-        tvRegTypeBadge = view.findViewById(R.id.tvRegTypeBadge)
 
         rows = listOf(
             R.id.rowStoreName,
@@ -125,7 +123,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
                             rows[R.id.rowLegalName]?.value?.text = gst?.legalName.orDash()
                             rows[R.id.rowTradeName]?.value?.text = gst?.tradeName.orDash()
-                            rows[R.id.rowScheme]?.value?.text    = gst?.gstScheme.orDash()
+                            rows[R.id.rowScheme]?.value?.text    = gst?.gstScheme.orDash().toSentenceCase()
                             rows[R.id.rowState]?.value?.text     = gst?.stateCode.orDash()
 
                             // Hero
@@ -150,8 +148,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                             tvGstinValue.text = currentGstin.ifBlank { "—" }
                             chipGst.visibility =
                                 if (currentGstin.isNotBlank()) View.VISIBLE else View.GONE
-                            tvRegTypeBadge.text =
-                                gst?.registrationType?.takeIf { it.isNotBlank() } ?: "—"
                         }
                 }
             }
@@ -196,15 +192,27 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun performSignOut() {
-        requireContext().getSharedPreferences("auth", Context.MODE_PRIVATE)
+        val ctx = requireContext()
+        val currentUsername = ctx.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("USERNAME", null)
+        ctx.getSharedPreferences("auth", Context.MODE_PRIVATE)
             .edit().remove("TOKEN").apply()
-        val intent = Intent(requireContext(), MainActivity::class.java)
+        // Route the same way DashboardActivity's Sign Out does: straight to
+        // the account's PIN screen (or an account picker on a multi-account
+        // device) when Quick Unlock is set up, never a bare full login —
+        // this fragment is a second, independent Sign Out entry point that
+        // must behave identically, not just Dashboard's own button.
+        val intent = com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(ctx, currentUsername)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }
 
     private fun String?.orDash(): String =
         if (this.isNullOrBlank()) "—" else this
+
+    private fun String.toSentenceCase(): String =
+        if (this == "—" || this.isBlank()) this
+        else this.lowercase().replaceFirstChar { it.uppercase() }
 
     private data class RowViews(val label: TextView, val value: TextView)
 

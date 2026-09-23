@@ -39,8 +39,13 @@ object SessionClearGate {
             if (prefs.getString("TOKEN", null) == null) return false
 
             val deviceId = prefs.getString("DEVICE_ID", null)
+            val lastShopId = prefs.getInt("SHOP_ID", -1).takeIf { it != -1 }
+                ?: prefs.getInt("LAST_SHOP_ID", -1)
             prefs.edit().clear().apply()
             deviceId?.let { prefs.edit().putString("DEVICE_ID", it).apply() }
+            if (lastShopId != -1) {
+                prefs.edit().putInt("LAST_SHOP_ID", lastShopId).apply()
+            }
             context.getSharedPreferences("sync_cursors", Context.MODE_PRIVATE)
                 .edit().clear().apply()
 

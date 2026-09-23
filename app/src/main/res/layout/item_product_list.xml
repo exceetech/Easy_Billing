@@ -24,6 +24,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <!-- Accent stripe hidden -->
+        <View
+            android:id="@+id/viewListInBillStripe"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -90,6 +97,24 @@
                 android:orientation="vertical"
                 android:gravity="end"
                 android:layout_marginStart="10dp">
+
+                <TextView
+                    android:id="@+id/tvListInBillBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:background="@drawable/bg_in_bill_badge"
+                    android:paddingStart="7dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:text="1 in bill"
+                    android:textColor="#FFFFFF"
+                    android:textSize="9.5sp"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/tvListPrice"

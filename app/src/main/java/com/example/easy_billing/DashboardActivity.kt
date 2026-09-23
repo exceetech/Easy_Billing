@@ -76,10 +76,6 @@ class DashboardActivity : BaseActivity() {
     private lateinit var tvDrawerSales: TextView
     private lateinit var tvDrawerBills: TextView
 
-    private lateinit var vpAiInsights: androidx.viewpager2.widget.ViewPager2
-    private lateinit var fabAiInsights: View
-    private lateinit var aiInsightsAdapter: AiInsightsAdapter
-
     // Screen-width-aware notifPanel width, set once in initViews() and
     // read by panelWidthPx() below — replaces a hardcoded 392dp fallback
     // that didn't adapt to phone width. See phone_compatibility_plan.md
@@ -163,6 +159,15 @@ class DashboardActivity : BaseActivity() {
     }
     // ================= Data =================
     private val cartItems = mutableListOf<CartItem>()
+
+    // Guards showQuantityDialog() against opening twice — a fast double-tap
+    // (or two taps landing a moment apart, e.g. a slower tap from someone
+    // less used to touchscreens) each fire a click event; timing-based
+    // debouncing on the RecyclerView row can be defeated by a rebind
+    // between the two taps, so the one truly gap-free fix is: never allow
+    // a second quantity pad to open while one is already on screen, full
+    // stop, regardless of why a second call came in.
+    private var activeQuantityDialog: AlertDialog? = null
 
 
     // ================= Activity Result =================
@@ -447,15 +452,7 @@ class DashboardActivity : BaseActivity() {
         tvDrawerSales = findViewById(R.id.tvDrawerSales)
         tvDrawerBills = findViewById(R.id.tvDrawerBills)
 
-        vpAiInsights = findViewById(R.id.vpAiInsights)
-        fabAiInsights = findViewById(R.id.fabAiInsights)
-        
-        fabAiInsights.setOnClickListener {
-            fabAiInsights.visibility = View.GONE
-            vpAiInsights.visibility = View.VISIBLE
-        }
-
-        // ── AI notification bell + sheet ──
+        // ── Notification bell + sheet ──
         tvNotifyBadge   = findViewById(R.id.tvNotifyBadge)
         notifScrim      = findViewById(R.id.notifScrim)
         notifPanel      = findViewById(R.id.notifPanel)
@@ -472,6 +469,9 @@ class DashboardActivity : BaseActivity() {
             notificationStore.clearAll(allInsights)
             refreshNotifications()
             updateNotifyBadge()
+        }
+        findViewById<View>(R.id.tvCartClearAll)?.setOnClickListener {
+            showClearCartDialog()
         }
 
         // Drawer footer: app version
@@ -627,6 +627,11 @@ class DashboardActivity : BaseActivity() {
 
                 val profile = repository.getProfile(token)
 
+                getSharedPreferences("auth", MODE_PRIVATE).edit {
+                    putString("OWNER_NAME", profile.owner_name)
+                    putString("SHOP_NAME", profile.shop_name)
+                }
+
                 val shopName = profile.shop_name
                 val ownerName = profile.owner_name ?: getString(R.string.dashboard_owner_fallback)
 
@@ -663,7 +668,19 @@ class DashboardActivity : BaseActivity() {
 
         // Initialize productAdapter HERE
         productAdapter = ProductAdapter(
-            onItemClick = { showQuantityDialog(it) },
+            // Piece/packet items: one tap adds 1 straight away.
+            onQuickAdd = { addToCart(it, 1.0) },
+            // Weighed items (kg/litre): unchanged — every tap opens the
+            // pad, additive, blank start, since a decimal weight can't
+            // be entered by tapping.
+            onOpenQuantityPad = { showQuantityDialog(it) },
+            // Piece/packet items, fast second tap: open the pad already
+            // showing what's in the bill, and REPLACE it with what's typed
+            // — e.g. tap-tap then type 1000 instead of tapping 1000 times.
+            onSetExactQuantity = { product ->
+                val alreadyInBill = cartItems.find { it.product.id == product.id }?.quantity
+                showQuantityDialog(product, prefillQuantity = alreadyInBill, replaceExisting = true)
+            },
             onItemLongClick = { showDeleteDialog(it) }
         )
 
@@ -820,12 +837,20 @@ class DashboardActivity : BaseActivity() {
             signOutView.findViewById<View>(R.id.btnConfirmSignOut).setOnClickListener {
                 com.example.easy_billing.util.UserEventLogger.logAction("Dashboard", "sign_out_clicked")
                 signOutDialog.dismiss()
+                // Capture BEFORE clearing — buildLoginIntent uses this to
+                // self-heal an account whose Quick Unlock predates the
+                // accounts list (see QuickUnlockManager.buildLoginIntent).
+                val currentUsername = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("USERNAME", null)
                 getSharedPreferences("auth", MODE_PRIVATE)
                     .edit {
                         remove("TOKEN")
                     }
-
-                val intent = Intent(this, MainActivity::class.java)
+                // Route based on how many accounts on this device have Quick
+                // Unlock set up: none -> full login, one -> straight to that
+                // account's PIN screen, two+ -> an account picker so the
+                // right PIN is checked against the right account.
+                val intent = com.example.easy_billing.util.QuickUnlockManager.buildLoginIntent(this, currentUsername)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }
@@ -1073,7 +1098,16 @@ class DashboardActivity : BaseActivity() {
     // ================= CART LOGIC =====================
     // ==================================================
 
-    private fun addToCart(product: Product, qty: Double) {
+    /**
+     * @param replace When true, [qty] becomes the item's total quantity in
+     * the bill instead of being added on top of what's already there — used
+     * by the "type an exact number" pad opened via a fast second tap on a
+     * product card, so typing 1000 sets the line to 1000 rather than adding
+     * 1000 more to whatever was already tapped in. Every other caller
+     * (single-tap quick-add, the weighed-item pad) keeps the original
+     * additive behaviour.
+     */
+    private fun addToCart(product: Product, qty: Double, replace: Boolean = false) {
 
         val MAX_QTY = 10000.0
 
@@ -1081,7 +1115,7 @@ class DashboardActivity : BaseActivity() {
 
             val existing = cartItems.find { it.product.id == product.id }
             val currentQty = existing?.quantity ?: 0.0
-            val newQty = currentQty + qty
+            val newQty = if (replace) qty else currentQty + qty
 
             // ================= 🔥 MAX LIMIT =================
 
@@ -1187,6 +1221,14 @@ class DashboardActivity : BaseActivity() {
 
     private fun updateTotal() {
 
+        // Every cart mutation (quick-add tap, exact-quantity pad, cart
+        // drawer's +/- stepper, delete, clear) routes through this
+        // function, so it's the one safe place to keep the product
+        // cards' "in bill" badge/border in sync with the real cart —
+        // no mutation path can skip it and leave a card showing a stale
+        // count.
+        productAdapter.setCartQtyMap(cartItems.associate { it.product.id to it.quantity })
+
         val total = cartItems.sumOf { it.subTotal() }
 
         // ✅ Total (taxes included, no extra label prefix)
@@ -1213,12 +1255,55 @@ class DashboardActivity : BaseActivity() {
 
         // Cart-header subtotal KPI (mirrors the live order total)
         findViewById<TextView>(R.id.tvCartHeaderSubtotal)?.text = CurrencyHelper.format(this, total)
+
+        // Cart drawer action row (Clear All)
+        val tvCartActionSubtitle = findViewById<TextView>(R.id.tvCartActionSubtitle)
+        val tvCartClearAll = findViewById<TextView>(R.id.tvCartClearAll)
+        if (count > 0) {
+            tvCartActionSubtitle?.text = "$count item${if (count > 1) "s" else ""} in bill"
+            tvCartClearAll?.visibility = View.VISIBLE
+        } else {
+            tvCartActionSubtitle?.text = getString(R.string.dashboard_items_in_bill)
+            tvCartClearAll?.visibility = View.GONE
+        }
     }
 
     private fun clearCart() {
         cartItems.clear()
         cartAdapter.notifyDataSetChanged()
         updateTotal()
+    }
+
+    private fun showClearCartDialog() {
+        if (cartItems.isEmpty()) {
+            Toast.makeText(this, R.string.dashboard_cart_empty_toast, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val view = layoutInflater.inflate(R.layout.dialog_clear_cart, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<View>(R.id.btnConfirmClearCart).setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("Dashboard", "cart_cleared_all")
+            clearCart()
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btnCancelClearCart).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.let { w ->
+            w.setDimAmount(0.8f)
+            w.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                w.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                w.attributes = w.attributes.apply { blurBehindRadius = 48 }
+            }
+        }
+        dialog.show()
     }
 
     private fun generateBill() {
@@ -1239,7 +1324,27 @@ class DashboardActivity : BaseActivity() {
     // ================= DIALOGS ========================
     // ==================================================
 
-    private fun showQuantityDialog(product: Product) {
+    /**
+     * @param prefillQuantity When non-null and > 0, the pad opens already
+     * showing this number instead of blank — used when re-opening on an
+     * item that's already in the bill so the person can see and change the
+     * real total rather than guess it.
+     * @param replaceExisting When true, confirming SETS the bill line to
+     * the typed number (see [addToCart]'s `replace` param) and the button/
+     * eyebrow read "Set" instead of "Add" so it's clear this replaces
+     * rather than adds on top. Used by the fast-second-tap "type an exact
+     * number" flow; every other caller keeps the original additive pad.
+     */
+    private fun showQuantityDialog(
+        product: Product,
+        prefillQuantity: Double? = null,
+        replaceExisting: Boolean = false
+    ) {
+
+        // Already open (this same dialog, or the mismatched-double-tap
+        // twin of it) — ignore the second call outright instead of
+        // stacking a duplicate on top.
+        if (activeQuantityDialog?.isShowing == true) return
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_quantity_pad, null)
 
@@ -1251,13 +1356,25 @@ class DashboardActivity : BaseActivity() {
         val tvUnitPrice = dialogView.findViewById<TextView>(R.id.tvUnitPrice)
         val tvLineTotal = dialogView.findViewById<TextView>(R.id.tvLineTotal)
         val btnCloseQty = dialogView.findViewById<View>(R.id.btnCloseQty)
+        val tvEyebrow = dialogView.findViewById<TextView>(R.id.tvQuantityPadEyebrow)
 
         tvProductName.text = if (!product.variant.isNullOrBlank())
             "${product.name} · ${product.variant}"
         else product.name
         tvUnitPrice.text = CurrencyHelper.format(this, product.price)
 
-        var quantityStr = ""
+        if (replaceExisting) {
+            tvEyebrow.text = getString(R.string.dialog_quantity_pad_eyebrow_set)
+            btnAdd.text = getString(R.string.dialog_quantity_pad_update_button)
+        }
+
+        // Pre-fill with what's already in the bill (dropping a trailing
+        // ".0" the same way the product cards' stock badges do) so the
+        // person sees the real current number instead of a blank pad.
+        var quantityStr = prefillQuantity
+            ?.takeIf { it > 0 }
+            ?.let { if (it % 1.0 == 0.0) it.toInt().toString() else it.toString() }
+            .orEmpty()
 
         val isDecimalAllowed = when (product.unit?.lowercase()) {
             "kilogram", "kg", "litre", "l" -> true
@@ -1267,6 +1384,14 @@ class DashboardActivity : BaseActivity() {
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
+
+        activeQuantityDialog = dialog
+        dialog.setOnDismissListener {
+            // Only clear the guard if it's still pointing at *this* dialog
+            // — belt-and-braces against any future path that might show a
+            // second one before this one's dismiss fires.
+            if (activeQuantityDialog === dialog) activeQuantityDialog = null
+        }
 
         // Size + animate the window BEFORE showing so there's no relayout
         // mid-animation (the old onShowListener resize was the source of lag).
@@ -1379,12 +1504,17 @@ class DashboardActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            addToCart(product, quantity)
+            addToCart(product, quantity, replace = replaceExisting)
             dialog.dismiss()
         }
 
         dialog.show()
     }
+
+    /** Stock quantity without a trailing ".0" (24.0 -> "24", 2.5 -> "2.5"),
+     *  matching the same formatting ProductAdapter uses for stock pills. */
+    private fun fmtStockQty(q: Double): String =
+        if (q % 1.0 == 0.0) q.toInt().toString() else q.toString()
 
     private fun showDeleteDialog(product: Product) {
 
@@ -1400,17 +1530,58 @@ class DashboardActivity : BaseActivity() {
 
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-            val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-            val btnDelete = view.findViewById<Button>(R.id.btnDelete)
-            val btnCancel = view.findViewById<Button>(R.id.btnCancel)
+            val iconTile        = view.findViewById<View>(R.id.iconTile)
+            val ivDialogIcon     = view.findViewById<ImageView>(R.id.ivDialogIcon)
+            val tvEyebrow        = view.findViewById<TextView>(R.id.tvEyebrow)
+            val tvTitleBold      = view.findViewById<TextView>(R.id.tvTitleBold)
+            val tvTitleItalic    = view.findViewById<TextView>(R.id.tvTitleItalic)
+            val viewChipDot      = view.findViewById<View>(R.id.viewChipDot)
+            val tvChipProductName = view.findViewById<TextView>(R.id.tvChipProductName)
+            val statCallout      = view.findViewById<View>(R.id.statCallout)
+            val tvStockValue     = view.findViewById<TextView>(R.id.tvStockValue)
+            val tvMessage        = view.findViewById<TextView>(R.id.tvMessage)
+            val tipRow           = view.findViewById<View>(R.id.tipRow)
+            val btnDelete        = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDelete)
+            val btnCancel        = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
 
-            // ================= BLOCK DELETE =================
+            tvChipProductName.text = if (!product.variant.isNullOrBlank())
+                "${product.name} · ${product.variant}"
+            else product.name
+
+            // ================= BLOCK DELETE — informational, not destructive =================
             if (product.trackInventory && stockQty > 0.0) {
 
-                tvMessage.text =
-                    "⚠️ Cannot remove ${product.name}\n\nStock available: $stockQty\n\nReduce stock to 0 first."
+                iconTile.background = androidx.core.content.ContextCompat.getDrawable(
+                    this@DashboardActivity, R.drawable.bg_circle_soft_gold
+                )
+                ivDialogIcon.setImageResource(R.drawable.ic_lc_package)
+                ivDialogIcon.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#8A6526"))
 
-                btnDelete.text = getString(R.string.dashboard_ok)
+                tvEyebrow.text = getString(R.string.dialog_cant_remove_eyebrow)
+                tvEyebrow.setTextColor(Color.parseColor("#B8895A"))
+
+                tvTitleBold.text = getString(R.string.dialog_cant_remove_title_part1)
+                tvTitleItalic.text = getString(R.string.dialog_cant_remove_title_part2)
+                tvTitleItalic.setTextColor(Color.parseColor("#8A6526"))
+                tvTitleItalic.visibility = View.VISIBLE
+
+                viewChipDot.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#0F6E56"))
+
+                statCallout.visibility = View.VISIBLE
+                tvStockValue.text = "${fmtStockQty(stockQty)} units"
+
+                tvMessage.text = getString(R.string.dialog_cant_remove_body)
+
+                tipRow.visibility = View.VISIBLE
+
+                btnDelete.text = getString(R.string.dialog_cant_remove_got_it)
+                btnDelete.icon = androidx.core.content.ContextCompat.getDrawable(this@DashboardActivity, R.drawable.ic_lucide_check)
+                btnDelete.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#8A6526"))
+
+                // There is nothing to cancel here — only one honest action
+                // exists, so the second button doesn't pretend there's a
+                // choice to make.
+                btnCancel.visibility = View.GONE
 
                 btnDelete.setOnClickListener {
                     dialog.dismiss()
@@ -1419,9 +1590,33 @@ class DashboardActivity : BaseActivity() {
             } else {
 
                 // ================= ALLOW DEACTIVATE =================
-                tvMessage.text = "Remove ${product.name}?"
+                iconTile.background = androidx.core.content.ContextCompat.getDrawable(
+                    this@DashboardActivity, R.drawable.bg_circle_soft_red
+                )
+                ivDialogIcon.setImageResource(R.drawable.baseline_delete_24)
+                ivDialogIcon.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#B23A3A"))
 
-                btnDelete.text = getString(R.string.dashboard_remove_button)
+                tvEyebrow.text = getString(R.string.dialog_confirm_remove_eyebrow)
+                tvEyebrow.setTextColor(Color.parseColor("#B8895A"))
+
+                tvTitleBold.text = getString(R.string.dialog_confirm_remove_title_part1)
+                tvTitleItalic.text = getString(R.string.dialog_confirm_remove_title_part2)
+                tvTitleItalic.setTextColor(Color.parseColor("#B23A3A"))
+                tvTitleItalic.visibility = View.VISIBLE
+
+                viewChipDot.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#B23A3A"))
+
+                statCallout.visibility = View.GONE
+                tipRow.visibility = View.GONE
+
+                tvMessage.text = getString(R.string.dialog_confirm_remove_body)
+
+                btnDelete.text = getString(R.string.dialog_confirm_remove_yes)
+                btnDelete.icon = androidx.core.content.ContextCompat.getDrawable(this@DashboardActivity, R.drawable.baseline_delete_24)
+                btnDelete.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#B23A3A"))
+
+                btnCancel.visibility = View.VISIBLE
+                btnCancel.text = getString(R.string.dialog_confirm_remove_keep)
 
                 btnDelete.setOnClickListener {
                     com.example.easy_billing.util.UserEventLogger.logAction(
@@ -1501,7 +1696,6 @@ class DashboardActivity : BaseActivity() {
         val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
         val isReset = prefs.getBoolean("ai_reset", false)
         if (isReset) {
-            vpAiInsights.visibility = View.GONE
             return
         }
 
@@ -1511,22 +1705,12 @@ class DashboardActivity : BaseActivity() {
         lifecycleScope.launch {
             try {
                 if (token.isNullOrEmpty()) {
-                    vpAiInsights.visibility = View.GONE
                     return@launch
                 }
 
-                // GET /analytics/ai-report is premium-gated server-side
-                // (require_premium_tier) — a Base-tier shop would just get
-                // a 403 here. Skipping the call entirely for non-premium
-                // shops avoids that pointless round trip AND keeps the
-                // bell/notification panel's empty state consistent with
-                // the drawer's "Upgrade to unlock" treatment, instead of
-                // silently failing into a blank panel with no explanation.
                 val tierInfo = com.example.easy_billing.util.SubscriptionTierCache.checkIfDue(this@DashboardActivity)
                 if (tierInfo?.tier != "premium") {
                     allInsights = emptyList()
-                    vpAiInsights.visibility = View.GONE
-                    fabAiInsights.visibility = View.GONE
                     updateNotifyBadge()
                     return@launch
                 }
@@ -1539,8 +1723,7 @@ class DashboardActivity : BaseActivity() {
                     db.billDao().getValidBillCount() == 0
                 }
 
-                // Insights now live in the notification sheet (bell), not the
-                // inline ticker. Keep the old ticker views hidden.
+                // Store alerts live in the notification sheet (bell)
                 allInsights = if (isNewShop) {
                     response.insights.filterNot { insight ->
                         val text = "${insight.title} ${insight.description}".lowercase()
@@ -1553,14 +1736,12 @@ class DashboardActivity : BaseActivity() {
                 } else {
                     response.insights
                 }
-                vpAiInsights.visibility = View.GONE
-                fabAiInsights.visibility = View.GONE
 
                 updateNotifyBadge()
                 if (notifPanel.visibility == View.VISIBLE) refreshNotifications()
 
             } catch (e: Exception) {
-                vpAiInsights.visibility = View.GONE
+                // Ignore network errors on background refresh
             }
         }
     }

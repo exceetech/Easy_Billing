@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_dialog_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- ICON BADGE -->
+    <FrameLayout
+        android:id="@+id/iconTile"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_circle_soft_red">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/baseline_delete_24"
+            app:tint="#B23A3A"
+            android:contentDescription="@null"/>
+    </FrameLayout>
+
+    <TextView
+        android:text="@string/dialog_clear_cart_eyebrow"
+        android:textSize="10.5sp"
+        android:letterSpacing="0.14"
+        android:textAllCaps="true"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
+        android:gravity="center"
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- TITLE -->
+    <TextView
+        android:text="@string/dialog_clear_cart_title"
+        android:textSize="20sp"
+        android:textColor="#1A1A18"
+        android:fontFamily="@font/googlesans_bold"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:includeFontPadding="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- MESSAGE -->
+    <TextView
+        android:text="@string/dialog_clear_cart_message"
+        android:textSize="13.5sp"
+        android:textColor="#6E6656"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:lineSpacingExtra="3dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- CONFIRM BUTTON (Clear Bill) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmClearCart"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/dialog_clear_cart_confirm"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="14.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        app:backgroundTint="#B23A3A"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/baseline_delete_24"
+        app:iconTint="@android:color/white"
+        app:iconSize="18dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:cornerRadius="15dp"
+        app:rippleColor="#33FFFFFF"/>
+
+    <!-- CANCEL BUTTON (Keep Bill) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelClearCart"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="9dp"
+        android:background="@drawable/bg_inv_action_close"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:text="@string/dialog_clear_cart_cancel"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        android:textColor="#9A2E2E"
+        android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/ic_close"
+        app:iconTint="#B91C1C"
+        app:iconSize="16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="7dp"
+        app:cornerRadius="15dp"
+        app:rippleColor="#F6D8D4"/>
+
+</LinearLayout>

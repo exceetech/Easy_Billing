@@ -1,71 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Two honest states in one dialog, toggled by DashboardActivity.
+    showDeleteDialog() — never both shown at once:
+
+      • "Can't Remove Yet"  — stock still on hand. Informational, gold/
+        package icon, the stock count pulled into its own stat callout
+        (statCallout) instead of buried in a sentence, a tip row telling
+        the person what to do next, and a single "Got it" CTA. btnCancel
+        is hidden here — there is no second choice to make.
+
+      • "Remove This Product?" — stock is 0, safe to remove. Keeps the
+        red destructive pattern (icon, title, both buttons) but names the
+        product the same way and states the reason in one plain line.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="22dp"
+    android:padding="24dp"
     android:background="@drawable/bg_dialog_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- ICON BADGE -->
+    <!-- ICON BADGE — background + icon swapped in Kotlin per state -->
     <FrameLayout
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:id="@+id/iconTile"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="center"
         android:background="@drawable/bg_circle_soft_red">
 
         <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:id="@+id/ivDialogIcon"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
             android:layout_gravity="center"
             android:src="@drawable/baseline_delete_24"
             app:tint="#B23A3A" />
     </FrameLayout>
 
     <TextView
+        android:id="@+id/tvEyebrow"
         android:text="@string/dialog_confirm_delete_eyebrow"
-        android:textSize="10sp"
+        android:textSize="10.5sp"
         android:letterSpacing="0.14"
+        android:textAllCaps="true"
         android:fontFamily="@font/googlesans_semibold"
         android:textColor="#B8895A"
         android:gravity="center"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="11dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <!-- TITLE -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:text="@string/dialog_confirm_delete_title"
-        android:textSize="18sp"
-        android:textColor="#1A1A18"
-        android:fontFamily="@font/googlesans_bold"
-        android:gravity="center"
-        android:layout_marginTop="2dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+    <!-- TITLE — bold + serif-italic split, matching the rest of the app -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
 
-    <!-- MESSAGE -->
+        <TextView
+            android:id="@+id/tvTitleBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_confirm_delete_title"
+            android:textSize="19sp"
+            android:textColor="#1A1A18"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+
+        <TextView
+            android:id="@+id/tvTitleItalic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text=""
+            android:textSize="19sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:textColor="#B23A3A"
+            android:includeFontPadding="false"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <!-- PRODUCT NAME CHIP — always shown, so it's never ambiguous which
+         item the dialog is talking about -->
+    <LinearLayout
+        android:id="@+id/productChip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_soft_card_row"
+        android:paddingHorizontal="13dp"
+        android:paddingVertical="8dp">
+
+        <View
+            android:id="@+id/viewChipDot"
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_stock_dot"
+            android:backgroundTint="#0F6E56"/>
+
+        <TextView
+            android:id="@+id/tvChipProductName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13.5sp"
+            android:textColor="#1A1A18"
+            android:fontFamily="@font/googlesans_medium"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+    </LinearLayout>
+
+    <!-- STOCK CALLOUT — blocked state only. This is the fix for "the
+         number was buried in a small sentence" -->
+    <LinearLayout
+        android:id="@+id/statCallout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_stat_callout_gold"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_stat_icon_chip">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lc_box"
+                android:contentDescription="@null"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:text="@string/dialog_cant_remove_stock_label"
+                android:textSize="10.5sp"
+                android:textColor="#8A6526"
+                android:textStyle="bold"
+                android:letterSpacing="0.02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvStockValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="0 units"
+                android:textSize="19sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:textStyle="bold"
+                android:includeFontPadding="false"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- BODY — bumped from 12sp to 14sp for readability, and darker than
+         the old very-light grey for better contrast -->
     <TextView
         android:id="@+id/tvMessage"
         android:text="@string/dialog_confirm_delete_message_default"
-        android:textSize="12sp"
-        android:textColor="#8A8272"
+        android:textSize="14sp"
+        android:textColor="#6E6656"
         android:gravity="center"
-        android:layout_marginTop="6dp"
-        android:lineSpacingExtra="2dp"
+        android:layout_marginTop="14dp"
+        android:lineSpacingExtra="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <!-- ACTIONS: stacked, destructive on top -->
+    <!-- TIP — blocked state only: what to actually do next -->
+    <LinearLayout
+        android:id="@+id/tipRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_soft_card_row"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="11dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#0F6E56"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:id="@+id/tvTip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="9dp"
+            android:text="@string/dialog_cant_remove_tip"
+            android:textSize="12.5sp"
+            android:textColor="#6E6656"
+            android:lineSpacingExtra="2dp"/>
+    </LinearLayout>
+
+    <!-- ACTIONS: destructive/primary on top; btnCancel is hidden entirely
+         in the blocked state (see Kotlin) since there is nothing to
+         cancel — only one honest action exists there. -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDelete"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="18dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
         android:text="@string/dashboard_remove_button"
         android:textColor="@android:color/white"
         android:textAllCaps="false"
-        android:textSize="13.5sp"
+        android:textSize="14sp"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
         android:gravity="center"
@@ -80,13 +242,13 @@
         app:iconSize="17dp"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
-        app:cornerRadius="14dp"
+        app:cornerRadius="15dp"
         app:rippleColor="#33FFFFFF"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCancel"
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="47dp"
         android:layout_marginTop="9dp"
         android:background="@drawable/bg_inv_action_close"
         app:backgroundTint="@null"
@@ -96,7 +258,7 @@
         android:insetRight="0dp"
         android:text="@string/cancel"
         android:textAllCaps="false"
-        android:textSize="13.5sp"
+        android:textSize="14sp"
         android:textColor="#9A2E2E"
         android:textStyle="bold"
         android:fontFamily="@font/googlesans_semibold"
@@ -108,7 +270,7 @@
         app:iconSize="16dp"
         app:iconGravity="textStart"
         app:iconPadding="7dp"
-        app:cornerRadius="14dp"
+        app:cornerRadius="15dp"
         app:rippleColor="#F6D8D4"/>
 
 </LinearLayout>

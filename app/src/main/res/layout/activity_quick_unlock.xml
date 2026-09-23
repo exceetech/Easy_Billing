@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Quick Unlock — shown either to CREATE a PIN (first time, right after a
+    real email+password login, or from Data & Security to change one) or
+    to UNLOCK with an existing PIN/fingerprint (every time after that,
+    instead of the full login form). Same layout, driven by
+    QuickUnlockActivity's mode.
+
+    Champagne redesign: teal soft-circle icon tile with a pair of ambient
+    pulsing rings (matching the Manage Quick Unlock dialog's icon tile),
+    a "Step X of 2" chip during setup, a bold + serif-italic split title,
+    and tactile 3D numeric keys (bg_pin_key) instead of the old flat tile.
+
+    Layout note: everything from the step chip down to the "Skip/Use
+    password" link is ONE closed vertical chain (packed, bias 0.5) running
+    from the top of the screen to the bottom, so the whole block centers
+    itself as a unit with even, consistent gaps — instead of being pinned
+    to the top with leftover space dumped above the bottom link. Don't
+    tune position with ad-hoc bias/margin hacks on just one member; adjust
+    the per-item margins below (each already a deliberate step on a 4dp
+    scale) and let the chain re-center around them.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6">
+
+    <TextView
+        android:id="@+id/tvUnlockStepChip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_step_chip"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="5dp"
+        android:text="@string/quick_unlock_step_1"
+        android:textAllCaps="true"
+        android:textSize="9.5sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.06"
+        android:textColor="#0F6E56"
+        android:layout_marginBottom="14dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/circleLockIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Icon tile + two ambient pulsing rings, all centered on the same spot. -->
+    <View
+        android:id="@+id/ringPulse1"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/ring_pulse_outline"
+        app:layout_constraintTop_toTopOf="@id/circleLockIcon"
+        app:layout_constraintBottom_toBottomOf="@id/circleLockIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <View
+        android:id="@+id/ringPulse2"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:background="@drawable/ring_pulse_outline"
+        app:layout_constraintTop_toTopOf="@id/ringPulse1"
+        app:layout_constraintStart_toStartOf="@id/ringPulse1"
+        app:layout_constraintEnd_toEndOf="@id/ringPulse1"
+        app:layout_constraintBottom_toBottomOf="@id/ringPulse1"/>
+
+    <FrameLayout
+        android:id="@+id/circleLockIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_circle_soft_teal"
+        app:layout_constraintTop_toBottomOf="@id/tvUnlockStepChip"
+        app:layout_constraintBottom_toTopOf="@id/titleRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="14dp">
+
+        <ImageView
+            android:id="@+id/ivUnlockIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_lock"
+            app:tint="#0F6E56"
+            android:contentDescription="@null"/>
+    </FrameLayout>
+
+    <!-- Bold + serif-italic split title, matching the dialogs. -->
+    <LinearLayout
+        android:id="@+id/titleRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp"
+        app:layout_constraintTop_toBottomOf="@id/circleLockIcon"
+        app:layout_constraintBottom_toTopOf="@id/tvUnlockSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvUnlockTitleBold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter your"
+            android:textSize="21sp"
+            android:textColor="#1A1A18"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+
+        <TextView
+            android:id="@+id/tvUnlockTitleItalic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="PIN"
+            android:textSize="21sp"
+            android:textColor="#0F6E56"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvUnlockSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginHorizontal="36dp"
+        android:text="Enter your 4-digit PIN to continue"
+        android:textSize="13sp"
+        android:textColor="#8A8272"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/titleRow"
+        app:layout_constraintBottom_toTopOf="@id/tvUnlockError"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvUnlockError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:text=""
+        android:textSize="12sp"
+        android:textColor="#A3392B"
+        android:fontFamily="@font/googlesans_semibold"
+        app:layout_constraintTop_toBottomOf="@id/tvUnlockSubtitle"
+        app:layout_constraintBottom_toTopOf="@id/dotRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- 4 PIN dots -->
+    <LinearLayout
+        android:id="@+id/dotRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="22dp"
+        app:layout_constraintTop_toBottomOf="@id/tvUnlockError"
+        app:layout_constraintBottom_toTopOf="@id/keypad"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View android:id="@+id/dot1" android:layout_width="16dp" android:layout_height="16dp"
+            android:layout_marginHorizontal="8dp" android:background="@drawable/bg_pin_dot_empty"/>
+        <View android:id="@+id/dot2" android:layout_width="16dp" android:layout_height="16dp"
+            android:layout_marginHorizontal="8dp" android:background="@drawable/bg_pin_dot_empty"/>
+        <View android:id="@+id/dot3" android:layout_width="16dp" android:layout_height="16dp"
+            android:layout_marginHorizontal="8dp" android:background="@drawable/bg_pin_dot_empty"/>
+        <View android:id="@+id/dot4" android:layout_width="16dp" android:layout_height="16dp"
+            android:layout_marginHorizontal="8dp" android:background="@drawable/bg_pin_dot_empty"/>
+    </LinearLayout>
+
+    <!-- Numeric keypad -->
+    <GridLayout
+        android:id="@+id/keypad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="4"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintTop_toBottomOf="@id/dotRow"
+        app:layout_constraintBottom_toTopOf="@id/bottomActionsLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView android:id="@+id/btnKey1" style="@style/QuickUnlockKey" android:text="1"/>
+        <TextView android:id="@+id/btnKey2" style="@style/QuickUnlockKey" android:text="2"/>
+        <TextView android:id="@+id/btnKey3" style="@style/QuickUnlockKey" android:text="3"/>
+        <TextView android:id="@+id/btnKey4" style="@style/QuickUnlockKey" android:text="4"/>
+        <TextView android:id="@+id/btnKey5" style="@style/QuickUnlockKey" android:text="5"/>
+        <TextView android:id="@+id/btnKey6" style="@style/QuickUnlockKey" android:text="6"/>
+        <TextView android:id="@+id/btnKey7" style="@style/QuickUnlockKey" android:text="7"/>
+        <TextView android:id="@+id/btnKey8" style="@style/QuickUnlockKey" android:text="8"/>
+        <TextView android:id="@+id/btnKey9" style="@style/QuickUnlockKey" android:text="9"/>
+
+        <ImageView
+            android:id="@+id/btnBiometric"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="6dp"
+            android:padding="16dp"
+            android:src="@drawable/ic_lucide_fingerprint"
+            app:tint="#0F6E56"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="invisible"
+            android:contentDescription="Unlock with fingerprint"/>
+
+        <TextView android:id="@+id/btnKey0" style="@style/QuickUnlockKey" android:text="0"/>
+
+        <ImageView
+            android:id="@+id/btnBackspace"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_margin="6dp"
+            android:padding="20dp"
+            android:src="@drawable/ic_lucide_delete"
+            app:tint="#57534E"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="Delete"/>
+    </GridLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomActionsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/keypad"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvSelectAnotherAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="7dp"
+            android:text="@string/select_another_account"
+            android:textSize="13.5sp"
+            android:textColor="#0F6E56"
+            android:fontFamily="@font/googlesans_semibold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+        <TextView
+            android:id="@+id/tvUnlockAlt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="7dp"
+            android:text="@string/use_password_instead"
+            android:textSize="13sp"
+            android:textColor="#8A8272"
+            android:fontFamily="@font/googlesans_semibold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

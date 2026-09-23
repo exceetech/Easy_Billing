@@ -221,7 +221,13 @@ class LocalizationSettingsActivity : BaseActivity() {
     // ===== Restart App =====
 
     private fun restartApp() {
-        val intent = Intent(this, MainActivity::class.java)
+        // The session is still perfectly valid here — this is just a
+        // language/currency change that wants a fresh process, not a
+        // logout. Going to MainActivity was forcing a signed-in user back
+        // through the full login form for no reason; SplashActivity
+        // re-checks the existing token and lands back on Dashboard exactly
+        // like a normal cold launch would.
+        val intent = Intent(this, SplashActivity::class.java)
         intent.flags =
             Intent.FLAG_ACTIVITY_NEW_TASK or
             Intent.FLAG_ACTIVITY_CLEAR_TASK

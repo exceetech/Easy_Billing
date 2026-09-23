@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Solid "✓ N in bill" badge shown on a product card once it has a
+    quantity in the current bill. A diagonal teal gradient + a faint
+    white hairline stroke so it pops cleanly against every pastel card
+    color underneath, instead of a flat fill that could blend in.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="20dp"/>
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="#17A673"
+        android:endColor="#0B5C46"/>
+    <stroke android:width="1dp" android:color="#33FFFFFF"/>
+</shape>
