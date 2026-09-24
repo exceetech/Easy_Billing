@@ -142,9 +142,9 @@
                     </FrameLayout>
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView android:text="Identity" android:textColor="#1A1A18" android:textSize="14sp"
+                        <TextView android:text="@string/store_card_name_title" android:textColor="#1A1A18" android:textSize="14sp"
                             android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:text="Store name &amp; business type" android:textColor="#5C6B65"
+                        <TextView android:text="@string/store_card_name_sub" android:textColor="#5C6B65"
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -203,6 +203,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="5dp"
+                        android:id="@+id/tvShopTypeLabel"
                         android:text="@string/business_type"
                         android:textSize="11sp"
                         android:textColor="#6E6A60"/>
@@ -269,9 +270,9 @@
                     </FrameLayout>
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView android:text="Contact &amp; address" android:textColor="#1A1A18" android:textSize="14sp"
+                        <TextView android:text="@string/store_card_address_title" android:textColor="#1A1A18" android:textSize="14sp"
                             android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:text="Location &amp; phone details" android:textColor="#5C6B65"
+                        <TextView android:text="@string/store_card_address_sub" android:textColor="#5C6B65"
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -608,9 +609,9 @@
                     </FrameLayout>
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView android:text="Tax" android:textColor="#1A1A18" android:textSize="14sp"
+                        <TextView android:text="@string/store_card_gst_title" android:textColor="#1A1A18" android:textSize="14sp"
                             android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:text="GST registration number" android:textColor="#5C6B65"
+                        <TextView android:text="@string/store_card_gst_sub" android:textColor="#5C6B65"
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -689,16 +690,93 @@
                             android:indeterminate="true"
                             android:visibility="gone"/>
                     </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
+            </LinearLayout>
+
+            <!-- ===================== PRINTER ===================== -->
+            <!-- ===================== PRINTER ===================== -->
+            <LinearLayout android:id="@+id/cardPrinter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_items_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_si_printer"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/billing_card_printer_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/billing_card_printer_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginStart="2dp"
-                        android:text="@string/state_code_auto_derived_helper"
-                        android:textColor="#9A8F79"
-                        android:textSize="11sp"/>
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/paper_size_label"
+                        android:textSize="11sp"
+                        android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:id="@+id/rowPrinter"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_printer"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvPrinter"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/paper_small"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"/>
+                        <ImageView
+                            android:id="@+id/icPrinterChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#B0A48C"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
                 </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="15dp"/>
             </LinearLayout>
 
             <!-- Save — solid teal CTA matching the app's other confirm

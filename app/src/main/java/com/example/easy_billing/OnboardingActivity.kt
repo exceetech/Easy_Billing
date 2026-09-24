@@ -47,20 +47,18 @@ class OnboardingActivity : BaseActivity() {
 
     private data class Step(
         val key: String,
-        val title: String,
-        val subtitle: String,
+        @androidx.annotation.StringRes val title: Int,
+        @androidx.annotation.StringRes val subtitle: Int,
         val isDone: (ProfileResponse) -> Boolean,
         val activityClass: Class<*>
     )
 
     private val steps = listOf(
-        Step("subscription", "Choose a plan", "Start a free trial or subscribe",
+        Step("subscription", R.string.onboarding_step_plan_title, R.string.onboarding_step_plan_sub,
             { it.onboarding_subscription_done }, SubscriptionActivity::class.java),
-        Step("shop_info", "Shop information", "Tell us about your shop",
-            { it.onboarding_shop_info_done }, StoreSettingsActivity::class.java),
-        Step("billing", "Billing settings", "Set your default tax and invoice layout",
-            { it.onboarding_billing_done }, BillingSettingsActivity::class.java),
-        Step("terms", "Terms and conditions", "Review and accept to continue",
+        Step("shop_info", R.string.onboarding_step_shop_title, R.string.onboarding_step_shop_sub,
+            { it.onboarding_shop_info_done && it.onboarding_billing_done }, StoreSettingsActivity::class.java),
+        Step("terms", R.string.onboarding_step_terms_title, R.string.onboarding_step_terms_sub,
             { it.onboarding_terms_done }, TermsActivity::class.java),
     )
 
@@ -248,13 +246,13 @@ class OnboardingActivity : BaseActivity() {
             }
 
             val title = TextView(this).apply {
-                text = step.title
+                text = getString(step.title)
                 textSize = 13.5f
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 setTextColor(0xFF1A1A18.toInt())
             }
             val subtitle = TextView(this).apply {
-                text = step.subtitle
+                text = getString(step.subtitle)
                 textSize = 11.5f
                 setTextColor(0xFF8A8474.toInt())
                 setPadding(0, dp(2), 0, 0)
@@ -295,7 +293,7 @@ class OnboardingActivity : BaseActivity() {
         tvOnboardStepCount.text = if (firstIncompleteIndex == -1) {
             "All steps complete"
         } else {
-            "Step $currentStepNumber of $total · ${steps[firstIncompleteIndex].title}"
+            getString(R.string.onboarding_step_progress, currentStepNumber, total, getString(steps[firstIncompleteIndex].title))
         }
 
         llOnboardStepper.removeAllViews()

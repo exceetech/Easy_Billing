@@ -109,6 +109,106 @@
                     android:lineSpacingExtra="2dp"/>
             </LinearLayout>
 
+            <!-- ===================== ON / OFF ===================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_subcard_accent_amber"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:layout_marginTop="18dp">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_indian_rupee"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="11dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/payments_switch_title"
+                        android:textColor="#1A1A18"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_bold"/>
+                    <TextView
+                        android:id="@+id/tvPaymentsStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/payments_status_off"
+                        android:textColor="#8A8578"
+                        android:textSize="10.5sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchUpi"
+                    style="@style/EpSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowAdminToggle"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_subcard_accent_blue"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true"
+                android:visibility="gone"
+                android:layout_marginTop="14dp"
+                android:paddingHorizontal="12dp" android:paddingVertical="11dp">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_si_lock"
+                        app:tint="#185FA5"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvEditDetails"
+                    android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="11dp"
+                    android:text="@string/payments_edit_add"
+                    android:textColor="#1A1A18" android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"/>
+
+                <ImageView
+                    android:id="@+id/icAdminChevron"
+                    android:layout_width="18dp" android:layout_height="18dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#185FA5" android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/containerAdmin"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
             <!-- ===================== CREDENTIALS ===================== -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -313,25 +413,23 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginTop="16dp"
-                        android:background="@drawable/bg_pill_teal_outline"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="10dp"
-                        android:gravity="center_vertical">
+                        android:paddingHorizontal="4dp"
+                        android:gravity="top">
                         <ImageView
                             android:layout_width="14dp"
                             android:layout_height="14dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginEnd="7dp"
                             android:src="@drawable/ic_info_circle"
-                            app:tint="#0F6E56"
+                            app:tint="#9A968C"
                             android:contentDescription="@null"/>
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/razorpay_helper_text"
-                            android:textColor="#5C6B65"
+                            android:textColor="#9A8F79"
                             android:textSize="11sp"
-                            android:fontFamily="@font/googlesans_regular"
                             android:lineSpacingExtra="2dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -364,6 +462,8 @@
                 android:gravity="center"
                 android:insetLeft="0dp"
                 android:insetRight="0dp"/>
+
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

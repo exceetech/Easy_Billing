@@ -39,17 +39,19 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="2dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true">
 
                 <TextView
                     android:text="@string/your_word"
                     android:textSize="21sp"
                     android:textStyle="bold"
+                    android:letterSpacing="-0.02"
                     android:fontFamily="@font/googlesans_bold"
                     android:textColor="#1A1A18"
+                    android:includeFontPadding="false"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"/>
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:text="@string/subscription_title_part2"
@@ -57,38 +59,45 @@
                     android:textStyle="italic"
                     android:fontFamily="serif"
                     android:textColor="#0F6E56"
+                    android:includeFontPadding="false"
+                    android:layout_marginStart="6dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
             <!-- STATUS CARD -->
-            <!-- One shared template, four color states swapped at runtime
-                 in SubscriptionActivity.applyStatusCardState() — teal
-                 (active), amber (ending soon), coral (no plan), purple
-                 (trial). Only the background/icon-tile/pill drawables and
-                 text colors change; layout stays fixed. -->
+            <!-- Themed header-banner card matching the Security/Data/
+                 Diagnose card language used elsewhere: a white
+                 bg_inv_card_cream shell, a tinted header banner (teal for
+                 active/trial, amber for ending-soon/no-plan/expired — see
+                 SubscriptionActivity.applyStatusCardState()) with a
+                 step-circle icon badge + fixed title/subtitle + a status
+                 pill, and a body showing the real headline plus an
+                 expiry chip. -->
             <LinearLayout
                 android:id="@+id/cardStatus"
                 android:orientation="vertical"
-                android:background="@drawable/bg_status_card_teal"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="16dp"
+                android:background="@drawable/bg_inv_card_cream"
                 android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
+                    android:id="@+id/statusHeader"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
                     <FrameLayout
                         android:id="@+id/statusIconBadge"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_status_icon_teal">
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
 
                         <ImageView
                             android:id="@+id/ivStatusIcon"
@@ -96,56 +105,91 @@
                             android:layout_height="17dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_lucide_badge_check"
-                            app:tint="#E1F5EE"
+                            app:tint="#FFFFFF"
                             android:contentDescription="@null"/>
 
                     </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/tvPlan"
-                        android:text="@string/plan"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/googlesans_semibold"
-                        android:textColor="#E1F5EE"
-                        android:layout_marginStart="10dp"
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:text="@string/sub_status_header_title"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="@string/sub_status_header_subtitle"
+                            android:textSize="11sp"
+                            android:textColor="#5C6B65"
+                            android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvStatus"
                         android:text="@string/checking"
-                        android:textSize="9.5sp"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#E1F5EE"
-                        android:background="@drawable/bg_status_pill_teal"
-                        android:paddingHorizontal="9dp"
-                        android:paddingVertical="3dp"
+                        android:textColor="#16A34A"
+                        android:background="@drawable/bg_pill_green"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvExpiry"
-                    android:text="@string/expiry"
-                    android:textSize="11.5sp"
-                    android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#9FE1CB"
-                    android:layout_marginTop="12dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tvDaysLeft"
-                    android:text="@string/days_left"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/googlesans_bold"
-                    android:textColor="#E1F5EE"
-                    android:layout_marginTop="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/tvPlan"
+                        android:text="@string/plan"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvExpiry"
+                        android:text="@string/expiry"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#5C6B65"
+                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvDaysLeft"
+                        android:text="@string/days_left"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:textColor="#1A1A18"
+                        android:layout_marginTop="2dp"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -203,7 +247,7 @@
 
                     <TextView
                         android:id="@+id/tvTrialDescription"
-                        android:text="@string/try_premium_free_7_days"
+                        android:text="@string/sub_trial_line"
                         android:textStyle="bold"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textSize="14sp"
@@ -295,7 +339,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnStartTrial"
-                        android:text="@string/start_free_trial"
+                        android:text="@string/sub_trial_button"
                         android:textAllCaps="false"
                         android:textSize="13.5sp"
                         android:textStyle="bold"
@@ -325,6 +369,34 @@
                  duration_days values GET /subscription/plans returns, not
                  a hardcoded list — see SubscriptionActivity.renderBillingCycles(). -->
             <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="@string/sub_pick_cycle"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:letterSpacing="-0.01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="@string/sub_pick_cycle_sub"
+                    android:textSize="12sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:textColor="#B8895A"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/llBillingCycle"
                 android:orientation="horizontal"
                 android:layout_marginTop="18dp"
@@ -337,9 +409,47 @@
                  — never hardcoded here, so a price/plan change is a
                  backend-only edit, not an app release. -->
             <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="@string/sub_pick_plan"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:letterSpacing="-0.01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="@string/sub_pick_plan_sub"
+                    android:textSize="12sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:textColor="#B8895A"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/llPlans"
                 android:orientation="vertical"
                 android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvContinueHint"
+                android:text="@string/sub_continue_hint"
+                android:textSize="12.5sp"
+                android:textColor="#5C6B65"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -351,7 +461,7 @@
                 android:textStyle="bold"
                 android:fontFamily="@font/googlesans_semibold"
                 android:enabled="false"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="8dp"
                 android:textColor="#FCF3E5"
                 android:includeFontPadding="false"
                 android:gravity="center"

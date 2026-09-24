@@ -371,9 +371,11 @@
     <string name="fragment_overview_card">Card</string>
     <string name="fragment_overview_cash">Cash</string>
     <string name="fragment_overview_credit">Credit</string>
-    <string name="fragment_overview_glance">GLANCE</string>
+    <string name="fragment_overview_glance">एक नज़र में</string>
+    <string name="fragment_overview_glance_sub">आपका हिसाब अब तक</string>
     <string name="fragment_overview_good_morning">Good morning</string>
-    <string name="fragment_overview_payment_split">PAYMENT SPLIT</string>
+    <string name="fragment_overview_payment_split">भुगतान का विभाजन</string>
+    <string name="fragment_overview_payment_split_sub">उन्होंने कैसे भुगतान किया</string>
     <string name="fragment_overview_returns">Returns</string>
     <string name="fragment_overview_total_bills">Total bills</string>
     <string name="fragment_overview_total_collected">Total collected</string>
@@ -731,9 +733,9 @@
     <string name="ai_dashboard_col_revenue">राजस्व</string>
     <string name="ai_dashboard_eyebrow">बिज़नेस ऑडिट</string>
     <string name="ai_dashboard_insights_empty">अभी कोई अलर्ट नहीं — आपकी दुकान ठीक चल रही है।</string>
-    <string name="ai_dashboard_kpi_leaks">नुकसान</string>
-    <string name="ai_dashboard_kpi_urgent">ज़रूरी</string>
-    <string name="ai_dashboard_kpi_wins">फायदे</string>
+    <string name="ai_dashboard_kpi_leaks">पैसे का नुकसान</string>
+    <string name="ai_dashboard_kpi_urgent">ध्यान चाहिए</string>
+    <string name="ai_dashboard_kpi_wins">अच्छा चल रहा</string>
     <string name="ai_dashboard_title_ai">AI</string>
     <string name="ai_dashboard_title_insights_suffix">इनसाइट्स</string>
     <string name="ai_dashboard_top_velocity_title">सबसे तेज़ बिकने वाले प्रोडक्ट</string>
@@ -741,8 +743,8 @@
     <!-- AiDashboardActivity -->
     <string name="ai_dashboard_band_fair">ठीक-ठाक</string>
     <string name="ai_dashboard_band_healthy">स्वस्थ</string>
-    <string name="ai_dashboard_band_needs_work">सुधार ज़रूरी</string>
-    <string name="ai_dashboard_band_optimum">बेहतरीन</string>
+    <string name="ai_dashboard_band_needs_work">सुधार चाहिए</string>
+    <string name="ai_dashboard_band_optimum">ऑप्टिमम</string>
     <string name="ai_dashboard_offline_empty">इनसाइट के लिए सक्रिय कनेक्शन चाहिए।</string>
     <string name="ai_dashboard_toast_load_failed">इनसाइट लोड नहीं हो सके। कनेक्शन जांचें।</string>
     <string name="ai_dashboard_toast_offline_cache">आखिरी सेव किया गया इनसाइट दिखाया जा रहा है (ऑफलाइन)</string>
@@ -756,7 +758,7 @@
     <string name="ai_insight_header_default">इनसाइट्स</string>
     <string name="ai_insight_header_fire">ध्यान देने योग्य</string>
     <string name="ai_insight_header_gold">क्या काम कर रहा है</string>
-    <string name="ai_insight_header_leak">नुकसान रोकें</string>
+    <string name="ai_insight_header_leak">पैसे का नुकसान</string>
 
     <!-- activity_change_password -->
     <string name="almost_there_eyebrow">लगभग हो गया</string>
@@ -832,13 +834,13 @@
     <string name="cycle_discount">साइकल छूट</string>
     <string name="dialog_product_filter_apply">लागू करें</string>
     <string name="estimated_only_note">केवल अनुमानित — असली चार्ज भुगतान शुरू होने पर ही तय होगा।</string>
-    <string name="gst_18_pct">GST (18%%)</string>
+    <string name="gst_18_pct" formatted="false">GST (18%)</string>
     <string name="pay_word">भुगतान करें</string>
     <string name="payable_amount">देय राशि</string>
     <string name="plan_price">प्लान कीमत</string>
     <string name="plus_15_days_free">+15 दिन मुफ्त</string>
     <string name="secured_by_razorpay">Razorpay द्वारा सुरक्षित — कार्ड, UPI और नेटबैंकिंग</string>
-    <string name="service_charge_pct">सेवा शुल्क (2%%)</string>
+    <string name="service_charge_pct" formatted="false">सेवा शुल्क (2%)</string>
     <string name="total_2">कुल</string>
     <string name="upgrade_credit_est">अपग्रेड क्रेडिट (अनुमानित)</string>
 
@@ -1231,10 +1233,10 @@
     <!-- dialog_subscription_expired -->
     <string name="dashboard_subscription">सब्सक्रिप्शन</string>
     <string name="dialog_subscription_expired_contact_support">मदद चाहिए? सपोर्ट से संपर्क करें</string>
-    <string name="dialog_subscription_expired_cta">सब्सक्रिप्शन रिन्यू करें</string>
-    <string name="dialog_subscription_expired_data_safe">आपका डेटा सुरक्षित है। रिन्यू करते ही सब कुछ तुरंत अनलॉक हो जाएगा।</string>
-    <string name="dialog_subscription_expired_eyebrow">ExPOS प्रीमियम</string>
-    <string name="dialog_subscription_expired_message">आपका प्लान समाप्त हो गया है, इसलिए बिलिंग, इन्वेंटरी और रिपोर्ट रुकी हुई हैं। जहां छोड़ा था वहीं से शुरू करने के लिए रिन्यू करें — कुछ भी डिलीट नहीं हुआ है।</string>
+    <string name="dialog_subscription_expired_cta">अभी नवीनीकरण करें</string>
+    <string name="dialog_subscription_expired_data_safe">जब चाहें नवीनीकरण करें, सब कुछ तुरंत वापस आ जाएगा।</string>
+    <string name="dialog_subscription_expired_eyebrow">आपका प्लान</string>
+    <string name="dialog_subscription_expired_message">आपका प्लान खत्म हो गया है, इसलिए बिलिंग रुकी हुई है। आपका डेटा सुरक्षित है — कुछ भी नहीं हटाया गया।</string>
     <string name="dialog_subscription_expired_title_part2">समाप्त हो गया</string>
 
     <!-- InvoiceDesignActivity -->
@@ -1731,7 +1733,7 @@
 
     <!-- fragment_peak_hours -->
     <string name="peak_hours_breakdown_label">घंटेवार ब्रेकडाउन</string>
-    <string name="peak_hours_eyebrow_today">आज</string>
+    <string name="peak_hours_eyebrow_today">व्यस्त समय</string>
     <string name="peak_hours_hero_label">पीक राजस्व</string>
     <string name="peak_hours_legend_hourly_revenue">प्रति घंटा राजस्व</string>
     <string name="peak_hours_legend_peak_hour">पीक घंटा</string>
@@ -2271,7 +2273,7 @@
     <string name="payment_setup_eyebrow">भुगतान</string>
     <string name="payment_setup_title_bold">UPI</string>
     <string name="payment_setup_title_italic">भुगतान</string>
-    <string name="payment_setup_explainer">अपने इनवॉइस पर सीधे UPI और कार्ड से भुगतान स्वीकार करने के लिए Razorpay कनेक्ट करें।</string>
+    <string name="payment_setup_explainer">ग्राहक आपके बिल पर दिए लिंक से अपने फ़ोन से भुगतान कर सकते हैं।</string>
     <string name="payment_setup_card_title">भुगतान क्रेडेंशियल</string>
     <string name="payment_setup_card_sub">Razorpay API कुंजियाँ</string>
     <string name="razorpay_status_connected">कनेक्टेड</string>
@@ -2282,4 +2284,171 @@
     <string name="payment_setup_saved_toast">भुगतान सेटअप सेव हो गया</string>
     <string name="payment_setup_save_failed_toast">भुगतान सेटअप सेव नहीं हो सका। पुनः प्रयास करें।</string>
 
+
+    <!-- simplification: settings, store, billing, design, onboarding -->
+    <string name="settings_group_shop">मेरी दुकान</string>
+    <string name="settings_group_shop_sub">दुकान की जानकारी और भाषा</string>
+    <string name="settings_group_billing">बिल और भुगतान</string>
+    <string name="settings_group_billing_sub">GST, UPI और बिल का रूप</string>
+    <string name="settings_group_security">पासवर्ड और सुरक्षा</string>
+    <string name="settings_group_security_sub">पासवर्ड बदलें और अनलॉक</string>
+    <string name="store_card_name_title">दुकान का नाम</string>
+    <string name="store_card_name_sub">आपकी दुकान का नाम क्या है?</string>
+    <string name="store_card_address_title">पता और फ़ोन</string>
+    <string name="store_card_address_sub">आपकी दुकान कहाँ है?</string>
+    <string name="store_card_gst_title">GST</string>
+    <string name="store_card_gst_sub">GST नंबर (ज़रूरी नहीं)</string>
+    <string name="billing_card_gst_title">GST की जानकारी</string>
+    <string name="billing_card_gst_sub">आपके GST नंबर से अपने-आप भरा गया</string>
+    <string name="billing_card_printer_title">बिल प्रिंट</string>
+    <string name="billing_card_printer_sub">कागज़ का आकार चुनें</string>
+    <string name="design_card_footer_title">धन्यवाद संदेश</string>
+    <string name="design_card_footer_sub">हर बिल के नीचे छपेगा</string>
+    <string name="design_card_show_title">बिल पर क्या दिखाना है</string>
+    <string name="design_card_show_sub">जो दिखाना चाहते हैं उसे चालू करें</string>
+    <string name="onboarding_step_plan_title">प्लान चुनें</string>
+    <string name="onboarding_step_plan_sub">मुफ़्त ट्रायल शुरू करें या सब्सक्राइब करें</string>
+    <string name="onboarding_step_shop_title">आपकी दुकान</string>
+    <string name="onboarding_step_shop_sub">हमें अपनी दुकान के बारे में बताएँ</string>
+    <string name="onboarding_step_billing_title">बिल सेटिंग</string>
+    <string name="onboarding_step_billing_sub">GST और कागज़ का आकार तय करें</string>
+    <string name="onboarding_step_terms_title">नियम और शर्तें</string>
+    <string name="onboarding_step_terms_sub">जारी रखने के लिए पढ़ें और स्वीकार करें</string>
+
+    <!-- simplification: settings home rows -->
+    <string name="settings_row_shop">मेरी दुकान</string>
+    <string name="settings_row_shop_sub">दुकान का नाम, पता और फ़ोन</string>
+    <string name="settings_row_payments">भुगतान (UPI)</string>
+    <string name="settings_row_payments_sub">UPI से पैसे लें</string>
+    <string name="settings_row_print">बिल प्रिंट</string>
+    <string name="settings_row_print_sub">आपका बिल कैसा दिखे</string>
+    <string name="settings_row_gst">GST और कागज़ का आकार</string>
+    <string name="settings_row_gst_sub">GST दर और बिल का कागज़</string>
+    <string name="settings_row_security">पासवर्ड और अनलॉक</string>
+    <string name="settings_row_security_sub">पासवर्ड बदलें, फ़िंगरप्रिंट या PIN</string>
+    <string name="settings_row_language">भाषा</string>
+    <string name="settings_row_language_sub">ऐप की भाषा चुनें</string>
+
+    <!-- simplification: paper size -->
+    <string name="paper_size_label">कागज़ का आकार</string>
+    <string name="paper_small">छोटी रसीद (80mm)</string>
+    <string name="paper_full">पूरा पेज (A4)</string>
+
+    <!-- simplification: payments -->
+    <string name="payments_status_on">UPI चालू है। ग्राहक UPI लिंक से भुगतान कर सकते हैं।</string>
+    <string name="payments_status_off">UPI बंद है। UPI से भुगतान लेने के लिए इसे चालू करें।</string>
+    <string name="payments_admin_toggle">एडमिन सेटअप</string>
+
+    <!-- simplification: bill print -->
+    <string name="design_show_logo">बिल पर मेरी दुकान का लोगो दिखाएँ</string>
+    <string name="design_show_gstin">बिल पर मेरा GST नंबर दिखाएँ</string>
+    <string name="design_show_phone">बिल पर मेरा फ़ोन नंबर दिखाएँ</string>
+    <string name="design_show_discount">बिल पर छूट दिखाएँ</string>
+    <string name="design_round_off">कुल राशि को पूरे रुपये में करें</string>
+    <string name="design_round_off_sub">उदाहरण: ₹99.60 का ₹100 हो जाएगा</string>
+    <string name="design_footer_label">धन्यवाद संदेश</string>
+    <string name="design_footer_hint">उदाहरण: धन्यवाद, फिर आइएगा</string>
+    <string name="design_footer_helper">यह हर बिल के नीचे छपेगा।</string>
+    <string name="design_save">सेव करें</string>
+    <string name="design_title_bold">बिल</string>
+    <string name="design_title_italic">प्रिंट</string>
+
+    <!-- simplification: password, quick unlock -->
+    <string name="pw_dialog_sub">अपने खाते के लिए नया पासवर्ड लिखें</string>
+    <string name="pw_new">नया पासवर्ड</string>
+    <string name="pw_again">दोबारा लिखें</string>
+    <string name="pw_save">सेव करें</string>
+    <string name="verify_t1">अपना</string>
+    <string name="verify_t2">पासवर्ड लिखें</string>
+    <string name="verify_sub">जारी रखने के लिए अपना लॉगिन पासवर्ड लिखें</string>
+    <string name="verify_btn">जारी रखें</string>
+    <string name="qu_t1">क्विक</string>
+    <string name="qu_t2">अनलॉक</string>
+    <string name="qu_change">मेरा PIN बदलें</string>
+    <string name="qu_change_sub">नया 4 अंकों का PIN चुनें</string>
+    <string name="qu_off">क्विक अनलॉक बंद करें</string>
+    <string name="qu_off_sub">ऐप खोलने के लिए आप पासवर्ड इस्तेमाल करेंगे</string>
+    <string name="qu_off_t1">बंद करें</string>
+    <string name="qu_off_t2">क्विक अनलॉक?</string>
+    <string name="qu_off_msg">ऐप खोलने के लिए आपको पासवर्ड लिखना होगा।</string>
+    <string name="ds_change_pw">पासवर्ड बदलें</string>
+    <string name="ds_change_pw_sub">नया लॉगिन पासवर्ड सेट करें</string>
+    <string name="ds_quick">क्विक अनलॉक</string>
+    <string name="ds_quick_sub">पासवर्ड की जगह PIN से ऐप खोलें</string>
+
+    <!-- simplification: admin tools -->
+    <string name="settings_row_admin">रखरखाव</string>
+    <string name="settings_row_admin_sub">विशेष टूल, केवल ज़रूरत पर</string>
+    <string name="admin_mode_on">रखरखाव चालू</string>
+    <string name="admin_mode_off">रखरखाव बंद</string>
+    <string name="pu_title1">पासवर्ड</string>
+    <string name="pu_title2">और अनलॉक</string>
+    <string name="onboarding_step_progress">चरण %1$d / %2$d · %3$s</string>
+    <string name="settings_eyebrow">प्रबंधित करें</string>
+    <string name="settings_title1">आपकी</string>
+    <string name="settings_title2">सेटिंग्स</string>
+    <string name="settings_card_title">अपना ऐप संभालें</string>
+    <string name="settings_card_sub">सब कुछ एक जगह</string>
+    <string name="payments_switch_title">UPI भुगतान स्वीकारें</string>
+    <string name="payments_status_setup">UPI चालू है, पर Razorpay की जानकारी अभी जोड़ी नहीं गई। नीचे जोड़ें।</string>
+    <string name="payments_edit_add">Razorpay की जानकारी जोड़ें</string>
+    <string name="payments_edit_change">Razorpay की जानकारी बदलें</string>
+    <!-- subscription page: localized text -->
+    <string name="sub_no_plan">कोई सक्रिय प्लान नहीं</string>
+    <string name="sub_choose_plan">शुरू करने के लिए प्लान चुनें</string>
+    <string name="sub_renews">%1$s को नवीनीकरण</string>
+    <string name="sub_days_left">%1$d दिन बाकी</string>
+    <string name="sub_pick_below">नीचे से प्लान चुनें</string>
+    <string name="sub_st_get_started">शुरू करें</string>
+    <string name="sub_st_trial">ट्रायल</string>
+    <string name="sub_st_ending">जल्द खत्म</string>
+    <string name="sub_st_active">सक्रिय</string>
+    <string name="sub_st_expired">समाप्त</string>
+    <string name="sub_base">बेसिक</string>
+    <string name="sub_cycle_1m">1 महीना</string>
+    <string name="sub_cycle_3m">3 महीने</string>
+    <string name="sub_cycle_6m">6 महीने</string>
+    <string name="sub_cycle_12m">12 महीने</string>
+    <string name="sub_cycle_days">%1$d दिन</string>
+    <string name="sub_suffix_mo">/माह</string>
+    <string name="sub_suffix_3mo">/3 माह</string>
+    <string name="sub_suffix_6mo">/6 माह</string>
+    <string name="sub_suffix_12mo">/12 माह</string>
+    <string name="sub_suffix_n">/%1$d माह</string>
+    <string name="sub_blurb_gst">+ GST + सेवा शुल्क</string>
+    <string name="sub_blurb_no_gst">+ सेवा शुल्क</string>
+    <string name="sub_save">%1$d%% बचाएँ</string>
+    <string name="sub_bonus_month">+1 महीना मुफ़्त</string>
+    <string name="sub_bonus_days">+%1$d दिन मुफ़्त</string>
+    <string name="sub_downgrade_blocked">आप प्रीमियम पर हैं — मौजूदा अवधि खत्म होने तक बेसिक पर नहीं जा सकते%1$s।</string>
+    <!-- subscription status card -->
+    <string name="sub_head_active">आपका प्लान चालू है</string>
+    <string name="sub_head_trial">आपका मुफ़्त ट्रायल चल रहा है</string>
+    <string name="sub_head_ending">आपका प्लान जल्द खत्म होगा</string>
+    <string name="sub_head_none">आपका कोई सक्रिय प्लान नहीं है</string>
+    <string name="sub_head_expired">आपका प्लान समाप्त हो गया है</string>
+    <string name="sub_valid_until">%1$s तक मान्य · %2$d दिन बाकी</string>
+    <string name="sub_choose_plan_below">जारी रखने के लिए नीचे से प्लान चुनें।</string>
+    <!-- subscription plan choice -->
+    <string name="sub_desc_base">रोज़ की बिलिंग के लिए सब कुछ</string>
+    <string name="sub_desc_premium">बेसिक की सारी सुविधाएँ, साथ में GST रिपोर्ट, मुनाफ़े का विश्लेषण और AI सुझाव</string>
+    <string name="sub_pick_cycle">आप कितने समय के लिए भुगतान करना चाहते हैं?</string>
+    <string name="sub_pick_plan">कौन सा प्लान?</string>
+    <!-- subscription trial and continue -->
+    <string name="sub_trial_line">अभी तय नहीं? पहले प्रीमियम मुफ़्त आज़माएँ।</string>
+    <string name="sub_trial_button">7 दिन मुफ़्त आज़माएँ</string>
+    <string name="sub_continue_hint">जारी रखने के लिए ऊपर से प्लान चुनें।</string>
+    <!-- confirm payment: localized text -->
+    <string name="cp_upgrade_credit_est">अपग्रेड क्रेडिट (अनुमानित, बेसिक के ~%1$d दिन बाकी)</string>
+    <string name="cp_cycle_discount">अवधि छूट (%1$d%%)</string>
+    <string name="cp_coupon_saved">कूपन लग गया — आप %1$s बचाएँगे</string>
+    <string name="cp_coupon_ok">कूपन लग गया</string>
+    <string name="cp_coupon_invalid">कूपन सही नहीं है</string>
+    <string name="cp_pay_free">चालू करें</string>
+    <string name="cp_pay_amount">%1$s सुरक्षित रूप से भरें</string>
+    <string name="cp_credit_ignored">आपका बेसिक प्लान क्रेडिट अभी पेमेंट प्रदाता द्वारा लागू नहीं हुआ — आपसे %1$s लिया जाएगा।</string>
+    <string name="cp_start_failed">भुगतान शुरू नहीं हो सका। कृपया दोबारा कोशिश करें।</string>
+    <string name="cp_upgrade_credit">अपग्रेड क्रेडिट</string>
+    <string name="cp_have_coupon">कूपन है?</string>
+    <!-- AI insights: one-sentence score, plain KPI labels -->
 </resources>

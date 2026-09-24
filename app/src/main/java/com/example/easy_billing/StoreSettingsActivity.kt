@@ -64,6 +64,14 @@ class StoreSettingsActivity : BaseActivity() {
     )
     private var selectedShopType = "General"
 
+    // Paper size (was on the separate Billing Settings page). Stored value
+    // stays "80mm" / "A4" so printing and the backend are unchanged.
+    private lateinit var rowPrinter: View
+    private lateinit var tvPrinter: TextView
+    private lateinit var icPrinterChevron: View
+    private val printerValues = listOf("80mm", "A4")
+    private var selectedPrinter = "80mm"
+
     private var snapshot: StoreSnapshot? = null
     private var isEditMode = false
     private var lastLookedUpPin: String = ""
@@ -89,27 +97,19 @@ class StoreSettingsActivity : BaseActivity() {
         supportActionBar?.title = ""
 
         bindViews()
-        setEditMode(false)
+        // Business type is no longer asked (the stored value is kept as-is).
+        findViewById<View>(R.id.tvShopTypeLabel).visibility = View.GONE
+        rowShopType.visibility = View.GONE
         setupShopTypeDropdown()
+        setupPrinterDropdown()
         loadStoreSettings()
         setupSave()
 
-        // Fields start empty for a brand-new shop — don't make the user
-        // tap "Edit" on blank required fields before they can type.
-        //
-        // Enter edit mode directly (not via toggleEditMode()) so no
-        // snapshot is taken here — loadStoreSettings() above is still
-        // in flight and hasn't populated the fields yet, so a snapshot
-        // taken now would be empty. If it were taken, tapping "Discard"
-        // after the async load finishes would revert freshly-loaded data
-        // back to blank. The Edit/Discard button is hidden entirely
-        // below instead, since onboarding has no "discard and view
-        // read-only" state to return to.
-        if (isOnboardingFlow) {
-            isEditMode = true
-            setEditMode(true)
-            btnEdit.visibility = View.GONE
-        }
+        // Always editable: the fields are ready to type in, with one Save
+        // button. There is no read-only state, no Edit/Discard toggle.
+        isEditMode = true
+        setEditMode(true)
+        btnEdit.visibility = View.GONE
     }
 
     companion object {
@@ -148,6 +148,10 @@ class StoreSettingsActivity : BaseActivity() {
         cardContact          = findViewById(R.id.cardContact)
         cardTax              = findViewById(R.id.cardTax)
 
+        rowPrinter       = findViewById(R.id.rowPrinter)
+        tvPrinter        = findViewById(R.id.tvPrinter)
+        icPrinterChevron = findViewById(R.id.icPrinterChevron)
+
         btnEdit.setOnClickListener { toggleEditMode() }
         icAreaDropdown.setOnClickListener { showLocalityDropdown() }
         setupAddressWatchers()
@@ -158,7 +162,7 @@ class StoreSettingsActivity : BaseActivity() {
         if (availableLocalities.isEmpty()) {
             val pin = etStorePincode.text.toString().trim()
             if (pin.length == 6) {
-                performPincodeLookup(pin)
+                performPincodeLookup(pin, showDropdown = true)
             }
             return
         }
@@ -187,6 +191,7 @@ class StoreSettingsActivity : BaseActivity() {
 
     private fun populateAddressFields(addressStr: String?) {
         val parsed = com.example.easy_billing.util.AddressHelper.parseAddress(addressStr)
+        lastLookedUpPin = parsed.pincode   // set first so loading saved data never triggers a lookup
         etStorePincode.setText(parsed.pincode)
         etStoreState.setText(parsed.state)
         etStoreCity.setText(parsed.city)
@@ -215,7 +220,7 @@ class StoreSettingsActivity : BaseActivity() {
                 updateAddressPreview()
                 val pin = s?.toString()?.trim() ?: ""
                 if (pin.length == 6 && pin != lastLookedUpPin) {
-                    performPincodeLookup(pin)
+                    performPincodeLookup(pin, showDropdown = etStorePincode.hasFocus())
                 } else if (pin.length < 6) {
                     progressPincode.visibility = View.GONE
                     tvPinStatus.visibility = View.GONE
@@ -300,7 +305,7 @@ class StoreSettingsActivity : BaseActivity() {
         }
     }
 
-    private fun performPincodeLookup(pin: String) {
+    private fun performPincodeLookup(pin: String, showDropdown: Boolean = false) {
         lastLookedUpPin = pin
         progressPincode.visibility = View.VISIBLE
         tvPinStatus.visibility = View.VISIBLE
@@ -326,7 +331,7 @@ class StoreSettingsActivity : BaseActivity() {
                     }
                     if (availableLocalities.size > 1) {
                         icAreaDropdown.visibility = if (isEditMode) View.VISIBLE else View.GONE
-                        if (isEditMode) {
+                        if (isEditMode && showDropdown) {
                             showLocalityDropdown()
                         }
                     } else {
@@ -345,6 +350,25 @@ class StoreSettingsActivity : BaseActivity() {
         }
     }
 
+    private fun printerLabel(v: String) =
+        getString(if (v == "A4") R.string.paper_full else R.string.paper_small)
+
+    private fun applyPrinter(v: String) {
+        selectedPrinter = if (v == "A4") "A4" else "80mm"
+        tvPrinter.text = printerLabel(selectedPrinter)
+    }
+
+    private fun setupPrinterDropdown() {
+        applyPrinter(selectedPrinter)
+        rowPrinter.setOnClickListener {
+            ThemedDropdown.show(
+                anchor = rowPrinter,
+                options = printerValues.map { printerLabel(it) },
+                selectedIndex = printerValues.indexOf(selectedPrinter).coerceAtLeast(0)
+            ) { idx -> applyPrinter(printerValues[idx]) }
+        }
+    }
+
     private fun setEditMode(enabled: Boolean) {
         listOf(
             etStoreName, etStorePincode, etStoreState, etStoreCity,
@@ -358,6 +382,10 @@ class StoreSettingsActivity : BaseActivity() {
         }
 
         icAreaDropdown.visibility = if (enabled && availableLocalities.size > 1) View.VISIBLE else View.GONE
+
+        rowPrinter.isEnabled = enabled
+        rowPrinter.isClickable = enabled
+        icPrinterChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
 
         rowShopType.isEnabled = enabled
         rowShopType.isClickable = enabled
@@ -431,6 +459,7 @@ class StoreSettingsActivity : BaseActivity() {
 
             // ---- Local cache ----
             val local = db.storeInfoDao().get()
+            val localBilling = db.billingSettingsDao().get()
 
             withContext(Dispatchers.Main) {
                 local?.let {
@@ -440,6 +469,7 @@ class StoreSettingsActivity : BaseActivity() {
                     etStoreGstin.setText(it.gstin)
                     applyShopTypeFromStored(it.type)
                 }
+                localBilling?.let { applyPrinter(it.printerLayout) }
             }
 
             // ---- Backend sync (best-effort) ----
@@ -476,6 +506,21 @@ class StoreSettingsActivity : BaseActivity() {
                     "StoreSettings", "settings_load_failed: ${e.javaClass.simpleName}"
                 )
             }
+
+            // Paper size from the server (separate call, so a failure above
+            // can't stop it, and the reverse).
+            try {
+                val billingResp = RetrofitClient.api.getBillingSettings(token)
+                val existing = db.billingSettingsDao().get()
+                db.billingSettingsDao().insert(
+                    (existing ?: com.example.easy_billing.db.BillingSettings(
+                        defaultGst = 0f, printerLayout = billingResp.printer_layout
+                    )).copy(printerLayout = billingResp.printer_layout)
+                )
+                withContext(Dispatchers.Main) { applyPrinter(billingResp.printer_layout) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -485,11 +530,7 @@ class StoreSettingsActivity : BaseActivity() {
 
     private fun setupSave() {
         btnSave.setOnClickListener {
-            if (isOnboardingFlow) {
-                saveStoreSettings()
-            } else {
-                showPasswordVerificationDialog { saveStoreSettings() }
-            }
+            saveStoreSettings()
         }
     }
 
@@ -593,6 +634,96 @@ class StoreSettingsActivity : BaseActivity() {
                 }
             }
 
+            // ---- 4. Former "Billing Settings" step, now part of this save ----
+            //      (GST details are filled automatically; only the paper size
+            //      is asked). Mirrors what the old Billing screen saved when
+            //      its pre-filled values were left untouched.
+            val authPrefs = getSharedPreferences("auth", MODE_PRIVATE)
+            val ownerName = authPrefs.getString("OWNER_NAME", null)
+            val defaultLegal = if (!ownerName.isNullOrBlank()) ownerName else name
+            val normScheme = { raw: String? ->
+                if (raw?.contains("compos", ignoreCase = true) == true) "Composition" else "Regular"
+            }
+            val normRegType = { raw: String? ->
+                when {
+                    raw == null || raw.isBlank() -> "Active"
+                    raw.contains("suspend", ignoreCase = true) -> "Suspended"
+                    raw.contains("cancel", ignoreCase = true) -> "Cancelled"
+                    raw.contains("provis", ignoreCase = true) -> "Provisional"
+                    else -> "Active"
+                }
+            }
+            val existingGst = db.gstProfileDao().get()
+            val stateCodeFromState =
+                GstEngine.getStateCodeFromName(etStoreState.text.toString()) ?: ""
+            val fullGst = if (gstin.isNotBlank()) {
+                GstProfile(
+                    gstin = gstin,
+                    legalName = existingGst?.legalName.orEmpty().ifBlank { defaultLegal },
+                    tradeName = existingGst?.tradeName.orEmpty().ifBlank { name },
+                    gstScheme = normScheme(existingGst?.gstScheme),
+                    registrationType = normRegType(existingGst?.registrationType),
+                    stateCode = existingGst?.stateCode.orEmpty()
+                        .ifBlank { GstEngine.getStateCode(gstin) },
+                    address = existingGst?.address.orEmpty().ifBlank { address },
+                    syncStatus = "pending",
+                    updatedAt = appNow()
+                )
+            } else {
+                GstProfile(
+                    gstin = "",
+                    legalName = defaultLegal,
+                    tradeName = name,
+                    gstScheme = "Regular",
+                    registrationType = "Active",
+                    stateCode = stateCodeFromState,
+                    address = address,
+                    syncStatus = "synced",
+                    updatedAt = appNow()
+                )
+            }
+            db.gstProfileDao().insert(fullGst)
+
+            val printer = selectedPrinter.ifEmpty { "80mm" }
+            val existingBilling = db.billingSettingsDao().get()
+            val defaultGst = existingBilling?.defaultGst ?: 0f
+            db.billingSettingsDao().insert(
+                (existingBilling ?: com.example.easy_billing.db.BillingSettings(
+                    defaultGst = defaultGst, printerLayout = printer
+                )).copy(printerLayout = printer)
+            )
+
+            if (token != null) {
+                if (fullGst.gstin.isNotBlank()) {
+                    runCatching {
+                        RetrofitClient.api.upsertGstProfile(
+                            token,
+                            com.example.easy_billing.network.GstProfileRequest(
+                                gstin = fullGst.gstin,
+                                legal_name = fullGst.legalName,
+                                trade_name = fullGst.tradeName,
+                                gst_scheme = fullGst.gstScheme,
+                                registration_type = fullGst.registrationType,
+                                state_code = fullGst.stateCode,
+                                address = fullGst.address
+                            )
+                        )
+                        db.gstProfileDao().updateSyncStatus("synced")
+                    }
+                }
+                // This call also marks the "billing" onboarding flag on the
+                // server, which is why it is made on every save.
+                runCatching {
+                    RetrofitClient.api.updateBillingSettings(
+                        token,
+                        com.example.easy_billing.network.BillingSettingsUpdateRequest(
+                            default_gst = defaultGst,
+                            printer_layout = printer
+                        )
+                    )
+                }
+            }
+
             // Kick the SyncCoordinator so any other pending rows
             // ride along with this network attempt. No-op if offline.
             com.example.easy_billing.sync.SyncCoordinator
@@ -603,15 +734,9 @@ class StoreSettingsActivity : BaseActivity() {
                 val msg = if (token == null) "Saved offline. Will sync when connected."
                           else "Store updated"
                 Toast.makeText(this@StoreSettingsActivity, msg, Toast.LENGTH_SHORT).show()
-                setEditMode(false)
-                isEditMode = false
-
-                // Reached from the onboarding hub — return to it
-                // automatically instead of leaving the user stranded on
-                // this screen needing a manual back press.
-                if (isOnboardingFlow) {
-                    finish()
-                }
+                // Go back automatically (to the onboarding hub or Settings)
+                // instead of leaving him on this screen.
+                finish()
             }
         }
     }

@@ -207,6 +207,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="5dp"
+                        android:id="@+id/tvCurrencyLabel"
                         android:text="@string/currency"
                         android:textSize="11sp"
                         android:textColor="#6E6A60"/>

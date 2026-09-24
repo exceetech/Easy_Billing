@@ -38,6 +38,10 @@ class DataSecurityActivity : BaseActivity() {
 
     private var isEditMode = false
 
+    companion object {
+        const val EXTRA_ADMIN = "extra_admin"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_security)
@@ -65,19 +69,34 @@ class DataSecurityActivity : BaseActivity() {
         chipQuickUnlockStatus = findViewById(R.id.chipQuickUnlockStatus)
         icQuickUnlock = findViewById(R.id.icQuickUnlock)
 
+        // Admin-only actions (clear bills, factory reset, diagnostics) only
+        // show when opened from Settings' hidden "Admin tools" row.
+        val isAdmin = com.example.easy_billing.util.AdminMode.enabled &&
+            intent.getBooleanExtra(EXTRA_ADMIN, false)
+        if (!isAdmin) {
+            listOf(R.id.cardData, R.id.cardDiagnose, R.id.cardDanger,
+                R.id.btnUnlock, R.id.helperUnlock, R.id.tvEyebrow)
+                .forEach { findViewById<View>(it).visibility = View.GONE }
+            findViewById<TextView>(R.id.tvTitle1).setText(R.string.pu_title1)
+            findViewById<TextView>(R.id.tvTitle2).setText(R.string.pu_title2)
+        } else {
+            // Admin page: only the admin tools, no password / quick unlock.
+            findViewById<View>(R.id.cardSecurity).visibility = View.GONE
+        }
+
         setLocked(true)
+        icChangePassword.setImageResource(R.drawable.ic_chevron_right)
+        icQuickUnlock.setImageResource(R.drawable.ic_chevron_right)
         refreshQuickUnlockRow()
 
         btnUnlock.setOnClickListener { toggleLock() }
 
         // Each action stays gated: locked guard + per-action password verification.
         btnChangePassword.setOnClickListener {
-            if (!isEditMode) return@setOnClickListener
             com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "change_password_clicked")
             showPasswordVerificationDialog { showChangePinDialog() }
         }
         btnQuickUnlock.setOnClickListener {
-            if (!isEditMode) return@setOnClickListener
             com.example.easy_billing.util.UserEventLogger.logAction("DataSecurity", "quick_unlock_clicked")
             handleQuickUnlockClick()
         }
@@ -116,7 +135,7 @@ class DataSecurityActivity : BaseActivity() {
 
     /** locked = actions disabled (default); unlocked = actions tappable. */
     private fun setLocked(locked: Boolean) {
-        val rows = listOf(btnChangePassword, btnQuickUnlock, btnClearBills, btnFactoryReset, btnSendDiagnosticReport)
+        val rows = listOf(btnClearBills, btnFactoryReset, btnSendDiagnosticReport)
         rows.forEach {
             it.isEnabled = !locked
             it.isClickable = !locked
@@ -125,7 +144,7 @@ class DataSecurityActivity : BaseActivity() {
 
         // Trailing glyph: lock when locked, chevron when unlocked.
         val trailing = if (locked) R.drawable.ic_si_lock else R.drawable.ic_chevron_right
-        listOf(icChangePassword, icQuickUnlock, icClearBills, icFactoryReset, icSendDiagnosticReport).forEach {
+        listOf(icClearBills, icFactoryReset, icSendDiagnosticReport).forEach {
             it.setImageResource(trailing)
         }
 
@@ -470,7 +489,7 @@ class DataSecurityActivity : BaseActivity() {
             chipQuickUnlockStatus.setBackgroundResource(R.drawable.bg_chip_low)
             chipQuickUnlockStatus.setTextColor(android.graphics.Color.parseColor("#3B6D11"))
         } else {
-            tvQuickUnlockSub.text = getString(R.string.quick_unlock_enable_sub)
+            tvQuickUnlockSub.text = getString(R.string.ds_quick_sub)
             chipQuickUnlockStatus.text = getString(R.string.quick_unlock_status_off)
             chipQuickUnlockStatus.setBackgroundResource(R.drawable.bg_chip_med)
             chipQuickUnlockStatus.setTextColor(android.graphics.Color.parseColor("#854F0B"))

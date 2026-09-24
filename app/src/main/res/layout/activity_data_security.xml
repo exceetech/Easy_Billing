@@ -45,6 +45,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:id="@+id/tvEyebrow"
                         android:text="@string/protected_eyebrow"
                         android:textColor="#B8895A"
                         android:textSize="10sp"
@@ -59,7 +60,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/data_word"
+                            android:id="@+id/tvTitle1"
+                        android:text="@string/data_word"
                             android:textColor="#1A1A18"
                             android:textSize="21sp"
                             android:textStyle="bold"
@@ -71,7 +73,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="@string/and_security_word"
+                            android:id="@+id/tvTitle2"
+                        android:text="@string/and_security_word"
                             android:textColor="#0F6E56"
                             android:textSize="21sp"
                             android:fontFamily="serif"
@@ -117,7 +120,7 @@
             </LinearLayout>
 
             <!-- Helper -->
-            <LinearLayout
+            <LinearLayout android:id="@+id/helperUnlock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -142,6 +145,7 @@
 
             <!-- ===================== SECURITY ===================== -->
             <LinearLayout
+                android:id="@+id/cardSecurity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -226,8 +230,8 @@
                             android:backgroundTint="#DDEEEE"
                             android:src="@drawable/ic_si_key" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/DsText">
-                            <TextView style="@style/DsTitle" android:text="@string/change_login_password"/>
-                            <TextView style="@style/DsSub" android:text="@string/update_login_pin_sub"/>
+                            <TextView style="@style/DsTitle" android:text="@string/ds_change_pw"/>
+                            <TextView style="@style/DsSub" android:text="@string/ds_change_pw_sub"/>
                         </LinearLayout>
                         <TextView style="@style/DsChip"
                             android:background="@drawable/bg_chip_low"
@@ -252,8 +256,8 @@
                             android:backgroundTint="#DDEEEE"
                             android:src="@drawable/ic_lucide_shield_check" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/DsText">
-                            <TextView style="@style/DsTitle" android:text="@string/quick_unlock_settings_title"/>
-                            <TextView android:id="@+id/tvQuickUnlockSub" style="@style/DsSub" android:text="@string/quick_unlock_enable_sub"/>
+                            <TextView style="@style/DsTitle" android:text="@string/ds_quick"/>
+                            <TextView android:id="@+id/tvQuickUnlockSub" style="@style/DsSub" android:text="@string/ds_quick_sub"/>
                         </LinearLayout>
                         <TextView android:id="@+id/chipQuickUnlockStatus" style="@style/DsChip"
                             android:background="@drawable/bg_chip_low"
@@ -266,7 +270,7 @@
             </LinearLayout>
 
             <!-- ===================== DATA ===================== -->
-            <LinearLayout
+            <LinearLayout android:id="@+id/cardData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -365,7 +369,7 @@
             </LinearLayout>
 
             <!-- ===================== DIAGNOSE ===================== -->
-            <LinearLayout
+            <LinearLayout android:id="@+id/cardDiagnose"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -464,7 +468,7 @@
             </LinearLayout>
 
             <!-- ===================== DANGER ZONE ===================== -->
-            <LinearLayout
+            <LinearLayout android:id="@+id/cardDanger"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

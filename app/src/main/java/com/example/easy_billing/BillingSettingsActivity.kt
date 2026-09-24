@@ -68,19 +68,13 @@ class BillingSettingsActivity : BaseActivity() {
         bindViews()
         setupDropdowns()
         loadData()
-        setEditable(false)
         setupSave()
 
-        if (isOnboardingFlow) {
-            isEditMode = true
-            setEditable(true)
-            // No read-only state to fall back to during onboarding, so
-            // there's nothing for "Discard" to meaningfully do — hide it
-            // rather than leave a dead-end tap that hides Save with no
-            // way back (toggleEditMode() would flip isEditMode off and
-            // hit an empty snapshot since one was never taken here).
-            btnEdit.visibility = View.GONE
-        }
+        // Always editable: fields ready to type in, one Save button, no
+        // Edit/Discard toggle (same in onboarding and in Settings).
+        isEditMode = true
+        setEditable(true)
+        btnEdit.visibility = View.GONE
     }
 
     companion object {
@@ -347,11 +341,7 @@ class BillingSettingsActivity : BaseActivity() {
 
     private fun setupSave() {
         btnSave.setOnClickListener {
-            if (isOnboardingFlow) {
-                saveBillingSettings()
-            } else {
-                showPasswordVerificationDialog { saveBillingSettings() }
-            }
+            saveBillingSettings()
         }
     }
 
@@ -515,15 +505,8 @@ class BillingSettingsActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                setEditable(false)
-                isEditMode = false
-
-                // Reached from the onboarding hub — return to it
-                // automatically instead of leaving the user stranded on
-                // this screen needing a manual back press.
-                if (isOnboardingFlow) {
-                    finish()
-                }
+                // Go back automatically (to the onboarding hub or Settings).
+                finish()
             }
         }
     }

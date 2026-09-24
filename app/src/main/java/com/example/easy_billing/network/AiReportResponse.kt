@@ -2,8 +2,7 @@ package com.example.easy_billing.network
 
 data class AiReportResponse(
     val insights: List<AiInsight> = emptyList(),
-    val report_data: List<ProductReport> = emptyList(),
-    val ai_report: String = ""
+    val report_data: List<ProductReport> = emptyList()
 )
 
 data class AiInsight(

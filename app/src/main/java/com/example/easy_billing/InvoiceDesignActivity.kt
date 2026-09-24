@@ -8,13 +8,11 @@ import com.google.android.material.materialswitch.MaterialSwitch
 class InvoiceDesignActivity : BaseActivity() {
 
     private lateinit var etFooter: EditText
-    private lateinit var switchLogo: MaterialSwitch
     private lateinit var switchGstin: MaterialSwitch
     private lateinit var switchPhone: MaterialSwitch
     private lateinit var switchDiscount: MaterialSwitch
     private lateinit var switchRoundOff: MaterialSwitch
 
-    private lateinit var rowLogo: View
     private lateinit var rowGstin: View
     private lateinit var rowPhone: View
     private lateinit var rowDiscount: View
@@ -45,19 +43,20 @@ class InvoiceDesignActivity : BaseActivity() {
         loadData()
         setupSave()
 
-        setEditable(false) // Locked by default
+        // Always editable: no Edit/Discard toggle, one Save button.
+        isEditMode = true
+        setEditable(true)
+        btnEdit.visibility = android.view.View.GONE
     }
 
     // ===== BIND =====
     private fun bindViews() {
         etFooter       = findViewById(R.id.etFooter)
-        switchLogo     = findViewById(R.id.switchShowLogo)
         switchGstin    = findViewById(R.id.switchShowGstin)
         switchPhone    = findViewById(R.id.switchShowPhone)
         switchDiscount = findViewById(R.id.switchShowDiscount)
         switchRoundOff = findViewById(R.id.switchRoundOff)
 
-        rowLogo     = findViewById(R.id.rowLogo)
         rowGstin    = findViewById(R.id.rowGstin)
         rowPhone    = findViewById(R.id.rowPhone)
         rowDiscount = findViewById(R.id.rowDiscount)
@@ -73,7 +72,6 @@ class InvoiceDesignActivity : BaseActivity() {
         btnEdit.setOnClickListener { toggleEditMode() }
 
         // Tapping anywhere on a row flips its switch (only in edit mode).
-        rowLogo.setOnClickListener { if (isEditMode) switchLogo.toggle() }
         rowGstin.setOnClickListener { if (isEditMode) switchGstin.toggle() }
         rowPhone.setOnClickListener { if (isEditMode) switchPhone.toggle() }
         rowDiscount.setOnClickListener { if (isEditMode) switchDiscount.toggle() }
@@ -83,7 +81,6 @@ class InvoiceDesignActivity : BaseActivity() {
     // ===== LOAD =====
     private fun loadData() {
         etFooter.setText(prefs.getString("footer_message", getString(R.string.invoice_design_footer_default)))
-        switchLogo.isChecked = prefs.getBoolean("show_logo", true)
         switchGstin.isChecked = prefs.getBoolean("show_gstin", true)
         switchPhone.isChecked = prefs.getBoolean("show_phone", true)
         switchDiscount.isChecked = prefs.getBoolean("show_discount", true)
@@ -97,7 +94,6 @@ class InvoiceDesignActivity : BaseActivity() {
             // Entering edit: snapshot so "Discard" can revert.
             snapshot = DesignSnapshot(
                 footer = etFooter.text.toString(),
-                logo = switchLogo.isChecked,
                 gstin = switchGstin.isChecked,
                 phone = switchPhone.isChecked,
                 discount = switchDiscount.isChecked,
@@ -106,7 +102,6 @@ class InvoiceDesignActivity : BaseActivity() {
         } else {
             snapshot?.let { s ->
                 etFooter.setText(s.footer)
-                switchLogo.isChecked = s.logo
                 switchGstin.isChecked = s.gstin
                 switchPhone.isChecked = s.phone
                 switchDiscount.isChecked = s.discount
@@ -118,7 +113,6 @@ class InvoiceDesignActivity : BaseActivity() {
 
     private fun setEditable(enable: Boolean) {
         etFooter.isEnabled = enable
-        switchLogo.isEnabled = enable
         switchGstin.isEnabled = enable
         switchPhone.isEnabled = enable
         switchDiscount.isEnabled = enable
@@ -139,11 +133,11 @@ class InvoiceDesignActivity : BaseActivity() {
         btnSave.setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction(
                 "InvoiceDesign",
-                "save_clicked: logo=${switchLogo.isChecked}, gstin=${switchGstin.isChecked}, " +
+                "save_clicked: gstin=${switchGstin.isChecked}, " +
                     "phone=${switchPhone.isChecked}, discount=${switchDiscount.isChecked}, round_off=${switchRoundOff.isChecked}, " +
                     "footer=${etFooter.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
             )
-            showPasswordVerificationDialog { saveDesignSettings() }
+            saveDesignSettings()
         }
     }
 
@@ -191,7 +185,6 @@ class InvoiceDesignActivity : BaseActivity() {
     private fun saveDesignSettings() {
         prefs.edit()
             .putString("footer_message", etFooter.text.toString())
-            .putBoolean("show_logo", switchLogo.isChecked)
             .putBoolean("show_gstin", switchGstin.isChecked)
             .putBoolean("show_phone", switchPhone.isChecked)
             .putBoolean("show_discount", switchDiscount.isChecked)
@@ -200,13 +193,11 @@ class InvoiceDesignActivity : BaseActivity() {
 
         Toast.makeText(this, R.string.design_settings_saved, Toast.LENGTH_SHORT).show()
 
-        setEditable(false)
-        isEditMode = false
+        finish()
     }
 
     private data class DesignSnapshot(
         val footer: String,
-        val logo: Boolean,
         val gstin: Boolean,
         val phone: Boolean,
         val discount: Boolean,

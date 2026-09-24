@@ -104,7 +104,8 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
     // while waiting on a call that, for the no-coupon case, never even
     // happens until Pay is tapped.
     private val serviceChargePercent = 2.0
-    private val gstPercent = 18.0
+    private var gstPercent = 18.0
+    private var gstEnabled = false
     private var subtotalPaise: Int = 0
     private var serviceChargePaise: Int = 0
     private var gstPaise: Int = 0
@@ -118,7 +119,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         subtotalPaise = newSubtotalPaise
         serviceChargePaise = Math.round(subtotalPaise * (serviceChargePercent / 100.0)).toInt()
         val taxable = subtotalPaise + serviceChargePaise
-        gstPaise = Math.round(taxable * (gstPercent / 100.0)).toInt()
+        gstPaise = if (gstEnabled) Math.round(taxable * (gstPercent / 100.0)).toInt() else 0
         lastComputedFinalPaise = taxable + gstPaise
     }
 
@@ -192,6 +193,10 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         upgradeCreditPaise = intent.getIntExtra(EXTRA_UPGRADE_CREDIT_PAISE, 0)
         upgradeRemainingDays = intent.getIntExtra(EXTRA_UPGRADE_REMAINING_DAYS, 0)
 
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        gstEnabled = prefs.getBoolean("sub_gst_enabled", false)
+        gstPercent = prefs.getFloat("sub_gst_percent", 18.0f).toDouble()
+
         Checkout.preload(applicationContext)
 
         ivPlanIcon = findViewById(R.id.ivPlanIcon)
@@ -215,6 +220,17 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         tvServiceCharge = findViewById(R.id.tvServiceCharge)
         tvGst = findViewById(R.id.tvGst)
         tvFinalPrice = findViewById(R.id.tvFinalPrice)
+
+        val rowGst = findViewById<View>(R.id.rowGst)
+        val tvGstLabel = findViewById<TextView>(R.id.tvGstLabel)
+        if (!gstEnabled) {
+            rowGst.visibility = View.GONE
+        } else {
+            rowGst.visibility = View.VISIBLE
+            val pctInt = gstPercent.toInt()
+            val formatStr = if (gstPercent % 1.0 == 0.0) "${pctInt}%" else "${gstPercent}%"
+            tvGstLabel.text = "GST ($formatStr)"
+        }
         etCoupon = findViewById(R.id.etCoupon)
         btnApplyCoupon = findViewById(R.id.btnApplyCoupon)
         tvCouponResult = findViewById(R.id.tvCouponResult)
@@ -226,6 +242,11 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         cardContainer = findViewById(R.id.cardContainer)
         payLoadingOverlay = findViewById(R.id.payLoadingOverlay)
 
+        // Coupon stays out of sight until asked for.
+        findViewById<View>(R.id.tvHaveCoupon).setOnClickListener {
+            it.visibility = View.GONE
+            findViewById<View>(R.id.containerCoupon).visibility = View.VISIBLE
+        }
         btnApplyCoupon.setOnClickListener { onApplyCouponClicked() }
         btnPay.setOnClickListener { onPayClicked() }
 
@@ -379,7 +400,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
 
     private fun renderPlanSummary() {
         val isPremium = planTier == "premium"
-        tvPlanName.text = if (isPremium) "Premium" else "Base"
+        tvPlanName.text = if (isPremium) getString(R.string.premium_plan_name) else getString(R.string.sub_base)
         tvPlanCycle.text = "${cycleLabel(planDurationDays)} billing cycle"
         tvPlanPrice.text = formatRupees(planPricePaise)
 
@@ -395,7 +416,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             rowUpgradeCredit.visibility = View.VISIBLE
             tvUpgradeCreditNote.visibility = View.VISIBLE
             rowPayableAmount.visibility = View.VISIBLE
-            tvUpgradeCreditLabel.text = "Upgrade credit (est., ~$upgradeRemainingDays days left on Base)"
+            tvUpgradeCreditLabel.text = getString(R.string.cp_upgrade_credit_est, upgradeRemainingDays)
             tvUpgradeCreditAmount.text = "-${formatRupees(upgradeCreditPaise)}"
         } else {
             rowUpgradeCredit.visibility = View.GONE
@@ -408,7 +429,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
             val savedPaise = baseline - planPricePaise
             val savedPct = Math.round(savedPaise * 100.0 / baseline).toInt()
             rowDiscount.visibility = View.VISIBLE
-            tvDiscountLabel.text = "Cycle discount ($savedPct%)"
+            tvDiscountLabel.text = getString(R.string.cp_cycle_discount, savedPct)
             tvDiscountAmount.text = "-${formatRupees(savedPaise)}"
         } else {
             rowDiscount.visibility = View.GONE
@@ -421,7 +442,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         }
         if (bonusDays > 0) {
             tvBonusDays.visibility = View.VISIBLE
-            tvBonusDays.text = if (bonusDays == 30) "+1 month free" else "+$bonusDays days free"
+            tvBonusDays.text = if (bonusDays == 30) getString(R.string.sub_bonus_month) else getString(R.string.sub_bonus_days, bonusDays)
         } else {
             tvBonusDays.visibility = View.GONE
         }
@@ -458,9 +479,9 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 tvCouponResult.visibility = View.VISIBLE
                 tvCouponResult.setTextColor(getColor(R.color.green))
                 tvCouponResult.text = if (res.discount_amount_paise > 0)
-                    "Coupon applied — you save ${formatRupees(res.discount_amount_paise)}"
+                    getString(R.string.cp_coupon_saved, formatRupees(res.discount_amount_paise))
                 else
-                    "Coupon applied"
+                    getString(R.string.cp_coupon_ok)
 
                 updatePriceSummary()
             } catch (e: retrofit2.HttpException) {
@@ -469,7 +490,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 recomputeLocalBreakdown(localSubtotalBasePaise())
                 tvCouponResult.visibility = View.VISIBLE
                 tvCouponResult.setTextColor(getColor(R.color.red))
-                tvCouponResult.text = parseErrorDetail(e) ?: "Invalid coupon"
+                tvCouponResult.text = parseErrorDetail(e) ?: getString(R.string.cp_coupon_invalid)
                 updatePriceSummary()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -503,7 +524,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
         tvGst.text = formatRupees(gstPaise)
 
         tvFinalPrice.text = if (finalPaise == 0) "Free" else formatRupees(finalPaise)
-        btnPay.text = if (finalPaise == 0) "Activate" else "Pay ${formatRupees(finalPaise)} securely"
+        btnPay.text = if (finalPaise == 0) getString(R.string.cp_pay_free) else getString(R.string.cp_pay_amount, formatRupees(finalPaise))
     }
 
     // ================= SHARED SUCCESS HANDLER =================
@@ -575,7 +596,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 if (realAmount != null && shown != null && realAmount > shown) {
                     Toast.makeText(
                         this@ConfirmPaymentActivity,
-                        "Your Base plan credit isn't applied by the payment provider yet — you'll be charged ${formatRupees(realAmount)}.",
+                        getString(R.string.cp_credit_ignored, formatRupees(realAmount)),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -599,7 +620,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 e.printStackTrace()
                 Toast.makeText(
                     this@ConfirmPaymentActivity,
-                    parseErrorDetail(e) ?: "Couldn't start payment. Please try again.",
+                    parseErrorDetail(e) ?: getString(R.string.cp_start_failed),
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {
@@ -655,7 +676,7 @@ class ConfirmPaymentActivity : BaseActivity(), PaymentResultWithDataListener {
                 rowUpgradeCredit.visibility = View.VISIBLE
                 tvUpgradeCreditNote.visibility = View.GONE
                 rowPayableAmount.visibility = View.VISIBLE
-                tvUpgradeCreditLabel.text = "Upgrade credit"
+                tvUpgradeCreditLabel.text = getString(R.string.cp_upgrade_credit)
                 tvUpgradeCreditAmount.text = "-${formatRupees(serverCredit)}"
             } else {
                 rowUpgradeCredit.visibility = View.GONE

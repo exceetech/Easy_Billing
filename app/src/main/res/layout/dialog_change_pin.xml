@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:gravity="center"
-        android:text="@string/dialog_change_pin_subtitle"
+        android:text="@string/pw_dialog_sub"
         android:textSize="12sp"
         android:textColor="#9A8F79" />
 
@@ -73,7 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginStart="2dp"
-        android:text="@string/new_password"
+        android:text="@string/pw_new"
         android:textSize="11sp"
         android:textColor="#9A8F79"
         android:fontFamily="@font/googlesans_semibold" />
@@ -99,7 +99,7 @@
             android:background="@null"
             android:paddingStart="44dp"
             android:paddingEnd="46dp"
-            android:hint="@string/new_password"
+            android:hint="@string/pw_new"
             android:textSize="14sp"
             android:textColor="#1A1A18"
             android:textColorHint="#A99E88"
@@ -125,7 +125,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:layout_marginStart="2dp"
-        android:text="@string/confirm_password"
+        android:text="@string/pw_again"
         android:textSize="11sp"
         android:textColor="#9A8F79"
         android:fontFamily="@font/googlesans_semibold" />
@@ -151,7 +151,7 @@
             android:background="@null"
             android:paddingStart="44dp"
             android:paddingEnd="46dp"
-            android:hint="@string/confirm_password"
+            android:hint="@string/pw_again"
             android:textSize="14sp"
             android:textColor="#1A1A18"
             android:textColorHint="#A99E88"
@@ -181,7 +181,7 @@
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="@string/save_changes"
+        android:text="@string/pw_save"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="13.5sp"

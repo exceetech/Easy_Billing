@@ -372,9 +372,11 @@
     <string name="fragment_overview_card">Card</string>
     <string name="fragment_overview_cash">Cash</string>
     <string name="fragment_overview_credit">Credit</string>
-    <string name="fragment_overview_glance">GLANCE</string>
+    <string name="fragment_overview_glance">At a glance</string>
+    <string name="fragment_overview_glance_sub">Your math so far</string>
     <string name="fragment_overview_good_morning">Good morning</string>
-    <string name="fragment_overview_payment_split">PAYMENT SPLIT</string>
+    <string name="fragment_overview_payment_split">Payment split</string>
+    <string name="fragment_overview_payment_split_sub">How they paid</string>
     <string name="fragment_overview_returns">Returns</string>
     <string name="fragment_overview_total_bills">Total bills</string>
     <string name="fragment_overview_total_collected">Total collected</string>
@@ -466,7 +468,7 @@
     <string name="dashboard_view_cart">View cart</string>
     <string name="dashboard_welcome_back">Welcome back</string>
     <string name="generate_bill">Generate Bill</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Sign Out</string>
     <string name="reports">Reports</string>
     <string name="search_products">Search products...</string>
     <string name="settings">Settings</string>
@@ -728,17 +730,19 @@
     <!-- activity_ai_dashboard -->
     <string name="ai_dashboard_audit_score_desc">Your shop\'s health out of 100 — higher is better</string>
     <string name="ai_dashboard_audit_score_label">Audit score</string>
+    <string name="ai_dashboard_audit_score_header_sub">How healthy your shop looks right now</string>
     <string name="ai_dashboard_col_product">PRODUCT</string>
     <string name="ai_dashboard_col_qty">QTY</string>
     <string name="ai_dashboard_col_revenue">REVENUE</string>
     <string name="ai_dashboard_eyebrow">BUSINESS AUDIT</string>
     <string name="ai_dashboard_insights_empty">No alerts right now — your shop looks healthy.</string>
-    <string name="ai_dashboard_kpi_leaks">Leaks</string>
-    <string name="ai_dashboard_kpi_urgent">Urgent</string>
-    <string name="ai_dashboard_kpi_wins">Wins</string>
+    <string name="ai_dashboard_kpi_leaks">Losing money</string>
+    <string name="ai_dashboard_kpi_urgent">Needs action</string>
+    <string name="ai_dashboard_kpi_wins">Going well</string>
     <string name="ai_dashboard_title_ai">AI</string>
     <string name="ai_dashboard_title_insights_suffix">insights</string>
     <string name="ai_dashboard_top_velocity_title">Top product velocity</string>
+    <string name="ai_dashboard_top_velocity_subtitle">Your fastest-moving items</string>
 
     <!-- AiDashboardActivity -->
     <string name="ai_dashboard_band_fair">FAIR</string>
@@ -756,9 +760,11 @@
 
     <!-- AiInsightListAdapter -->
     <string name="ai_insight_header_default">INSIGHTS</string>
+    <string name="ai_insights_section_title">Insights</string>
+    <string name="ai_insights_section_subtitle">What needs your attention</string>
     <string name="ai_insight_header_fire">NEEDS ATTENTION</string>
     <string name="ai_insight_header_gold">WHAT\'S WORKING</string>
-    <string name="ai_insight_header_leak">PLUGGING LEAKS</string>
+    <string name="ai_insight_header_leak">COSTING YOU MONEY</string>
 
     <!-- activity_change_password -->
     <string name="almost_there_eyebrow">ALMOST THERE</string>
@@ -779,6 +785,8 @@
     <string name="clear_all_bills">Clear All Bills</string>
     <string name="danger_zone_section">DANGER ZONE</string>
     <string name="ds_card_title_security">Security</string>
+    <string name="sub_status_header_title">Plan status</string>
+    <string name="sub_status_header_subtitle">Your current subscription</string>
     <string name="security_card_subtitle">Password &amp; quick unlock</string>
     <string name="security_card_count">2 actions</string>
     <string name="ds_card_title_data">Data</string>
@@ -832,13 +840,13 @@
     <string name="cycle_discount">Cycle discount</string>
     <string name="dialog_product_filter_apply">Apply</string>
     <string name="estimated_only_note">Estimated only — actual charge is confirmed once payment starts.</string>
-    <string name="gst_18_pct">GST (18%%)</string>
+    <string name="gst_18_pct" formatted="false">GST (18%)</string>
     <string name="pay_word">pay</string>
     <string name="payable_amount">Payable amount</string>
     <string name="plan_price">Plan price</string>
     <string name="plus_15_days_free">+15 days free</string>
     <string name="secured_by_razorpay">Secured by Razorpay — cards, UPI and netbanking</string>
-    <string name="service_charge_pct">Service charge (2%%)</string>
+    <string name="service_charge_pct" formatted="false">Service charge (2%)</string>
     <string name="total_2">Total</string>
     <string name="upgrade_credit_est">Upgrade credit (est.)</string>
 
@@ -846,14 +854,14 @@
     <string name="app_name">ExPOS</string>
 
     <!-- activity_register -->
-    <string name="as_per_your_id_hint">As per your ID</string>
+    <string name="as_per_your_id_hint">Enter your full name</string>
     <string name="create_account_3">Create account</string>
-    <string name="digit_mobile_hint">10-digit mobile</string>
-    <string name="for_login_receipts_hint">For login &amp; receipts</string>
+    <string name="digit_mobile_hint">Your 10 digit mobile number</string>
+    <string name="for_login_receipts_hint">Enter your email address</string>
     <string name="full_name_2">Full name</string>
     <string name="login_2">Login</string>
     <string name="shop_name_2">Shop name</string>
-    <string name="shown_on_your_bills_hint">Shown on your bills</string>
+    <string name="shown_on_your_bills_hint">Enter your shop name</string>
 
     <!-- EditProductActivity -->
     <string name="badge_manual">MANUAL</string>
@@ -1238,10 +1246,10 @@
     <!-- dialog_subscription_expired -->
     <string name="dashboard_subscription">Subscription</string>
     <string name="dialog_subscription_expired_contact_support">Need help? Contact support</string>
-    <string name="dialog_subscription_expired_cta">Renew subscription</string>
-    <string name="dialog_subscription_expired_data_safe">Your data is safe. Renewing unlocks everything instantly.</string>
-    <string name="dialog_subscription_expired_eyebrow">EXPOS PREMIUM</string>
-    <string name="dialog_subscription_expired_message">Your plan ran out, so billing, inventory and reports are paused. Renew to pick up right where you left off — nothing has been deleted.</string>
+    <string name="dialog_subscription_expired_cta">Renew now</string>
+    <string name="dialog_subscription_expired_data_safe">Renew any time and everything comes back instantly.</string>
+    <string name="dialog_subscription_expired_eyebrow">YOUR PLAN</string>
+    <string name="dialog_subscription_expired_message">Your plan has ended, so billing is paused. Your data is safe — nothing has been deleted.</string>
     <string name="dialog_subscription_expired_title_part2">expired</string>
 
     <!-- InvoiceDesignActivity -->
@@ -1744,11 +1752,11 @@
     <string name="razorpay_not_connected">Not connected — customers can\'t pay via UPI link yet</string>
     <string name="razorpay_connected">Connected — payment links are live</string>
     <string name="razorpay_key_id_label">Key ID</string>
-    <string name="razorpay_key_id_hint">rzp_live_xxxxxxxxxxxx</string>
+    <string name="razorpay_key_id_hint">Enter Key ID</string>
     <string name="razorpay_key_secret_label">Key Secret</string>
-    <string name="razorpay_key_secret_hint">Leave blank to keep unchanged</string>
+    <string name="razorpay_key_secret_hint">Enter Key Secret</string>
     <string name="razorpay_webhook_secret_label">Webhook Secret</string>
-    <string name="razorpay_webhook_secret_hint">Leave blank to keep unchanged</string>
+    <string name="razorpay_webhook_secret_hint">Enter Webhook Secret</string>
     <string name="razorpay_helper_text">Create a Razorpay account, then paste your Key ID, Key Secret, and Webhook Secret here. Payments customers make via UPI link go straight to your own bank account.</string>
     <string name="invoice_pdf_sub_total_label">Sub Total</string>
     <string name="invoice_pdf_summary_cost">Cost</string>
@@ -1830,7 +1838,7 @@
 
     <!-- fragment_peak_hours -->
     <string name="peak_hours_breakdown_label">Hourly breakdown</string>
-    <string name="peak_hours_eyebrow_today">TODAY</string>
+    <string name="peak_hours_eyebrow_today">BUSY TIMES</string>
     <string name="peak_hours_hero_label">Peak revenue</string>
     <string name="peak_hours_legend_hourly_revenue">Hourly revenue</string>
     <string name="peak_hours_legend_peak_hour">Peak hour</string>
@@ -2388,7 +2396,7 @@
     <string name="locality_area_label">Area / Locality</string>
     <string name="locality_area_hint">e.g. Mukkam</string>
     <string name="city_district_label">City / District</string>
-    <string name="city_district_hint">e.g. Balussery / Kozhikode</string>
+    <string name="city_district_hint">e.g. Kozhikode</string>
     <string name="state_label">State</string>
     <string name="state_hint">e.g. Kerala</string>
     <string name="street_building_label">Shop No., Building, Street</string>
@@ -2414,7 +2422,7 @@
     <string name="payment_setup_eyebrow">PAYMENTS</string>
     <string name="payment_setup_title_bold">UPI</string>
     <string name="payment_setup_title_italic">payments</string>
-    <string name="payment_setup_explainer">Connect Razorpay to accept UPI and card payments directly on your invoices.</string>
+    <string name="payment_setup_explainer">Customers can pay from their phone using a link on your bill.</string>
     <string name="payment_setup_card_title">Payment credentials</string>
     <string name="payment_setup_card_sub">Razorpay API keys</string>
     <string name="razorpay_status_connected">Connected</string>
@@ -2504,4 +2512,177 @@
     <string name="quick_unlock_signed_in_as">Signed in as %1$s</string>
     <string name="quick_unlock_disabled_toast">Quick Unlock turned off</string>
 
+    <!-- simplification: settings, store, billing, design, onboarding -->
+    <string name="settings_group_shop">My shop</string>
+    <string name="settings_group_shop_sub">Shop details and language</string>
+    <string name="settings_group_billing">Bills and payments</string>
+    <string name="settings_group_billing_sub">GST, UPI and how your bill looks</string>
+    <string name="settings_group_security">Password and safety</string>
+    <string name="settings_group_security_sub">Change password and unlock</string>
+    <string name="store_card_name_title">Shop name</string>
+    <string name="store_card_name_sub">What is your shop called?</string>
+    <string name="store_card_address_title">Address and phone</string>
+    <string name="store_card_address_sub">Where is your shop?</string>
+    <string name="store_card_gst_title">GST</string>
+    <string name="store_card_gst_sub">GST number (optional)</string>
+    <string name="billing_card_gst_title">GST details</string>
+    <string name="billing_card_gst_sub">Filled in from your GST number</string>
+    <string name="billing_card_printer_title">Bill printing</string>
+    <string name="billing_card_printer_sub">Choose your paper size</string>
+    <string name="design_card_footer_title">Thank-you message</string>
+    <string name="design_card_footer_sub">Printed at the bottom of every bill</string>
+    <string name="design_card_show_title">What to show on the bill</string>
+    <string name="design_card_show_sub">Switch on what you want to see</string>
+    <string name="onboarding_step_plan_title">Choose a plan</string>
+    <string name="onboarding_step_plan_sub">Start a free trial or subscribe</string>
+    <string name="onboarding_step_shop_title">Your shop</string>
+    <string name="onboarding_step_shop_sub">Tell us about your shop</string>
+    <string name="onboarding_step_billing_title">Bill settings</string>
+    <string name="onboarding_step_billing_sub">Set GST and paper size</string>
+    <string name="onboarding_step_terms_title">Terms and conditions</string>
+    <string name="onboarding_step_terms_sub">Read and accept to continue</string>
+
+    <!-- simplification: settings home rows -->
+    <string name="settings_row_shop">My shop</string>
+    <string name="settings_row_shop_sub">Shop name, address and phone</string>
+    <string name="settings_row_payments">Payments (UPI)</string>
+    <string name="settings_row_payments_sub">Receive money on UPI</string>
+    <string name="settings_row_print">Bill print</string>
+    <string name="settings_row_print_sub">How your bill looks</string>
+    <string name="settings_row_gst">GST and paper size</string>
+    <string name="settings_row_gst_sub">GST rate and bill paper</string>
+    <string name="settings_row_security">Password and unlock</string>
+    <string name="settings_row_security_sub">Change password, fingerprint or PIN</string>
+    <string name="settings_row_language">Language</string>
+    <string name="settings_row_language_sub">Choose the app language</string>
+
+    <!-- simplification: paper size -->
+    <string name="paper_size_label">Paper size</string>
+    <string name="paper_small">Small receipt (80mm)</string>
+    <string name="paper_full">Full page (A4)</string>
+
+    <!-- simplification: payments -->
+    <string name="payments_status_on">UPI is ON. Customers can pay you by UPI link.</string>
+    <string name="payments_status_off">UPI is OFF. Turn it on to accept payments by UPI.</string>
+    <string name="payments_admin_toggle">Admin setup</string>
+
+    <!-- simplification: bill print -->
+    <string name="design_show_logo">Show my shop logo on the bill</string>
+    <string name="design_show_gstin">Show my GST number on the bill</string>
+    <string name="design_show_phone">Show my phone number on the bill</string>
+    <string name="design_show_discount">Show discount on the bill</string>
+    <string name="design_round_off">Round the total to a whole rupee</string>
+    <string name="design_round_off_sub">Example: ₹99.60 becomes ₹100</string>
+    <string name="design_footer_label">Thank-you message</string>
+    <string name="design_footer_hint">Example: Thank you, visit again</string>
+    <string name="design_footer_helper">This is printed at the bottom of every bill.</string>
+    <string name="design_save">Save</string>
+    <string name="design_title_bold">Bill</string>
+    <string name="design_title_italic">print</string>
+
+    <!-- simplification: password, quick unlock -->
+    <string name="pw_dialog_sub">Type a new password for your account</string>
+    <string name="pw_new">New password</string>
+    <string name="pw_again">Type it again</string>
+    <string name="pw_save">Save</string>
+    <string name="verify_t1">Enter your</string>
+    <string name="verify_t2">password</string>
+    <string name="verify_sub">Type your login password to continue</string>
+    <string name="verify_btn">Continue</string>
+    <string name="qu_t1">Quick</string>
+    <string name="qu_t2">unlock</string>
+    <string name="qu_change">Change my PIN</string>
+    <string name="qu_change_sub">Choose a new 4-digit PIN</string>
+    <string name="qu_off">Turn off quick unlock</string>
+    <string name="qu_off_sub">You will use your password to open the app</string>
+    <string name="qu_off_t1">Turn off</string>
+    <string name="qu_off_t2">quick unlock?</string>
+    <string name="qu_off_msg">You will need to type your password to open the app.</string>
+    <string name="ds_change_pw">Change password</string>
+    <string name="ds_change_pw_sub">Set a new login password</string>
+    <string name="ds_quick">Quick unlock</string>
+    <string name="ds_quick_sub">Open the app with a PIN instead of your password</string>
+
+    <!-- simplification: admin tools -->
+    <string name="settings_row_admin">Maintenance</string>
+    <string name="settings_row_admin_sub">Special tools, only when needed</string>
+    <string name="admin_mode_on">Maintenance is ON</string>
+    <string name="admin_mode_off">Maintenance is OFF</string>
+    <string name="pu_title1">Password</string>
+    <string name="pu_title2">and unlock</string>
+    <string name="onboarding_step_progress">Step %1$d of %2$d · %3$s</string>
+    <string name="settings_eyebrow">MANAGE</string>
+    <string name="settings_title1">Your</string>
+    <string name="settings_title2">settings</string>
+    <string name="settings_card_title">Manage your app</string>
+    <string name="settings_card_sub">Everything in one place</string>
+    <string name="payments_switch_title">Accept UPI payments</string>
+    <string name="payments_status_setup">UPI is ON, but your Razorpay details are not added yet. Add them below.</string>
+    <string name="payments_edit_add">Add Razorpay details</string>
+    <string name="payments_edit_change">Change Razorpay details</string>
+    <!-- subscription page: localized text -->
+    <string name="sub_no_plan">No active plan</string>
+    <string name="sub_choose_plan">Choose a plan to get started</string>
+    <string name="sub_renews">Renews %1$s</string>
+    <string name="sub_days_left">%1$d days left</string>
+    <string name="sub_pick_below">Pick a plan below</string>
+    <string name="sub_st_get_started">Get started</string>
+    <string name="sub_st_trial">Trial</string>
+    <string name="sub_st_ending">Ending soon</string>
+    <string name="sub_st_active">Active</string>
+    <string name="sub_st_expired">Expired</string>
+    <string name="sub_base">Base</string>
+    <string name="sub_cycle_1m">1 Month</string>
+    <string name="sub_cycle_3m">3 Months</string>
+    <string name="sub_cycle_6m">6 Months</string>
+    <string name="sub_cycle_12m">12 Months</string>
+    <string name="sub_cycle_days">%1$d days</string>
+    <string name="sub_suffix_mo">per month</string>
+    <string name="sub_suffix_3mo">per 3 months</string>
+    <string name="sub_suffix_6mo">per 6 months</string>
+    <string name="sub_suffix_12mo">per 12 months</string>
+    <string name="sub_suffix_n">per %1$d months</string>
+    <string name="sub_blurb_gst">+ GST + service charges</string>
+    <string name="sub_blurb_no_gst">+ service charges</string>
+    <string name="sub_save">Save %1$d%%</string>
+    <string name="sub_bonus_month">+1 month free</string>
+    <string name="sub_bonus_days">+%1$d days free</string>
+    <string name="sub_downgrade_blocked">You\'re on Premium — switching to Base isn\'t available until your current period ends%1$s.</string>
+    <!-- subscription status card -->
+    <string name="sub_head_active">Your plan is active</string>
+    <string name="sub_head_trial">Your free trial is running</string>
+    <string name="sub_head_ending">Your plan ends soon</string>
+    <string name="sub_head_none">You have no active plan</string>
+    <string name="sub_head_expired">Your plan has expired</string>
+    <string name="sub_valid_until">Valid until %1$s · %2$d days left</string>
+    <string name="sub_choose_plan_below">Choose a plan below to continue.</string>
+    <!-- subscription plan choice -->
+    <string name="sub_desc_base">Everything you need for daily billing</string>
+    <string name="sub_desc_premium">Everything in Base, plus GST reports, profit analytics and AI insights</string>
+    <string name="sub_feature_unlimited_billing">Unlimited invoices &amp; billing</string>
+    <string name="sub_feature_inventory_tracking">Inventory &amp; stock tracking</string>
+    <string name="sub_feature_everything_in_base">Everything in Base</string>
+    <string name="sub_feature_priority_support">Priority support</string>
+    <string name="sub_most_popular_badge">MOST POPULAR</string>
+    <string name="sub_pick_cycle">Billing cycle</string>
+    <string name="sub_pick_cycle_sub">Choose how often you\'d like to pay</string>
+    <string name="sub_pick_plan">Choose your plan</string>
+    <string name="sub_pick_plan_sub">Pick the plan that fits your business</string>
+    <!-- subscription trial and continue -->
+    <string name="sub_trial_line">Not sure yet? Try Premium free first.</string>
+    <string name="sub_trial_button">Try free for 7 days</string>
+    <string name="sub_continue_hint">Choose a plan above to continue.</string>
+    <!-- confirm payment: localized text -->
+    <string name="cp_upgrade_credit_est">Upgrade credit (est., ~%1$d days left on Base)</string>
+    <string name="cp_cycle_discount">Cycle discount (%1$d%%)</string>
+    <string name="cp_coupon_saved">Coupon applied — you save %1$s</string>
+    <string name="cp_coupon_ok">Coupon applied</string>
+    <string name="cp_coupon_invalid">Invalid coupon</string>
+    <string name="cp_pay_free">Activate</string>
+    <string name="cp_pay_amount">Pay %1$s securely</string>
+    <string name="cp_credit_ignored">Your Base plan credit isn\'t applied by the payment provider yet — you\'ll be charged %1$s.</string>
+    <string name="cp_start_failed">Couldn\'t start payment. Please try again.</string>
+    <string name="cp_upgrade_credit">Upgrade credit</string>
+    <string name="cp_have_coupon">Have a coupon?</string>
+    <!-- AI insights: one-sentence score, plain KPI labels -->
 </resources>

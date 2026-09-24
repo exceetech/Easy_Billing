@@ -783,6 +783,13 @@ class InvoiceActivity : AppCompatActivity() {
         roundOffEnabled = getSharedPreferences("app_settings", MODE_PRIVATE)
             .getBoolean("round_off", false)
         if (::tvTotal.isInitialized) recalculate()
+        // Owner switched UPI off in Settings > Payments: hide the UPI choice
+        // (unless this bill already is a UPI bill).
+        findViewById<View>(R.id.rbUpi)?.let { rb ->
+            val upiOn = com.example.easy_billing.util.UpiSettings.isEnabled(this)
+            rb.visibility = if (upiOn || (rb as? android.widget.RadioButton)?.isChecked == true)
+                View.VISIBLE else View.GONE
+        }
         if (liveStatusCb == null) {
             liveStatusCb = com.example.easy_billing.util.NetworkUtils
                 .registerCallback(this) { runOnUiThread { updateLiveStatus() } }

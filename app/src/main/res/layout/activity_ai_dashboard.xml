@@ -85,19 +85,77 @@
             android:paddingHorizontal="16dp"
             android:paddingTop="8dp">
 
-            <!-- ── AUDIT SCORE (ring + explanation) ── -->
-            <FrameLayout
+            <!-- ── AUDIT SCORE (header-banner card that recolors green/amber/red
+                 by health band — see AiDashboardActivity.applyScoreBand()) ── -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/bg_imp_card"
-                android:padding="14dp">
+                android:background="@drawable/bg_inv_card_cream">
+
+                <LinearLayout
+                    android:id="@+id/scoreHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_inv_customer_header">
+
+                    <FrameLayout
+                        android:id="@+id/scoreIconBadge"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_kpi_badge_check"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ai_dashboard_audit_score_label"
+                            android:textColor="#1A1A18"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/ai_dashboard_audit_score_header_sub"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <TextView android:id="@+id/tvScoreBadge"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/dash"
+                        android:textColor="#085041" android:textSize="9sp" android:letterSpacing="0.06"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:background="@drawable/bg_imp_badge" android:backgroundTint="#DDEEEE"
+                        android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="58dp" android:layout_height="58dp">
                         <View android:id="@+id/viewAuditRing"
                             android:layout_width="58dp" android:layout_height="58dp"
@@ -109,35 +167,27 @@
                             android:textColor="#0F6E56" android:textSize="17sp"
                             android:fontFamily="@font/googlesans_bold"/>
                     </FrameLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                        android:orientation="vertical" android:layout_marginStart="14dp" android:layout_marginEnd="22dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/ai_dashboard_audit_score_label" android:textColor="#9A8F79" android:textSize="12sp"/>
-                        <TextView android:id="@+id/tvScoreBadge"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp" android:text="@string/dash"
-                            android:textColor="#085041" android:textSize="9sp" android:letterSpacing="0.06"
-                            android:fontFamily="@font/googlesans_semibold"
-                            android:background="@drawable/bg_imp_badge" android:backgroundTint="#DDEEEE"
-                            android:paddingHorizontal="7dp" android:paddingVertical="2dp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_marginTop="7dp" android:text="@string/ai_dashboard_audit_score_desc"
-                            android:textColor="#9A8F79" android:textSize="11sp" android:lineSpacingMultiplier="1.3"/>
-                    </LinearLayout>
-                </LinearLayout>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/ai_dashboard_audit_score_desc"
+                        android:textColor="#9A8F79" android:textSize="11sp" android:lineSpacingMultiplier="1.3"/>
 
-                <ImageButton
-                    android:id="@+id/btnScoreInfo"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="top|end"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_info_circle"
-                    android:scaleType="centerInside"
-                    android:padding="5dp"
-                    app:tint="#9A968C"
-                    android:contentDescription="What is the audit score?" />
-            </FrameLayout>
+                    <ImageButton
+                        android:id="@+id/btnScoreInfo"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_info_circle"
+                        android:scaleType="centerInside"
+                        android:padding="5dp"
+                        app:tint="#9A968C"
+                        android:contentDescription="What is the audit score?" />
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- ── ROW 1: URGENT / LEAKS / WINS (recolored to the champagne
                  red/gold/teal palette instead of the old red/amber/green) ── -->
@@ -211,35 +261,78 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- ── ROW 2: TOP PRODUCT VELOCITY (before insights) ── -->
+            <!-- ── ROW 2: TOP PRODUCT VELOCITY (before insights) — themed
+                 header-banner card, champagne family ── -->
             <LinearLayout
                 android:id="@+id/bentoRow3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/bg_imp_card"
-                android:padding="16dp">
+                android:background="@drawable/bg_inv_card_cream">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/ai_dashboard_top_velocity_title"
-                    android:textColor="#1A1A18"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:layout_marginBottom="8dp"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_inv_customer_header">
+
+                    <FrameLayout
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
+                        <ImageView
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_si_trend_up"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ai_dashboard_top_velocity_title"
+                            android:textColor="#1A1A18"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/ai_dashboard_top_velocity_subtitle"
+                            android:textColor="#5C6B65"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
 
                 <TableLayout
                     android:id="@+id/tableProducts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:stretchColumns="*">
+                    android:stretchColumns="*"
+                    android:paddingVertical="14dp">
+                    <!-- Horizontal inset now lives on the header cells (and,
+                         to match, on each data cell in makeCell()) instead
+                         of on the TableLayout itself, so a data row's zebra
+                         stripe background can stretch edge-to-edge across
+                         the card instead of stopping at a padded inset. -->
                     <TableRow android:paddingVertical="8dp">
                         <TextView
                             android:id="@+id/headerProduct"
                             android:layout_width="0dp"
                             android:layout_weight="2"
+                            android:paddingStart="15dp"
                             android:text="@string/ai_dashboard_col_product"
                             android:textColor="#9A8F79"
                             android:textSize="10sp"
@@ -259,6 +352,7 @@
                             android:id="@+id/headerRevenue"
                             android:layout_width="0dp"
                             android:layout_weight="1.2"
+                            android:paddingEnd="15dp"
                             android:text="@string/ai_dashboard_col_revenue"
                             android:gravity="end"
                             android:textColor="#9A8F79"
@@ -271,31 +365,37 @@
 
             <!-- ── ROW 3: INSIGHTS LIST ── -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="10dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="9dp"
-                    android:text="@string/ai_insight_header_default"
-                    android:textColor="#8A6526"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.08"/>
-                <TextView
-                    android:id="@+id/tvInsightsSummary"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="14dp">
+
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:text=""
-                    android:textColor="#9A8F79"
-                    android:textSize="11sp"/>
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ai_insights_section_title"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:letterSpacing="-0.01"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/ai_insights_section_subtitle"
+                        android:textColor="#B8895A"
+                        android:textSize="12sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"/>
+                </LinearLayout>
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

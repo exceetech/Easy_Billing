@@ -29,11 +29,12 @@ class AiDashboardActivity : BaseActivity() {
     private lateinit var tvPerformanceScore: TextView
     private lateinit var tvScoreBadge: TextView
     private lateinit var viewAuditRing: View
+    private lateinit var scoreHeader: View
+    private lateinit var scoreIconBadge: View
     private lateinit var tvKpiUrgent: TextView
     private lateinit var tvKpiLeaks: TextView
     private lateinit var tvKpiWins: TextView
     private lateinit var rvInsights: RecyclerView
-    private lateinit var tvInsightsSummary: TextView
     private lateinit var tvInsightsEmpty: TextView
     private lateinit var insightAdapter: AiInsightListAdapter
     private lateinit var tableProducts: TableLayout
@@ -65,11 +66,12 @@ class AiDashboardActivity : BaseActivity() {
         tvPerformanceScore = findViewById(R.id.tvPerformanceScore)
         tvScoreBadge = findViewById(R.id.tvScoreBadge)
         viewAuditRing = findViewById(R.id.viewAuditRing)
+        scoreHeader = findViewById(R.id.scoreHeader)
+        scoreIconBadge = findViewById(R.id.scoreIconBadge)
         tvKpiUrgent = findViewById(R.id.tvKpiUrgent)
         tvKpiLeaks = findViewById(R.id.tvKpiLeaks)
         tvKpiWins = findViewById(R.id.tvKpiWins)
         findViewById<View>(R.id.btnScoreInfo).setOnClickListener { showAuditScoreInfo() }
-        tvInsightsSummary = findViewById(R.id.tvInsightsSummary)
         tvInsightsEmpty = findViewById(R.id.tvInsightsEmpty)
         rvInsights = findViewById(R.id.rvInsights)
         insightAdapter = AiInsightListAdapter(this)
@@ -196,7 +198,6 @@ class AiDashboardActivity : BaseActivity() {
         tvKpiUrgent.text = insights.count { it.type.equals("fire", ignoreCase = true) }.toString()
         tvKpiLeaks.text = insights.count { it.type.equals("leak", ignoreCase = true) }.toString()
         tvKpiWins.text = insights.count { it.type.equals("gold", ignoreCase = true) }.toString()
-        tvInsightsSummary.text = ""
 
         val empty = insights.isEmpty()
         rvInsights.visibility = if (empty) View.GONE else View.VISIBLE
@@ -207,7 +208,6 @@ class AiDashboardActivity : BaseActivity() {
     private fun renderOffline() {
         tvPerformanceScore.text = "--"
         viewAuditRing.backgroundTintList = ColorStateList.valueOf(getColor(R.color.ai_neutral))
-        tvInsightsSummary.text = ""
         tvInsightsEmpty.text = getString(R.string.ai_dashboard_offline_empty)
         bindInsights(emptyList())
     }
@@ -251,8 +251,7 @@ class AiDashboardActivity : BaseActivity() {
                 report_data = (cached.report_data ?: emptyList())
                     .filterNot { (it.product as String?).isNullOrBlank() },
                 insights = (cached.insights ?: emptyList())
-                    .filterNot { (it.type as String?).isNullOrBlank() },
-                ai_report = cached.ai_report ?: ""
+                    .filterNot { (it.type as String?).isNullOrBlank() }
             )
         } catch (e: Exception) {
             Log.e("AiDashboard", "Cache load failed", e)
@@ -276,13 +275,17 @@ class AiDashboardActivity : BaseActivity() {
         dialog.show()
     }
 
-    /** Maps the audit score to a labelled, colour-coded band on the ring + number + badge. */
+    /** Maps the audit score to a labelled, colour-coded band on the ring + number + badge,
+     * and now also on the card's own header banner + step-circle icon (bg_inv_customer_header
+     * / bg_status_header_amber / bg_inv_danger_header + matching step-circle ring drawables —
+     * the same green/amber/red header-banner family used on Data & Security and Subscription)
+     * so the whole card reads its health at a glance, not just the small ring. */
     private fun applyScoreBand(score: Int) {
-        val (label, fillRes, inkRes) = when {
-            score >= 90 -> Triple(getString(R.string.ai_dashboard_band_optimum), R.color.band_green_bg, R.color.band_green_ink)
-            score >= 78 -> Triple(getString(R.string.ai_dashboard_band_healthy), R.color.band_green_bg, R.color.band_green_ink)
-            score >= 66 -> Triple(getString(R.string.ai_dashboard_band_fair), R.color.band_amber_bg, R.color.band_amber_ink)
-            else -> Triple(getString(R.string.ai_dashboard_band_needs_work), R.color.band_red_bg, R.color.band_red_ink)
+        val (label, fillRes, inkRes, headerBgRes, ringBgRes) = when {
+            score >= 90 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_optimum), R.color.band_green_bg, R.color.band_green_ink, R.drawable.bg_inv_customer_header, R.drawable.bg_step_circle_ring)
+            score >= 78 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_healthy), R.color.band_green_bg, R.color.band_green_ink, R.drawable.bg_inv_customer_header, R.drawable.bg_step_circle_ring)
+            score >= 66 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_fair), R.color.band_amber_bg, R.color.band_amber_ink, R.drawable.bg_status_header_amber, R.drawable.bg_step_circle_ring_status_amber)
+            else -> ScoreBandStyle(getString(R.string.ai_dashboard_band_needs_work), R.color.band_red_bg, R.color.band_red_ink, R.drawable.bg_inv_danger_header, R.drawable.bg_step_circle_ring_red)
         }
         val fill = getColor(fillRes)
         val ink = getColor(inkRes)
@@ -291,7 +294,19 @@ class AiDashboardActivity : BaseActivity() {
         tvScoreBadge.backgroundTintList = ColorStateList.valueOf(fill)
         tvPerformanceScore.setTextColor(ink)
         viewAuditRing.backgroundTintList = ColorStateList.valueOf(ink)
+        scoreHeader.setBackgroundResource(headerBgRes)
+        scoreIconBadge.setBackgroundResource(ringBgRes)
     }
+
+    /** label / badge fill / badge ink / header banner drawable / step-circle drawable for one
+     * audit-score health band (green, amber or red). */
+    private data class ScoreBandStyle(
+        val label: String,
+        val fillRes: Int,
+        val inkRes: Int,
+        val headerBgRes: Int,
+        val ringBgRes: Int
+    )
 
     /** Shown while the report is being fetched, so the screen never sits on stale placeholders. */
     private fun showLoadingState() {
@@ -301,7 +316,6 @@ class AiDashboardActivity : BaseActivity() {
         tvKpiUrgent.text = "…"
         tvKpiLeaks.text = "…"
         tvKpiWins.text = "…"
-        tvInsightsSummary.text = ""
         insightAdapter.submit(emptyList())
         rvInsights.visibility = View.GONE
         tvInsightsEmpty.visibility = View.GONE
@@ -315,7 +329,6 @@ class AiDashboardActivity : BaseActivity() {
         tvKpiUrgent.text = getString(R.string.dash)
         tvKpiLeaks.text = getString(R.string.dash)
         tvKpiWins.text = getString(R.string.dash)
-        tvInsightsSummary.text = ""
         tvInsightsEmpty.text = getString(R.string.ai_dashboard_toast_load_failed)
         insightAdapter.submit(emptyList())
         rvInsights.visibility = View.GONE
@@ -381,10 +394,15 @@ class AiDashboardActivity : BaseActivity() {
             } else {
                 TableRow(this).also {
                     // Weights + gravity must match the header row exactly (2 / 1 / 1.2) or
-                    // the columns drift out of alignment.
-                    it.addView(makeCell(2f, android.view.Gravity.START, R.color.ai_text_primary))
+                    // the columns drift out of alignment. First/last cells carry the same
+                    // 15dp horizontal inset the header cells have (paddingStart on
+                    // headerProduct, paddingEnd on headerRevenue) — the TableLayout itself
+                    // has no horizontal padding any more, so each row's zebra-stripe
+                    // background (set below via setBackgroundColor) spans the full card
+                    // width edge-to-edge instead of stopping at a padded inset.
+                    it.addView(makeCell(2f, android.view.Gravity.START, R.color.ai_text_primary, paddingStartDp = 15))
                     it.addView(makeCell(1f, android.view.Gravity.CENTER, R.color.ai_text_muted))
-                    it.addView(makeCell(1.2f, android.view.Gravity.END, R.color.ai_green))
+                    it.addView(makeCell(1.2f, android.view.Gravity.END, R.color.ai_green, paddingEndDp = 15))
                     tableProducts.addView(it)
                 }
             }
@@ -401,12 +419,23 @@ class AiDashboardActivity : BaseActivity() {
         }
     }
 
-    private fun makeCell(weight: Float, gravityValue: Int, colorRes: Int): TextView =
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun makeCell(
+        weight: Float,
+        gravityValue: Int,
+        colorRes: Int,
+        paddingStartDp: Int = 0,
+        paddingEndDp: Int = 0
+    ): TextView =
         TextView(this).apply {
             layoutParams = TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, weight)
             textSize = 14f
             gravity = gravityValue
             setTextColor(getColor(colorRes))
-            setPadding(0, 12, 0, 12)   // vertical only — no horizontal indent, so it lines up with the header
+            // Vertical padding always; horizontal only on the first/last cell (matching
+            // headerProduct/headerRevenue's own inset) so the row's own zebra-stripe
+            // background — set on the TableRow, not here — can stretch full width.
+            setPadding(dp(paddingStartDp), 12, dp(paddingEndDp), 12)
         }
 }

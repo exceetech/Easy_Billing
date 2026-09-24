@@ -208,19 +208,26 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
-            <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="9dp"
                 android:text="@string/fragment_overview_glance"
-                android:textColor="#8A6526"
-                android:textSize="11sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.08"/>
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="#1A1A18"
+                android:letterSpacing="-0.01"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_overview_glance_sub"
+                android:textSize="12sp"
+                android:fontFamily="serif"
+                android:textStyle="italic"
+                android:textColor="#B8895A"
+                android:layout_marginTop="2dp"/>
         </LinearLayout>
 
         <!-- Row 1: Bills / Avg bill (with growth chips) -->
@@ -507,19 +514,26 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
-            <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="9dp"
                 android:text="@string/fragment_overview_payment_split"
-                android:textColor="#8A6526"
-                android:textSize="11sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.08"/>
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="#1A1A18"
+                android:letterSpacing="-0.01"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_overview_payment_split_sub"
+                android:textSize="12sp"
+                android:fontFamily="serif"
+                android:textStyle="italic"
+                android:textColor="#B8895A"
+                android:layout_marginTop="2dp"/>
         </LinearLayout>
 
         <LinearLayout

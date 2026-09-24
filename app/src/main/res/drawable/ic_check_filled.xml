@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bolder, filled checkmark for the plan-card feature checklist —
+     ic_lucide_check is a thin 2.6dp stroke outline which reads as a
+     faint tick at 9-10dp inside the small check circles; this is a
+     solid filled glyph instead, so it stays crisp and "premium" at
+     that size. Tinted per-card (teal for Base, amber for Premium) the
+     same way ic_lucide_check was. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#000000"
+        android:pathData="M9,16.2 L4.8,12 l-1.4,1.4 L9,19 21,7 l-1.4,-1.4 Z"/>
+</vector>

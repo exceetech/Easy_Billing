@@ -19,6 +19,12 @@ data class FactoryResetResponse(
     val new_shop_id: Int
 )
 
+
+data class SubscriptionConfigResponse(
+    val gst_enabled: Boolean,
+    val gst_percent: Float
+)
+
 interface ApiService {
 
     // ================= AUTH =================
@@ -396,6 +402,9 @@ interface ApiService {
     // See app/services/razorpay_service.py and subscription_payment_routes.py
     // on the backend. Client never sends a price — the server always
     // recomputes it from plan_code + coupon_code.
+
+    @GET("subscription/config")
+    suspend fun getSubscriptionConfig(): SubscriptionConfigResponse
 
     @GET("subscription/plans")
     suspend fun getPlans(

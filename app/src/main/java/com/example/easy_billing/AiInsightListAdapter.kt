@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.content.ContextCompat
 import com.example.easy_billing.network.AiInsight
 
 private val AI_INSIGHT_ROW_DIFF_CALLBACK = object : DiffUtil.ItemCallback<AiInsightListAdapter.Row>() {
@@ -45,17 +46,19 @@ class AiInsightListAdapter(
 
     private data class TypeStyle(
         val label: String,
-        val square: String,
-        val ink: String,
-        val dot: String,
+        val square: Int,
+        val ink: Int,
+        val dot: Int,
         val icon: Int
     )
 
+    private fun c(colorRes: Int): Int = ContextCompat.getColor(context, colorRes)
+
     private fun styleFor(type: String): TypeStyle = when (type.lowercase()) {
-        "fire" -> TypeStyle(context.getString(R.string.ai_insight_header_fire), "#FBEDED", "#791F1F", "#791F1F", R.drawable.ic_kpi_alert)
-        "leak" -> TypeStyle(context.getString(R.string.ai_insight_header_leak), "#FAEEDA", "#8A6526", "#8A6526", R.drawable.ic_trending_down)
-        "gold" -> TypeStyle(context.getString(R.string.ai_insight_header_gold), "#DDEEEE", "#0F6E56", "#0F6E56", R.drawable.ic_kpi_badge_check)
-        else -> TypeStyle(context.getString(R.string.ai_insight_header_default), "#F1EFE8", "#9A8F79", "#C9C3B4", R.drawable.ic_kpi_badge_check)
+        "fire" -> TypeStyle(context.getString(R.string.ai_insight_header_fire), c(R.color.band_red_bg), c(R.color.band_red_ink), c(R.color.band_red_ink), R.drawable.ic_kpi_alert)
+        "leak" -> TypeStyle(context.getString(R.string.ai_insight_header_leak), c(R.color.band_amber_bg), c(R.color.band_amber_ink), c(R.color.band_amber_ink), R.drawable.ic_trending_down)
+        "gold" -> TypeStyle(context.getString(R.string.ai_insight_header_gold), c(R.color.band_green_bg), c(R.color.ai_green), c(R.color.ai_green), R.drawable.ic_kpi_badge_check)
+        else -> TypeStyle(context.getString(R.string.ai_insight_header_default), Color.parseColor("#F1EFE8"), c(R.color.ai_neutral), Color.parseColor("#C9C3B4"), R.drawable.ic_kpi_badge_check)
     }
 
     fun submit(insights: List<AiInsight>) {
@@ -104,7 +107,7 @@ class AiInsightListAdapter(
         private val label: TextView = v.findViewById(R.id.tvHeaderLabel)
         fun bind(style: TypeStyle) {
             label.text = style.label
-            dot.backgroundTintList = ColorStateList.valueOf(Color.parseColor(style.dot))
+            dot.backgroundTintList = ColorStateList.valueOf(style.dot)
         }
     }
 
@@ -119,13 +122,13 @@ class AiInsightListAdapter(
 
         fun bind(insight: AiInsight) {
             val style = styleFor(insight.type)
-            val ink = Color.parseColor(style.ink)
+            val ink = style.ink
 
             title.text = insight.title
             desc.text = insight.description
             icon.setImageResource(style.icon)
             icon.setColorFilter(ink)
-            icon.backgroundTintList = ColorStateList.valueOf(Color.parseColor(style.square))
+            icon.backgroundTintList = ColorStateList.valueOf(style.square)
             accent.setBackgroundColor(ink)
 
             val hasAction = !insight.actionText.isNullOrEmpty() &&

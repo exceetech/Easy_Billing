@@ -47,7 +47,13 @@ class LocalizationSettingsActivity : BaseActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         bindViews()
-        setEditMode(false)
+        // Always editable, one Save button; currency is fixed (kept as saved)
+        // and no longer shown.
+        isEditMode = true
+        setEditMode(true)
+        btnEdit.visibility = View.GONE
+        findViewById<View>(R.id.tvCurrencyLabel).visibility = View.GONE
+        rowCurrency.visibility = View.GONE
         setupDropdowns()
         loadSavedSettings()
         setupSave()
@@ -153,7 +159,7 @@ class LocalizationSettingsActivity : BaseActivity() {
                 "LocalizationSettings",
                 "save_clicked: language=$selectedLanguage, currency=$selectedCurrency"
             )
-            showPasswordVerificationDialog { saveSettings() }
+            saveSettings()
         }
     }
 

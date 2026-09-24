@@ -3,6 +3,8 @@ package com.example.easy_billing
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +31,14 @@ class PaymentSetupActivity : BaseActivity() {
     private lateinit var etRazorpayKeySecret: EditText
     private lateinit var etRazorpayWebhookSecret: EditText
     private lateinit var btnSave: MaterialButton
+    private lateinit var tvPaymentsStatus: TextView
+    private lateinit var containerAdmin: android.view.View
+    private lateinit var icAdminChevron: android.view.View
+    private lateinit var switchUpi: com.google.android.material.materialswitch.MaterialSwitch
+    private lateinit var rowEditDetails: android.view.View
+    private lateinit var tvEditDetails: TextView
+    private var configured = false
+    private var detailsUnlocked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,10 +60,103 @@ class PaymentSetupActivity : BaseActivity() {
         etRazorpayKeySecret     = findViewById(R.id.etRazorpayKeySecret)
         etRazorpayWebhookSecret = findViewById(R.id.etRazorpayWebhookSecret)
         btnSave                 = findViewById(R.id.btnSavePaymentSetup)
+        tvPaymentsStatus        = findViewById(R.id.tvPaymentsStatus)
+        containerAdmin          = findViewById(R.id.containerAdmin)
+        icAdminChevron          = findViewById(R.id.icAdminChevron)
+
+        switchUpi      = findViewById(R.id.switchUpi)
+        rowEditDetails = findViewById(R.id.rowAdminToggle)
+        tvEditDetails  = findViewById(R.id.tvEditDetails)
+
+        // Start from the saved choice; before any choice, follow whether
+        // Razorpay is already set up.
+        switchUpi.isChecked = com.example.easy_billing.util.UpiSettings.isSet(this)
+            .let { set -> if (set) com.example.easy_billing.util.UpiSettings.isEnabled(this) else false }
+        switchUpi.setOnCheckedChangeListener { _, on ->
+            com.example.easy_billing.util.UpiSettings.set(this, on)
+            if (!on) detailsUnlocked = false
+            render()
+        }
+
+        // Adding or changing the Razorpay details needs the password.
+        rowEditDetails.setOnClickListener {
+            if (detailsUnlocked) return@setOnClickListener
+            showPasswordVerificationDialog {
+                detailsUnlocked = true
+                render()
+            }
+        }
+        render()
     }
 
-    private fun applyStatus(configured: Boolean) {
-        if (configured) {
+    /** One place that decides what is visible for the current state. */
+    private fun render() {
+        val on = switchUpi.isChecked
+        rowEditDetails.visibility =
+            if (on && !detailsUnlocked) android.view.View.VISIBLE else android.view.View.GONE
+        containerAdmin.visibility =
+            if (on && detailsUnlocked) android.view.View.VISIBLE else android.view.View.GONE
+        tvEditDetails.setText(if (configured) R.string.payments_edit_change else R.string.payments_edit_add)
+        tvPaymentsStatus.setText(
+            when {
+                !on -> R.string.payments_status_off
+                configured -> R.string.payments_status_on
+                else -> R.string.payments_status_setup
+            }
+        )
+    }
+
+    private fun showPasswordVerificationDialog(onVerified: () -> Unit) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_verify_password, null)
+        val etPassword = dialogView.findViewById<EditText>(R.id.etPassword)
+        val btnVerify = dialogView.findViewById<Button>(R.id.btnVerify)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val ivToggle = dialogView.findViewById<ImageView>(R.id.ivTogglePassword)
+
+        var visible = false
+        ivToggle.setOnClickListener {
+            visible = !visible
+            etPassword.inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                if (visible) android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                else android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            ivToggle.setImageResource(
+                if (visible) R.drawable.ic_lucide_eye_off else R.drawable.ic_lucide_eye
+            )
+            etPassword.setSelection(etPassword.text.length)
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).setView(dialogView).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnVerify.setOnClickListener {
+            val password = etPassword.text.toString().trim()
+            if (password.isEmpty()) {
+                etPassword.error = getString(R.string.localization_settings_enter_password_error)
+                return@setOnClickListener
+            }
+            verifyPassword(password) {
+                dialog.dismiss()
+                onVerified()
+            }
+        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        dialog.show()
+    }
+
+    private fun applyStatus(isConfigured: Boolean) {
+        configured = isConfigured
+        // No saved choice yet: follow the server state (ON when Razorpay is set up).
+        if (!com.example.easy_billing.util.UpiSettings.isSet(this) && switchUpi.isChecked != isConfigured) {
+            switchUpi.setOnCheckedChangeListener(null)
+            switchUpi.isChecked = isConfigured
+            switchUpi.setOnCheckedChangeListener { _, on ->
+                com.example.easy_billing.util.UpiSettings.set(this, on)
+                if (!on) detailsUnlocked = false
+                render()
+            }
+        }
+        render()
+        if (isConfigured) {
             tvRazorpayStatus.text = getString(R.string.razorpay_status_connected)
             tvRazorpayStatus.setBackgroundResource(R.drawable.bg_pill_green)
             tvRazorpayStatus.setTextColor(Color.parseColor("#0F6E56"))
@@ -176,6 +279,7 @@ class PaymentSetupActivity : BaseActivity() {
                 // sitting in memory once the save attempt is done.
                 etRazorpayKeySecret.setText("")
                 etRazorpayWebhookSecret.setText("")
+                if (succeeded) { detailsUnlocked = false; render() }
 
                 Toast.makeText(
                     this@PaymentSetupActivity,
