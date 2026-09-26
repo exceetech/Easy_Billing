@@ -939,12 +939,12 @@
                 <TextView style="@style/SettingsSection" android:text="@string/dashboard_section_core_operations" android:layout_marginTop="12dp"/>
                 <LinearLayout style="@style/SettingsCard">
 
-                    <LinearLayout android:id="@+id/btnAdmin" style="@style/SettingsRow">
+                    <LinearLayout android:id="@+id/btnAddProduct" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
                             android:src="@drawable/ic_drawer_product" app:tint="#185FA5"/>
                         <LinearLayout style="@style/SettingsRowText">
-                            <TextView style="@style/SettingsRowTitle" android:text="@string/add_edit_product"/>
-                            <TextView style="@style/SettingsRowSub" android:text="@string/dashboard_sub_catalog_pricing"/>
+                            <TextView style="@style/SettingsRowTitle" android:text="@string/dialog_add_product_chooser_option1_title"/>
+                            <TextView style="@style/SettingsRowSub" android:text="@string/dialog_add_product_chooser_option1_body"/>
                         </LinearLayout>
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>

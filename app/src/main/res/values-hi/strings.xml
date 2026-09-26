@@ -632,7 +632,7 @@
     <string name="add_product_unit_label">यूनिट</string>
     <string name="add_product_variant_hint">साइज़ या पैक टाइप</string>
     <string name="add_product_variant_hint_example">उदा. 5 kg</string>
-    <string name="add_product_variant_label">वैरिएंट</string>
+    <string name="add_product_variant_label">प्रकार</string>
     <string name="add_product_what_you_paid_hint">आपने क्या चुकाया</string>
     <string name="quantity">मात्रा</string>
 
@@ -2451,4 +2451,11 @@
     <string name="cp_upgrade_credit">अपग्रेड क्रेडिट</string>
     <string name="cp_have_coupon">कूपन है?</string>
     <!-- AI insights: one-sentence score, plain KPI labels -->
+
+    <string name="add_product_search_label">उत्पाद खोजें</string>
+    <string name="add_product_search_hint">नाम, ब्रांड या प्रकार खोजें</string>
+    <string name="add_product_more_tax_details_label">अधिक टैक्स विवरण</string>
+    <string name="add_product_tag_your_shop">आपकी दुकान</string>
+    <string name="add_product_tag_global">वैश्विक</string>
+    <string name="add_product_search_add_new">इनमें से कोई नहीं, नया जोड़ें</string>
 </resources>

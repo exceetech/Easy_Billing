@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solid violet circle for the spotlight's Edit action button — matches the
+     violet accent already used for Edit in bg_tile_violet / ic_lucide_pencil
+     tinting (#6C4EA0), but solid instead of soft-pastel so it reads clearly
+     against the dark scrim. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#6C4EA0"/>
+</shape>

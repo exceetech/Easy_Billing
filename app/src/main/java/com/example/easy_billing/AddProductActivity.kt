@@ -4,7 +4,11 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.TextView
@@ -49,6 +53,10 @@ class AddProductActivity : BaseActivity() {
     // fetch to products actually in the global catalog. The fetch itself
     // is by name (backend merges any duplicate rows), so no id map needed.
     private val catalogNames = HashSet<String>()
+    // Original casing for each catalog name, keyed by the same
+    // lowercase key as catalogNames -- catalogNames alone can't drive
+    // the search box's Global-row display text without losing case.
+    private val catalogDisplayNames = HashMap<String, String>()
     private var variantCache: List<VariantResponse> = emptyList()
     // Guards against re-fetching variants for the same product on the
     // multiple triggers (name pick + focus-loss + cold-start).
@@ -62,6 +70,7 @@ class AddProductActivity : BaseActivity() {
 
     // Views
     private lateinit var etName: AutoCompleteTextView
+    private lateinit var etBrand: EditText
     private lateinit var etCategory: TextView
     private lateinit var etPrice: EditText
     private lateinit var etHsn: EditText
@@ -71,11 +80,17 @@ class AddProductActivity : BaseActivity() {
     private lateinit var switchTaxInclusive: MaterialSwitch
     private lateinit var switchOpeningStock: MaterialSwitch
     private lateinit var etQty: EditText
-    private lateinit var etCost: EditText
     private lateinit var tvBadge: TextView
 
     // More-details views
     private lateinit var etVariant: AutoCompleteTextView
+    // Unified Name . Brand . Type search box (Part 2) -- a combined
+    // entry point layered on top of etName/etBrand/etVariant. Selecting
+    // a row fills those three fields and re-runs the exact same
+    // tryAutofill()/fetchGlobalVariants()/applyVariantAutofill() path a
+    // manual pick already used, so duplicate-matching and statutory
+    // autofill behave identically either way.
+    private lateinit var etProductSearch: AutoCompleteTextView
     // Fixed-choice fields — plain TextViews that open the same picker
     // popup as the Manage Products sort dropdown (showSortStylePopup).
     private lateinit var etUnit: TextView
@@ -83,6 +98,32 @@ class AddProductActivity : BaseActivity() {
     private lateinit var spinnerSupplyClass: TextView
     private lateinit var etHsnDesc: EditText
     private lateinit var etCessRate: EditText
+    private lateinit var btnToggleMoreOptions: View
+    private lateinit var groupMoreOptions: View
+    private lateinit var ivMoreOptionsChevron: android.widget.ImageView
+    // Nested "More tax details" sub-collapse inside "More options" --
+    // UQC / Supply classification / Cess, independent of the outer toggle.
+    private lateinit var btnToggleMoreTaxDetails: View
+    private lateinit var groupMoreTaxDetails: View
+    private lateinit var ivMoreTaxDetailsChevron: android.widget.ImageView
+
+    // Expands/collapses the GST & Compliance "More options" section
+    // (HSN/SAC, CGST/SGST/IGST, UQC, supply classification, HSN
+    // description, cess). Promoted out of onCreate so saveProduct() can
+    // force it open when the HSN-required validation fires on a
+    // GST-registered shop, rather than leaving the error on a hidden field.
+    private fun setMoreOptionsExpanded(expanded: Boolean) {
+        groupMoreOptions.visibility = if (expanded) View.VISIBLE else View.GONE
+        ivMoreOptionsChevron.rotation = if (expanded) 180f else 0f
+    }
+
+    // Independent of setMoreOptionsExpanded() -- collapsing "More options"
+    // does not need to also reset this; it is simply hidden along with
+    // its parent when that happens.
+    private fun setMoreTaxDetailsExpanded(expanded: Boolean) {
+        groupMoreTaxDetails.visibility = if (expanded) View.VISIBLE else View.GONE
+        ivMoreTaxDetailsChevron.rotation = if (expanded) 180f else 0f
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +135,7 @@ class AddProductActivity : BaseActivity() {
         db = AppDatabase.getDatabase(this)
 
         etName = findViewById(R.id.etName)
+        etBrand = findViewById(R.id.etBrand)
         etCategory = findViewById(R.id.etCategory)
         etPrice = findViewById(R.id.etPrice)
         etHsn = findViewById(R.id.etHsn)
@@ -103,15 +145,21 @@ class AddProductActivity : BaseActivity() {
         switchTaxInclusive = findViewById(R.id.switchTaxInclusive)
         switchOpeningStock = findViewById(R.id.switchOpeningStock)
         etQty = findViewById(R.id.etQty)
-        etCost = findViewById(R.id.etCost)
         tvBadge = findViewById(R.id.tvCatalogBadge)
 
         etVariant = findViewById(R.id.etVariant)
+        etProductSearch = findViewById(R.id.etProductSearch)
         etUnit = findViewById(R.id.etUnit)
         spinnerUqc = findViewById(R.id.spinnerUqc)
         spinnerSupplyClass = findViewById(R.id.spinnerSupplyClass)
         etHsnDesc = findViewById(R.id.etHsnDesc)
         etCessRate = findViewById(R.id.etCessRate)
+        btnToggleMoreOptions = findViewById(R.id.btnToggleMoreOptions)
+        groupMoreOptions = findViewById(R.id.groupMoreOptions)
+        ivMoreOptionsChevron = findViewById(R.id.ivMoreOptionsChevron)
+        btnToggleMoreTaxDetails = findViewById(R.id.btnToggleMoreTaxDetails)
+        groupMoreTaxDetails = findViewById(R.id.groupMoreTaxDetails)
+        ivMoreTaxDetailsChevron = findViewById(R.id.ivMoreTaxDetailsChevron)
 
         findViewById<View>(R.id.btnCancel).setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "cancel_clicked: ${fieldTouchSummary()}")
@@ -181,6 +229,28 @@ class AddProductActivity : BaseActivity() {
             }
         }
 
+        // ── "More options" (HSN/SAC, CGST/SGST/IGST, UQC, supply class,
+        // HSN description, cess) — collapsed by default, expanded on tap.
+        // None of these are mandatory for a non-GST shop; HSN becomes
+        // required only once the shop has a GSTIN (checked at save time,
+        // see saveProduct()), and that same check force-expands this
+        // section so the error is never left hidden. A GST-registered
+        // shop is also shown it open by default on load, since it is far
+        // more likely to need these fields for every product. ──
+        btnToggleMoreOptions.setOnClickListener {
+            setMoreOptionsExpanded(groupMoreOptions.visibility != View.VISIBLE)
+        }
+        btnToggleMoreTaxDetails.setOnClickListener {
+            setMoreTaxDetailsExpanded(groupMoreTaxDetails.visibility != View.VISIBLE)
+        }
+        lifecycleScope.launch {
+            val storeInfo = db.storeInfoDao().get()
+            val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
+            withContext(Dispatchers.Main) {
+                if (isGstEnabled) setMoreOptionsExpanded(true)
+            }
+        }
+
         // ── Name suggestions (local + backend catalog) + autofill map ──
         loadNameSuggestions()
 
@@ -217,6 +287,30 @@ class AddProductActivity : BaseActivity() {
         etVariant.addTextChangedListener {
             if (etVariant.text.isNullOrBlank()) resetAutofilledFields()
         }
+
+        // -- HSN search-with-autofill (inside "More options", step 2) --
+        // Same pattern as PurchaseLineDialog's HSN text watcher: once >=4
+        // digits are typed, look up this shop's purchase/product history
+        // by HSN and fill description + tax rates for anything still blank.
+        etHsn.addTextChangedListener {
+            val hsn = etHsn.text.toString().trim()
+            if (hsn.length < 4) return@addTextChangedListener
+            lifecycleScope.launch {
+                val match = withContext(Dispatchers.IO) {
+                    ProductRepository.get(this@AddProductActivity).autoFillFromHistory(hsn = hsn)
+                } ?: return@launch
+                withContext(Dispatchers.Main) {
+                    if (etHsnDesc.text.isNullOrBlank() && !match.hsnDescription.isNullOrBlank())
+                        etHsnDesc.setText(match.hsnDescription)
+                    if (etCgst.text.isNullOrBlank() && match.cgstPercentage > 0)
+                        etCgst.setText(trimNum(match.cgstPercentage))
+                    if (etSgst.text.isNullOrBlank() && match.sgstPercentage > 0)
+                        etSgst.setText(trimNum(match.sgstPercentage))
+                }
+            }
+        }
+
+        setupProductSearch()
 
         findViewById<View>(R.id.btnSave).setOnClickListener { saveProduct() }
     }
@@ -291,6 +385,7 @@ class AddProductActivity : BaseActivity() {
             withContext(Dispatchers.Main) {
                 refreshVariantAdapter(key)
                 productDefault?.let { fillStatutoryFrom(it, applyUnit = true) }
+                if (::searchAdapter.isInitialized) refreshProductSearchPool()
             }
         }
     }
@@ -357,6 +452,192 @@ class AddProductActivity : BaseActivity() {
     }
 
     // ============================================================
+    // Unified Name . Brand . Type search (Part 2, step 1)
+    //
+    // "Your shop" rows come from this shop's own loaded products (full
+    // text match against name/brand/variant together -- always available,
+    // no network). "Global" rows come from the catalog *names* this shop
+    // can already see (catalogNames / loadNameSuggestions) -- the global
+    // catalog API only returns brand/variant/tax details for a name once
+    // it is looked up by that exact name (getVariantsByName), so a Global
+    // row's brand/variant only appear once fetchGlobalVariants() has
+    // already loaded that product's variants (the same lazy fetch already
+    // used for the Variant dropdown). Until then a Global row shows the
+    // name alone -- this is a real limitation of the existing catalog API,
+    // not a bug: there is no backend search endpoint that returns brand
+    // across the whole catalog for a free-text query, and this task does
+    // not touch the backend.
+    private data class SearchRow(
+        val label: String,
+        val tag: String?,
+        val name: String,
+        val brand: String?,
+        val variant: String?,
+        val isAddNew: Boolean = false
+    )
+
+    private inner class SearchRowAdapter(rows: List<SearchRow>) :
+        ArrayAdapter<SearchRow>(this@AddProductActivity, 0, rows.toMutableList()), Filterable {
+
+        // The full candidate pool this filter runs over -- refreshed by
+        // refreshProductSearchPool() as the shop's own products load and as
+        // global variants get fetched, so a query typed before those finish
+        // still gets re-filtered once they do.
+        var pool: List<SearchRow> = rows
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(context)
+                .inflate(R.layout.item_search_row_ep, parent, false)
+            val row = getItem(position)
+            view.findViewById<TextView>(R.id.tvSearchRowLabel).text = row?.label.orEmpty()
+            val tvTag = view.findViewById<TextView>(R.id.tvSearchRowTag)
+            if (row?.tag.isNullOrBlank()) {
+                tvTag.visibility = View.GONE
+            } else {
+                tvTag.visibility = View.VISIBLE
+                tvTag.text = row?.tag
+            }
+            return view
+        }
+
+        override fun getFilter(): Filter = object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val query = constraint?.toString()?.trim()?.lowercase().orEmpty()
+                val matches = if (query.isEmpty()) emptyList() else pool.filter { row ->
+                    row.name.lowercase().contains(query) ||
+                        row.brand?.lowercase()?.contains(query) == true ||
+                        row.variant?.lowercase()?.contains(query) == true
+                }
+                val results = FilterResults()
+                results.values = matches
+                results.count = matches.size
+                return results
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                clear()
+                val matches = (results?.values as? List<SearchRow>).orEmpty()
+                addAll(matches)
+                // Fallback row -- only once there's something typed with no
+                // exact name+brand match already in the list.
+                val query = constraint?.toString()?.trim().orEmpty()
+                val hasExact = matches.any {
+                    it.name.equals(query, true) &&
+                        (it.brand ?: "").equals(etBrand.text?.toString()?.trim().orEmpty(), true)
+                }
+                if (query.isNotEmpty() && !hasExact) {
+                    add(
+                        SearchRow(
+                            label = getString(R.string.add_product_search_add_new),
+                            tag = null,
+                            name = query,
+                            brand = null,
+                            variant = null,
+                            isAddNew = true
+                        )
+                    )
+                }
+                notifyDataSetChanged()
+            }
+        }
+    }
+
+    private lateinit var searchAdapter: SearchRowAdapter
+
+    private fun setupProductSearch() {
+        searchAdapter = SearchRowAdapter(emptyList())
+        etProductSearch.setAdapter(searchAdapter)
+        etProductSearch.threshold = 1
+        etProductSearch.setOnClickListener { if (etProductSearch.text.isNotEmpty()) etProductSearch.showDropDown() }
+        etProductSearch.setOnItemClickListener { _, _, position, _ ->
+            val row = searchAdapter.getItem(position) ?: return@setOnItemClickListener
+            if (row.isAddNew) {
+                etProductSearch.setText("")
+                etName.setText(row.name)
+                etName.requestFocus()
+                return@setOnItemClickListener
+            }
+            etName.setText(row.name)
+            etBrand.setText(row.brand.orEmpty())
+            etVariant.setText(row.variant.orEmpty())
+            etProductSearch.setText("")
+            // Re-run the exact same pipeline a manual Name/Variant pick
+            // already triggers, so duplicate-matching and statutory
+            // autofill behave identically to typing the fields by hand.
+            tryAutofill()
+            fetchGlobalVariants(row.name)
+            if (!row.variant.isNullOrBlank()) applyVariantAutofill()
+        }
+    }
+
+    /**
+     * Rebuilds the search box's candidate pool from this shop's own loaded
+     * products (full Name . Brand . Type) plus the global catalog names
+     * known so far (Brand/Type for a Global row only once that name's
+     * variants have actually been fetched -- see the class doc above).
+     * Called after local products load and again after any global variant
+     * fetch completes, so results improve as data comes in without the
+     * user needing to retype anything.
+     */
+    private fun refreshProductSearchPool() {
+        val rows = mutableListOf<SearchRow>()
+        val seenLocal = HashSet<String>()
+        for (products in localVariantsByName.values) {
+            for (p in products) {
+                val key = "${p.name}|${p.brand.orEmpty()}|${p.variant.orEmpty()}".lowercase()
+                if (!seenLocal.add(key)) continue
+                val parts = listOfNotNull(p.name, p.brand?.takeIf { it.isNotBlank() }, p.variant?.takeIf { it.isNotBlank() })
+                rows.add(
+                    SearchRow(
+                        label = parts.joinToString(" • "),
+                        tag = getString(R.string.add_product_tag_your_shop),
+                        name = p.name,
+                        brand = p.brand,
+                        variant = p.variant
+                    )
+                )
+            }
+        }
+        val seenGlobal = HashSet<String>()
+        for (name in catalogNames) {
+            val display = catalogDisplayNames[name] ?: name.replaceFirstChar { it.uppercaseChar() }
+            val variantsForName = if (lastFetchedProduct == name) variantCache else emptyList()
+            val namedVariants = CatalogAutofill.namedVariants(variantsForName)
+            if (namedVariants.isEmpty()) {
+                val key = "$name||".lowercase()
+                if (seenGlobal.add(key)) {
+                    rows.add(
+                        SearchRow(
+                            label = display,
+                            tag = getString(R.string.add_product_tag_global),
+                            name = display,
+                            brand = null,
+                            variant = null
+                        )
+                    )
+                }
+            } else {
+                for (v in namedVariants) {
+                    val key = "$name|${v.brand.orEmpty()}|${v.variant_name}".lowercase()
+                    if (!seenGlobal.add(key)) continue
+                    val parts = listOfNotNull(display, v.brand?.takeIf { it.isNotBlank() }, v.variant_name.takeIf { it.isNotBlank() })
+                    rows.add(
+                        SearchRow(
+                            label = parts.joinToString(" • "),
+                            tag = getString(R.string.add_product_tag_global),
+                            name = display,
+                            brand = v.brand,
+                            variant = v.variant_name
+                        )
+                    )
+                }
+            }
+        }
+        searchAdapter.pool = rows
+    }
+
+    // ============================================================
     private fun loadNameSuggestions() {
         lifecycleScope.launch {
             val names = LinkedHashSet<String>()
@@ -373,7 +654,9 @@ class AddProductActivity : BaseActivity() {
                 if (!token.isNullOrEmpty()) {
                     RetrofitClient.api.getCatalog(token).forEach {
                         names.add(it.name)
-                        catalogNames.add(it.name.trim().lowercase())
+                        val key = it.name.trim().lowercase()
+                        catalogNames.add(key)
+                        catalogDisplayNames[key] = it.name
                     }
                 }
             } catch (_: Exception) { /* best-effort */ }
@@ -391,6 +674,7 @@ class AddProductActivity : BaseActivity() {
                 // that catalogNames is populated.
                 val typed = etName.text?.toString()?.trim().orEmpty()
                 if (typed.isNotEmpty()) fetchGlobalVariants(typed)
+                refreshProductSearchPool()
             }
         }
     }
@@ -403,6 +687,7 @@ class AddProductActivity : BaseActivity() {
     private fun fieldTouchSummary(): String {
         fun v(value: String) = value.trim().ifEmpty { "-" }
         val name = v(etName.text.toString())
+        val brand = v(etBrand.text.toString())
         val price = v(etPrice.text.toString())
         val variant = v(etVariant.text.toString())
         val category = v(etCategory.text.toString())
@@ -415,12 +700,11 @@ class AddProductActivity : BaseActivity() {
         val uqc = v(spinnerUqc.text.toString())
         val supplyClass = v(spinnerSupplyClass.text.toString())
         val qty = v(etQty.text.toString())
-        val cost = v(etCost.text.toString())
         val stockPart = if (switchOpeningStock.isChecked) "stock=on" else "stock=off"
         val taxPart = if (switchTaxInclusive.isChecked) "tax_inclusive=on" else "tax_inclusive=off"
-        return "name=$name, price=$price, variant=$variant, category=$category, hsn=$hsn, " +
+        return "name=$name, brand=$brand, price=$price, variant=$variant, category=$category, hsn=$hsn, " +
             "cgst=$cgst, sgst=$sgst, hsn_desc=$hsnDesc, cess_rate=$cessRate, unit=$unit, " +
-            "uqc=$uqc, supply_class=$supplyClass, qty=$qty, cost=$cost; $stockPart; $taxPart"
+            "uqc=$uqc, supply_class=$supplyClass, qty=$qty; $stockPart; $taxPart"
     }
 
     // ============================================================
@@ -438,6 +722,7 @@ class AddProductActivity : BaseActivity() {
         }
 
         val variant = normalizeVariant(etVariant.text.toString())
+        val brand = etBrand.text.toString().trim().ifBlank { null }
         val unit = normalizeUnit(etUnit.text.toString())
         val hsnCode = etHsn.text.toString().trim()
 
@@ -449,9 +734,11 @@ class AddProductActivity : BaseActivity() {
         val cgstPct = if (cgstRaw.isEmpty()) 0.0 else cgstRaw.toDoubleOrNull()
         val sgstPct = if (sgstRaw.isEmpty()) 0.0 else sgstRaw.toDoubleOrNull()
         if (cgstPct == null || cgstPct < 0) {
+            setMoreOptionsExpanded(true)
             toast(getString(R.string.add_product_invalid_cgst_toast)); etCgst.requestFocus(); return
         }
         if (sgstPct == null || sgstPct < 0) {
+            setMoreOptionsExpanded(true)
             toast(getString(R.string.add_product_invalid_sgst_toast)); etSgst.requestFocus(); return
         }
         val igstPct = cgstPct + sgstPct
@@ -465,7 +752,9 @@ class AddProductActivity : BaseActivity() {
 
         val withStock = switchOpeningStock.isChecked
         val stockQty = etQty.text.toString().toDoubleOrNull() ?: 0.0
-        val costPrice = etCost.text.toString().toDoubleOrNull() ?: 0.0
+        // Cost-per-unit field was removed from Opening Stock (not needed at
+        // add-product time); cost tracking downstream defaults to 0.
+        val costPrice = 0.0
         if (withStock && stockQty <= 0) {
             toast(getString(R.string.add_product_enter_stock_qty_toast)); etQty.requestFocus(); return
         }
@@ -475,8 +764,10 @@ class AddProductActivity : BaseActivity() {
             val isGstEnabled = storeInfo != null && storeInfo.gstin.isNotBlank()
             if (isGstEnabled && hsnCode.isBlank()) {
                 withContext(Dispatchers.Main) {
+                    setMoreOptionsExpanded(true)
                     toast(getString(R.string.add_product_hsn_mandatory_toast))
                     etHsn.error = getString(R.string.invoice_required)
+                    etHsn.requestFocus()
                     com.example.easy_billing.util.UserEventLogger.logValidationFailed("AddProduct", "hsn_missing")
                 }
                 return@launch
@@ -503,7 +794,7 @@ class AddProductActivity : BaseActivity() {
                 // stored "Basmati Rice") is a separate question, handled
                 // below — it must not be resolved by this lookup, or an edit
                 // could land on the wrong row.
-                val existing = repo.getByNameAndVariant(name, variant)
+                val existing = repo.getByNameAndVariant(name, variant, brand = brand)
                 if (existing != null && existing.isActive) {
                     withContext(Dispatchers.Main) { confirmEditExistingVariant(existing) }
                     return@launch
@@ -517,6 +808,7 @@ class AddProductActivity : BaseActivity() {
                 // old values instead.
                 fun restoredFrom(base: Product) = base.copy(
                     isActive = true,
+                    brand = brand,
                     price = price,
                     unit = unit,
                     // trackInventory is deliberately NOT taken from the
@@ -554,7 +846,7 @@ class AddProductActivity : BaseActivity() {
                 // so "BASMATI RICE" would insert happily next to "Basmati
                 // Rice" and leave two rows for one product. Catch it here and
                 // send the user to the one that already exists.
-                val clash = repo.findConflictIgnoringCase(name, variant)
+                val clash = repo.findConflictIgnoringCase(name, variant, brand = brand)
                 if (clash != null) {
                     withContext(Dispatchers.Main) {
                         if (clash.isActive) confirmEditExistingVariant(clash)
@@ -607,6 +899,7 @@ class AddProductActivity : BaseActivity() {
                                 name = name,
                                 variant = variant,
                                 unit = unit,
+                                brand = brand,
                                 hsn_code = hsnCode.ifBlank { null },
                                 hsn_description = hsnDescVal,
                                 official_uqc = officialUqcVal,
@@ -624,6 +917,7 @@ class AddProductActivity : BaseActivity() {
                     Product(
                         name = capitalizeFirst(name),
                         variant = variant,
+                        brand = brand,
                         unit = unit,
                         price = price,
                         trackInventory = withStock,
@@ -752,7 +1046,6 @@ class AddProductActivity : BaseActivity() {
      * instead of re-triggering this same prompt.
      */
     private fun confirmEditExistingVariant(product: Product) {
-        val variantName = product.variant?.trim()
         val view = layoutInflater.inflate(R.layout.dialog_variant_exists, null)
 
         val dialog = AlertDialog.Builder(this)
@@ -760,6 +1053,7 @@ class AddProductActivity : BaseActivity() {
             .create()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
+        val variantName = product.variant?.trim()
         view.findViewById<TextView>(R.id.tvVariantExistsMessage).text = if (!variantName.isNullOrBlank())
             getString(R.string.variant_already_exists_message, product.name, variantName)
         else

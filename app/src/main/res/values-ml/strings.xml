@@ -632,7 +632,7 @@
     <string name="add_product_unit_label">യൂണിറ്റ്</string>
     <string name="add_product_variant_hint">സൈസ് അല്ലെങ്കിൽ പാക്ക് തരം</string>
     <string name="add_product_variant_hint_example">ഉദാ. 5 kg</string>
-    <string name="add_product_variant_label">വേരിയന്റ്</string>
+    <string name="add_product_variant_label">തരം</string>
     <string name="add_product_what_you_paid_hint">നിങ്ങൾ അടച്ചത്</string>
     <string name="quantity">അളവ്</string>
 
@@ -2451,4 +2451,11 @@
     <string name="cp_upgrade_credit">അപ്‌ഗ്രേഡ് ക്രെഡിറ്റ്</string>
     <string name="cp_have_coupon">കൂപ്പൺ ഉണ്ടോ?</string>
     <!-- AI insights: one-sentence score, plain KPI labels -->
+
+    <string name="add_product_search_label">ഉൽപ്പന്നം തിരയുക</string>
+    <string name="add_product_search_hint">പേര്, ബ്രാൻഡ് അല്ലെങ്കിൽ തരം തിരയുക</string>
+    <string name="add_product_more_tax_details_label">കൂടുതൽ നികുതി വിവരങ്ങൾ</string>
+    <string name="add_product_tag_your_shop">നിങ്ങളുടെ കട</string>
+    <string name="add_product_tag_global">ഗ്ലോബൽ</string>
+    <string name="add_product_search_add_new">ഇവയൊന്നുമല്ല, പുതിയത് ചേർക്കുക</string>
 </resources>

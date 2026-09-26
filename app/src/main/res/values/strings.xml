@@ -587,6 +587,7 @@
     <string name="add_product_restored_toast">Product restored</string>
     <string name="variant_already_exists_message">%1$s · %2$s is already in your catalog. Edit it, or change the variant name.</string>
     <string name="variant_already_exists_message_no_variant">%1$s is already in your catalog. Edit it, or change the variant name.</string>
+    <string name="variant_already_exists_message_generic">%1$s is already in your catalog. Edit it, or change the details.</string>
 
     <!-- dialog_variant_exists -->
     <string name="add_product_already_in_catalog_badge">ALREADY IN CATALOG</string>
@@ -596,45 +597,49 @@
     <string name="add_product_variant_exists_title">Already exists</string>
 
     <!-- activity_add_product -->
-    <string name="add_product_auto_filled_hint">Auto-filled</string>
-    <string name="add_product_auto_from_unit_hint">Auto from unit</string>
-    <string name="add_product_central_tax_hint">Central tax</string>
-    <string name="add_product_cess_label">Cess %%</string>
+    <string name="add_product_auto_filled_hint">IGST %</string>
+    <string name="add_product_auto_from_unit_hint">Unique Quantity Code</string>
+    <string name="add_product_central_tax_hint">CGST %</string>
+    <string name="add_product_cess_label">Cess %</string>
     <string name="add_product_cost_per_unit_label">Cost / unit</string>
-    <string name="add_product_current_stock_hint">Current stock</string>
-    <string name="add_product_gstr1_optional_note">optional — for GSTR-1 filing</string>
+    <string name="add_product_current_stock_hint">Enter quantity</string>
+    <string name="add_product_gstr1_optional_note">HSN, tax rates &amp; classification</string>
     <string name="add_product_hsn_description_hint_example">e.g. Rice, milled</string>
     <string name="add_product_hsn_description_label">HSN description</string>
     <string name="add_product_hsn_sac_hint">HSN/SAC</string>
     <string name="add_product_hsn_sac_label">HSN / SAC</string>
-    <string name="add_product_if_applicable_hint">If applicable</string>
+    <string name="add_product_if_applicable_hint">Additional tax if any</string>
     <string name="add_product_igst_auto_label">IGST · auto</string>
     <string name="add_product_name_hint_example">e.g. Basmati Rice</string>
     <string name="add_product_no_input_credit_note">No input credit. For GST ITC, use Record a purchase.</string>
     <string name="add_product_official_uqc_label">Official UQC</string>
-    <string name="add_product_opening_stock_subtitle">Optional — sets current stock &amp; cost</string>
-    <string name="add_product_opening_stock_title">Add opening stock</string>
+    <string name="add_product_opening_stock_subtitle">Starting quantity</string>
+    <string name="add_product_opening_stock_title">Opening stock</string>
     <string name="add_product_price_includes_tax">Price includes tax</string>
     <string name="add_product_price_mrp_note">Selling price is MRP (tax-inclusive)</string>
-    <string name="add_product_rate_per_unit_hint">Rate per unit</string>
+    <string name="add_product_rate_per_unit_hint">Price customer pays</string>
     <string name="add_product_save_product_button">Save product</string>
-    <string name="add_product_section_gst_compliance">GST &amp; COMPLIANCE</string>
-    <string name="add_product_section_pricing_tax">PRICING &amp; TAX</string>
-    <string name="add_product_section_product_details">PRODUCT DETAILS</string>
+    <string name="add_product_section_gst_compliance">GST &amp; compliance</string>
+    <string name="add_product_section_pricing_tax">Pricing</string>
+    <string name="add_product_subtitle_details">Name, brand &amp; category</string>
+    <string name="add_product_subtitle_pricing">Selling price &amp; tax mode</string>
+    <string name="add_product_section_product_details">Product details</string>
     <string name="add_product_select_category_hint">Select category</string>
     <string name="add_product_select_classification_hint">Select classification</string>
     <string name="add_product_select_unit_hint">Select unit</string>
     <string name="add_product_selling_price_label">Selling price</string>
-    <string name="add_product_short_description_hint">Short description</string>
-    <string name="add_product_state_tax_hint">State tax</string>
+    <string name="add_product_short_description_hint">Short note (optional)</string>
+    <string name="add_product_state_tax_hint">SGST %</string>
     <string name="add_product_supply_classification_label">Supply classification</string>
-    <string name="add_product_tax_code_hint">Tax code</string>
+    <string name="add_product_tax_code_hint">Enter tax code</string>
     <string name="add_product_title_add">Add</string>
     <string name="add_product_title_product">product</string>
     <string name="add_product_unit_label">Unit</string>
-    <string name="add_product_variant_hint">Size or pack type</string>
+    <string name="add_product_variant_hint">Weight, size, or pack</string>
     <string name="add_product_variant_hint_example">e.g. 5 kg</string>
-    <string name="add_product_variant_label">Variant</string>
+    <string name="add_product_brand_label">Brand</string>
+    <string name="add_product_brand_hint">Manufacturer name</string>
+    <string name="add_product_variant_label">Type</string>
     <string name="add_product_what_you_paid_hint">What you paid</string>
     <string name="quantity">Quantity</string>
 
@@ -652,7 +657,7 @@
     <string name="gstin">GSTIN</string>
     <string name="incorrect_password">Incorrect password</string>
     <string name="inventory_out_of_stock">Out of stock</string>
-    <string name="invoice_hint_tap_to_select">Tap to select</string>
+    <string name="invoice_hint_tap_to_select">Tap to choose</string>
     <string name="manage_filter_all">All</string>
     <string name="open_date_settings">Open date settings</string>
     <string name="purchase_eligibility_inputs">Inputs</string>
@@ -671,7 +676,7 @@
     <string name="add_product_restore_with_entered_details">Restore with the details I entered</string>
 
     <!-- activity_purchase -->
-    <string name="add_product_name_hint">Search or type new</string>
+    <string name="add_product_name_hint">Enter your product name</string>
     <string name="invoice_number">Invoice number</string>
     <string name="invoice_value">Invoice value</string>
     <string name="purchase_add_line_button">+  Add items to purchase</string>
@@ -688,6 +693,8 @@
     <string name="purchase_eligibility_label">Eligibility for ITC</string>
     <string name="purchase_eyebrow">NEW PURCHASE</string>
     <string name="purchase_gst_compliance_header">GST compliance details</string>
+    <string name="purchase_line_items_title">Line items</string>
+    <string name="purchase_invoice_number_label">As printed on the invoice</string>
     <string name="purchase_gstin_hint">15-character GSTIN</string>
     <string name="purchase_history_tile_on_credit">On credit</string>
     <string name="purchase_imported_goods_label">Imported goods</string>
@@ -709,9 +716,9 @@
     <string name="purchase_port_code_hint">6-character code</string>
     <string name="purchase_port_code_label">Port code</string>
     <string name="purchase_remove_account_button">Remove account</string>
-    <string name="purchase_section_invoice_details">INVOICE DETAILS</string>
-    <string name="purchase_section_payment_option">PAYMENT OPTION</string>
-    <string name="purchase_section_supplier">SUPPLIER</string>
+    <string name="purchase_section_invoice_details">Invoice details</string>
+    <string name="purchase_section_payment_option">Payment</string>
+    <string name="purchase_section_supplier">Supplier</string>
     <string name="purchase_sez_gstin_label">SEZ supplier GSTIN</string>
     <string name="purchase_supplier_helper">Registered supplier — GSTIN enables input tax credit</string>
     <string name="purchase_supply_type_label">Supply type</string>
@@ -873,7 +880,7 @@
     <string name="edit_product_hsn_required_error">Required</string>
     <string name="edit_product_hsn_verified_default">HSN verified</string>
     <string name="edit_product_missing_id_toast">Missing product id</string>
-    <string name="edit_product_no_variant">No variant</string>
+    <string name="edit_product_no_variant">No brand or type</string>
     <string name="edit_product_reduce_stock_before_off">Reduce stock to 0 before turning inventory off</string>
     <string name="edit_save_success">Saved</string>
 
@@ -1157,6 +1164,8 @@
     <string name="dashboard_view_list">List</string>
     <string name="manage_filter_manual">Manual</string>
     <string name="manage_filter_purchased">Purchased</string>
+    <string name="manage_filter_manual_full">Added by me</string>
+    <string name="manage_filter_purchased_full">From a purchase</string>
     <string name="store">Store</string>
 
     <!-- dialog_limited_stock -->
@@ -1281,6 +1290,12 @@
     <string name="dialog_add_product_chooser_products_suffix">products</string>
     <string name="dialog_add_product_chooser_subtitle">Pick what you\'d like to do</string>
     <string name="dialog_add_product_chooser_title_part2">edit</string>
+
+    <!-- dialog_product_actions (long-press Edit/Delete on a product tile) -->
+    <string name="dialog_product_actions_edit_title">Edit</string>
+    <string name="dialog_product_actions_edit_body">Update details for this product</string>
+    <string name="dialog_product_actions_delete_title">Delete</string>
+    <string name="dialog_product_actions_delete_body">Remove this product</string>
 
     <!-- fragment_products -->
     <string name="dialog_add_product_chooser_title_part3">products</string>
@@ -2296,8 +2311,8 @@
     <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
     <string name="xml_purchase_line_dialog_cgst_paid_label">CGST paid</string>
     <string name="xml_purchase_line_dialog_disc_label">Disc</string>
-    <string name="xml_purchase_line_dialog_eligibility_label">Eligibility for ITC</string>
-    <string name="xml_purchase_line_dialog_gross_label">Gross</string>
+    <string name="xml_purchase_line_dialog_eligibility_label">This is for the shop to sell</string>
+    <string name="xml_purchase_line_dialog_gross_label">Before discount</string>
     <string name="xml_purchase_line_dialog_raw_material_label">It\'s a raw material (not for direct sale)</string>
     <string name="xml_purchase_line_dialog_hsn_description_label">HSN description</string>
     <string name="xml_purchase_line_dialog_hsn_label">HSN / SAC</string>
@@ -2305,8 +2320,13 @@
     <string name="xml_purchase_line_dialog_igst_label">IGST</string>
     <string name="xml_purchase_line_dialog_igst_paid_label">IGST paid</string>
     <string name="xml_purchase_line_dialog_includes_gst_label">Price includes GST (MRP)</string>
-    <string name="xml_purchase_line_dialog_invoice_value_label">Invoice value</string>
+    <string name="xml_purchase_line_dialog_invoice_value_label">Total (with GST)</string>
     <string name="xml_purchase_line_dialog_itc_details_label">Input tax credit details</string>
+    <string name="xml_purchase_line_dialog_auto_calc_caption">Auto-calculated — tap to change</string>
+    <string name="xml_purchase_line_dialog_tax_gst_details_label">Tax &amp; GST details</string>
+    <string name="xml_purchase_line_dialog_tax_gst_details_subtitle">HSN, UQC, GST rates &amp; ITC</string>
+    <string name="xml_purchase_line_dialog_sell_gst_trio_label">What you\'ll charge when you sell it</string>
+    <string name="xml_purchase_line_dialog_supplier_gst_trio_label">What you\'ll pay the supplier</string>
     <string name="xml_purchase_line_dialog_product_hint">Product name</string>
     <string name="xml_purchase_line_dialog_product_search_hint">Search or type new</string>
     <string name="xml_purchase_line_dialog_product_section">PRODUCT</string>
@@ -2320,8 +2340,11 @@
     <string name="xml_purchase_line_dialog_supply_class_label">Supply class</string>
     <string name="xml_purchase_line_dialog_tap_select_hint">Tap to select</string>
     <string name="xml_purchase_line_dialog_tax_classification_section">TAX CLASSIFICATION</string>
+    <string name="purchase_line_tax_details_subtitle">HSN, tax rates — auto-filled, rarely needs changing</string>
+    <string name="purchase_line_sell_tax_label">What you’ll charge when you sell it</string>
+    <string name="purchase_line_buy_tax_label">What you’ll pay the supplier</string>
     <string name="xml_purchase_line_dialog_tax_code_hint">Tax code</string>
-    <string name="xml_purchase_line_dialog_taxable_label">Taxable</string>
+    <string name="xml_purchase_line_dialog_taxable_label">After discount</string>
     <string name="xml_purchase_line_dialog_title_kicker">PURCHASE LINE</string>
     <string name="xml_purchase_line_dialog_title_line1">Add</string>
     <string name="xml_purchase_line_dialog_title_line2">item</string>
@@ -2685,4 +2708,11 @@
     <string name="cp_upgrade_credit">Upgrade credit</string>
     <string name="cp_have_coupon">Have a coupon?</string>
     <!-- AI insights: one-sentence score, plain KPI labels -->
+
+    <string name="add_product_search_label">Search product</string>
+    <string name="add_product_search_hint">Search name, brand, or type</string>
+    <string name="add_product_more_tax_details_label">More tax details</string>
+    <string name="add_product_tag_your_shop">Your shop</string>
+    <string name="add_product_tag_global">Global</string>
+    <string name="add_product_search_add_new">None of these, add new</string>
 </resources>

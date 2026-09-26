@@ -39,8 +39,17 @@
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/add_product_section_product_details" android:textColor="#8A6526" android:textSize="12sp" android:letterSpacing="0.12" android:fontFamily="@font/googlesans_semibold" />
                     </LinearLayout>
 
+                    <!-- ── Unified Name · Brand · Type search (Part 2) ── same
+                         behavior as the phone layout: reference the phone
+                         layout's comment for details. -->
+                    <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_search_label" android:layout_marginTop="0dp" />
+                    <AutoCompleteTextView android:id="@+id/etProductSearch" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:popupBackground="@drawable/bg_pos_dropdown" android:paddingHorizontal="13dp" android:drawablePadding="10dp" app:drawableStartCompat="@drawable/ic_lc_box" android:drawableTint="#16A34A" android:hint="@string/add_product_search_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="15sp" android:inputType="textCapWords" android:completionThreshold="1" />
+
                     <TextView style="@style/AddpFieldLabel" android:text="@string/purchase_field_product" />
                     <AutoCompleteTextView android:id="@+id/etName" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:popupBackground="@drawable/bg_pos_dropdown" android:paddingHorizontal="13dp" android:drawablePadding="10dp" app:drawableStartCompat="@drawable/ic_lc_box" android:drawableTint="#B8895A" android:hint="@string/add_product_name_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="15sp" android:inputType="textCapWords" android:completionThreshold="1" />
+
+                    <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_brand_label" />
+                    <AutoCompleteTextView android:id="@+id/etBrand" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:popupBackground="@drawable/bg_pos_dropdown" android:paddingHorizontal="13dp" android:drawablePadding="10dp" app:drawableStartCompat="@drawable/ic_lc_tag" android:drawableTint="#7A4FA3" android:hint="@string/add_product_brand_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="15sp" android:inputType="textCapWords" android:completionThreshold="1" />
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false">
 
@@ -79,8 +88,8 @@
 
                         <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
                             <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_hsn_sac_label" />
-                            <EditText android:id="@+id/etHsn"
-                    app:drawableTint="#B8895A" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp" android:hint="@string/add_product_tax_code_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="15sp" android:inputType="number" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_file_text" />
+                            <AutoCompleteTextView android:id="@+id/etHsn"
+                    app:drawableTint="#B8895A" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:popupBackground="@drawable/bg_pos_dropdown" android:paddingHorizontal="13dp" android:hint="@string/add_product_tax_code_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="15sp" android:inputType="number" android:completionThreshold="4" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_file_text" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -126,29 +135,54 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/add_product_gstr1_optional_note" android:textColor="#B8895A" android:textSize="11.5sp" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false">
+                <!-- "More options" toggle — tablet previously showed this
+                     whole card open with no collapse; added here (Part 2)
+                     to match phone behavior and the ids AddProductActivity
+                     already looks up unconditionally. -->
+                <LinearLayout android:id="@+id/btnToggleMoreOptions" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="10dp" android:paddingVertical="6dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/add_product_section_gst_compliance" android:textSize="12.5sp" android:fontFamily="@font/googlesans_medium" android:textColor="#8A6526" />
+                    <ImageView android:id="@+id/ivMoreOptionsChevron" android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#8A6526" android:contentDescription="@null" />
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/groupMoreOptions" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:layout_marginTop="8dp">
+
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1.2" android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_hsn_description_label" android:layout_marginTop="0dp" />
+                        <EditText android:id="@+id/etHsnDesc"
+                    app:drawableTint="#B8895A" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp" android:hint="@string/add_product_short_description_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="14.5sp" android:maxLines="1" android:inputType="textCapSentences" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_file_text" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Nested "More tax details" sub-collapse (Part 2, step 3) —
+                     UQC / Supply classification / Cess, closed by default,
+                     independent of the outer "More options" toggle above. -->
+                <LinearLayout android:id="@+id/btnToggleMoreTaxDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="12dp" android:paddingVertical="6dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/add_product_more_tax_details_label" android:textSize="12sp" android:fontFamily="@font/googlesans_medium" android:textColor="#6E6A60" />
+                    <ImageView android:id="@+id/ivMoreTaxDetailsChevron" android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#6E6A60" android:contentDescription="@null" />
+                </LinearLayout>
+
+                <LinearLayout android:id="@+id/groupMoreTaxDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:layout_marginTop="8dp">
 
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_official_uqc_label" />
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_official_uqc_label" android:layout_marginTop="0dp" />
                         <TextView android:id="@+id/spinnerUqc" android:layout_width="match_parent" android:layout_height="50dp" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp" app:drawableEndCompat="@drawable/ic_lc_chevron_down" android:drawableTint="#B8895A" android:hint="@string/add_product_auto_from_unit_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="14.5sp" android:clickable="true" android:focusable="true" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_scale" />
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_supply_classification_label" />
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_supply_classification_label" android:layout_marginTop="0dp" />
                         <TextView android:id="@+id/spinnerSupplyClass" android:layout_width="match_parent" android:layout_height="50dp" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp" app:drawableEndCompat="@drawable/ic_lc_chevron_down" android:drawableTint="#B8895A" android:hint="@string/invoice_hint_tap_to_select" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="14.5sp" android:clickable="true" android:focusable="true" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_truck" />
                     </LinearLayout>
 
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1.2" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_hsn_description_label" />
-                        <EditText android:id="@+id/etHsnDesc"
-                    app:drawableTint="#B8895A" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp" android:hint="@string/add_product_short_description_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="14.5sp" android:maxLines="1" android:inputType="textCapSentences" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_file_text" />
-                    </LinearLayout>
-
                     <LinearLayout android:layout_width="0dp" android:layout_weight="0.6" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_cess_label" />
+                        <TextView style="@style/AddpFieldLabel" android:text="@string/add_product_cess_label" android:layout_marginTop="0dp" />
                         <EditText android:id="@+id/etCessRate"
                     app:drawableTint="#B8895A" android:layout_width="match_parent" android:layout_height="50dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp" android:hint="@string/add_product_if_applicable_hint" android:textColorHint="#A99E88" android:textColor="#1A1A18" android:textSize="14.5sp" android:inputType="numberDecimal" android:drawablePadding="8dp" app:drawableStartCompat="@drawable/ic_lc_percent" />
                     </LinearLayout>
+                </LinearLayout>
+                </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 

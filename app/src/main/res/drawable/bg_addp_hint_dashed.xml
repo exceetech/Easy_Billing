@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dashed-border hint box for Add Product's Opening Stock note, matching
+     the premium mockup (soft field bg + dashed champagne border). Distinct
+     from bg_addp_hint (shared with activity_invoice.xml) so that file is
+     left untouched. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="11dp"/>
+    <solid android:color="#FBFAF8"/>
+    <stroke android:width="1.5dp" android:color="#E6C98A" android:dashWidth="4dp" android:dashGap="3dp"/>
+</shape>

@@ -5,6 +5,7 @@ data class VariantResponse(
     val product_id: Int,
     val variant_name: String,
     val unit: String,
+    val brand: String? = null,
     // Statutory autofill fields (price never included).
     val hsn_code: String? = null,
     val hsn_description: String? = null,

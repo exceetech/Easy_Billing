@@ -2451,4 +2451,11 @@
     <string name="cp_upgrade_credit">மேம்படுத்தல் கிரெடிட்</string>
     <string name="cp_have_coupon">கூப்பன் உள்ளதா?</string>
     <!-- AI insights: one-sentence score, plain KPI labels -->
+
+    <string name="add_product_search_label">தயாரிப்பைத் தேடு</string>
+    <string name="add_product_search_hint">பெயர், பிராண்ட் அல்லது வகையைத் தேடுங்கள்</string>
+    <string name="add_product_more_tax_details_label">மேலும் வரி விவரங்கள்</string>
+    <string name="add_product_tag_your_shop">உங்கள் கடை</string>
+    <string name="add_product_tag_global">உலகளாவிய</string>
+    <string name="add_product_search_add_new">இவை எதுவும் இல்லை, புதியதைச் சேர்</string>
 </resources>

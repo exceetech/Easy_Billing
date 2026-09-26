@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dropdown row for the unified Name · Brand · Type search box on Add
+     Product (Part 2). Left: "Name • Brand • Type" label. Right: a small
+     source tag, "Your shop" or "Global" (localized), or the "+ add new"
+     row's own label with no tag. Same visual language as item_dropdown_ep
+     (bg_pos_dropdown container, googlesans_medium, ink text). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="44dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tvSearchRowLabel"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:textColor="#1A1A18"
+        android:textSize="14sp"
+        android:fontFamily="@font/googlesans_medium"
+        android:ellipsize="end"
+        android:singleLine="true"/>
+
+    <TextView
+        android:id="@+id/tvSearchRowTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:background="@drawable/bg_inv_field_light_grey"
+        android:textColor="#6E6A60"
+        android:textSize="10sp"
+        android:fontFamily="@font/googlesans_medium"
+        android:singleLine="true"/>
+
+</LinearLayout>

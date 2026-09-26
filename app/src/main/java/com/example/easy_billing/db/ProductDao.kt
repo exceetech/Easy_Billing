@@ -159,12 +159,13 @@ interface ProductDao {
         SELECT * FROM products
          WHERE name = :name
            AND ((variant IS NULL AND :variant IS NULL) OR variant = :variant)
+           AND ((brand IS NULL AND :brand IS NULL) OR brand = :brand)
            AND shop_id IN (:shopIds)
            AND isSellable = :isSellable
          LIMIT 1
         """
     )
-    suspend fun getByNameAndVariant(name: String, variant: String?, shopIds: List<String>, isSellable: Boolean): Product?
+    suspend fun getByNameAndVariant(name: String, variant: String?, shopIds: List<String>, isSellable: Boolean, brand: String?): Product?
 
     /**
      * Case-insensitive **detection only** — never use it to decide which
@@ -189,13 +190,15 @@ interface ProductDao {
          WHERE name = :name COLLATE NOCASE
            AND ((variant IS NULL AND :variant IS NULL)
                 OR variant = :variant COLLATE NOCASE)
+           AND ((brand IS NULL AND :brand IS NULL)
+                OR brand = :brand COLLATE NOCASE)
            AND shop_id IN (:shopIds)
            AND isSellable = :isSellable
          ORDER BY isActive DESC, id ASC
          LIMIT 1
         """
     )
-    suspend fun findConflictIgnoringCase(name: String, variant: String?, shopIds: List<String>, isSellable: Boolean): Product?
+    suspend fun findConflictIgnoringCase(name: String, variant: String?, shopIds: List<String>, isSellable: Boolean, brand: String?): Product?
 
     /* ------------ Soft delete ------------ */
 
@@ -228,12 +231,13 @@ interface ProductDao {
         SELECT * FROM products
          WHERE name = :name
            AND ((variant IS NULL AND :variant IS NULL) OR variant = :variant)
+           AND ((brand IS NULL AND :brand IS NULL) OR brand = :brand)
            AND shop_id IN (:shopIds)
            AND isActive = 0
          LIMIT 1
         """
     )
-    suspend fun getInactiveByNameAndVariant(name: String, variant: String?, shopIds: List<String>): Product?
+    suspend fun getInactiveByNameAndVariant(name: String, variant: String?, shopIds: List<String>, brand: String?): Product?
 
     /* ------------ Auto-fill helpers ------------
      * These power the "type a product name or HSN, get its tax

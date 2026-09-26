@@ -203,6 +203,7 @@ class PurchaseRepository private constructor(
             val newProductData = Product(
                 name            = line.productName,
                 variant         = line.variant,
+                brand           = line.brand,
                 unit            = line.unit,
                 price           = if (isAssetLine) line.costPrice else (line.sellingPrice ?: line.costPrice),
                 trackInventory  = true,
@@ -398,6 +399,7 @@ class PurchaseRepository private constructor(
     data class PurchaseItemDraft(
         val productName: String,
         val variant: String? = null,
+        val brand: String? = null,
         val hsnCode: String? = null,
         val unit: String? = null,
         val quantity: Double,

@@ -74,6 +74,16 @@ class EditProductActivity : BaseActivity() {
     private lateinit var switchTaxInclusive: MaterialSwitch
     private lateinit var btnHsnHelp: MaterialButton
 
+    // "More options" (HSN, HSN description) / nested "More tax details"
+    // (UQC, supply classification, cess) -- same collapsible pattern as
+    // AddProductActivity's groupMoreOptions/groupMoreTaxDetails.
+    private lateinit var btnToggleMoreOptions: View
+    private lateinit var groupMoreOptions: View
+    private lateinit var ivMoreOptionsChevron: android.widget.ImageView
+    private lateinit var btnToggleMoreTaxDetails: View
+    private lateinit var groupMoreTaxDetails: View
+    private lateinit var ivMoreTaxDetailsChevron: android.widget.ImageView
+
     // GSTR-1 product master fields (v23)
     // UQC / Supply classification are fixed-choice fields, so they open
     // the same custom picker popup as the Manage Products sort dropdown
@@ -99,6 +109,7 @@ class EditProductActivity : BaseActivity() {
     /** Current stock at dialog-open time (used to gate the toggle). */
     private var currentStock: Double = 0.0
     private var hsnVerifyJob: Job? = null
+    private var hasAutoExpandedMoreOptions: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,6 +149,13 @@ class EditProductActivity : BaseActivity() {
         etIgst    = findViewById(R.id.etIgst)
         switchTaxInclusive = findViewById(R.id.switchTaxInclusive)
         btnHsnHelp = findViewById(R.id.btnHsnHelp)
+
+        btnToggleMoreOptions = findViewById(R.id.btnToggleMoreOptions)
+        groupMoreOptions = findViewById(R.id.groupMoreOptions)
+        ivMoreOptionsChevron = findViewById(R.id.ivMoreOptionsChevron)
+        btnToggleMoreTaxDetails = findViewById(R.id.btnToggleMoreTaxDetails)
+        groupMoreTaxDetails = findViewById(R.id.groupMoreTaxDetails)
+        ivMoreTaxDetailsChevron = findViewById(R.id.ivMoreTaxDetailsChevron)
 
         spinnerOfficialUqc = findViewById(R.id.spinnerOfficialUqc)
         etHsnDescription   = findViewById(R.id.etHsnDescription)
@@ -182,8 +200,32 @@ class EditProductActivity : BaseActivity() {
         btnCancel = findViewById(R.id.btnCancel)
     }
 
+    // Expands/collapses the "More options" section (HSN, HSN description,
+    // and the nested "More tax details" group). Promoted to a function so
+    // onSaveClicked() can force it open when HSN validation fails on a
+    // GST-registered shop, exactly like AddProductActivity.
+    private fun setMoreOptionsExpanded(expanded: Boolean) {
+        groupMoreOptions.visibility = if (expanded) View.VISIBLE else View.GONE
+        ivMoreOptionsChevron.rotation = if (expanded) 180f else 0f
+    }
+
+    // Independent of setMoreOptionsExpanded() -- collapsing "More options"
+    // does not need to also reset this; it is simply hidden along with its
+    // parent when that happens.
+    private fun setMoreTaxDetailsExpanded(expanded: Boolean) {
+        groupMoreTaxDetails.visibility = if (expanded) View.VISIBLE else View.GONE
+        ivMoreTaxDetailsChevron.rotation = if (expanded) 180f else 0f
+    }
+
     private fun wireButtons() {
         btnHsnHelp.setOnClickListener { HsnHelpLauncher.open(this) }
+
+        btnToggleMoreOptions.setOnClickListener {
+            setMoreOptionsExpanded(groupMoreOptions.visibility != View.VISIBLE)
+        }
+        btnToggleMoreTaxDetails.setOnClickListener {
+            setMoreTaxDetailsExpanded(groupMoreTaxDetails.visibility != View.VISIBLE)
+        }
 
         // IGST is derived, never typed — exactly as in Add Product. Letting
         // the three rates be edited independently allowed CGST+SGST and IGST
@@ -306,9 +348,7 @@ class EditProductActivity : BaseActivity() {
 
     private fun renderProduct(product: Product) {
         tvName.text = product.name
-        tvVariant.text = product.variant
-            ?.takeIf { it.isNotBlank() }
-            ?.let { "Variant: $it" } ?: getString(R.string.edit_product_no_variant)
+        tvVariant.text = productDisplayLabel(product.brand, product.variant)
         tvAvatar.text = avatarInitials(product.name)
 
         if (product.isPurchased) {
@@ -367,6 +407,22 @@ class EditProductActivity : BaseActivity() {
             }
             tvCurrentStock.text = "${formatStock(currentStock)} ${product.unit ?: "piece"}"
         }
+
+        // Auto-expand "More options" once, the first time this product's
+        // data arrives, when the shop is GST-registered -- same behaviour
+        // as AddProductActivity's onCreate check. Guarded on hasAutoExpanded
+        // so re-emissions from the product Flow (e.g. after Save) don't
+        // re-open a section the user has since collapsed.
+        if (!hasAutoExpandedMoreOptions) {
+            hasAutoExpandedMoreOptions = true
+            lifecycleScope.launch {
+                val isGstEnabled = withContext(Dispatchers.IO) {
+                    AppDatabase.getDatabase(this@EditProductActivity)
+                        .storeInfoDao().get()?.gstin?.isNotBlank() == true
+                }
+                if (isGstEnabled) setMoreOptionsExpanded(true)
+            }
+        }
     }
 
     /* ---------------- Save ---------------- */
@@ -406,6 +462,7 @@ class EditProductActivity : BaseActivity() {
                         .storeInfoDao().get()?.gstin?.isNotBlank() == true
                 }
                 if (gstEnabled) {
+                    setMoreOptionsExpanded(true)
                     etHsn.error = getString(R.string.edit_product_hsn_required_error)
                     Toast.makeText(
                         this@EditProductActivity,
@@ -551,6 +608,29 @@ class EditProductActivity : BaseActivity() {
     }
 
     /* ---------------- Helpers ---------------- */
+
+    /**
+     * Combines brand + type (product.variant) into one readable identity
+     * subtitle line, gracefully degrading when either or both are blank:
+     *   both        -> "Lays · Chips"          (brand · type)
+     *   brand only  -> "Lays"
+     *   type only   -> "Type: Chips"
+     *   neither     -> the existing edit_product_no_variant fallback string
+     *
+     * NOTE: no shared `productDisplayLabel` helper exists anywhere else in
+     * the codebase (verified by search) despite Part 3's brief describing
+     * one as already added elsewhere -- this is a fresh, local helper.
+     */
+    private fun productDisplayLabel(brand: String?, variant: String?): String {
+        val b = brand?.trim()?.takeIf { it.isNotBlank() }
+        val t = variant?.trim()?.takeIf { it.isNotBlank() }
+        return when {
+            b != null && t != null -> "$b \u00B7 $t"
+            b != null -> b
+            t != null -> "Type: $t"
+            else -> getString(R.string.edit_product_no_variant)
+        }
+    }
 
     /** First letters of up to 2 words, uppercased; falls back to first 2 chars. */
     private fun avatarInitials(name: String): String {

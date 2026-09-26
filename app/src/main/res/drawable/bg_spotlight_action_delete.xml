@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solid red circle for the spotlight's Delete action button — matches the
+     red accent already used for Delete in bg_tile_red / ic_lc_trash tinting
+     (#B23A3A), but solid instead of soft-pastel so it reads clearly against
+     the dark scrim. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#B23A3A"/>
+</shape>

@@ -4,6 +4,8 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -95,6 +97,10 @@ class PurchaseLineDialog(
      * catalogue doesn't carry them. Mirrors AddProductActivity.
      */
     private val localVariantsByName = HashMap<String, MutableList<Product>>()
+
+    /** Global catalog names seen so far (lowercase key -> display name), for the search box's Global rows. */
+    private val catalogNames = HashSet<String>()
+    private val catalogDisplayNames = HashMap<String, String>()
 
     // In-flight lookups — cancelled when a newer one starts, so an older
     // (slower) response can never overwrite a newer one.
@@ -312,6 +318,92 @@ class PurchaseLineDialog(
         dialog.window?.clearFlags(flag)
     }
 
+    // ============================================================
+    // Unified Name . Brand . Type search — additive quick-fill box above
+    // the existing etProductName/etBrand/etVariant fields, mirroring
+    // AddProductActivity's etProductSearch exactly (Part 6). It does not
+    // replace those fields or their existing autofill/locking pipeline
+    // (onProductSettled/onVariantSettled/setProductMasterFieldsEnabled) —
+    // tapping a result just calls .setText() on Name/Brand/Variant and
+    // re-runs that same pipeline, same as Add Product does.
+    private data class SearchRow(
+        val label: String,
+        val tag: String?,
+        val name: String,
+        val brand: String?,
+        val variant: String?,
+        val isAddNew: Boolean = false
+    )
+
+    private inner class SearchRowAdapter(rows: List<SearchRow>) :
+        ArrayAdapter<SearchRow>(activity, 0, rows.toMutableList()), Filterable {
+
+        // Refreshed by refreshProductSearchPool() as this shop's own products
+        // load and as global variants get fetched, mirroring AddProductActivity.
+        var pool: List<SearchRow> = rows
+
+        // Supplies the currently-typed Brand text for the "no exact match yet"
+        // check below, without this adapter needing a reference to the view.
+        var currentBrandText: () -> String = { "" }
+
+        override fun getView(position: Int, convertView: View?, parent: android.view.ViewGroup): View {
+            val view = convertView ?: android.view.LayoutInflater.from(context)
+                .inflate(R.layout.item_search_row_ep, parent, false)
+            val row = getItem(position)
+            view.findViewById<TextView>(R.id.tvSearchRowLabel).text = row?.label.orEmpty()
+            val tvTag = view.findViewById<TextView>(R.id.tvSearchRowTag)
+            if (row?.tag.isNullOrBlank()) {
+                tvTag.visibility = View.GONE
+            } else {
+                tvTag.visibility = View.VISIBLE
+                tvTag.text = row?.tag
+            }
+            return view
+        }
+
+        override fun getFilter(): Filter = object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val query = constraint?.toString()?.trim()?.lowercase().orEmpty()
+                val matches = if (query.isEmpty()) emptyList() else pool.filter { row ->
+                    row.name.lowercase().contains(query) ||
+                        row.brand?.lowercase()?.contains(query) == true ||
+                        row.variant?.lowercase()?.contains(query) == true
+                }
+                val results = FilterResults()
+                results.values = matches
+                results.count = matches.size
+                return results
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                clear()
+                val matches = (results?.values as? List<SearchRow>).orEmpty()
+                addAll(matches)
+                // Fallback row — only once there's something typed with no
+                // exact name+brand match already in the list. Mirrors
+                // AddProductActivity's SearchRowAdapter exactly.
+                val query = constraint?.toString()?.trim().orEmpty()
+                val hasExact = matches.any {
+                    it.name.equals(query, true) && (it.brand ?: "").equals(currentBrandText(), true)
+                }
+                if (query.isNotEmpty() && !hasExact) {
+                    add(
+                        SearchRow(
+                            label = activity.getString(R.string.add_product_search_add_new),
+                            tag = null,
+                            name = query,
+                            brand = null,
+                            variant = null,
+                            isAddNew = true
+                        )
+                    )
+                }
+                notifyDataSetChanged()
+            }
+        }
+    }
+
     fun show(
         prefillName: String? = null,
         prefillVariant: String? = null,
@@ -322,7 +414,9 @@ class PurchaseLineDialog(
     ) {
         val view = activity.layoutInflater.inflate(R.layout.dialog_purchase_line, null)
 
+        val etProductSearch = view.findViewById<AutoCompleteTextView>(R.id.etProductSearchLine)
         val etProduct = view.findViewById<AutoCompleteTextView>(R.id.etProductName)
+        val etBrand = view.findViewById<AutoCompleteTextView>(R.id.etBrand)
         val tilVariant = view.findViewById<View>(R.id.tilVariant)
         val etVariant = view.findViewById<AutoCompleteTextView>(R.id.etVariant)
         val etUnit = view.findViewById<AutoCompleteTextView>(R.id.etUnit)
@@ -583,6 +677,69 @@ class PurchaseLineDialog(
             }
         }
 
+        // Search-box pool + adapter — declared before onProductSettled/
+        // onVariantSettled since they call refreshProductSearchPool() as
+        // their fetches resolve, and a local fun must be declared before use.
+        val searchAdapter = SearchRowAdapter(emptyList())
+        searchAdapter.currentBrandText = { etBrand.text?.toString()?.trim().orEmpty() }
+
+        fun refreshProductSearchPool() {
+            val rows = mutableListOf<SearchRow>()
+            val seenLocal = HashSet<String>()
+            for (products in localVariantsByName.values) {
+                for (p in products) {
+                    val key = "${p.name}|${p.brand.orEmpty()}|${p.variant.orEmpty()}".lowercase()
+                    if (!seenLocal.add(key)) continue
+                    val parts = listOfNotNull(p.name, p.brand?.takeIf { it.isNotBlank() }, p.variant?.takeIf { it.isNotBlank() })
+                    rows.add(
+                        SearchRow(
+                            label = parts.joinToString(" \u2022 "),
+                            tag = activity.getString(R.string.add_product_tag_your_shop),
+                            name = p.name,
+                            brand = p.brand,
+                            variant = p.variant
+                        )
+                    )
+                }
+            }
+            val seenGlobal = HashSet<String>()
+            for (name in catalogNames) {
+                val display = catalogDisplayNames[name] ?: name.replaceFirstChar { it.uppercaseChar() }
+                val variantsForName = if (lastFetchedProduct == name) variantCache else emptyList()
+                val namedVariants = CatalogAutofill.namedVariants(variantsForName)
+                if (namedVariants.isEmpty()) {
+                    val key = "$name||".lowercase()
+                    if (seenGlobal.add(key)) {
+                        rows.add(
+                            SearchRow(
+                                label = display,
+                                tag = activity.getString(R.string.add_product_tag_global),
+                                name = display,
+                                brand = null,
+                                variant = null
+                            )
+                        )
+                    }
+                } else {
+                    for (v in namedVariants) {
+                        val key = "$name|${v.brand.orEmpty()}|${v.variant_name}".lowercase()
+                        if (!seenGlobal.add(key)) continue
+                        val parts = listOfNotNull(display, v.brand?.takeIf { it.isNotBlank() }, v.variant_name.takeIf { it.isNotBlank() })
+                        rows.add(
+                            SearchRow(
+                                label = parts.joinToString(" \u2022 "),
+                                tag = activity.getString(R.string.add_product_tag_global),
+                                name = display,
+                                brand = v.brand,
+                                variant = v.variant_name
+                            )
+                        )
+                    }
+                }
+            }
+            searchAdapter.pool = rows
+        }
+
         val onVariantSettled = {
             val vName = etVariant.text.toString().trim()
             val pName = etProduct.text.toString().trim()
@@ -612,6 +769,7 @@ class PurchaseLineDialog(
                             withContext(Dispatchers.Main) {
                                 applyingAutofill = true
                                 etSelling.setText(match.price.toString())
+                                etBrand.setText(match.brand.orEmpty())
                                 switchTaxInclusive.isChecked = match.isTaxInclusive
                                 etSCgst.setText(match.cgstPercentage.toString())
                                 etSSgst.setText(match.sgstPercentage.toString())
@@ -665,6 +823,7 @@ class PurchaseLineDialog(
                 autofilledForVariant = null
                 lastFetchedVariant = null
                 etVariant.setText("")
+                etBrand.setText("")
                 variantCache = emptyList()
 
                 // Clear EVERY autofilled field, so nothing from the
@@ -698,6 +857,7 @@ class PurchaseLineDialog(
                         productRepo.autoFillFromHistory(name = name)
                     }
                     variantCache = variants
+                    refreshProductSearchPool()
 
                     val named = CatalogAutofill.namedVariants(variants)
                     refreshVariantAdapter(etVariant, name.trim().lowercase())
@@ -778,7 +938,12 @@ class PurchaseLineDialog(
                 if (!token.isNullOrEmpty()) {
                     withContext(Dispatchers.IO) {
                         com.example.easy_billing.network.RetrofitClient.api.getCatalog(token)
-                    }.forEach { names.add(it.name) }
+                    }.forEach {
+                        names.add(it.name)
+                        val key = it.name.trim().lowercase()
+                        catalogNames.add(key)
+                        catalogDisplayNames[key] = it.name
+                    }
                 }
             }   // best-effort: offline just means local-only suggestions
 
@@ -789,6 +954,32 @@ class PurchaseLineDialog(
             // refresh the variant list so its own variants show up.
             etProduct.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }?.let {
                 refreshVariantAdapter(etVariant, it.lowercase())
+            }
+            refreshProductSearchPool()
+
+            // Unified Name . Brand . Type search box — additive, mirrors
+            // AddProductActivity's etProductSearch exactly (see class doc).
+            etProductSearch.setAdapter(searchAdapter)
+            etProductSearch.threshold = 1
+            etProductSearch.setOnClickListener { if (etProductSearch.text.isNotEmpty()) etProductSearch.showDropDown() }
+            etProductSearch.setOnItemClickListener { _, _, position, _ ->
+                val row = searchAdapter.getItem(position) ?: return@setOnItemClickListener
+                if (row.isAddNew) {
+                    etProductSearch.setText("")
+                    etProduct.setText(row.name)
+                    etProduct.requestFocus()
+                    return@setOnItemClickListener
+                }
+                etProduct.setText(row.name)
+                etBrand.setText(row.brand.orEmpty())
+                etVariant.setText(row.variant.orEmpty())
+                etProductSearch.setText("")
+                // Re-run the exact same pipeline a manual Name/Variant pick
+                // already triggers, so duplicate-matching, locking and
+                // statutory autofill behave identically — same as Add
+                // Product's search tap.
+                onProductSettled()
+                if (!row.variant.isNullOrBlank()) onVariantSettled()
             }
 
             if (prefillName != null) {
@@ -821,6 +1012,7 @@ class PurchaseLineDialog(
                 if (existingDraft != null) {
                     applyingAutofill = true
                     try {
+                        etBrand.setText(existingDraft.brand.orEmpty())
                         etUnit.setText(existingDraft.unit?.takeIf { it.isNotBlank() } ?: "piece", false)
                         etHsn.setText(existingDraft.hsnCode.orEmpty())
                         etSelling.setText(existingDraft.sellingPrice?.let { trimNum(it) } ?: "")
@@ -1093,10 +1285,12 @@ class PurchaseLineDialog(
 
             val finalHsnDesc = etHsnDescPurchase.text?.toString()?.trim().orEmpty()
             val variant = etVariant.text?.toString()?.trim()?.takeIf { it.isNotBlank() }
+            val brand = etBrand.text?.toString()?.trim()?.takeIf { it.isNotBlank() }
 
             val draft = PurchaseItemDraft(
                 productName = name.firstCapital(),
                 variant = variant?.firstCapital(),
+                brand = brand?.firstCapital(),
                 hsnCode = etHsn.text?.toString()?.trim()?.takeIf { it.isNotBlank() },
                 unit = etUnit.text?.toString()?.trim()?.ifBlank { null },
                 quantity = qty,
@@ -1234,9 +1428,9 @@ class PurchaseLineDialog(
     }
 
     private fun setupGstr2Toggle(view: View) {
-        val header = view.findViewById<LinearLayout>(R.id.llGstr2HeaderToggle)
-        val arrow = view.findViewById<ImageView>(R.id.ivGstr2ToggleArrow)
-        val details = view.findViewById<LinearLayout>(R.id.llGstr2ItemDetails)
+        val header = view.findViewById<LinearLayout>(R.id.llTaxGstHeaderToggle)
+        val arrow = view.findViewById<ImageView>(R.id.ivTaxGstToggleArrow)
+        val details = view.findViewById<LinearLayout>(R.id.llTaxGstDetailsBody)
 
         header.setOnClickListener {
             if (details.visibility == View.VISIBLE) {
@@ -1406,7 +1600,7 @@ class PurchaseLineDialog(
             val validShopIds = productRepo.getValidShopIds()
 
             val existingMatch = withContext(Dispatchers.IO) {
-                db.productDao().getByNameAndVariant(draft.productName, draft.variant, validShopIds, wantsSellable)
+                db.productDao().getByNameAndVariant(draft.productName, draft.variant, validShopIds, wantsSellable, null)
                     // Exact match only fixes the first letter of each word, so
                     // "Potato Chips" vs "Potato CHIPS" (or any other mid-word
                     // case difference) slips past it as two different
@@ -1414,7 +1608,7 @@ class PurchaseLineDialog(
                     // — without it, a restock typed with slightly different
                     // capitalization silently created a second product +
                     // inventory row instead of adding to the existing one.
-                    ?: db.productDao().findConflictIgnoringCase(draft.productName, draft.variant, validShopIds, wantsSellable)
+                    ?: db.productDao().findConflictIgnoringCase(draft.productName, draft.variant, validShopIds, wantsSellable, null)
             }
 
             withContext(Dispatchers.Main) {
@@ -1494,6 +1688,7 @@ class PurchaseLineDialog(
 
         btnNew.setOnClickListener {
             val oldValuesDraft = draft.copy(
+                brand = inactive.brand,
                 sellingPrice = inactive.price,
                 hsnCode = inactive.hsnCode,
                 salesCgst = inactive.cgstPercentage,

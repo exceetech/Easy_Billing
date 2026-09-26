@@ -632,7 +632,7 @@
     <string name="add_product_unit_label">ಘಟಕ</string>
     <string name="add_product_variant_hint">ಗಾತ್ರ ಅಥವಾ ಪ್ಯಾಕ್ ಪ್ರಕಾರ</string>
     <string name="add_product_variant_hint_example">ಉದಾ. 5 kg</string>
-    <string name="add_product_variant_label">ವೇರಿಯಂಟ್</string>
+    <string name="add_product_variant_label">ಪ್ರಕಾರ</string>
     <string name="add_product_what_you_paid_hint">ನೀವು ಪಾವತಿಸಿದ್ದು</string>
     <string name="quantity">ಪ್ರಮಾಣ</string>
 
@@ -2451,4 +2451,11 @@
     <string name="cp_upgrade_credit">ಅಪ್‌ಗ್ರೇಡ್ ಕ್ರೆಡಿಟ್</string>
     <string name="cp_have_coupon">ಕೂಪನ್ ಇದೆಯೇ?</string>
     <!-- AI insights: one-sentence score, plain KPI labels -->
+
+    <string name="add_product_search_label">ಉತ್ಪನ್ನ ಹುಡುಕಿ</string>
+    <string name="add_product_search_hint">ಹೆಸರು, ಬ್ರ್ಯಾಂಡ್ ಅಥವಾ ಪ್ರಕಾರ ಹುಡುಕಿ</string>
+    <string name="add_product_more_tax_details_label">ಹೆಚ್ಚಿನ ತೆರಿಗೆ ವಿವರಗಳು</string>
+    <string name="add_product_tag_your_shop">ನಿಮ್ಮ ಅಂಗಡಿ</string>
+    <string name="add_product_tag_global">ಜಾಗತಿಕ</string>
+    <string name="add_product_search_add_new">ಇವುಗಳಲ್ಲಿ ಯಾವುದೂ ಅಲ್ಲ, ಹೊಸದನ್ನು ಸೇರಿಸಿ</string>
 </resources>

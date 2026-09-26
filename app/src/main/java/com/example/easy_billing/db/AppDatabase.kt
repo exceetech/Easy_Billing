@@ -76,7 +76,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // Support/debugging breadcrumb trail (v61) — see [UserEventLog].
         UserEventLog::class
     ],
-    version = 66
+    version = 67
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -1923,6 +1923,25 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Adds an optional `brand` column to `products`, part of product
+         * identity alongside name/variant. The existing uniqueness key
+         * (shop_id, name, variant) widens to (shop_id, name, variant,
+         * brand) so the same name+variant can exist under different
+         * brands. Follows the same DROP + CREATE UNIQUE INDEX pattern used
+         * by MIGRATION_40_41 for the equivalent customers-table change.
+         */
+        val MIGRATION_66_67 = object : Migration(66, 67) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `products` ADD COLUMN `brand` TEXT")
+                db.execSQL("DROP INDEX IF EXISTS `index_products_shop_id_name_variant`")
+                db.execSQL("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS `index_products_shop_id_name_variant_brand`
+                    ON `products` (`shop_id`, `name`, `variant`, `brand`)
+                """.trimIndent())
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1979,7 +1998,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_62_63,
                         MIGRATION_63_64,
                         MIGRATION_64_65,
-                        MIGRATION_65_66
+                        MIGRATION_65_66,
+                        MIGRATION_66_67
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

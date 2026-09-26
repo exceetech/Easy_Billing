@@ -169,10 +169,11 @@ class PurchaseActivity : BaseActivity() {
         val header = findViewById<View>(R.id.headerGstrToggle)
         val group = findViewById<View>(R.id.groupGstrDetails)
         val chevron = findViewById<android.widget.ImageView>(R.id.ivGstrChevron)
-        // Starts expanded (layout default is visible) so supply type, cess,
-        // and ITC fields are visible without an extra tap — chevron starts
-        // rotated to match.
-        chevron.rotation = 180f
+        // Starts collapsed (layout default is gone) — the docstring above
+        // already promised this; the layout used to default to visible,
+        // leaving the whole GSTR-2 block open on every purchase. Chevron
+        // starts unrotated to match.
+        chevron.rotation = 0f
         header.setOnClickListener {
             val expand = group.visibility != View.VISIBLE
             group.visibility = if (expand) View.VISIBLE else View.GONE

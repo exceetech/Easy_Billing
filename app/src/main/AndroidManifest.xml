@@ -93,9 +93,6 @@
             android:name=".PurchaseActivity"
             android:screenOrientation="unspecified" />
         <activity
-            android:name=".ManageProductsActivity"
-            android:screenOrientation="unspecified" />
-        <activity
             android:name=".AssetsActivity"
             android:parentActivityName=".DashboardActivity"
             android:screenOrientation="unspecified" />

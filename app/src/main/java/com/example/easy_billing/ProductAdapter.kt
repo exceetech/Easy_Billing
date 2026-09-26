@@ -28,7 +28,7 @@ class ProductAdapter(
     // number REPLACES it instead of adding on top — lets someone type an
     // exact large quantity (e.g. 1000) instead of tapping 1000 times.
     private val onSetExactQuantity: (Product) -> Unit,
-    private val onItemLongClick: (Product) -> Unit
+    private val onItemLongClick: (Product, View) -> Unit
 ) : ListAdapter<ProductAdapter.Row, RecyclerView.ViewHolder>(RowDiff()) {
 
     /**
@@ -356,7 +356,7 @@ class ProductAdapter(
                         Toast.makeText(context, context.getString(R.string.product_adapter_out_of_stock_toast), Toast.LENGTH_SHORT).show()
                     }
                     itemView.setOnLongClickListener {
-                        onItemLongClick(product)
+                        onItemLongClick(product, card)
                         true
                     }
                 }
@@ -463,7 +463,7 @@ class ProductAdapter(
             }
             itemView.setOnLongClickListener {
                 tapArbiter.reset()
-                onItemLongClick(product)
+                onItemLongClick(product, card)
                 true
             }
         }
@@ -521,7 +521,7 @@ class ProductAdapter(
                     itemView.setOnClickListener {
                         Toast.makeText(context, context.getString(R.string.product_adapter_out_of_stock_toast_2), Toast.LENGTH_SHORT).show()
                     }
-                    itemView.setOnLongClickListener { onItemLongClick(product); true }
+                    itemView.setOnLongClickListener { onItemLongClick(product, row); true }
                 }
                 stockEntry <= 5 -> {
                     stock.text = "Low · ${fmtQty(stockEntry)} left"
@@ -560,7 +560,7 @@ class ProductAdapter(
             }
             itemView.setOnLongClickListener {
                 tapArbiter.reset()
-                onItemLongClick(product)
+                onItemLongClick(product, row)
                 true
             }
         }

@@ -83,11 +83,11 @@ class ProductRepository private constructor(
      * lookup (`true`) must never return an asset row of the same
      * name+variant, and vice versa. See [ProductDao.getByNameAndVariant].
      */
-    suspend fun getByNameAndVariant(name: String, variant: String?, isSellable: Boolean = true): Product? =
-        productDao.getByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds(), isSellable)
+    suspend fun getByNameAndVariant(name: String, variant: String?, isSellable: Boolean = true, brand: String? = null): Product? =
+        productDao.getByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds(), isSellable, brand)
 
-    suspend fun getInactiveByNameAndVariant(name: String, variant: String?): Product? =
-        productDao.getInactiveByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds())
+    suspend fun getInactiveByNameAndVariant(name: String, variant: String?, brand: String? = null): Product? =
+        productDao.getInactiveByNameAndVariant(capitalize(name), variant?.let(::capitalize), getValidShopIds(), brand)
 
     /**
      * A product that differs only in capitalisation. Detection only — the
@@ -97,8 +97,8 @@ class ProductRepository private constructor(
      *
      * @param isSellable same sellable/asset scoping as [getByNameAndVariant].
      */
-    suspend fun findConflictIgnoringCase(name: String, variant: String?, isSellable: Boolean = true): Product? =
-        productDao.findConflictIgnoringCase(capitalize(name), variant?.let(::capitalize), getValidShopIds(), isSellable)
+    suspend fun findConflictIgnoringCase(name: String, variant: String?, isSellable: Boolean = true, brand: String? = null): Product? =
+        productDao.findConflictIgnoringCase(capitalize(name), variant?.let(::capitalize), getValidShopIds(), isSellable, brand)
 
     /**
      * Auto-fill: when the user enters a product name *or* an HSN
@@ -153,7 +153,7 @@ class ProductRepository private constructor(
             shopId = product.shopId.ifBlank { currentShopId() }
         )
         val validShopIds = getValidShopIds()
-        var existing = productDao.getByNameAndVariant(normalized.name, normalized.variant, validShopIds, normalized.isSellable)
+        var existing = productDao.getByNameAndVariant(normalized.name, normalized.variant, validShopIds, normalized.isSellable, normalized.brand)
 
         // [capitalize] only fixes the FIRST letter of each word and leaves the
         // rest of the casing exactly as typed — so "Potato Chips" and "Potato
@@ -170,7 +170,7 @@ class ProductRepository private constructor(
         // path Purchases (and everything else) actually use to decide
         // whether a product already exists.
         if (existing == null) {
-            existing = productDao.findConflictIgnoringCase(normalized.name, normalized.variant, validShopIds, normalized.isSellable)
+            existing = productDao.findConflictIgnoringCase(normalized.name, normalized.variant, validShopIds, normalized.isSellable, normalized.brand)
         }
 
         return if (existing == null) {

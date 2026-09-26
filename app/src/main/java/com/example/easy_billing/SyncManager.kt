@@ -247,6 +247,7 @@ class SyncManager(private val context: Context) {
                             name             = product.name,
                             variant          = product.variant,
                             unit             = product.unit,
+                            brand            = product.brand,
                             hsn_code         = product.hsnCode,
                             hsn_description  = product.hsnDescription,
                             official_uqc     = product.officialUqc,
@@ -2157,7 +2158,7 @@ class SyncManager(private val context: Context) {
                                 // a local sellable row of the same name+variant (or
                                 // vice versa). See Assets feature / isSellable-aware
                                 // product matching.
-                                alreadyLocal = productDao.getByNameAndVariant(bp.name, bp.variant ?: "", validShopIds, bp.is_sellable)
+                                alreadyLocal = productDao.getByNameAndVariant(bp.name, bp.variant ?: "", validShopIds, bp.is_sellable, null)
                             }
 
                             if (alreadyLocal != null) {

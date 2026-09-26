@@ -40,7 +40,7 @@ import java.io.Serializable
         Index(value = ["name"]),
         Index(value = ["hsnCode"]),
         Index(value = ["shop_id"]),
-        Index(value = ["shop_id", "name", "variant"], unique = true)
+        Index(value = ["shop_id", "name", "variant", "brand"], unique = true)
     ]
 )
 data class Product(
@@ -50,6 +50,14 @@ data class Product(
 
     val name: String,
     val variant: String?,
+
+    /**
+     * Optional brand name for this product, part of product identity
+     * alongside [name] and [variant] (included in the shop_id+name+
+     * variant+brand unique index). Null = no brand set.
+     */
+    val brand: String? = null,
+
     val unit: String?,
     val price: Double,
 

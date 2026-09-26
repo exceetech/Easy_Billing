@@ -14,6 +14,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -681,7 +682,7 @@ class DashboardActivity : BaseActivity() {
                 val alreadyInBill = cartItems.find { it.product.id == product.id }?.quantity
                 showQuantityDialog(product, prefillQuantity = alreadyInBill, replaceExisting = true)
             },
-            onItemLongClick = { showDeleteDialog(it) }
+            onItemLongClick = { product, view -> showProductSpotlight(product, view) }
         )
 
         // Category headers span the full row; product tiles take 1 cell.
@@ -723,10 +724,6 @@ class DashboardActivity : BaseActivity() {
             dialog.dismiss()
             startActivity(Intent(this, AddProductActivity::class.java))
         }
-        view.findViewById<View>(R.id.btnManageProducts).setOnClickListener {
-            dialog.dismiss()
-            startActivity(Intent(this, ManageProductsActivity::class.java))
-        }
         view.findViewById<View>(R.id.btnChooserCancel).setOnClickListener {
             dialog.dismiss()
         }
@@ -745,8 +742,8 @@ class DashboardActivity : BaseActivity() {
 
     private fun setupDrawerButtons() {
 
-        findViewById<View>(R.id.btnAdmin).setOnClickListener {
-            showAddEditProductChooser()
+        findViewById<View>(R.id.btnAddProduct).setOnClickListener {
+            startActivity(Intent(this, AddProductActivity::class.java))
             drawerLayout.closeDrawers()
         }
 
@@ -1515,6 +1512,247 @@ class DashboardActivity : BaseActivity() {
      *  matching the same formatting ProductAdapter uses for stock pills. */
     private fun fmtStockQty(q: Double): String =
         if (q % 1.0 == 0.0) q.toInt().toString() else q.toString()
+
+
+    /**
+     * Long-press on a product tile: instead of a popup dialog, "spotlights"
+     * the tile in place — everything else dims behind a full-screen scrim,
+     * the pressed tile itself appears to lift off the grid/list at its exact
+     * on-screen position (via a snapshot Bitmap, since the real tile stays
+     * put underneath the opaque scrim), and two circular action buttons
+     * (Edit / Delete) fade + scale in beside it with a slight stagger.
+     *
+     *  • Tap Edit           → dismiss, then launch EditProductActivity (unchanged).
+     *  • Tap Delete         → dismiss, then call the EXISTING showDeleteDialog(product)
+     *                         (untouched — this never reimplements it).
+     *  • Tap the dim scrim  → reverse-animate out, do nothing else.
+     *
+     * [tileView] is the tile's own outer bounds view — the grid's MaterialCardView
+     * or the list row's root — as passed by ProductAdapter's onItemLongClick.
+     */
+    private fun showProductSpotlight(product: Product, tileView: View) {
+        val contentRoot = findViewById<ViewGroup>(android.R.id.content)
+
+        // Tile's on-screen position/size, converted into contentRoot's own
+        // coordinate space (contentRoot normally starts at (0,0) below the
+        // status bar inset, but we compute the offset explicitly rather than
+        // assuming it, so this stays correct across device configurations).
+        val tileLoc = IntArray(2)
+        tileView.getLocationInWindow(tileLoc)
+        val rootLoc = IntArray(2)
+        contentRoot.getLocationInWindow(rootLoc)
+        val tileLeft = tileLoc[0] - rootLoc[0]
+        val tileTop = tileLoc[1] - rootLoc[1]
+        val tileW = tileView.width
+        val tileH = tileView.height
+        if (tileW <= 0 || tileH <= 0) return // nothing sane to spotlight
+
+        // Snapshot the tile exactly as it looks right now — manual
+        // Bitmap+Canvas draw, no AndroidX drawToBitmap() extension needed.
+        val snapshotBitmap = android.graphics.Bitmap.createBitmap(
+            tileW, tileH, android.graphics.Bitmap.Config.ARGB_8888
+        )
+        val snapshotCanvas = android.graphics.Canvas(snapshotBitmap)
+        tileView.draw(snapshotCanvas)
+
+        // ── Full-screen overlay: dark scrim + lifted snapshot + two action buttons ──
+        val overlay = FrameLayout(this)
+        overlay.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        overlay.setBackgroundColor(Color.parseColor("#DE1A1A18"))
+        overlay.alpha = 0f
+        overlay.isClickable = true
+        overlay.isFocusable = true
+
+        val snapshotView = ImageView(this)
+        snapshotView.setImageBitmap(snapshotBitmap)
+        snapshotView.isClickable = true // swallows taps so they never reach the scrim
+        val snapshotParams = FrameLayout.LayoutParams(tileW, tileH)
+        snapshotParams.leftMargin = tileLeft
+        snapshotParams.topMargin = tileTop
+        snapshotView.layoutParams = snapshotParams
+        snapshotView.elevation = dpToPxF(10f)
+        snapshotView.pivotX = tileW / 2f
+        snapshotView.pivotY = tileH / 2f
+        snapshotView.scaleX = 1f
+        snapshotView.scaleY = 1f
+        snapshotView.alpha = 0f
+        overlay.addView(snapshotView)
+
+        // Two 56dp circular buttons, sized well past the 48dp touch-target
+        // minimum for an elderly/non-technical user. Placed centered below
+        // the tile, falling back to centered above it if there isn't enough
+        // room below (e.g. long-pressing a tile in the bottom grid row).
+        val buttonSize = dpToPx(56)
+        val buttonGap = dpToPx(20)
+        val buttonMarginFromTile = dpToPx(14)
+        val screenH = contentRoot.height.takeIf { it > 0 } ?: resources.displayMetrics.heightPixels
+
+        val spaceBelow = screenH - (tileTop + tileH)
+        val placeBelow = spaceBelow >= buttonSize + buttonMarginFromTile
+        val buttonsTop = if (placeBelow) {
+            tileTop + tileH + buttonMarginFromTile
+        } else {
+            (tileTop - buttonMarginFromTile - buttonSize).coerceAtLeast(dpToPx(8))
+        }
+
+        val pairWidth = buttonSize * 2 + buttonGap
+        val buttonsLeft = (tileLeft + tileW / 2 - pairWidth / 2)
+            .coerceIn(dpToPx(8), (contentRoot.width - pairWidth - dpToPx(8)).coerceAtLeast(dpToPx(8)))
+
+        fun makeActionButton(
+            bgRes: Int,
+            iconRes: Int,
+            iconSize: Int,
+            contentDesc: String,
+            left: Int
+        ): FrameLayout {
+            val btn = FrameLayout(this)
+            btn.background = androidx.core.content.ContextCompat.getDrawable(this, bgRes)
+            btn.elevation = dpToPxF(8f)
+            val icon = ImageView(this)
+            icon.setImageResource(iconRes)
+            icon.imageTintList = android.content.res.ColorStateList.valueOf(Color.WHITE)
+            icon.layoutParams = FrameLayout.LayoutParams(iconSize, iconSize, Gravity.CENTER)
+            btn.addView(icon)
+            val params = FrameLayout.LayoutParams(buttonSize, buttonSize)
+            params.leftMargin = left
+            params.topMargin = buttonsTop
+            btn.layoutParams = params
+            btn.isClickable = true
+            btn.isFocusable = true
+            btn.contentDescription = contentDesc
+            btn.alpha = 0f
+            btn.scaleX = 0.6f
+            btn.scaleY = 0.6f
+            return btn
+        }
+
+        val editButton = makeActionButton(
+            R.drawable.bg_spotlight_action_edit, R.drawable.ic_lucide_pencil,
+            dpToPx(24), getString(R.string.dialog_product_actions_edit_title), buttonsLeft
+        )
+        val deleteButton = makeActionButton(
+            R.drawable.bg_spotlight_action_delete, R.drawable.ic_lc_trash,
+            dpToPx(24), getString(R.string.dialog_product_actions_delete_title),
+            buttonsLeft + buttonSize + buttonGap
+        )
+        overlay.addView(editButton)
+        overlay.addView(deleteButton)
+
+        contentRoot.addView(overlay)
+
+        // ── Dismiss: reverse-animate everything out, then remove the overlay ──
+        var dismissed = false
+        fun dismissSpotlight(then: (() -> Unit)? = null) {
+            if (dismissed) return
+            dismissed = true
+            editButton.animate().cancel()
+            deleteButton.animate().cancel()
+            snapshotView.animate().cancel()
+            overlay.animate().cancel()
+
+            editButton.animate().alpha(0f).scaleX(0.6f).scaleY(0.6f).setDuration(120).start()
+            deleteButton.animate().alpha(0f).scaleX(0.6f).scaleY(0.6f).setDuration(120).start()
+            snapshotView.animate()
+                .alpha(0f).scaleX(1f).scaleY(1f)
+                .setDuration(160)
+                .start()
+            overlay.animate()
+                .alpha(0f)
+                .setDuration(180)
+                .withEndAction {
+                    contentRoot.removeView(overlay)
+                    then?.invoke()
+                }
+                .start()
+        }
+
+        overlay.setOnClickListener { dismissSpotlight() }
+        snapshotView.setOnClickListener { /* absorb tap — no-op */ }
+        editButton.setOnClickListener {
+            dismissSpotlight {
+                startActivity(
+                    Intent(this, EditProductActivity::class.java)
+                        .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
+                )
+            }
+        }
+        deleteButton.setOnClickListener {
+            dismissSpotlight { showDeleteDialog(product) }
+        }
+
+        // ── Entrance: scrim fades in, tile "lifts" with a subtle scale-up,
+        // then the two buttons scale+fade in with a short stagger. ──
+        overlay.animate().alpha(1f).setDuration(180).start()
+        snapshotView.animate()
+            .alpha(1f)
+            .scaleX(1.05f)
+            .scaleY(1.05f)
+            .setDuration(200)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+        editButton.animate()
+            .alpha(1f).scaleX(1f).scaleY(1f)
+            .setStartDelay(140)
+            .setDuration(200)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+        deleteButton.animate()
+            .alpha(1f).scaleX(1f).scaleY(1f)
+            .setStartDelay(230)
+            .setDuration(200)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+    }
+
+    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+    private fun dpToPxF(dp: Float): Float = dp * resources.displayMetrics.density
+
+    /**
+     * Long-press on a product tile: small themed "Edit or Delete" action
+     * dialog (dialog_product_actions.xml), modeled on the existing
+     * dialog_add_product_chooser row style. Edit jumps straight into
+     * EditProductActivity for this product; Delete dismisses this dialog
+     * and reuses the EXISTING showDeleteDialog(product) flow as-is.
+     */
+    private fun showProductActionsDialog(product: Product) {
+        val view = layoutInflater.inflate(R.layout.dialog_product_actions, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvActionsProductName).text =
+            if (!product.variant.isNullOrBlank())
+                "${product.name} · ${product.variant}"
+            else product.name
+
+        view.findViewById<View>(R.id.btnProductActionEdit).setOnClickListener {
+            dialog.dismiss()
+            startActivity(
+                Intent(this, EditProductActivity::class.java)
+                    .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
+            )
+        }
+        view.findViewById<View>(R.id.btnProductActionDelete).setOnClickListener {
+            dialog.dismiss()
+            showDeleteDialog(product)
+        }
+        view.findViewById<View>(R.id.btnProductActionsClose).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.let { w ->
+            w.setDimAmount(0.8f)
+            w.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                w.addFlags(android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                w.attributes = w.attributes.apply { blurBehindRadius = 48 }
+            }
+        }
+        dialog.show()
+    }
 
     private fun showDeleteDialog(product: Product) {
 

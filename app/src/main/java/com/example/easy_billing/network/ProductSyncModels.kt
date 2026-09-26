@@ -55,6 +55,7 @@ data class GlobalProductRegisterRequest(
     val name: String,
     val variant: String?,
     val unit: String? = null,
+    val brand: String? = null,
     val hsn_code: String?,
     // Statutory autofill fields (shared once verified; never price).
     val hsn_description: String? = null,
@@ -71,6 +72,7 @@ data class GlobalProductRegisterResponse(
     val global_id: Int? = null,
     val name: String,
     val variant: String? = null,
+    val brand: String? = null,
     val hsn_code: String? = null,
     val message: String? = null
 )

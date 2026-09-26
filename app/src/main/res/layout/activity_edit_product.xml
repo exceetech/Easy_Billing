@@ -293,16 +293,98 @@
             <LinearLayout style="@style/EpCard">
 
             <LinearLayout
+                android:id="@+id/btnToggleMoreOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
                 <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_tax_gstr1_header"/>
+                <TextView style="@style/EpCardHeaderLabel"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/edit_product_xml_tax_gstr1_header"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_green"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="3dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/invoice_optional"
+                    android:textColor="#166534"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <ImageView
+                    android:id="@+id/ivMoreOptionsChevron"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#1A1A18"
+                    android:contentDescription="@null"/>
             </LinearLayout>
 
-            <TextView style="@style/EpFieldLabel" android:text="@string/activity_edit_product_hsn_sac"/>
+            <!-- CGST/SGST/IGST stay visible outside the "More options"
+                 collapse — on an existing product these rates are commonly
+                 checked/verified at a glance, unlike Add Product's
+                 first-entry flow where they are folded into "More options"
+                 along with everything else. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <FrameLayout style="@style/EpMiniGlassBox">
+                    <LinearLayout
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_cgst_pct_label"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCgst"
+                            style="@style/EpMiniInput"/>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_marginStart="8dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_sgst_pct_label"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSgst"
+                            style="@style/EpMiniInput"/>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_marginStart="8dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+                        <TextView style="@style/EpMiniLabel" android:text="@string/activity_edit_product_igst_auto"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etIgst"
+                            style="@style/EpMiniInput"
+                            android:enabled="false"
+                            android:textColor="#8A8272"/>
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- ── "More options" — HSN, HSN description, and the nested
+                 "More tax details" sub-collapse. Collapsed by default;
+                 auto-expanded when the shop is GST-registered, exactly
+                 like Add Product's groupMoreOptions. ── -->
+            <LinearLayout
+                android:id="@+id/groupMoreOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp" android:text="@string/activity_edit_product_hsn_sac"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -374,49 +456,78 @@
                 tools:text="HSN verified"
                 tools:visibility="visible"/>
 
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp"
+                android:text="@string/edit_product_xml_hsn_desc_optional"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_glass_input">
+
+                <ImageView
+                    android:layout_width="19dp"
+                    android:layout_height="19dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="14dp"
+                    android:src="@drawable/ic_lc_file_text"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHsnDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:paddingStart="44dp"
+                    android:paddingEnd="14dp"
+                    android:hint="@string/activity_edit_product_short_description"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#A99E88"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:textSize="14.5sp"/>
+            </FrameLayout>
+
+            <!-- ── Nested "More tax details" sub-collapse — UQC, supply
+                 classification, cess. Closed by default, independent of
+                 the outer "More options" toggle — same pattern as
+                 Add Product's groupMoreTaxDetails. ── -->
             <LinearLayout
+                android:id="@+id/btnToggleMoreTaxDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp">
-
-                <FrameLayout style="@style/EpMiniGlassBox">
-                    <LinearLayout
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
-                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_cgst_pct_label"/>
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etCgst"
-                            style="@style/EpMiniInput"/>
-                    </LinearLayout>
-                </FrameLayout>
-
-                <FrameLayout style="@style/EpMiniGlassBox" android:layout_marginStart="8dp">
-                    <LinearLayout
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
-                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_sgst_pct_label"/>
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etSgst"
-                            style="@style/EpMiniInput"/>
-                    </LinearLayout>
-                </FrameLayout>
-
-                <FrameLayout style="@style/EpMiniGlassBox" android:layout_marginStart="8dp">
-                    <LinearLayout
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
-                        <TextView style="@style/EpMiniLabel" android:text="@string/activity_edit_product_igst_auto"/>
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etIgst"
-                            style="@style/EpMiniInput"
-                            android:enabled="false"
-                            android:textColor="#8A8272"/>
-                    </LinearLayout>
-                </FrameLayout>
+                android:gravity="center_vertical"
+                android:layout_marginTop="14dp"
+                android:paddingVertical="6dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_product_more_tax_details_label"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#6E6A60"/>
+                <ImageView
+                    android:id="@+id/ivMoreTaxDetailsChevron"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#6E6A60"
+                    android:contentDescription="@null"/>
             </LinearLayout>
 
-            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp" android:text="@string/activity_edit_product_official_uqc"/>
+            <LinearLayout
+                android:id="@+id/groupMoreTaxDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="@string/activity_edit_product_official_uqc"/>
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -530,37 +641,8 @@
                     android:contentDescription="@null"/>
             </FrameLayout>
 
-            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp"
-                android:text="@string/edit_product_xml_hsn_desc_optional"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/bg_glass_input">
-
-                <ImageView
-                    android:layout_width="19dp"
-                    android:layout_height="19dp"
-                    android:layout_gravity="center_vertical|start"
-                    android:layout_marginStart="14dp"
-                    android:src="@drawable/ic_lc_file_text"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null"/>
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etHsnDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@null"
-                    android:paddingStart="44dp"
-                    android:paddingEnd="14dp"
-                    android:hint="@string/activity_edit_product_short_description"
-                    android:textColor="#1A1A18"
-                    android:textColorHint="#A99E88"
-                    android:inputType="textCapSentences"
-                    android:maxLines="1"
-                    android:textSize="14.5sp"/>
-            </FrameLayout>
+            </LinearLayout><!-- /groupMoreTaxDetails -->
+            </LinearLayout><!-- /groupMoreOptions -->
             </LinearLayout><!-- /EpCard TAX -->
 
             <!-- ══ CATEGORY ══ -->

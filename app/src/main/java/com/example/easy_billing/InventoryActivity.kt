@@ -195,10 +195,6 @@ class InventoryActivity : BaseActivity() {
             dialog.dismiss()
             startActivity(android.content.Intent(this, AddProductActivity::class.java))
         }
-        view.findViewById<View>(R.id.btnManageProducts).setOnClickListener {
-            dialog.dismiss()
-            startActivity(android.content.Intent(this, ManageProductsActivity::class.java))
-        }
         view.findViewById<View>(R.id.btnChooserCancel).setOnClickListener {
             dialog.dismiss()
         }

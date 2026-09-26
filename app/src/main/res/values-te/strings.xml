@@ -632,7 +632,7 @@
     <string name="add_product_unit_label">యూనిట్</string>
     <string name="add_product_variant_hint">సైజ్ లేదా ప్యాక్ రకం</string>
     <string name="add_product_variant_hint_example">ఉదా. 5 kg</string>
-    <string name="add_product_variant_label">వేరియంట్</string>
+    <string name="add_product_variant_label">రకం</string>
     <string name="add_product_what_you_paid_hint">మీరు చెల్లించినది</string>
     <string name="quantity">పరిమాణం</string>
 
@@ -2451,4 +2451,11 @@
     <string name="cp_upgrade_credit">అప్‌గ్రేడ్ క్రెడిట్</string>
     <string name="cp_have_coupon">కూపన్ ఉందా?</string>
     <!-- AI insights: one-sentence score, plain KPI labels -->
+
+    <string name="add_product_search_label">ఉత్పత్తిని శోధించండి</string>
+    <string name="add_product_search_hint">పేరు, బ్రాండ్ లేదా రకం శోధించండి</string>
+    <string name="add_product_more_tax_details_label">మరిన్ని పన్ను వివరాలు</string>
+    <string name="add_product_tag_your_shop">మీ దుకాణం</string>
+    <string name="add_product_tag_global">గ్లోబల్</string>
+    <string name="add_product_search_add_new">వీటిలో ఏదీ కాదు, కొత్తది జోడించండి</string>
 </resources>

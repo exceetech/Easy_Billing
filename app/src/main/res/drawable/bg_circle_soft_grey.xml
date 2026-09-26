@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Muted icon-chip background for disabled/auto-calculated fields (e.g.
+     IGST in Add Product), matching the soft circle-chip family used
+     elsewhere (bg_circle_soft_teal/amber/etc.) but in a neutral grey. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#EFE7D6"/>
+</shape>
