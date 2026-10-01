@@ -16,6 +16,7 @@ import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.util.CurrencyHelper
 import com.example.easy_billing.viewmodel.PurchaseHistoryViewModel
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -48,6 +49,8 @@ class PurchaseHistoryActivity : BaseActivity() {
     private lateinit var tvFilterBadge: TextView
     private lateinit var tvResultSummary: TextView
     private lateinit var btnResetFilters: View
+    private lateinit var tipRecordPurchase: View
+    private lateinit var btnRecordPurchase: MaterialButton
 
     // Filter (status) and sort are independent dimensions — both apply
     // together, same as BillHistoryActivity.
@@ -55,14 +58,11 @@ class PurchaseHistoryActivity : BaseActivity() {
     private var filterLabels: List<String> = emptyList()
     private var activeFilter = "ALL"
 
-    private val sortKeys = listOf("NEWEST", "OLDEST", "AMOUNT_HIGH", "AMOUNT_LOW", "SUPPLIER")
+    private val sortKeys = listOf("NEWEST", "OLDEST")
     private val sortLabels by lazy {
         listOf(
             getString(R.string.sort_newest_first),
-            getString(R.string.sort_oldest_first),
-            getString(R.string.sort_highest_amount),
-            getString(R.string.sort_lowest_amount),
-            getString(R.string.supplier_name)
+            getString(R.string.sort_oldest_first)
         )
     }
     private var activeSort = "NEWEST"
@@ -78,8 +78,8 @@ class PurchaseHistoryActivity : BaseActivity() {
 
         filterLabels = listOf(
             getString(R.string.purchase_history_filter_all_label),
-            getString(R.string.invoice_payment_credit),
-            getString(R.string.cash),
+            getString(R.string.purchase_history_filter_credit_label),
+            getString(R.string.purchase_history_filter_cash_label),
             getString(R.string.purchase_history_filter_cancelled_label)
         )
 
@@ -101,6 +101,8 @@ class PurchaseHistoryActivity : BaseActivity() {
         tvFilterBadge    = findViewById(R.id.tvFilterBadge)
         tvResultSummary  = findViewById(R.id.tvResultSummary)
         btnResetFilters  = findViewById(R.id.btnResetFilters)
+        tipRecordPurchase = findViewById(R.id.tipRecordPurchase)
+        btnRecordPurchase = findViewById(R.id.btnRecordPurchase)
 
         adapter = PurchaseHistoryAdapter(emptyList()) { purchase ->
             startActivity(
@@ -118,6 +120,12 @@ class PurchaseHistoryActivity : BaseActivity() {
 
         btnFilter.setOnClickListener { showFilterPopup() }
         btnSort.setOnClickListener { showSortPopup() }
+        tipRecordPurchase.setOnClickListener {
+            startActivity(Intent(this, PurchaseActivity::class.java))
+        }
+        btnRecordPurchase.setOnClickListener {
+            startActivity(Intent(this, PurchaseActivity::class.java))
+        }
         btnResetFilters.setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction("PurchaseHistory", "reset_filters_clicked")
             activeFilter = "ALL"
@@ -165,10 +173,10 @@ class PurchaseHistoryActivity : BaseActivity() {
         // Counts ride along in the filter popup's labels rather than on a
         // chip, since the chip row is gone.
         filterLabels = listOf(
-            "All purchases (${s.countAll})",
-            "Credit (${s.countCredit})",
-            "Cash (${s.countCash})",
-            "Cancelled (${s.countCancelled})"
+            "${getString(R.string.purchase_history_filter_all_label)} (${s.countAll})",
+            "${getString(R.string.purchase_history_filter_credit_label)} (${s.countCredit})",
+            "${getString(R.string.purchase_history_filter_cash_label)} (${s.countCash})",
+            "${getString(R.string.purchase_history_filter_cancelled_label)} (${s.countCancelled})"
         )
     }
 
@@ -271,9 +279,6 @@ class PurchaseHistoryActivity : BaseActivity() {
         }
         val result = when (activeSort) {
             "OLDEST" -> bySearch.sortedBy { it.createdAt }
-            "AMOUNT_HIGH" -> bySearch.sortedByDescending { it.invoiceValue }
-            "AMOUNT_LOW" -> bySearch.sortedBy { it.invoiceValue }
-            "SUPPLIER" -> bySearch.sortedBy { it.supplierName.lowercase() }
             else -> bySearch.sortedByDescending { it.createdAt } // NEWEST
         }
 
@@ -309,6 +314,13 @@ class PurchaseHistoryActivity : BaseActivity() {
         btnResetFilters.visibility = if (hasActiveFilter || hasActiveSort) View.VISIBLE else View.GONE
 
         val sortLabel = sortLabels[sortKeys.indexOf(activeSort)]
-        tvResultSummary.text = "$resultCount purchase${if (resultCount == 1) "" else "s"} · $sortLabel"
+        // Pulled from string resources rather than hardcoded English — this
+        // used to always read "purchase(s)" regardless of the app's
+        // language, the same bug fixed on Credit Accounts.
+        val countWord = if (resultCount == 1)
+            getString(R.string.purchase_history_result_count_one)
+        else
+            getString(R.string.purchase_history_result_count_other)
+        tvResultSummary.text = "$resultCount $countWord · $sortLabel"
     }
 }

@@ -39,7 +39,9 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
      */
     data class ReturnLine(
         val billItem: BillItem,
-        val returnQty: Double
+        val returnQty: Double,
+        val cessRate: Double = 0.0,
+        val cessAmount: Double = 0.0
     )
 
     /**
@@ -120,6 +122,10 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                 val now = appNow()
 
                 // ── 3. Compute aggregate financials ─────────────────────────
+                val gstInvoice = db.gstSalesInvoiceDao().getByBillId(billId)
+                val gstItems = if (gstInvoice != null) db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id) else emptyList()
+                val gstItemMap = gstItems.associateBy { it.productId }
+
                 var totalTaxable = 0.0
                 var totalCgst    = 0.0
                 var totalSgst    = 0.0
@@ -134,8 +140,20 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     val cgst     = bi.cgstAmount    * ratio
                     val sgst     = bi.sgstAmount    * ratio
                     val igst     = bi.igstAmount    * ratio
-                    // CESS: bill_items doesn't store cess separately → 0 for now
-                    val cess     = 0.0
+
+                    val gstItem = gstItemMap[bi.productId]
+                    val cRate = when {
+                        line.cessRate > 0.0 -> line.cessRate
+                        gstItem != null && gstItem.cessRate > 0.0 -> gstItem.cessRate
+                        else -> db.productDao().getById(bi.productId)?.cessRate ?: 0.0
+                    }
+                    val cess = when {
+                        line.cessAmount > 0.0 && bi.quantity > 0.0 -> ratio * line.cessAmount
+                        gstItem != null && gstItem.cessAmount > 0.0 && bi.quantity > 0.0 -> ratio * gstItem.cessAmount
+                        cRate > 0.0 -> taxable * (cRate / 100.0)
+                        else -> 0.0
+                    }
+
                     val tax      = cgst + sgst + igst + cess
                     val total    = taxable + tax
 
@@ -143,6 +161,7 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     totalCgst    += cgst
                     totalSgst    += sgst
                     totalIgst    += igst
+                    totalCess    += cess
                     val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
 
                     CreditNoteItem(
@@ -218,10 +237,16 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                 for (line in lines) {
                     val bi = line.billItem
                     val product = db.productDao().getById(bi.productId) ?: continue
-                    if (!product.trackInventory) continue
+                    val gstItem = gstItems.find { it.productId == bi.productId }
+                    val cRate = when {
+                        line.cessRate > 0.0 -> line.cessRate
+                        gstItem != null && gstItem.cessRate > 0.0 -> gstItem.cessRate
+                        else -> product.cessRate
+                    }
+                    val totalTaxRate = bi.gstRate + cRate
 
                     val unitCostGross = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
-                    val unitCostNet = if (bi.gstRate > 0.0) unitCostGross / (1.0 + bi.gstRate / 100.0) else unitCostGross
+                    val unitCostNet = if (totalTaxRate > 0.0) unitCostGross / (1.0 + totalTaxRate / 100.0) else unitCostGross
 
                     // Carry the original sale's GST split onto the restock batch so
                     // the synced purchase_batches row has the REAL rates (these were
@@ -277,7 +302,8 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
      */
     data class DebitLine(
         val billItem: BillItem,
-        val additionalQty: Double
+        val additionalQty: Double,
+        val cessRate: Double = 0.0
     )
 
     /**
@@ -350,6 +376,10 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                 val noteNumber = "DN-%05d".format(nextSeq)
                 val now = appNow()
 
+                val gstInvoice = db.gstSalesInvoiceDao().getByBillId(billId)
+                val gstItems = if (gstInvoice != null) db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id) else emptyList()
+                val gstItemMap = gstItems.associateBy { it.productId }
+
                 var totalTaxable = 0.0
                 var totalCgst    = 0.0
                 var totalSgst    = 0.0
@@ -373,7 +403,13 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                         sgst = taxable * ((taxRate / 2) / 100.0)
                     }
 
-                    val cess = 0.0
+                    val gstItem = gstItemMap[bi.productId]
+                    val cRate = when {
+                        line.cessRate > 0.0 -> line.cessRate
+                        gstItem != null && gstItem.cessRate > 0.0 -> gstItem.cessRate
+                        else -> db.productDao().getById(bi.productId)?.cessRate ?: 0.0
+                    }
+                    val cess = if (cRate > 0.0) taxable * (cRate / 100.0) else 0.0
                     val tax = cgst + sgst + igst + cess
                     val total = taxable + tax
 
@@ -381,6 +417,7 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     totalCgst    += cgst
                     totalSgst    += sgst
                     totalIgst    += igst
+                    totalCess    += cess
 
                     val unitCost = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
 

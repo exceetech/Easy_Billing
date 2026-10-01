@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Add / Reduce / Clear stock picker — "Option 14" select-then-confirm
-    dialog. Header (avatar/name/stock caption) unchanged; below it three
-    radio-style rows (tap to select, doesn't act immediately), and a
-    single solid "Continue" button that fires whichever action is
-    currently selected. Add stock is selected by default since it's the
-    most common action.
+    Add / Reduce / Clear stock picker — "big buttons" design: each action
+    is its own large, solid-colour, eye-catching button (green/amber/red)
+    with an icon badge, bold title and a short plain-language line, and
+    tapping it fires that action immediately (no separate select-then-
+    confirm step). A neutral "Cancel" button lets the user back out
+    without picking anything, matching the house dialog-cancel pattern
+    used elsewhere (bg_dialog_cancel_neutral).
 
     Ids bound by InventoryAdapter.showStockActionDialog: tvActionAvatar,
-    tvActionProductName, tvActionStockCaption, rowAddStock, rowReduceStock,
-    rowClearStock, radioAddStock, radioReduceStock, radioClearStock,
-    btnContinueAction.
+    tvActionProductName, tvActionStockCaption, btnBigAddStock,
+    btnBigReduceStock, btnBigClearStock, btnCancelAction.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -78,139 +78,196 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="14dp"
         android:background="#E4DCC8" />
 
+    <!-- Add stock — big solid green button, fires immediately on tap -->
     <LinearLayout
-        android:id="@+id/rowAddStock"
+        android:id="@+id/btnBigAddStock"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_inv_action_row_selected"
-        android:paddingHorizontal="13dp"
-        android:paddingVertical="12dp"
+        android:background="@drawable/bg_inv_action_big_green"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp"
         android:clickable="true"
         android:focusable="true">
 
-        <View
-            android:id="@+id/radioAddStock"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:background="@drawable/bg_radio_selected"/>
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_circle_white_overlay">
 
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_lucide_plus"
-            app:tint="#27500A"
-            android:contentDescription="@null"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lucide_plus"
+                app:tint="@android:color/white"
+                android:contentDescription="@null"/>
 
-        <TextView
+        </FrameLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="9dp"
-            android:text="@string/xml_inventory_stock_action_add_stock"
-            android:textSize="13sp"
-            android:textColor="#1A1A18"/>
+            android:orientation="vertical"
+            android:layout_marginStart="13dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_inventory_stock_action_add_stock"
+                android:textSize="16sp"
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="@android:color/white"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/xml_inventory_stock_action_add_stock_desc"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#D9F0E7"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
+    <!-- Reduce stock — big solid amber button -->
     <LinearLayout
-        android:id="@+id/rowReduceStock"
+        android:id="@+id/btnBigReduceStock"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_inv_action_row"
-        android:paddingHorizontal="13dp"
-        android:paddingVertical="12dp"
+        android:background="@drawable/bg_inv_action_big_amber"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp"
         android:clickable="true"
         android:focusable="true">
 
-        <View
-            android:id="@+id/radioReduceStock"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:background="@drawable/bg_radio_unselected"/>
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_circle_white_overlay">
 
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_lucide_minus"
-            app:tint="#854F0B"
-            android:contentDescription="@null"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lucide_minus"
+                app:tint="@android:color/white"
+                android:contentDescription="@null"/>
 
-        <TextView
+        </FrameLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="9dp"
-            android:text="@string/xml_inventory_stock_action_reduce_stock"
-            android:textSize="13sp"
-            android:textColor="#1A1A18"/>
+            android:orientation="vertical"
+            android:layout_marginStart="13dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_inventory_stock_action_reduce_stock"
+                android:textSize="16sp"
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="@android:color/white"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/xml_inventory_stock_action_reduce_stock_desc"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#FBE8CF"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
+    <!-- Clear stock — big solid red button -->
     <LinearLayout
-        android:id="@+id/rowClearStock"
+        android:id="@+id/btnBigClearStock"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_inv_action_row"
-        android:paddingHorizontal="13dp"
-        android:paddingVertical="12dp"
+        android:background="@drawable/bg_inv_action_big_red"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp"
         android:clickable="true"
         android:focusable="true">
 
-        <View
-            android:id="@+id/radioClearStock"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:background="@drawable/bg_radio_unselected"/>
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_circle_white_overlay">
 
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_lucide_trash"
-            app:tint="#791F1F"
-            android:contentDescription="@null"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lucide_trash"
+                app:tint="@android:color/white"
+                android:contentDescription="@null"/>
 
-        <TextView
+        </FrameLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginStart="9dp"
-            android:text="@string/xml_inventory_stock_action_clear_stock"
-            android:textSize="13sp"
-            android:textColor="#1A1A18"/>
+            android:orientation="vertical"
+            android:layout_marginStart="13dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_inventory_stock_action_clear_stock"
+                android:textSize="16sp"
+                android:fontFamily="@font/googlesans_bold"
+                android:textColor="@android:color/white"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/xml_inventory_stock_action_clear_stock_desc"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#F8DADA"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnContinueAction"
+        android:id="@+id/btnCancelAction"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="14dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_dialog_cancel_neutral"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="@string/xml_inventory_stock_action_continue_button"
+        android:text="@string/xml_inventory_stock_action_cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
-        android:textColor="@android:color/white"
+        android:textColor="#5C5544"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
         android:stateListAnimator="@null"
         app:cornerRadius="14dp"
-        app:rippleColor="#33FFFFFF" />
+        app:rippleColor="#14000000" />
 
 </LinearLayout>

@@ -242,9 +242,11 @@
         android:clipChildren="false"
         android:clipToPadding="false">
 
+        <!-- Icon alone used to be the only cue for what these buttons do —
+             a plain word next to each icon removes the guesswork. -->
         <FrameLayout
             android:id="@+id/btnFilter"
-            android:layout_width="42dp"
+            android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:clipChildren="false"
             android:clipToPadding="false"
@@ -253,13 +255,29 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_filter"
-                app:tint="#B8895A"
-                android:contentDescription="Filter" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_filter"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/purchase_history_filter_button_label"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvFilterBadge"
@@ -284,7 +302,7 @@
 
         <FrameLayout
             android:id="@+id/btnSort"
-            android:layout_width="42dp"
+            android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_credit_phone_chip"
@@ -292,13 +310,29 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_lc_sliders"
-                app:tint="#B8895A"
-                android:contentDescription="Sort" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_sliders"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/purchase_history_sort_button_label"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
         </FrameLayout>
 
@@ -465,10 +499,15 @@
                     android:background="#F1EBDD" />
 
                 <LinearLayout
+                    android:id="@+id/tipRecordPurchase"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="11dp">
+                    android:layout_marginBottom="11dp"
+                    android:paddingVertical="4dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
                     <ImageView
                         android:layout_width="17dp"
                         android:layout_height="17dp"
@@ -531,5 +570,34 @@
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRecordPurchase"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="@string/purchase_history_record_button"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        app:icon="@drawable/ic_lc_file_plus"
+        app:iconTint="@android:color/white"
+        app:iconSize="17dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:cornerRadius="14dp"/>
 
 </LinearLayout>

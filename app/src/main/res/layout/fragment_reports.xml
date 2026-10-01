@@ -98,8 +98,8 @@
                     android:textSize="11sp"
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_semibold"
-                    android:background="#F3ECDD"
-                    android:paddingHorizontal="10dp"
+                    android:background="@drawable/bg_report_period_selector"
+                    android:paddingHorizontal="14dp"
                     android:paddingVertical="6dp"
                     android:clickable="true"
                     android:focusable="true"/>

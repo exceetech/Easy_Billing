@@ -148,6 +148,7 @@
                         android:text="0%"/>
 
                     <TextView
+                        android:id="@+id/tvGstLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="3dp"

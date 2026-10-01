@@ -57,7 +57,8 @@ object CustomerShareHelper {
         gstInvoice: GstSalesInvoice?,
         printerLayout: String,
         customerName: String?,
-        customerPhone: String?
+        customerPhone: String?,
+        totalCess: Double = 0.0
     ): Boolean {
         if (bill.billNumber.isBlank()) {
             Toast.makeText(context, context.getString(R.string.send_to_customer_bill_not_synced), Toast.LENGTH_LONG).show()
@@ -68,7 +69,7 @@ object CustomerShareHelper {
             withContext(Dispatchers.IO) {
                 InvoicePdfGenerator.generatePdfFromBill(
                     context, bill, billItems, storeInfo, gstScheme, gstInvoice,
-                    printerLayout, printAfterSave = false
+                    printerLayout, printAfterSave = false, totalCess = totalCess
                 )
             }
         } catch (e: Exception) {

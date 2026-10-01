@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class SalesReturnLineItem(
+    val billItem: BillItem,
+    val cessRate: Double = 0.0,
+    val cessAmount: Double = 0.0
+)
+
 class SalesReturnViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = CreditNoteRepository.get(app)
@@ -24,6 +30,9 @@ class SalesReturnViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _billItems = MutableStateFlow<List<BillItem>>(emptyList())
     val billItems: StateFlow<List<BillItem>> = _billItems.asStateFlow()
+
+    private val _returnLineItems = MutableStateFlow<List<SalesReturnLineItem>>(emptyList())
+    val returnLineItems: StateFlow<List<SalesReturnLineItem>> = _returnLineItems.asStateFlow()
 
     /** For each productId: how much has already been returned on this bill. */
     private val _alreadyReturnedMap = MutableStateFlow<Map<Int, Double>>(emptyMap())
@@ -48,6 +57,29 @@ class SalesReturnViewModel(app: Application) : AndroidViewModel(app) {
             _bill.value      = db.billDao().getBillById(billId)
             val items        = db.billItemDao().getItemsForBill(billId)
             _billItems.value = items
+
+            val gstInvoice = db.gstSalesInvoiceDao().getByBillId(billId)
+            val gstItems = if (gstInvoice != null) db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id) else emptyList()
+            val gstItemMap = gstItems.associateBy { it.productId }
+
+            val returnItems = items.map { item ->
+                val gstItem = gstItemMap[item.productId]
+                val cessRate = when {
+                    gstItem != null && gstItem.cessRate > 0.0 -> gstItem.cessRate
+                    else -> db.productDao().getById(item.productId)?.cessRate ?: 0.0
+                }
+                val cessAmount = when {
+                    gstItem != null && gstItem.cessAmount > 0.0 -> gstItem.cessAmount
+                    cessRate > 0.0 -> item.taxableValue * (cessRate / 100.0)
+                    else -> 0.0
+                }
+                SalesReturnLineItem(
+                    billItem = item,
+                    cessRate = cessRate,
+                    cessAmount = cessAmount
+                )
+            }
+            _returnLineItems.value = returnItems
 
             // Build the map of already-returned quantities
             val map = mutableMapOf<Int, Double>()

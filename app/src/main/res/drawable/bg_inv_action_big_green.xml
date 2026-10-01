@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Big "Add stock" action button — solid green, ripple on tap. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#1F8A6E">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0F6E56"/>
+            <corners android:radius="18dp"/>
+        </shape>
+    </item>
+</ripple>

@@ -13,22 +13,21 @@ import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 
+import com.example.easy_billing.viewmodel.DebitNoteLineItem
+
 /**
- * Adapter for the sales-return screen.
+ * Adapter for the debit-note (additional charge) screen.
  *
- * Each row shows a [BillItem]'s key data and lets the user choose how many
- * units to return via +/− buttons or direct text entry.
- *
- * [maxReturnableQty] is supplied per-row so the adapter can clamp input and
- * update the already-returned badge without knowing about the ViewModel.
+ * Each row shows a [DebitNoteLineItem]'s key data and lets the user choose how many
+ * additional units to charge via +/− buttons or direct text entry.
  *
  * After every quantity change, [onTotalChanged] is invoked with the current
- * grand total so the Activity can update its bottom summary panel.
+ * grand totals so the Activity can update its bottom summary panel.
  */
 class DebitNoteItemAdapter(
-    private val items: List<BillItem>,
+    private val items: List<DebitNoteLineItem>,
     private val supplyType: String,
-    private val onTotalChanged: (totalTaxable: Double, totalTax: Double, itemsAdjusted: Int) -> Unit
+    private val onTotalChanged: (totalTaxable: Double, totalTax: Double, totalCess: Double, itemsAdjusted: Int) -> Unit
 ) : RecyclerView.Adapter<DebitNoteItemAdapter.ViewHolder>() {
 
     /** User-entered additional quantity, keyed by [BillItem.id]. */
@@ -56,6 +55,7 @@ class DebitNoteItemAdapter(
         val tvQtySold:         TextView           = view.findViewById(R.id.tvQtySold)
         val tvUnitPrice:       TextView           = view.findViewById(R.id.tvUnitPrice)
         val tvGstRate:         TextView           = view.findViewById(R.id.tvGstRate)
+        val tvGstLabel:        TextView           = view.findViewById(R.id.tvGstLabel)
         val tvMaxReturn:       TextView           = view.findViewById(R.id.tvMaxReturn)       // Hide
         val etAdditionalQty:   TextInputEditText  = view.findViewById(R.id.etAdditionalTaxable)
         val tvAdditionalTax:   TextView           = view.findViewById(R.id.tvAdditionalTax)
@@ -78,7 +78,8 @@ class DebitNoteItemAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val ctx  = holder.itemView.context
-        val item = items[position]
+        val lineItem = items[position]
+        val item = lineItem.billItem
 
         holder.watcher?.let { holder.etAdditionalQty.removeTextChangedListener(it) }
 
@@ -111,19 +112,27 @@ class DebitNoteItemAdapter(
 
         holder.tvQtySold.text   = formatQty(item.quantity)
         holder.tvUnitPrice.text = CurrencyHelper.format(ctx, item.price)
-        holder.tvGstRate.text   = "${item.gstRate.toInt()}%"
+
+        if (lineItem.cessRate > 0.0) {
+            holder.tvGstRate.text = "${item.gstRate.toInt()}% GST + ${lineItem.cessRate.toInt()}% CESS"
+            holder.tvGstLabel.visibility = View.GONE
+        } else {
+            holder.tvGstRate.text = "${item.gstRate.toInt()}%"
+            holder.tvGstLabel.visibility = View.VISIBLE
+            holder.tvGstLabel.text = "GST"
+        }
 
         val currentVal = additionalQtyMap[item.id] ?: 0.0
         holder.etAdditionalQty.setText(if (currentVal > 0.0) formatQty(currentVal) else "")
 
-        updateAdditionalAmountView(holder, item, currentVal, ctx)
+        updateAdditionalAmountView(holder, lineItem, currentVal, ctx)
 
         // ── Increment ────────────────────────────────────────────────────────
         holder.btnIncrement.setOnClickListener {
             val cur = additionalQtyMap[item.id] ?: 0.0
             val step = if (item.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
             val next = cur + step
-            setQty(holder, item, next, ctx)
+            setQty(holder, lineItem, next, ctx)
         }
 
         // ── Decrement ────────────────────────────────────────────────────────
@@ -132,7 +141,7 @@ class DebitNoteItemAdapter(
             if (cur > 0.0) {
                 val step = if (item.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = (cur - step).coerceAtLeast(0.0)
-                setQty(holder, item, next, ctx)
+                setQty(holder, lineItem, next, ctx)
             }
         }
 
@@ -143,7 +152,7 @@ class DebitNoteItemAdapter(
                 val typed = s?.toString()?.toDoubleOrNull() ?: 0.0
                 val clamped = typed.coerceAtLeast(0.0) // No max limit for additional qty
                 additionalQtyMap[item.id] = clamped
-                updateAdditionalAmountView(holder, item, clamped, ctx)
+                updateAdditionalAmountView(holder, lineItem, clamped, ctx)
                 notifyGrandTotal()
             }
         }
@@ -153,32 +162,40 @@ class DebitNoteItemAdapter(
 
     private fun setQty(
         holder: ViewHolder,
-        item: BillItem,
+        lineItem: DebitNoteLineItem,
         qty: Double,
         ctx: android.content.Context
     ) {
+        val item = lineItem.billItem
         additionalQtyMap[item.id] = qty
         holder.watcher?.let { holder.etAdditionalQty.removeTextChangedListener(it) }
         holder.etAdditionalQty.setText(if (qty > 0.0) formatQty(qty) else "")
         holder.watcher?.let { holder.etAdditionalQty.addTextChangedListener(it) }
-        updateAdditionalAmountView(holder, item, qty, ctx)
+        updateAdditionalAmountView(holder, lineItem, qty, ctx)
         notifyGrandTotal()
     }
 
     private fun updateAdditionalAmountView(
         holder: ViewHolder,
-        item: BillItem,
+        lineItem: DebitNoteLineItem,
         qtyVal: Double,
         ctx: android.content.Context
     ) {
         if (qtyVal > 0.0) {
+            val item = lineItem.billItem
             val unitTaxable = if (item.quantity > 0.0) item.taxableValue / item.quantity else 0.0
             val taxableVal = qtyVal * unitTaxable
             val taxRate = item.gstRate
-            val tax = taxableVal * (taxRate / 100.0)
+            val gst = taxableVal * (taxRate / 100.0)
+            val cess = if (lineItem.cessRate > 0.0) taxableVal * (lineItem.cessRate / 100.0) else 0.0
+            val totalTax = gst + cess
+
             holder.tvAdditionalTax.visibility = View.VISIBLE
-            holder.tvAdditionalTax.text =
-                "Taxable: ${CurrencyHelper.format(ctx, taxableVal)} | Tax: ${CurrencyHelper.format(ctx, tax)}"
+            holder.tvAdditionalTax.text = if (cess > 0.0) {
+                "Taxable: ${CurrencyHelper.format(ctx, taxableVal)} | Tax: ${CurrencyHelper.format(ctx, totalTax)} (incl. CESS ${CurrencyHelper.format(ctx, cess)})"
+            } else {
+                "Taxable: ${CurrencyHelper.format(ctx, taxableVal)} | Tax: ${CurrencyHelper.format(ctx, totalTax)}"
+            }
             val accent = rowAccents[holder.adapterPosition.coerceAtLeast(0) % rowAccents.size]
             holder.tvAdditionalTax.setTextColor(accent.accent)
         } else {
@@ -189,28 +206,32 @@ class DebitNoteItemAdapter(
     private fun notifyGrandTotal() {
         var totalTaxable = 0.0
         var totalTax   = 0.0
+        var totalCess  = 0.0
         var itemsAdjusted = 0
-        for (item in items) {
+        for (lineItem in items) {
+            val item = lineItem.billItem
             val qVal = additionalQtyMap[item.id] ?: 0.0
             if (qVal > 0.0) {
                 val unitTaxable = if (item.quantity > 0.0) item.taxableValue / item.quantity else 0.0
                 val tVal = qVal * unitTaxable
-                val tax = tVal * (item.gstRate / 100.0)
+                val gst = tVal * (item.gstRate / 100.0)
+                val cess = if (lineItem.cessRate > 0.0) tVal * (lineItem.cessRate / 100.0) else 0.0
                 totalTaxable += tVal
-                totalTax   += tax
+                totalTax   += (gst + cess)
+                totalCess  += cess
                 itemsAdjusted += 1
             }
         }
-        onTotalChanged(totalTaxable, totalTax, itemsAdjusted)
+        onTotalChanged(totalTaxable, totalTax, totalCess, itemsAdjusted)
     }
 
     private fun formatQty(q: Double): String =
         if (q == q.toLong().toDouble()) q.toLong().toString()
         else "%.2f".format(q)
 
-    fun getDebitLines(): List<Pair<BillItem, Double>> =
+    fun getDebitLines(): List<Pair<DebitNoteLineItem, Double>> =
         items.mapNotNull { item ->
-            val qVal = additionalQtyMap[item.id] ?: 0.0
+            val qVal = additionalQtyMap[item.billItem.id] ?: 0.0
             if (qVal > 0.0) item to qVal else null
         }
 }

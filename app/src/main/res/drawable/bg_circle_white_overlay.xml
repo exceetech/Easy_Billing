@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Translucent white circle badge used on the big solid-color stock
+     action buttons (dialog_inventory_stock_action) to hold the icon. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#33FFFFFF"/>
+</shape>

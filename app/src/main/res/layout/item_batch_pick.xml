@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Batch line item — same structure as item_sales_return_row.xml (the
-    credit-note line item card): price-led header with left accent
-    stripe, monogram avatar, hairline divider, footer stepper row with
-    the qty centered between outlined −/+ buttons, and a return-value
-    preview line that only appears once a quantity is entered.
+    Batch line item — now with the same left accent stripe + per-row
+    colour palette as Clear Stock's item_batch_clear.xml (set from
+    BatchPickerAdapter.colorFor(), keyed by batch id so each batch keeps
+    its own colour across rebinds), so the two batch-picker lists look
+    and feel consistent across Reduce Stock and Clear Stock.
+
+    Batch details on the left, the Design-A "edge-to-edge" −/qty/+ bar
+    inline on the right of the SAME row — a numbered badge, batch label
+    + oldest tag, a one-line date/cost/remaining caption, and the
+    compact bordered stepper bar sitting right where the old unit-cost
+    price used to be. The card's outer border still highlights (teal)
+    once a qty is entered, via bg_batch_card_selected/unselected set
+    from BatchPickerAdapter — independent of the per-row stripe/avatar
+    colour, same as before.
 
     Bound by BatchPickerAdapter: viewItemStripe, tvAvatar, tvBatchLabel,
     tvOldestTag (hidden unless this is the oldest batch with stock),
-    tvBatchMeta ("14 Jul 2026 · ₹42/unit · 18 left"), tvUnitCost,
-    tvMaxReturn, etBatchQty, tvBatchAmount, btnDecrement, btnIncrement.
+    tvBatchMeta ("14 Jul 2026 · ₹42/unit"), tvUnitCost (hidden — kept
+    only so the adapter's existing findViewById/text-set doesn't need
+    to change), tvMaxReturn, etBatchQty, tvBatchAmount, btnDecrement,
+    btnIncrement.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,7 +28,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_marginVertical="5dp"
-    android:background="@drawable/bg_inv_value_card"
+    android:background="@drawable/bg_batch_card_unselected"
     android:clipToOutline="true"
     android:clipChildren="true">
 
@@ -32,7 +43,7 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="13dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,11 +53,11 @@
 
             <TextView
                 android:id="@+id/tvAvatar"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:gravity="center"
-                android:text="B"
-                android:textSize="13sp"
+                android:text="1"
+                android:textSize="12sp"
                 android:textColor="#1D6E6E"
                 android:fontFamily="@font/googlesans_semibold"
                 android:background="@drawable/bg_credit_avatar"
@@ -58,7 +69,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginStart="10dp">
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -71,12 +83,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/xml_batch_pick_number_placeholder"
-                        android:textSize="13.5sp"
+                        android:textSize="13sp"
                         android:textColor="#1A1A18"
                         android:fontFamily="@font/googlesans_medium"
                         android:singleLine="true"
                         android:ellipsize="end"
-                        android:maxWidth="150dp" />
+                        android:maxWidth="110dp" />
 
                     <TextView
                         android:id="@+id/tvOldestTag"
@@ -104,9 +116,6 @@
                     android:ellipsize="end"
                     android:text="@string/xml_batch_pick_date_cost_placeholder"/>
 
-                <!-- Remaining — labelled caption instead of a bare
-                     number, so it reads as "Max reducible: 18" rather
-                     than a stray unstyled digit. -->
                 <TextView
                     android:id="@+id/tvMaxReturn"
                     android:layout_width="wrap_content"
@@ -116,103 +125,107 @@
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_medium"
                     android:text="@string/xml_batch_pick_max_reducible_placeholder"/>
+
+                <!-- Unit-cost price removed from the layout per feedback —
+                     the per-unit cost is already in tvBatchMeta above; this
+                     view stays bound (BatchPickerAdapter still sets its
+                     text) but hidden so it takes no space. -->
+                <TextView
+                    android:id="@+id/tvUnitCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="15sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvUnitCost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="0"
-                android:textSize="18sp"
-                android:textColor="#1A1A18"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:singleLine="true" />
-        </LinearLayout>
+            <!-- Units-to-take-out stepper — Design A "edge-to-edge bar",
+                 inline on the right of the batch details: one bordered
+                 bar clipped to a single rounded outline
+                 (bg_batch_edge_bar), a flat −/+ square flush to each
+                 end, qty filling the space between. -->
+            <LinearLayout
+                android:layout_width="134dp"
+                android:layout_height="44dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_batch_edge_bar"
+                android:clipToOutline="true">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="9dp"
-            android:background="#F1EBDD" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDecrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="−"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#1D6E6E"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    app:backgroundTint="#FFFFFF"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#14000000"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#EDE6D5"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textSize="11.5sp"
-                android:textColor="#3A322A"
-                android:fontFamily="@font/googlesans_medium"
-                android:text="@string/xml_batch_pick_reduce_qty_label"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etBatchQty"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="18sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:hint="0"
+                    android:textColorHint="#C9BFA8"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDecrement"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:text="−"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textColor="#1D6E6E"
-                android:padding="0dp"
-                android:insetLeft="0dp"
-                android:insetRight="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:stateListAnimator="@null"
-                app:elevation="0dp"
-                app:cornerRadius="9dp"
-                app:backgroundTint="#FFFFFF"
-                app:strokeColor="#E1DAC8"
-                app:strokeWidth="1dp"
-                app:rippleColor="#14000000"/>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#EDE6D5"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBatchQty"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:gravity="center"
-                android:inputType="numberDecimal"
-                android:textSize="15sp"
-                android:textColor="#1A1A18"
-                android:fontFamily="serif"
-                android:background="@android:color/transparent"
-                android:padding="0dp"
-                android:hint="0"
-                android:textColorHint="#A99E88"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIncrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="+"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    app:backgroundTint="#1D6E6E"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#33FFFFFF"/>
+            </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnIncrement"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:text="+"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:padding="0dp"
-                android:insetLeft="0dp"
-                android:insetRight="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:stateListAnimator="@null"
-                app:elevation="0dp"
-                app:cornerRadius="9dp"
-                app:backgroundTint="#1D6E6E"
-                app:strokeWidth="0dp"
-                app:rippleColor="#33FFFFFF"/>
         </LinearLayout>
 
         <!-- Reduce value preview — only takes space once a qty is entered. -->
@@ -220,7 +233,7 @@
             android:id="@+id/tvBatchAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"
+            android:layout_marginTop="8dp"
             android:gravity="end"
             android:textSize="10.5sp"
             android:textColor="#0F6E56"

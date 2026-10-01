@@ -35,6 +35,8 @@ class DebitNoteActivity : BaseActivity() {
     private lateinit var rvDebitItems: RecyclerView
     private lateinit var tvTotalDebitValue: TextView
     private lateinit var tvAdditionalGst: TextView
+    private lateinit var rowAdditionalCess: View
+    private lateinit var tvAdditionalCess: TextView
     private lateinit var tvTaxableTile: TextView
     private lateinit var tvGrandTotalTile: TextView
     private lateinit var tvItemsAdjustedBadge: TextView
@@ -65,6 +67,8 @@ class DebitNoteActivity : BaseActivity() {
         rvDebitItems    = findViewById(R.id.rvDebitItems)
         tvTotalDebitValue = findViewById(R.id.tvTotalDebitValue)
         tvAdditionalGst    = findViewById(R.id.tvAdditionalGst)
+        rowAdditionalCess  = findViewById(R.id.rowAdditionalCess)
+        tvAdditionalCess   = findViewById(R.id.tvAdditionalCess)
         tvTaxableTile      = findViewById(R.id.tvTaxableTile)
         tvGrandTotalTile   = findViewById(R.id.tvGrandTotalTile)
         tvItemsAdjustedBadge = findViewById(R.id.tvItemsAdjustedBadge)
@@ -98,17 +102,24 @@ class DebitNoteActivity : BaseActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.billItems.collectLatest { items ->
+            viewModel.debitLineItems.collectLatest { items ->
                 if (items.isEmpty()) return@collectLatest
                 val bill = viewModel.bill.value ?: return@collectLatest
                 val adapter = DebitNoteItemAdapter(
                     items            = items,
                     supplyType       = bill.supplyType,
-                    onTotalChanged   = { total, tax, itemsAdjusted ->
+                    onTotalChanged   = { total, tax, cess, itemsAdjusted ->
                         val grandTotal = total + tax
+                        val gst = tax - cess
                         tvTotalDebitValue.text = CurrencyHelper.format(this@DebitNoteActivity, grandTotal)
                         tvTaxableTile.text     = CurrencyHelper.format(this@DebitNoteActivity, total)
-                        tvAdditionalGst.text   = CurrencyHelper.format(this@DebitNoteActivity, tax)
+                        tvAdditionalGst.text   = CurrencyHelper.format(this@DebitNoteActivity, gst)
+                        if (cess > 0.0) {
+                            rowAdditionalCess.visibility = View.VISIBLE
+                            tvAdditionalCess.text = CurrencyHelper.format(this@DebitNoteActivity, cess)
+                        } else {
+                            rowAdditionalCess.visibility = View.GONE
+                        }
                         tvGrandTotalTile.text  = CurrencyHelper.format(this@DebitNoteActivity, grandTotal)
                         tvItemsAdjustedBadge.text =
                             if (itemsAdjusted == 1) "1 item adjusted" else "$itemsAdjusted items adjusted"
@@ -196,7 +207,7 @@ class DebitNoteActivity : BaseActivity() {
     private fun confirmAndSubmit() {
         val adapter = rvDebitItems.adapter as? DebitNoteItemAdapter ?: return
         val lines   = adapter.getDebitLines()
-        val linesDetail = lines.joinToString("; ") { (item, qty) -> "${item.productName}=$qty" }
+        val linesDetail = lines.joinToString("; ") { (item, qty) -> "${item.billItem.productName}=$qty" }
         com.example.easy_billing.util.UserEventLogger.logAction(
             "DebitNote", "submit_clicked: lines_selected=${lines.size}, items=[$linesDetail]"
         )
@@ -243,7 +254,7 @@ class DebitNoteActivity : BaseActivity() {
 
     private fun submitDebitNote(
         bill: Bill,
-        lines: List<Pair<com.example.easy_billing.db.BillItem, Double>>
+        lines: List<Pair<com.example.easy_billing.viewmodel.DebitNoteLineItem, Double>>
     ) {
         // Parse bill date to epoch millis
         val billDateMillis = try {
@@ -254,7 +265,11 @@ class DebitNoteActivity : BaseActivity() {
         }
 
         val debitLines = lines.map { (item, value) ->
-            CreditNoteRepository.DebitLine(billItem = item, additionalQty = value)
+            CreditNoteRepository.DebitLine(
+                billItem = item.billItem,
+                additionalQty = value,
+                cessRate = item.cessRate
+            )
         }
 
         viewModel.submitDebitNote(

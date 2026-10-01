@@ -2,7 +2,7 @@
 
 <!--
   Peak hours — champagne redesign: cream page + white card.
-  eyebrow+serif header (Peak *hours* + 24 Hour gold chip + bubble-chart button)
+  eyebrow+serif header (Peak *hours* + bubble-chart button)
     · peak-revenue hero · legend · cream-inset bar chart · 2 stat cards
     · hourly breakdown list. Bubble-chart button opens the full-screen bubble dialog.
 -->
@@ -90,17 +90,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvPeriodChip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/peak_hours_period_chip_default"
-                    android:textSize="11sp"
-                    android:textColor="#8A6526"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:background="#F3ECDD"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="6dp"/>
             </LinearLayout>
 
             <!-- Peak revenue hero -->

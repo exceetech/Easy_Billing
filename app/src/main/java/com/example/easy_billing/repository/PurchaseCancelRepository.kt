@@ -67,10 +67,20 @@ object PurchaseCancelRepository {
 
                 if (consumed > EPS) hasConsumption = true
 
+                val item = items.find { it.productId == pid }
+                val cessPct = item?.cessPercentage ?: db.productDao().getById(pid)?.cessRate ?: 0.0
+
                 remainingValue += batches.sumOf { b ->
                     val taxable = b.unitCostExcludingTax * b.quantityRemaining
                     val tax = taxable * (b.cgstPercent + b.sgstPercent + b.igstPercent) / 100.0
-                    taxable + tax
+                    val cess = if (item != null && item.quantity > 0.0 && item.cessAmount > 0.0) {
+                        (b.quantityRemaining / item.quantity) * item.cessAmount
+                    } else if (cessPct > 0.0) {
+                        taxable * cessPct / 100.0
+                    } else {
+                        0.0
+                    }
+                    taxable + tax + cess
                 }
             }
 

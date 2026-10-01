@@ -21,6 +21,7 @@ data class BillSyncDto(
     val cgst_amount: Double = 0.0,
     val sgst_amount: Double = 0.0,
     val igst_amount: Double = 0.0,
+    val cess_amount: Double = 0.0,
     val is_cancelled: Boolean = false,
     val cancelled_at: Long? = null,
     val created_at: String? = null,
@@ -80,6 +81,7 @@ data class BillItemSyncDto(
     val cgst_amount: Double = 0.0,
     val sgst_amount: Double = 0.0,
     val igst_amount: Double = 0.0,
+    val cess_amount: Double = 0.0,
     val total_amount: Double = 0.0,
     val hsn_code: String = "",
     val discount_amount: Double = 0.0

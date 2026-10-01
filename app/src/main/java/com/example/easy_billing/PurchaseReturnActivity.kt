@@ -64,9 +64,13 @@ class PurchaseReturnActivity : BaseActivity() {
 
     // GSTR-2 Fields
     private lateinit var cvGstr2Container: LinearLayout
-    private lateinit var llGstr2Header: LinearLayout
     private lateinit var llGstr2Details: LinearLayout
-    private lateinit var ivGstr2Arrow: ImageView
+    private lateinit var tvItemsStepTitle: TextView
+    private lateinit var tvReasonStepTitle: TextView
+    private lateinit var tvReasonStepHint: TextView
+    private lateinit var btnToggleGstr2MoreDetails: LinearLayout
+    private lateinit var groupGstr2MoreDetails: LinearLayout
+    private lateinit var ivGstr2MoreDetailsChevron: ImageView
     private lateinit var swPreGst: MaterialSwitch
     private lateinit var actvDocumentType: AutoCompleteTextView
     private lateinit var actvReason: AutoCompleteTextView
@@ -141,9 +145,13 @@ class PurchaseReturnActivity : BaseActivity() {
 
         // Bind GSTR-2 fields
         cvGstr2Container = findViewById(R.id.cvGstr2Container)
-        llGstr2Header = findViewById(R.id.llGstr2Header)
         llGstr2Details = findViewById(R.id.llGstr2Details)
-        ivGstr2Arrow = findViewById(R.id.ivGstr2Arrow)
+        tvItemsStepTitle = findViewById(R.id.tvItemsStepTitle)
+        tvReasonStepTitle = findViewById(R.id.tvReasonStepTitle)
+        tvReasonStepHint = findViewById(R.id.tvReasonStepHint)
+        btnToggleGstr2MoreDetails = findViewById(R.id.btnToggleGstr2MoreDetails)
+        groupGstr2MoreDetails = findViewById(R.id.groupGstr2MoreDetails)
+        ivGstr2MoreDetailsChevron = findViewById(R.id.ivGstr2MoreDetailsChevron)
         swPreGst = findViewById(R.id.swPreGst)
         actvDocumentType = findViewById(R.id.actvDocumentType)
         actvReason = findViewById(R.id.actvReason)
@@ -179,7 +187,10 @@ class PurchaseReturnActivity : BaseActivity() {
             tvHeaderSubtitle.text = getString(R.string.purchase_return_receive_credit)
             tvHeaderSubtitleAccent.text = getString(R.string.purchase_return_note_word)
             tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
-            tvSectionLabel.text = getString(R.string.purchase_return_section_credit)
+            tvItemsStepTitle.text = getString(R.string.purchase_return_step1_title_credit)
+            tvSectionLabel.text = getString(R.string.purchase_return_step1_hint_credit)
+            tvReasonStepTitle.text = getString(R.string.purchase_return_step2_title_credit)
+            tvReasonStepHint.text = getString(R.string.purchase_return_step2_hint_credit)
             tvTotalDebitLabel.text = getString(R.string.purchase_return_total_credit_value)
             btnConfirmReturn.text = getString(R.string.purchase_return_confirm_credit_note)
             cvGstr2Container.visibility = View.VISIBLE
@@ -188,7 +199,10 @@ class PurchaseReturnActivity : BaseActivity() {
             tvHeaderSubtitle.text = getString(R.string.purchase_return_raise_debit)
             tvHeaderSubtitleAccent.text = getString(R.string.purchase_return_note_word)
             tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
-            tvSectionLabel.text = getString(R.string.purchase_return_section_debit)
+            tvItemsStepTitle.text = getString(R.string.purchase_return_step1_title_debit)
+            tvSectionLabel.text = getString(R.string.purchase_return_step1_hint_debit)
+            tvReasonStepTitle.text = getString(R.string.purchase_return_step2_title_debit)
+            tvReasonStepHint.text = getString(R.string.purchase_return_step2_hint_debit)
             tvTotalDebitLabel.text = getString(R.string.purchase_return_total_debit_value)
             btnConfirmReturn.text = getString(R.string.purchase_return_confirm_debit_note)
             cvGstr2Container.visibility = View.VISIBLE
@@ -318,14 +332,19 @@ class PurchaseReturnActivity : BaseActivity() {
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun setupGstr2Fields() {
-        // Expand/Collapse
-        llGstr2Header.setOnClickListener {
-            if (llGstr2Details.visibility == View.VISIBLE) {
-                llGstr2Details.visibility = View.GONE
-                ivGstr2Arrow.animate().rotation(0f).setDuration(200).start()
+        // llGstr2Details is now always visible (it's Card 2's body) — the
+        // only remaining collapse is the nested "More details" group below.
+
+        // Nested "More details" sub-collapse — only the reason field stays
+        // always visible; everything else (document type, pre-GST, value,
+        // rate, ITC, invoice/supply) is tucked away here.
+        btnToggleGstr2MoreDetails.setOnClickListener {
+            if (groupGstr2MoreDetails.visibility == View.VISIBLE) {
+                groupGstr2MoreDetails.visibility = View.GONE
+                ivGstr2MoreDetailsChevron.animate().rotation(0f).setDuration(200).start()
             } else {
-                llGstr2Details.visibility = View.VISIBLE
-                ivGstr2Arrow.animate().rotation(180f).setDuration(200).start()
+                groupGstr2MoreDetails.visibility = View.VISIBLE
+                ivGstr2MoreDetailsChevron.animate().rotation(180f).setDuration(200).start()
             }
         }
 
@@ -602,7 +621,7 @@ class PurchaseReturnActivity : BaseActivity() {
             val cg = if (sameState) tax * item.purchaseCgstPercentage / 100.0 else 0.0
             val sg = if (sameState) tax * item.purchaseSgstPercentage / 100.0 else 0.0
             val ig = if (!sameState) tax * item.purchaseIgstPercentage / 100.0 else 0.0
-            val ce = if (item.quantity > 0.0) (qty / item.quantity) * item.cessAmount else 0.0
+            val ce = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (tax * item.cessPercentage / 100.0)
 
             igst += ig
             cgst += cg

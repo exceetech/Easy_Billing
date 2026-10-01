@@ -1,9 +1,6 @@
 package com.example.easy_billing
 
 import android.graphics.Color
-import android.text.SpannableString
-import android.text.style.AbsoluteSizeSpan
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,10 +32,11 @@ private val PURCHASE_LINE_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Purchas
 }
 
 /**
- * Adapter for the line-item list inside [PurchaseActivity]. Each row
- * uses the same design as the invoice line item (item_invoice_premium):
- * an avatar tile, name + "qty × rate · GST%" meta, and a right column
- * with the line total plus its tax. A hairline separates rows.
+ * Adapter for the line-item list inside [PurchaseActivity]. Each row has
+ * an avatar tile, the product name on its own line, a brand/type tag row
+ * (each tag hidden when blank), a "qty × rate · GST%" meta line, and a
+ * right column with the line total plus its tax. A hairline separates
+ * rows.
  */
 internal class PurchaseLinesAdapter(
     initialItems: List<PurchaseItemDraft>,
@@ -66,18 +64,29 @@ internal class PurchaseLinesAdapter(
         // Avatar — up to two initials from the product name.
         holder.tvAvatar.text = initials(item.productName)
 
-        // Name + muted variant (matches invoice / manage rows).
-        val variant = item.variant?.takeIf { it.isNotBlank() }
-        if (variant != null) {
-            val full = "${item.productName}   ·   $variant"
-            val sp = SpannableString(full)
-            val from = item.productName.length
-            sp.setSpan(ForegroundColorSpan(Color.parseColor("#A99E88")), from, full.length, 0)
-            sp.setSpan(AbsoluteSizeSpan(11, true), from, full.length, 0)
-            holder.tvName.text = sp
+        // Name gets its own full-width line — never truncated by brand,
+        // type, or the review tag competing for space.
+        holder.tvName.text = item.productName
+
+        // Brand + type each get their own small tag below the name, so
+        // both stay visible regardless of how long the product name is.
+        // A blank brand and/or type simply omits that tag; the whole row
+        // is hidden when neither is present.
+        val brand = item.brand?.takeIf { it.isNotBlank() }
+        val type = item.variant?.takeIf { it.isNotBlank() }
+        if (brand != null) {
+            holder.tvBrandTag.text = brand
+            holder.tvBrandTag.visibility = View.VISIBLE
         } else {
-            holder.tvName.text = item.productName
+            holder.tvBrandTag.visibility = View.GONE
         }
+        if (type != null) {
+            holder.tvTypeTag.text = type
+            holder.tvTypeTag.visibility = View.VISIBLE
+        } else {
+            holder.tvTypeTag.visibility = View.GONE
+        }
+        holder.llTags.visibility = if (brand != null || type != null) View.VISIBLE else View.GONE
 
         // Amber "Review" tag — only on lines added with placeholder
         // values (Inventory's "Add stock") that haven't been opened +
@@ -137,6 +146,9 @@ internal class PurchaseLinesAdapter(
         val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         val tvName: TextView = view.findViewById(R.id.tvName)
         val tvReviewTag: TextView = view.findViewById(R.id.tvReviewTag)
+        val llTags: View = view.findViewById(R.id.llTags)
+        val tvBrandTag: TextView = view.findViewById(R.id.tvBrandTag)
+        val tvTypeTag: TextView = view.findViewById(R.id.tvTypeTag)
         val tvMeta: TextView = view.findViewById(R.id.tvMeta)
         val tvPrice: TextView = view.findViewById(R.id.tvPrice)
         val tvTax: TextView = view.findViewById(R.id.tvTax)

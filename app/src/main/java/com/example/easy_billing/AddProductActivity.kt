@@ -25,6 +25,7 @@ import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.sync.SyncManager
 import com.example.easy_billing.util.CatalogAutofill
 import com.example.easy_billing.util.UqcMapper
+import com.example.easy_billing.util.SupplyClassMapper
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,6 +58,7 @@ class AddProductActivity : BaseActivity() {
     // lowercase key as catalogNames -- catalogNames alone can't drive
     // the search box's Global-row display text without losing case.
     private val catalogDisplayNames = HashMap<String, String>()
+    private val globalCatalogVariants = mutableListOf<com.example.easy_billing.network.GlobalProductResponse>()
     private var variantCache: List<VariantResponse> = emptyList()
     // Guards against re-fetching variants for the same product on the
     // multiple triggers (name pick + focus-loss + cold-start).
@@ -66,7 +68,6 @@ class AddProductActivity : BaseActivity() {
     private var unitUserSet = false
 
     private val units = listOf("piece", "kilogram", "litre", "gram", "millilitre")
-    private val supplyClasses = listOf("TAXABLE", "NIL_RATED", "EXEMPT", "NON_GST")
 
     // Views
     private lateinit var etName: AutoCompleteTextView
@@ -161,6 +162,11 @@ class AddProductActivity : BaseActivity() {
         groupMoreTaxDetails = findViewById(R.id.groupMoreTaxDetails)
         ivMoreTaxDetailsChevron = findViewById(R.id.ivMoreTaxDetailsChevron)
 
+        // VISUAL DEFAULTS: Auto-fill these so the user is reassured they don't have to guess
+        spinnerSupplyClass.text = SupplyClassMapper.codeToDisplay("TAXABLE")
+        etCessRate.setText("0")
+        com.example.easy_billing.util.UqcMapper.codeToDisplay("NOS")?.let { spinnerUqc.text = it }
+
         findViewById<View>(R.id.btnCancel).setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction("AddProduct", "cancel_clicked: ${fieldTouchSummary()}")
             finish()
@@ -197,6 +203,10 @@ class AddProductActivity : BaseActivity() {
             showSortStylePopup(etUnit, units, unitDisplay(etUnit.text.toString())) { picked ->
                 etUnit.text = picked
                 unitUserSet = true
+                
+                // Auto-map the official UQC when unit is picked
+                val uqcCode = com.example.easy_billing.util.UqcMapper.fromUnit(picked)
+                com.example.easy_billing.util.UqcMapper.codeToDisplay(uqcCode)?.let { spinnerUqc.text = it }
             }
         }
 
@@ -209,7 +219,7 @@ class AddProductActivity : BaseActivity() {
         // Left blank (hint "TAXABLE") until the user picks one — saveProduct()
         // still falls back to TAXABLE at save time if nothing was chosen.
         spinnerSupplyClass.setOnClickListener {
-            showSortStylePopup(spinnerSupplyClass, supplyClasses, spinnerSupplyClass.text.toString()) { picked ->
+            showSortStylePopup(spinnerSupplyClass, SupplyClassMapper.ALL_DISPLAY, spinnerSupplyClass.text.toString()) { picked ->
                 spinnerSupplyClass.text = picked
             }
         }
@@ -384,7 +394,11 @@ class AddProductActivity : BaseActivity() {
             val productDefault = CatalogAutofill.productLevelDefault(variants)
             withContext(Dispatchers.Main) {
                 refreshVariantAdapter(key)
-                productDefault?.let { fillStatutoryFrom(it, applyUnit = true) }
+                if (etVariant.text.toString().trim().isNotEmpty()) {
+                    applyVariantAutofill()
+                } else {
+                    productDefault?.let { fillStatutoryFrom(it, applyUnit = true) }
+                }
                 if (::searchAdapter.isInitialized) refreshProductSearchPool()
             }
         }
@@ -421,15 +435,24 @@ class AddProductActivity : BaseActivity() {
      * arbitrary named variant used only as a product-level default.
      */
     private fun fillStatutoryFrom(v: VariantResponse, applyUnit: Boolean) {
+        if (etBrand.text.isNullOrBlank() && !v.brand.isNullOrBlank()) etBrand.setText(v.brand)
+        if (etVariant.text.isNullOrBlank() && v.variant_name.isNotBlank()) etVariant.setText(v.variant_name)
         if (applyUnit && !unitUserSet && !v.unit.isNullOrBlank() && !v.unit.equals("unit", true))
             etUnit.text = v.unit
         if (etHsn.text.isNullOrBlank()) v.hsn_code?.let { etHsn.setText(it) }
         if (etHsnDesc.text.isNullOrBlank()) v.hsn_description?.let { etHsnDesc.setText(it) }
-        if (spinnerUqc.text.isNullOrBlank() && !v.official_uqc.isNullOrBlank())
-            UqcMapper.codeToDisplay(v.official_uqc)?.let { spinnerUqc.text = it }
+        val currentUqc = spinnerUqc.text.toString()
+        if (currentUqc.isBlank() || currentUqc == com.example.easy_billing.util.UqcMapper.codeToDisplay("NOS")) {
+            if (!v.official_uqc.isNullOrBlank()) {
+                com.example.easy_billing.util.UqcMapper.codeToDisplay(v.official_uqc)?.let { spinnerUqc.text = it }
+            } else if (applyUnit && !v.unit.isNullOrBlank()) {
+                val inferred = com.example.easy_billing.util.UqcMapper.fromUnit(v.unit)
+                com.example.easy_billing.util.UqcMapper.codeToDisplay(inferred)?.let { spinnerUqc.text = it }
+            }
+        }
         if (etCgst.text.isNullOrBlank() && v.cgst_percentage > 0) etCgst.setText(trimNum(v.cgst_percentage))
         if (etSgst.text.isNullOrBlank() && v.sgst_percentage > 0) etSgst.setText(trimNum(v.sgst_percentage))
-        if (etCessRate.text.isNullOrBlank() && v.cess_rate > 0) etCessRate.setText(trimNum(v.cess_rate))
+        if (etCessRate.text.isNullOrBlank() || etCessRate.text.toString() == "0") etCessRate.setText(trimNum(v.cess_rate))
         // IGST recomputes from CGST+SGST via the text watcher.
     }
 
@@ -489,13 +512,28 @@ class AddProductActivity : BaseActivity() {
             val view = convertView ?: LayoutInflater.from(context)
                 .inflate(R.layout.item_search_row_ep, parent, false)
             val row = getItem(position)
-            view.findViewById<TextView>(R.id.tvSearchRowLabel).text = row?.label.orEmpty()
+            val tvLabel = view.findViewById<TextView>(R.id.tvSearchRowLabel)
+            val labelText = row?.label.orEmpty()
+            val lastSep = labelText.lastIndexOf(" • ")
+            if (lastSep >= 0) {
+                val spannable = android.text.SpannableString(labelText)
+                val start = lastSep + 3
+                spannable.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#0F6E56")), start, labelText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.ITALIC), start, labelText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(android.text.style.TypefaceSpan("serif"), start, labelText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                tvLabel.text = spannable
+            } else {
+                tvLabel.text = labelText
+            }
             val tvTag = view.findViewById<TextView>(R.id.tvSearchRowTag)
             if (row?.tag.isNullOrBlank()) {
                 tvTag.visibility = View.GONE
             } else {
                 tvTag.visibility = View.VISIBLE
                 tvTag.text = row?.tag
+                val isShop = row?.tag == getString(R.string.add_product_tag_your_shop)
+                tvTag.setBackgroundResource(if (isShop) R.drawable.bg_search_tag_chip_shop else R.drawable.bg_search_tag_chip_neutral)
+                tvTag.setTextColor(android.graphics.Color.parseColor(if (isShop) "#0F6E56" else "#6E6A60"))
             }
             return view
         }
@@ -547,6 +585,10 @@ class AddProductActivity : BaseActivity() {
 
     private fun setupProductSearch() {
         searchAdapter = SearchRowAdapter(emptyList())
+        val searchWrap = findViewById<android.view.View>(R.id.llSearchBarWrap)
+        searchWrap.post {
+            etProductSearch.dropDownWidth = searchWrap.width
+        }
         etProductSearch.setAdapter(searchAdapter)
         etProductSearch.threshold = 1
         etProductSearch.setOnClickListener { if (etProductSearch.text.isNotEmpty()) etProductSearch.showDropDown() }
@@ -600,39 +642,20 @@ class AddProductActivity : BaseActivity() {
             }
         }
         val seenGlobal = HashSet<String>()
-        for (name in catalogNames) {
-            val display = catalogDisplayNames[name] ?: name.replaceFirstChar { it.uppercaseChar() }
-            val variantsForName = if (lastFetchedProduct == name) variantCache else emptyList()
-            val namedVariants = CatalogAutofill.namedVariants(variantsForName)
-            if (namedVariants.isEmpty()) {
-                val key = "$name||".lowercase()
-                if (seenGlobal.add(key)) {
-                    rows.add(
-                        SearchRow(
-                            label = display,
-                            tag = getString(R.string.add_product_tag_global),
-                            name = display,
-                            brand = null,
-                            variant = null
-                        )
-                    )
-                }
-            } else {
-                for (v in namedVariants) {
-                    val key = "$name|${v.brand.orEmpty()}|${v.variant_name}".lowercase()
-                    if (!seenGlobal.add(key)) continue
-                    val parts = listOfNotNull(display, v.brand?.takeIf { it.isNotBlank() }, v.variant_name.takeIf { it.isNotBlank() })
-                    rows.add(
-                        SearchRow(
-                            label = parts.joinToString(" • "),
-                            tag = getString(R.string.add_product_tag_global),
-                            name = display,
-                            brand = v.brand,
-                            variant = v.variant_name
-                        )
-                    )
-                }
-            }
+        for (v in globalCatalogVariants) {
+            val display = catalogDisplayNames[v.name.trim().lowercase()] ?: v.name.replaceFirstChar { it.uppercaseChar() }
+            val key = "${display}|${v.brand.orEmpty()}|${v.variant_name.orEmpty()}".lowercase()
+            if (!seenGlobal.add(key)) continue
+            val parts = listOfNotNull(display, v.brand?.takeIf { it.isNotBlank() }, v.variant_name?.takeIf { it.isNotBlank() })
+            rows.add(
+                SearchRow(
+                    label = parts.joinToString(" • "),
+                    tag = getString(R.string.add_product_tag_global),
+                    name = display,
+                    brand = v.brand,
+                    variant = v.variant_name
+                )
+            )
         }
         searchAdapter.pool = rows
     }
@@ -657,6 +680,7 @@ class AddProductActivity : BaseActivity() {
                         val key = it.name.trim().lowercase()
                         catalogNames.add(key)
                         catalogDisplayNames[key] = it.name
+                        globalCatalogVariants.add(it)
                     }
                 }
             } catch (_: Exception) { /* best-effort */ }
@@ -748,7 +772,7 @@ class AddProductActivity : BaseActivity() {
         val officialUqcVal = UqcMapper.displayToCode(spinnerUqc.text.toString())
         val hsnDescVal = etHsnDesc.text.toString().trim().ifBlank { null }
         val cessRateVal = etCessRate.text.toString().toDoubleOrNull() ?: 0.0
-        val supplyClassVal = spinnerSupplyClass.text.toString().trim().ifBlank { "TAXABLE" }
+        val supplyClassVal = SupplyClassMapper.displayToCode(spinnerSupplyClass.text.toString()) ?: "TAXABLE"
 
         val withStock = switchOpeningStock.isChecked
         val stockQty = etQty.text.toString().toDoubleOrNull() ?: 0.0
@@ -1088,11 +1112,15 @@ class AddProductActivity : BaseActivity() {
        ManageProductsActivity.showSortPopup() / EditProductActivity. ---------------- */
 
     private fun showSortStylePopup(
-        anchor: View,
+        rawAnchor: View,
         options: List<String>,
         current: String,
         onPick: (String) -> Unit
     ) {
+        val anchor = if (rawAnchor.parent is android.widget.LinearLayout && 
+            (rawAnchor.parent as android.view.View).background != null) {
+            rawAnchor.parent as android.view.View
+        } else rawAnchor
         val d = resources.displayMetrics.density
         fun dp(v: Int) = (v * d).toInt()
         val green = android.graphics.Color.parseColor("#0F6E56")
@@ -1123,9 +1151,7 @@ class AddProductActivity : BaseActivity() {
         val available = (if (showAbove) spaceAbove else spaceBelow).coerceAtLeast(dp(88))
         val height = minOf(wanted, available)
 
-        val popup = android.widget.PopupWindow(
-            scroll, dp(200), height, true
-        ).apply {
+        val popup = android.widget.PopupWindow(scroll, anchor.width, height, true).apply {
             elevation = dp(10).toFloat()
             setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         }

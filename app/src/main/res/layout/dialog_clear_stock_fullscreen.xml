@@ -182,312 +182,494 @@
                     android:includeFontPadding="false"/>
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="7dp"
-                android:text="@string/dialog_clear_stock_fullscreen_reason"
-                android:textSize="9.5sp"
-                android:letterSpacing="0.08"
-                android:fontFamily="@font/googlesans_semibold"
-                android:textColor="#B8895A"/>
-
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="20dp"
-                android:background="@drawable/bg_inv_value_card"
-                android:paddingVertical="6dp"
-                android:paddingStart="14dp"
-                android:paddingEnd="6dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dialog_clear_stock_fullscreen_reason_1"
-                    android:textSize="11.5sp"
-                    android:textColor="#9A8F79"/>
-
-                <LinearLayout
-                    android:id="@+id/btnReasonPicker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/bg_credit_tile_teal"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="8dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:id="@+id/tvReasonChoice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dialog_clear_stock_fullscreen_purchase_return"
-                        android:textSize="11.5sp"
-                        android:fontFamily="@font/googlesans_semibold"
-                        android:textColor="#085041"/>
-
-                    <ImageView
-                        android:layout_width="13dp"
-                        android:layout_height="13dp"
-                        android:layout_marginStart="5dp"
-                        android:src="@drawable/ic_chevron_down"
-                        app:tint="#085041"
-                        android:contentDescription="@null"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <RadioGroup
-                android:id="@+id/rgReason"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone">
-
-                <RadioButton
-                    android:id="@+id/rbReturn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dialog_clear_stock_fullscreen_purchase_return_1"
-                    android:checked="true"/>
-
-                <RadioButton
-                    android:id="@+id/rbScrap"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dialog_clear_stock_fullscreen_scrap_damage"/>
-            </RadioGroup>
-
-            <LinearLayout
-                android:id="@+id/batchesSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:paddingHorizontal="16dp">
 
+                <!-- ─ STEP 1 · WHICH BATCHES (teal, matches Add Purchase /
+                     Reduce Stock step 1) ─ -->
                 <LinearLayout
+                    android:id="@+id/batchesSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="7dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dialog_clear_stock_fullscreen_select_batches_to_clear"
-                        android:textSize="9.5sp"
-                        android:letterSpacing="0.08"
-                        android:fontFamily="@font/googlesans_semibold"
-                        android:textColor="#B8895A"/>
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_addp_card"
+                    android:visibility="gone">
 
                     <LinearLayout
-                        android:id="@+id/rowSelectAll"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:clickable="true"
-                        android:focusable="true">
-
+                        android:background="@drawable/bg_inv_customer_header"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                            <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                            <TextView
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="1"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/googlesans_bold"/>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_pick_batches_title"
+                                android:textColor="#123B31"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/googlesans_semibold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_pick_batches_hint"
+                                android:textColor="#3E6F62"
+                                android:textSize="11sp"/>
+                        </LinearLayout>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/dialog_clear_stock_fullscreen_select_all"
-                            android:textSize="11sp"
-                            android:textColor="#0F6E56"
+                            android:background="@drawable/bg_pill_red"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3dp"
+                            android:text="@string/invoice_required"
+                            android:textColor="#9B2C2C"
+                            android:textSize="10sp"
                             android:fontFamily="@font/googlesans_semibold"/>
-
-                        <FrameLayout
-                            android:id="@+id/checkBoxSelectAll"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_marginStart="7dp"
-                            android:background="@drawable/bg_check_box_selected">
-                            <ImageView
-                                android:id="@+id/ivCheckMarkSelectAll"
-                                android:layout_width="11dp"
-                                android:layout_height="11dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_lc_check"
-                                app:tint="#FFFFFF"
-                                android:contentDescription="@null"/>
-                        </FrameLayout>
                     </LinearLayout>
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvBatchesEmpty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center"
-                    android:padding="20dp"
-                    android:background="@drawable/bg_inv_value_card"
-                    android:text="@string/dialog_clear_stock_fullscreen_no_active_batches_available"
-                    android:textSize="12sp"
-                    android:textColor="#9A8F79"
-                    android:visibility="gone"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvBatches"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:nestedScrollingEnabled="false"
-                    android:overScrollMode="never"
-                    android:descendantFocusability="afterDescendants"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="14dp"
-                    android:padding="14dp"
-                    android:background="@drawable/bg_inv_value_card">
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="10dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_select_batches_to_clear"
+                                android:textSize="9.5sp"
+                                android:letterSpacing="0.08"
+                                android:fontFamily="@font/googlesans_semibold"
+                                android:textColor="#B8895A"/>
+
+                            <LinearLayout
+                                android:id="@+id/rowSelectAll"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/dialog_clear_stock_fullscreen_select_all"
+                                    android:textSize="11sp"
+                                    android:textColor="#0F6E56"
+                                    android:fontFamily="@font/googlesans_semibold"/>
+
+                                <FrameLayout
+                                    android:id="@+id/checkBoxSelectAll"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_marginStart="7dp"
+                                    android:background="@drawable/bg_check_box_selected">
+                                    <ImageView
+                                        android:id="@+id/ivCheckMarkSelectAll"
+                                        android:layout_width="11dp"
+                                        android:layout_height="11dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_lc_check"
+                                        app:tint="#FFFFFF"
+                                        android:contentDescription="@null"/>
+                                </FrameLayout>
+                            </LinearLayout>
+                        </LinearLayout>
 
                         <TextView
-                            android:id="@+id/tvTotalLabel"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/tvBatchesEmpty"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/dialog_clear_stock_fullscreen_total_to_clear"
-                            android:textSize="11.5sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:textColor="#9A8F79"/>
+                            android:layout_marginBottom="4dp"
+                            android:gravity="center"
+                            android:padding="20dp"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:text="@string/dialog_clear_stock_fullscreen_no_active_batches_available"
+                            android:textSize="12sp"
+                            android:textColor="#9A8F79"
+                            android:visibility="gone"/>
 
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvBatches"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:descendantFocusability="afterDescendants"/>
+
+                        <!-- Running total — plain field-style row, same
+                             bg_inv_field_light_grey treatment as a card-1
+                             field box, instead of a separate floating card. -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="12dp"
+                            android:padding="14dp"
+                            android:background="@drawable/bg_inv_field_light_grey">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvTotalLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/dialog_clear_stock_fullscreen_total_to_clear"
+                                    android:textSize="11.5sp"
+                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textColor="#6E6A60"/>
+
+                                <TextView
+                                    android:id="@+id/tvBatchCountSub"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="@string/dialog_clear_stock_fullscreen_no_batches_selected"
+                                    android:textSize="10sp"
+                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textColor="#8A6526"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvBatchRunning"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:text="0"
+                                android:textSize="26sp"
+                                android:fontFamily="serif"
+                                android:textStyle="bold"
+                                android:textColor="#0F6E56"
+                                android:includeFontPadding="false"
+                                android:singleLine="true"
+                                app:autoSizeTextType="uniform"
+                                app:autoSizeMinTextSize="18sp"
+                                app:autoSizeMaxTextSize="26sp"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ─ STEP 2 · REASON (champagne, matches Add Purchase /
+                     Reduce Stock step 2) ─ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_addp_card"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_items_header"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                            <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                            <TextView
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="2"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/googlesans_bold"/>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_reason_title"
+                                android:textColor="#5C4423"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/googlesans_semibold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_reason_hint"
+                                android:textColor="#8A6526"
+                                android:textSize="11sp"/>
+                        </LinearLayout>
                         <TextView
-                            android:id="@+id/tvBatchCountSub"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/dialog_clear_stock_fullscreen_no_batches_selected"
+                            android:background="@drawable/bg_pill_red"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3dp"
+                            android:text="@string/invoice_required"
+                            android:textColor="#9B2C2C"
                             android:textSize="10sp"
-                            android:fontFamily="@font/googlesans_medium"
-                            android:textColor="#8A6526"/>
+                            android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tvBatchRunning"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:text="0"
-                        android:textSize="26sp"
-                        android:fontFamily="serif"
-                        android:textStyle="bold"
-                        android:textColor="#0F6E56"
-                        android:includeFontPadding="false"
-                        android:singleLine="true"
-                        app:autoSizeTextType="uniform"
-                        app:autoSizeMinTextSize="18sp"
-                        app:autoSizeMaxTextSize="26sp"/>
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- "Purchase return" card — the credit toggle opens
+                             up INSIDE this same card (teal border/tint, icon
+                             + title + checkmark on top, a divider, then the
+                             toggle row underneath), same pattern as the
+                             "Returned to supplier" card in Reduce Stock. -->
+                        <LinearLayout
+                            android:id="@+id/cardReasonReturn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_reason_card_selected">
+
+                            <LinearLayout
+                                android:id="@+id/rowReasonReturn"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="13dp"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <FrameLayout
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp">
+                                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_teal"/>
+                                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lucide_corner_up_left" app:tint="#0F6E56" android:contentDescription="@null"/>
+                                </FrameLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:layout_marginStart="12dp">
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/dialog_clear_stock_fullscreen_purchase_return"
+                                        android:textSize="13.5sp"
+                                        android:fontFamily="@font/googlesans_semibold"
+                                        android:textColor="#1A1A18"/>
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="1dp"
+                                        android:text="@string/dialog_clear_stock_fullscreen_purchase_return_desc"
+                                        android:textSize="10.5sp"
+                                        android:textColor="#8A8272"/>
+                                </LinearLayout>
+
+                                <View
+                                    android:id="@+id/checkReasonReturn"
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:background="@drawable/bg_radio_selected"/>
+                            </LinearLayout>
+
+                            <!-- Credit-account toggle — nested inside the
+                                 "Purchase return" card itself, under a
+                                 divider. Same ids as Reduce Stock:
+                                 layoutCreditReturn, cbAdjustCredit,
+                                 tvReturnAccountName, rowReturnAccount,
+                                 dividerReturnAccount. -->
+                            <LinearLayout
+                                android:id="@+id/layoutCreditReturn"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:paddingHorizontal="13dp"
+                                android:paddingBottom="13dp"
+                                android:visibility="visible">
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0.5dp"
+                                    android:layout_marginBottom="12dp"
+                                    android:background="#CFE3DC"/>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+                                    <ImageView
+                                        android:layout_width="18dp" android:layout_height="18dp"
+                                        android:src="@drawable/ic_lucide_wallet" app:tint="#0F6E56" android:contentDescription="@null"/>
+                                    <TextView
+                                        android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                                        android:layout_marginStart="10dp"
+                                        android:text="@string/dialog_clear_stock_fullscreen_reduce_debt_from_account" android:textColor="#1A1A18" android:textSize="14sp"
+                                        android:fontFamily="@font/googlesans_medium"/>
+                                    <com.google.android.material.materialswitch.MaterialSwitch
+                                        android:id="@+id/cbAdjustCredit"
+                                        style="@style/EpSwitch"
+                                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                                </LinearLayout>
+
+                                <View
+                                    android:id="@+id/dividerReturnAccount"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0.5dp"
+                                    android:layout_marginTop="12dp"
+                                    android:layout_marginBottom="9dp"
+                                    android:background="#EEE7D8"
+                                    android:visibility="gone"/>
+
+                                <LinearLayout
+                                    android:id="@+id/rowReturnAccount"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical"
+                                    android:visibility="gone">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/dialog_clear_stock_fullscreen_account"
+                                        android:textSize="11.5sp"
+                                        android:fontFamily="@font/googlesans_medium"
+                                        android:textColor="#9A8F79"/>
+
+                                    <TextView
+                                        android:id="@+id/tvReturnAccountName"
+                                        android:layout_width="0dp"
+                                        android:layout_weight="1"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:gravity="end"
+                                        android:text="@string/dialog_clear_stock_fullscreen_no_account_selected"
+                                        android:textSize="12.5sp"
+                                        android:fontFamily="@font/googlesans_medium"
+                                        android:textColor="#9A8F79"
+                                        android:maxLines="1"
+                                        android:ellipsize="end"/>
+
+                                    <ImageView
+                                        android:layout_width="14dp"
+                                        android:layout_height="14dp"
+                                        android:layout_marginStart="4dp"
+                                        android:src="@drawable/ic_chevron_down"
+                                        app:tint="#B8895A"
+                                        android:rotation="-90"
+                                        android:contentDescription="@null"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/rowReasonScrap"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_reason_card_unselected"
+                            android:padding="13dp"
+                            android:layout_marginTop="10dp"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <FrameLayout
+                                android:layout_width="36dp"
+                                android:layout_height="36dp">
+                                <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_gold"/>
+                                <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_alert_triangle" app:tint="#8A6526" android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginStart="12dp">
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/dialog_clear_stock_fullscreen_scrap_damage"
+                                    android:textSize="13.5sp"
+                                    android:fontFamily="@font/googlesans_semibold"
+                                    android:textColor="#1A1A18"/>
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="@string/dialog_clear_stock_fullscreen_scrap_damage_desc"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8272"/>
+                            </LinearLayout>
+
+                            <View
+                                android:id="@+id/checkReasonScrap"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_radio_unselected"/>
+                        </LinearLayout>
+
+                        <RadioGroup
+                            android:id="@+id/rgReason"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:visibility="gone">
+
+                            <RadioButton
+                                android:id="@+id/rbReturn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_purchase_return_1"
+                                android:checked="true"/>
+
+                            <RadioButton
+                                android:id="@+id/rbScrap"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_clear_stock_fullscreen_scrap_damage"/>
+                        </RadioGroup>
+
+                    </LinearLayout>
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="14dp"
-                    android:background="#DDD3BB"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutCreditReturn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
-                android:padding="15dp"
-                android:layout_marginHorizontal="16dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:layout_width="18dp" android:layout_height="18dp"
-                        android:src="@drawable/ic_lucide_wallet" app:tint="#B8895A" android:contentDescription="@null"/>
-                    <TextView
-                        android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-                        android:layout_marginStart="10dp"
-                        android:text="@string/dialog_clear_stock_fullscreen_reduce_debt_from_account" android:textColor="#1A1A18" android:textSize="14sp"
-                        android:fontFamily="@font/googlesans_medium"/>
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/cbAdjustCredit"
-                        style="@style/EpSwitch"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                </LinearLayout>
-
-                <View
-                    android:id="@+id/dividerReturnAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="9dp"
-                    android:background="#EEE7D8"
-                    android:visibility="gone"/>
-
-                <LinearLayout
-                    android:id="@+id/rowReturnAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dialog_clear_stock_fullscreen_account"
-                        android:textSize="11.5sp"
-                        android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#9A8F79"/>
-
-                    <TextView
-                        android:id="@+id/tvReturnAccountName"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:gravity="end"
-                        android:text="@string/dialog_clear_stock_fullscreen_no_account_selected"
-                        android:textSize="12.5sp"
-                        android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#9A8F79"
-                        android:maxLines="1"
-                        android:ellipsize="end"/>
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginStart="4dp"
-                        android:src="@drawable/ic_chevron_down"
-                        app:tint="#B8895A"
-                        android:rotation="-90"
-                        android:contentDescription="@null"/>
-                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

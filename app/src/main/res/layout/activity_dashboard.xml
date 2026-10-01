@@ -1096,7 +1096,12 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow">
+                    <!-- Hidden for now — the mission is simplifying for a non-technical
+                         60+ user, and Import of Services (GST reverse-charge on
+                         foreign services) applies to almost none of them. Kept
+                         in the layout, not deleted, so it can be switched back
+                         on later just by removing this visibility="gone". -->
+                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow" android:visibility="gone">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
                             android:src="@drawable/ic_drawer_import" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">

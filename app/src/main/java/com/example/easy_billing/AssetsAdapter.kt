@@ -25,8 +25,8 @@ import java.util.Locale
  * [AssetsAdapter] — matches the Inventory screen's category-coded rows.
  */
 enum class AssetKind(val label: String) {
-    CAPITAL_GOODS("Capital goods"),
-    INPUT_SERVICES("Input services"),
+    CAPITAL_GOODS("Equipment & fixtures"),
+    INPUT_SERVICES("Services I paid for"),
     RAW_MATERIAL("Raw material")
 }
 
@@ -96,6 +96,18 @@ class AssetsAdapter : ListAdapter<AssetRow, AssetsAdapter.VH>(ASSET_DIFF_CALLBAC
         holder.tvMeta.text = listOfNotNull(row.kind.label, dateStr).joinToString(" · ")
 
         holder.tvPrice.text = money(holder.itemView.context, row.invoiceValue)
+
+        // This list is view-only — nothing here opens on tap. Without any
+        // response the row looks identical to editable rows elsewhere in
+        // the app (Manage Products), so a tap gets a short explanation
+        // instead of silently doing nothing.
+        holder.itemView.setOnClickListener {
+            android.widget.Toast.makeText(
+                holder.itemView.context,
+                R.string.assets_row_view_only_toast,
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
 
         val ctx = holder.itemView.context
         val (stripeColor, avatarBg, avatarText, subNote) = when (row.kind) {

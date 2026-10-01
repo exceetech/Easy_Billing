@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Add Stock (manual product) — full-screen champagne popup, same shell
+    pattern as dialog_reduce_stock_fullscreen.xml: toolbar back-arrow is
+    Cancel, product avatar/name/tags/current-stock card, then a single
+    "how many more to add" quantity field, then Save/Cancel.
+
+    Ids bound by InventoryActivity.showAddStockDialogManual:
+      tvProductAvatar, tvProductName, tvProductTags, tvCurrentStockLabel,
+      tilAddStockQty, etAddStockQty,
+      btnAddStockConfirm, btnAddStockCancel
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3ECDD">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:navigationIconTint="#1A1A18" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dialog_add_stock_fullscreen_add"
+                    android:textColor="#0F6E56"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.16"
+                    android:fontFamily="@font/googlesans_semibold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="1dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dialog_add_stock_fullscreen_add_word"
+                        android:textColor="#1A1A18"
+                        android:textSize="23sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="@string/dialog_add_stock_fullscreen_more"
+                        android:textColor="#0F6E56"
+                        android:textSize="23sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="@string/dialog_add_stock_fullscreen_stock"
+                        android:textColor="#1A1A18"
+                        android:textSize="23sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_inv_value_card"
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvProductAvatar"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:gravity="center"
+                        android:text="@string/dialog_add_stock_fullscreen_br"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#0F6E56"
+                        android:background="@drawable/bg_credit_avatar"
+                        android:backgroundTint="#E3F1EC"
+                        android:includeFontPadding="false"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="11dp">
+
+                        <TextView
+                            android:id="@+id/tvProductName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dialog_add_stock_fullscreen_product_name"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:textColor="#1A1A18"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
+
+                        <TextView
+                            android:id="@+id/tvProductTags"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textSize="9.5sp"
+                            android:textColor="#8A8272"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="#F1EBDD"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dialog_add_stock_fullscreen_available_now"
+                        android:textSize="9sp"
+                        android:textColor="#9A8F79"/>
+
+                    <TextView
+                        android:id="@+id/tvCurrentStockLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:fontFamily="serif"
+                        android:textColor="#1A1A18"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+                <!-- ─ STEP 1 · QUANTITY (teal, matches Add Purchase /
+                     Reduce Stock step 1) — same big "edge-to-edge" −/qty/+
+                     bar used for purchased products' batch stepper
+                     (item_batch_pick.xml), instead of a plain text box. ─ -->
+                <LinearLayout
+                    android:id="@+id/tilAddStockQty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_addp_card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_customer_header"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                            <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                            <TextView
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="1"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/googlesans_bold"/>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_add_stock_fullscreen_qty_title"
+                                android:textColor="#123B31"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/googlesans_semibold"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dialog_add_stock_fullscreen_qty_hint_title"
+                                android:textColor="#3E6F62"
+                                android:textSize="11sp"/>
+                        </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_red"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3dp"
+                            android:text="@string/invoice_required"
+                            android:textColor="#9B2C2C"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="64dp"
+                            android:orientation="horizontal"
+                            android:background="@drawable/bg_batch_edge_bar"
+                            android:clipToOutline="true">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnAddStockQtyMinus"
+                                android:layout_width="64dp"
+                                android:layout_height="match_parent"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:text="−"
+                                android:textAllCaps="false"
+                                android:textSize="26sp"
+                                android:textColor="#1D6E6E"
+                                android:padding="0dp"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:stateListAnimator="@null"
+                                app:elevation="0dp"
+                                app:cornerRadius="0dp"
+                                app:backgroundTint="#FFFFFF"
+                                app:strokeWidth="0dp"
+                                app:rippleColor="#14000000"/>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="#EDE6D5"/>
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAddStockQty"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:inputType="numberDecimal"
+                                android:textSize="26sp"
+                                android:textColor="#1A1A18"
+                                android:fontFamily="serif"
+                                android:textStyle="bold"
+                                android:background="@android:color/transparent"
+                                android:padding="0dp"
+                                android:hint="@string/dialog_add_stock_fullscreen_hint"
+                                android:textColorHint="#C9BFA8"/>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="#EDE6D5"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnAddStockQtyPlus"
+                                android:layout_width="64dp"
+                                android:layout_height="match_parent"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:text="+"
+                                android:textAllCaps="false"
+                                android:textSize="26sp"
+                                android:textColor="#FFFFFF"
+                                android:padding="0dp"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:stateListAnimator="@null"
+                                app:elevation="0dp"
+                                app:cornerRadius="0dp"
+                                app:backgroundTint="#1D6E6E"
+                                app:strokeWidth="0dp"
+                                app:rippleColor="#33FFFFFF"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="18dp"
+        android:paddingTop="6dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddStockConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/dialog_add_stock_fullscreen_add_stock"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="13.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            app:backgroundTint="@null"
+            android:background="@drawable/bg_cta_gold"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_lc_check"
+            app:iconTint="#FFFFFF"
+            app:iconSize="17dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddStockCancel"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/dialog_add_stock_fullscreen_cancel"
+            android:textColor="#5C5546"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_inv_action_close"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_close"
+            app:iconTint="#5C5546"
+            app:iconSize="16dp"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            app:cornerRadius="14dp"
+            app:backgroundTint="@null"/>
+
+    </LinearLayout>
+
+</LinearLayout>

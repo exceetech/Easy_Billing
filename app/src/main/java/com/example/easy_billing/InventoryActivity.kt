@@ -47,7 +47,7 @@ class InventoryActivity : BaseActivity() {
     // Stock-status quick filter — chosen from the Filter icon button's
     // popup (same pattern as BillHistoryActivity's Filter+Sort row); the
     // badge on the Filter icon shows whenever it's off "All".
-    private enum class StockFilter { ALL, LOW, OUT }
+    private enum class StockFilter { ALL, LOW, OUT, PURCHASED, MANUAL }
     private var currentStockFilter = StockFilter.ALL
 
     private lateinit var btnFilter: View
@@ -96,12 +96,25 @@ class InventoryActivity : BaseActivity() {
         adapter = InventoryAdapter(
             emptyList(),
             onAddStock = { item ->
-                productMap[item.productId]?.let { showAddStockDialog(it) }
+                productMap[item.productId]?.let { showAddStockDialog(it, item.stock) }
             },
             onReduceStock = { item ->
-                productMap[item.productId]?.let { showReduceStockDialog(it, item.stock) }
+                productMap[item.productId]?.let { product ->
+                    if (product.isPurchased) {
+                        showReduceStockDialog(product, item.stock)
+                    } else {
+                        showReduceStockDialogManual(product, item.stock)
+                    }
+                }
             },
-            onClearStock = { item -> showClearStockDialog(item.productId) }
+            onClearStock = { item ->
+                val product = productMap[item.productId]
+                if (product != null && !product.isPurchased) {
+                    showClearStockDialogManual(product, item.stock)
+                } else {
+                    showClearStockDialog(item.productId)
+                }
+            }
         )
 
         rvInventory.adapter = adapter
@@ -134,7 +147,9 @@ class InventoryActivity : BaseActivity() {
         val options = listOf(
             StockFilter.ALL to getString(R.string.inventory_filter_all_products),
             StockFilter.LOW to getString(R.string.inventory_filter_low_stock),
-            StockFilter.OUT to getString(R.string.inventory_out_of_stock)
+            StockFilter.OUT to getString(R.string.inventory_out_of_stock),
+            StockFilter.PURCHASED to getString(R.string.inventory_filter_purchased),
+            StockFilter.MANUAL to getString(R.string.inventory_filter_manual)
         )
         val selectedIndex = options.indexOfFirst { it.first == currentStockFilter }.coerceAtLeast(0)
         com.example.easy_billing.ui.ThemedDropdown.show(
@@ -166,14 +181,16 @@ class InventoryActivity : BaseActivity() {
     // ================= THEMED SORT DROPDOWN =================
 
     private fun showSortMenu(anchor: View) {
+        // Trimmed from 7 near-identical options down to the 3 someone
+        // actually reaches for day-to-day — "low stock first" to see
+        // what needs reordering, "high stock first" for the opposite,
+        // and A-Z to just find a product by name. The other four
+        // (Z-A, price asc/desc, stock value) stay defined in InvSort/
+        // sortList so nothing else breaks, they're just not offered here.
         val options = listOf(
-            InvSort.A_TO_Z              to getString(R.string.dashboard_sort_name_asc),
-            InvSort.Z_TO_A              to getString(R.string.dashboard_sort_name_desc),
-            InvSort.PRICE_LOW_HIGH      to getString(R.string.dashboard_sort_price_asc),
-            InvSort.PRICE_HIGH_LOW      to getString(R.string.dashboard_sort_price_desc),
             InvSort.STOCK_LOW_HIGH      to getString(R.string.dashboard_sort_stock_asc),
             InvSort.STOCK_HIGH_LOW      to getString(R.string.dashboard_sort_stock_desc),
-            InvSort.STOCK_VALUE_HIGH_LOW to getString(R.string.inventory_sort_value_desc)
+            InvSort.A_TO_Z              to getString(R.string.dashboard_sort_name_asc)
         )
         val selectedIndex = options.indexOfFirst { it.first == currentSort }.coerceAtLeast(0)
         com.example.easy_billing.ui.ThemedDropdown.show(
@@ -252,7 +269,7 @@ class InventoryActivity : BaseActivity() {
         findViewById<TextView?>(R.id.tvKpiValue)?.text = "${CurrencyHelper.getCurrencySymbol(this)}${formatIndianShort(totalValue)}"
         findViewById<TextView?>(R.id.tvKpiLow)?.text = lowCount.toString()
         findViewById<TextView?>(R.id.tvKpiOut)?.text = outCount.toString()
-        findViewById<TextView?>(R.id.tvHeroSub)?.text = "${fullList.size} active SKUs"
+        findViewById<TextView?>(R.id.tvHeroSub)?.text = "${fullList.size} products"
 
         // Caption mirrors CreditAccountsActivity's tvNetCaption pattern —
         // its text/colour switches with what's actually going on instead
@@ -343,7 +360,8 @@ class InventoryActivity : BaseActivity() {
                             productId = product.id,
                             category = product.category,
                             hsnCode = product.hsnCode,
-                            unit = product.unit
+                            unit = product.unit,
+                            isPurchased = product.isPurchased
                         )
                     }
 
@@ -406,6 +424,8 @@ class InventoryActivity : BaseActivity() {
                 StockFilter.ALL -> true
                 StockFilter.LOW -> item.stock in 0.0001..5.0
                 StockFilter.OUT -> item.stock <= 0.0
+                StockFilter.PURCHASED -> item.isPurchased
+                StockFilter.MANUAL -> !item.isPurchased
             }
 
             matchesCategory && matchesQuery && matchesStock
@@ -509,7 +529,7 @@ class InventoryActivity : BaseActivity() {
 
     // ================= ADD STOCK =================
 
-    private fun showAddStockDialog(product: Product) {
+    private fun showAddStockDialog(product: Product, currentStock: Double = 0.0) {
 
         // Context-aware routing:
         //   • Purchased products → straight to PurchaseActivity (single-
@@ -529,12 +549,277 @@ class InventoryActivity : BaseActivity() {
             startActivity(intent)
             return
         } else {
-            startActivity(
-                android.content.Intent(this, EditProductActivity::class.java)
-                    .putExtra(EditProductActivity.EXTRA_PRODUCT_ID, product.id)
-            )
+            showAddStockDialogManual(product, currentStock)
             return
         }
+    }
+
+    /**
+     * Add Stock — manual (non-purchased) product. Simplest possible
+     * flow: one popup, one question ("how many more to add?"), Save
+     * calls InventoryManager.addStock directly. No trip through Edit
+     * Product. Same full-screen champagne shell as Reduce/Clear Stock.
+     */
+    private fun showAddStockDialogManual(product: Product, currentStock: Double) {
+
+        val view = layoutInflater.inflate(R.layout.dialog_add_stock_fullscreen, null)
+        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        dialog.setContentView(view)
+        dialog.window?.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        )
+
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationIcon(R.drawable.ic_back_arrow)
+            setNavigationOnClickListener { dialog.dismiss() }
+        }
+
+        view.findViewById<TextView>(R.id.tvProductAvatar).text = monogramFor(product.name)
+        view.findViewById<TextView>(R.id.tvProductName).text = product.name
+
+        view.findViewById<TextView>(R.id.tvProductTags).apply {
+            val variant = product.variant?.trim().orEmpty()
+            val category = product.category.trim()
+            val hsn = product.hsnCode?.trim().orEmpty().takeIf { it.isNotEmpty() }?.let { "HSN $it" }.orEmpty()
+            val parts = listOf(variant, category, hsn).filter { it.isNotEmpty() }
+            if (parts.isEmpty()) {
+                visibility = View.GONE
+            } else {
+                text = parts.joinToString("   ·   ")
+                visibility = View.VISIBLE
+            }
+        }
+
+        view.findViewById<TextView>(R.id.tvCurrentStockLabel).text =
+            "${formatStock(currentStock)} ${product.unit ?: "piece"}"
+
+        val etQty = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etAddStockQty)
+        etQty.inputType = if (isDecimalAllowed(product.unit)) {
+            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        } else {
+            android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+        // Big edge-to-edge −/+ bar (same look as the batch stepper used
+        // for purchased products) drives the same etAddStockQty field
+        // instead of a plain text box. No upper bound here — adding
+        // stock isn't limited by current stock, only floored at 0.
+        fun currentAddQtyValue(): Double = etQty.text?.toString()?.toDoubleOrNull() ?: 0.0
+        fun setAddQtyValue(v: Double) {
+            val clamped = v.coerceAtLeast(0.0)
+            etQty.setText(if (clamped > 0.0) formatStock(clamped) else "")
+            etQty.setSelection(etQty.text?.length ?: 0)
+        }
+        view.findViewById<View>(R.id.btnAddStockQtyMinus).setOnClickListener {
+            setAddQtyValue(currentAddQtyValue() - 1.0)
+        }
+        view.findViewById<View>(R.id.btnAddStockQtyPlus).setOnClickListener {
+            setAddQtyValue(currentAddQtyValue() + 1.0)
+        }
+
+        view.findViewById<Button>(R.id.btnAddStockCancel).setOnClickListener { dialog.dismiss() }
+
+        view.findViewById<Button>(R.id.btnAddStockConfirm).setOnClickListener {
+            val qty = etQty.text?.toString()?.trim()?.toDoubleOrNull()
+            if (qty == null || qty <= 0.0) {
+                Toast.makeText(this, R.string.dialog_add_stock_fullscreen_qty_must_be_positive, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Inventory", "add_stock_manual_clicked: product=${product.name}, product_id=${product.id}, qty=$qty"
+            )
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(this@InventoryActivity)
+                var success = true
+                try {
+                    InventoryManager.addStock(
+                        db = db,
+                        productId = product.id,
+                        quantity = qty,
+                        costPrice = 0.0
+                    )
+                } catch (e: Exception) {
+                    success = false
+                }
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        dialog.dismiss()
+                        loadInventory()
+                        Toast.makeText(this@InventoryActivity, R.string.dialog_add_stock_fullscreen_added_toast, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@InventoryActivity, R.string.dialog_add_stock_fullscreen_failed_toast, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                if (success) SyncManager(this@InventoryActivity).syncInventory()
+            }
+        }
+
+        dialog.show()
+    }
+
+    // ================= REDUCE STOCK (MANUAL PRODUCT) =================
+
+    /**
+     * Reduce Stock — manual (non-purchased) product. There is no
+     * purchase batch ledger to pick from here, so this is a plain
+     * "how many, and why" popup: quantity + a reason picked from a
+     * short everyday list. Save calls InventoryManager.reduceStock
+     * directly, mapped onto the nearest existing log type (SALE for
+     * an outside sale, LOSS for everything else) since the log table
+     * has no free-text reason column yet.
+     */
+    private fun showReduceStockDialogManual(product: Product, currentStock: Double) {
+
+        val view = layoutInflater.inflate(R.layout.dialog_reduce_stock_manual_fullscreen, null)
+        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        dialog.setContentView(view)
+        dialog.window?.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        )
+
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationIcon(R.drawable.ic_back_arrow)
+            setNavigationOnClickListener { dialog.dismiss() }
+        }
+
+        view.findViewById<TextView>(R.id.tvProductAvatar).text = monogramFor(product.name)
+        view.findViewById<TextView>(R.id.tvProductName).text = product.name
+
+        view.findViewById<TextView>(R.id.tvProductTags).apply {
+            val variant = product.variant?.trim().orEmpty()
+            val category = product.category.trim()
+            val hsn = product.hsnCode?.trim().orEmpty().takeIf { it.isNotEmpty() }?.let { "HSN $it" }.orEmpty()
+            val parts = listOf(variant, category, hsn).filter { it.isNotEmpty() }
+            if (parts.isEmpty()) {
+                visibility = View.GONE
+            } else {
+                text = parts.joinToString("   ·   ")
+                visibility = View.VISIBLE
+            }
+        }
+
+        view.findViewById<TextView>(R.id.tvCurrentStockLabel).text =
+            "${formatStock(currentStock)} ${product.unit ?: "piece"}"
+
+        val etQty = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etReduceStockQty)
+        etQty.inputType = if (isDecimalAllowed(product.unit)) {
+            android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        } else {
+            android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+        // Big edge-to-edge −/+ bar (same look as the batch stepper used
+        // for purchased products) drives the same etReduceStockQty field
+        // instead of a plain text box.
+        fun currentQtyValue(): Double = etQty.text?.toString()?.toDoubleOrNull() ?: 0.0
+        fun setQtyValue(v: Double) {
+            val clamped = v.coerceIn(0.0, currentStock)
+            etQty.setText(if (clamped > 0.0) formatStock(clamped) else "")
+            etQty.setSelection(etQty.text?.length ?: 0)
+        }
+        view.findViewById<View>(R.id.btnReduceStockQtyMinus).setOnClickListener {
+            setQtyValue((currentQtyValue() - 1.0).coerceAtLeast(0.0))
+        }
+        view.findViewById<View>(R.id.btnReduceStockQtyPlus).setOnClickListener {
+            if (currentQtyValue() < currentStock) {
+                setQtyValue((currentQtyValue() + 1.0).coerceAtMost(currentStock))
+            }
+        }
+
+        // Reason options and the LogType each maps onto. "Sold outside
+        // app" is the one genuine SALE case; everything else is
+        // logged as LOSS since there's no dedicated type for them yet —
+        // the exact reason text is shown to the user in the confirming
+        // toast but isn't persisted beyond that (no reason column on
+        // the log table).
+        val reasonLabels = listOf(
+            getString(R.string.dialog_reduce_stock_manual_reason_sold),
+            getString(R.string.dialog_reduce_stock_manual_reason_damaged),
+            getString(R.string.dialog_reduce_stock_manual_reason_given),
+            getString(R.string.dialog_reduce_stock_manual_reason_correction),
+            getString(R.string.dialog_reduce_stock_manual_reason_other)
+        )
+        val reasonLogTypes = listOf(
+            InventoryManager.LogType.SALE,
+            InventoryManager.LogType.LOSS,
+            InventoryManager.LogType.LOSS,
+            InventoryManager.LogType.LOSS,
+            InventoryManager.LogType.LOSS
+        )
+        var selectedReasonIndex = 0
+
+        // Five big, always-visible rows (rowReasonManual0..4) replace the
+        // old hidden ThemedDropdown picker, same pattern as the two-option
+        // reason rows in showReduceStockDialog.
+        val reasonRowIds = listOf(R.id.rowReasonManual0, R.id.rowReasonManual1, R.id.rowReasonManual2, R.id.rowReasonManual3, R.id.rowReasonManual4)
+        val reasonCheckIds = listOf(R.id.checkReasonManual0, R.id.checkReasonManual1, R.id.checkReasonManual2, R.id.checkReasonManual3, R.id.checkReasonManual4)
+        val reasonRows = reasonRowIds.map { view.findViewById<View>(it) }
+        val reasonChecks = reasonCheckIds.map { view.findViewById<View>(it) }
+
+        fun refreshReasonRowsManual() {
+            reasonRows.forEachIndexed { idx, row ->
+                val isSelected = idx == selectedReasonIndex
+                row.setBackgroundResource(if (isSelected) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+                reasonChecks[idx].setBackgroundResource(if (isSelected) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+            }
+        }
+        reasonRows.forEachIndexed { idx, row ->
+            row.setOnClickListener {
+                selectedReasonIndex = idx
+                refreshReasonRowsManual()
+            }
+        }
+        refreshReasonRowsManual()
+
+        view.findViewById<Button>(R.id.btnReduceStockManualCancel).setOnClickListener { dialog.dismiss() }
+
+        view.findViewById<Button>(R.id.btnReduceStockManualConfirm).setOnClickListener {
+            val qty = etQty.text?.toString()?.trim()?.toDoubleOrNull()
+            if (qty == null || qty <= 0.0) {
+                Toast.makeText(this, R.string.dialog_reduce_stock_manual_qty_must_be_positive, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (qty > currentStock + 0.0001) {
+                Toast.makeText(this, R.string.dialog_reduce_stock_manual_qty_exceeds_stock, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val reasonLabel = reasonLabels[selectedReasonIndex]
+            val logType = reasonLogTypes[selectedReasonIndex]
+
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Inventory", "reduce_stock_manual_clicked: product=${product.name}, product_id=${product.id}, qty=$qty, reason=$reasonLabel"
+            )
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(this@InventoryActivity)
+                var success = true
+                try {
+                    InventoryManager.reduceStock(
+                        db = db,
+                        productId = product.id,
+                        quantity = qty,
+                        type = logType
+                    )
+                } catch (e: Exception) {
+                    success = false
+                }
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        dialog.dismiss()
+                        loadInventory()
+                        Toast.makeText(this@InventoryActivity, R.string.dialog_reduce_stock_manual_reduced_toast, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@InventoryActivity, R.string.dialog_reduce_stock_manual_failed_toast, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                if (success) SyncManager(this@InventoryActivity).syncInventory()
+            }
+        }
+
+        dialog.show()
     }
 
     // ================= REDUCE STOCK =================
@@ -651,37 +936,47 @@ class InventoryActivity : BaseActivity() {
         var selectedAccountForReturn: com.example.easy_billing.db.CreditAccount? = null
         var batchAdapter: BatchPickerAdapter? = null
 
+        // Reason — two big, always-visible rows (rowReasonReturn /
+        // rowReasonScrap) replace the old hidden-dropdown picker so both
+        // choices are readable at a glance; rgReason/rbReturn/rbScrap
+        // still hold the actual selection state unchanged, so everything
+        // downstream (applyReason, btnConfirm's isReturn check) keeps
+        // working as before — tapping a row just drives that state.
+        // cardReasonReturn is the outer wrapper that now also holds the
+        // nested credit toggle (layoutCreditReturn) — the teal selected/
+        // unselected border+tint lives on this wrapper, not on the inner
+        // clickable row, so the whole card (row + toggle) reads as one box.
+        val cardReasonReturn = view.findViewById<View>(R.id.cardReasonReturn)
+        val rowReasonReturn = view.findViewById<View>(R.id.rowReasonReturn)
+        val rowReasonScrap = view.findViewById<View>(R.id.rowReasonScrap)
+        val checkReasonReturn = view.findViewById<View>(R.id.checkReasonReturn)
+        val checkReasonScrap = view.findViewById<View>(R.id.checkReasonScrap)
+
+        fun refreshReasonRows() {
+            val isReturn = rbReturn.isChecked
+            cardReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+            checkReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+            rowReasonScrap.setBackgroundResource(if (!isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+            checkReasonScrap.setBackgroundResource(if (!isReturn) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+        }
+        rowReasonReturn.setOnClickListener { rgReason.check(R.id.rbReturn) }
+        rowReasonScrap.setOnClickListener { rgReason.check(R.id.rbScrap) }
+
         // Reason swap: both reasons use the same batch-picker section
         // (scrap and return share the batch flow — see scrapByBatches /
-        // returnToSupplierByBatches); only the label and credit panel differ.
+        // returnToSupplierByBatches); only the label, row highlight and
+        // credit panel differ.
         fun applyReason() {
             val isReturn = rbReturn.isChecked
             returnSection.visibility = View.VISIBLE
             layoutCredit.visibility = if (isReturn) View.VISIBLE else View.GONE
+            refreshReasonRows()
 
             val tvTotalLabel = view.findViewById<TextView>(R.id.tvTotalLabel)
             tvTotalLabel?.text = if (isReturn) getString(R.string.inventory_total_to_return) else getString(R.string.inventory_total_to_scrap)
         }
         rgReason.setOnCheckedChangeListener { _, _ -> applyReason() }
         applyReason()
-
-        // "Reason" is now a single tappable pill (Option 19) instead of
-        // a visible radio list — rgReason/rbReturn/rbScrap still hold
-        // the actual selection state (hidden 0x0 in the layout) so
-        // applyReason() and every isChecked check below keep working
-        // unchanged; this popup is just the UI that drives them.
-        val tvReasonChoice = view.findViewById<TextView>(R.id.tvReasonChoice)
-        view.findViewById<View>(R.id.btnReasonPicker).setOnClickListener { anchor ->
-            val options = listOf(getString(R.string.inventory_reason_return), getString(R.string.inventory_reason_scrap))
-            val selectedIndex = if (rbReturn.isChecked) 0 else 1
-            com.example.easy_billing.ui.ThemedDropdown.show(
-                anchor, options, selectedIndex,
-                rightAlign = true, minWidthDp = 200
-            ) { idx ->
-                tvReasonChoice.text = options[idx]
-                rgReason.check(if (idx == 0) R.id.rbReturn else R.id.rbScrap)
-            }
-        }
 
         // Credit-adjust picker — account subtitle pill appears only
         // once the switch is turned on.
@@ -788,34 +1083,17 @@ class InventoryActivity : BaseActivity() {
                     return@setOnClickListener
                 }
 
-                val returnView = layoutInflater.inflate(R.layout.dialog_confirm_return_supplier, null)
-                val returnDialog = AlertDialog.Builder(this)
-                    .setView(returnView)
-                    .create()
-                returnDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-                returnView.findViewById<android.widget.TextView>(R.id.tvReturnSupplierMessage).text =
-                    getString(
-                        R.string.inventory_confirm_return_body,
-                        formatStock(total),
-                        product.unit ?: "unit(s)",
-                        product.name
-                    )
-                returnView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmReturnSupplier)
-                    .setOnClickListener {
-                        returnDialog.dismiss()
-                        dialog.dismiss()
-                        runReturnByBatches(
-                            product = product,
-                            lines = lines,
-                            isCredit = isCredit,
-                            creditAccountId = creditAccountId
-                        )
-                    }
-                returnView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelReturnSupplier)
-                    .setOnClickListener { returnDialog.dismiss() }
-
-                returnDialog.show()
+                // Runs straight away — the two step-cards (pick batch,
+                // pick reason) already are the deliberate confirmation,
+                // so a third "are you sure?" popup on top was one tap
+                // too many.
+                dialog.dismiss()
+                runReturnByBatches(
+                    product = product,
+                    lines = lines,
+                    isCredit = isCredit,
+                    creditAccountId = creditAccountId
+                )
                 return@setOnClickListener
             }
 
@@ -849,32 +1127,13 @@ class InventoryActivity : BaseActivity() {
                     )
                 }
 
-                val scrapView = layoutInflater.inflate(R.layout.dialog_confirm_scrap, null)
-                val scrapDialog = AlertDialog.Builder(this)
-                    .setView(scrapView)
-                    .create()
-                scrapDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-                scrapView.findViewById<android.widget.TextView>(R.id.tvScrapMessage).text =
-                    getString(
-                        R.string.inventory_confirm_scrap_body,
-                        formatStock(total),
-                        product.unit ?: "unit(s)",
-                        product.name
-                    )
-                scrapView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmScrap)
-                    .setOnClickListener {
-                        scrapDialog.dismiss()
-                        dialog.dismiss()
-                        runScrapByBatches(
-                            product = product,
-                            lines = scrapLines
-                        )
-                    }
-                scrapView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelScrap)
-                    .setOnClickListener { scrapDialog.dismiss() }
-
-                scrapDialog.show()
+                // Same reasoning as the return path above — run it
+                // directly instead of a third confirmation popup.
+                dialog.dismiss()
+                runScrapByBatches(
+                    product = product,
+                    lines = scrapLines
+                )
                 return@setOnClickListener
             }
         }
@@ -1024,6 +1283,132 @@ class InventoryActivity : BaseActivity() {
 
     // ================= CLEAR STOCK =================
 
+    /**
+     * Clear Stock — manual (non-purchased) product. No batches, no
+     * supplier, no credit account — just pick a reason, see a plain
+     * warning of what's about to happen, and confirm. Save calls
+     * InventoryManager.clearStock directly (mapped onto SALE/LOSS,
+     * same reasoning as showReduceStockDialogManual).
+     */
+    private fun showClearStockDialogManual(product: Product, currentStock: Double) {
+
+        val view = layoutInflater.inflate(R.layout.dialog_clear_stock_manual_fullscreen, null)
+        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        dialog.setContentView(view)
+        dialog.window?.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        )
+
+        view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
+            setNavigationIcon(R.drawable.ic_back_arrow)
+            setNavigationOnClickListener { dialog.dismiss() }
+        }
+
+        view.findViewById<TextView>(R.id.tvProductAvatar).text = monogramFor(product.name)
+        view.findViewById<TextView>(R.id.tvProductName).text = product.name
+
+        view.findViewById<TextView>(R.id.tvProductTags).apply {
+            val variant = product.variant?.trim().orEmpty()
+            val category = product.category.trim()
+            val hsn = product.hsnCode?.trim().orEmpty().takeIf { it.isNotEmpty() }?.let { "HSN $it" }.orEmpty()
+            val parts = listOf(variant, category, hsn).filter { it.isNotEmpty() }
+            if (parts.isEmpty()) {
+                visibility = View.GONE
+            } else {
+                text = parts.joinToString("   ·   ")
+                visibility = View.VISIBLE
+            }
+        }
+
+        view.findViewById<TextView>(R.id.tvCurrentStockLabel).text =
+            "${formatStock(currentStock)} ${product.unit ?: "piece"}"
+
+        view.findViewById<TextView>(R.id.tvClearWarningManual).text =
+            getString(R.string.dialog_clear_stock_manual_warning_placeholder) + " (" +
+            "${formatStock(currentStock)} ${product.unit ?: "piece"} — ${product.name})"
+
+        val reasonLabels = listOf(
+            getString(R.string.dialog_reduce_stock_manual_reason_sold),
+            getString(R.string.dialog_reduce_stock_manual_reason_damaged),
+            getString(R.string.dialog_reduce_stock_manual_reason_given),
+            getString(R.string.dialog_reduce_stock_manual_reason_correction),
+            getString(R.string.dialog_reduce_stock_manual_reason_other)
+        )
+        val reasonLogTypes = listOf(
+            InventoryManager.LogType.SALE,
+            InventoryManager.LogType.LOSS,
+            InventoryManager.LogType.LOSS,
+            InventoryManager.LogType.LOSS,
+            InventoryManager.LogType.LOSS
+        )
+        var selectedReasonIndex = 0
+
+        // Five big, always-visible rows (rowReasonClearManual0..4) replace
+        // the old hidden ThemedDropdown picker, same pattern as
+        // showReduceStockDialogManual.
+        val reasonRowIds = listOf(R.id.rowReasonClearManual0, R.id.rowReasonClearManual1, R.id.rowReasonClearManual2, R.id.rowReasonClearManual3, R.id.rowReasonClearManual4)
+        val reasonCheckIds = listOf(R.id.checkReasonClearManual0, R.id.checkReasonClearManual1, R.id.checkReasonClearManual2, R.id.checkReasonClearManual3, R.id.checkReasonClearManual4)
+        val reasonRows = reasonRowIds.map { view.findViewById<View>(it) }
+        val reasonChecks = reasonCheckIds.map { view.findViewById<View>(it) }
+
+        fun refreshReasonRowsManual() {
+            reasonRows.forEachIndexed { idx, row ->
+                val isSelected = idx == selectedReasonIndex
+                row.setBackgroundResource(if (isSelected) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+                reasonChecks[idx].setBackgroundResource(if (isSelected) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+            }
+        }
+        reasonRows.forEachIndexed { idx, row ->
+            row.setOnClickListener {
+                selectedReasonIndex = idx
+                refreshReasonRowsManual()
+            }
+        }
+        refreshReasonRowsManual()
+
+        view.findViewById<Button>(R.id.btnClearStockManualCancel).setOnClickListener { dialog.dismiss() }
+
+        view.findViewById<Button>(R.id.btnClearStockManualConfirm).setOnClickListener {
+            if (currentStock <= 0.0) {
+                Toast.makeText(this, R.string.dialog_clear_stock_manual_nothing_to_clear, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val reasonLabel = reasonLabels[selectedReasonIndex]
+            val logType = reasonLogTypes[selectedReasonIndex]
+
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Inventory", "clear_stock_manual_clicked: product=${product.name}, product_id=${product.id}, reason=$reasonLabel"
+            )
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(this@InventoryActivity)
+                var success = true
+                try {
+                    InventoryManager.clearStock(
+                        db = db,
+                        productId = product.id,
+                        type = logType
+                    )
+                } catch (e: Exception) {
+                    success = false
+                }
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        dialog.dismiss()
+                        loadInventory()
+                        Toast.makeText(this@InventoryActivity, R.string.dialog_clear_stock_manual_cleared_toast, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@InventoryActivity, R.string.dialog_clear_stock_manual_failed_toast, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                if (success) SyncManager(this@InventoryActivity).syncInventory()
+            }
+        }
+
+        dialog.show()
+    }
+
     private fun showClearStockDialog(productId: Int) {
         val view = layoutInflater.inflate(R.layout.dialog_clear_stock_fullscreen, null)
         val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
@@ -1042,7 +1427,26 @@ class InventoryActivity : BaseActivity() {
         val rgReason  = view.findViewById<RadioGroup>(R.id.rgReason)
         val rbReturn  = view.findViewById<RadioButton>(R.id.rbReturn)
         val rbScrap   = view.findViewById<RadioButton>(R.id.rbScrap)
-        val tvReasonChoice = view.findViewById<TextView>(R.id.tvReasonChoice)
+
+        // Reason — two big, always-visible rows (rowReasonReturn /
+        // rowReasonScrap) replace the old hidden-dropdown picker, same
+        // pattern as showReduceStockDialog. cardReasonReturn is the outer
+        // wrapper that also holds the nested credit toggle.
+        val cardReasonReturn = view.findViewById<View>(R.id.cardReasonReturn)
+        val rowReasonReturn = view.findViewById<View>(R.id.rowReasonReturn)
+        val rowReasonScrap = view.findViewById<View>(R.id.rowReasonScrap)
+        val checkReasonReturn = view.findViewById<View>(R.id.checkReasonReturn)
+        val checkReasonScrap = view.findViewById<View>(R.id.checkReasonScrap)
+
+        fun refreshReasonRows() {
+            val isReturn = rbReturn.isChecked
+            cardReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+            checkReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+            rowReasonScrap.setBackgroundResource(if (!isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+            checkReasonScrap.setBackgroundResource(if (!isReturn) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+        }
+        rowReasonReturn.setOnClickListener { rgReason.check(R.id.rbReturn) }
+        rowReasonScrap.setOnClickListener { rgReason.check(R.id.rbScrap) }
 
         // Batches section
         val batchesSection = view.findViewById<LinearLayout>(R.id.batchesSection)
@@ -1101,21 +1505,10 @@ class InventoryActivity : BaseActivity() {
 
         fun applyReason() {
             layoutCredit.visibility = if (rbReturn.isChecked) View.VISIBLE else View.GONE
+            refreshReasonRows()
         }
         rgReason.setOnCheckedChangeListener { _, _ -> applyReason() }
         applyReason()
-
-        view.findViewById<View>(R.id.btnReasonPicker).setOnClickListener { anchor ->
-            val options = listOf(getString(R.string.purchase_return_label), getString(R.string.inventory_reason_scrap))
-            val selectedIndex = if (rbReturn.isChecked) 0 else 1
-            com.example.easy_billing.ui.ThemedDropdown.show(
-                anchor, options, selectedIndex,
-                rightAlign = true, minWidthDp = 200
-            ) { idx ->
-                tvReasonChoice.text = options[idx]
-                rgReason.check(if (idx == 0) R.id.rbReturn else R.id.rbScrap)
-            }
-        }
 
         fun renderAccountSubtitle() {
             val account = selectedAccountForClear
@@ -1269,36 +1662,36 @@ class InventoryActivity : BaseActivity() {
 
                 val batchTotal = selectedBatches.sumOf { it.quantityRemaining }
 
+                // Runs straight away — Clear Stock's own step cards
+                // (pick batches, pick reason) are already the deliberate
+                // confirmation, so the extra "are you sure?" popup on top
+                // was one tap too many.
                 if (isReturn) {
-                    showConfirmReturnDialog(batchTotal, product.unit, product.name) {
-                        dialog.dismiss()
-                        val lines = selectedBatches.map {
-                            InventoryReductionRepository.BatchReturnLine(
-                                batchId = it.id,
-                                quantity = it.quantityRemaining
-                            )
-                        }
-                        runReturnByBatches(
-                            product = product,
-                            lines = lines,
-                            isCredit = isCredit,
-                            creditAccountId = creditAccountId
+                    dialog.dismiss()
+                    val lines = selectedBatches.map {
+                        InventoryReductionRepository.BatchReturnLine(
+                            batchId = it.id,
+                            quantity = it.quantityRemaining
                         )
                     }
+                    runReturnByBatches(
+                        product = product,
+                        lines = lines,
+                        isCredit = isCredit,
+                        creditAccountId = creditAccountId
+                    )
                 } else {
-                    showConfirmScrapDialog(batchTotal, product.unit, product.name) {
-                        dialog.dismiss()
-                        val lines = selectedBatches.map {
-                            InventoryReductionRepository.BatchScrapLine(
-                                batchId = it.id,
-                                quantity = it.quantityRemaining
-                            )
-                        }
-                        runScrapByBatches(
-                            product = product,
-                            lines = lines
+                    dialog.dismiss()
+                    val lines = selectedBatches.map {
+                        InventoryReductionRepository.BatchScrapLine(
+                            batchId = it.id,
+                            quantity = it.quantityRemaining
                         )
                     }
+                    runScrapByBatches(
+                        product = product,
+                        lines = lines
+                    )
                 }
             } else {
                 // Non-purchased (manual) product - clear all stock using the standard weighted average reduction
@@ -1363,48 +1756,13 @@ class InventoryActivity : BaseActivity() {
                     }
                 }
 
-                if (isReturn) {
-                    showConfirmReturnDialog(currentStockValue, product.unit, product.name) { doClear() }
-                } else {
-                    showConfirmScrapDialog(currentStockValue, product.unit, product.name) { doClear() }
-                }
+                // Same reasoning as the purchased-product branch above —
+                // run it directly instead of a third confirmation popup.
+                doClear()
             }
         }
 
         dialog.show()
-    }
-
-    /** Shared "Confirm return to supplier" popup — champagne card, used by
-     *  both the reduce-stock and clear-stock flows so the confirmation
-     *  step looks identical everywhere it appears. */
-    private fun showConfirmReturnDialog(qty: Double, unit: String?, productName: String, onConfirm: () -> Unit) {
-        val view = layoutInflater.inflate(R.layout.dialog_confirm_return_supplier, null)
-        val d = AlertDialog.Builder(this).setView(view).create()
-        d.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        view.findViewById<TextView>(R.id.tvReturnSupplierMessage).text =
-            getString(R.string.inventory_confirm_return_body, formatStock(qty), unit ?: "unit(s)", productName)
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmReturnSupplier)
-            .setOnClickListener { d.dismiss(); onConfirm() }
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelReturnSupplier)
-            .setOnClickListener { d.dismiss() }
-        d.show()
-    }
-
-    /** Shared "Confirm scrap" popup — champagne card, same reuse pattern
-     *  as showConfirmReturnDialog above. */
-    private fun showConfirmScrapDialog(qty: Double, unit: String?, productName: String, onConfirm: () -> Unit) {
-        val view = layoutInflater.inflate(R.layout.dialog_confirm_scrap, null)
-        val d = AlertDialog.Builder(this).setView(view).create()
-        d.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        view.findViewById<TextView>(R.id.tvScrapMessage).text =
-            getString(R.string.inventory_confirm_scrap_body, formatStock(qty), unit ?: "unit(s)", productName)
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmScrap)
-            .setOnClickListener { d.dismiss(); onConfirm() }
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelScrap)
-            .setOnClickListener { d.dismiss() }
-        d.show()
     }
 
     private fun isDecimalAllowed(unit: String?): Boolean {

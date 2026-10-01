@@ -62,16 +62,26 @@
                 android:orientation="vertical"
                 android:layout_marginStart="11dp">
 
-                <TextView
-                    android:id="@+id/tvName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/product_name"
-                    android:textSize="13.5sp"
-                    android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#1A1A18"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/product_name"
+                        android:textSize="13.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
+
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvDetailLine"
@@ -102,17 +112,40 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvCost"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="0"
-                android:textSize="17sp"
-                android:fontFamily="serif"
-                android:textColor="#1A1A18"
-                android:includeFontPadding="false"
-                android:singleLine="true"/>
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:id="@+id/tvCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="17sp"
+                    android:fontFamily="serif"
+                    android:textColor="#1A1A18"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"/>
+
+                <TextView
+                    android:id="@+id/tvProductTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/inventory_tag_purchased"
+                    android:textSize="9sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#085041"
+                    android:background="@drawable/bg_inv_tag_purchased"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="2.5dp"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -185,108 +185,428 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Section label -->
-            <TextView
-                android:id="@+id/tvSectionLabel"
+            <!-- CARD 1 — teal, step 1: items to return/add -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="18dp"
-                android:layout_marginBottom="6dp"
-                android:textSize="11sp"
-                android:textColor="#9A8F79"
-                android:letterSpacing="0.08"
-                android:fontFamily="@font/googlesans_semibold"
-                android:text="@string/purchase_return_section_debit"/>
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="4dp">
 
-            <!-- Items list — each row draws its own card (see
-                 item_purchase_return_row.xml) with a left accent stripe,
-                 rather than one shared list card. -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvReturnItems"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:clipToPadding="false"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="6dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
 
-            <!-- GSTR-2 Details Expandable Card — same "GST OPTIONS" pattern
-                 as activity_invoice.xml's collapsible card: cream shape
-                 background, small gold tick + uppercase bronze label. -->
+                    <FrameLayout
+                        android:layout_width="28dp"
+                        android:layout_height="28dp">
+
+                        <View
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_step_circle_ring"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+
+                        <TextView
+                            android:id="@+id/tvItemsStepTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/purchase_return_step1_title_debit"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+
+                        <TextView
+                            android:id="@+id/tvSectionLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/purchase_return_step1_hint_debit"
+                            android:textColor="#3E6F62"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_red"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:text="@string/xml_purchase_return_required_pill"
+                        android:textColor="#9B2C2C"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Items list — each row draws its own card (see
+                         item_purchase_return_row.xml) with a left accent
+                         stripe, rather than one shared list card. -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvReturnItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:clipToPadding="false"
+                        android:paddingHorizontal="12dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="2dp"/>
+
+                    <!-- Running total — same "Business Customer" accent-card
+                         design as activity_invoice.xml, with a green border
+                         (bg_inv_subcard_accent_green) instead of amber. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="14dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_inv_subcard_accent_green">
+
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_green">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_indian_rupee"
+                                app:tint="#16A34A"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="11dp">
+
+                            <TextView
+                                android:id="@+id/tvTotalDebitLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/purchase_return_total_debit_value"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold"
+                                android:textColor="#1A1A18"/>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="1dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/xml_purchase_return_itc_reclaim_label"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578" />
+
+                                <TextView
+                                    android:id="@+id/tvItcReclaim"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="0.00"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578"
+                                    android:fontFamily="serif" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvTotalDebitValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="0.00"
+                            android:textSize="22sp"
+                            android:textColor="#16A34A"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="16sp"
+                            app:autoSizeMaxTextSize="22sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CARD 2 — gold, step 2: reason + GSTR-2 details -->
             <LinearLayout
                 android:id="@+id/cvGstr2Container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
-                android:padding="15dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_addp_card"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp">
 
-                    <!-- Header Row to toggle expand/collapse -->
                     <LinearLayout
-                        android:id="@+id/llGstr2Header"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="30dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:background="@drawable/bg_inv_items_header"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp">
 
-                        <View
-                            android:layout_width="3dp"
-                            android:layout_height="14dp"
-                            android:background="#D4A574"/>
+                        <FrameLayout
+                            android:layout_width="28dp"
+                            android:layout_height="28dp">
+
+                            <View
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:background="@drawable/bg_step_circle_ring_champagne"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="2"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/googlesans_bold"/>
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+
+                            <TextView
+                                android:id="@+id/tvReasonStepTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/purchase_return_step2_title_debit"
+                                android:textColor="#5C4423"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/googlesans_semibold"/>
+
+                            <TextView
+                                android:id="@+id/tvReasonStepHint"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/purchase_return_step2_hint_debit"
+                                android:textColor="#8A6526"
+                                android:textSize="11sp"/>
+                        </LinearLayout>
 
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="9dp"
-                            android:text="@string/xml_purchase_return_gstr2_debit_note_header"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            android:textColor="#8A6526"
-                            android:letterSpacing="0.13"/>
-
-                        <ImageView
-                            android:id="@+id/ivGstr2Arrow"
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_chevron_down"
-                            app:tint="#B8895A"
-                            android:contentDescription="@null"/>
+                            android:background="@drawable/bg_pill_red"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3dp"
+                            android:text="@string/xml_purchase_return_required_pill"
+                            android:textColor="#9B2C2C"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
-                    <!-- Expandable Form Content -->
+                    <!-- Card body: reason field always visible, everything
+                         else tucked behind the nested "More details" toggle. -->
                     <LinearLayout
                         android:id="@+id/llGstr2Details"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginTop="14dp"
-                        android:visibility="gone">
+                        android:padding="16dp"
+                        android:visibility="visible">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLabelReason"
+                            android:layout_marginTop="0dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_reason_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                        <!-- Pre-GST Toggle Row -->
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_teal"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_help_circle"
+                                    app:tint="#0F6E56"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <AutoCompleteTextView
+                                android:id="@+id/actvReason"
+                                android:popupBackground="@drawable/bg_pos_dropdown"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#B8895A"
+                                android:hint="@string/invoice_hint_tap_to_select"
+                                android:textColor="#1A1A18"
+                                android:textColorHint="#A99E88"
+                                android:inputType="none"
+                                android:singleLine="true"
+                                android:textSize="15sp"/>
+                        </LinearLayout>
+
+                        <!-- More details toggle -->
+                        <LinearLayout
+                            android:id="@+id/btnToggleGstr2MoreDetails"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="14dp"
+                            android:paddingVertical="6dp"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/purchase_return_gstr2_more_details_label"
+                                    android:textSize="12sp"
+                                    android:fontFamily="@font/googlesans_medium"
+                                    android:textColor="#6E6A60"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="@string/purchase_return_gstr2_more_details_subtitle"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#9A968C"/>
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/ivGstr2MoreDetailsChevron"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_lc_chevron_down"
+                                app:tint="#6E6A60"
+                                android:contentDescription="@null"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/groupGstr2MoreDetails"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                        <!-- Pre-GST Toggle — same "Business Customer" accent-card
+                             design as activity_invoice.xml (bg_inv_subcard_accent_amber
+                             border card + amber icon chip). -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginBottom="4dp">
+                            android:background="@drawable/bg_inv_subcard_accent_amber"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="11dp"
+                            android:layout_marginTop="14dp">
 
-                            <TextView
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:background="@drawable/bg_circle_soft_amber">
+
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_calendar"
+                                    app:tint="#8A6526"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <LinearLayout
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="@string/xml_purchase_return_pre_gst_document"
-                                android:textSize="12.5sp"
-                                android:textColor="#3A322A"/>
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginStart="11dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/xml_purchase_return_pre_gst_document"
+                                    android:textSize="12.5sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#1A1A18"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/xml_purchase_return_pre_gst_document_desc"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578"/>
+                            </LinearLayout>
 
                             <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/swPreGst"
@@ -295,156 +615,57 @@
                                 android:layout_height="wrap_content"/>
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="0dp"
-                            android:layout_marginBottom="10dp">
-
-                            <View
-                                android:layout_width="3dp"
-                                android:layout_height="14dp"
-                                android:background="#D4A574"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="9dp"
-                                android:text="@string/xml_purchase_return_document_label"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.13"
-                                android:textColor="#8A6526"/>
-                        </LinearLayout>
-
                         <TextView
-                            android:id="@+id/tvLabelDocumentType"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="0dp"
+                            android:id="@+id/tvLabelDocumentType"
+                            android:layout_marginTop="8dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="2dp"
                             android:text="@string/invoice_document_type_label"
-                            android:textSize="12.5sp"
-                            android:fontFamily="@font/googlesans_regular"
-                            android:textColor="#9A8F79"
-                            />
-                        <FrameLayout
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_glass_input">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                            <ImageView
-                                android:layout_width="17dp"
-                                android:layout_height="17dp"
-                                android:layout_gravity="center_vertical|start"
-                                android:layout_marginStart="13dp"
-                                android:src="@drawable/ic_lc_file_text"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_blue"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_file_text"
+                                    app:tint="#2A5CA8"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvDocumentType"
                                 android:popupBackground="@drawable/bg_pos_dropdown"
-                                android:layout_width="match_parent"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
                                 android:background="@null"
-                                android:paddingStart="40dp"
-                                android:paddingEnd="42dp"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
-
-                            <ImageView
-                                android:layout_width="36dp"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center_vertical|end"
-                                android:padding="10dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/ic_lc_chevron_down"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
-                        </FrameLayout>
-
-                        <TextView
-                            android:id="@+id/tvLabelReason"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="15dp"
-                            android:layout_marginBottom="5dp"
-                            android:layout_marginStart="2dp"
-                            android:text="@string/xml_purchase_return_reason_label"
-                            android:textSize="12.5sp"
-                            android:fontFamily="@font/googlesans_regular"
-                            android:textColor="#9A8F79"
-                            />
-                        <FrameLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_glass_input">
-
-                            <ImageView
-                                android:layout_width="17dp"
-                                android:layout_height="17dp"
-                                android:layout_gravity="center_vertical|start"
-                                android:layout_marginStart="13dp"
-                                android:src="@drawable/ic_lc_help_circle"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
-
-                            <AutoCompleteTextView
-                                android:id="@+id/actvReason"
-                                android:popupBackground="@drawable/bg_pos_dropdown"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:background="@null"
-                                android:paddingStart="40dp"
-                                android:paddingEnd="42dp"
-                                android:hint="@string/invoice_hint_tap_to_select"
-                                android:textColor="#1A1A18"
-                                android:textColorHint="#A99E88"
-                                android:inputType="none"
-                                android:singleLine="true"
-                                android:textSize="15sp"/>
-
-                            <ImageView
-                                android:layout_width="36dp"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center_vertical|end"
-                                android:padding="10dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/ic_lc_chevron_down"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginBottom="10dp">
-
-                            <View
-                                android:layout_width="3dp"
-                                android:layout_height="14dp"
-                                android:background="#D4A574"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="9dp"
-                                android:text="@string/xml_purchase_return_value_rate_header"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.13"
-                                android:textColor="#8A6526"/>
                         </LinearLayout>
 
                         <LinearLayout
@@ -452,517 +673,526 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginEnd="9dp">
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginEnd="8dp">
-
-                                <TextView
-                                    android:id="@+id/tvLabelVoucherValue"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginStart="2dp"
-                                    android:text="@string/xml_purchase_return_voucher_value_label"
-                                    android:textSize="12.5sp"
-                                    android:fontFamily="@font/googlesans_regular"
-                                    android:textColor="#9A8F79"
-                            />
-                            <FrameLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:background="@drawable/bg_glass_input">
-
-                                <ImageView
-                                    android:layout_width="17dp"
-                                    android:layout_height="17dp"
-                                    android:layout_gravity="center_vertical|start"
-                                    android:layout_marginStart="13dp"
-                                    android:src="@drawable/ic_lc_indian_rupee"
-                                    app:tint="#B8895A"
-                                    android:contentDescription="@null"/>
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etVoucherValue"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:paddingStart="40dp"
-                                    android:paddingEnd="14dp"
-                                    android:hint="@string/xml_purchase_return_total_value_hint"
-                                    android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal"
-                                    android:singleLine="true"
-                                    android:textSize="15sp"/>
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tvLabelRate"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginStart="2dp"
-                                    android:text="@string/xml_purchase_return_rate_label"
-                                    android:textSize="12.5sp"
-                                    android:fontFamily="@font/googlesans_regular"
-                                    android:textColor="#9A8F79"
-                            />
-                            <FrameLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:background="@drawable/bg_glass_input">
-
-                                <ImageView
-                                    android:layout_width="17dp"
-                                    android:layout_height="17dp"
-                                    android:layout_gravity="center_vertical|start"
-                                    android:layout_marginStart="13dp"
-                                    android:src="@drawable/ic_lc_percent"
-                                    app:tint="#B8895A"
-                                    android:contentDescription="@null"/>
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etRate"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:paddingStart="40dp"
-                                    android:paddingEnd="14dp"
-                                    android:hint="@string/xml_purchase_return_gst_pct_hint"
-                                    android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal"
-                                    android:singleLine="true"
-                                    android:textSize="15sp"/>
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        </LinearLayout>
-
+                            android:id="@+id/tvLabelVoucherValue"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_voucher_value_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginBottom="10dp">
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp">
 
-                            <View
-                                android:layout_width="3dp"
-                                android:layout_height="14dp"
-                                android:background="#D4A574"/>
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_teal"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_indian_rupee"
+                                    app:tint="#0F6E56"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etVoucherValue"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                android:hint="@string/xml_purchase_return_total_value_hint"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"
+                                android:singleLine="true"/>
+                        </LinearLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="9dp"
-                                android:text="@string/input_tax_credit_label"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.13"
-                                android:textColor="#8A6526"/>
+                                android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLabelRate"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_rate_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp">
+
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_gold"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_percent"
+                                    app:tint="#8A6526"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etRate"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                android:hint="@string/xml_purchase_return_gst_pct_hint"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"
+                                android:singleLine="true"/>
+                        </LinearLayout>
+                            </LinearLayout>
                         </LinearLayout>
 
                         <TextView
-                            android:id="@+id/tvLabelEligibility"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="0dp"
+                            android:id="@+id/tvLabelEligibility"
+                            android:layout_marginTop="8dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="2dp"
                             android:text="@string/xml_purchase_return_eligibility_label"
-                            android:textSize="12.5sp"
-                            android:fontFamily="@font/googlesans_regular"
-                            android:textColor="#9A8F79"
-                            />
-                        <FrameLayout
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_glass_input">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                            <ImageView
-                                android:layout_width="17dp"
-                                android:layout_height="17dp"
-                                android:layout_gravity="center_vertical|start"
-                                android:layout_marginStart="13dp"
-                                android:src="@drawable/ic_lc_shield_check"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_purple"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_shield_check"
+                                    app:tint="#7A4FA3"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvEligibility"
                                 android:popupBackground="@drawable/bg_pos_dropdown"
-                                android:layout_width="match_parent"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
                                 android:background="@null"
-                                android:paddingStart="40dp"
-                                android:paddingEnd="42dp"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
-
-                            <ImageView
-                                android:layout_width="36dp"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center_vertical|end"
-                                android:padding="10dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/ic_lc_chevron_down"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="15dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginEnd="8dp">
-
-                                <TextView
-                                    android:id="@+id/tvLabelItcIntegrated"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginStart="2dp"
-                                    android:text="@string/xml_purchase_return_integrated_label"
-                                    android:textSize="12.5sp"
-                                    android:fontFamily="@font/googlesans_regular"
-                                    android:textColor="#9A8F79"
-                            />
-                            <FrameLayout
-                                android:id="@+id/tilAvailedItcIntegrated"
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:background="@drawable/bg_glass_input">
-
-                                <ImageView
-                                    android:layout_width="15dp"
-                                    android:layout_height="15dp"
-                                    android:layout_gravity="center_vertical|start"
-                                    android:layout_marginStart="12dp"
-                                    android:src="@drawable/ic_lc_indian_rupee"
-                                    app:tint="#B8895A"
-                                    android:contentDescription="@null"/>
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etAvailedItcIntegrated"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:paddingStart="35dp"
-                                    android:paddingEnd="14dp"
-                                    android:hint="0"
-                                    android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal"
-                                    android:singleLine="true"
-                                    android:textSize="14.5sp"/>
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tvLabelItcCentral"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginStart="2dp"
-                                    android:text="@string/xml_purchase_return_central_label"
-                                    android:textSize="12.5sp"
-                                    android:fontFamily="@font/googlesans_regular"
-                                    android:textColor="#9A8F79"
-                            />
-                            <FrameLayout
-                                android:id="@+id/tilAvailedItcCentral"
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:background="@drawable/bg_glass_input">
-
-                                <ImageView
-                                    android:layout_width="15dp"
-                                    android:layout_height="15dp"
-                                    android:layout_gravity="center_vertical|start"
-                                    android:layout_marginStart="12dp"
-                                    android:src="@drawable/ic_lc_indian_rupee"
-                                    app:tint="#B8895A"
-                                    android:contentDescription="@null"/>
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etAvailedItcCentral"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:paddingStart="35dp"
-                                    android:paddingEnd="14dp"
-                                    android:hint="0"
-                                    android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal"
-                                    android:singleLine="true"
-                                    android:textSize="14.5sp"/>
-                            </FrameLayout>
-                        </LinearLayout>
-
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="15dp">
+                            android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginEnd="9dp">
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginEnd="8dp">
-
-                                <TextView
-                                    android:id="@+id/tvLabelItcState"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginStart="2dp"
-                                    android:text="@string/xml_purchase_return_state_ut_label"
-                                    android:textSize="12.5sp"
-                                    android:fontFamily="@font/googlesans_regular"
-                                    android:textColor="#9A8F79"
-                            />
-                            <FrameLayout
-                                android:id="@+id/tilAvailedItcState"
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:background="@drawable/bg_glass_input">
-
-                                <ImageView
-                                    android:layout_width="15dp"
-                                    android:layout_height="15dp"
-                                    android:layout_gravity="center_vertical|start"
-                                    android:layout_marginStart="12dp"
-                                    android:src="@drawable/ic_lc_indian_rupee"
-                                    app:tint="#B8895A"
-                                    android:contentDescription="@null"/>
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etAvailedItcState"
+                            android:id="@+id/tvLabelItcIntegrated"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_integrated_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                                <FrameLayout
+                                    android:id="@+id/tilAvailedItcIntegrated"
                                     android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:paddingStart="35dp"
-                                    android:paddingEnd="14dp"
-                                    android:hint="0"
-                                    android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal"
-                                    android:singleLine="true"
-                                    android:textSize="14.5sp"/>
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/tvLabelItcCess"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginStart="2dp"
-                                    android:text="@string/xml_purchase_return_cess_label"
-                                    android:textSize="12.5sp"
-                                    android:fontFamily="@font/googlesans_regular"
-                                    android:textColor="#9A8F79"
-                            />
-                            <FrameLayout
-                                android:id="@+id/tilAvailedItcCess"
-                                android:layout_width="match_parent"
-                                android:layout_height="50dp"
-                                android:background="@drawable/bg_glass_input">
-
-                                <ImageView
-                                    android:layout_width="15dp"
-                                    android:layout_height="15dp"
-                                    android:layout_gravity="center_vertical|start"
-                                    android:layout_marginStart="12dp"
-                                    android:src="@drawable/ic_lc_indian_rupee"
-                                    app:tint="#B8895A"
-                                    android:contentDescription="@null"/>
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etAvailedItcCess"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:paddingStart="35dp"
-                                    android:paddingEnd="14dp"
-                                    android:hint="0"
-                                    android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
-                                    android:inputType="numberDecimal"
-                                    android:singleLine="true"
-                                    android:textSize="14.5sp"/>
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        </LinearLayout>
-
+                                    android:layout_height="wrap_content">
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:layout_marginTop="20dp"
-                            android:layout_marginBottom="10dp">
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp">
 
-                            <View
-                                android:layout_width="3dp"
-                                android:layout_height="14dp"
-                                android:background="#D4A574"/>
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_teal"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_indian_rupee"
+                                    app:tint="#0F6E56"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAvailedItcIntegrated"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                android:hint="0"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"
+                                android:singleLine="true"/>
+                        </LinearLayout>
+                                </FrameLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="9dp"
-                                android:text="@string/xml_purchase_return_invoice_supply_header"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.13"
-                                android:textColor="#8A6526"/>
+                                android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLabelItcCentral"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_central_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                                <FrameLayout
+                                    android:id="@+id/tilAvailedItcCentral"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp">
+
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_gold"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_indian_rupee"
+                                    app:tint="#8A6526"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAvailedItcCentral"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                android:hint="0"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"
+                                android:singleLine="true"/>
+                        </LinearLayout>
+                                </FrameLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginEnd="9dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLabelItcState"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_state_ut_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                                <FrameLayout
+                                    android:id="@+id/tilAvailedItcState"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp">
+
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_purple"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_indian_rupee"
+                                    app:tint="#7A4FA3"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAvailedItcState"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                android:hint="0"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"
+                                android:singleLine="true"/>
+                        </LinearLayout>
+                                </FrameLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvLabelItcCess"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/xml_purchase_return_cess_label"
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                                <FrameLayout
+                                    android:id="@+id/tilAvailedItcCess"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp">
+
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_red"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_indian_rupee"
+                                    app:tint="#B23A3A"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAvailedItcCess"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
+                                android:background="@null"
+                                android:hint="0"
+                                android:textColorHint="#A99E88"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"
+                                android:inputType="numberDecimal"
+                                android:singleLine="true"/>
+                        </LinearLayout>
+                                </FrameLayout>
+                            </LinearLayout>
                         </LinearLayout>
 
                         <TextView
-                            android:id="@+id/tvLabelInvoiceType"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="0dp"
+                            android:id="@+id/tvLabelInvoiceType"
+                            android:layout_marginTop="8dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="2dp"
                             android:text="@string/xml_purchase_return_invoice_type_label"
-                            android:textSize="12.5sp"
-                            android:fontFamily="@font/googlesans_regular"
-                            android:textColor="#9A8F79"
-                            />
-                        <FrameLayout
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_glass_input">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                            <ImageView
-                                android:layout_width="17dp"
-                                android:layout_height="17dp"
-                                android:layout_gravity="center_vertical|start"
-                                android:layout_marginStart="13dp"
-                                android:src="@drawable/ic_lc_file_plus"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_blue"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_file_plus"
+                                    app:tint="#2A5CA8"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvInvoiceType"
                                 android:popupBackground="@drawable/bg_pos_dropdown"
-                                android:layout_width="match_parent"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
                                 android:background="@null"
-                                android:paddingStart="40dp"
-                                android:paddingEnd="42dp"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
-
-                            <ImageView
-                                android:layout_width="36dp"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center_vertical|end"
-                                android:padding="10dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/ic_lc_chevron_down"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
-                        </FrameLayout>
+                        </LinearLayout>
 
                         <TextView
-                            android:id="@+id/tvLabelPlaceOfSupply"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="15dp"
+                            android:id="@+id/tvLabelPlaceOfSupply"
+                            android:layout_marginTop="8dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="2dp"
                             android:text="@string/xml_purchase_return_place_of_supply_label"
-                            android:textSize="12.5sp"
-                            android:fontFamily="@font/googlesans_regular"
-                            android:textColor="#9A8F79"
-                            />
-                        <FrameLayout
+                            android:textSize="11sp"
+                            android:textColor="#6E6A60"/>
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_glass_input">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:paddingHorizontal="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
-                            <ImageView
-                                android:layout_width="17dp"
-                                android:layout_height="17dp"
-                                android:layout_gravity="center_vertical|start"
-                                android:layout_marginStart="13dp"
-                                android:src="@drawable/ic_lc_map_pin"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
+                            <FrameLayout
+                                android:layout_width="26dp"
+                                android:layout_height="26dp">
+                                <View
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_green"/>
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_lc_map_pin"
+                                    app:tint="#16A34A"
+                                    android:contentDescription="@null"/>
+                            </FrameLayout>
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvPlaceOfSupplyCode"
                                 android:popupBackground="@drawable/bg_pos_dropdown"
-                                android:layout_width="match_parent"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="match_parent"
+                                android:layout_marginStart="12dp"
                                 android:background="@null"
-                                android:paddingStart="40dp"
-                                android:paddingEnd="42dp"
+                                app:drawableEndCompat="@drawable/ic_lc_chevron_down"
+                                android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
                                 android:textColor="#1A1A18"
                                 android:textColorHint="#A99E88"
                                 android:inputType="none"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
+                        </LinearLayout>
 
-                            <ImageView
-                                android:layout_width="36dp"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="center_vertical|end"
-                                android:padding="10dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/ic_lc_chevron_down"
-                                app:tint="#B8895A"
-                                android:contentDescription="@null"/>
-                        </FrameLayout>
-
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -972,78 +1202,15 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ===================== BOTTOM SUMMARY + CONFIRM ===================== -->
-    <!-- No card here on purpose — cardless running footer, same language as
-         the debit-note-on-sales screen. -->
+    <!-- ===================== CONFIRM / CANCEL ===================== -->
+    <!-- Running total now lives inside Card 1; footer is just the actions. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="2dp"
         android:layout_marginBottom="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tvTotalDebitLabel"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="@string/purchase_return_total_debit_value"
-                android:textSize="11.5sp"
-                android:textColor="#9A8F79" />
-
-            <TextView
-                android:id="@+id/tvTotalDebitValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0.00"
-                android:textSize="26sp"
-                android:textColor="#1A1A18"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:singleLine="true"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="18sp"
-                app:autoSizeMaxTextSize="26sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/xml_purchase_return_itc_reclaim_label"
-                android:textSize="12.5sp"
-                android:textColor="#8A6526" />
-
-            <TextView
-                android:id="@+id/tvItcReclaim"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="0.00"
-                android:textSize="12.5sp"
-                android:textColor="#8A6526"
-                android:fontFamily="serif" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="14dp"
-            android:background="#DDD3BB" />
 
         <!-- Confirm button -->
         <com.google.android.material.button.MaterialButton

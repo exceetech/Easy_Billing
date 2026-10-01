@@ -54,8 +54,10 @@ object CatalogAutofill {
      * fields from the name alone would be guessing.
      */
     fun productLevelDefault(variants: List<VariantResponse>): VariantResponse? {
-        if (namedVariants(variants).isNotEmpty()) return null
-        return variants.firstOrNull { it.variant_name.isBlank() }
+        val named = namedVariants(variants)
+        if (named.isEmpty()) return variants.firstOrNull { it.variant_name.isBlank() }
+        if (named.size == 1) return named.first()
+        return null
     }
 
     /** The catalog entry for an explicitly chosen variant name. */

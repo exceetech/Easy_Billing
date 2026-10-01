@@ -69,6 +69,7 @@ class InventoryAdapter(
         val avatar: TextView = view.findViewById(R.id.tvAvatar)
         val name: TextView = view.findViewById(R.id.tvName)
         val cost: TextView = view.findViewById(R.id.tvCost)
+        val productTag: TextView = view.findViewById(R.id.tvProductTag)
         val detailLine: TextView = view.findViewById(R.id.tvDetailLine)
         val stockStatus: TextView = view.findViewById(R.id.tvStockStatus)
         val stockValue: TextView = view.findViewById(R.id.tvStockValue)
@@ -98,6 +99,20 @@ class InventoryAdapter(
 
         holder.name.text = item.productName
         holder.cost.text = "${CurrencyHelper.getCurrencySymbol(holder.itemView.context)}${"%.2f".format(item.avgCost)}"
+
+        // "PURCHASED" (teal) vs "ADDED BY YOU" (gold) — lets a product
+        // that's tracked through supplier purchases be told apart at a
+        // glance from one typed in directly (services, manual items),
+        // which otherwise looked identical on this row.
+        if (item.isPurchased) {
+            holder.productTag.text = holder.root.context.getString(R.string.inventory_tag_purchased)
+            holder.productTag.setBackgroundResource(R.drawable.bg_inv_tag_purchased)
+            holder.productTag.setTextColor(Color.parseColor("#085041"))
+        } else {
+            holder.productTag.text = holder.root.context.getString(R.string.inventory_tag_manual)
+            holder.productTag.setBackgroundResource(R.drawable.bg_inv_tag_manual)
+            holder.productTag.setTextColor(Color.parseColor("#633806"))
+        }
 
         // Stock count (no decimals if whole)
         val stockText = if (item.stock % 1 == 0.0)
@@ -175,45 +190,26 @@ class InventoryAdapter(
 
         val canReduceOrClear = item.stock > 0
 
-        val rowAdd = view.findViewById<View>(R.id.rowAddStock)
-        val rowReduce = view.findViewById<View>(R.id.rowReduceStock)
-        val rowClear = view.findViewById<View>(R.id.rowClearStock)
-        val radioAdd = view.findViewById<View>(R.id.radioAddStock)
-        val radioReduce = view.findViewById<View>(R.id.radioReduceStock)
-        val radioClear = view.findViewById<View>(R.id.radioClearStock)
-        val btnContinue = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnContinueAction)
+        val btnAdd = view.findViewById<View>(R.id.btnBigAddStock)
+        val btnReduce = view.findViewById<View>(R.id.btnBigReduceStock)
+        val btnClear = view.findViewById<View>(R.id.btnBigClearStock)
+        val btnCancel = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelAction)
 
-        rowReduce.alpha = if (canReduceOrClear) 1f else 0.4f
-        rowClear.alpha = if (canReduceOrClear) 1f else 0.4f
+        // Each button is its own big, eye-catching action — tapping it
+        // fires immediately (no separate select-then-confirm step).
+        // Reduce/Clear stay visible but inert when there's nothing left
+        // to reduce or clear, same reasoning as the old row-disable logic.
+        btnReduce.alpha = if (canReduceOrClear) 1f else 0.4f
+        btnClear.alpha = if (canReduceOrClear) 1f else 0.4f
 
-        // "Add stock" selected by default.
-        var selected = "ADD"
-
-        fun refreshSelection() {
-            rowAdd.setBackgroundResource(if (selected == "ADD") R.drawable.bg_inv_action_row_selected else R.drawable.bg_inv_action_row)
-            radioAdd.setBackgroundResource(if (selected == "ADD") R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
-            rowReduce.setBackgroundResource(if (selected == "REDUCE") R.drawable.bg_inv_action_row_selected else R.drawable.bg_inv_action_row)
-            radioReduce.setBackgroundResource(if (selected == "REDUCE") R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
-            rowClear.setBackgroundResource(if (selected == "CLEAR") R.drawable.bg_inv_action_row_selected else R.drawable.bg_inv_action_row)
-            radioClear.setBackgroundResource(if (selected == "CLEAR") R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+        btnAdd.setOnClickListener { dialog.dismiss(); onAddStock(item) }
+        btnReduce.setOnClickListener {
+            if (canReduceOrClear) { dialog.dismiss(); onReduceStock(item) }
         }
-
-        rowAdd.setOnClickListener { selected = "ADD"; refreshSelection() }
-        rowReduce.setOnClickListener {
-            if (canReduceOrClear) { selected = "REDUCE"; refreshSelection() }
+        btnClear.setOnClickListener {
+            if (canReduceOrClear) { dialog.dismiss(); onClearStock(item) }
         }
-        rowClear.setOnClickListener {
-            if (canReduceOrClear) { selected = "CLEAR"; refreshSelection() }
-        }
-
-        btnContinue.setOnClickListener {
-            dialog.dismiss()
-            when (selected) {
-                "ADD" -> onAddStock(item)
-                "REDUCE" -> onReduceStock(item)
-                "CLEAR" -> onClearStock(item)
-            }
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }

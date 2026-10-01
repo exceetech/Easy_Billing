@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compact item-name chip for the "Add stock" spotlight dialog — same
+     solid violet used for the dashboard long-press spotlight's Edit
+     button (bg_spotlight_action_edit, #6C4EA0), as a pill instead of a
+     circle since this one holds text. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#6C4EA0"/>
+    <corners android:radius="20dp"/>
+</shape>

@@ -56,6 +56,8 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var tvPaidThrough: TextView
     private lateinit var tvSubTotal: TextView
     private lateinit var tvGst: TextView
+    private lateinit var rowCess: View
+    private lateinit var tvCess: TextView
     private lateinit var tvDiscount: TextView
     private lateinit var tvTotal: TextView
     private lateinit var rvBillItems: RecyclerView
@@ -104,6 +106,8 @@ class BillDetailsActivity : AppCompatActivity() {
         tvPaidThrough    = findViewById(R.id.tvPaidThrough)
         tvSubTotal       = findViewById(R.id.tvSubTotal)
         tvGst            = findViewById(R.id.tvGst)
+        rowCess          = findViewById(R.id.rowCess)
+        tvCess           = findViewById(R.id.tvCess)
         tvDiscount       = findViewById(R.id.tvDiscount)
         tvTotal          = findViewById(R.id.tvTotal)
         rvBillItems      = findViewById(R.id.rvBillItems)
@@ -253,20 +257,49 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 tvPaidThrough.text = "Paid via ${bill.payment_method}"
 
-                val subtotal = bill.total_amount - bill.gst + bill.discount
-
-                tvSubTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, subtotal)}"
-                tvGst.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.gst)}"
-                tvDiscount.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.discount)}"
-                tvTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)}"
-
-                rvBillItems.adapter = BillDetailsAdapter(items)
-
                 // Check if this bill is already cancelled in the local DB.
                 val db = AppDatabase.getDatabase(this@BillDetailsActivity)
                 val localBill = withContext(Dispatchers.IO) {
                     db.billDao().getByBillNumber(bill.bill_number)
                 }
+                // Customer — the GSTR-1 invoice snapshot (gst_sales_invoice)
+                // carries the name/phone/type entered at checkout for EVERY
+                // bill, not just credit sales, so it's the primary source.
+                // The linked credit account (if any) is the fallback for
+                // older bills saved before that snapshot existed.
+                val gstInvoice = if (localBill != null) {
+                    withContext(Dispatchers.IO) {
+                        db.gstSalesInvoiceDao().getByBillId(localBill.id)
+                    }
+                } else null
+
+                val totalCess = if (gstInvoice != null) {
+                    withContext(Dispatchers.IO) {
+                        db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id).sumOf { it.cessAmount }
+                    }
+                } else 0.0
+
+                val actualGst = if (gstInvoice != null) {
+                    gstInvoice.totalCgst + gstInvoice.totalSgst + gstInvoice.totalIgst
+                } else {
+                    (bill.gst - totalCess).coerceAtLeast(0.0)
+                }
+
+                val subtotal = bill.total_amount - (actualGst + totalCess) + bill.discount
+
+                tvSubTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, subtotal)}"
+                tvGst.text = "${CurrencyHelper.format(this@BillDetailsActivity, actualGst)}"
+                if (totalCess > 0.0) {
+                    rowCess.visibility = View.VISIBLE
+                    tvCess.text = "${CurrencyHelper.format(this@BillDetailsActivity, totalCess)}"
+                } else {
+                    rowCess.visibility = View.GONE
+                }
+                tvDiscount.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.discount)}"
+                tvTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)}"
+
+                rvBillItems.adapter = BillDetailsAdapter(items)
+
                 // N1: server flag too — covers bills voided from another
                 // device or after a reinstall, where Room has no record.
                 val alreadyCancelled =
@@ -303,17 +336,6 @@ class BillDetailsActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-                // Customer — the GSTR-1 invoice snapshot (gst_sales_invoice)
-                // carries the name/phone/type entered at checkout for EVERY
-                // bill, not just credit sales, so it's the primary source.
-                // The linked credit account (if any) is the fallback for
-                // older bills saved before that snapshot existed.
-                val gstInvoice = if (localBill != null) {
-                    withContext(Dispatchers.IO) {
-                        db.gstSalesInvoiceDao().getByBillId(localBill.id)
-                    }
-                } else null
 
                 val creditAccountId = localBill?.creditAccountId
                 val creditAccount = if (creditAccountId != null) {
@@ -549,6 +571,9 @@ class BillDetailsActivity : AppCompatActivity() {
                 // when this call actually performed the cancellation.
                 if (localBill != null && didCancelNow) {
                     val items = db.billItemDao().getItemsForBill(localBill.id)
+                    val gstInvoice = db.gstSalesInvoiceDao().getByBillId(localBill.id)
+                    val gstItems = if (gstInvoice != null) db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id) else emptyList()
+
                     for (bi in items) {
                         val product = db.productDao().getById(bi.productId) ?: continue
                         if (!product.trackInventory) continue
@@ -558,8 +583,12 @@ class BillDetailsActivity : AppCompatActivity() {
                         val qtyToRestore = bi.quantity + debitedQty - returnedQty
 
                         if (qtyToRestore > 0.0) {
+                            val gstItem = gstItems.find { it.productId == bi.productId }
+                            val itemCessRate = gstItem?.cessRate ?: product.cessRate
+                            val totalTaxRate = bi.gstRate + itemCessRate
+
                             val unitCostGross = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0
-                            val unitCostNet = if (bi.gstRate > 0.0) unitCostGross / (1.0 + bi.gstRate / 100.0) else unitCostGross
+                            val unitCostNet = if (totalTaxRate > 0.0) unitCostGross / (1.0 + totalTaxRate / 100.0) else unitCostGross
 
                             // Report 1 F-5: the restock batch previously carried
                             // gstPercent/cgst/sgst/igst = 0, so if these units were
@@ -951,6 +980,10 @@ class BillDetailsActivity : AppCompatActivity() {
                 val customerName = savedInvoice?.customerName
                 val customerPhone = savedInvoice?.customerPhone
 
+                val totalCess = if (savedInvoice != null) {
+                    db.gstSalesInvoiceItemDao().getByInvoice(savedInvoice.id).sumOf { it.cessAmount }
+                } else 0.0
+
                 com.example.easy_billing.util.CustomerShareHelper.sendToCustomer(
                     context = this@BillDetailsActivity,
                     bill = sendBill,
@@ -960,7 +993,8 @@ class BillDetailsActivity : AppCompatActivity() {
                     gstInvoice = savedInvoice,
                     printerLayout = printerLayout,
                     customerName = customerName,
-                    customerPhone = customerPhone
+                    customerPhone = customerPhone,
+                    totalCess = totalCess
                 )
             } catch (e: Exception) {
                 e.printStackTrace()

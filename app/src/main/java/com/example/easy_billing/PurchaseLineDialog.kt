@@ -101,6 +101,7 @@ class PurchaseLineDialog(
     /** Global catalog names seen so far (lowercase key -> display name), for the search box's Global rows. */
     private val catalogNames = HashSet<String>()
     private val catalogDisplayNames = HashMap<String, String>()
+    private val globalCatalogVariants = mutableListOf<com.example.easy_billing.network.GlobalProductResponse>()
 
     // In-flight lookups — cancelled when a newer one starts, so an older
     // (slower) response can never overwrite a newer one.
@@ -137,22 +138,35 @@ class PurchaseLineDialog(
         etUnit: AutoCompleteTextView,
         spinnerUqc: AutoCompleteTextView,
         etHsnDesc: TextInputEditText,
-        etCessRate: TextInputEditText
+        etCessRate: TextInputEditText,
+        etBrand: AutoCompleteTextView,
+        etVariant: AutoCompleteTextView,
+        spinnerSupplyClass: AutoCompleteTextView
     ) {
         applyingAutofill = true
         try {
+            if (etBrand.text.isNullOrBlank() && !v.brand.isNullOrBlank()) etBrand.setText(v.brand, false)
+            if (etVariant.text.isNullOrBlank() && !v.variant_name.isNullOrBlank()) etVariant.setText(v.variant_name, false)
             if (!unitUserSet && v.unit.isNotBlank() && !v.unit.equals("unit", true))
                 etUnit.setText(v.unit, false)
             if (etHsn.text.isNullOrBlank()) v.hsn_code?.let { etHsn.setText(it) }
             if (etHsnDesc.text.isNullOrBlank()) v.hsn_description?.let { etHsnDesc.setText(it) }
-            if (spinnerUqc.text.isNullOrBlank() && !v.official_uqc.isNullOrBlank())
-                UqcMapper.codeToDisplay(v.official_uqc)?.let { spinnerUqc.setText(it, false) }
+            if (spinnerUqc.text.isNullOrBlank()) {
+                if (!v.official_uqc.isNullOrBlank()) {
+                    UqcMapper.codeToDisplay(v.official_uqc)?.let { spinnerUqc.setText(it, false) }
+                } else if (!v.unit.isNullOrBlank()) {
+                    val inferred = UqcMapper.fromUnit(v.unit)
+                    UqcMapper.codeToDisplay(inferred)?.let { spinnerUqc.setText(it, false) }
+                }
+            }
             if (etSCgst.text.isNullOrBlank() && v.cgst_percentage > 0)
                 etSCgst.setText(trimNum(v.cgst_percentage))
             if (etSSgst.text.isNullOrBlank() && v.sgst_percentage > 0)
                 etSSgst.setText(trimNum(v.sgst_percentage))
-            if (etCessRate.text.isNullOrBlank() && v.cess_rate > 0)
+            if (etCessRate.text.isNullOrBlank())
                 etCessRate.setText(trimNum(v.cess_rate))
+            if (spinnerSupplyClass.text.isNullOrBlank())
+                spinnerSupplyClass.setText(SupplyClassMapper.codeToDisplay("TAXABLE"), false)
         } finally {
             applyingAutofill = false
         }
@@ -176,7 +190,7 @@ class PurchaseLineDialog(
         applyingAutofill = true
         unitUserSet = false
         try {
-            etUnit.setText("piece", false)
+            etUnit.setText("", false)
             etHsn.setText("")
             etSCgst.setText("")
             etSSgst.setText("")
@@ -212,25 +226,32 @@ class PurchaseLineDialog(
     private fun trimNum(d: Double): String =
         if (d % 1.0 == 0.0) d.toLong().toString() else d.toString()
 
-    /**
-     * The eligibility options, in display order — must match
-     * PurchaseRepository.isAssetLine and backend purchase_routes.py's
-     * comparisons verbatim, so no casing/spacing variation here.
-     */
-    private val eligibilityOptions = listOf(
-        "Inputs", "Capital goods", "Input services", "Ineligible", "None"
-    )
+    /** Mapper to translate clean, non-jargon UI labels into strict backend GST codes. */
+    private object EligibilityMapper {
+        private val codeToDisplay = mapOf(
+            "Inputs" to "For Resale (Inputs)",
+            "Capital goods" to "For Shop Use (Capital)",
+            "Input services" to "For Business (Services)",
+            "Ineligible" to "Cannot Claim GST (Blocked)",
+            "None" to "No GST to Claim (None)"
+        )
+        private val displayToCode = codeToDisplay.entries.associate { it.value to it.key }
 
-    /** Reads the currently selected eligibility text; defaults to "Inputs" if empty/unrecognized. */
-    private fun getSelectedEligibility(spinner: AutoCompleteTextView): String {
-        val text = spinner.text?.toString()?.trim()
-        return if (text.isNullOrEmpty() || text !in eligibilityOptions) "Inputs" else text
+        val displayOptions = codeToDisplay.values.toList()
+
+        fun getDisplay(code: String): String = codeToDisplay[code] ?: "For Resale (Inputs)"
+        fun getCode(display: String?): String = displayToCode[display?.trim()] ?: "Inputs"
     }
 
-    /** Sets the spinner text to [value], defaulting to "Inputs" for an unknown value. */
-    private fun setSelectedEligibility(spinner: AutoCompleteTextView, value: String) {
-        val resolved = if (value in eligibilityOptions) value else "Inputs"
-        spinner.setText(resolved, false)
+    /** Returns the backend code (e.g. "Inputs") for whatever display string is in the spinner. */
+    private fun getSelectedEligibility(spinner: AutoCompleteTextView): String {
+        val text = spinner.text?.toString()?.trim()
+        return EligibilityMapper.getCode(text)
+    }
+
+    /** Sets the spinner text using a backend code (e.g. "Inputs" -> "For Resale (Inputs)"). */
+    private fun setSelectedEligibility(spinner: AutoCompleteTextView, backendCode: String) {
+        spinner.setText(EligibilityMapper.getDisplay(backendCode), false)
     }
 
     /**
@@ -262,13 +283,14 @@ class PurchaseLineDialog(
         cgst: Double,
         sgst: Double,
         igst: Double,
+        cessAmount: Double,
         invoiceState: String
     ): Double {
         val sameState = isIntraState(invoiceState)
         return if (sameState) {
-            taxable + (taxable * cgst / 100.0) + (taxable * sgst / 100.0)
+            taxable + (taxable * cgst / 100.0) + (taxable * sgst / 100.0) + cessAmount
         } else {
-            taxable + (taxable * igst / 100.0)
+            taxable + (taxable * igst / 100.0) + cessAmount
         }
     }
 
@@ -350,13 +372,28 @@ class PurchaseLineDialog(
             val view = convertView ?: android.view.LayoutInflater.from(context)
                 .inflate(R.layout.item_search_row_ep, parent, false)
             val row = getItem(position)
-            view.findViewById<TextView>(R.id.tvSearchRowLabel).text = row?.label.orEmpty()
+            val tvLabel = view.findViewById<TextView>(R.id.tvSearchRowLabel)
+            val labelText = row?.label.orEmpty()
+            val lastSep = labelText.lastIndexOf(" • ")
+            if (lastSep >= 0) {
+                val spannable = android.text.SpannableString(labelText)
+                val start = lastSep + 3
+                spannable.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#0F6E56")), start, labelText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.ITALIC), start, labelText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(android.text.style.TypefaceSpan("serif"), start, labelText.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                tvLabel.text = spannable
+            } else {
+                tvLabel.text = labelText
+            }
             val tvTag = view.findViewById<TextView>(R.id.tvSearchRowTag)
             if (row?.tag.isNullOrBlank()) {
                 tvTag.visibility = View.GONE
             } else {
                 tvTag.visibility = View.VISIBLE
                 tvTag.text = row?.tag
+                val isShop = row?.tag == activity.getString(R.string.add_product_tag_your_shop)
+                tvTag.setBackgroundResource(if (isShop) R.drawable.bg_search_tag_chip_shop else R.drawable.bg_search_tag_chip_neutral)
+                tvTag.setTextColor(android.graphics.Color.parseColor(if (isShop) "#0F6E56" else "#6E6A60"))
             }
             return view
         }
@@ -410,7 +447,23 @@ class PurchaseLineDialog(
         prefillUnit: String? = null,
         disableMeta: Boolean = false,
         existingDraft: PurchaseItemDraft? = null,
-        editIndex: Int? = null
+        editIndex: Int? = null,
+        // "Add stock" quick-entry only (Inventory -> single purchased product).
+        // Dims everything except quantity / cost price / discount and the
+        // Save/Cancel buttons, with a floating item-name header on top, and a
+        // slow "breathing" glow around the three fields being asked for.
+        // Purely a visual layer: no validation or save logic is touched, and
+        // the normal multi-line Add Purchase flow never passes this flag.
+        spotlightMode: Boolean = false,
+        // Fired right after this line is saved into the ViewModel via the
+        // "editing an existing line" path (editIndex != null) and the dialog
+        // is dismissed. Single-mode "Add stock" always goes through this
+        // path (addSingleModeLine adds a placeholder line, then opens it
+        // for editing), so that's the only path this is wired to today.
+        // Used to trigger the final purchase commit the moment this one
+        // line is confirmed — the header's own Save button is never tapped
+        // a second time in that flow.
+        onSaveComplete: (() -> Unit)? = null
     ) {
         val view = activity.layoutInflater.inflate(R.layout.dialog_purchase_line, null)
 
@@ -524,7 +577,7 @@ class PurchaseLineDialog(
         // Every autofill path writes the sales trio, so watching it covers them all.
         listOf(etSCgst, etSSgst, etSIgst).forEach { it.addTextChangedListener { syncPurchaseTax() } }
 
-        val btnHelp = view.findViewById<MaterialButton>(R.id.btnHsnHelp)
+        // btnHelp removed
         val btnAdd = view.findViewById<MaterialButton>(R.id.btnLineAdd)
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnLineCancel)
 
@@ -658,7 +711,7 @@ class PurchaseLineDialog(
                     // category would be saved against a line that no longer names it.
                     etSelling.setText("")
                     switchTaxInclusive.isChecked = false
-                    etUnit.setText("piece", false)
+                    etUnit.setText("", false)
                     etHsn.setText("")
                     etHsnDescPurchase.setText("")
                     spinnerUqcPurchase.setText("", false)
@@ -703,50 +756,31 @@ class PurchaseLineDialog(
                 }
             }
             val seenGlobal = HashSet<String>()
-            for (name in catalogNames) {
-                val display = catalogDisplayNames[name] ?: name.replaceFirstChar { it.uppercaseChar() }
-                val variantsForName = if (lastFetchedProduct == name) variantCache else emptyList()
-                val namedVariants = CatalogAutofill.namedVariants(variantsForName)
-                if (namedVariants.isEmpty()) {
-                    val key = "$name||".lowercase()
-                    if (seenGlobal.add(key)) {
-                        rows.add(
-                            SearchRow(
-                                label = display,
-                                tag = activity.getString(R.string.add_product_tag_global),
-                                name = display,
-                                brand = null,
-                                variant = null
-                            )
-                        )
-                    }
-                } else {
-                    for (v in namedVariants) {
-                        val key = "$name|${v.brand.orEmpty()}|${v.variant_name}".lowercase()
-                        if (!seenGlobal.add(key)) continue
-                        val parts = listOfNotNull(display, v.brand?.takeIf { it.isNotBlank() }, v.variant_name.takeIf { it.isNotBlank() })
-                        rows.add(
-                            SearchRow(
-                                label = parts.joinToString(" \u2022 "),
-                                tag = activity.getString(R.string.add_product_tag_global),
-                                name = display,
-                                brand = v.brand,
-                                variant = v.variant_name
-                            )
-                        )
-                    }
-                }
+            for (v in globalCatalogVariants) {
+                val display = catalogDisplayNames[v.name.trim().lowercase()] ?: v.name.replaceFirstChar { it.uppercaseChar() }
+                val key = "${display}|${v.brand.orEmpty()}|${v.variant_name.orEmpty()}".lowercase()
+                if (!seenGlobal.add(key)) continue
+                val parts = listOfNotNull(display, v.brand?.takeIf { it.isNotBlank() }, v.variant_name?.takeIf { it.isNotBlank() })
+                rows.add(
+                    SearchRow(
+                        label = parts.joinToString(" • "),
+                        tag = activity.getString(R.string.add_product_tag_global),
+                        name = display,
+                        brand = v.brand,
+                        variant = v.variant_name
+                    )
+                )
             }
             searchAdapter.pool = rows
         }
 
-        val onVariantSettled = {
+        val onVariantSettled: (Boolean) -> Unit = { force ->
             val vName = etVariant.text.toString().trim()
             val pName = etProduct.text.toString().trim()
 
             if (vName.isBlank()) {
                 clearVariantAutofill()
-            } else if (vName != lastVariantName || pName != lastProductName) {
+            } else if (force || vName != lastVariantName || pName != lastProductName) {
                 lastVariantName = vName
                 lastProductName = pName
 
@@ -768,17 +802,15 @@ class PurchaseLineDialog(
                         if (match != null && match.isActive) {
                             withContext(Dispatchers.Main) {
                                 applyingAutofill = true
-                                etSelling.setText(match.price.toString())
-                                etBrand.setText(match.brand.orEmpty())
-                                switchTaxInclusive.isChecked = match.isTaxInclusive
-                                etSCgst.setText(match.cgstPercentage.toString())
-                                etSSgst.setText(match.sgstPercentage.toString())
-                                etSIgst.setText(match.igstPercentage.toString())
+                                etBrand.setText(match.brand.orEmpty(), false)
+                                etSCgst.setText(trimNum(match.cgstPercentage))
+                                etSSgst.setText(trimNum(match.sgstPercentage))
+                                etSIgst.setText(trimNum(match.igstPercentage))
                                 etHsn.setText(match.hsnCode.orEmpty())
                                 etUnit.setText(match.unit, false)
                                 spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
                                 etHsnDescPurchase.setText(match.hsnDescription ?: "")
-                                etCessRatePurchase.setText(match.cessRate.toString())
+                                etCessRatePurchase.setText(trimNum(match.cessRate))
                                 spinnerSupplyClassPurchase.setText(SupplyClassMapper.codeToDisplay(match.supplyClassification) ?: "", false)
                                 etCategoryPurchase.setText(match.category, false)
                                 applyingAutofill = false
@@ -796,7 +828,8 @@ class PurchaseLineDialog(
                                 if (fallback != null) {
                                     applyStatutoryFrom(
                                         fallback, etHsn, etSCgst, etSSgst, etUnit,
-                                        spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase
+                                        spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase,
+                                        etBrand, etVariant, spinnerSupplyClassPurchase
                                     )
                                     autofilledForVariant = vName
                                 } else if (variantCache.isEmpty()) {
@@ -866,27 +899,52 @@ class PurchaseLineDialog(
                     CatalogAutofill.productLevelDefault(variants)?.let { v ->
                         applyStatutoryFrom(
                             v, etHsn, etSCgst, etSSgst, etUnit,
-                            spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase
+                            spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase,
+                            etBrand, etVariant, spinnerSupplyClassPurchase
                         )
                     }
 
                     // Local purchase history fills anything the catalog didn't.
-                    if (named.isEmpty()) {
-                        history?.let { match ->
+                    history?.let { match ->
                             applyingAutofill = true
                             try {
+
+                                if (etBrand.text.isNullOrBlank() && !match.brand.isNullOrBlank())
+                                    etBrand.setText(match.brand, false)
+                                if (etVariant.text.isNullOrBlank() && !match.variant.isNullOrBlank())
+                                    etVariant.setText(match.variant, false)
+                                
                                 if (etHsn.text.isNullOrBlank() && !match.hsnCode.isNullOrBlank())
                                     etHsn.setText(match.hsnCode)
                                 if (etSCgst.text.isNullOrBlank() && match.cgstPercentage > 0)
-                                    etSCgst.setText(match.cgstPercentage.toString())
+                                    etSCgst.setText(trimNum(match.cgstPercentage))
                                 if (etSSgst.text.isNullOrBlank() && match.sgstPercentage > 0)
-                                    etSSgst.setText(match.sgstPercentage.toString())
+                                    etSSgst.setText(trimNum(match.sgstPercentage))
                                 if (etSIgst.text.isNullOrBlank() && match.igstPercentage > 0)
-                                    etSIgst.setText(match.igstPercentage.toString())
+                                    etSIgst.setText(trimNum(match.igstPercentage))
+                                    
+                                if (!unitUserSet && etUnit.text.isNullOrBlank() && !match.unit.isNullOrBlank())
+                                    etUnit.setText(match.unit, false)
+                                if (spinnerUqcPurchase.text.isNullOrBlank() && !match.officialUqc.isNullOrBlank())
+                                    UqcMapper.codeToDisplay(match.officialUqc)?.let { spinnerUqcPurchase.setText(it, false) }
+                                if (etHsnDescPurchase.text.isNullOrBlank() && !match.hsnDescription.isNullOrBlank())
+                                    etHsnDescPurchase.setText(match.hsnDescription)
+                                if (etCessRatePurchase.text.isNullOrBlank())
+                                    etCessRatePurchase.setText(trimNum(match.cessRate))
+                                if (spinnerSupplyClassPurchase.text.isNullOrBlank() && !match.supplyClassification.isNullOrBlank())
+                                    SupplyClassMapper.codeToDisplay(match.supplyClassification)?.let { spinnerSupplyClassPurchase.setText(it, false) }
+                                if (etCategoryPurchase.text.isNullOrBlank() && !match.category.isNullOrBlank())
+                                    etCategoryPurchase.setText(match.category, false)
                             } finally {
                                 applyingAutofill = false
                             }
                         }
+                    
+                    // If a variant was already typed or tapped from search, the initial
+                    // synchronous call to onVariantSettled(false) failed to find it because 
+                    // variantCache was empty. Now that we have fetched it, run it again.
+                    if (etVariant.text?.toString()?.trim()?.isNotEmpty() == true) {
+                        onVariantSettled(true)
                     }
                 }
                 }
@@ -895,8 +953,8 @@ class PurchaseLineDialog(
 
         // Tapping the field shows the list, same as Add Product.
         etVariant.setOnClickListener { etVariant.showDropDown() }
-        etVariant.setOnItemClickListener { _, _, _, _ -> onVariantSettled() }
-        etVariant.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) onVariantSettled() }
+        etVariant.setOnItemClickListener { _, _, _, _ -> onVariantSettled(false) }
+        etVariant.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) onVariantSettled(false) }
 
         // Clearing the variant means no specific variant is chosen any more, so
         // wipe the statutory values that were filled for the previous one —
@@ -943,6 +1001,7 @@ class PurchaseLineDialog(
                         val key = it.name.trim().lowercase()
                         catalogNames.add(key)
                         catalogDisplayNames[key] = it.name
+                        globalCatalogVariants.add(it)
                     }
                 }
             }   // best-effort: offline just means local-only suggestions
@@ -959,7 +1018,11 @@ class PurchaseLineDialog(
 
             // Unified Name . Brand . Type search box — additive, mirrors
             // AddProductActivity's etProductSearch exactly (see class doc).
-            etProductSearch.setAdapter(searchAdapter)
+            val searchWrap = view.findViewById<android.view.View>(R.id.llSearchBarWrapLine)
+        searchWrap.post {
+            etProductSearch.dropDownWidth = searchWrap.width
+        }
+        etProductSearch.setAdapter(searchAdapter)
             etProductSearch.threshold = 1
             etProductSearch.setOnClickListener { if (etProductSearch.text.isNotEmpty()) etProductSearch.showDropDown() }
             etProductSearch.setOnItemClickListener { _, _, position, _ ->
@@ -971,15 +1034,15 @@ class PurchaseLineDialog(
                     return@setOnItemClickListener
                 }
                 etProduct.setText(row.name)
-                etBrand.setText(row.brand.orEmpty())
-                etVariant.setText(row.variant.orEmpty())
+                etBrand.setText(row.brand.orEmpty(), false)
+                etVariant.setText(row.variant.orEmpty(), false)
                 etProductSearch.setText("")
                 // Re-run the exact same pipeline a manual Name/Variant pick
                 // already triggers, so duplicate-matching, locking and
                 // statutory autofill behave identically — same as Add
                 // Product's search tap.
                 onProductSettled()
-                if (!row.variant.isNullOrBlank()) onVariantSettled()
+                if (!row.variant.isNullOrBlank()) onVariantSettled(false)
             }
 
             if (prefillName != null) {
@@ -1000,7 +1063,7 @@ class PurchaseLineDialog(
                         etVariant.isFocusableInTouchMode = false
                         etVariant.setOnClickListener(null)
                     }
-                    onVariantSettled()
+                    onVariantSettled(false)
                 }
 
                 // Editing an existing line — restore every value it was
@@ -1013,7 +1076,7 @@ class PurchaseLineDialog(
                     applyingAutofill = true
                     try {
                         etBrand.setText(existingDraft.brand.orEmpty())
-                        etUnit.setText(existingDraft.unit?.takeIf { it.isNotBlank() } ?: "piece", false)
+                        etUnit.setText(existingDraft.unit?.takeIf { it.isNotBlank() } ?: "", false)
                         etHsn.setText(existingDraft.hsnCode.orEmpty())
                         etSelling.setText(existingDraft.sellingPrice?.let { trimNum(it) } ?: "")
                         switchTaxInclusive.isChecked = existingDraft.isTaxInclusive
@@ -1059,9 +1122,9 @@ class PurchaseLineDialog(
             }
         }
 
-        setupUnitDropdown(etUnit)
+        setupUnitDropdown(etUnit, spinnerUqcPurchase)
 
-        btnHelp.setOnClickListener { HsnHelpLauncher.open(activity) }
+        // btnHelp.setOnClickListener removed
 
         etProduct.setOnItemClickListener { _, _, _, _ -> onProductSettled() }
         etProduct.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) onProductSettled() }
@@ -1082,9 +1145,18 @@ class PurchaseLineDialog(
                     productRepo.autoFillFromHistory(hsn = hsn)
                 } ?: return@launch   // no history for this HSN — leave the rates to the user
                 withContext(Dispatchers.Main) {
-                    if (etSCgst.text.isNullOrBlank()) etSCgst.setText(match.cgstPercentage.toString())
-                    if (etSSgst.text.isNullOrBlank()) etSSgst.setText(match.sgstPercentage.toString())
-                    if (etSIgst.text.isNullOrBlank()) etSIgst.setText(match.igstPercentage.toString())
+                    if (etSCgst.text.isNullOrBlank()) etSCgst.setText(trimNum(match.cgstPercentage))
+                    if (etSSgst.text.isNullOrBlank()) etSSgst.setText(trimNum(match.sgstPercentage))
+                    if (etSIgst.text.isNullOrBlank()) etSIgst.setText(trimNum(match.igstPercentage))
+                    
+                    if (etHsnDescPurchase.text.isNullOrBlank() && !match.hsnDescription.isNullOrBlank())
+                        etHsnDescPurchase.setText(match.hsnDescription)
+                    if (etCessRatePurchase.text.isNullOrBlank())
+                        etCessRatePurchase.setText(trimNum(match.cessRate))
+                    if (spinnerUqcPurchase.text.isNullOrBlank() && !match.officialUqc.isNullOrBlank())
+                        UqcMapper.codeToDisplay(match.officialUqc)?.let { spinnerUqcPurchase.setText(it, false) }
+                    if (spinnerSupplyClassPurchase.text.isNullOrBlank() && !match.supplyClassification.isNullOrBlank())
+                        SupplyClassMapper.codeToDisplay(match.supplyClassification)?.let { spinnerSupplyClassPurchase.setText(it, false) }
                 }
             }
         }
@@ -1139,11 +1211,13 @@ class PurchaseLineDialog(
         etInv.addTextChangedListener { if (etInv.isFocused) userOverroteInvoice = true }
 
         val invoiceValueFor = { taxable: Double ->
+            val cessAmt = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
             invoiceValue(
                 taxable = taxable,
                 cgst = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 sgst = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
                 igst = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0,
+                cessAmount = cessAmt,
                 invoiceState = invoiceState
             )
         }
@@ -1155,7 +1229,7 @@ class PurchaseLineDialog(
             val rounded = "%.2f".format(invoiceValueFor(taxable))
             if (etInv.text?.toString() != rounded) etInv.setText(rounded)
         }
-        listOf(etTax, etPCgst, etPSgst, etPIgst).forEach { it.addTextChangedListener { recomputeInvoice() } }
+        listOf(etTax, etPCgst, etPSgst, etPIgst, etCessAmountPurchase).forEach { it.addTextChangedListener { recomputeInvoice() } }
 
         // Enable "Add" only when product, quantity, taxable and selling are
         // populated. Selling price is irrelevant for asset lines (Capital
@@ -1180,9 +1254,10 @@ class PurchaseLineDialog(
         // enablement) is consolidated here.
         chipGroupEligibility.setOnClickListener {
             showSortStylePopup(
-                chipGroupEligibility, eligibilityOptions, getSelectedEligibility(chipGroupEligibility)
-            ) { picked ->
-                setSelectedEligibility(chipGroupEligibility, picked)
+                chipGroupEligibility, EligibilityMapper.displayOptions, EligibilityMapper.getDisplay(getSelectedEligibility(chipGroupEligibility))
+            ) { pickedDisplay ->
+                // The picked string is the UI display value; map it back to the backend code before setting it!
+                setSelectedEligibility(chipGroupEligibility, EligibilityMapper.getCode(pickedDisplay))
                 val selected = getSelectedEligibility(chipGroupEligibility)
                 recomputeCessAndItc()
                 updateAssetLineUi(selected)
@@ -1194,7 +1269,12 @@ class PurchaseLineDialog(
         // as the eligibility chips (see isAssetEligibilityNow /
         // updateAssetLineUi above), so flipping it must re-run the same
         // side effects a chip change does.
-        switchRawMaterial.setOnCheckedChangeListener { _, _ ->
+        switchRawMaterial.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                setSelectedEligibility(chipGroupEligibility, "Capital goods")
+            } else {
+                setSelectedEligibility(chipGroupEligibility, "Inputs")
+            }
             updateAssetLineUi(getSelectedEligibility(chipGroupEligibility))
             recompute()
         }
@@ -1366,6 +1446,7 @@ class PurchaseLineDialog(
                     com.example.easy_billing.util.UserEventLogger.logAction("PurchaseLine", "line_edited: $fullDetail")
                     viewModel.replaceLine(editIndex, draft)
                     dialog.dismiss()
+                    onSaveComplete?.invoke()
                 }
 
                 if (crossedBoundary) {
@@ -1395,8 +1476,112 @@ class PurchaseLineDialog(
             }
         }
 
+        if (spotlightMode) {
+            setupSpotlightMode(
+                view = view,
+                dialog = dialog,
+                itemName = prefillName ?: etProduct.text?.toString()?.trim().orEmpty(),
+                brand = existingDraft?.brand ?: etBrand.text?.toString()?.trim().orEmpty(),
+                typeLabel = (prefillVariant ?: etVariant.text?.toString()?.trim().orEmpty())
+                    .ifBlank { prefillUnit ?: etUnit.text?.toString()?.trim().orEmpty() }
+            )
+        }
+
         showImmersive(dialog)
     }
+
+    /**
+     * "Add stock" quick-entry visual treatment. Dims the toolbar and the
+     * Product Details / Tax & GST cards, leaving only the quantity, cost
+     * price ("Gross") and discount fields plus the Save/Cancel bar at full
+     * strength — with a slow pulsing glow around those three fields and a
+     * floating card at the top naming the item, brand and type. Nothing
+     * here changes what Save does or what fields are required; it only
+     * changes how the existing screen looks while this dialog is open.
+     */
+    private fun setupSpotlightMode(
+        view: View,
+        dialog: Dialog,
+        itemName: String,
+        brand: String,
+        typeLabel: String
+    ) {
+        // Same dark backdrop used for the dashboard's long-press
+        // edit/delete spotlight (#DE1A1A18) — everything not relevant
+        // to "add stock" disappears into it, instead of sitting there
+        // half-visible and cluttered.
+        view.setBackgroundColor(android.graphics.Color.parseColor("#DE1A1A18"))
+
+        fun hide(id: Int) {
+            view.findViewById<View>(id)?.visibility = View.GONE
+        }
+        // Hidden completely — not dimmed — so nothing but the floating
+        // header, the two boxes below, and Save/Cancel remain on screen.
+        hide(R.id.toolbar)
+        hide(R.id.llLineHeaderOriginal)
+        hide(R.id.cardProductDetails)
+        hide(R.id.cardTaxGstDetails)
+        hide(R.id.llSellingHeaderRow)
+        hide(R.id.groupSellingExtras)
+        // groupTaxInvoiceExtras (taxable "after discount" value + the
+        // GST-inclusive invoice total) stays visible here — shown
+        // alongside quantity/cost/discount, not hidden with the rest.
+
+        // The "You sell at" card now holds only the quantity/cost/discount
+        // boxes — raise it (and the floating header) off the dark backdrop
+        // the same way the dashboard lifts its snapshot tile and buttons.
+        view.findViewById<View>(R.id.cardSellingDetails)?.elevation = dpToPxF(10f)
+
+        // With Product Details and Tax & GST hidden, the scroll column is
+        // left holding just this one small card — on a phone that leaves
+        // it stranded near the top. Stretch the column to fill the space
+        // below the floating header and center the card in it instead.
+        view.findViewById<LinearLayout>(R.id.llScrollContent)?.apply {
+            layoutParams = layoutParams.apply { height = android.view.ViewGroup.LayoutParams.MATCH_PARENT }
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        // Compact "item.brand.type" chip, styled like the violet Edit
+        // button from the dashboard's long-press spotlight, sitting right
+        // above the quantity/cost/discount card. Values are passed in
+        // directly from show()'s own prefillName/prefillVariant/
+        // prefillUnit/existingDraft (known good the moment this dialog is
+        // being built for this item), not read back from the fields here.
+        view.findViewById<TextView>(R.id.tvSpotlightItemChip)?.apply {
+            visibility = View.VISIBLE
+            text = listOf(itemName, brand, typeLabel)
+                .filter { it.isNotBlank() }
+                .ifEmpty { listOf(activity.getString(R.string.xml_purchase_line_dialog_add_item_button)) }
+                .joinToString(" . ")
+        }
+
+        // Taxable value and invoice value are shown here so the user sees
+        // the full picture before saving, but they must stay read-only in
+        // this flow — the user only ever types qty / before-discount cost
+        // / discount, and these two are computed FROM those, using the
+        // product's own saved GST rate. Letting them be typed into as well
+        // (the normal multi-item flow's "override if it doesn't match"
+        // escape hatch) would hand a 60+, WhatsApp-only user two more
+        // numbers to double-check that must mathematically agree with the
+        // other three — exactly the confusion this flow exists to remove.
+        // The normal fields (isFocusable=false etc.) rather than
+        // isEnabled=false, so the text keeps its normal (non-greyed-out)
+        // color instead of looking disabled — it's a result, not a
+        // disabled input.
+        listOf(R.id.etTaxable, R.id.etInvoiceValue).forEach { id ->
+            view.findViewById<TextInputEditText>(id)?.apply {
+                isFocusable = false
+                isFocusableInTouchMode = false
+                isCursorVisible = false
+                isLongClickable = false
+                keyListener = null
+            }
+        }
+    }
+
+    /** dp -> px, float precision (elevation wants a Float, not an Int). */
+    private fun dpToPxF(dp: Float): Float =
+        dp * activity.resources.displayMetrics.density
 
     /* ---------------- setup helpers ---------------- */
 
@@ -1444,12 +1629,15 @@ class PurchaseLineDialog(
     }
 
     /** Unit dropdown — backend list first, defaults when offline. */
-    private fun setupUnitDropdown(etUnit: AutoCompleteTextView) {
-        etUnit.setText("piece", false)
+    private fun setupUnitDropdown(etUnit: AutoCompleteTextView, spinnerUqc: AutoCompleteTextView) {
+        etUnit.setText("", false)
         etUnit.setOnClickListener {
             showSortStylePopup(etUnit, unitOptions, etUnit.text.toString()) { picked ->
                 unitUserSet = true
                 etUnit.setText(picked, false)
+                
+                val uqcCode = UqcMapper.fromUnit(picked)
+                UqcMapper.codeToDisplay(uqcCode)?.let { spinnerUqc.setText(it, false) }
             }
         }
 
@@ -1470,11 +1658,15 @@ class PurchaseLineDialog(
        AddProductActivity.showSortStylePopup() / PurchaseActivity. ---------------- */
 
     private fun showSortStylePopup(
-        anchor: View,
+        rawAnchor: View,
         options: List<String>,
         current: String,
         onPick: (String) -> Unit
     ) {
+        val anchor = if (rawAnchor.parent is android.widget.LinearLayout && 
+            (rawAnchor.parent as android.view.View).background != null) {
+            rawAnchor.parent as android.view.View
+        } else rawAnchor
         if (options.isEmpty()) return
         val d = activity.resources.displayMetrics.density
         fun dp(v: Int) = (v * d).toInt()
@@ -1505,7 +1697,7 @@ class PurchaseLineDialog(
         val available = (if (showAbove) spaceAbove else spaceBelow).coerceAtLeast(dp(88))
         val height = minOf(wanted, available)
 
-        val popup = android.widget.PopupWindow(scroll, dp(200), height, true).apply {
+        val popup = android.widget.PopupWindow(scroll, anchor.width, height, true).apply {
             elevation = dp(10).toFloat()
             setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         }

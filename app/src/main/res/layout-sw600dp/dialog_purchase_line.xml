@@ -1,280 +1,1164 @@
-<?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F3ECDD">
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Add item to purchase — full-screen, restyled to the "premium" design
+    system established in activity_add_product.xml / activity_purchase.xml:
+    champagne background, white bg_addp_card cards with numbered
+    teal/champagne step-banner headers, bg_inv_field_light_grey field rows
+    with 26dp soft-color icon chips, and bg_inv_action_close / bg_addp_save
+    footer buttons.
 
-    
-    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="@android:color/transparent" android:elevation="0dp" app:title="" app:titleTextColor="#1A1A18" app:navigationIconTint="#1A1A18" />
+    Every id bound by PurchaseLineDialog is preserved with its original
+    widget type, so all existing findViewById calls keep working.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3ECDD">
 
-    
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="18dp" android:paddingTop="2dp" android:paddingBottom="12dp">
+    <!-- ============ TOOLBAR (usual back arrow) ============ -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PURCHASE LINE" android:textColor="#B8895A" android:textSize="10sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold" />
-            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp">
-                <TextView android:id="@+id/tvLineDialogVerb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/xml_purchase_line_dialog_title_line1" android:textColor="#1A1A18" android:textSize="21sp" android:textStyle="bold" android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="item" android:textColor="#0F6E56" android:textSize="21sp" android:fontFamily="serif" android:textStyle="italic" android:includeFontPadding="false" />
+    <!-- ============ HEADER ============ -->
+    <LinearLayout
+        android:id="@+id/llLineHeaderOriginal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_purchase_line_dialog_title_kicker"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+                <TextView
+                    android:id="@+id/tvLineDialogVerb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_purchase_line_dialog_title_line1"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/xml_purchase_line_dialog_title_line2"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    
-    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:baselineAligned="false" android:paddingHorizontal="24dp">
+    <!-- ============ BODY — single stacked column on phone ============ -->
+    <ScrollView
+        android:overScrollMode="never"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="16dp">
 
-        
-        <ScrollView android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:paddingBottom="16dp">
+        <LinearLayout
+            android:id="@+id/llScrollContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <!-- Single-mode "Add stock" floating label, shown just above
+                 the Qty/Gross/Discount card in spotlight mode. See
+                 PurchaseLineDialog.setupSpotlightMode(). -->
+            <TextView
+                android:id="@+id/tvSpotlightItemChip"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_spotlight_item_chip"
+                android:elevation="8dp"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Amul Butter . Amul . 500g"
+                tools:visibility="visible"/>
 
-            
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp">
+            <!-- ======== STEP 1 — ITEM DETAILS (teal) ======== -->
+            <LinearLayout
+                android:id="@+id/cardProductDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card">
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="9dp" android:text="PRODUCT" android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.13" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_product_section"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_product_hint"
+                            android:textColor="#3E6F62"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_red"
+                        android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+                        android:text="@string/invoice_required"
+                        android:textColor="#9B2C2C" android:textSize="10sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
                 </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1EBDD" android:layout_marginTop="11dp" android:layout_marginBottom="12dp" />
 
-                
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:layout_marginBottom="5dp" android:text="@string/add_product_search_label" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_box" app:tint="#16A34A" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/etProductSearchLine" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown" android:hint="@string/add_product_search_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="textCapWords" android:completionThreshold="1" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    android:padding="16dp">
 
-                
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:layout_marginBottom="5dp" android:text="Product name" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_package" app:tint="#B8895A" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/etProductName" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown" android:hint="@string/xml_purchase_line_dialog_product_search_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="textCapWords" android:completionThreshold="1" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
+                    <!-- Unified search — additive quick-fill above Product name/Variant,
+                         same pattern as Add Product's etProductSearch. Tapping a result
+                         fills Name/Brand/Variant below and re-runs their existing
+                         autofill/locking pipeline; it does not replace those fields. -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="&#10022;" android:textColor="#B8895A" android:textSize="11sp"
+                            android:layout_marginEnd="6dp"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/add_product_search_label"
+                            android:textSize="11sp" android:textStyle="bold" android:textColor="#5C4A22"
+                            android:letterSpacing="0.02"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="58dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:id="@+id/llSearchBarWrapLine"
+                        android:background="@drawable/bg_search_premium" android:elevation="3dp"
+                        android:paddingHorizontal="8dp">
+                        <FrameLayout android:layout_width="36dp" android:layout_height="36dp">
+                            <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_search_icon_badge"/>
+                            <ImageView android:layout_width="15dp" android:layout_height="15dp" android:layout_gravity="center"
+                                android:src="@drawable/ic_search" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <AutoCompleteTextView
+                            android:id="@+id/etProductSearchLine"
+                            android:dropDownAnchor="@id/llSearchBarWrapLine"
+                            android:dropDownWidth="match_parent"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:popupBackground="@drawable/bg_search_dropdown_simple"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/add_product_search_hint"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="textCapWords" android:completionThreshold="1"
+                            android:singleLine="true" android:textSize="14.5sp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp" android:layout_marginBottom="8dp"
+                        android:text="@string/add_product_search_subtitle"
+                        android:textSize="10sp" android:textColor="#C9BEA0"/>
 
-                
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="@string/add_product_brand_label" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_tag" app:tint="#0F6E56" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/etBrand" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown" android:hint="@string/add_product_brand_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="textCapWords" android:completionThreshold="1" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
+                    <!-- Product name -->
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/xml_purchase_line_dialog_product_hint"
+                        android:textSize="11sp" android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_package" app:tint="#2A5CA8" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <AutoCompleteTextView
+                            android:id="@+id/etProductName"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/xml_purchase_line_dialog_product_search_hint"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="textCapWords" android:completionThreshold="1"
+                            android:singleLine="true" android:textSize="15sp"/>
+                    </LinearLayout>
 
-                
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="Variant" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:id="@+id/tilVariant" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_sliders" app:tint="#B8895A" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/etVariant" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown" android:hint="@string/xml_purchase_line_dialog_variant_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="textCapWords" android:completionThreshold="1" android:singleLine="true" android:textSize="15sp" />
-                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
-                </LinearLayout>
+                    <!-- Brand (Part 6: threaded through to Product.brand on save) -->
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                        android:text="@string/add_product_brand_label"
+                        android:textSize="11sp" android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_tag" app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <AutoCompleteTextView
+                            android:id="@+id/etBrand"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/add_product_brand_hint"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="textCapWords" android:completionThreshold="1"
+                            android:singleLine="true" android:textSize="15sp"/>
+                    </LinearLayout>
 
-                
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="9dp">
+                    <!-- Variant (revealed once a product is chosen) -->
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                        android:text="@string/xml_purchase_line_dialog_variant_label"
+                        android:textSize="11sp" android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:id="@+id/tilVariant"
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_purple"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_sliders" app:tint="#7A4FA3" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <AutoCompleteTextView
+                            android:id="@+id/etVariant"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:popupBackground="@drawable/bg_pos_dropdown"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/xml_purchase_line_dialog_variant_hint"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="textCapWords" android:completionThreshold="1"
+                            android:singleLine="true" android:textSize="15sp"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                    </LinearLayout>
 
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:layout_marginEnd="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="5dp" android:text="Unit" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                        <LinearLayout android:id="@+id/tilUnit" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                            <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_ruler" app:tint="#B8895A" android:contentDescription="@null" />
-                            <AutoCompleteTextView android:id="@+id/etUnit" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/xml_purchase_line_dialog_tap_select_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp" />
-                            <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
+                    <!-- Unit + Category -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginTop="8dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginBottom="8dp">
+                            <TextView
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:text="@string/xml_purchase_line_dialog_unit_label"
+                                android:textSize="11sp" android:textColor="#6E6A60"/>
+                            <LinearLayout
+                                android:id="@+id/tilUnit"
+                                android:layout_width="match_parent" android:layout_height="50dp"
+                                android:orientation="horizontal" android:gravity="center_vertical"
+                                android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                                <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                                    <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
+                                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                        android:src="@drawable/ic_lc_ruler" app:tint="#8A6526" android:contentDescription="@null"/>
+                                </FrameLayout>
+                                <AutoCompleteTextView
+                                    android:id="@+id/etUnit"
+                                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                    android:background="@null" android:layout_marginStart="10dp"
+                                    android:hint="@string/xml_purchase_line_dialog_tap_select_hint"
+                                    android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="none" android:focusable="false" android:clickable="true"
+                                    android:singleLine="true" android:textSize="15sp"/>
+                                <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                    android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:text="@string/xml_purchase_line_dialog_category_label"
+                                android:textSize="11sp" android:textColor="#6E6A60"/>
+                            <LinearLayout
+                                android:id="@+id/tilCategoryPurchase"
+                                android:layout_width="match_parent" android:layout_height="50dp"
+                                android:orientation="horizontal" android:gravity="center_vertical"
+                                android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                                <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                                    <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
+                                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                        android:src="@drawable/ic_lc_tag" app:tint="#0F6E56" android:contentDescription="@null"/>
+                                </FrameLayout>
+                                <AutoCompleteTextView
+                                    android:id="@+id/etCategoryPurchase"
+                                    android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                    android:background="@null" android:layout_marginStart="10dp"
+                                    android:hint="@string/dialog_purchase_line_tap_to_select"
+                                    android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                    android:inputType="none" android:focusable="false" android:clickable="true"
+                                    android:singleLine="true" android:textSize="15sp"/>
+                                <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                                    android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                            </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
 
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:layout_marginEnd="8dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="5dp" android:text="Category" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                        <LinearLayout android:id="@+id/tilCategoryPurchase" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                            <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_tag" app:tint="#B8895A" android:contentDescription="@null" />
-                            <AutoCompleteTextView android:id="@+id/etCategoryPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp" />
-                            <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
+
+                    <!-- Raw material toggle bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_inv_subcard_accent_amber"
+                        android:paddingHorizontal="12dp" android:paddingVertical="11dp">
+                        <TextView
+                            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                            android:text="@string/xml_purchase_line_dialog_raw_material_label"
+                            android:textColor="#1A1A18" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_medium"/>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchRawMaterial"
+                            style="@style/EpSwitch"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ======== STEP 2 — SELLING PRICE & AMOUNTS (teal) ======== -->
+            <LinearLayout
+                android:id="@+id/cardSellingDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:id="@+id/llSellingHeaderRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="2"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_you_sell_at_section"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/invoice_required"
+                            android:textColor="#3E6F62"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/groupSellingExtras"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/xml_purchase_line_dialog_selling_price_label"
+                        android:textSize="11sp" android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_indian_rupee" app:tint="#16A34A" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSellingPrice"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:layout_marginStart="12dp"
+                            android:hint="@string/xml_purchase_line_dialog_rate_per_unit_hint"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Tax-inclusive toggle bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:paddingStart="14dp" android:paddingEnd="12dp" android:paddingVertical="10dp">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/add_product_price_includes_tax"
+                                android:textColor="#1A1A18"
+                                android:textSize="15sp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/add_product_price_mrp_note"
+                                android:textColor="#8A8272"
+                                android:textSize="11.5sp"/>
+                        </LinearLayout>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchTaxInclusive"
+                            style="@style/EpSwitch"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Qty + Gross -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginTop="12dp">
+                        <LinearLayout
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                            android:orientation="horizontal" android:gravity="center_vertical"
+                            android:layout_marginEnd="9dp"
+                            android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp" android:text="@string/xml_purchase_line_dialog_qty_label"
+                                android:textColor="#9A8F79" android:textSize="10sp"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etQuantity"
+                                android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                android:background="@null" android:hint="0"
+                                android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                            android:orientation="horizontal" android:gravity="center_vertical"
+                            android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp" android:text="@string/xml_purchase_line_dialog_gross_label"
+                                android:textColor="#9A8F79" android:textSize="10sp"/>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etGrossAmount"
+                                android:layout_width="match_parent" android:layout_height="match_parent"
+                                android:background="@null" android:hint="0"
+                                android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                                android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="Eligibility for ITC" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:id="@+id/tilEligibility" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_tag" app:tint="#B8895A" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/spinnerEligibility" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp" />
-                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
-                </LinearLayout>
+                    <!-- Discount -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="48dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginTop="9dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp" android:text="@string/xml_purchase_line_dialog_disc_label"
+                            android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDiscountAmount"
+                            android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
+                    </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="12dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_lc_package" app:tint="#B8895A" android:contentDescription="@null" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp" android:text="It\'s a raw material (not for direct sale)" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_medium" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchRawMaterial" style="@style/EpSwitch" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <LinearLayout
+                        android:id="@+id/groupTaxInvoiceExtras"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                    <!-- Taxable value — auto-calculated, shown as "already worked out" -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginTop="11dp"
+                        android:background="@drawable/bg_pos_row_selected"
+                        android:paddingHorizontal="13dp" android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_taxable_label" android:textColor="#6E6A60" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_medium"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etTaxable"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:gravity="end"
+                            android:textColor="#3A3733" android:textColorHint="#A99E88"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="16sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="end"
+                        android:text="@string/xml_purchase_line_dialog_auto_calc_caption"
+                        android:textColor="#9A8F79" android:textSize="10sp"
+                        android:textStyle="italic"/>
+
+                    <!-- Invoice value — auto-calculated, styled as a receipt total -->
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:layout_marginTop="11dp"
+                        android:background="@drawable/bg_pos_row_selected"
+                        android:paddingHorizontal="13dp" android:paddingVertical="10dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_invoice_value_label" android:textColor="#3A3733" android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_medium"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etInvoiceValue"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:gravity="end"
+                            android:textColor="#18181B" android:textColorHint="#A99E88"
+                            android:fontFamily="serif"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="18sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="end"
+                        android:text="@string/xml_purchase_line_dialog_auto_calc_caption"
+                        android:textColor="#9A8F79" android:textSize="10sp"
+                        android:textStyle="italic"/>
+
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- ======== STEP 3 — TAX & GST DETAILS (collapsible, champagne) ======== -->
+            <LinearLayout
+                android:id="@+id/cardTaxGstDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card"
+                android:layout_marginTop="12dp">
 
+                <LinearLayout
+                    android:id="@+id/llTaxGstHeaderToggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_items_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="3"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_tax_gst_details_label"
+                            android:textColor="#4A3A16" android:textSize="14sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_tax_gst_details_subtitle"
+                            android:textColor="#8A6526" android:textSize="10.5sp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_pill_green"
+                        android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+                        android:text="@string/invoice_optional"
+                        android:textColor="#166534" android:textSize="10sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <ImageView
+                        android:id="@+id/ivTaxGstToggleArrow"
+                        android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_lc_chevron_down" app:tint="#4A3A16"
+                        android:contentDescription="@null"/>
+                </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/llTaxGstDetailsBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+                    <!-- Eligibility -->
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                        android:text="@string/xml_purchase_line_dialog_eligibility_label"
+                        android:textSize="11sp" android:textColor="#6E6A60"/>
+                    <LinearLayout
+                        android:id="@+id/tilEligibility"
+                        android:layout_width="match_parent" android:layout_height="50dp"
+                        android:orientation="horizontal" android:gravity="center_vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp"
+                        android:clickable="true" android:focusable="true">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_grey"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_shield_check" app:tint="#8A8272" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <AutoCompleteTextView
+                            android:id="@+id/spinnerEligibility"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:background="@null" android:layout_marginStart="10dp"
+                            android:hint="@string/dialog_purchase_line_tap_to_select"
+                            android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                            android:inputType="none" android:focusable="false" android:clickable="true"
+                            android:singleLine="true" android:textSize="15sp"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                    </LinearLayout>
+
+                <!-- HSN + help -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="@string/xml_purchase_line_dialog_hsn_label"
+                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingStart="12dp" android:paddingEnd="4dp">
+                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_file_text" app:tint="#8A6526" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHsn"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:layout_marginStart="12dp"
+                        android:hint="@string/xml_purchase_line_dialog_tax_code_hint"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="number" android:singleLine="true" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- UQC (required) -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                    android:text="@string/xml_purchase_line_dialog_uqc_label"
+                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                <LinearLayout
+                    android:id="@+id/tilOfficialUqcPurchase"
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_shield_check" app:tint="#8A6526" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerOfficialUqcPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:layout_marginStart="10dp"
+                        android:hint="@string/dialog_purchase_line_tap_to_select"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="none" android:focusable="false" android:clickable="true"
+                        android:singleLine="true" android:textSize="15sp"/>
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <!-- HSN description -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                    android:text="@string/xml_purchase_line_dialog_hsn_description_label"
+                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHsnDescriptionPurchase"
+                        android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="@string/xml_purchase_line_dialog_short_description_hint"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="text" android:singleLine="true" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- Supply classification -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                    android:text="@string/xml_purchase_line_dialog_supply_class_label"
+                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                <LinearLayout
+                    android:id="@+id/tilSupplyClassificationPurchase"
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerSupplyClassificationPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="@string/dialog_purchase_line_tap_to_select"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="none" android:focusable="false" android:clickable="true"
+                        android:singleLine="true" android:textSize="15sp"/>
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                        android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <!-- Cess % -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:layout_marginBottom="5dp"
+                    android:text="@string/xml_purchase_line_dialog_cess_pct_label"
+                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_percent" app:tint="#8A6526" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCessRatePurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                        android:background="@null" android:layout_marginStart="12dp"
+                        android:hint="@string/xml_purchase_line_dialog_if_any_hint"
+                        android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- What you'll charge when you sell it -->
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:layout_marginBottom="2dp"
+                    android:text="@string/xml_purchase_line_dialog_sell_gst_trio_label" android:textColor="#9A8F79" android:textSize="10sp"
+                    android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="7dp">
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_cgst_label" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSalesCgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_sgst_label" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSalesSgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_igst_label" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSalesIgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- What you'll pay the supplier -->
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:layout_marginBottom="2dp"
+                    android:text="@string/xml_purchase_line_dialog_supplier_gst_trio_label" android:textColor="#9A8F79" android:textSize="10sp"
+                    android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="7dp">
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_cgst_paid_label" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurchaseCgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_sgst_paid_label" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurchaseSgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/xml_purchase_line_dialog_igst_paid_label" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etPurchaseIgst"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#1A1A18" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ITC availed (plain sub-section, no nested toggle — one door for tax stuff) -->
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:layout_marginBottom="5dp"
+                    android:text="@string/xml_purchase_line_dialog_cess_amount_label"
+                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
+                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_indian_rupee" app:tint="#16A34A" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCessAmountPurchase"
+                        android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:layout_marginStart="12dp"
+                        android:hint="@string/dialog_purchase_line_if_any"
+                        android:textColor="#A99E88" android:textColorHint="#A99E88"
+                        android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:clickable="false" android:cursorVisible="false"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:layout_marginBottom="2dp"
+                    android:text="@string/xml_purchase_line_dialog_availed_itc_label" android:textColor="#9A8F79" android:textSize="10sp"
+                    android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="7dp">
+                    <LinearLayout
+                        android:id="@+id/tilAvailedItcIgstPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/dialog_purchase_line_igst" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAvailedItcIgstPurchase"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#C9C3B4" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:clickable="false" android:cursorVisible="false"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/tilAvailedItcCgstPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/dialog_purchase_line_cgst" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAvailedItcCgstPurchase"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#C9C3B4" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:clickable="false" android:cursorVisible="false"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/tilAvailedItcSgstPurchase"
+                        android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_inv_field_light_grey" android:padding="9dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/dialog_purchase_line_sgst" android:textColor="#9A8F79" android:textSize="10sp"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAvailedItcSgstPurchase"
+                            android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:background="@null" android:hint="0"
+                            android:textColor="#C9C3B4" android:textColorHint="#C9C3B4"
+                            android:inputType="numberDecimal" android:singleLine="true"
+                            android:focusable="false" android:focusableInTouchMode="false"
+                            android:clickable="false" android:cursorVisible="false"
+                            android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tilAvailedItcCessPurchase"
+                    android:layout_width="match_parent" android:layout_height="50dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginTop="9dp"
+                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginEnd="9dp" android:text="@string/xml_purchase_line_dialog_cess_label"
+                        android:textColor="#9A8F79" android:textSize="10sp"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAvailedItcCessPurchase"
+                        android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:background="@null" android:hint="0"
+                        android:textColor="#A99E88" android:textColorHint="#A99E88"
+                        android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:clickable="false" android:cursorVisible="false"/>
+                </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
-        </ScrollView>
+        </LinearLayout>
+    </ScrollView>
 
-        
-        <ScrollView android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:layout_marginStart="16dp" android:fillViewport="true" android:clipToPadding="false" android:paddingBottom="16dp">
+    <!-- ============ FOOTER — floating capsule bar, capped width on tablet ============ -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="18dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="520dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="4dp"
+            android:paddingBottom="18dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            
-            <LinearLayout android:id="@+id/cardSellingDetails" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp">
+            <View
+                android:layout_width="34dp"
+                android:layout_height="3dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_gold_accent_tick"/>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                    <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="9dp" android:text="YOU WILL SELL AT" android:textColor="#8A6526" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.13" />
-                </LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1EBDD" android:layout_marginTop="11dp" android:layout_marginBottom="12dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_addp_footer_capsule"
+                android:paddingStart="20dp"
+                android:paddingEnd="8dp"
+                android:paddingVertical="8dp"
+                android:elevation="3dp"
+                android:baselineAligned="false">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:layout_marginBottom="5dp" android:text="Selling price" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="9dp" android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSellingPrice" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/xml_purchase_line_dialog_rate_per_unit_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLineCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_purchase_line_dialog_cancel_button"
+                    android:textAllCaps="false"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    android:textColor="#8A8272"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:background="@android:color/transparent"
+                    android:stateListAnimator="@null"
+                    app:rippleColor="#00000000"
+                    app:icon="@drawable/ic_lc_x"
+                    app:iconTint="#B0A895"
+                    app:iconSize="13dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"
+                    app:backgroundTint="@null"
+                    android:includeFontPadding="false"
+                    android:gravity="center"
+                    android:paddingHorizontal="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"/>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="11dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp" android:text="Price includes GST (MRP)" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_medium" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTaxInclusive" style="@style/EpSwitch" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="11dp">
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginEnd="9dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:text="Qty" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etQuantity" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" />
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:text="Gross" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etGrossAmount" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="9dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:text="Disc" android:textColor="#9A8F79" android:textSize="10sp" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etDiscountAmount" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="11dp" android:background="@drawable/bg_pos_row_selected" android:paddingHorizontal="13dp" android:paddingVertical="10dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/xml_purchase_line_dialog_taxable_label" android:textColor="#6E6A60" android:textSize="12.5sp" android:fontFamily="@font/googlesans_medium" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etTaxable" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:gravity="end" android:textColor="#3A3733" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="16sp" android:padding="0dp" android:minHeight="0dp" />
-                </LinearLayout>
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="end" android:text="@string/xml_purchase_line_dialog_auto_calc_caption" android:textColor="#9A8F79" android:textSize="10sp" android:textStyle="italic" />
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="11dp" android:background="@drawable/bg_pos_row_selected" android:paddingHorizontal="13dp" android:paddingVertical="10dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Invoice value" android:textColor="#3A3733" android:textSize="12.5sp" android:fontFamily="@font/googlesans_medium" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etInvoiceValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:gravity="end" android:textColor="#18181B" android:textColorHint="#A99E88" android:fontFamily="serif" android:inputType="numberDecimal" android:singleLine="true" android:textSize="18sp" android:padding="0dp" android:minHeight="0dp" />
-                </LinearLayout>
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="end" android:text="@string/xml_purchase_line_dialog_auto_calc_caption" android:textColor="#9A8F79" android:textSize="10sp" android:textStyle="italic" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLineAdd"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="14dp"
+                    android:text="@string/xml_purchase_line_dialog_add_item_button"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:background="@drawable/bg_addp_save_pill_sheen"
+                    android:stateListAnimator="@null"
+                    app:rippleColor="#2E9C5B"
+                    app:icon="@drawable/ic_plus_badge_combo"
+                    app:iconTint="#FFFFFF"
+                    app:iconSize="20dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:cornerRadius="15dp"
+                    app:backgroundTint="@null"
+                    android:includeFontPadding="false"
+                    android:gravity="center"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"/>
             </LinearLayout>
-
-            <LinearLayout android:id="@+id/llTaxGstHeaderToggle" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp" android:layout_marginTop="12dp" android:clickable="true" android:focusable="true">
-                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null" />
-                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:text="@string/xml_purchase_line_dialog_tax_gst_details_label" android:textColor="#1A1A18" android:textSize="13sp" android:fontFamily="@font/googlesans_medium" />
-                <ImageView android:id="@+id/ivTaxGstToggleArrow" android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#A99E88" android:contentDescription="@null" />
-            </LinearLayout>
-
-            <LinearLayout android:id="@+id/llTaxGstDetailsBody" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_inv_card_cream" android:padding="14dp" android:layout_marginTop="12dp" android:visibility="gone">
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:layout_marginBottom="5dp" android:text="HSN / SAC" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingStart="13dp" android:paddingEnd="4dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_file_text" app:tint="#B8895A" android:contentDescription="@null" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etHsn" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/xml_purchase_line_dialog_tax_code_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="number" android:singleLine="true" android:textSize="15sp" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnHsnHelp" style="@style/Widget.Material3.Button.TextButton" android:layout_width="40dp" android:layout_height="40dp" android:minWidth="0dp" android:minHeight="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:padding="0dp" app:icon="@drawable/ic_lc_help_circle" app:iconSize="18dp" app:iconTint="#B8895A" app:iconGravity="textStart" app:iconPadding="0dp" android:includeFontPadding="false" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="Official UQC" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:id="@+id/tilOfficialUqcPurchase" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_shield_check" app:tint="#B8895A" android:contentDescription="@null" />
-                    <AutoCompleteTextView android:id="@+id/spinnerOfficialUqcPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp" />
-                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:layout_marginBottom="5dp" android:text="HSN description" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etHsnDescriptionPurchase" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@null" android:hint="@string/xml_purchase_line_dialog_short_description_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="text" android:singleLine="true" android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="9dp">
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1.3" android:layout_marginEnd="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="5dp" android:text="Supply class" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                        <LinearLayout android:id="@+id/tilSupplyClassificationPurchase" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                            <AutoCompleteTextView android:id="@+id/spinnerSupplyClassificationPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_tap_to_select" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="none" android:focusable="false" android:clickable="true" android:singleLine="true" android:textSize="15sp" />
-                            <ImageView android:layout_width="17dp" android:layout_height="17dp" android:src="@drawable/ic_lc_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:layout_marginEnd="7dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="5dp" android:text="Cess %" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_glass_input" android:paddingHorizontal="12dp">
-                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginEnd="10dp" android:src="@drawable/ic_lc_percent" app:tint="#B8895A" android:contentDescription="@null" />
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCessRatePurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:background="@null" android:hint="@string/xml_purchase_line_dialog_if_any_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:layout_marginBottom="2dp" android:text="@string/xml_purchase_line_dialog_sell_gst_trio_label" android:textColor="#9A8F79" android:textSize="10sp" android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="7dp">
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CGST" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSalesCgst" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SGST" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSalesSgst" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="IGST" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSalesIgst" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:layout_marginBottom="2dp" android:text="@string/xml_purchase_line_dialog_supplier_gst_trio_label" android:textColor="#9A8F79" android:textSize="10sp" android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="7dp">
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CGST paid" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPurchaseCgst" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SGST paid" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPurchaseSgst" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="IGST paid" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPurchaseIgst" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#1A1A18" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="5dp" android:text="Cess amount" android:textColor="#9A8F79" android:textSize="12.5sp" android:fontFamily="@font/googlesans_regular" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="0dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_marginEnd="9dp" android:src="@drawable/ic_lc_indian_rupee" app:tint="#B8895A" android:contentDescription="@null" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCessAmountPurchase" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@null" android:hint="@string/dialog_purchase_line_if_any" android:textColor="#A99E88" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" android:focusable="false" android:focusableInTouchMode="false" android:clickable="false" android:cursorVisible="false" />
-                </LinearLayout>
-
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:layout_marginBottom="2dp" android:text="Availed ITC" android:textColor="#9A8F79" android:textSize="10sp" android:letterSpacing="0.08" android:fontFamily="@font/googlesans_semibold" />
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="7dp">
-                    <LinearLayout android:id="@+id/tilAvailedItcIgstPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="IGST" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etAvailedItcIgstPurchase" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#C9C3B4" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:focusable="false" android:focusableInTouchMode="false" android:clickable="false" android:cursorVisible="false" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/tilAvailedItcCgstPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CGST" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etAvailedItcCgstPurchase" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#C9C3B4" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:focusable="false" android:focusableInTouchMode="false" android:clickable="false" android:cursorVisible="false" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/tilAvailedItcSgstPurchase" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_glass_input" android:padding="9dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SGST" android:textColor="#9A8F79" android:textSize="10sp" />
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etAvailedItcSgstPurchase" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@null" android:hint="0" android:textColor="#C9C3B4" android:textColorHint="#C9C3B4" android:inputType="numberDecimal" android:singleLine="true" android:focusable="false" android:focusableInTouchMode="false" android:clickable="false" android:cursorVisible="false" android:textSize="14.5sp" android:padding="0dp" android:minHeight="0dp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout android:id="@+id/tilAvailedItcCessPurchase" android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="9dp" android:background="@drawable/bg_glass_input" android:paddingHorizontal="13dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="9dp" android:text="Cess" android:textColor="#9A8F79" android:textSize="10sp" />
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etAvailedItcCessPurchase" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@null" android:hint="0" android:textColor="#A99E88" android:textColorHint="#A99E88" android:inputType="numberDecimal" android:singleLine="true" android:textSize="15sp" android:focusable="false" android:focusableInTouchMode="false" android:clickable="false" android:cursorVisible="false" />
-                </LinearLayout>
-            </LinearLayout>
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
-
-    
-    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E6DCC8" />
-
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:paddingVertical="12dp">
-
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnLineCancel" android:layout_width="0dp" android:layout_weight="1" android:layout_height="52dp" android:layout_marginEnd="12dp" android:text="@string/xml_purchase_line_dialog_cancel_button" android:textAllCaps="false" android:textSize="13.5sp" android:textStyle="bold" android:textColor="#9A2E2E" android:insetTop="0dp" android:insetBottom="0dp" android:background="@drawable/bg_inv_action_close" android:stateListAnimator="@null" app:rippleColor="#F6D8D4" app:icon="@drawable/ic_lc_x" app:iconTint="#B91C1C" app:iconGravity="textStart" app:iconPadding="8dp" app:cornerRadius="14dp" app:backgroundTint="@null" android:includeFontPadding="false" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
-
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnLineAdd" android:layout_width="0dp" android:layout_weight="2" android:layout_height="52dp" android:text="@string/xml_purchase_line_dialog_add_item_button" android:textAllCaps="false" android:textSize="14sp" android:textStyle="bold" android:textColor="#FFFFFF" android:insetTop="0dp" android:insetBottom="0dp" android:background="@drawable/bg_login_cta_green" android:stateListAnimator="@null" app:rippleColor="#2E9C5B" app:icon="@drawable/ic_lucide_plus" app:iconTint="#FFFFFF" app:iconGravity="textStart" app:iconPadding="7dp" app:cornerRadius="13dp" app:backgroundTint="@null" android:includeFontPadding="false" android:gravity="center" android:insetLeft="0dp" android:insetRight="0dp" />
-    </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

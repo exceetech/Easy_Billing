@@ -85,6 +85,7 @@
     <string name="activity_debit_note_debit">ಡೆಬಿಟ್</string>
     <string name="activity_debit_note_enter_additional_quantity_per">ಪ್ರತಿ ಐಟಂಗೆ ಹೆಚ್ಚುವರಿ ಪ್ರಮಾಣವನ್ನು ನಮೂದಿಸಿ</string>
     <string name="activity_debit_note_gst">ಜಿಎಸ್ಟಿ</string>
+    <string name="activity_debit_note_cess">ಸೆಸ್</string>
     <string name="activity_debit_note_invoice">ಇನ್‌ವಾಯ್ಸ್ #—</string>
     <string name="activity_debit_note_note">ಟಿಪ್ಪಣಿ</string>
     <string name="activity_debit_note_taxable">ತೆರಿಗೆ ವಿಧಿಸಬಹುದಾದ</string>
@@ -113,6 +114,7 @@
     <string name="activity_sales_return_confirm_and_issue_credit">ಖಚಿತಪಡಿಸಿ ಮತ್ತು ಕ್ರೆಡಿಟ್ ಟಿಪ್ಪಣಿ ನೀಡಿ</string>
     <string name="activity_sales_return_credit">ಕ್ರೆಡಿಟ್</string>
     <string name="activity_sales_return_gst_reversal">ಜಿಎಸ್ಟಿ ರಿವರ್ಸಲ್</string>
+    <string name="activity_sales_return_cess_reversal">ಸೆಸ್ ರಿವರ್ಸಲ್</string>
     <string name="activity_sales_return_invoice">ಇನ್‌ವಾಯ್ಸ್ #—</string>
     <string name="activity_sales_return_note">ಟಿಪ್ಪಣಿ</string>
     <string name="activity_sales_return_sales_return">ಮಾರಾಟ ವಾಪಸಾತಿ</string>
@@ -543,6 +545,8 @@
     <string name="invoice_taxable_label">ತೆರಿಗೆ ಅರ್ಹ</string>
     <string name="invoice_total_tax_header">ಒಟ್ಟು ತೆರಿಗೆ</string>
     <string name="invoice_type_label">ಇನ್ವಾಯ್ಸ್ ಪ್ರಕಾರ</string>
+    <string name="purchase_invoice_type_label">ಇನ್ವಾಯ್ಸ್ ಪ್ರಕಾರ · ಸಾಮಾನ್ಯವಾಗಿ ಸಾಮಾನ್ಯ</string>
+    <string name="purchase_invoice_type_helper">SEZ ಅಥವಾ ರಫ್ತು ಖರೀದಿಯಂತಹ ವಿಶೇಷ ಸಂದರ್ಭಗಳಲ್ಲಿ ಮಾತ್ರ ಇದನ್ನು ಬದಲಾಯಿಸಿ</string>
     <string name="upi">UPI</string>
 
     <!-- activity_add_import_service -->
@@ -564,7 +568,7 @@
     <string name="invoice_value_2">ಇನ್</string>
     <string name="itc_eligibility_capital">ಬಂಡವಾಳ</string>
     <string name="itc_eligibility_services">ಸೇವೆಗಳು</string>
-    <string name="place_of_supply_default">97 - ಇತರ ಪ್ರದೇಶ</string>
+    <string name="place_of_supply_default">96 - ವಿದೇಶಿ ದೇಶ</string>
     <string name="record_word">ದಾಖಲೆ</string>
     <string name="save_record">ದಾಖಲೆ ಉಳಿಸಿ</string>
     <string name="select_date">ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡಿ</string>
@@ -672,11 +676,12 @@
     <string name="add_product_name_hint">ಹುಡುಕಿ ಅಥವಾ ಹೊಸದನ್ನು ಟೈಪ್ ಮಾಡಿ</string>
     <string name="invoice_number">ಇನ್</string>
     <string name="invoice_value">ಇನ್</string>
-    <string name="purchase_add_line_button">+  ಖರೀದಿಗೆ ಐಟಂಗಳನ್ನು ಸೇರಿಸಿ</string>
+    <string name="purchase_add_line_button">ಖರೀದಿಗೆ ಐಟಂಗಳನ್ನು ಸೇರಿಸಿ</string>
     <string name="purchase_boe_date_label">ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ದಿನಾಂಕ</string>
-    <string name="purchase_boe_number_hint">7-ಅಂಕಿಗಳ ಸಂಖ್ಯೆ</string>
+    <string name="purchase_imported_goods_subtitle">ವಿದೇಶದಿಂದ ಖರೀದಿಸಿದ್ದರೆ ಮಾತ್ರ</string>
+    <string name="purchase_boe_number_hint">7-ಅಂಕಿಗಳ ಸಂಖ್ಯೆ, ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳಿಂದ</string>
     <string name="purchase_boe_number_label">ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ಸಂಖ್ಯೆ</string>
-    <string name="purchase_boe_value_hint">ಕಸ್ಟಮ್ಸ್ ಮೌಲ್ಯ</string>
+    <string name="purchase_boe_value_hint">ಒಟ್ಟು ಮೌಲ್ಯ, ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳಿಂದ</string>
     <string name="purchase_boe_value_label">ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ಮೌಲ್ಯ</string>
     <string name="purchase_cess_paid_hint">ಇದ್ದರೆ</string>
     <string name="purchase_cess_paid_label">ಪಾವತಿಸಿದ ಸೆಸ್</string>
@@ -703,14 +708,14 @@
     <string name="purchase_payment_credit_sub">ಪೂರೈಕೆದಾರರಿಗೆ ನಂತರ ಪಾವತಿಸಿ</string>
     <string name="purchase_payment_paid_now">ಈಗಲೇ ಪಾವತಿಸಿ</string>
     <string name="purchase_payment_paid_now_sub">ನಗದು / ಬ್ಯಾಂಕ್ ಮೂಲಕ ಇತ್ಯರ್ಥ</string>
-    <string name="purchase_place_of_supply_label">ಪೂರೈಕೆ ಸ್ಥಳ ಕೋಡ್</string>
-    <string name="purchase_port_code_hint">6-ಅಕ್ಷರಗಳ ಕೋಡ್</string>
+    <string name="purchase_place_of_supply_label">ಪೂರೈಕೆ ಸ್ಥಳ ಕೋಡ್ · ಆಟೋ</string>
+    <string name="purchase_port_code_hint">6-ಅಕ್ಷರಗಳ ಕೋಡ್, ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳಿಂದ</string>
     <string name="purchase_port_code_label">ಪೋರ್ಟ್ ಕೋಡ್</string>
     <string name="purchase_remove_account_button">ಖಾತೆ ತೆಗೆದುಹಾಕಿ</string>
     <string name="purchase_section_invoice_details">ಇನ್</string>
     <string name="purchase_section_payment_option">ಪಾವತಿ ಆಯ್ಕೆ</string>
     <string name="purchase_section_supplier">ಪೂರೈಕೆದಾರ</string>
-    <string name="purchase_sez_gstin_label">SEZ ಪೂರೈಕೆದಾರ GSTIN</string>
+    <string name="purchase_sez_gstin_label">SEZ ಪೂರೈಕೆದಾರ GSTIN (ಅವರ ತೆರಿಗೆ ಐಡಿ)</string>
     <string name="purchase_supplier_helper">ನೋಂದಾಯಿತ ಪೂರೈಕೆದಾರ — GSTIN ಇನ್</string>
     <string name="purchase_supply_type_label">ಪೂರೈಕೆ ಪ್ರಕಾರ</string>
     <string name="purchase_title_accent">ಖರೀದಿ</string>
@@ -1040,18 +1045,18 @@
     <!-- CreditAccountsActivity -->
     <string name="credit_account_removed">ಖಾತೆ ತೆಗೆದುಹಾಕಲಾಗಿದೆ</string>
     <string name="credit_balance_after">ನಂತರದ ಬಾಕಿ</string>
-    <string name="credit_chip_label_advance">ಮುಂಗಡ</string>
+    <string name="credit_chip_label_advance">ಹೆಚ್ಚು ಪಾವತಿ</string>
     <string name="credit_chip_label_due">ಬಾಕಿ</string>
-    <string name="credit_currently_in_advance">ಪ್ರಸ್ತುತ ಮುಂಗಡವಾಗಿದೆ</string>
+    <string name="credit_currently_in_advance">ಈಗಾಗಲೇ ಹೆಚ್ಚು ಪಾವತಿಸಿದ್ದಾರೆ</string>
     <string name="credit_currently_owes">ಪ್ರಸ್ತುತ ಬಾಕಿ ಇದೆ</string>
     <string name="credit_delete_allowed_note">ನಿಮ್ಮ ಪಟ್ಟಿಯಿಂದ ಅವರನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ</string>
     <string name="credit_delete_confirm_message">ಅವರ ಖಾತೆಯನ್ನು ನಿಮ್ಮ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗುತ್ತದೆ. ಬಾಕಿ ಈಗಾಗಲೇ ಇತ್ಯರ್ಥವಾಗಿದೆ, ಆದ್ದರಿಂದ ಎರಡೂ ಕಡೆ ಏನೂ ಬಾಕಿ ಇಲ್ಲ.</string>
     <string name="credit_delete_offline_note">ನೀವು ಆಫ್</string>
     <string name="credit_enter_valid_amount">ಮಾನ್ಯ ಮೊತ್ತ ನಮೂದಿಸಿ</string>
-    <string name="credit_in_advance_after">ನಂತರದ ಮುಂಗಡ</string>
+    <string name="credit_in_advance_after">ನಂತರ ಹೆಚ್ಚು ಪಾವತಿ</string>
     <string name="credit_invalid_phone">ಮಾನ್ಯ 10-ಅಂಕಿಯ ಫೋನ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ</string>
     <string name="credit_net_all_settled">ಎಲ್ಲಾ ಇತ್ಯರ್ಥವಾಗಿದೆ</string>
-    <string name="credit_net_held_in_advance">ಮುಂಗಡವಾಗಿ ಇರಿಸಲಾಗಿದೆ</string>
+    <string name="credit_net_held_in_advance">ಅವರು ಹೆಚ್ಚು ಪಾವತಿಸಿದ್ದಾರೆ</string>
     <string name="credit_net_owed_to_you">ನಿಮಗೆ ಬಾಕಿ ಇದೆ</string>
     <string name="credit_no_customers_body">ನೀವು ಸೇರಿಸುವ ಗ್ರಾಹಕರು ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತಾರೆ — ಅವರು ಬಾಕಿ ಇಟ್ಟಿರುವುದು ಅಥವಾ ಮುಂಗಡ ಪಾವತಿಸಿರುವುದನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.</string>
     <string name="credit_no_customers_title">ಯಾವುದೇ ಗ್ರಾಹಕರಿಲ್ಲ</string>
@@ -1064,7 +1069,7 @@
     <string name="credit_saving_ellipsis">ಉಳಿಸಲಾಗುತ್ತಿದೆ…</string>
     <string name="credit_settle_balance_first">ಮೊದಲು ಬಾಕಿ ಇತ್ಯರ್ಥಪಡಿಸಿ</string>
     <string name="credit_settled_after">ನಂತರ ಇತ್ಯರ್ಥ</string>
-    <string name="credit_status_in_advance">ಮುಂಗಡವಾಗಿದೆ</string>
+    <string name="credit_status_in_advance">ಹೆಚ್ಚು ಪಾವತಿಸಿದ್ದಾರೆ</string>
     <string name="credit_status_owes_you">ನಿಮಗೆ ಬಾಕಿ ಇದೆ</string>
     <string name="credit_status_settled">ಇತ್ಯರ್ಥವಾಗಿದೆ</string>
     <string name="save">ಉಳಿಸಿ</string>
@@ -1075,7 +1080,7 @@
     <string name="credit_adjustment_settle_now_btn">ನಗದು — ಈಗಲೇ ಸೆಟಲ್ ಮಾಡಿ</string>
 
     <!-- activity_credit_accounts -->
-    <string name="credit_net_position_label">ನಿವ್ವಳ ಸ್ಥಿತಿ</string>
+    <string name="credit_net_position_label">ಒಟ್ಟು ಬ್ಯಾಲೆನ್ಸ್</string>
     <string name="credit_tip_add_body">ಹೆಸರು ಮತ್ತು ಫೋನ್ ಸಂಖ್ಯೆ</string>
     <string name="credit_tip_add_title">ನಿಮ್ಮ ಮೊದಲ ಗ್ರಾಹಕರನ್ನು ಸೇರಿಸಿ</string>
     <string name="credit_tip_search_body">ಹೆಸರು ಅಥವಾ ಫೋನ್ ಮೂಲಕ ಹುಡುಕಿ, ಅಥವಾ ಸ್ಥಿತಿಯ ಮೂಲಕ ಫಿಲ್ಟರ್ ಮಾಡಿ</string>
@@ -1096,7 +1101,7 @@
     <string name="credit_picker_no_shop_selected">ಯಾವುದೇ ಅಂಗಡಿ ಆಯ್ಕೆಯಾಗಿಲ್ಲ. ಮತ್ತೆ ಸೈನ್ ಇನ್ ಮಾಡಿ.</string>
 
     <!-- CreditAdapter -->
-    <string name="credit_row_in_advance">ಮುಂಗಡವಾಗಿ</string>
+    <string name="credit_row_in_advance">ಹೆಚ್ಚು ಪಾವತಿಸಿದ್ದಾರೆ</string>
     <string name="credit_row_owes_you">ನಿಮಗೆ ಬಾಕಿ ಇದೆ</string>
 
     <!-- activity_localization_settings -->
@@ -1409,6 +1414,15 @@
     <string name="igst_worked_out_tip">IGST ನಿಮಗಾಗಿ ಲೆಕ್ಕ ಹಾಕಲಾಗುತ್ತದೆ</string>
     <string name="import_of_word">ಆಮದು</string>
     <string name="import_services_empty_body">ವಿದೇಶಿ ಪೂರೈಕೆದಾರರಿಂದ ಇನ್</string>
+    <string name="import_services_when_to_use">ಇದನ್ನು ಭಾರತದ ಹೊರಗಿನ ಪೂರೈಕೆದಾರರಿಗೆ ಪಾವತಿಸಿದಾಗ ಮಾತ್ರ ಬಳಸಿ — ಉದಾಹರಣೆಗೆ ವಿದೇಶಿ ಸಾಫ್ಟ್‌ವೇರ್ ಚಂದಾದಾರಿಕೆ ಅಥವಾ ವಿದೇಶದಲ್ಲಿರುವ ಸಲಹೆಗಾರ. ವಿದೇಶದಿಂದ ಏನನ್ನೂ ಖರೀದಿಸದಿದ್ದರೆ, ಈ ಪರದೆ ನಿಮಗೆ ಅಗತ್ಯವಿಲ್ಲ.</string>
+    <string name="import_services_place_of_supply_label">ಪೂರೈಕೆ ಸ್ಥಳ · ಸಾಮಾನ್ಯವಾಗಿ ವಿದೇಶಿ ದೇಶ</string>
+    <string name="import_services_pos_foreign_desc">ಹೆಚ್ಚು ಸಾಮಾನ್ಯ — ಪೂರೈಕೆದಾರರು ಭಾರತದ ಹೊರಗಿದ್ದಾರೆ</string>
+    <string name="import_services_pos_other_desc">ಅಪರೂಪ — ಖಚಿತವಿಲ್ಲದಿದ್ದರೆ ನಿಮ್ಮ ಅಕೌಂಟೆಂಟ್ ಅನ್ನು ಕೇಳಿ</string>
+    <string name="import_services_more_details_label">ಹೆಚ್ಚಿನ ತೆರಿಗೆ ಮತ್ತು ಕ್ರೆಡಿಟ್ ವಿವರಗಳು</string>
+    <string name="import_services_more_details_subtitle">ಪೂರೈಕೆ ಸ್ಥಳ, ಸೆಸ್ ಮತ್ತು ಇನ್‌ಪುಟ್ ತೆರಿಗೆ ಕ್ರೆಡಿಟ್ — ಸಾಮಾನ್ಯವಾಗಿ ಒಂದೇ ರೀತಿ</string>
+    <string name="import_services_eligibility_helper">ವಿದೇಶದಿಂದ ಖರೀದಿಸಿದ ಸೇವೆಗೆ, ಇದು ಸಾಮಾನ್ಯವಾಗಿ “Services” ಆಗಿರುತ್ತದೆ — ಖಚಿತವಿಲ್ಲದಿದ್ದರೆ ನಿಮ್ಮ ಅಕೌಂಟೆಂಟ್ ಅನ್ನು ಕೇಳಿ</string>
+    <string name="import_services_list_foreign">ವಿದೇಶಿ ಪೂರೈಕೆದಾರ</string>
+    <string name="import_services_list_other_territory">ಇತರ ಪ್ರದೇಶ</string>
     <string name="invoice_number_date_value_tip">ಇನ್</string>
     <string name="itc_availed">ಪಡೆದ ITC</string>
     <string name="itc_ready">ITC ಸಿದ್ಧ</string>
@@ -1688,10 +1702,10 @@
     <string name="invoice_pdf_summary_loss">ನಷ್ಟ</string>
     <string name="invoice_pdf_summary_net_profit">ನಿವ್ವಳ ಲಾಭ</string>
     <string name="invoice_pdf_summary_revenue">ಆದಾಯ</string>
-    <string name="invoice_pdf_table_balance_header">ಬ್ಯಾಲೆನ್ಸ್ (₹)</string>
-    <string name="invoice_pdf_table_cr_header">Cr (₹)</string>
+    <string name="invoice_pdf_table_balance_header">ಬ್ಯಾಲೆನ್ಸ್</string>
+    <string name="invoice_pdf_table_cr_header">Cr</string>
     <string name="invoice_pdf_table_date_header">ದಿನಾಂಕ</string>
-    <string name="invoice_pdf_table_dr_header">Dr (₹)</string>
+    <string name="invoice_pdf_table_dr_header">Dr</string>
     <string name="invoice_pdf_table_type_header">ಪ್ರಕಾರ</string>
     <string name="invoice_pdf_tax_invoice_title">ಟ್ಯಾಕ್ಸ್ ಇನ್ವಾಯ್ಸ್</string>
     <string name="invoice_pdf_taxable_amount_label">ತೆರಿಗೆಗೆ ಒಳಪಡುವ ಮೊತ್ತ</string>
@@ -1713,6 +1727,7 @@
     <string name="manage_products_header_manage">ನಿರ್ವಹಿಸಿ</string>
     <string name="manage_products_search_hint">ಹೆಸರು ಅಥವಾ ಎಚ್ಎಸ್ಎನ್ ಮೂಲಕ ಹುಡುಕಿ…</string>
     <string name="manage_products_sort_content_desc">ವಿಂಗಡಿಸಿ</string>
+    <string name="manage_products_filter_button_label">ಫಿಲ್ಟರ್</string>
 
     <!-- ManageProductsAdapter -->
     <string name="manage_products_no_gst">GST ಇಲ್ಲ</string>
@@ -1749,15 +1764,15 @@
     <!-- activity_purchase_details -->
     <string name="place_of_supply">ಪೂರೈಕೆ ಸ್ಥಳ</string>
     <string name="tax_breakdown">ತೆರಿಗೆ ವಿವರ</string>
-    <string name="txn_label_credit_note">ಕ್ರೆಡಿಟ್ ನೋಟ್</string>
-    <string name="txn_label_debit_note">ಡೆಬಿಟ್ ನೋಟ್</string>
+    <string name="txn_label_credit_note">ಹೆಚ್ಚುವರಿ ಸ್ಟಾಕ್ ಸೇರಿಸಿ</string>
+    <string name="txn_label_debit_note">ಸರಕನ್ನು ಹಿಂತಿರುಗಿಸಿ</string>
     <string name="xml_purchase_details_cancel_button">ಖರೀದಿ ರದ್ದುಮಾಡಿ</string>
     <string name="xml_purchase_details_cancelled_note">ಈ ಖರೀದಿಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ</string>
     <string name="xml_purchase_details_header">ಖರೀದಿ ಇನ್ವಾಯ್ಸ್</string>
     <string name="xml_purchase_details_invoice_total_label">ಇನ್ವಾಯ್ಸ್ ಒಟ್ಟು</string>
     <string name="xml_purchase_details_net_after_returns">ರಿಟರ್ನ್ ನಂತರದ ನಿವ್ವಳ</string>
     <string name="xml_purchase_details_not_synced">ಸಿಂಕ್ ಆಗಿಲ್ಲ</string>
-    <string name="xml_purchase_details_notes_header">ಡೆಬಿಟ್ ಮತ್ತು ಕ್ರೆಡಿಟ್ ನೋಟ್</string>
+    <string name="xml_purchase_details_notes_header">ಹಿಂದಿರುಗಿಸುವಿಕೆ &amp; ತಿದ್ದುಪಡಿಗಳು</string>
     <string name="xml_purchase_details_still_owed_label">ಈ ಸಪ್ಲಯರ್</string>
     <string name="xml_purchase_details_supplier_label">ಸಪ್ಲಯರ್</string>
     <string name="xml_purchase_details_view_ledger_link">ಲೆಡ್ಜರ್ ವೀಕ್ಷಿಸಿ ›</string>
@@ -1784,9 +1799,9 @@
     <string name="profile">ಪ್ರೊಫೈಲ್</string>
 
     <!-- PurchaseActivity -->
-    <string name="purchase_boe_date_required">ಆಮದು ಸರಕುಗಳಿಗೆ ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ದಿನಾಂಕ ಅಗತ್ಯವಿದೆ</string>
-    <string name="purchase_boe_number_required">ಆಮದು ಸರಕುಗಳಿಗೆ ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ಸಂಖ್ಯೆ ಅಗತ್ಯವಿದೆ</string>
-    <string name="purchase_boe_value_required">ಆಮದು ಸರಕುಗಳಿಗೆ ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ಮೌಲ್ಯ ಅಗತ್ಯವಿದೆ</string>
+    <string name="purchase_boe_date_required">ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ದಿನಾಂಕ ಅಗತ್ಯವಿದೆ — ನಿಮ್ಮ ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ</string>
+    <string name="purchase_boe_number_required">ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ಸಂಖ್ಯೆ ಅಗತ್ಯವಿದೆ — ನಿಮ್ಮ ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ</string>
+    <string name="purchase_boe_value_required">ಬಿಲ್ ಆಫ್ ಎಂಟ್ರಿ ಮೌಲ್ಯ ಅಗತ್ಯವಿದೆ — ನಿಮ್ಮ ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ</string>
     <string name="purchase_cess_paid_invalid">ಪಾವತಿಸಿದ ಸೆಸ್ &gt;= 0 ಆಗಿರಬೇಕು</string>
     <string name="purchase_choose_supplier_desc">ಪೂರೈಕೆದಾರ ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="purchase_credit_needs_account">ಕ್ರೆಡಿಟ್</string>
@@ -1798,12 +1813,17 @@
     <string name="purchase_invalid_gstin_error">ಅಮಾನ್ಯ GSTIN</string>
     <string name="purchase_invoice_date_required">ಇನ್</string>
     <string name="purchase_invoice_type_composition">ಕಾಂಪೊಸಿಷನ್ ತೆರಿಗೆದಾರರಿಂದ</string>
+    <string name="purchase_invoice_type_regular_desc">ಹೆಚ್ಚಿನ ಖರೀದಿಗಳು — ಇದನ್ನೇ ಆಯ್ಕೆಯಾಗಿ ಬಿಡಿ</string>
+    <string name="purchase_invoice_type_sez_with_payment_desc">SEZ ವ್ಯವಹಾರದಿಂದ, ತೆರಿಗೆ ಈಗಾಗಲೇ ಪಾವತಿಸಲಾಗಿದೆ</string>
+    <string name="purchase_invoice_type_sez_without_payment_desc">SEZ ವ್ಯವಹಾರದಿಂದ, ತೆರಿಗೆ ಪಾವತಿಸಿಲ್ಲ</string>
+    <string name="purchase_invoice_type_deemed_exp_desc">ವಿಶೇಷ ರಫ್ತು ಸಂಬಂಧಿತ ಖರೀದಿ</string>
+    <string name="purchase_invoice_type_composition_desc">ಮಾರಾಟಗಾರರು ಕಾಂಪೊಸಿಷನ್ ಸ್ಕೀಮ್‌ನಲ್ಲಿದ್ದಾರೆ</string>
     <string name="purchase_invoice_type_required">ಇನ್</string>
     <string name="purchase_itc_fields_negative">ಪಡೆದ ITC ಕ್ಷೇತ್ರಗಳು &gt;= 0 ಆಗಿರಬೇಕು</string>
     <string name="purchase_itc_must_be_zero">ಅರ್ಹತೆಯಿಲ್ಲದಿದ್ದಾಗ/None ಆಗಿದ್ದಾಗ ಪಡೆದ ITC ಕ್ಷೇತ್ರಗಳು 0 ಆಗಿರಬೇಕು</string>
     <string name="purchase_pick_invoice_date_error">ಇನ್</string>
     <string name="purchase_place_of_supply_required">ಪೂರೈಕೆ ಸ್ಥಳ ಕೋಡ್ ಅಗತ್ಯವಿದೆ</string>
-    <string name="purchase_port_code_required">ಆಮದು ಸರಕುಗಳಿಗೆ ಪೋರ್ಟ್ ಕೋಡ್ ಅಗತ್ಯವಿದೆ</string>
+    <string name="purchase_port_code_required">ಪೋರ್ಟ್ ಕೋಡ್ ಅಗತ್ಯವಿದೆ — ನಿಮ್ಮ ಕಸ್ಟಮ್ಸ್ ಪೇಪರ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ</string>
     <string name="purchase_review_line_item">ಉಳಿಸುವ ಮೊದಲು ಹೈಲೈಟ್ ಆದ ಸಾಲಿನ ಐಟಂ ಪರಿಶೀಲಿಸಿ</string>
     <string name="purchase_saved_default_msg">ಖರೀದಿ ಉಳಿಸಲಾಗಿದೆ</string>
     <string name="purchase_select_credit_account">ಕ್ರೆಡಿಟ್ ಖಾತೆ ಆಯ್ಕೆಮಾಡಿ</string>
@@ -1864,6 +1884,10 @@
     <string name="purchase_history_bought_this_month">ಈ ತಿಂಗಳು ಖರೀದಿಸಿದ್ದು</string>
     <string name="purchase_history_eyebrow">ಖರೀದಿಗಳು</string>
     <string name="purchase_history_search_hint">ಪೂರೈಕೆದಾರ ಅಥವಾ ಇನ್</string>
+    <string name="purchase_history_filter_button_label">ಫಿಲ್ಟರ್</string>
+    <string name="purchase_history_sort_button_label">ಕ್ರಮ</string>
+    <string name="purchase_history_result_count_one">ಖರೀದಿ</string>
+    <string name="purchase_history_result_count_other">ಖರೀದಿಗಳು</string>
     <string name="purchase_history_tip_record_body">ಪೂರೈಕೆದಾರ, ಇನ್</string>
     <string name="purchase_history_tip_record_title">ನಿಮ್ಮ ಮೊದಲ ಖರೀದಿ ದಾಖಲಿಸಿ</string>
     <string name="purchase_history_tip_search_body">ಪೂರೈಕೆದಾರ ಹೆಸರು ಅಥವಾ ಇನ್</string>
@@ -1874,6 +1898,30 @@
 
     <!-- PurchaseHistoryAdapter -->
     <string name="purchase_history_status_cancelled">ರದ್ದಾಗಿದೆ</string>
+    <string name="purchase_details_same_state">ಅದೇ ರಾಜ್ಯ</string>
+    <string name="purchase_details_different_state">ಬೇರೆ ರಾಜ್ಯ</string>
+    <string name="purchase_details_qty_returned_suffix">ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ</string>
+    <string name="purchase_details_note_word">ನೋಟ್</string>
+    <string name="purchase_details_notes_word">ನೋಟ್‌ಗಳು</string>
+    <string name="purchase_details_invoiced_suffix">ಬಿಲ್ ಮಾಡಲಾಗಿದೆ</string>
+    <string name="purchase_details_returned_across">ನಲ್ಲಿ ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ</string>
+    <string name="purchase_details_credited_across">ನಲ್ಲಿ ಜಮಾ ಮಾಡಲಾಗಿದೆ</string>
+    <string name="purchase_details_inventory_loss_suffix">ಹಿಂತಿರುಗಿಸುವಿಕೆಯಲ್ಲಿ ಸ್ಟಾಕ್ ನಷ್ಟ</string>
+    <string name="purchase_details_inventory_gain_suffix">ಹಿಂತಿರುಗಿಸುವಿಕೆಯಲ್ಲಿ ಸ್ಟಾಕ್ ಲಾಭ</string>
+    <string name="purchase_details_inventory_loss_label">ಸ್ಟಾಕ್ ನಷ್ಟ</string>
+    <string name="purchase_details_inventory_gain_label">ಸ್ಟಾಕ್ ಲಾಭ</string>
+    <string name="purchase_details_note_caption_returned">ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ</string>
+    <string name="purchase_details_note_caption_added">ಸೇರಿಸಲಾಗಿದೆ</string>
+    <string name="purchase_details_note_number_fallback">ಹಿಂತಿರುಗಿಸುವಿಕೆ</string>
+    <string name="purchase_not_found_toast">ಖರೀದಿ ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <string name="purchase_already_cancelled_toast">ಈ ಖರೀದಿ ಈಗಾಗಲೇ ರದ್ದಾಗಿದೆ</string>
+    <string name="purchase_cancel_failed_toast">ಖರೀದಿಯನ್ನು ರದ್ದುಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ</string>
+    <string name="purchase_cancelled_success_toast">ಖರೀದಿ ರದ್ದಾಗಿದೆ. ಸ್ಟಾಕ್ ಅನ್ನು ಪೂರೈಕೆದಾರರಿಗೆ ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ.</string>
+    <string name="purchase_details_eyebrow_fallback">ಖರೀದಿ %1$d</string>
+    <string name="purchase_details_summary_card_title">ಖರೀದಿ ಸಾರಾಂಶ</string>
+    <string name="purchase_details_summary_card_hint">ಒಟ್ಟು ಮೊತ್ತ, ತೆರಿಗೆ ಮತ್ತು ಪಾವತಿ ವಿವರಗಳು</string>
+    <string name="purchase_details_items_card_hint">ಈ ಖರೀದಿಯಲ್ಲಿ ತೆಗೆದುಕೊಂಡಿದ್ದು</string>
+    <string name="purchase_details_returns_card_hint">ಖರೀದಿಯ ನಂತರ ಹಿಂತಿರುಗಿಸಿದ್ದು ಅಥವಾ ಸೇರಿಸಿದ್ದು</string>
     <string name="purchase_history_status_credit">ಸಾಲದಲ್ಲಿ</string>
     <string name="purchase_history_status_paid_cash">ನಗದು ಪಾವತಿಸಲಾಗಿದೆ</string>
 
@@ -2039,12 +2087,6 @@
     <!-- item_credit -->
     <string name="xml_credit_item_phone_placeholder">9876543210</string>
 
-    <!-- dialog_filter_customers -->
-    <string name="xml_filter_customers_advance_only">ಅಡ್ವಾನ್ಸ್ ಮಾತ್ರ</string>
-    <string name="xml_filter_customers_all">ಎಲ್ಲಾ ಗ್ರಾಹಕರು</string>
-    <string name="xml_filter_customers_due_only">ಬಾಕಿ ಮಾತ್ರ</string>
-    <string name="xml_filter_customers_settled_only">ಸೆಟಲ್ ಆಗಿರುವುದು ಮಾತ್ರ</string>
-    <string name="xml_filter_customers_title">ಗ್ರಾಹಕರನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</string>
 
     <!-- dialog_gst_confirm -->
     <string name="xml_gst_confirm_cancel_btn">ಡ್ರಾಫ್ಟ್ ಡಿಲೀಟ್ ಮಾಡಿ</string>
@@ -2455,7 +2497,7 @@
     <string name="add_product_search_label">ಉತ್ಪನ್ನ ಹುಡುಕಿ</string>
     <string name="add_product_search_hint">ಹೆಸರು, ಬ್ರ್ಯಾಂಡ್ ಅಥವಾ ಪ್ರಕಾರ ಹುಡುಕಿ</string>
     <string name="add_product_more_tax_details_label">ಹೆಚ್ಚಿನ ತೆರಿಗೆ ವಿವರಗಳು</string>
-    <string name="add_product_tag_your_shop">ನಿಮ್ಮ ಅಂಗಡಿ</string>
-    <string name="add_product_tag_global">ಜಾಗತಿಕ</string>
+    <string name="add_product_tag_your_shop">ಈಗಾಗಲೇ ನಿಮ್ಮದು</string>
+    <string name="add_product_tag_global">ಪಟ್ಟಿಯಿಂದ</string>
     <string name="add_product_search_add_new">ಇವುಗಳಲ್ಲಿ ಯಾವುದೂ ಅಲ್ಲ, ಹೊಸದನ್ನು ಸೇರಿಸಿ</string>
 </resources>

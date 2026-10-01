@@ -47,27 +47,6 @@ class BatchPickerAdapter(
 
     private val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
-    // Same random-per-row palette technique as SalesReturnItemAdapter /
-    // BillHistoryAdapter, keyed by batch id so it's stable across rebinds.
-    private data class RowColor(val stripe: Int, val avatarBg: Int, val avatarText: Int)
-
-    private val rowPalette = listOf(
-        RowColor(Color.parseColor("#1D6E6E"), Color.parseColor("#DDEEEE"), Color.parseColor("#1D6E6E")), // teal
-        RowColor(Color.parseColor("#B23A3A"), Color.parseColor("#FBEDED"), Color.parseColor("#B23A3A")), // red
-        RowColor(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA"), Color.parseColor("#8A6526")), // gold
-        RowColor(Color.parseColor("#3A5FB2"), Color.parseColor("#E5EBFA"), Color.parseColor("#3A5FB2")), // blue
-        RowColor(Color.parseColor("#7A4FA3"), Color.parseColor("#EFE5F7"), Color.parseColor("#7A4FA3")), // purple
-        RowColor(Color.parseColor("#B2673A"), Color.parseColor("#FAEBE1"), Color.parseColor("#B2673A")), // rust
-        RowColor(Color.parseColor("#3A8F6E"), Color.parseColor("#E1F2EA"), Color.parseColor("#3A8F6E")), // green
-        RowColor(Color.parseColor("#B23A85"), Color.parseColor("#FAE1F0"), Color.parseColor("#B23A85"))  // pink
-    )
-
-    private fun colorFor(batch: PurchaseBatch): RowColor {
-        val key = "${batch.id}"
-        val index = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
-        return rowPalette[index]
-    }
-
     /** Position of the oldest batch that still has stock — gets the
      *  "Oldest" tag, same idea as FIFO ordering used elsewhere. */
     private val oldestWithStockIndex: Int =
@@ -77,7 +56,7 @@ class BatchPickerAdapter(
             ?.index ?: -1
 
     inner class BatchVH(view: View) : RecyclerView.ViewHolder(view) {
-        val viewItemStripe: View = view.findViewById(R.id.viewItemStripe)
+        val stripe: View = view.findViewById(R.id.viewItemStripe)
         val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         val tvBatchLabel: TextView = view.findViewById(R.id.tvBatchLabel)
         val tvOldestTag: TextView = view.findViewById(R.id.tvOldestTag)
@@ -103,15 +82,14 @@ class BatchPickerAdapter(
 
     override fun onBindViewHolder(holder: BatchVH, position: Int) {
         val b = batches[position]
+        val rowColor = colorFor(b)
 
         holder.watcher?.let { holder.etQty.removeTextChangedListener(it) }
 
-        val rowColor = colorFor(b)
-        holder.viewItemStripe.setBackgroundColor(rowColor.stripe)
-        holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.avatarBg)
+        holder.stripe.setBackgroundColor(rowColor.stripe)
         holder.tvAvatar.setTextColor(rowColor.avatarText)
-        holder.btnIncrement.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.stripe)
-        holder.btnDecrement.setTextColor(rowColor.stripe)
+        holder.tvAvatar.background.setTint(rowColor.avatarBg)
+        holder.tvAvatar.text = "${position + 1}"
 
         val invoiceText = b.invoiceNumber?.takeIf { it.isNotBlank() }
             ?: b.batchCode?.takeIf { it.isNotBlank() }
@@ -123,7 +101,6 @@ class BatchPickerAdapter(
             else -> invoiceText
         }
         holder.tvBatchLabel.text = label
-        holder.tvAvatar.text = label.take(1).uppercase()
 
         holder.tvOldestTag.visibility = if (position == oldestWithStockIndex) View.VISIBLE else View.GONE
 
@@ -142,7 +119,7 @@ class BatchPickerAdapter(
 
         val currentQty = selected[position] ?: 0.0
         holder.etQty.setText(if (currentQty > 0.0) formatNum(currentQty) else "")
-        updateAmountView(holder, currentQty, grossUnit, rowColor.stripe)
+        updateAmountView(holder, currentQty, grossUnit, b)
 
         val rowEnabled = b.quantityRemaining > 0.0
         holder.btnDecrement.isEnabled = rowEnabled
@@ -154,14 +131,14 @@ class BatchPickerAdapter(
             val cur = selected[position] ?: 0.0
             if (cur < b.quantityRemaining) {
                 val next = (cur + 1.0).coerceAtMost(b.quantityRemaining)
-                setQty(holder, position, next, b, grossUnit, rowColor.stripe)
+                setQty(holder, position, next, b, grossUnit)
             }
         }
         holder.btnDecrement.setOnClickListener {
             val cur = selected[position] ?: 0.0
             if (cur > 0.0) {
                 val next = (cur - 1.0).coerceAtLeast(0.0)
-                setQty(holder, position, next, b, grossUnit, rowColor.stripe)
+                setQty(holder, position, next, b, grossUnit)
             }
         }
 
@@ -183,7 +160,7 @@ class BatchPickerAdapter(
                     ).show()
                 }
                 if (clamped > 0.0) selected[position] = clamped else selected.remove(position)
-                updateAmountView(holder, clamped, grossUnit, rowColor.stripe)
+                updateAmountView(holder, clamped, grossUnit, b)
                 onSelectionChanged?.invoke(totalSelected())
             }
         }
@@ -208,22 +185,47 @@ class BatchPickerAdapter(
         position: Int,
         qty: Double,
         b: PurchaseBatch,
-        unitCost: Double,
-        stripeColor: Int
+        unitCost: Double
     ) {
         selected[position] = qty
         holder.watcher?.let { holder.etQty.removeTextChangedListener(it) }
         holder.etQty.setText(if (qty > 0.0) formatNum(qty) else "")
         holder.watcher?.let { holder.etQty.addTextChangedListener(it) }
-        updateAmountView(holder, qty, unitCost, stripeColor)
+        updateAmountView(holder, qty, unitCost, b)
         onSelectionChanged?.invoke(totalSelected())
     }
 
-    private fun updateAmountView(holder: BatchVH, qty: Double, unitCost: Double, stripeColor: Int) {
+    // Same per-row hash colour palette as BatchClearAdapter/
+    // item_batch_clear.xml (keyed by batch id so it's stable across
+    // rebinds) — brings back the left stripe + distinct per-batch
+    // colour to match Clear Stock's batch list.
+    private data class RowColor(val stripe: Int, val avatarBg: Int, val avatarText: Int)
+
+    private val rowPalette = listOf(
+        RowColor(Color.parseColor("#1D6E6E"), Color.parseColor("#DDEEEE"), Color.parseColor("#1D6E6E")),
+        RowColor(Color.parseColor("#B23A3A"), Color.parseColor("#FBEDED"), Color.parseColor("#B23A3A")),
+        RowColor(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA"), Color.parseColor("#8A6526")),
+        RowColor(Color.parseColor("#3A5FB2"), Color.parseColor("#E5EBFA"), Color.parseColor("#3A5FB2")),
+        RowColor(Color.parseColor("#7A4FA3"), Color.parseColor("#EFE5F7"), Color.parseColor("#7A4FA3")),
+        RowColor(Color.parseColor("#B2673A"), Color.parseColor("#FAEBE1"), Color.parseColor("#B2673A")),
+        RowColor(Color.parseColor("#3A8F6E"), Color.parseColor("#E1F2EA"), Color.parseColor("#3A8F6E")),
+        RowColor(Color.parseColor("#A33A7A"), Color.parseColor("#F7E5EF"), Color.parseColor("#A33A7A"))
+    )
+
+    private fun colorFor(b: PurchaseBatch): RowColor {
+        val idx = kotlin.math.abs(b.id.hashCode()) % rowPalette.size
+        return rowPalette[idx]
+    }
+
+    private fun updateAmountView(holder: BatchVH, qty: Double, unitCost: Double, b: PurchaseBatch) {
+        val rowColor = colorFor(b)
+        holder.itemView.setBackgroundResource(
+            if (qty > 0.0) R.drawable.bg_batch_card_selected else R.drawable.bg_batch_card_unselected
+        )
         if (qty > 0.0) {
             holder.tvBatchAmount.visibility = View.VISIBLE
             holder.tvBatchAmount.text = "Reduce value: ${CurrencyHelper.getCurrencySymbol(holder.itemView.context)}${formatNum(qty * unitCost)}"
-            holder.tvBatchAmount.setTextColor(stripeColor)
+            holder.tvBatchAmount.setTextColor(rowColor.stripe)
         } else {
             holder.tvBatchAmount.visibility = View.GONE
         }

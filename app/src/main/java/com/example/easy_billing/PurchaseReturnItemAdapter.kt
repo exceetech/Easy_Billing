@@ -138,7 +138,13 @@ class PurchaseReturnItemAdapter(
         } else {
             if (item.purchaseIgstPercentage > 0) "IGST ${item.purchaseIgstPercentage.toInt()}%" else "0%"
         }
-        holder.tvGstRate.text    = gstStr
+        val cessStr = if (item.cessPercentage > 0.0) {
+            val prettyCess = if (item.cessPercentage % 1.0 == 0.0) item.cessPercentage.toInt().toString() else "%.2f".format(item.cessPercentage).trimEnd('0').trimEnd('.')
+            " + Cess $prettyCess%"
+        } else if (item.cessAmount > 0.0) {
+            " + Cess"
+        } else ""
+        holder.tvGstRate.text    = "$gstStr$cessStr"
         holder.tvMaxReturn.text  = if (noteType == "C") "N/A" else formatQty(max)
         holder.tvMaxReturn.setTextColor(accentColor)
         holder.tvMaxReturnLabel.setTextColor(accentColor)
@@ -277,7 +283,13 @@ class PurchaseReturnItemAdapter(
                 taxable * item.purchaseIgstPercentage / 100.0
             }
 
-            val total = taxable + gst
+            val cess = if (item.quantity > 0.0 && item.cessAmount > 0.0) {
+                (qty / item.quantity) * item.cessAmount
+            } else {
+                taxable * item.cessPercentage / 100.0
+            }
+
+            val total = taxable + gst + cess
             holder.tvDebitAmount.visibility = View.VISIBLE
             holder.tvDebitAmount.setTextColor(accentColor)
             holder.tvDebitAmount.text = if (noteType == "C")
@@ -314,8 +326,14 @@ class PurchaseReturnItemAdapter(
                     taxable * item.purchaseIgstPercentage / 100.0
                 }
 
-                total += taxable + g
-                gst   += g
+                val ce = if (item.quantity > 0.0 && item.cessAmount > 0.0) {
+                    (qty / item.quantity) * item.cessAmount
+                } else {
+                    taxable * item.cessPercentage / 100.0
+                }
+
+                total += taxable + g + ce
+                gst   += g + ce
             }
         }
         onTotalChanged(total, gst)

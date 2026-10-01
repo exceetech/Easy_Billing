@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-width highlighted panel behind the batch stepper — the main
+     operation on this page, so it gets a tinted background to stand
+     apart from the plain meta text above it. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#F3FAF7"/>
+    <corners android:radius="14dp"/>
+</shape>

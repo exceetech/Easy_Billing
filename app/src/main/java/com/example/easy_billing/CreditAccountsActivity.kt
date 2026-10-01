@@ -891,13 +891,22 @@ class CreditAccountsActivity : BaseActivity() {
         findViewById<TextView>(R.id.tvTotalAdvance).text = money(totalAdvance)
 
         // Counts live with their labels rather than in a card of their own.
-        findViewById<TextView>(R.id.tvDueCount).text = "Due · $dueCount"
-        findViewById<TextView>(R.id.tvAdvanceCount).text = "Advance · $advanceCount"
+        // Pulled from the same string resources as the chips below, not
+        // hardcoded English — this used to overwrite the chip/label text
+        // set elsewhere (and ignore translations) every time the list
+        // reloaded.
+        val dueLabel = getString(R.string.credit_chip_label_due)
+        val advanceLabel = getString(R.string.credit_chip_label_advance)
+        val settledLabel = getString(R.string.credit_chip_label_settled)
+        val allLabel = getString(R.string.manage_filter_all)
 
-        findViewById<TextView>(R.id.chipAll).text = "All · ${accounts.size}"
-        findViewById<TextView>(R.id.chipDue).text = "Due · $dueCount"
-        findViewById<TextView>(R.id.chipAdvance).text = "Advance · $advanceCount"
-        findViewById<TextView>(R.id.chipSettled).text = "Settled · $settledCount"
+        findViewById<TextView>(R.id.tvDueCount).text = "$dueLabel · $dueCount"
+        findViewById<TextView>(R.id.tvAdvanceCount).text = "$advanceLabel · $advanceCount"
+
+        findViewById<TextView>(R.id.chipAll).text = "$allLabel · ${accounts.size}"
+        findViewById<TextView>(R.id.chipDue).text = "$dueLabel · $dueCount"
+        findViewById<TextView>(R.id.chipAdvance).text = "$advanceLabel · $advanceCount"
+        findViewById<TextView>(R.id.chipSettled).text = "$settledLabel · $settledCount"
     }
 
     private fun applyFilter(accounts: List<CreditAccount>) {

@@ -49,10 +49,12 @@ class PurchaseDetailsActivity : BaseActivity() {
     private lateinit var tvInvoiceInfo:   TextView
     private lateinit var tvTaxableAmount: TextView
     private lateinit var tvGstAmount:     TextView
+    private lateinit var tvCessKpiAmount: TextView
     private lateinit var tvTotalAmount:   TextView
     private lateinit var tvSupplierGstin: TextView
     private lateinit var llPurchaseItems: LinearLayout
     private lateinit var tvPriorReturnsHeader: TextView
+    private lateinit var cardReturnsSection: View
     private lateinit var llPriorReturns:  LinearLayout
     private lateinit var btnDebitNote:    MaterialButton
     private lateinit var btnCreditNote:   MaterialButton
@@ -62,6 +64,7 @@ class PurchaseDetailsActivity : BaseActivity() {
     private lateinit var tvStatusPill:    TextView
     private lateinit var tvSyncChip:      TextView
     private lateinit var tvTaxBreakdown:  TextView
+    private lateinit var tvCessBreakdown: TextView
     private lateinit var tvPlaceOfSupply: TextView
     private lateinit var layoutOwed:      View
     private lateinit var tvOwed:          TextView
@@ -103,10 +106,12 @@ class PurchaseDetailsActivity : BaseActivity() {
         tvInvoiceInfo        = findViewById(R.id.tvInvoiceInfo)
         tvTaxableAmount      = findViewById(R.id.tvTaxableAmount)
         tvGstAmount          = findViewById(R.id.tvGstAmount)
+        tvCessKpiAmount      = findViewById(R.id.tvCessKpiAmount)
         tvTotalAmount        = findViewById(R.id.tvTotalAmount)
         tvSupplierGstin      = findViewById(R.id.tvSupplierGstin)
         llPurchaseItems      = findViewById(R.id.llPurchaseItems)
         tvPriorReturnsHeader = findViewById(R.id.tvPriorReturnsHeader)
+        cardReturnsSection = findViewById(R.id.cardReturnsSection)
         llPriorReturns       = findViewById(R.id.llPriorReturns)
         btnDebitNote         = findViewById(R.id.btnDebitNote)
         btnCreditNote        = findViewById(R.id.btnCreditNote)
@@ -116,6 +121,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         tvStatusPill         = findViewById(R.id.tvStatusPill)
         tvSyncChip           = findViewById(R.id.tvSyncChip)
         tvTaxBreakdown       = findViewById(R.id.tvTaxBreakdown)
+        tvCessBreakdown      = findViewById(R.id.tvCessBreakdown)
         tvPlaceOfSupply      = findViewById(R.id.tvPlaceOfSupply)
         layoutOwed           = findViewById(R.id.layoutOwed)
         tvOwed               = findViewById(R.id.tvOwed)
@@ -188,14 +194,15 @@ class PurchaseDetailsActivity : BaseActivity() {
         val gst = p.cgstAmount + p.sgstAmount + p.igstAmount
         tvTaxableAmount.text = CurrencyHelper.format(this, p.taxableAmount)
         tvGstAmount.text     = CurrencyHelper.format(this, gst)
+        tvCessKpiAmount.text = CurrencyHelper.format(this, p.cessPaid)
         tvTotalAmount.text   = CurrencyHelper.format(this, p.invoiceValue)
         tvSupplierGstin.text = if (!p.supplierGstin.isNullOrBlank()) p.supplierGstin else "—"
 
         // Status pill.
         when {
-            p.isCancelled -> setPill("Cancelled", "#8A8272", "#F1EBDD")
-            p.isCredit    -> setPill("On credit", "#A32D2D", "#FBEDED")
-            else          -> setPill("Cash", "#0F6E56", "#E4F1EC")
+            p.isCancelled -> setPill(getString(R.string.purchase_history_filter_cancelled_label), "#8A8272", "#F1EBDD")
+            p.isCredit    -> setPill(getString(R.string.purchase_history_tile_on_credit), "#A32D2D", "#FBEDED")
+            else          -> setPill(getString(R.string.cash), "#0F6E56", "#E4F1EC")
         }
 
         // "not synced" chip.
@@ -212,8 +219,13 @@ class PurchaseDetailsActivity : BaseActivity() {
             "CGST ${CurrencyHelper.format(this, p.cgstAmount)} + SGST ${CurrencyHelper.format(this, p.sgstAmount)}"
         else
             "IGST ${CurrencyHelper.format(this, p.igstAmount)}"
+
+        tvCessBreakdown.text = if (p.cessPaid > 0.0)
+            CurrencyHelper.format(this, p.cessPaid)
+        else
+            "—"
         tvPlaceOfSupply.text =
-            "${p.state.ifBlank { "—" }} (${if (sameState) "intra-state" else "inter-state"})"
+            "${p.state.ifBlank { "—" }} (${if (sameState) getString(R.string.purchase_details_same_state) else getString(R.string.purchase_details_different_state)})"
 
         loadOwed(p)
     }
@@ -224,7 +236,10 @@ class PurchaseDetailsActivity : BaseActivity() {
         tvStatusPill.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgHex))
     }
 
-    /** Shows the supplier's outstanding balance for credit purchases. */
+    /** Shows the supplier's outstanding balance for credit purchases, and
+     *  wires "View ledger" to open the same transaction history screen
+     *  Credit Accounts opens for this account — it used to be a dead label
+     *  with no tap action at all. */
     private fun loadOwed(p: Purchase) {
         val accId = p.creditAccountId
         if (!p.isCredit || accId == null) {
@@ -232,17 +247,28 @@ class PurchaseDetailsActivity : BaseActivity() {
             return
         }
         lifecycleScope.launch {
-            val owed = withContext(Dispatchers.IO) {
+            val account = withContext(Dispatchers.IO) {
                 val shop = getSharedPreferences("auth", MODE_PRIVATE)
                     .getInt("SHOP_ID", -1).takeIf { it > 0 } ?: return@withContext null
                 com.example.easy_billing.db.AppDatabase.getDatabase(this@PurchaseDetailsActivity)
-                    .creditAccountDao().getById(accId, shop)?.dueAmount
+                    .creditAccountDao().getById(accId, shop)
             }
-            if (owed != null && owed > 0.005) {
+            val owed = account?.dueAmount
+            if (account != null && owed != null && owed > 0.005) {
                 tvOwed.text = CurrencyHelper.format(this@PurchaseDetailsActivity, owed)
                 layoutOwed.visibility = View.VISIBLE
+                layoutOwed.setOnClickListener {
+                    startActivity(
+                        Intent(this@PurchaseDetailsActivity, CustomerTransactionsActivity::class.java)
+                            .putExtra("ACCOUNT_ID", account.serverId ?: -1)
+                            .putExtra("LOCAL_ACCOUNT_ID", account.id)
+                            .putExtra("ACCOUNT_NAME", account.name)
+                            .putExtra("ACCOUNT_PHONE", account.phone)
+                    )
+                }
             } else {
                 layoutOwed.visibility = View.GONE
+                layoutOwed.setOnClickListener(null)
             }
         }
     }
@@ -288,7 +314,7 @@ class PurchaseDetailsActivity : BaseActivity() {
             val returnedQty = returnedByProduct[item.productId] ?: 0.0
             row.findViewById<TextView>(R.id.tvReturnedChip).apply {
                 if (returnedQty > 0.005) {
-                    text = "${formatQty(returnedQty)} returned"
+                    text = "${formatQty(returnedQty)} ${getString(R.string.purchase_details_qty_returned_suffix)}"
                     visibility = View.VISIBLE
                 } else visibility = View.GONE
             }
@@ -306,12 +332,17 @@ class PurchaseDetailsActivity : BaseActivity() {
                 append("Qty ${formatQty(item.quantity)} ${item.unit ?: ""}".trim())
                 append("  ·  ${CurrencyHelper.format(this@PurchaseDetailsActivity, unitTaxable)}")
             }
-            row.findViewById<TextView>(R.id.tvCostAndGst).text = if (sameState) {
+            var taxString = if (sameState) {
                 val pct = (item.purchaseCgstPercentage + item.purchaseSgstPercentage)
                 if (pct > 0) "GST ${pct.toInt()}%" else "0%"
             } else {
                 if (item.purchaseIgstPercentage > 0) "IGST ${item.purchaseIgstPercentage.toInt()}%" else "0%"
             }
+            if (item.cessPercentage > 0.0) {
+                val prettyCess = if (item.cessPercentage % 1.0 == 0.0) item.cessPercentage.toInt().toString() else "%.2f".format(item.cessPercentage).trimEnd('0').trimEnd('.')
+                taxString += " + CESS $prettyCess%"
+            }
+            row.findViewById<TextView>(R.id.tvCostAndGst).text = taxString
             row.findViewById<TextView>(R.id.tvLineTotal).text =
                 CurrencyHelper.format(this, item.invoiceValue)
 
@@ -325,12 +356,16 @@ class PurchaseDetailsActivity : BaseActivity() {
 
     private fun buildPriorReturns(returns: List<PurchaseReturn>) {
         if (returns.isEmpty()) {
-            tvPriorReturnsHeader.visibility = View.GONE
+            // Hide the whole card, not just the title — otherwise an empty
+            // purchase shows a half-visible card (step circle + hint, no
+            // title, no body).
+            cardReturnsSection.visibility = View.GONE
             llPriorReturns.removeAllViews()
             llPriorReturns.visibility = View.GONE
             rowNetReturns.visibility = View.GONE
             return
         }
+        cardReturnsSection.visibility = View.VISIBLE
         llPriorReturns.visibility = View.VISIBLE
 
         // Effective landed cost: invoice minus debit-note returns plus any
@@ -344,17 +379,22 @@ class PurchaseDetailsActivity : BaseActivity() {
             val debitTotal = debitNotes.sumOf { it.invoiceValue }
             val creditTotal = creditNotes.sumOf { it.invoiceValue }
 
-            fun noteWord(count: Int) = if (count == 1) "note" else "notes"
+            fun noteWord(count: Int) = if (count == 1)
+                getString(R.string.purchase_details_note_word)
+            else
+                getString(R.string.purchase_details_notes_word)
 
             tvNetAfterReturns.text = CurrencyHelper.format(this, p.invoiceValue + delta)
 
-            val parts = mutableListOf("${CurrencyHelper.format(this, p.invoiceValue)} invoiced")
+            val parts = mutableListOf(
+                "${CurrencyHelper.format(this, p.invoiceValue)} ${getString(R.string.purchase_details_invoiced_suffix)}"
+            )
             if (debitNotes.isNotEmpty()) {
-                parts += "${CurrencyHelper.format(this, debitTotal)} returned across " +
+                parts += "${CurrencyHelper.format(this, debitTotal)} ${getString(R.string.purchase_details_returned_across)} " +
                     "${debitNotes.size} ${noteWord(debitNotes.size)}"
             }
             if (creditNotes.isNotEmpty()) {
-                parts += "${CurrencyHelper.format(this, creditTotal)} credited across " +
+                parts += "${CurrencyHelper.format(this, creditTotal)} ${getString(R.string.purchase_details_credited_across)} " +
                     "${creditNotes.size} ${noteWord(creditNotes.size)}"
             }
 
@@ -366,16 +406,17 @@ class PurchaseDetailsActivity : BaseActivity() {
             // this field, so old purchases show exactly what they always did.
             val totalVariance = debitNotes.sumOf { it.inventoryValuationVariance }
             if (kotlin.math.abs(totalVariance) >= 0.01) {
-                val word = if (totalVariance > 0) "loss" else "gain"
-                parts += "${CurrencyHelper.format(this, kotlin.math.abs(totalVariance))} " +
-                    "inventory $word on returns"
+                val suffix = if (totalVariance > 0)
+                    getString(R.string.purchase_details_inventory_loss_suffix)
+                else
+                    getString(R.string.purchase_details_inventory_gain_suffix)
+                parts += "${CurrencyHelper.format(this, kotlin.math.abs(totalVariance))} $suffix"
             }
 
             tvNetOriginalAmount.text = parts.joinToString(" · ")
             rowNetReturns.visibility = View.VISIBLE
         }
 
-        tvPriorReturnsHeader.visibility = View.VISIBLE
         llPriorReturns.removeAllViews()
 
         for ((index, ret) in returns.withIndex()) {
@@ -383,7 +424,7 @@ class PurchaseDetailsActivity : BaseActivity() {
                 .inflate(R.layout.item_debit_note_row, llPriorReturns, false)
 
             card.findViewById<TextView>(R.id.tvNoteNumber).text =
-                ret.noteNumber ?: "Return"
+                ret.noteNumber ?: getString(R.string.purchase_details_note_number_fallback)
             card.findViewById<TextView>(R.id.tvProductName).text = ret.productName
             card.findViewById<TextView>(R.id.tvReturnedQty).text =
                 "· Qty ${formatQty(ret.quantityReturned)}"
@@ -413,7 +454,8 @@ class PurchaseDetailsActivity : BaseActivity() {
                 setTextColor(Color.parseColor(amtHex))
             }
             card.findViewById<TextView>(R.id.tvNoteCaption).text =
-                if (isReturn) "returned" else "added"
+                if (isReturn) getString(R.string.purchase_details_note_caption_returned)
+                else getString(R.string.purchase_details_note_caption_added)
 
             // Moving-average redesign, Phase 5: per-row inventory gain/loss.
             // Only meaningful for a Debit Note; zero for Credit Notes and
@@ -423,7 +465,11 @@ class PurchaseDetailsActivity : BaseActivity() {
             if (isReturn && kotlin.math.abs(variance) >= 0.01) {
                 val isLoss = variance > 0
                 val varianceHex = if (isLoss) "#B04A3B" else "#0F6E56"
-                tvVariance.text = (if (isLoss) "Inventory loss " else "Inventory gain ") +
+                val label = if (isLoss)
+                    getString(R.string.purchase_details_inventory_loss_label)
+                else
+                    getString(R.string.purchase_details_inventory_gain_label)
+                tvVariance.text = "$label " +
                     CurrencyHelper.format(this@PurchaseDetailsActivity, kotlin.math.abs(variance))
                 tvVariance.setTextColor(Color.parseColor(varianceHex))
                 tvVariance.visibility = View.VISIBLE
@@ -464,11 +510,11 @@ class PurchaseDetailsActivity : BaseActivity() {
         lifecycleScope.launch {
             when (val check = PurchaseCancelRepository.canCancel(this@PurchaseDetailsActivity, purchaseId)) {
                 is PurchaseCancelRepository.CancelCheck.NotFound -> {
-                    toast("Purchase not found")
+                    toast(getString(R.string.purchase_not_found_toast))
                     btnCancelPurchase.isEnabled = true
                 }
                 is PurchaseCancelRepository.CancelCheck.AlreadyCancelled -> {
-                    toast("This purchase is already cancelled")
+                    toast(getString(R.string.purchase_already_cancelled_toast))
                     applyCancelledState()
                 }
                 is PurchaseCancelRepository.CancelCheck.Blocked -> {
@@ -497,7 +543,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         view.findViewById<TextView>(R.id.tvCantCancelEyebrow).text =
-            currentInvoiceNumber.ifBlank { "PURCHASE $purchaseId" }
+            currentInvoiceNumber.ifBlank { getString(R.string.purchase_details_eyebrow_fallback, purchaseId) }
         view.findViewById<TextView>(R.id.tvCantCancelMessage).text = reason
 
         view.findViewById<MaterialButton>(R.id.btnCantCancelGotIt).setOnClickListener {
@@ -522,7 +568,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         view.findViewById<TextView>(R.id.tvCancelPurchaseEyebrow).text =
-            currentInvoiceNumber.ifBlank { "PURCHASE $purchaseId" }
+            currentInvoiceNumber.ifBlank { getString(R.string.purchase_details_eyebrow_fallback, purchaseId) }
 
         view.findViewById<MaterialButton>(R.id.btnConfirmCancelPurchase).setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction(
@@ -546,12 +592,12 @@ class PurchaseDetailsActivity : BaseActivity() {
                 PurchaseCancelRepository.cancel(this@PurchaseDetailsActivity, purchaseId)
             }
             if (result == null) {
-                toast("Couldn't cancel the purchase")
+                toast(getString(R.string.purchase_cancel_failed_toast))
                 btnCancelPurchase.isEnabled = true
                 return@launch
             }
             applyCancelledState()
-            toast("Purchase cancelled. Stock returned to supplier.")
+            toast(getString(R.string.purchase_cancelled_success_toast))
 
             // Push the void, the returns and the balance change.
             com.example.easy_billing.sync.SyncCoordinator
@@ -576,7 +622,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         // can't be returned or cancelled again.
         tvCancelledBanner.visibility = View.VISIBLE
         actionRow.visibility = View.GONE
-        setPill("Cancelled", "#8A8272", "#F1EBDD")
+        setPill(getString(R.string.purchase_history_filter_cancelled_label), "#8A8272", "#F1EBDD")
     }
 
     /** First letters of the first two words, uppercased — the row monogram. */

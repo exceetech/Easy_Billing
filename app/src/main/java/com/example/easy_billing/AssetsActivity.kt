@@ -11,7 +11,6 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.repository.ProductRepository
 import com.example.easy_billing.ui.ThemedDropdown
 import com.example.easy_billing.util.CurrencyHelper
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
@@ -43,7 +42,6 @@ class AssetsActivity : BaseActivity() {
     private lateinit var tvInputServicesCount: TextView
     private lateinit var tvRawMaterialCount: TextView
     private lateinit var etSearch: TextInputEditText
-    private lateinit var chipFilter: ChipGroup
     private lateinit var btnFilter: View
     private lateinit var btnSort: View
     private lateinit var tvFilterBadge: TextView
@@ -69,7 +67,6 @@ class AssetsActivity : BaseActivity() {
         tvInputServicesCount = findViewById(R.id.tvInputServicesCount)
         tvRawMaterialCount = findViewById(R.id.tvRawMaterialCount)
         etSearch = findViewById(R.id.etSearch)
-        chipFilter = findViewById(R.id.chipFilter)
         btnFilter = findViewById(R.id.btnFilter)
         btnSort = findViewById(R.id.btnSort)
         tvFilterBadge = findViewById(R.id.tvFilterBadge)
@@ -83,27 +80,20 @@ class AssetsActivity : BaseActivity() {
             applyFilters()
         }
 
-        chipFilter.setOnCheckedStateChangeListener { _, checkedIds ->
-            activeKind = when (checkedIds.firstOrNull()) {
-                R.id.chipCapitalGoods -> AssetKind.CAPITAL_GOODS
-                R.id.chipInputServices -> AssetKind.INPUT_SERVICES
-                R.id.chipRawMaterial -> AssetKind.RAW_MATERIAL
-                else -> null
-            }
-            applyFilters()
-        }
-
         btnFilter.setOnClickListener { showFilterPopup() }
         btnSort.setOnClickListener { showSortPopup() }
 
         findViewById<View>(R.id.tileCapitalGoods).setOnClickListener {
-            findViewById<com.google.android.material.chip.Chip>(R.id.chipCapitalGoods).isChecked = true
+            activeKind = AssetKind.CAPITAL_GOODS
+            applyFilters()
         }
         findViewById<View>(R.id.tileInputServices).setOnClickListener {
-            findViewById<com.google.android.material.chip.Chip>(R.id.chipInputServices).isChecked = true
+            activeKind = AssetKind.INPUT_SERVICES
+            applyFilters()
         }
         findViewById<View>(R.id.tileRawMaterial).setOnClickListener {
-            findViewById<com.google.android.material.chip.Chip>(R.id.chipRawMaterial).isChecked = true
+            activeKind = AssetKind.RAW_MATERIAL
+            applyFilters()
         }
 
         loadAssets()
@@ -211,15 +201,8 @@ class AssetsActivity : BaseActivity() {
         )
         val selectedIndex = options.indexOfFirst { it.first == activeKind }
         ThemedDropdown.show(btnFilter, options.map { it.second }, selectedIndex, rightAlign = false, minWidthDp = 190) { idx ->
-            // Drive the selection through the existing chip group so the
-            // chip row and the dropdown never fall out of sync.
-            val chipId = when (options[idx].first) {
-                AssetKind.CAPITAL_GOODS -> R.id.chipCapitalGoods
-                AssetKind.INPUT_SERVICES -> R.id.chipInputServices
-                AssetKind.RAW_MATERIAL -> R.id.chipRawMaterial
-                null -> R.id.chipAll
-            }
-            findViewById<com.google.android.material.chip.Chip>(chipId).isChecked = true
+            activeKind = options[idx].first
+            applyFilters()
         }
     }
 

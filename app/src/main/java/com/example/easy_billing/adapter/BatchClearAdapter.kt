@@ -111,7 +111,7 @@ class BatchClearAdapter(
             ?: b.batchCode?.takeIf { it.isNotBlank() }
             ?: "Stock entry #${b.id}"
         holder.tvInvoice.text = label
-        holder.avatar.text = label.trim().take(1).uppercase()
+        holder.avatar.text = "${position + 1}"
 
         val symbol = CurrencyHelper.getCurrencySymbol(holder.itemView.context)
         holder.tvMeta.text = buildString {

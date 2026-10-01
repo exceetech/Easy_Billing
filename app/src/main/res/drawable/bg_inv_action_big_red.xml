@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Big "Clear stock" action button — solid red, ripple on tap. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#C45656">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#B23A3A"/>
+            <corners android:radius="18dp"/>
+        </shape>
+    </item>
+</ripple>

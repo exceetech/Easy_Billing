@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Purchase-detail line item — mirrors item_credit exactly: a left stripe, a
-    monogram tile (letters), name + sub, and the amount right-aligned with a
-    caption. The container sets clipToOutline so the stripe follows the card's
-    rounded corners.
+    Purchase-detail line item — redesigned to match the batch-row card used
+    in Inventory's Reduce Stock page (item_batch_clear.xml): each item is its
+    own rounded card with a left accent stripe, a circular monogram avatar,
+    name + meta on the left, and a serif amount on the right. Rows are no
+    longer stacked inside one long card with thin dividers — this one reads
+    as a clear standalone row, same as Reduce Stock.
 
     Bound by PurchaseDetailsActivity.buildItemsList: viewItemStripe, tvAvatar,
     tvProductName, tvReturnedChip, tvHsnQty, tvLineTotal, tvCostAndGst,
-    viewItemDivider.
+    viewItemDivider (kept, always collapsed — cards are separated by margin
+    now instead of a divider line).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -17,29 +20,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginVertical="5dp"
+        android:background="@drawable/bg_inv_value_card"
+        android:clipToOutline="true"
+        android:clipChildren="true">
 
         <View
             android:id="@+id/viewItemStripe"
-            android:layout_width="3dp"
+            android:layout_width="4dp"
             android:layout_height="match_parent"
             android:background="#E4DBC6" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="13dp">
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/tvAvatar"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
                 android:gravity="center"
                 android:text="P"
-                android:textSize="16sp"
+                android:textSize="13sp"
                 android:textColor="#8A8272"
                 android:fontFamily="@font/googlesans_semibold"
                 android:background="@drawable/bg_credit_avatar"
@@ -51,7 +58,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:layout_marginStart="10dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -109,7 +116,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textColor="#1A1A18"
                     android:fontFamily="serif"
                     android:includeFontPadding="false"
@@ -127,11 +134,12 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Kept so PurchaseDetailsActivity's findViewById(R.id.viewItemDivider)
+         call still works; always collapsed since cards are separated by
+         margin now, not a divider line. -->
     <View
         android:id="@+id/viewItemDivider"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginHorizontal="14dp"
-        android:background="#F1EBDD" />
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
 
 </LinearLayout>

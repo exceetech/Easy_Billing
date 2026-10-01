@@ -989,7 +989,7 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
 
-                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow">
+                    <LinearLayout android:id="@+id/btnImportServices" style="@style/SettingsRow" android:visibility="gone">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#FAEEDA"
                             android:src="@drawable/ic_drawer_import" app:tint="#854F0B"/>
                         <LinearLayout style="@style/SettingsRowText">

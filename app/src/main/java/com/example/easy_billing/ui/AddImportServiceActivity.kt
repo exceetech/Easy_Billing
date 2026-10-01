@@ -45,9 +45,9 @@ class AddImportServiceActivity : BaseActivity() {
     }
 
     private var selectedDateEpoch: Long = appNow()
-    private var selectedItc: String = "Inputs"
-    private var selectedPos: String = "97 - Other Territory"
-    private val posOptions = listOf("97 - Other Territory", "96 - Foreign Country")
+    private var selectedItc: String = "Input services"
+    private var selectedPos: String = "96 - Foreign Country"
+    private val posOptions = listOf("96 - Foreign Country", "97 - Other Territory")
     private val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
     /** The record being edited, or null when adding. */
@@ -64,6 +64,8 @@ class AddImportServiceActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_import_service)
         com.example.easy_billing.util.UserEventLogger.logAction("AddImportService", "opened")
+
+        findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener { finish() }
 
         val tvInvoiceDate = findViewById<TextView>(R.id.tvInvoiceDate)
         // No "Date: " prefix — the field already has an "Invoice date" label
@@ -100,7 +102,9 @@ class AddImportServiceActivity : BaseActivity() {
                 segViews.forEach { it.isSelected = (it == seg) }
             }
         }
-        segViews.first().performClick()   // default to Inputs
+        segViews[2].performClick()   // default to Input services — most import-of-services records are exactly that
+
+        setupMoreDetailsToggle()
 
         // Back arrow and its click handling come from the shared toolbar
         // helper, the same way the list screen gets them — rather than a
@@ -237,6 +241,19 @@ class AddImportServiceActivity : BaseActivity() {
 
     private fun num(v: Double): String = String.format(Locale.US, "%.2f", v)
 
+    /** Opens/closes the "More tax & credit details" group — Place of supply,
+     * Cess paid, and the whole Input Tax Credit section — closed by default. */
+    private fun setupMoreDetailsToggle() {
+        val chevron = findViewById<ImageView>(R.id.ivImportMoreDetailsChevron)
+        val group = findViewById<View>(R.id.groupImportMoreDetails)
+        chevron.rotation = 0f
+        findViewById<View>(R.id.btnToggleImportMoreDetails).setOnClickListener {
+            val expand = group.visibility != View.VISIBLE
+            group.visibility = if (expand) View.VISIBLE else View.GONE
+            chevron.rotation = if (expand) 180f else 0f
+        }
+    }
+
     /**
      * Keeps the "of ₹X paid" caption under each availed-ITC field in step with
      * the tax actually entered.
@@ -300,21 +317,35 @@ class AddImportServiceActivity : BaseActivity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, dp(44)
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                setPadding(dp(12), 0, dp(12), 0)
+                setPadding(dp(12), dp(9), dp(12), dp(9))
                 isClickable = true
                 if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val textCol = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
             }
             val label = TextView(this).apply {
                 text = opt
                 textSize = 14f
                 setTextColor(Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
-                layoutParams = LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
-                )
             }
-            row.addView(label)
+            val descText = if (opt == "96 - Foreign Country")
+                getString(R.string.import_services_pos_foreign_desc)
+            else
+                getString(R.string.import_services_pos_other_desc)
+            val desc = TextView(this).apply {
+                text = descText
+                textSize = 11f
+                setTextColor(Color.parseColor("#9A8F79"))
+            }
+            textCol.addView(label)
+            textCol.addView(desc)
+            row.addView(textCol)
             if (isSel) {
                 row.addView(ImageView(this).apply {
                     setImageResource(R.drawable.ic_lucide_check)
@@ -369,22 +400,22 @@ class AddImportServiceActivity : BaseActivity() {
             return true
         }
 
-        if (invoiceValue <= 0.0 && reject("Invoice value must be greater than 0")) return
+        if (invoiceValue <= 0.0 && reject("Please enter the invoice value")) return
         if (listOf(invoiceValue, rate, taxableValue, igstPaid, cessPaid,
                    availedIgst, availedCess).any { it < 0.0 } &&
-            reject("Negative amounts are not allowed")) return
+            reject("Amounts cannot be negative")) return
 
         // Same tolerance as PurchaseLineDialog: a claim can equal the tax
         // paid, and rounding must not turn that into a rejection.
         val eps = 0.011
         if (availedIgst > igstPaid + eps &&
-            reject("Availed ITC IGST cannot exceed IGST paid (${"%.2f".format(igstPaid)})")) return
+            reject("Availed ITC (IGST) can't be more than the IGST paid — ${"%.2f".format(igstPaid)}")) return
         if (availedCess > cessPaid + eps &&
-            reject("Availed ITC Cess cannot exceed Cess paid (${"%.2f".format(cessPaid)})")) return
+            reject("Availed ITC (Cess) can't be more than the Cess paid — ${"%.2f".format(cessPaid)}")) return
 
         if (itc in listOf("Ineligible", "None") &&
             (availedIgst > 0.01 || availedCess > 0.01) &&
-            reject("Availed ITC must be 0 when eligibility is $itc")) return
+            reject("Availed ITC must be 0 when eligibility is set to \"$itc\"")) return
 
         val current = editing
         val record = ImportService(

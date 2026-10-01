@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Big "Reduce stock" action button — solid amber, ripple on tap. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#D68E3C">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#C47A1F"/>
+            <corners android:radius="18dp"/>
+        </shape>
+    </item>
+</ripple>

@@ -251,9 +251,12 @@
 
         </LinearLayout>
 
+        <!-- Icon alone used to be the only cue for what these buttons do —
+             a plain word next to each icon removes the guesswork, same fix
+             as Purchase History's Filter/Sort buttons. -->
         <FrameLayout
             android:id="@+id/btnFilter"
-            android:layout_width="44dp"
+            android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:clipChildren="false"
@@ -263,13 +266,29 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_filter"
-                app:tint="#B8895A"
-                android:contentDescription="Filter" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_filter"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/manage_products_filter_button_label"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvFilterBadge"
@@ -294,7 +313,7 @@
 
         <FrameLayout
             android:id="@+id/btnSort"
-            android:layout_width="44dp"
+            android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_inv_stat_card"
@@ -302,13 +321,29 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_lc_sliders"
-                app:tint="#B8895A"
-                android:contentDescription="@string/manage_products_sort_content_desc" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_sliders"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/manage_products_sort_content_desc"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
         </FrameLayout>
 
@@ -383,39 +418,11 @@
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <!-- ===================== BULK ACTION BAR (conditional) ===================== -->
-    <LinearLayout
-        android:id="@+id/layoutBulk"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_inv_bulk"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="11dp"
-        android:paddingHorizontal="11dp"
-        android:paddingVertical="9dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tvSelectedCount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/inventory_selected_count_placeholder"
-            android:textSize="12sp"
-            android:textColor="#CFE0F7"/>
-
-        <TextView android:id="@+id/btnBulkEditPrice" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/inventory_bulk_edit_price" android:textSize="11sp" android:textColor="#CFE0F7"
-            android:background="@drawable/bg_inv_bulk_act" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
-        <TextView android:id="@+id/btnBulkCategory" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp"
-            android:text="@string/add_product_category_label" android:textSize="11sp" android:textColor="#CFE0F7"
-            android:background="@drawable/bg_inv_bulk_act" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
-        <TextView android:id="@+id/btnBulkInactive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp"
-            android:text="@string/inventory_bulk_mark_inactive" android:textSize="11sp" android:textColor="#412402"
-            android:background="@drawable/bg_inv_bulk_act_gold" android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
-    </LinearLayout>
+    <!-- Dead "bulk select" action bar (layoutBulk / btnBulkEditPrice /
+         btnBulkCategory / btnBulkInactive) removed — it was never wired
+         up to any code (no long-press/selection-mode entry point set
+         its visibility to visible anywhere), so it could never actually
+         be shown to a user. Pure leftover markup. -->
 
     <!-- ===================== SECTION LABEL ===================== -->
     <LinearLayout

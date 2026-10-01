@@ -50,6 +50,8 @@ class SalesReturnActivity : AppCompatActivity() {
     private lateinit var rvReturnItems: RecyclerView
     private lateinit var tvTotalReturnValue: TextView
     private lateinit var tvGstReversal: TextView
+    private lateinit var rowCessReversal: View
+    private lateinit var tvCessReversal: TextView
     private lateinit var tvTaxableTile: TextView
     private lateinit var btnConfirmReturn: MaterialButton
     private lateinit var btnCancelReturn: MaterialButton
@@ -81,6 +83,8 @@ class SalesReturnActivity : AppCompatActivity() {
         rvReturnItems    = findViewById(R.id.rvReturnItems)
         tvTotalReturnValue = findViewById(R.id.tvTotalReturnValue)
         tvGstReversal    = findViewById(R.id.tvGstReversal)
+        rowCessReversal  = findViewById(R.id.rowCessReversal)
+        tvCessReversal   = findViewById(R.id.tvCessReversal)
         tvTaxableTile    = findViewById(R.id.tvTaxableTile)
         btnConfirmReturn = findViewById(R.id.btnConfirmReturn)
         btnCancelReturn  = findViewById(R.id.btnCancelReturn)
@@ -166,19 +170,25 @@ class SalesReturnActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.billItems.collectLatest { items ->
+            viewModel.returnLineItems.collectLatest { items ->
                 if (items.isEmpty()) return@collectLatest
                 val adapter = SalesReturnItemAdapter(
                     items            = items,
                     maxReturnableQty = { productId, soldQty ->
                         viewModel.maxReturnableQty(productId, soldQty)
                     },
-                    onTotalChanged   = { total, tax ->
+                    onTotalChanged   = { total, taxable, gst, cess ->
                         // BillItem values are already net of any pre-tax bill
                         // discount, so the returned total is the correct refund.
                         tvTotalReturnValue.text = CurrencyHelper.format(this@SalesReturnActivity, total)
-                        tvGstReversal.text      = CurrencyHelper.format(this@SalesReturnActivity, tax)
-                        tvTaxableTile.text      = CurrencyHelper.format(this@SalesReturnActivity, (total - tax).coerceAtLeast(0.0))
+                        tvTaxableTile.text      = CurrencyHelper.format(this@SalesReturnActivity, taxable)
+                        tvGstReversal.text      = CurrencyHelper.format(this@SalesReturnActivity, gst)
+                        if (cess > 0.0) {
+                            rowCessReversal.visibility = View.VISIBLE
+                            tvCessReversal.text        = CurrencyHelper.format(this@SalesReturnActivity, cess)
+                        } else {
+                            rowCessReversal.visibility = View.GONE
+                        }
                     }
                 )
                 rvReturnItems.adapter = adapter
@@ -270,7 +280,7 @@ class SalesReturnActivity : AppCompatActivity() {
     private fun confirmAndSubmit() {
         val adapter = rvReturnItems.adapter as? SalesReturnItemAdapter ?: return
         val lines   = adapter.getReturnLines()
-        val linesDetail = lines.joinToString("; ") { (item, qty) -> "${item.productName}=$qty" }
+        val linesDetail = lines.joinToString("; ") { (item, qty) -> "${item.billItem.productName}=$qty" }
         com.example.easy_billing.util.UserEventLogger.logAction(
             "SalesReturn",
             "submit_clicked: lines_selected=${lines.size}, total_value=${tvTotalReturnValue.text}, items=[$linesDetail]"
@@ -319,7 +329,7 @@ class SalesReturnActivity : AppCompatActivity() {
 
     private fun submitReturn(
         bill: Bill,
-        lines: List<Pair<com.example.easy_billing.db.BillItem, Double>>
+        lines: List<Pair<com.example.easy_billing.viewmodel.SalesReturnLineItem, Double>>
     ) {
         // Parse bill date to epoch millis
         val billDateMillis = try {
@@ -329,8 +339,13 @@ class SalesReturnActivity : AppCompatActivity() {
             System.currentTimeMillis()
         }
 
-        val returnLines = lines.map { (item, qty) ->
-            CreditNoteRepository.ReturnLine(billItem = item, returnQty = qty)
+        val returnLines = lines.map { (lineItem, qty) ->
+            CreditNoteRepository.ReturnLine(
+                billItem   = lineItem.billItem,
+                returnQty  = qty,
+                cessRate   = lineItem.cessRate,
+                cessAmount = lineItem.cessAmount
+            )
         }
 
         viewModel.submitReturn(

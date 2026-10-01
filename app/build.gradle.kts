@@ -56,7 +56,7 @@ android {
     buildTypes {
         getByName("debug") {
             // Override here if you test on a physical device instead of the emulator.
-            buildConfigField("String", "API_BASE_URL", "\"http://192.168.31.128:8080/\"")
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.31.244:8080/\"")
         }
         getByName("release") {
             isMinifyEnabled = true

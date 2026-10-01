@@ -120,15 +120,19 @@ class InvoiceActivity : AppCompatActivity() {
     private lateinit var rowCgst: View
     private lateinit var rowSgst: View
     private lateinit var rowIgst: View
+    private lateinit var rowCess: View
     private lateinit var tvCgstAmount: TextView
     private lateinit var tvSgstAmount: TextView
     private lateinit var tvIgstAmount: TextView
+    private lateinit var tvCessAmount: TextView
     private lateinit var tvCgstLabel: TextView
     private lateinit var tvSgstLabel: TextView
     private lateinit var tvIgstLabel: TextView
+    private lateinit var tvCessLabel: TextView
     private lateinit var tvCgstRate: TextView
     private lateinit var tvSgstRate: TextView
     private lateinit var tvIgstRate: TextView
+    private lateinit var tvCessRate: TextView
     private lateinit var tvTotalTax: TextView
     private lateinit var tvCompositionNote: TextView
 
@@ -387,15 +391,19 @@ class InvoiceActivity : AppCompatActivity() {
         rowCgst           = findViewById(R.id.rowCgst)
         rowSgst           = findViewById(R.id.rowSgst)
         rowIgst           = findViewById(R.id.rowIgst)
+        rowCess           = findViewById(R.id.rowCess)
         tvCgstAmount      = findViewById(R.id.tvCgstAmount)
         tvSgstAmount      = findViewById(R.id.tvSgstAmount)
         tvIgstAmount      = findViewById(R.id.tvIgstAmount)
+        tvCessAmount      = findViewById(R.id.tvCessAmount)
         tvCgstLabel       = findViewById(R.id.tvCgstLabel)
         tvSgstLabel       = findViewById(R.id.tvSgstLabel)
         tvIgstLabel       = findViewById(R.id.tvIgstLabel)
+        tvCessLabel       = findViewById(R.id.tvCessLabel)
         tvCgstRate        = findViewById(R.id.tvCgstRate)
         tvSgstRate        = findViewById(R.id.tvSgstRate)
         tvIgstRate        = findViewById(R.id.tvIgstRate)
+        tvCessRate        = findViewById(R.id.tvCessRate)
         tvTotalTax        = findViewById(R.id.tvTotalTax)
         tvCompositionNote = findViewById(R.id.tvCompositionNote)
 
@@ -900,7 +908,7 @@ class InvoiceActivity : AppCompatActivity() {
      */
     private fun bindTaxTile(
         tile: View, label: TextView, amount: TextView, rate: TextView,
-        active: Boolean, taxAmount: Double, subtotal: Double
+        active: Boolean, taxAmount: Double, subtotal: Double, nominalPct: Double? = null
     ) {
         tile.alpha = if (active) 1f else 0.55f
         if (active) {
@@ -908,7 +916,10 @@ class InvoiceActivity : AppCompatActivity() {
             label.setTextColor(0xFF8A6526.toInt())
             amount.setTextColor(0xFF18181B.toInt())
             amount.text = CurrencyHelper.format(this, taxAmount)
-            val pct = if (subtotal > 0) taxAmount / subtotal * 100.0 else 0.0
+            // Show the actual configured rate (e.g. "6%"), not amount/subtotal
+            // re-derived from paisa-rounded totals — that re-derivation is
+            // what turned an exact 6% into a displayed "6.02%".
+            val pct = nominalPct ?: (if (subtotal > 0) taxAmount / subtotal * 100.0 else 0.0)
             val pretty = if (pct % 1.0 == 0.0) pct.toInt().toString()
                          else String.format("%.2f", pct).trimEnd('0').trimEnd('.')
             rate.setTextColor(0xFFB0A48C.toInt())
@@ -988,16 +999,41 @@ class InvoiceActivity : AppCompatActivity() {
         val cgstOn = !isComposition && isIntra
         val sgstOn = !isComposition && isIntra
         val igstOn = !isComposition && isInter
-        bindTaxTile(rowCgst, tvCgstLabel, tvCgstAmount, tvCgstRate, cgstOn, breakdown.totalCgst, breakdown.taxableValue)
-        bindTaxTile(rowSgst, tvSgstLabel, tvSgstAmount, tvSgstRate, sgstOn, breakdown.totalSgst, breakdown.taxableValue)
-        bindTaxTile(rowIgst, tvIgstLabel, tvIgstAmount, tvIgstRate, igstOn, breakdown.totalIgst, breakdown.taxableValue)
+        // Taxable-weighted average of each line's own configured rate —
+        // stays exactly "6" when every line is 6%, instead of re-deriving
+        // the percentage from rounded rupee totals.
+        fun nominalRate(pctOf: (GstBillingCalculator.LineBreakdown) -> Double): Double {
+            val base = breakdown.lines.sumOf { it.taxableAmount }
+            return if (base > 0.0) breakdown.lines.sumOf { pctOf(it) * it.taxableAmount } / base else 0.0
+        }
+        val nominalCgst = nominalRate { it.cgstPercentage }
+        val nominalSgst = nominalRate { it.sgstPercentage }
+        val nominalIgst = nominalRate { it.igstPercentage }
+        val nominalCess = nominalRate { it.cessPercentage }
+
+        bindTaxTile(rowCgst, tvCgstLabel, tvCgstAmount, tvCgstRate, cgstOn, breakdown.totalCgst, breakdown.taxableValue, nominalCgst)
+        bindTaxTile(rowSgst, tvSgstLabel, tvSgstAmount, tvSgstRate, sgstOn, breakdown.totalSgst, breakdown.taxableValue, nominalSgst)
+        bindTaxTile(rowIgst, tvIgstLabel, tvIgstAmount, tvIgstRate, igstOn, breakdown.totalIgst, breakdown.taxableValue, nominalIgst)
+        val cessOn = breakdown.totalCess > 0.0
+        bindTaxTile(rowCess, tvCessLabel, tvCessAmount, tvCessRate, cessOn, breakdown.totalCess, breakdown.taxableValue, nominalCess)
 
         tvTotalTax.text   = CurrencyHelper.format(this, breakdown.totalTax)
 
-        // Effective GST percent indicator (on the net taxable value).
-        val effectivePct = if (breakdown.taxableValue > 0)
-            (breakdown.totalTax / breakdown.taxableValue) * 100.0 else 0.0
-        tvGstPercent.text = "(${"%.1f".format(effectivePct)}%)"
+        // Effective GST percent indicator — the taxable-weighted average of
+        // each line's own configured total rate (cgst+sgst+igst+cess), not
+        // totalTax/taxableValue re-derived from paisa-rounded rupee totals.
+        // The latter is what turned a flat 18% bill into "(18.1%)".
+        val effectivePct = run {
+            val base = breakdown.lines.sumOf { it.taxableAmount }
+            if (base > 0.0) {
+                breakdown.lines.sumOf {
+                    (it.cgstPercentage + it.sgstPercentage + it.igstPercentage + it.cessPercentage) * it.taxableAmount
+                } / base
+            } else 0.0
+        }
+        val effectivePctText = if (effectivePct % 1.0 == 0.0) effectivePct.toInt().toString()
+                               else "%.1f".format(effectivePct)
+        tvGstPercent.text = "($effectivePctText%)"
 
         // Supply-type badge + scheme line.
         tvSupplyTypeBadge.text = when {
@@ -1319,13 +1355,14 @@ class InvoiceActivity : AppCompatActivity() {
                 val ecoRole           = if (ecommerceEnabled) spinnerEcoRole.text.toString().ifBlank { "Supplier" } else null
 
                 // ── Build per-item GSTR-1 enrichments from product master ──
-                val enrichments = items.map { ci ->
+                val enrichments = items.mapIndexed { idx, ci ->
                     val p = ci.product
-                    val cessAmt = if (p.cessRate > 0)
+                    val line = breakdown.lines.getOrNull(idx)
+                    val cessAmt = line?.cessAmount ?: (if (p.cessRate > 0)
                         GstBillingCalculator.round2Pub(ci.quantity * p.price * p.cessRate / 100.0)
-                    else 0.0
+                    else 0.0)
                     GstEngine.SalesRecordEnrichment(
-                        cessRate       = p.cessRate,
+                        cessRate       = line?.cessPercentage ?: p.cessRate,
                         cessAmount     = cessAmt,
                         uqc            = UqcMapper.resolve(p.unit, p.officialUqc),
                         hsnDescription = p.hsnDescription,
@@ -1825,8 +1862,14 @@ class InvoiceActivity : AppCompatActivity() {
                 .billingSettingsDao().get()?.printerLayout ?: "80mm"
             withContext(Dispatchers.Main) {
                 InvoicePdfGenerator.generatePdfFromBill(
-                    this@InvoiceActivity, bill, billItems, storeInfo,
-                    savedInvoice?.gstScheme, savedInvoice, printerLayout
+                    context = this@InvoiceActivity, 
+                    bill = bill, 
+                    billItems = billItems, 
+                    storeInfo = storeInfo,
+                    gstScheme = savedInvoice?.gstScheme, 
+                    gstInvoice = savedInvoice, 
+                    printerLayout = printerLayout,
+                    totalCess = lastBreakdown?.totalCess ?: 0.0
                 )
             }
         }
@@ -2047,7 +2090,8 @@ class InvoiceActivity : AppCompatActivity() {
                     gstInvoice = savedInvoice,
                     printerLayout = printerLayout,
                     customerName = customerName,
-                    customerPhone = customerPhone
+                    customerPhone = customerPhone,
+                    totalCess = lastBreakdown?.totalCess ?: 0.0
                 )
             }
         }

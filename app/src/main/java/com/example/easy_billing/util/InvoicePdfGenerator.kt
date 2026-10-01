@@ -50,6 +50,7 @@ object InvoicePdfGenerator {
         gstScheme: String? = null,
         gstInvoice: GstSalesInvoice? = null,
         printerLayout: String = "80mm",
+        totalCess: Double = 0.0,
         // Additive, defaults to true so every existing call site (print
         // button flows) behaves byte-for-byte as before. Only the new
         // "send to customer" flow passes false, to get the saved File
@@ -105,7 +106,7 @@ object InvoicePdfGenerator {
         if (isA4) {
             drawA4InvoicePages(
                 context, document, bill, billItems, storeInfo, gstInvoice,
-                isComposition, footerMessage, roundOff, currencySymbol, showDiscount
+                isComposition, footerMessage, roundOff, currencySymbol, showDiscount, totalCess
             )
             return saveAndPrint(context, document, storeName, bill, isA4 = true, printAfterSave = printAfterSave)
         }
@@ -365,7 +366,7 @@ object InvoicePdfGenerator {
         // Per line already shows gross → discount → net taxable, so the summary
         // totals the NET taxable directly (no separate bill-discount line).
         val taxable  = billItems.sumOf { it.taxableValue }
-        val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount
+        val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount + totalCess
 
         leftText(if (isComposition) context.getString(R.string.invoice_pdf_sub_total_label) else context.getString(R.string.invoice_pdf_taxable_amount_label), 14f)
         rightText("$currencySymbol%.2f".format(taxable), 14f)
@@ -383,6 +384,11 @@ object InvoicePdfGenerator {
                 y += 22
                 leftText(context.getString(R.string.invoice_pdf_sgst_label), 14f)
                 rightText("$currencySymbol%.2f".format(bill.sgstAmount), 14f)
+                y += 22
+            }
+            if (totalCess > 0.0) {
+                leftText("CESS", 14f)
+                rightText("$currencySymbol%.2f".format(totalCess), 14f)
                 y += 22
             }
         }
@@ -559,7 +565,8 @@ object InvoicePdfGenerator {
         footerMessage: String?,
         roundOff: Boolean,
         currencySymbol: String,
-        showDiscount: Boolean
+        showDiscount: Boolean,
+        totalCess: Double
     ) {
         val pageWidth = 595
         val pageHeight = 842
@@ -875,13 +882,18 @@ object InvoicePdfGenerator {
 
         ensureSpace(140f)
 
+        // Amber accent border around the taxable/total summary box — same
+        // treatment as the Business Customer / Taxable card in-app.
+        val amberBorder = Color.parseColor("#C9922E")
+        val boxTop = y - 12f
+
         val taxable = billItems.sumOf { it.taxableValue }
         val totalDiscount = billItems.sumOf { item ->
             val rawGross = item.price * item.quantity
             if (item.taxableValue < rawGross - 0.01) rawGross - item.taxableValue else 0.0
         }
         val grossTaxable = taxable + totalDiscount
-        val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount
+        val totalTax = bill.cgstAmount + bill.sgstAmount + bill.igstAmount + totalCess
         var finalTotal = bill.total
         if (roundOff) finalTotal = Math.round(finalTotal).toDouble()
         val computed = if (isComposition) taxable else taxable + totalTax
@@ -918,6 +930,9 @@ object InvoicePdfGenerator {
                 totalsRow(context.getString(R.string.invoice_pdf_cgst_label), "$currencySymbol%.2f".format(bill.cgstAmount))
                 totalsRow(context.getString(R.string.invoice_pdf_sgst_label), "$currencySymbol%.2f".format(bill.sgstAmount))
             }
+            if (totalCess > 0.0) {
+                totalsRow("CESS", "$currencySymbol%.2f".format(totalCess))
+            }
         }
         if (kotlin.math.abs(roundDiff) >= 0.01) {
             totalsRow(context.getString(R.string.invoice_pdf_round_off_label), "$currencySymbol%.2f".format(roundDiff))
@@ -937,6 +952,18 @@ object InvoicePdfGenerator {
         paint.textSize = 16f
         val totalText = "$currencySymbol%.2f".format(finalTotal)
         canvas.drawText(totalText, boxRight - paint.measureText(totalText), y, paint)
+
+        val boxBottom = y + 10f
+        val boxPad = 14f
+        paint.color = amberBorder
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.4f
+        canvas.drawRoundRect(
+            android.graphics.RectF(boxLeft - boxPad, boxTop, boxRight + boxPad, boxBottom),
+            10f, 10f, paint
+        )
+        paint.style = Paint.Style.FILL
+
         y += 30f
 
         paint.color = teal
@@ -1117,12 +1144,12 @@ object InvoicePdfGenerator {
 
             paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
             paint.textSize = 12f
-            canvas.drawText("Date", colDate, y, paint)
-            canvas.drawText("Type", colType, y, paint)
+            canvas.drawText(activity.getString(R.string.invoice_pdf_table_date_header), colDate, y, paint)
+            canvas.drawText(activity.getString(R.string.invoice_pdf_table_type_header), colType, y, paint)
             val pageSymbol = CurrencyHelper.getCurrencySymbol(activity)
-            rightText("Dr ($pageSymbol)", colDrRight, y)
-            rightText("Cr ($pageSymbol)", colCrRight, y)
-            rightText("Balance ($pageSymbol)", colBalRight, y)
+            rightText("${activity.getString(R.string.invoice_pdf_table_dr_header)} ($pageSymbol)", colDrRight, y)
+            rightText("${activity.getString(R.string.invoice_pdf_table_cr_header)} ($pageSymbol)", colCrRight, y)
+            rightText("${activity.getString(R.string.invoice_pdf_table_balance_header)} ($pageSymbol)", colBalRight, y)
             y += 20
             line()
             paint.typeface = Typeface.MONOSPACE

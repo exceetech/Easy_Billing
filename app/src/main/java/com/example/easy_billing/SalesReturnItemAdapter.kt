@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.viewmodel.SalesReturnLineItem
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 
@@ -26,9 +27,9 @@ import com.google.android.material.textfield.TextInputEditText
  * grand total so the Activity can update its bottom summary panel.
  */
 class SalesReturnItemAdapter(
-    private val items: List<BillItem>,
+    private val items: List<SalesReturnLineItem>,
     private val maxReturnableQty: (productId: Int, soldQty: Double) -> Double,
-    private val onTotalChanged: (totalAmount: Double, totalTax: Double) -> Unit
+    private val onTotalChanged: (totalAmount: Double, taxableAmount: Double, totalTax: Double, totalCess: Double) -> Unit
 ) : RecyclerView.Adapter<SalesReturnItemAdapter.ViewHolder>() {
 
     /** User-chosen return quantities, keyed by [BillItem.id]. */
@@ -51,8 +52,9 @@ class SalesReturnItemAdapter(
         RowColor(Color.parseColor("#B23A85"), Color.parseColor("#FAE1F0"), Color.parseColor("#B23A85"))  // pink
     )
 
-    private fun colorFor(item: BillItem): RowColor {
-        val key = "${item.id}${item.productId}${item.productName}"
+    private fun colorFor(item: SalesReturnLineItem): RowColor {
+        val bi = item.billItem
+        val key = "${bi.id}${bi.productId}${bi.productName}"
         val index = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
         return rowPalette[index]
     }
@@ -68,6 +70,7 @@ class SalesReturnItemAdapter(
         val tvQtySold:         TextView           = view.findViewById(R.id.tvQtySold)
         val tvUnitPrice:       TextView           = view.findViewById(R.id.tvUnitPrice)
         val tvGstRate:         TextView           = view.findViewById(R.id.tvGstRate)
+        val tvGstLabel:        TextView           = view.findViewById(R.id.tvGstLabel)
         val tvMaxReturn:       TextView           = view.findViewById(R.id.tvMaxReturn)
         val btnDecrement:      MaterialButton     = view.findViewById(R.id.btnDecrement)
         val btnIncrement:      MaterialButton     = view.findViewById(R.id.btnIncrement)
@@ -93,29 +96,30 @@ class SalesReturnItemAdapter(
     override fun getItemCount() = items.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val ctx  = holder.itemView.context
-        val item = items[position]
-        val max  = maxReturnableQty(item.productId, item.quantity)
+        val ctx      = holder.itemView.context
+        val lineItem = items[position]
+        val bi       = lineItem.billItem
+        val max      = maxReturnableQty(bi.productId, bi.quantity)
 
         // ── Remove stale watcher before touching the EditText ────────────────
         holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
 
         // ── Random row colour ────────────────────────────────────────────────
-        val rowColor = colorFor(item)
+        val rowColor = colorFor(lineItem)
         holder.viewItemStripe.setBackgroundColor(rowColor.stripe)
         holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.avatarBg)
         holder.tvAvatar.setTextColor(rowColor.avatarText)
         holder.btnIncrement.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.stripe)
 
         // ── Static labels ────────────────────────────────────────────────────
-        holder.tvAvatar.text = item.productName.take(1).uppercase()
-        holder.tvProductName.text = item.productName
+        holder.tvAvatar.text = bi.productName.take(1).uppercase()
+        holder.tvProductName.text = bi.productName
 
-        val alreadyReturned = item.quantity - max
+        val alreadyReturned = bi.quantity - max
         if (alreadyReturned > 0.0) {
             holder.tvAlreadyReturned.visibility = View.VISIBLE
             holder.tvAlreadyReturned.text =
-                "Returned: ${formatQty(alreadyReturned)} ${item.unit}"
+                "Returned: ${formatQty(alreadyReturned)} ${bi.unit}"
         } else {
             holder.tvAlreadyReturned.visibility = View.GONE
         }
@@ -124,21 +128,30 @@ class SalesReturnItemAdapter(
         // leave a dangling "· variant · unit" with no leading label, and
         // every separator gets consistent single-space padding.
         holder.tvHsnVariant.text = listOfNotNull(
-            item.hsnCode.takeIf { it.isNotBlank() }?.let { "HSN: $it" },
-            item.variant?.takeIf { it.isNotBlank() },
-            item.unit.takeIf { it.isNotBlank() }
+            bi.hsnCode.takeIf { it.isNotBlank() }?.let { "HSN: $it" },
+            bi.variant?.takeIf { it.isNotBlank() },
+            bi.unit.takeIf { it.isNotBlank() }
         ).joinToString(" · ")
 
-        holder.tvQtySold.text   = formatQty(item.quantity)
-        holder.tvUnitPrice.text = CurrencyHelper.format(ctx, item.price)
-        holder.tvGstRate.text   = "${item.gstRate.toInt()}%"
-        holder.tvMaxReturn.text = "Max returnable: ${formatQty(max)} ${item.unit}"
+        holder.tvQtySold.text   = formatQty(bi.quantity)
+        holder.tvUnitPrice.text = CurrencyHelper.format(ctx, bi.price)
+        
+        if (lineItem.cessRate > 0.0) {
+            holder.tvGstRate.text = "${bi.gstRate.toInt()}% GST + ${lineItem.cessRate.toInt()}% CESS"
+            holder.tvGstLabel.visibility = View.GONE
+        } else {
+            holder.tvGstRate.text = "${bi.gstRate.toInt()}%"
+            holder.tvGstLabel.visibility = View.VISIBLE
+            holder.tvGstLabel.text = "GST"
+        }
+        
+        holder.tvMaxReturn.text = "Max returnable: ${formatQty(max)} ${bi.unit}"
 
         // ── Current quantity for this item ───────────────────────────────────
-        val currentQty = returnQtyMap[item.id] ?: 0.0
+        val currentQty = returnQtyMap[bi.id] ?: 0.0
         holder.etReturnQty.setText(if (currentQty > 0.0) formatQty(currentQty) else "")
 
-        updateReturnAmountView(holder, item, currentQty, ctx)
+        updateReturnAmountView(holder, lineItem, currentQty, ctx)
 
         // ── Disable row entirely when nothing is returnable ──────────────────
         val rowEnabled = max > 0.0
@@ -148,21 +161,21 @@ class SalesReturnItemAdapter(
 
         // ── Increment ────────────────────────────────────────────────────────
         holder.btnIncrement.setOnClickListener {
-            val cur = returnQtyMap[item.id] ?: 0.0
+            val cur = returnQtyMap[bi.id] ?: 0.0
             if (cur < max) {
-                val step = if (item.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
+                val step = if (bi.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = (cur + step).coerceAtMost(max)
-                setQty(holder, item, next, ctx)
+                setQty(holder, lineItem, next, ctx)
             }
         }
 
         // ── Decrement ────────────────────────────────────────────────────────
         holder.btnDecrement.setOnClickListener {
-            val cur = returnQtyMap[item.id] ?: 0.0
+            val cur = returnQtyMap[bi.id] ?: 0.0
             if (cur > 0.0) {
-                val step = if (item.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
+                val step = if (bi.unit.lowercase() in setOf("kg", "g", "l", "ml", "kilogram", "gram", "litre", "liter", "millilitre", "milliliter")) 0.5 else 1.0
                 val next = (cur - step).coerceAtLeast(0.0)
-                setQty(holder, item, next, ctx)
+                setQty(holder, lineItem, next, ctx)
             }
         }
 
@@ -173,8 +186,8 @@ class SalesReturnItemAdapter(
             override fun afterTextChanged(s: Editable?) {
                 val typed = s?.toString()?.toDoubleOrNull() ?: 0.0
                 val clamped = typed.coerceIn(0.0, max)
-                returnQtyMap[item.id] = clamped
-                updateReturnAmountView(holder, item, clamped, ctx)
+                returnQtyMap[bi.id] = clamped
+                updateReturnAmountView(holder, lineItem, clamped, ctx)
                 notifyGrandTotal()
 
                 if (typed > max) {
@@ -212,11 +225,12 @@ class SalesReturnItemAdapter(
 
     private fun setQty(
         holder: ViewHolder,
-        item: BillItem,
+        item: SalesReturnLineItem,
         qty: Double,
         ctx: android.content.Context
     ) {
-        returnQtyMap[item.id] = qty
+        val bi = item.billItem
+        returnQtyMap[bi.id] = qty
         holder.watcher?.let { holder.etReturnQty.removeTextChangedListener(it) }
         holder.etReturnQty.setText(if (qty > 0.0) formatQty(qty) else "")
         holder.watcher?.let { holder.etReturnQty.addTextChangedListener(it) }
@@ -226,18 +240,29 @@ class SalesReturnItemAdapter(
 
     private fun updateReturnAmountView(
         holder: ViewHolder,
-        item: BillItem,
+        item: SalesReturnLineItem,
         qty: Double,
         ctx: android.content.Context
     ) {
         if (qty > 0.0) {
-            val ratio       = qty / item.quantity
-            val taxable     = item.taxableValue * ratio
-            val tax         = (item.cgstAmount + item.sgstAmount + item.igstAmount) * ratio
-            val lineTotal   = taxable + tax
+            val bi          = item.billItem
+            val ratio       = qty / bi.quantity
+            val taxable     = bi.taxableValue * ratio
+            val gst         = (bi.cgstAmount + bi.sgstAmount + bi.igstAmount) * ratio
+            val cess        = if (bi.quantity > 0.0 && item.cessAmount > 0.0) {
+                ratio * item.cessAmount
+            } else if (item.cessRate > 0.0) {
+                taxable * (item.cessRate / 100.0)
+            } else {
+                0.0
+            }
+            val lineTotal   = taxable + gst + cess
             holder.tvReturnAmount.visibility = View.VISIBLE
-            holder.tvReturnAmount.text =
+            holder.tvReturnAmount.text = if (cess > 0.0) {
+                "Return value: ${CurrencyHelper.format(ctx, lineTotal)} (incl. CESS ${CurrencyHelper.format(ctx, cess)})"
+            } else {
                 "Return value: ${CurrencyHelper.format(ctx, lineTotal)}"
+            }
             holder.tvReturnAmount.setTextColor(colorFor(item).stripe)
         } else {
             holder.tvReturnAmount.visibility = View.GONE
@@ -246,18 +271,30 @@ class SalesReturnItemAdapter(
 
     private fun notifyGrandTotal() {
         var total = 0.0
-        var tax   = 0.0
+        var taxableTotal = 0.0
+        var gstTotal = 0.0
+        var cessTotal = 0.0
         for (item in items) {
-            val qty = returnQtyMap[item.id] ?: 0.0
+            val bi = item.billItem
+            val qty = returnQtyMap[bi.id] ?: 0.0
             if (qty > 0.0) {
-                val ratio   = qty / item.quantity
-                val taxable = item.taxableValue * ratio
-                val t       = (item.cgstAmount + item.sgstAmount + item.igstAmount) * ratio
-                total += taxable + t
-                tax   += t
+                val ratio   = qty / bi.quantity
+                val taxable = bi.taxableValue * ratio
+                val g       = (bi.cgstAmount + bi.sgstAmount + bi.igstAmount) * ratio
+                val c       = if (bi.quantity > 0.0 && item.cessAmount > 0.0) {
+                    ratio * item.cessAmount
+                } else if (item.cessRate > 0.0) {
+                    taxable * (item.cessRate / 100.0)
+                } else {
+                    0.0
+                }
+                taxableTotal += taxable
+                gstTotal     += g
+                cessTotal    += c
+                total        += (taxable + g + c)
             }
         }
-        onTotalChanged(total, tax)
+        onTotalChanged(total, taxableTotal, gstTotal, cessTotal)
     }
 
     private fun formatQty(q: Double): String =
@@ -270,11 +307,11 @@ class SalesReturnItemAdapter(
 
     /**
      * Returns only the lines where the user entered a quantity > 0.
-     * Checked against the [items] list to pair each entry with its [BillItem].
+     * Checked against the [items] list to pair each entry with its [SalesReturnLineItem].
      */
-    fun getReturnLines(): List<Pair<BillItem, Double>> =
+    fun getReturnLines(): List<Pair<SalesReturnLineItem, Double>> =
         items.mapNotNull { item ->
-            val qty = returnQtyMap[item.id] ?: 0.0
+            val qty = returnQtyMap[item.billItem.id] ?: 0.0
             if (qty > 0.0) item to qty else null
         }
 }

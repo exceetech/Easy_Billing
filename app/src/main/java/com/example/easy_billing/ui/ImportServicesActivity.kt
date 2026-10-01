@@ -389,8 +389,16 @@ class ImportServiceAdapter(
 
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         val rate = if (item.rate % 1.0 == 0.0) "${item.rate.toInt()}%" else "${item.rate}%"
+        // Plain language instead of raw "POS 96/97" codes for the two known
+        // values; an unrecognised legacy value (or a future server addition)
+        // falls back to showing whatever was actually stored.
+        val posLabel = when (item.placeOfSupply) {
+            "96 - Foreign Country" -> holder.itemView.context.getString(R.string.import_services_list_foreign)
+            "97 - Other Territory" -> holder.itemView.context.getString(R.string.import_services_list_other_territory)
+            else -> item.placeOfSupply
+        }
         holder.tvPlaceOfSupply.text =
-            "${sdf.format(Date(item.invoiceDate))} · POS ${item.placeOfSupply} · $rate"
+            "${sdf.format(Date(item.invoiceDate))} · $posLabel · $rate"
 
         // Status stripe: green synced, red refused by the server, amber queued.
         // "rejected" needs its own colour — it will never turn green on its own,

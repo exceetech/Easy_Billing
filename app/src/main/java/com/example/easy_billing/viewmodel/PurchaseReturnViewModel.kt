@@ -200,7 +200,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                 val cgstAmt = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
                 val sgstAmt = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
                 val igstAmt = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
-                val cessAmt = if (item.quantity > 0.0) (qty / item.quantity) * item.cessAmount else 0.0
+                val cessAmt = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (taxable * item.cessPercentage / 100.0)
 
                 cgstTotal += cgstAmt
                 sgstTotal += sgstAmt
@@ -319,7 +319,8 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val cgstAmt  = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
                         val sgstAmt  = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
                         val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
-                        val invoice  = taxable + cgstAmt + sgstAmt + igstAmt
+                        val cessAmt  = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (taxable * item.cessPercentage / 100.0)
+                        val invoice  = taxable + cgstAmt + sgstAmt + igstAmt + cessAmt
 
                         totalNoteInvoiceValue += round(invoice)
                         itemsToSave.add(Triple(item, qty, invoice))
@@ -352,7 +353,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val cgstAmt  = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
                         val sgstAmt  = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
                         val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
-                        val cessAmt  = if (item.quantity > 0.0) (qty / item.quantity) * item.cessAmount else 0.0
+                        val cessAmt  = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (taxable * item.cessPercentage / 100.0)
 
                         var lineValuationVariance = 0.0
 

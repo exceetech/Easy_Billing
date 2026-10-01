@@ -85,6 +85,7 @@
     <string name="activity_debit_note_debit">ഡെബിറ്റ്</string>
     <string name="activity_debit_note_enter_additional_quantity_per">കൂടുതൽ അളവ് നൽകുക</string>
     <string name="activity_debit_note_gst">ജിഎസ്ടി</string>
+    <string name="activity_debit_note_cess">സെസ്സ്</string>
     <string name="activity_debit_note_invoice">ഇൻവോയ്സ് #—</string>
     <string name="activity_debit_note_note">കുറിപ്പ്</string>
     <string name="activity_debit_note_taxable">നികുതി</string>
@@ -113,6 +114,7 @@
     <string name="activity_sales_return_confirm_and_issue_credit">ക്രെഡിറ്റ് നോട്ട് നൽകുക</string>
     <string name="activity_sales_return_credit">ക്രെഡിറ്റ്</string>
     <string name="activity_sales_return_gst_reversal">ജിഎസ്ടി മടക്കം</string>
+    <string name="activity_sales_return_cess_reversal">സെസ്സ് മടക്കം</string>
     <string name="activity_sales_return_invoice">ഇൻവോയ്സ് #—</string>
     <string name="activity_sales_return_note">കുറിപ്പ്</string>
     <string name="activity_sales_return_sales_return">വിൽപന മടക്കം</string>
@@ -543,6 +545,8 @@
     <string name="invoice_taxable_label">നികുതി ബാധകം</string>
     <string name="invoice_total_tax_header">ആകെ നികുതി</string>
     <string name="invoice_type_label">ഇൻവോയ്സ് തരം</string>
+    <string name="purchase_invoice_type_label">ഇൻവോയ്സ് തരം · സാധാരണയായി Regular</string>
+    <string name="purchase_invoice_type_helper">SEZ അല്ലെങ്കിൽ കയറ്റുമതി വാങ്ങൽ പോലുള്ള പ്രത്യേക സാഹചര്യങ്ങളിൽ മാത്രം ഇത് മാറ്റുക</string>
     <string name="upi">UPI</string>
 
     <!-- activity_add_import_service -->
@@ -564,7 +568,7 @@
     <string name="invoice_value_2">ഇൻവോയ്</string>
     <string name="itc_eligibility_capital">ക്യാപിറ്റൽ</string>
     <string name="itc_eligibility_services">സേവനങ്ങൾ</string>
-    <string name="place_of_supply_default">97 - മറ്റ് പ്രദേശം</string>
+    <string name="place_of_supply_default">96 - വിദേശ രാജ്യം</string>
     <string name="record_word">റെക്കോർഡ്</string>
     <string name="save_record">റെക്കോർഡ് സേവ് ചെയ്യുക</string>
     <string name="select_date">തീയതി തിരഞ്ഞെടുക്കുക</string>
@@ -672,11 +676,12 @@
     <string name="add_product_name_hint">തിരയുക അല്ലെങ്കിൽ പുതിയത് ടൈപ്പ് ചെയ്യുക</string>
     <string name="invoice_number">ഇൻവോയ്സ് നമ്പർ</string>
     <string name="invoice_value">ഇൻവോയ്സ് മൂല്യം</string>
-    <string name="purchase_add_line_button">+  പർച്ചേസിലേക്ക് ഇനങ്ങൾ ചേർക്കുക</string>
+    <string name="purchase_add_line_button">പർച്ചേസിലേക്ക് ഇനങ്ങൾ ചേർക്കുക</string>
     <string name="purchase_boe_date_label">ബിൽ ഓഫ് എൻട്രി തീയതി</string>
-    <string name="purchase_boe_number_hint">7 അക്ക നമ്പർ</string>
+    <string name="purchase_imported_goods_subtitle">വിദേശത്ത് നിന്ന് വാങ്ങിയതെങ്കിൽ മാത്രം</string>
+    <string name="purchase_boe_number_hint">7 അക്ക നമ്പർ, കസ്റ്റംസ് പേപ്പറുകളിൽ നിന്ന്</string>
     <string name="purchase_boe_number_label">ബിൽ ഓഫ് എൻട്രി നമ്പർ</string>
-    <string name="purchase_boe_value_hint">കസ്റ്റംസ് മൂല്യം</string>
+    <string name="purchase_boe_value_hint">ആകെ മൂല്യം, കസ്റ്റംസ് പേപ്പറുകളിൽ നിന്ന്</string>
     <string name="purchase_boe_value_label">ബിൽ ഓഫ് എൻട്രി മൂല്യം</string>
     <string name="purchase_cess_paid_hint">ഉണ്ടെങ്കിൽ</string>
     <string name="purchase_cess_paid_label">അടച്ച സെസ്</string>
@@ -703,14 +708,14 @@
     <string name="purchase_payment_credit_sub">സപ്ലയർക്ക് പിന്നീട് പണം നൽകുക</string>
     <string name="purchase_payment_paid_now">ഇപ്പോൾ പണമടച്ചു</string>
     <string name="purchase_payment_paid_now_sub">ക്യാഷ് / ബാങ്ക് സെറ്റിൽ ചെയ്തു</string>
-    <string name="purchase_place_of_supply_label">പ്ലേസ് ഓഫ് സപ്ലൈ കോഡ്</string>
-    <string name="purchase_port_code_hint">6 അക്ഷരമുള്ള കോഡ്</string>
+    <string name="purchase_place_of_supply_label">പ്ലേസ് ഓഫ് സപ്ലൈ കോഡ് · ഓട്ടോ</string>
+    <string name="purchase_port_code_hint">6 അക്ഷരമുള്ള കോഡ്, കസ്റ്റംസ് പേപ്പറുകളിൽ നിന്ന്</string>
     <string name="purchase_port_code_label">പോർട്ട് കോഡ്</string>
     <string name="purchase_remove_account_button">അക്കൗണ്ട് നീക്കം ചെയ്യുക</string>
     <string name="purchase_section_invoice_details">ഇൻവോയ്</string>
     <string name="purchase_section_payment_option">പേയ്</string>
     <string name="purchase_section_supplier">സപ്ലയർ</string>
-    <string name="purchase_sez_gstin_label">SEZ സപ്ലയർ GSTIN</string>
+    <string name="purchase_sez_gstin_label">SEZ സപ്ലയർ GSTIN (അവരുടെ ടാക്സ് ഐഡി)</string>
     <string name="purchase_supplier_helper">രജിസ്റ്റർ ചെയ്ത സപ്ലയർ — GSTIN ഇൻപുട്ട് ടാക്സ് ക്രെഡിറ്റ് സാധ്യമാക്കുന്നു</string>
     <string name="purchase_supply_type_label">സപ്ലൈ തരം</string>
     <string name="purchase_title_accent">രേഖപ്പെടുത്തുക</string>
@@ -1040,18 +1045,18 @@
     <!-- CreditAccountsActivity -->
     <string name="credit_account_removed">അക്കൗണ്ട് നീക്കം ചെയ്തു</string>
     <string name="credit_balance_after">ശേഷമുള്ള ബാലൻസ്</string>
-    <string name="credit_chip_label_advance">അഡ്വാൻസ്</string>
+    <string name="credit_chip_label_advance">അധികം നൽകി</string>
     <string name="credit_chip_label_due">ബാക്കി</string>
-    <string name="credit_currently_in_advance">നിലവിൽ അഡ്വാൻസിൽ</string>
+    <string name="credit_currently_in_advance">ഇതിനകം അധികം നൽകിയിട്ടുണ്ട്</string>
     <string name="credit_currently_owes">നിലവിൽ നൽകാനുണ്ട്</string>
     <string name="credit_delete_allowed_note">നിങ്ങളുടെ ലിസ്റ്റിൽ നിന്ന് നീക്കം ചെയ്യുന്നു</string>
     <string name="credit_delete_confirm_message">അവരുടെ അക്കൗണ്ട് നിങ്ങളുടെ ലിസ്റ്റിൽ നിന്ന് നീക്കം ചെയ്യുന്നു. ബാലൻസ് ഇതിനകം സെറ്റിൽ ചെയ്തതിനാൽ</string>
     <string name="credit_delete_offline_note">നിങ്ങൾ ഓഫ്</string>
     <string name="credit_enter_valid_amount">സാധുവായ തുക നൽകുക</string>
-    <string name="credit_in_advance_after">ശേഷം അഡ്വാൻസിൽ</string>
+    <string name="credit_in_advance_after">ശേഷം അധികം നൽകിയത്</string>
     <string name="credit_invalid_phone">സാധുവായ 10-അക്ക ഫോൺ നമ്പർ നൽകുക</string>
     <string name="credit_net_all_settled">എല്ലാം സെറ്റിൽ ചെയ്തു</string>
-    <string name="credit_net_held_in_advance">അഡ്വാൻസിൽ സൂക്ഷിച്ചത്</string>
+    <string name="credit_net_held_in_advance">അവർ അധികം നൽകിയത്</string>
     <string name="credit_net_owed_to_you">നിങ്ങൾക്ക് നൽകാനുള്ളത്</string>
     <string name="credit_no_customers_body">നിങ്ങൾ ചേർക്കുന്ന കസ്റ്റമേഴ്സ് ഇവിടെ കാണിക്കും — അവർ നൽകാനുള്ളതോ അഡ്വാൻസായി അടച്ചതോ ട്രാക്ക് ചെയ്യുക.</string>
     <string name="credit_no_customers_title">കസ്റ്റമേഴ്സ് ഇല്ല</string>
@@ -1064,7 +1069,7 @@
     <string name="credit_saving_ellipsis">സേവ് ചെയ്യുന്നു…</string>
     <string name="credit_settle_balance_first">ആദ്യം ബാലൻസ് സെറ്റിൽ ചെയ്യുക</string>
     <string name="credit_settled_after">ശേഷം സെറ്റിൽ ചെയ്തു</string>
-    <string name="credit_status_in_advance">അഡ്വാൻസിൽ</string>
+    <string name="credit_status_in_advance">അധികം നൽകി</string>
     <string name="credit_status_owes_you">നിങ്ങൾക്ക് നൽകാനുണ്ട്</string>
     <string name="credit_status_settled">സെറ്റിൽ ചെയ്തു</string>
     <string name="save">സേവ് ചെയ്യുക</string>
@@ -1075,7 +1080,7 @@
     <string name="credit_adjustment_settle_now_btn">ക്യാഷ് — ഇപ്പോൾ സെറ്റിൽ ചെയ്യുക</string>
 
     <!-- activity_credit_accounts -->
-    <string name="credit_net_position_label">നെറ്റ് പൊസിഷൻ</string>
+    <string name="credit_net_position_label">മൊത്തം ബാലൻസ്</string>
     <string name="credit_tip_add_body">പേരും ഫോൺ നമ്പറും</string>
     <string name="credit_tip_add_title">നിങ്ങളുടെ ആദ്യ കസ്റ്റമറെ ചേർക്കൂ</string>
     <string name="credit_tip_search_body">പേര് അല്ലെങ്കിൽ ഫോൺ ഉപയോഗിച്ച് തിരയുക, അല്ലെങ്കിൽ സ്റ്റാറ്റസ് അനുസരിച്ച് ഫിൽട്ടർ ചെയ്യുക</string>
@@ -1096,7 +1101,7 @@
     <string name="credit_picker_no_shop_selected">ഷോപ്പ് തിരഞ്ഞെടുത്തിട്ടില്ല. വീണ്ടും സൈൻ ഇൻ ചെയ്യുക.</string>
 
     <!-- CreditAdapter -->
-    <string name="credit_row_in_advance">അഡ്വാൻസിൽ</string>
+    <string name="credit_row_in_advance">അധികം നൽകി</string>
     <string name="credit_row_owes_you">നിങ്ങൾക്ക് നൽകാനുണ്ട്</string>
 
     <!-- activity_localization_settings -->
@@ -1409,6 +1414,15 @@
     <string name="igst_worked_out_tip">IGST നിങ്ങൾക്കായി കണക്കാക്കും</string>
     <string name="import_of_word">ഇറക്കുമതി</string>
     <string name="import_services_empty_body">വിദേശ സപ്ലയർമാരിൽ നിന്നുള്ള ഇൻവോയ്</string>
+    <string name="import_services_when_to_use">ഇന്ത്യക്ക് പുറത്തുള്ള ഒരു സപ്ലയർക്ക് പണം നൽകിയപ്പോൾ മാത്രം ഇത് ഉപയോഗിക്കുക — ഉദാഹരണത്തിന് ഒരു വിദേശ സോഫ്റ്റ്‌വെയർ സബ്സ്ക്രിപ്ഷൻ അല്ലെങ്കിൽ വിദേശത്തുള്ള ഒരു കൺസൾട്ടന്റ്. വിദേശത്ത് നിന്ന് ഒന്നും വാങ്ങിയിട്ടില്ലെങ്കിൽ, ഈ സ്ക്രീൻ നിങ്ങൾക്ക് ആവശ്യമില്ല.</string>
+    <string name="import_services_place_of_supply_label">വിതരണ സ്ഥലം · സാധാരണയായി വിദേശ രാജ്യം</string>
+    <string name="import_services_pos_foreign_desc">ഏറ്റവും സാധാരണം — സപ്ലയർ ഇന്ത്യക്ക് പുറത്താണ്</string>
+    <string name="import_services_pos_other_desc">അപൂർവ്വം — ഉറപ്പില്ലെങ്കിൽ നിങ്ങളുടെ അക്കൗണ്ടന്റിനോട് ചോദിക്കുക</string>
+    <string name="import_services_more_details_label">കൂടുതൽ നികുതി &amp; ക്രെഡിറ്റ് വിവരങ്ങൾ</string>
+    <string name="import_services_more_details_subtitle">വിതരണ സ്ഥലം, സെസ്സ്, ഇൻപുട്ട് ടാക്സ് ക്രെഡിറ്റ് — സാധാരണയായി ഒരുപോലെ</string>
+    <string name="import_services_eligibility_helper">വിദേശത്ത് നിന്ന് വാങ്ങിയ സേവനത്തിന്, ഇത് സാധാരണയായി “Services” ആണ് — ഉറപ്പില്ലെങ്കിൽ നിങ്ങളുടെ അക്കൗണ്ടന്റിനോട് ചോദിക്കുക</string>
+    <string name="import_services_list_foreign">വിദേശ സപ്ലയർ</string>
+    <string name="import_services_list_other_territory">മറ്റ് പ്രദേശം</string>
     <string name="invoice_number_date_value_tip">ഇൻവോയ്</string>
     <string name="itc_availed">ലഭിച്ച ITC</string>
     <string name="itc_ready">ITC തയ്യാർ</string>
@@ -1688,10 +1702,10 @@
     <string name="invoice_pdf_summary_loss">നഷ്ടം</string>
     <string name="invoice_pdf_summary_net_profit">അറ്റ ലാഭം</string>
     <string name="invoice_pdf_summary_revenue">വരുമാനം</string>
-    <string name="invoice_pdf_table_balance_header">ബാലൻസ് (₹)</string>
-    <string name="invoice_pdf_table_cr_header">ക്രെഡിറ്റ് (₹)</string>
+    <string name="invoice_pdf_table_balance_header">ബാലൻസ്</string>
+    <string name="invoice_pdf_table_cr_header">ക്രെഡിറ്റ്</string>
     <string name="invoice_pdf_table_date_header">തീയതി</string>
-    <string name="invoice_pdf_table_dr_header">ഡെബിറ്റ് (₹)</string>
+    <string name="invoice_pdf_table_dr_header">ഡെബിറ്റ്</string>
     <string name="invoice_pdf_table_type_header">തരം</string>
     <string name="invoice_pdf_tax_invoice_title">ടാക്സ് ഇൻവോയ്സ്</string>
     <string name="invoice_pdf_taxable_amount_label">നികുതി ബാധകമായ തുക</string>
@@ -1713,6 +1727,7 @@
     <string name="manage_products_header_manage">നിയന്ത്രിക്കുക</string>
     <string name="manage_products_search_hint">പേരോ എച്ച്എസ്എൻ നമ്പറോ ഉപയോഗിച്ച് തിരയുക…</string>
     <string name="manage_products_sort_content_desc">സോർട്ട്</string>
+    <string name="manage_products_filter_button_label">ഫിൽട്ടർ</string>
 
     <!-- ManageProductsAdapter -->
     <string name="manage_products_no_gst">GST ഇല്ല</string>
@@ -1749,15 +1764,15 @@
     <!-- activity_purchase_details -->
     <string name="place_of_supply">പ്ലേസ് ഓഫ് സപ്ലൈ</string>
     <string name="tax_breakdown">നികുതി വിവരണം</string>
-    <string name="txn_label_credit_note">ക്രെഡിറ്റ് നോട്ട്</string>
-    <string name="txn_label_debit_note">ഡെബിറ്റ് നോട്ട്</string>
+    <string name="txn_label_credit_note">അധിക സ്റ്റോക്ക് ചേർക്കുക</string>
+    <string name="txn_label_debit_note">സാധനങ്ങൾ തിരികെ നൽകുക</string>
     <string name="xml_purchase_details_cancel_button">പർച്ചേസ് റദ്ദാക്കുക</string>
     <string name="xml_purchase_details_cancelled_note">ഈ പർച്ചേസ് റദ്ദാക്കി</string>
     <string name="xml_purchase_details_header">പർച്ചേസ് ഇൻവോയ്സ്</string>
     <string name="xml_purchase_details_invoice_total_label">ഇൻവോയ്സ് ആകെ</string>
     <string name="xml_purchase_details_net_after_returns">റിട്ടേണുകൾക്ക് ശേഷമുള്ള നെറ്റ്</string>
     <string name="xml_purchase_details_not_synced">സിങ്ക് ചെയ്തിട്ടില്ല</string>
-    <string name="xml_purchase_details_notes_header">ഡെബിറ്റ് &amp; ക്രെഡിറ്റ് നോട്ടുകൾ</string>
+    <string name="xml_purchase_details_notes_header">തിരിച്ചുനൽകലുകൾ &amp; തിരുത്തലുകൾ</string>
     <string name="xml_purchase_details_still_owed_label">ഈ സപ്ലയർക്ക് ഇനിയും കൊടുക്കാനുള്ളത്</string>
     <string name="xml_purchase_details_supplier_label">സപ്ലയർ</string>
     <string name="xml_purchase_details_view_ledger_link">ലെഡ്ജർ കാണുക ›</string>
@@ -1784,9 +1799,9 @@
     <string name="profile">പ്രൊഫൈൽ</string>
 
     <!-- PurchaseActivity -->
-    <string name="purchase_boe_date_required">Imported Goods-ന് Bill of Entry തീയതി ആവശ്യമാണ്</string>
-    <string name="purchase_boe_number_required">Imported Goods-ന് Bill of Entry നമ്പർ ആവശ്യമാണ്</string>
-    <string name="purchase_boe_value_required">Imported Goods-ന് Bill of Entry മൂല്യം ആവശ്യമാണ്</string>
+    <string name="purchase_boe_date_required">Bill of Entry തീയതി ആവശ്യമാണ് — നിങ്ങളുടെ കസ്റ്റംസ് പേപ്പറുകൾ പരിശോധിക്കുക</string>
+    <string name="purchase_boe_number_required">Bill of Entry നമ്പർ ആവശ്യമാണ് — നിങ്ങളുടെ കസ്റ്റംസ് പേപ്പറുകൾ പരിശോധിക്കുക</string>
+    <string name="purchase_boe_value_required">Bill of Entry മൂല്യം ആവശ്യമാണ് — നിങ്ങളുടെ കസ്റ്റംസ് പേപ്പറുകൾ പരിശോധിക്കുക</string>
     <string name="purchase_cess_paid_invalid">Cess Paid &gt;= 0 ആയിരിക്കണം</string>
     <string name="purchase_choose_supplier_desc">സപ്ലയർ തിരഞ്ഞെടുക്കുക</string>
     <string name="purchase_credit_needs_account">ക്രെഡിറ്റിന് ഒരു അക്കൗണ്ട് വേണം — ഇപ്പോൾ paid ആയി സെറ്റ് ചെയ്തു</string>
@@ -1798,12 +1813,17 @@
     <string name="purchase_invalid_gstin_error">അസാധുവായ GSTIN</string>
     <string name="purchase_invoice_date_required">ഇൻവോയ്സ് തീയതി ആവശ്യമാണ്</string>
     <string name="purchase_invoice_type_composition">From Composition Taxable Person</string>
+    <string name="purchase_invoice_type_regular_desc">മിക്ക വാങ്ങലുകളും — ഇത് തിരഞ്ഞെടുത്തതായി വിടുക</string>
+    <string name="purchase_invoice_type_sez_with_payment_desc">SEZ ബിസിനസ്സിൽ നിന്ന്, നികുതി അടച്ചിട്ടില്ല</string>
+    <string name="purchase_invoice_type_sez_without_payment_desc">SEZ ബിസിനസ്സിൽ നിന്ന്, നികുതി അടച്ചിട്ടില്ല</string>
+    <string name="purchase_invoice_type_deemed_exp_desc">ഒരു പ്രത്യേക കയറ്റുമതി ബന്ധപ്പെട്ട വാങ്ങൽ</string>
+    <string name="purchase_invoice_type_composition_desc">വിൽപ്പനക്കാരൻ കോമ്പോസിഷൻ സ്കീമിലാണ്</string>
     <string name="purchase_invoice_type_required">ഇൻവോയ്സ് തരം ആവശ്യമാണ്</string>
     <string name="purchase_itc_fields_negative">Availed ITC ഫീൽഡുകൾ &gt;= 0 ആയിരിക്കണം</string>
     <string name="purchase_itc_must_be_zero">ineligible/None ആയാൽ Availed ITC ഫീൽഡുകൾ 0 ആയിരിക്കണം</string>
     <string name="purchase_pick_invoice_date_error">ഇൻവോയ്സ് തീയതി തിരഞ്ഞെടുക്കുക</string>
     <string name="purchase_place_of_supply_required">Place of Supply Code ആവശ്യമാണ്</string>
-    <string name="purchase_port_code_required">Imported Goods-ന് പോർട്ട് കോഡ് ആവശ്യമാണ്</string>
+    <string name="purchase_port_code_required">പോർട്ട് കോഡ് ആവശ്യമാണ് — നിങ്ങളുടെ കസ്റ്റംസ് പേപ്പറുകൾ പരിശോധിക്കുക</string>
     <string name="purchase_review_line_item">സേവ് ചെയ്യുന്നതിന് മുൻപ് ഹൈലൈറ്റ് ചെയ്ത ലൈൻ ഐറ്റം പരിശോധിക്കുക</string>
     <string name="purchase_saved_default_msg">പർച്ചേസ് സേവ് ചെയ്തു</string>
     <string name="purchase_select_credit_account">ഒരു ക്രെഡിറ്റ് അക്കൗണ്ട് തിരഞ്ഞെടുക്കുക</string>
@@ -1864,6 +1884,10 @@
     <string name="purchase_history_bought_this_month">ഈ മാസം വാങ്ങിയത്</string>
     <string name="purchase_history_eyebrow">പർച്ചേസുകൾ</string>
     <string name="purchase_history_search_hint">സപ്ലയർ അല്ലെങ്കിൽ ഇൻവോയ്</string>
+    <string name="purchase_history_filter_button_label">ഫിൽട്ടർ</string>
+    <string name="purchase_history_sort_button_label">ക്രമം</string>
+    <string name="purchase_history_result_count_one">വാങ്ങൽ</string>
+    <string name="purchase_history_result_count_other">വാങ്ങലുകൾ</string>
     <string name="purchase_history_tip_record_body">സപ്ലയർ, ഇൻവോയ്</string>
     <string name="purchase_history_tip_record_title">നിങ്ങളുടെ ആദ്യ പർച്ചേസ് രേഖപ്പെടുത്തൂ</string>
     <string name="purchase_history_tip_search_body">സപ്ലയർ പേരോ ഇൻവോയ്</string>
@@ -1874,6 +1898,30 @@
 
     <!-- PurchaseHistoryAdapter -->
     <string name="purchase_history_status_cancelled">റദ്ദാക്കി</string>
+    <string name="purchase_details_same_state">ഒരേ സംസ്ഥാനം</string>
+    <string name="purchase_details_different_state">വ്യത്യസ്ത സംസ്ഥാനം</string>
+    <string name="purchase_details_qty_returned_suffix">തിരികെ നൽകി</string>
+    <string name="purchase_details_note_word">നോട്ട്</string>
+    <string name="purchase_details_notes_word">നോട്ടുകൾ</string>
+    <string name="purchase_details_invoiced_suffix">ബിൽ ചെയ്തു</string>
+    <string name="purchase_details_returned_across">ൽ തിരികെ നൽകി</string>
+    <string name="purchase_details_credited_across">ൽ ക്രെഡിറ്റ് ചെയ്തു</string>
+    <string name="purchase_details_inventory_loss_suffix">തിരിച്ചുനൽകലിൽ സ്റ്റോക്ക് നഷ്ടം</string>
+    <string name="purchase_details_inventory_gain_suffix">തിരിച്ചുനൽകലിൽ സ്റ്റോക്ക് ലാഭം</string>
+    <string name="purchase_details_inventory_loss_label">സ്റ്റോക്ക് നഷ്ടം</string>
+    <string name="purchase_details_inventory_gain_label">സ്റ്റോക്ക് ലാഭം</string>
+    <string name="purchase_details_note_caption_returned">തിരികെ നൽകി</string>
+    <string name="purchase_details_note_caption_added">ചേർത്തു</string>
+    <string name="purchase_details_note_number_fallback">തിരിച്ചുനൽകൽ</string>
+    <string name="purchase_not_found_toast">കൊള്ളൽ കണ്ടെത്തിയില്ല</string>
+    <string name="purchase_already_cancelled_toast">ഈ കൊള്ളൽ ഇതിനകം റദ്ദാക്കി</string>
+    <string name="purchase_cancel_failed_toast">കൊള്ളൽ റദ്ദാക്കാനായില്ല</string>
+    <string name="purchase_cancelled_success_toast">കൊള്ളൽ റദ്ദാക്കി. സ്റ്റോക്ക് സപ്ലയർക്ക് തിരികെ നൽകി.</string>
+    <string name="purchase_details_eyebrow_fallback">കൊള്ളൽ %1$d</string>
+    <string name="purchase_details_summary_card_title">വാങ്ങൽ സംഗ്രഹം</string>
+    <string name="purchase_details_summary_card_hint">ആകെ തുക, നികുതി, പണമടയ്ക്കൽ വിവരങ്ങൾ</string>
+    <string name="purchase_details_items_card_hint">ഈ വാങ്ങലിൽ എടുത്തവ</string>
+    <string name="purchase_details_returns_card_hint">വാങ്ങലിനു ശേഷം തിരികെ നൽകിയതോ ചേർത്തതോ</string>
     <string name="purchase_history_status_credit">ക്രെഡിറ്റിൽ</string>
     <string name="purchase_history_status_paid_cash">ക്യാഷ് അടച്ചു</string>
 
@@ -2039,12 +2087,6 @@
     <!-- item_credit -->
     <string name="xml_credit_item_phone_placeholder">9876543210</string>
 
-    <!-- dialog_filter_customers -->
-    <string name="xml_filter_customers_advance_only">അഡ്വാൻസ് മാത്രം</string>
-    <string name="xml_filter_customers_all">എല്ലാ കസ്റ്റമേഴ്സും</string>
-    <string name="xml_filter_customers_due_only">ബാക്കി മാത്രം</string>
-    <string name="xml_filter_customers_settled_only">സെറ്റിൽ ചെയ്തത് മാത്രം</string>
-    <string name="xml_filter_customers_title">കസ്റ്റമേഴ്സ് ഫിൽട്ടർ ചെയ്യുക</string>
 
     <!-- dialog_gst_confirm -->
     <string name="xml_gst_confirm_cancel_btn">റദ്ദാക്കുക</string>
@@ -2455,7 +2497,7 @@
     <string name="add_product_search_label">ഉൽപ്പന്നം തിരയുക</string>
     <string name="add_product_search_hint">പേര്, ബ്രാൻഡ് അല്ലെങ്കിൽ തരം തിരയുക</string>
     <string name="add_product_more_tax_details_label">കൂടുതൽ നികുതി വിവരങ്ങൾ</string>
-    <string name="add_product_tag_your_shop">നിങ്ങളുടെ കട</string>
-    <string name="add_product_tag_global">ഗ്ലോബൽ</string>
+    <string name="add_product_tag_your_shop">ഇതിനകം നിങ്ങളുടേത്</string>
+    <string name="add_product_tag_global">പട്ടികയിൽ നിന്ന്</string>
     <string name="add_product_search_add_new">ഇവയൊന്നുമല്ല, പുതിയത് ചേർക്കുക</string>
 </resources>

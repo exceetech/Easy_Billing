@@ -109,13 +109,17 @@ class InventoryReductionRepository private constructor(
             purchaseTaxIgst <= 0.0
         }
 
+        val product = db.productDao().getById(productId)
+        val cessRate = product?.cessRate ?: 0.0
+        val cessAmt = taxableAmount * cessRate / 100.0
+
         val cgstAmt = if (sameState) taxableAmount * purchaseTaxCgst / 100.0 else 0.0
         val sgstAmt = if (sameState) taxableAmount * purchaseTaxSgst / 100.0 else 0.0
         val igstAmt = if (!sameState) taxableAmount * purchaseTaxIgst / 100.0 else 0.0
         val invoiceValue = if (sameState) {
-            taxableAmount + cgstAmt + sgstAmt
+            taxableAmount + cgstAmt + sgstAmt + cessAmt
         } else {
-            taxableAmount + igstAmt
+            taxableAmount + igstAmt + cessAmt
         }
 
         val (shopIdStr, stateStr) = currentShopAndState()
@@ -187,10 +191,11 @@ class InventoryReductionRepository private constructor(
                             noteRefundVoucherValue = Math.round(invoiceValue * 100.0) / 100.0,
                             rate                   = 0.0,
                             eligibilityForItc      = "Inputs",
-                            availedItcIntegratedTax = 0.0,
-                            availedItcCentralTax   = 0.0,
-                            availedItcStateTax     = 0.0,
-                            availedItcCess         = 0.0,
+                            availedItcIntegratedTax = if (!sameState) Math.round(igstAmt * 100.0) / 100.0 else 0.0,
+                            availedItcCentralTax   = if (sameState) Math.round(cgstAmt * 100.0) / 100.0 else 0.0,
+                            availedItcStateTax     = if (sameState) Math.round(sgstAmt * 100.0) / 100.0 else 0.0,
+                            availedItcCess         = Math.round(cessAmt * 100.0) / 100.0,
+                            cessAmount             = Math.round(cessAmt * 100.0) / 100.0,
                             invoiceType            = "Regular"
                             // inventoryValuationVariance stays 0.0 — there's
                             // no batch to compare the current average against.
@@ -242,10 +247,11 @@ class InventoryReductionRepository private constructor(
                         val leftoverCgst = if (sameState) leftoverTaxable * purchaseTaxCgst / 100.0 else 0.0
                         val leftoverSgst = if (sameState) leftoverTaxable * purchaseTaxSgst / 100.0 else 0.0
                         val leftoverIgst = if (!sameState) leftoverTaxable * purchaseTaxIgst / 100.0 else 0.0
+                        val leftoverCess = leftoverTaxable * cessRate / 100.0
                         val leftoverInvoice = if (sameState) {
-                            leftoverTaxable + leftoverCgst + leftoverSgst
+                            leftoverTaxable + leftoverCgst + leftoverSgst + leftoverCess
                         } else {
-                            leftoverTaxable + leftoverIgst
+                            leftoverTaxable + leftoverIgst + leftoverCess
                         }
 
                         returnRowId = db.purchaseReturnDao().insert(
@@ -264,6 +270,7 @@ class InventoryReductionRepository private constructor(
                                 cgstAmount       = Math.round(leftoverCgst * 100.0) / 100.0,
                                 sgstAmount       = Math.round(leftoverSgst * 100.0) / 100.0,
                                 igstAmount       = Math.round(leftoverIgst * 100.0) / 100.0,
+                                cessAmount       = Math.round(leftoverCess * 100.0) / 100.0,
                                 state            = stateStr,
                                 supplierGstin    = supplierGstin,
                                 supplierName     = supplierName,
@@ -283,10 +290,10 @@ class InventoryReductionRepository private constructor(
                                 noteRefundVoucherValue = Math.round(leftoverInvoice * 100.0) / 100.0,
                                 rate                   = 0.0,
                                 eligibilityForItc      = "Inputs",
-                                availedItcIntegratedTax = 0.0,
-                                availedItcCentralTax   = 0.0,
-                                availedItcStateTax     = 0.0,
-                                availedItcCess         = 0.0,
+                                availedItcIntegratedTax = if (!sameState) Math.round(leftoverIgst * 100.0) / 100.0 else 0.0,
+                                availedItcCentralTax   = if (sameState) Math.round(leftoverCgst * 100.0) / 100.0 else 0.0,
+                                availedItcStateTax     = if (sameState) Math.round(leftoverSgst * 100.0) / 100.0 else 0.0,
+                                availedItcCess         = Math.round(leftoverCess * 100.0) / 100.0,
                                 invoiceType            = "Regular"
                                 // No originalInvoiceId/variance — this
                                 // slice isn't traceable to one specific
@@ -399,6 +406,7 @@ class InventoryReductionRepository private constructor(
         val totalCgst: Double,
         val totalSgst: Double,
         val totalIgst: Double,
+        val totalCess: Double = 0.0,
         val creditAdjustment: CreditReturnInfo? = null
     )
 
@@ -479,6 +487,7 @@ class InventoryReductionRepository private constructor(
         var grandTotalCgst: Double = 0.0
         var grandTotalSgst: Double = 0.0
         var grandTotalIgst: Double = 0.0
+        var grandTotalCess: Double = 0.0
 
         // Moving-average redesign, Phase 2: read the average cost ONCE,
         // before any batch/stock reduction below touches it. Every row
@@ -572,14 +581,26 @@ class InventoryReductionRepository private constructor(
                 product != null -> product.igstPercentage
                 else -> 0.0
             }
+            val cessPct = when {
+                historicalItem != null && historicalItem.cessPercentage > 0.0 -> historicalItem.cessPercentage
+                product != null && product.cessRate > 0.0 -> product.cessRate
+                else -> 0.0
+            }
 
             val cgst = if (sameStateForThisBatch) taxable * cgstPct / 100.0 else 0.0
             val sgst = if (sameStateForThisBatch) taxable * sgstPct / 100.0 else 0.0
             val igst = if (!sameStateForThisBatch) taxable * igstPct / 100.0 else 0.0
+            val cess = when {
+                historicalItem != null && historicalItem.quantity > 0.0 && historicalItem.cessAmount > 0.0 ->
+                    (qty / historicalItem.quantity) * historicalItem.cessAmount
+                cessPct > 0.0 ->
+                    taxable * (cessPct / 100.0)
+                else -> 0.0
+            }
             val invoice = if (sameStateForThisBatch) {
-                taxable + cgst + sgst
+                taxable + cgst + sgst + cess
             } else {
-                taxable + igst
+                taxable + igst + cess
             }
 
             // Round to 2 decimal places
@@ -588,6 +609,13 @@ class InventoryReductionRepository private constructor(
             val roundedCgst = Math.round(cgst * 100.0) / 100.0
             val roundedSgst = Math.round(sgst * 100.0) / 100.0
             val roundedIgst = Math.round(igst * 100.0) / 100.0
+            val roundedCess = Math.round(cess * 100.0) / 100.0
+
+            val availedCess = if (historicalItem != null && historicalItem.quantity > 0.0 && historicalItem.availedItcCess > 0.0) {
+                minOf(roundedCess, Math.round((qty / historicalItem.quantity) * historicalItem.availedItcCess * 100.0) / 100.0)
+            } else {
+                roundedCess
+            }
 
             val batchCgstPctRounded = Math.round(cgstPct * 100.0) / 100.0
             val batchSgstPctRounded = Math.round(sgstPct * 100.0) / 100.0
@@ -612,6 +640,7 @@ class InventoryReductionRepository private constructor(
                     cgstAmount       = roundedCgst,
                     sgstAmount       = roundedSgst,
                     igstAmount       = roundedIgst,
+                    cessAmount       = roundedCess,
                     state            = batchStateName,
                     supplierGstin    = batchSupplierGstin,
                     supplierName     = batchSupplierName,
@@ -651,10 +680,10 @@ class InventoryReductionRepository private constructor(
                     noteRefundVoucherValue = roundedInvoice,
                     rate                   = 0.0,
                     eligibilityForItc      = "Inputs",
-                    availedItcIntegratedTax = 0.0,
-                    availedItcCentralTax   = 0.0,
-                    availedItcStateTax     = 0.0,
-                    availedItcCess         = 0.0,
+                    availedItcIntegratedTax = roundedIgst,
+                    availedItcCentralTax   = roundedCgst,
+                    availedItcStateTax     = roundedSgst,
+                    availedItcCess         = availedCess,
                     invoiceType            = "Regular"
                 )
             ).toInt()
@@ -666,6 +695,7 @@ class InventoryReductionRepository private constructor(
             grandTotalCgst += roundedCgst
             grandTotalSgst += roundedSgst
             grandTotalIgst += roundedIgst
+            grandTotalCess += roundedCess
         }
 
         // Avg-cost audit, Fix 2 follow-up: the batch debit (and its drift
@@ -708,7 +738,8 @@ class InventoryReductionRepository private constructor(
             totalInvoiceValue = grandTotalInvoiceValue,
             totalCgst = grandTotalCgst,
             totalSgst = grandTotalSgst,
-            totalIgst = grandTotalIgst
+            totalIgst = grandTotalIgst,
+            totalCess = grandTotalCess
         )
     }
 

@@ -86,6 +86,36 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Plain-language explanation of when this screen is needed at
+             all, always visible (not just in the empty state), so someone who
+             has never bought anything from abroad can tell at a glance this
+             screen does not apply to them. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_imp_field_auto"
+            android:padding="10dp">
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginTop="1dp"
+                android:src="@drawable/ic_info_circle"
+                app:tint="#8A6526"
+                android:contentDescription="@null" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:text="@string/import_services_when_to_use"
+                android:textSize="10.5sp"
+                android:textColor="#6E5726"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+
         <!-- ===================== SUMMARY CARD ===================== -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -396,77 +426,6 @@
                         android:textColor="#8A8272"
                         android:lineSpacingExtra="3dp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0.5dp"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="16dp"
-                        android:background="#F1EBDD" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="11dp">
-                        <ImageView
-                            android:layout_width="17dp"
-                            android:layout_height="17dp"
-                            android:layout_marginTop="1dp"
-                            android:src="@drawable/ic_receipt"
-                            app:tint="#B8895A"
-                            android:contentDescription="@null" />
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginStart="10dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/keep_supplier_invoice_tip"
-                                android:textSize="12sp"
-                                android:textColor="#1A1A18" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="1dp"
-                                android:text="@string/invoice_number_date_value_tip"
-                                android:textSize="11sp"
-                                android:textColor="#9A8F79" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="17dp"
-                            android:layout_height="17dp"
-                            android:layout_marginTop="1dp"
-                            android:src="@drawable/ic_lc_percent"
-                            app:tint="#B8895A"
-                            android:contentDescription="@null" />
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginStart="10dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/igst_worked_out_tip"
-                                android:textSize="12sp"
-                                android:textColor="#1A1A18" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="1dp"
-                                android:text="@string/enter_rate_taxable_value_tip"
-                                android:textSize="11sp"
-                                android:textColor="#9A8F79" />
-                        </LinearLayout>
-                    </LinearLayout>
                 </LinearLayout>
             </ScrollView>
         </FrameLayout>

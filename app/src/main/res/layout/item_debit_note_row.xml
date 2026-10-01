@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Debit / credit note row — left status stripe (gold = debit note / return,
-    green = credit note / addition), an icon tile, title + sub, and a signed
-    serif amount with a caption. The container sets clipToOutline so the stripe
-    follows the card corners.
+    Debit / credit note row — redesigned to match the batch-row card used in
+    Inventory's Reduce Stock page (item_batch_clear.xml), same treatment
+    applied to item_purchase_detail_row.xml: its own rounded card with a
+    left accent stripe and an icon tile, instead of being stacked inside one
+    long card with thin dividers.
 
     Bound by PurchaseDetailsActivity.buildPriorReturns: viewNoteStripe,
     ivNoteIcon, tvNoteNumber, tvProductName, tvReturnedQty, tvNoteDate,
-    tvReturnValue, tvNoteCaption, viewNoteDivider.
+    tvReturnValue, tvNoteCaption, tvValuationVariance, viewNoteDivider (kept,
+    always collapsed — cards are separated by margin now instead of a
+    divider line).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -17,140 +21,152 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginVertical="5dp"
+        android:background="@drawable/bg_inv_value_card"
+        android:clipToOutline="true"
+        android:clipChildren="true">
 
         <View
             android:id="@+id/viewNoteStripe"
-            android:layout_width="3dp"
+            android:layout_width="4dp"
             android:layout_height="match_parent"
             android:background="#8A6526" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="13dp">
-
-            <ImageView
-                android:id="@+id/ivNoteIcon"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:padding="10dp"
-                android:src="@drawable/ic_lc_arrow_up_right"
-                android:tint="#8A6526"
-                android:background="@drawable/bg_credit_avatar"
-                android:backgroundTint="#F3ECDD"
-                android:contentDescription="@null" />
+            android:orientation="vertical"
+            android:padding="12dp">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/tvNoteNumber"
-                    android:layout_width="wrap_content"
+                <ImageView
+                    android:id="@+id/ivNoteIcon"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_lc_arrow_up_right"
+                    android:tint="#8A6526"
+                    android:background="@drawable/bg_credit_avatar"
+                    android:backgroundTint="#F3ECDD"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="DN-00001"
-                    android:textSize="13.5sp"
-                    android:textColor="#1A1A18"
-                    android:fontFamily="@font/googlesans_medium"
-                    android:singleLine="true" />
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+
+                    <TextView
+                        android:id="@+id/tvNoteNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DN-00001"
+                        android:textSize="13.5sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:singleLine="true" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+
+                        <TextView
+                            android:id="@+id/tvProductName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Product"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:maxWidth="140dp" />
+
+                        <TextView
+                            android:id="@+id/tvReturnedQty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:text="· Qty 0"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79" />
+
+                        <TextView
+                            android:id="@+id/tvNoteDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:text="· —"
+                            android:textSize="11sp"
+                            android:textColor="#9A8F79" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="2dp">
+                    android:orientation="vertical"
+                    android:gravity="end"
+                    android:layout_marginStart="10dp">
 
                     <TextView
-                        android:id="@+id/tvProductName"
+                        android:id="@+id/tvReturnValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Product"
-                        android:textSize="11sp"
-                        android:textColor="#9A8F79"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:maxWidth="140dp" />
+                        android:text="0"
+                        android:textSize="16sp"
+                        android:textColor="#8A6526"
+                        android:fontFamily="serif"
+                        android:includeFontPadding="false"
+                        android:singleLine="true" />
 
                     <TextView
-                        android:id="@+id/tvReturnedQty"
+                        android:id="@+id/tvNoteCaption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:text="· Qty 0"
-                        android:textSize="11sp"
-                        android:textColor="#9A8F79" />
-
-                    <TextView
-                        android:id="@+id/tvNoteDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:text="· —"
-                        android:textSize="11sp"
-                        android:textColor="#9A8F79" />
+                        android:layout_marginTop="1dp"
+                        android:text="returned"
+                        android:textSize="9.5sp"
+                        android:textColor="#A99E88" />
                 </LinearLayout>
-
-                <!--
-                    Moving-average redesign, Phase 5: only shown for a Debit
-                    Note whose inventoryValuationVariance is non-zero — the
-                    gap between what left the shelf (at the average cost at
-                    the moment of return) and what the supplier actually
-                    refunded. Positive = loss (amber), negative = gain
-                    (green). Hidden (GONE) for Credit Notes and for zero/
-                    legacy rows so this never clutters the common case.
-                -->
-                <TextView
-                    android:id="@+id/tvValuationVariance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Inventory loss 0"
-                    android:textSize="10.5sp"
-                    android:visibility="gone" />
             </LinearLayout>
 
-            <LinearLayout
+            <!--
+                Moving-average redesign, Phase 5: only shown for a Debit
+                Note whose inventoryValuationVariance is non-zero — the
+                gap between what left the shelf (at the average cost at
+                the moment of return) and what the supplier actually
+                refunded. Positive = loss (amber), negative = gain
+                (green). Hidden (GONE) for Credit Notes and for zero/
+                legacy rows so this never clutters the common case.
+            -->
+            <TextView
+                android:id="@+id/tvValuationVariance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:layout_marginStart="10dp">
-
-                <TextView
-                    android:id="@+id/tvReturnValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="18sp"
-                    android:textColor="#8A6526"
-                    android:fontFamily="serif"
-                    android:includeFontPadding="false"
-                    android:singleLine="true" />
-
-                <TextView
-                    android:id="@+id/tvNoteCaption"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="returned"
-                    android:textSize="9.5sp"
-                    android:textColor="#A99E88" />
-            </LinearLayout>
+                android:layout_marginTop="6dp"
+                android:layout_marginStart="44dp"
+                android:text="Inventory loss 0"
+                android:textSize="10.5sp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Kept so PurchaseDetailsActivity's findViewById(R.id.viewNoteDivider)
+         call still works; always collapsed since cards are separated by
+         margin now, not a divider line. -->
     <View
         android:id="@+id/viewNoteDivider"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginHorizontal="14dp"
-        android:background="#F1EBDD" />
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
 
 </LinearLayout>

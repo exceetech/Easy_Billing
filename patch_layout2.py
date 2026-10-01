@@ -1,15 +1,15 @@
-with open("app/src/main/res/layout/activity_confirm_payment.xml", "r") as f:
-    content = f.read()
+import re
 
-gst_label = """                    <TextView
-                        android:text="@string/gst_18_pct"
-"""
-gst_label_with_id = """                    <TextView
-                        android:id="@+id/tvGstLabel"
-                        android:text="@string/gst_18_pct"
-"""
+def fix_category(filepath):
+    with open(filepath, "r") as f:
+        content = f.read()
 
-content = content.replace(gst_label, gst_label_with_id)
+    # Find the exact category linear layout line
+    content = content.replace('android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"\n                            android:orientation="vertical">\n                            <TextView\n                                android:layout_width="wrap_content" android:layout_height="wrap_content"\n                                android:layout_marginBottom="5dp"\n                                android:text="@string/xml_purchase_line_dialog_category_label"', 
+    'android:layout_width="match_parent" android:layout_height="wrap_content"\n                            android:orientation="vertical">\n                            <TextView\n                                android:layout_width="wrap_content" android:layout_height="wrap_content"\n                                android:layout_marginBottom="5dp"\n                                android:text="@string/xml_purchase_line_dialog_category_label"')
+    
+    with open(filepath, "w") as f:
+        f.write(content)
 
-with open("app/src/main/res/layout/activity_confirm_payment.xml", "w") as f:
-    f.write(content)
+fix_category("app/src/main/res/layout/dialog_purchase_line.xml")
+fix_category("app/src/main/res/layout-sw600dp/dialog_purchase_line.xml")

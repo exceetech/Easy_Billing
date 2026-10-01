@@ -46,9 +46,11 @@ object GstBillingCalculator {
         val cgstPercentage: Double,
         val sgstPercentage: Double,
         val igstPercentage: Double,
+        val cessPercentage: Double,
         val cgstAmount: Double,
         val sgstAmount: Double,
         val igstAmount: Double,
+        val cessAmount: Double,
         val netValue: Double
     )
 
@@ -66,6 +68,7 @@ object GstBillingCalculator {
         val totalCgst: Double,
         val totalSgst: Double,
         val totalIgst: Double,
+        val totalCess: Double,
         val totalTax: Double,
         val grandTotal: Double
     )
@@ -129,13 +132,22 @@ object GstBillingCalculator {
         val basePrices = items.mapIndexed { idx, ci ->
             val product = ci.product
             val (cgstPct, sgstPct, igstPct) = itemTaxRates[idx]
-            val totalTaxPct = cgstPct + sgstPct + igstPct
+            val totalTaxPct = cgstPct + sgstPct + igstPct + (if (!isComposition) product.cessRate else 0.0)
             if (product.isTaxInclusive && !isComposition) {
                 product.price / (1.0 + totalTaxPct / 100.0)
             } else {
                 product.price
             }
         }
+
+        // For inclusive items, also remember the exact tax split this first
+        // backward pass produced (taxable + cgst + sgst + igst + cess == net
+        // by construction). When no further bill-level discount lands on
+        // this line, the lines step below reuses these amounts as-is instead
+        // of re-deriving tax from the already-rounded taxable a second time
+        // — that double rounding was why an inclusive ₹30 item could total
+        // ₹29.97 with "5.98%" GST instead of exactly ₹30 at 6%.
+        val inclusiveFirstPassTax = arrayOfNulls<DoubleArray>(items.size)
 
         val grossTaxables = items.mapIndexed { idx, ci -> 
             val product = ci.product
@@ -146,10 +158,14 @@ object GstBillingCalculator {
             if (isInclusive) {
                 // Backward calculation guarantees exact MRP totals without penny loss
                 val net = round2(product.price * ci.quantity - ci.discountAmount)
-                val cgstAmt = round2(net * cgstPct / (100.0 + totalTaxPct))
-                val sgstAmt = round2(net * sgstPct / (100.0 + totalTaxPct))
-                val igstAmt = round2(net * igstPct / (100.0 + totalTaxPct))
-                round2(net - cgstAmt - sgstAmt - igstAmt)
+                val cessPct = product.cessRate
+                val totalTaxWithCess = totalTaxPct + cessPct
+                val cgstAmt = round2(net * cgstPct / (100.0 + totalTaxWithCess))
+                val sgstAmt = round2(net * sgstPct / (100.0 + totalTaxWithCess))
+                val igstAmt = round2(net * igstPct / (100.0 + totalTaxWithCess))
+                val cessAmt = round2(net * cessPct / (100.0 + totalTaxWithCess))
+                inclusiveFirstPassTax[idx] = doubleArrayOf(cgstAmt, sgstAmt, igstAmt, cessAmt)
+                round2(net - cgstAmt - sgstAmt - igstAmt - cessAmt)
             } else {
                 round2(basePrices[idx] * ci.quantity - ci.discountAmount) 
             }
@@ -190,9 +206,11 @@ object GstBillingCalculator {
                     cgstPercentage = 0.0,
                     sgstPercentage = 0.0,
                     igstPercentage = 0.0,
+                    cessPercentage = 0.0,
                     cgstAmount     = 0.0,
                     sgstAmount     = 0.0,
                     igstAmount     = 0.0,
+                    cessAmount     = 0.0,
                     netValue       = taxable
                 )
             } else {
@@ -204,11 +222,19 @@ object GstBillingCalculator {
                 // — doing that double-counts the same tax and pushes
                 // a 12 % bill up to 24 %.
                 val (cgstPct, sgstPct, igstPct) = itemTaxRates[idx]
+                val cessPct = product.cessRate
 
-                val cgstAmt = round2(taxable * cgstPct / 100.0)
-                val sgstAmt = round2(taxable * sgstPct / 100.0)
-                val igstAmt = round2(taxable * igstPct / 100.0)
-                val net     = round2(taxable + cgstAmt + sgstAmt + igstAmt)
+                // Reuse the exact first-pass split for an inclusive line that
+                // carries no further bill-level discount, so the line still
+                // adds up to the original MRP exactly instead of drifting a
+                // paisa off from re-deriving tax off an already-rounded base.
+                val firstPass = inclusiveFirstPassTax[idx]
+                val reuseFirstPass = firstPass != null && lineDiscounts[idx] == 0.0
+                val cgstAmt = if (reuseFirstPass) firstPass!![0] else round2(taxable * cgstPct / 100.0)
+                val sgstAmt = if (reuseFirstPass) firstPass!![1] else round2(taxable * sgstPct / 100.0)
+                val igstAmt = if (reuseFirstPass) firstPass!![2] else round2(taxable * igstPct / 100.0)
+                val cessAmt = if (reuseFirstPass) firstPass!![3] else round2(taxable * cessPct / 100.0)
+                val net     = round2(taxable + cgstAmt + sgstAmt + igstAmt + cessAmt)
 
                 LineBreakdown(
                     productId      = product.id,
@@ -221,9 +247,11 @@ object GstBillingCalculator {
                     cgstPercentage = cgstPct,
                     sgstPercentage = sgstPct,
                     igstPercentage = igstPct,
+                    cessPercentage = cessPct,
                     cgstAmount     = cgstAmt,
                     sgstAmount     = sgstAmt,
                     igstAmount     = igstAmt,
+                    cessAmount     = cessAmt,
                     netValue       = net
                 )
             }
@@ -233,7 +261,8 @@ object GstBillingCalculator {
         val totalCgst  = round2(lines.sumOf { it.cgstAmount })
         val totalSgst  = round2(lines.sumOf { it.sgstAmount })
         val totalIgst  = round2(lines.sumOf { it.igstAmount })
-        val totalTax   = round2(totalCgst + totalSgst + totalIgst)
+        val totalCess  = round2(lines.sumOf { it.cessAmount })
+        val totalTax   = round2(totalCgst + totalSgst + totalIgst + totalCess)
         val grandTotal = round2(netTaxable + totalTax)
 
         return BillBreakdown(
@@ -246,6 +275,7 @@ object GstBillingCalculator {
             totalCgst    = totalCgst,
             totalSgst    = totalSgst,
             totalIgst    = totalIgst,
+            totalCess    = totalCess,
             totalTax     = totalTax,
             grandTotal   = grandTotal
         )
@@ -282,8 +312,8 @@ object GstBillingCalculator {
             sgstAmount           = l.sgstAmount,
             igstAmount           = l.igstAmount,
             netValue             = l.netValue,
-            cessRate             = en.cessRate,
-            cessAmount           = en.cessAmount,
+            cessRate             = l.cessPercentage,
+            cessAmount           = l.cessAmount,
             uqc                  = en.uqc,
             hsnDescription       = en.hsnDescription,
             supplyClassification = en.supplyClassification

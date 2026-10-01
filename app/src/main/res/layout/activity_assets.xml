@@ -69,6 +69,35 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Plain-language explanation of what this screen actually holds, so a
+         non-technical user doesn't have to infer it from "Assets" or the
+         GST classification names on the tiles below. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_imp_field_auto"
+        android:padding="10dp">
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginTop="1dp"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#8A6526"
+            android:contentDescription="@null" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:text="@string/assets_explainer"
+            android:textSize="10.5sp"
+            android:textColor="#6E5726"
+            android:lineSpacingExtra="2dp" />
+    </LinearLayout>
+
     <!-- ══ Hero value card — same shape as Inventory's "Total stock value" card ══ -->
     <LinearLayout
         android:id="@+id/cardHero"
@@ -210,6 +239,15 @@
                     android:singleLine="true"/>
             </LinearLayout>
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/assets_tap_hint"
+            android:textColor="#A99E88"
+            android:textSize="10sp"/>
     </LinearLayout>
 
     <TextView
@@ -262,9 +300,12 @@
                 android:singleLine="true"/>
         </LinearLayout>
 
+        <!-- Icon alone used to be the only cue for what these buttons do —
+             a plain word next to each icon removes the guesswork, same fix
+             as Inventory and Purchase History's Filter/Sort buttons. -->
         <FrameLayout
             android:id="@+id/btnFilter"
-            android:layout_width="44dp"
+            android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_inv_stat_card"
@@ -273,13 +314,31 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_filter"
-                app:tint="#B8895A"
-                android:contentDescription="@null"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_filter"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/manage_products_filter_button_label"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvFilterBadge"
                 android:layout_width="wrap_content"
@@ -299,114 +358,39 @@
 
         <FrameLayout
             android:id="@+id/btnSort"
-            android:layout_width="44dp"
+            android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_inv_stat_card"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_lc_sliders"
-                app:tint="#B8895A"
-                android:contentDescription="@string/manage_products_sort_content_desc"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_sliders"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/manage_products_sort_content_desc"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
         </FrameLayout>
     </LinearLayout>
-
-    <!-- ══ Filter chips ══ -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
-        android:paddingHorizontal="16dp"
-        android:scrollbars="none"
-        android:clipToPadding="false">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipFilter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:singleLine="true"
-            app:chipSpacingHorizontal="8dp">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:checked="true"
-                android:checkable="true"
-                android:text="@string/manage_filter_all"
-                app:chipBackgroundColor="@android:color/white"
-                app:chipStrokeColor="@color/chip_stroke_inv_selector"
-                app:chipStrokeWidth="1.5dp"
-                app:chipCornerRadius="8dp"
-                app:chipStartPadding="12dp"
-                app:chipEndPadding="12dp"
-                app:checkedIconVisible="false"
-                app:chipMinTouchTargetSize="0dp"
-                android:textColor="@color/chip_text_inv_selector"
-                android:fontFamily="@font/googlesans_medium"
-                android:textSize="12sp"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCapitalGoods"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:checkable="true"
-                android:text="@string/assets_kpi_capital_goods"
-                app:chipBackgroundColor="@android:color/white"
-                app:chipStrokeColor="@color/chip_stroke_inv_selector"
-                app:chipStrokeWidth="1.5dp"
-                app:chipCornerRadius="8dp"
-                app:chipStartPadding="12dp"
-                app:chipEndPadding="12dp"
-                app:checkedIconVisible="false"
-                app:chipMinTouchTargetSize="0dp"
-                android:textColor="@color/chip_text_inv_selector"
-                android:fontFamily="@font/googlesans_medium"
-                android:textSize="12sp"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipInputServices"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:checkable="true"
-                android:text="@string/assets_kpi_input_services"
-                app:chipBackgroundColor="@android:color/white"
-                app:chipStrokeColor="@color/chip_stroke_inv_selector"
-                app:chipStrokeWidth="1.5dp"
-                app:chipCornerRadius="8dp"
-                app:chipStartPadding="12dp"
-                app:chipEndPadding="12dp"
-                app:checkedIconVisible="false"
-                app:chipMinTouchTargetSize="0dp"
-                android:textColor="@color/chip_text_inv_selector"
-                android:fontFamily="@font/googlesans_medium"
-                android:textSize="12sp"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipRawMaterial"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:checkable="true"
-                android:text="@string/assets_kpi_raw_material"
-                app:chipBackgroundColor="@android:color/white"
-                app:chipStrokeColor="@color/chip_stroke_inv_selector"
-                app:chipStrokeWidth="1.5dp"
-                app:chipCornerRadius="8dp"
-                app:chipStartPadding="12dp"
-                app:chipEndPadding="12dp"
-                app:checkedIconVisible="false"
-                app:chipMinTouchTargetSize="0dp"
-                android:textColor="@color/chip_text_inv_selector"
-                android:fontFamily="@font/googlesans_medium"
-                android:textSize="12sp"/>
-        </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
 
     <!-- ══ Section label ══ -->
     <TextView
@@ -510,23 +494,23 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="#F1EBDD"/>
+                    android:layout_height="1dp"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginBottom="18dp"
+                    android:background="#E5DCD0"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="11dp">
+                    android:layout_marginBottom="16dp">
                     <ImageView
                         android:layout_width="17dp"
                         android:layout_height="17dp"
                         android:layout_marginTop="1dp"
-                        android:src="@drawable/ic_lc_box"
+                        android:src="@drawable/ic_plus"
                         app:tint="#B8895A"
-                        android:contentDescription="@null"/>
+                        android:contentDescription="@null" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -537,14 +521,14 @@
                             android:layout_height="wrap_content"
                             android:text="@string/assets_tip_purchase_title"
                             android:textSize="12sp"
-                            android:textColor="#1A1A18"/>
+                            android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
                             android:text="@string/assets_tip_purchase_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79"/>
+                            android:textColor="#9A8F79" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -558,7 +542,7 @@
                         android:layout_marginTop="1dp"
                         android:src="@drawable/ic_search"
                         app:tint="#B8895A"
-                        android:contentDescription="@null"/>
+                        android:contentDescription="@null" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -569,29 +553,21 @@
                             android:layout_height="wrap_content"
                             android:text="@string/assets_tip_search_title"
                             android:textSize="12sp"
-                            android:textColor="#1A1A18"/>
+                            android:textColor="#1A1A18" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
                             android:text="@string/assets_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79"/>
+                            android:textColor="#9A8F79" />
                     </LinearLayout>
                 </LinearLayout>
+
+
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
 
-    <!-- ══ Footer hint ══ -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="12dp"
-        android:text="@string/assets_footer_hint"
-        android:textColor="#A99E88"
-        android:textSize="12.5sp"/>
 
 </LinearLayout>

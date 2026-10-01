@@ -54,6 +54,26 @@ class PurchaseActivity : BaseActivity() {
 
     private val viewModel: PurchaseViewModel by viewModels()
     private lateinit var adapter: PurchaseLinesAdapter
+    // True only for the Inventory "Add stock" single-product flow (see
+    // handlePrefill). Turns on the dim/spotlight visual treatment in
+    // PurchaseLineDialog for that one line's editor, AND reorders this
+    // screen's flow: the header is filled in first (button reads "Add
+    // stock" instead of "Save purchase"), and only once that's valid does
+    // tapping it open the line popup — saving that popup is what finally
+    // commits the purchase (see performSavePurchase()/addSingleModeLine()).
+    private var isSingleModePurchase: Boolean = false
+    // Stashed from the Inventory intent extras in handlePrefill() and used
+    // once the header is valid and "Add stock" is tapped, to open the line
+    // popup for this exact product.
+    private var singleModeProductId: Int = -1
+    private var singleModeProductName: String? = null
+    private var singleModeProductVariant: String? = null
+    private var singleModeProductUnit: String? = null
+    // Fetched once handlePrefill() knows the product id — supplies the
+    // GST rate, HSN, unit, selling price etc. that the inline stock card
+    // (llSingleModeStockFields) needs to compute taxable/invoice value
+    // live and to build the final PurchaseItemDraft on Save.
+    private var singleModeProduct: com.example.easy_billing.db.Product? = null
 
     private lateinit var etInvoiceNumber: TextInputEditText
     private lateinit var etInvoiceDate: TextInputEditText
@@ -95,11 +115,31 @@ class PurchaseActivity : BaseActivity() {
      */
     private var cessPaidUserSet = false
 
+
     /** True while the cess auto-fill writes, so its own write isn't an edit. */
     private var settingCessPaid = false
     private lateinit var rv: RecyclerView
+    private lateinit var llEmptyLineItems: LinearLayout
     private lateinit var btnAddLine: MaterialButton
     private lateinit var btnSave: MaterialButton
+    private lateinit var progressSavePurchase: com.google.android.material.progressindicator.CircularProgressIndicator
+    private lateinit var tvSingleModeExplainer: TextView
+    // Step-3 card's own title + red "Required" badge — swapped to
+    // plain language (and the badge hidden) for the single-mode Add
+    // stock flow only; the normal multi-item purchase flow keeps
+    // today's "Line items" / "Required" wording untouched.
+    private lateinit var tvLineItemsCardTitle: TextView
+    private lateinit var tvLineItemsRequiredBadge: TextView
+    // Inline "qty / before-discount cost / discount" card shown in place
+    // of the normal line-item list for the single-product Add stock flow —
+    // there is no separate popup: this card plus the header fields are
+    // committed together by the one Save button at the bottom of the page.
+    private lateinit var llSingleModeStockFields: LinearLayout
+    private lateinit var etSingleQty: TextInputEditText
+    private lateinit var etSingleGross: TextInputEditText
+    private lateinit var etSingleDiscount: TextInputEditText
+    private lateinit var tvSingleTaxable: TextView
+    private lateinit var tvSingleInvoice: TextView
     private lateinit var tvTaxableTotal: TextView
     private lateinit var tvInvoiceTotal: TextView
 
@@ -108,6 +148,7 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var rbCredit: android.widget.RadioButton
     private lateinit var rbNotCredit: android.widget.RadioButton
     private lateinit var cardSelectedAccount: com.google.android.material.card.MaterialCardView
+    private lateinit var cardSelectedAccountWrap: View
     private lateinit var tvSelectedAccountName: TextView
     private lateinit var btnChangeAccount: MaterialButton
     private lateinit var btnClearAccount: MaterialButton
@@ -126,6 +167,9 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var tilAvailedItcCentral: View
     private lateinit var tilAvailedItcState: View
     private lateinit var tilAvailedItcCess: View
+    private lateinit var btnToggleGstrMoreTaxDetails: View
+    private lateinit var groupGstrMoreTaxDetails: View
+    private lateinit var ivGstrMoreTaxDetailsChevron: android.widget.ImageView
     private var shopStateCode: String = ""
 
     // Imported Goods
@@ -179,6 +223,26 @@ class PurchaseActivity : BaseActivity() {
             group.visibility = if (expand) View.VISIBLE else View.GONE
             chevron.rotation = if (expand) 180f else 0f
         }
+        setupGstrMoreTaxDetailsToggle()
+    }
+
+    /**
+     * Nested sub-collapse inside GST Compliance: Supply type, Cess paid, and
+     * the four Availed ITC fields are all auto-computed from the purchase's
+     * line items (updateAvailedItcValues()) — a normal purchase never needs
+     * to open this. Invoice Type and Reverse Charge stay directly visible
+     * one level up since those are real, if rare, decisions; Place of
+     * Supply is visible too but read-only — it always mirrors Supplier
+     * State, so there's nothing to decide there either. Starts collapsed
+     * to match.
+     */
+    private fun setupGstrMoreTaxDetailsToggle() {
+        ivGstrMoreTaxDetailsChevron.rotation = 0f
+        btnToggleGstrMoreTaxDetails.setOnClickListener {
+            val expand = groupGstrMoreTaxDetails.visibility != View.VISIBLE
+            groupGstrMoreTaxDetails.visibility = if (expand) View.VISIBLE else View.GONE
+            ivGstrMoreTaxDetailsChevron.rotation = if (expand) 180f else 0f
+        }
     }
 
     private fun handlePrefill() {
@@ -207,21 +271,72 @@ class PurchaseActivity : BaseActivity() {
         }
 
         if (singleMode) {
+            isSingleModePurchase = true
             btnAddLine.visibility = View.GONE
-            val productId = intent.getIntExtra("EXTRA_PRODUCT_ID", -1)
-            val prodName = intent.getStringExtra("EXTRA_PRODUCT_NAME")
-            val variant = intent.getStringExtra("EXTRA_PRODUCT_VARIANT")
-            val unit = intent.getStringExtra("EXTRA_PRODUCT_UNIT")
-            if (prodName != null) {
-                // Coming from Inventory's "Add stock" — the product goes
-                // straight into the line-items list as an editable row
-                // (prefilled from its own saved GST/HSN/price and current
-                // average cost) instead of forcing a dialog open first.
-                // Tapping the row later (PurchaseLinesAdapter → editLine)
-                // reopens this same dialog to adjust quantity/cost/tax.
-                addSingleModeLine(productId, prodName, variant, unit)
+            singleModeProductId = intent.getIntExtra("EXTRA_PRODUCT_ID", -1)
+            singleModeProductName = intent.getStringExtra("EXTRA_PRODUCT_NAME")
+            singleModeProductVariant = intent.getStringExtra("EXTRA_PRODUCT_VARIANT")
+            singleModeProductUnit = intent.getStringExtra("EXTRA_PRODUCT_UNIT")
+
+            // Header-first flow: the user sees this screen with no line
+            // added yet. They fill in the supplier/invoice details, then
+            // tap this relabeled button — only then does the line popup
+            // (quantity/cost/discount, with taxable/invoice value shown
+            // alongside) appear. Saving that popup is what finally adds
+            // the stock; this button is never tapped a second time.
+            btnSave.text = getString(R.string.purchase_add_stock_button_label)
+            tvSingleModeExplainer.text = getString(
+                R.string.purchase_add_stock_explainer,
+                singleModeProductName ?: ""
+            )
+            tvSingleModeExplainer.visibility = View.VISIBLE
+
+            // One screen, no popup: the qty/cost/discount card replaces the
+            // normal line-item list entirely, and stays visible the whole
+            // time — there's no intermediate "tap to open the line editor"
+            // step for this flow.
+            llSingleModeStockFields.visibility = View.VISIBLE
+            rv.visibility = View.GONE
+            llEmptyLineItems.visibility = View.GONE
+
+            // "Line items" + the red "Required" badge are multi-item,
+            // invoice-processing language that doesn't mean anything in
+            // a one-product "add more stock" screen — swap to a plain
+            // title and drop the badge for this flow only.
+            tvLineItemsCardTitle.text = getString(R.string.purchase_single_stock_card_title)
+            tvLineItemsRequiredBadge.visibility = View.GONE
+
+            val prefillProductId = singleModeProductId
+            lifecycleScope.launch {
+                singleModeProduct = if (prefillProductId > 0) {
+                    withContext(Dispatchers.IO) {
+                        ProductRepository.get(this@PurchaseActivity).getById(prefillProductId)
+                    }
+                } else null
+                recomputeSingleModeAmounts()
             }
         }
+    }
+
+    /** Live-updates the read-only taxable/invoice value shown in the
+     *  single-mode stock card as the user types cost/discount — mirrors
+     *  the GST split PurchaseLineDialog uses (intra-state CGST+SGST
+     *  half/half, inter-state IGST), reading the product's own tax rate
+     *  since this card has no per-line tax-rate fields to edit. */
+    private fun recomputeSingleModeAmounts() {
+        if (!isSingleModePurchase || !::etSingleGross.isInitialized) return
+        val gross = etSingleGross.text?.toString()?.toDoubleOrNull() ?: 0.0
+        val discount = etSingleDiscount.text?.toString()?.toDoubleOrNull() ?: 0.0
+        val taxable = (gross - discount).coerceAtLeast(0.0)
+        tvSingleTaxable.text = "%.2f".format(taxable)
+
+        val product = singleModeProduct
+        val cgstRate = product?.cgstPercentage ?: 0.0
+        val sgstRate = product?.sgstPercentage ?: 0.0
+        val igstRate = product?.igstPercentage ?: 0.0
+        val totalRate = (cgstRate + sgstRate).takeIf { it > 0 } ?: igstRate
+        val invoiceValue = taxable + (taxable * totalRate / 100.0)
+        tvSingleInvoice.text = "%.2f".format(invoiceValue)
     }
 
     /** Builds the initial line for the "Add stock" single-product flow
@@ -291,8 +406,22 @@ class PurchaseActivity : BaseActivity() {
         btnPickSupplier = findViewById(R.id.btnPickSupplier)
         btnPickSupplier.contentDescription = getString(R.string.purchase_choose_supplier_desc)
         rv              = findViewById(R.id.rvLines)
+        llEmptyLineItems = findViewById(R.id.llEmptyLineItems)
         btnAddLine      = findViewById(R.id.btnAddLine)
         btnSave         = findViewById(R.id.btnSavePurchase)
+        progressSavePurchase = findViewById(R.id.progressSavePurchase)
+        tvSingleModeExplainer = findViewById(R.id.tvSingleModeExplainer)
+        tvLineItemsCardTitle = findViewById(R.id.tvLineItemsCardTitle)
+        tvLineItemsRequiredBadge = findViewById(R.id.tvLineItemsRequiredBadge)
+        llSingleModeStockFields = findViewById(R.id.llSingleModeStockFields)
+        etSingleQty = findViewById(R.id.etSingleQty)
+        etSingleGross = findViewById(R.id.etSingleGross)
+        etSingleDiscount = findViewById(R.id.etSingleDiscount)
+        tvSingleTaxable = findViewById(R.id.tvSingleTaxable)
+        tvSingleInvoice = findViewById(R.id.tvSingleInvoice)
+        listOf(etSingleGross, etSingleDiscount).forEach {
+            it.addTextChangedListener { recomputeSingleModeAmounts() }
+        }
         findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction(
                 "Purchase", "cancel_clicked: lines=${viewModel.lines.value.size}"
@@ -306,6 +435,7 @@ class PurchaseActivity : BaseActivity() {
         rbCredit = findViewById(R.id.rbCredit)
         rbNotCredit = findViewById(R.id.rbNotCredit)
         cardSelectedAccount = findViewById(R.id.cardSelectedAccount)
+        cardSelectedAccountWrap = findViewById(R.id.cardSelectedAccountWrap)
         tvSelectedAccountName = findViewById(R.id.tvSelectedAccountName)
         btnChangeAccount = findViewById(R.id.btnChangeAccount)
         btnClearAccount = findViewById(R.id.btnClearAccount)
@@ -324,6 +454,9 @@ class PurchaseActivity : BaseActivity() {
         tilAvailedItcCentral = findViewById(R.id.tilAvailedItcCentral)
         tilAvailedItcState = findViewById(R.id.tilAvailedItcState)
         tilAvailedItcCess = findViewById(R.id.tilAvailedItcCess)
+        btnToggleGstrMoreTaxDetails = findViewById(R.id.btnToggleGstrMoreTaxDetails)
+        groupGstrMoreTaxDetails = findViewById(R.id.groupGstrMoreTaxDetails)
+        ivGstrMoreTaxDetailsChevron = findViewById(R.id.ivGstrMoreTaxDetailsChevron)
 
         // Bind Imported Goods Views
         switchImportedGoods = findViewById(R.id.switchImportedGoods)
@@ -487,11 +620,16 @@ class PurchaseActivity : BaseActivity() {
        AddProductActivity.showSortStylePopup() / ManageProductsActivity. ---------------- */
 
     private fun showSortStylePopup(
-        anchor: View,
+        rawAnchor: View,
         options: List<String>,
         current: String,
+        subtitles: List<String>? = null,
         onPick: (String) -> Unit
     ) {
+        val anchor = if (rawAnchor.parent is android.widget.LinearLayout && 
+            (rawAnchor.parent as android.view.View).background != null) {
+            rawAnchor.parent as android.view.View
+        } else rawAnchor
         val d = resources.displayMetrics.density
         fun dp(v: Int) = (v * d).toInt()
         val green = android.graphics.Color.parseColor("#0F6E56")
@@ -516,12 +654,13 @@ class PurchaseActivity : BaseActivity() {
         val margin = dp(12)
         val spaceBelow = windowH - (loc[1] + anchor.height) - gap - margin
         val spaceAbove = loc[1] - gap - margin
-        val wanted = minOf(options.size * dp(44) + dp(10), dp(320))
+        val rowHeight = if (subtitles != null) dp(56) else dp(44)
+        val wanted = minOf(options.size * rowHeight + dp(10), dp(320))
         val showAbove = spaceBelow < wanted && spaceAbove > spaceBelow
         val available = (if (showAbove) spaceAbove else spaceBelow).coerceAtLeast(dp(88))
         val height = minOf(wanted, available)
 
-        val popup = android.widget.PopupWindow(scroll, dp(200), height, true).apply {
+        val popup = android.widget.PopupWindow(scroll, anchor.width, height, true).apply {
             elevation = dp(10).toFloat()
             setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         }
@@ -532,22 +671,34 @@ class PurchaseActivity : BaseActivity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, dp(44)
+                    LinearLayout.LayoutParams.MATCH_PARENT, rowHeight
                 )
                 setPadding(dp(12), 0, dp(12), 0)
                 isClickable = true
                 if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val textContainer = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
             }
             val tv = TextView(this).apply {
                 text = label
                 textSize = 14f
                 typeface = medium
                 setTextColor(if (isSel) green else ink)
-                layoutParams = LinearLayout.LayoutParams(
-                    0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f
-                )
             }
-            row.addView(tv)
+            textContainer.addView(tv)
+            val subtitleText = subtitles?.getOrNull(i)
+            if (subtitleText != null) {
+                textContainer.addView(TextView(this).apply {
+                    text = subtitleText
+                    textSize = 11.5f
+                    setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                })
+            }
+            row.addView(textContainer)
             if (isSel) {
                 row.addView(ImageView(this).apply {
                     setImageResource(R.drawable.ic_lucide_check)
@@ -573,15 +724,15 @@ class PurchaseActivity : BaseActivity() {
     private fun setupGstr2Dropdowns() {
         // All four use the same picker sheet as the Add Product screen.
 
-        // Place of Supply Code: "code - state name"
-        val stateCodesList = com.example.easy_billing.util.GstEngine.INDIA_STATES.map { "${it.key} - ${it.value}" }
-        etPlaceOfSupplyCode.setOnClickListener {
-            showSortStylePopup(etPlaceOfSupplyCode, stateCodesList, etPlaceOfSupplyCode.text.toString()) { picked ->
-                etPlaceOfSupplyCode.setText(picked, false)
-            }
-        }
+        // Place of Supply Code is read-only — it always mirrors the
+        // Supplier State field above (see etState's watcher) so the two
+        // can never disagree. Nothing to wire up here.
 
-        // Invoice Type
+        // Invoice Type — a plain-language subtitle is shown under each
+        // option in the picker sheet (see showSortStylePopup's subtitles
+        // param) so a 60+ shop owner can tell what each choice means
+        // without knowing GST jargon. The stored/synced value is still the
+        // exact official term (label), unchanged.
         val invoiceTypes = listOf(
             getString(R.string.purchase_invoice_type_regular),
             getString(R.string.purchase_invoice_type_sez_with_payment),
@@ -589,9 +740,16 @@ class PurchaseActivity : BaseActivity() {
             getString(R.string.purchase_invoice_type_deemed_exp),
             getString(R.string.purchase_invoice_type_composition)
         )
+        val invoiceTypeSubtitles = listOf(
+            getString(R.string.purchase_invoice_type_regular_desc),
+            getString(R.string.purchase_invoice_type_sez_with_payment_desc),
+            getString(R.string.purchase_invoice_type_sez_without_payment_desc),
+            getString(R.string.purchase_invoice_type_deemed_exp_desc),
+            getString(R.string.purchase_invoice_type_composition_desc)
+        )
         etInvoiceType.setText(getString(R.string.purchase_invoice_type_regular), false)
         etInvoiceType.setOnClickListener {
-            showSortStylePopup(etInvoiceType, invoiceTypes, etInvoiceType.text.toString()) { picked ->
+            showSortStylePopup(etInvoiceType, invoiceTypes, etInvoiceType.text.toString(), invoiceTypeSubtitles) { picked ->
                 etInvoiceType.setText(picked, false)
             }
         }
@@ -641,6 +799,7 @@ class PurchaseActivity : BaseActivity() {
             val detectedType = if (sameState) getString(R.string.purchase_supply_type_intrastate) else getString(R.string.purchase_supply_type_interstate)
             etSupplyType.setText(detectedType, false)
         }
+        recomputeSingleModeAmounts()
     }
 
     private fun updateAvailedItcValues() {
@@ -696,9 +855,330 @@ class PurchaseActivity : BaseActivity() {
             prefillUnit = line.unit,
             disableMeta = true,
             existingDraft = line,
-            editIndex = index
+            editIndex = index,
+            spotlightMode = isSingleModePurchase,
+            // Single mode: saving this one line IS the final step — it
+            // triggers the same commit btnSave used to run directly.
+            onSaveComplete = if (isSingleModePurchase) {
+                { performSavePurchase() }
+            } else null
         )
     }
+
+    private fun performSavePurchase() {
+            if (isSingleModePurchase) {
+                val qty = etSingleQty.text?.toString()?.toDoubleOrNull() ?: 0.0
+                val gross = etSingleGross.text?.toString()?.toDoubleOrNull() ?: 0.0
+                val discount = etSingleDiscount.text?.toString()?.toDoubleOrNull() ?: 0.0
+                if (qty <= 0.0 || gross <= 0.0) {
+                    Toast.makeText(this, R.string.purchase_fill_header, Toast.LENGTH_SHORT).show()
+                    return
+                }
+                val taxable = (gross - discount).coerceAtLeast(0.0)
+                val product = singleModeProduct
+                val cgstRate = product?.cgstPercentage ?: 0.0
+                val sgstRate = product?.sgstPercentage ?: 0.0
+                val igstRate = product?.igstPercentage ?: 0.0
+                val totalRate = (cgstRate + sgstRate).takeIf { it > 0 } ?: igstRate
+                val intra = etSupplyType.text?.toString()?.trim() ==
+                    getString(R.string.purchase_supply_type_intrastate)
+                val purchaseCgst = if (intra) totalRate / 2.0 else 0.0
+                val purchaseSgst = if (intra) totalRate / 2.0 else 0.0
+                val purchaseIgst = if (intra) 0.0 else totalRate
+                val invoiceValue = taxable + (taxable * totalRate / 100.0)
+                val draft = PurchaseItemDraft(
+                    productName = singleModeProductName ?: (product?.name ?: ""),
+                    variant = singleModeProductVariant?.takeIf { it.isNotBlank() },
+                    // Must match the existing row's brand exactly — upsert()
+                    // matches on name+variant+brand+isSellable, and leaving
+                    // this null when the product actually has a brand set
+                    // fails that match and silently inserts a brand-new
+                    // product/tile instead of adding stock to this one.
+                    brand = product?.brand,
+                    hsnCode = product?.hsnCode,
+                    unit = singleModeProductUnit?.takeIf { it.isNotBlank() } ?: product?.unit,
+                    quantity = qty,
+                    taxableAmount = taxable,
+                    discountAmount = discount,
+                    invoiceValue = invoiceValue,
+                    sellingPrice = product?.price?.takeIf { it > 0 } ?: taxable,
+                    isTaxInclusive = product?.isTaxInclusive ?: false,
+                    purchaseCgst = purchaseCgst,
+                    purchaseSgst = purchaseSgst,
+                    purchaseIgst = purchaseIgst,
+                    salesCgst = product?.cgstPercentage ?: 0.0,
+                    salesSgst = product?.sgstPercentage ?: 0.0,
+                    salesIgst = product?.igstPercentage ?: 0.0,
+                    officialUqc = product?.officialUqc,
+                    hsnDescription = product?.hsnDescription,
+                    cessRate = product?.cessRate ?: 0.0,
+                    supplyClassification = product?.supplyClassification ?: "TAXABLE",
+                    category = product?.category ?: "",
+                    reviewed = true
+                )
+                if (viewModel.lines.value.isEmpty()) {
+                    viewModel.addLine(draft)
+                } else {
+                    viewModel.replaceLine(0, draft)
+                }
+            }
+            val importPart = if (switchImportedGoods.isChecked) {
+                ", port_code=${etPortCode.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "boe_number=${etBillOfEntryNumber.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "boe_date=${boeDateProvider() ?: "-"}, " +
+                    "boe_value=${etBillOfEntryValue.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "sez_gstin=${etSezSupplierGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
+            } else ""
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Purchase",
+                "save_clicked: lines=${viewModel.lines.value.size}, " +
+                    "invoice_number=${etInvoiceNumber.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "supplier=${etSupplierName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "state=${etState.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "gstin=${etSupplierGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "invoice_date=${invoiceDateProvider() ?: "-"}, " +
+                    "place_of_supply=${etPlaceOfSupplyCode.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "invoice_type=${etInvoiceType.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "supply_type=${etSupplyType.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "cess_paid=${etCessPaid.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_integrated=${etAvailedItcIntegrated.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_central=${etAvailedItcCentral.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_state=${etAvailedItcState.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "availed_itc_cess=${etAvailedItcCess.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "imported_goods=${switchImportedGoods.isChecked}, reverse_charge=${switchReverseCharge.isChecked}" +
+                    importPart
+            )
+            val invoice = etInvoiceNumber.text?.toString()?.trim().orEmpty()
+            val supplier = etSupplierName.text?.toString()?.trim().orEmpty()
+            val state = etState.text?.toString()?.trim().orEmpty()
+            if (invoice.isEmpty() || supplier.isEmpty() || state.isEmpty()) {
+                Toast.makeText(this, R.string.purchase_fill_header, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "header_fields_missing")
+                return
+            }
+            // Auto-added lines (Inventory's "Add stock") start with
+            // placeholder quantity/cost — block save until each one has
+            // actually been opened and confirmed, so a header filled in
+            // while forgetting the line can't slip through.
+            val unreviewedIndex = viewModel.lines.value.indexOfFirst { !it.reviewed }
+            if (unreviewedIndex != -1) {
+                Toast.makeText(
+                    this, R.string.purchase_review_line_item,
+                    Toast.LENGTH_SHORT
+                ).show()
+                editLine(unreviewedIndex)
+                return
+            }
+            // A malformed GSTIN flows straight into GSTR-2, where it fails
+            // at filing time instead of here. Blank stays allowed —
+            // unregistered suppliers are legitimate.
+            val typedGstin = etSupplierGstin.text?.toString()?.trim()?.uppercase().orEmpty()
+            if (typedGstin.isNotEmpty() &&
+                !com.example.easy_billing.util.GstEngine.isValidGstin(typedGstin)
+            ) {
+                etSupplierGstin.error = getString(R.string.purchase_invalid_gstin_error)
+                Toast.makeText(
+                    this,
+                    R.string.purchase_invalid_gstin,
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+
+            // The state on the invoice decides CGST+SGST vs IGST, so it must
+            // agree with the state the GSTIN is registered in.
+            if (typedGstin.isNotEmpty()) {
+                val gstinState = com.example.easy_billing.util.GstEngine
+                    .INDIA_STATES[typedGstin.substring(0, 2)]
+                if (gstinState != null && !gstinState.equals(state, ignoreCase = true)) {
+                    Toast.makeText(
+                        this,
+                        "GSTIN is registered in $gstinState but the state says $state",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return
+                }
+            }
+
+            val pickedInvoiceDate = invoiceDateProvider()
+            if (pickedInvoiceDate == null) {
+                etInvoiceDate.error = getString(R.string.purchase_pick_invoice_date_error)
+                Toast.makeText(this, R.string.purchase_invoice_date_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_date_missing")
+                return
+            }
+
+
+            // GSTR-2 validation
+            val placeOfSupplyCodeText = etPlaceOfSupplyCode.text?.toString()?.trim().orEmpty()
+            var placeOfSupplyCode = placeOfSupplyCodeText.split(" - ").firstOrNull()?.trim() ?: ""
+            // Place of Supply auto-fills from the supplier's state the
+            // moment it's picked (see detectSupplyType/etState watcher
+            // above) — this should already be set every time. If it's
+            // somehow still blank, self-heal from the supplier state one
+            // more time before bothering the user with an error, instead
+            // of blocking save over a field that's normally automatic.
+            if (placeOfSupplyCode.isEmpty()) {
+                val fallbackCode = com.example.easy_billing.util.GstEngine.getStateCodeFromName(state)
+                if (fallbackCode != null) {
+                    placeOfSupplyCode = fallbackCode
+                    val name = com.example.easy_billing.util.GstEngine.INDIA_STATES[fallbackCode]
+                    if (name != null) etPlaceOfSupplyCode.setText("$fallbackCode - $name", false)
+                }
+            }
+            if (placeOfSupplyCode.isEmpty()) {
+                Toast.makeText(this, R.string.purchase_place_of_supply_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "place_of_supply_missing")
+                return
+            }
+
+            if (switchImportedGoods.isChecked) {
+                val portCode = etPortCode.text?.toString()?.trim()
+                if (portCode.isNullOrEmpty()) {
+                    Toast.makeText(this, R.string.purchase_port_code_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
+                    return
+                }
+                val boeNumber = etBillOfEntryNumber.text?.toString()?.trim()
+                if (boeNumber.isNullOrEmpty()) {
+                    Toast.makeText(this, R.string.purchase_boe_number_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
+                    return
+                }
+                val pickedBoeDate = boeDateProvider()
+                if (pickedBoeDate == null) {
+                    Toast.makeText(this, R.string.purchase_boe_date_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
+                    return
+                }
+                val boeValue = etBillOfEntryValue.text?.toString()?.toDoubleOrNull()
+                if (boeValue == null) {
+                    Toast.makeText(this, R.string.purchase_boe_value_required, Toast.LENGTH_SHORT).show()
+                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
+                    return
+                }
+                val type = etInvoiceType.text?.toString() ?: ""
+                val sezGstin = if (type.startsWith("SEZ")) etSezSupplierGstin.text?.toString()?.trim() else null
+
+                viewModel.setImportDetails(
+                    com.example.easy_billing.repository.PurchaseRepository.PurchaseImportDetailsDraft(
+                        portCode = portCode,
+                        billOfEntryNumber = boeNumber,
+                        billOfEntryDate = pickedBoeDate,
+                        billOfEntryValue = boeValue,
+                        documentType = "Bill of Entry",
+                        sezSupplierGstin = sezGstin
+                    )
+                )
+            } else {
+                viewModel.setImportDetails(null)
+            }
+
+            val reverseCharge = if (switchReverseCharge.isChecked) "Y" else "N"
+            val invoiceType = etInvoiceType.text?.toString()?.trim().orEmpty()
+            if (invoiceType.isEmpty()) {
+                Toast.makeText(this, R.string.purchase_invoice_type_required, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
+                return
+            }
+
+            val supplyType = etSupplyType.text?.toString()?.trim().orEmpty()
+            if (supplyType != "intrastate" && supplyType != "interstate") {
+                Toast.makeText(this, R.string.purchase_supply_type_invalid, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
+                return
+            }
+
+            val cessPaid = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
+            if (cessPaid < 0.0) {
+                Toast.makeText(this, R.string.purchase_cess_paid_invalid, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
+                return
+            }
+
+            val availedItcIntegrated = etAvailedItcIntegrated.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedItcCentral = etAvailedItcCentral.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedItcState = etAvailedItcState.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val availedItcCess = etAvailedItcCess.text?.toString()?.toDoubleOrNull() ?: 0.0
+
+            if (availedItcIntegrated < 0.0 || availedItcCentral < 0.0 || availedItcState < 0.0 || availedItcCess < 0.0) {
+                Toast.makeText(this, R.string.purchase_itc_fields_negative, Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val totals = computeTotals()
+            if (availedItcIntegrated > totals.igstAmt) {
+                Toast.makeText(this, "Availed ITC Integrated Tax cannot exceed IGST amount (${totals.igstAmt})", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (availedItcCentral > totals.cgstAmt) {
+                Toast.makeText(this, "Availed ITC Central Tax cannot exceed CGST amount (${totals.cgstAmt})", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (availedItcState > totals.sgstAmt) {
+                Toast.makeText(this, "Availed ITC State Tax cannot exceed SGST amount (${totals.sgstAmt})", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (availedItcCess > cessPaid) {
+                Toast.makeText(this, "Availed ITC Cess cannot exceed Cess Paid ($cessPaid)", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // A credit purchase must name the account that owes it, else the
+            // amount is recorded against nobody and never appears in payables.
+            if (rbCredit.isChecked && viewModel.selectedCreditAccount.value == null) {
+                Toast.makeText(this, R.string.purchase_select_credit_account, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.CreditAccountPicker.show(
+                    activity = this,
+                    onAccountSelected = { account -> viewModel.selectCreditAccount(account) },
+                    onDismissedWithoutSelection = {
+                        if (viewModel.selectedCreditAccount.value == null) {
+                            rbNotCredit.isChecked = true
+                            Toast.makeText(
+                                this,
+                                R.string.purchase_credit_needs_account,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
+                return
+            }
+
+            val cgstPct = if (totals.taxable > 0) totals.cgstAmt / totals.taxable * 100 else 0.0
+            val sgstPct = if (totals.taxable > 0) totals.sgstAmt / totals.taxable * 100 else 0.0
+            val igstPct = if (totals.taxable > 0) totals.igstAmt / totals.taxable * 100 else 0.0
+
+            viewModel.save(
+                Purchase(
+                    invoiceNumber  = invoice,
+                    supplierGstin  = typedGstin.takeIf { it.isNotBlank() },
+                    supplierName   = supplier,
+                    state          = state,
+                    taxableAmount  = totals.taxable,
+                    cgstPercentage = cgstPct,
+                    sgstPercentage = sgstPct,
+                    igstPercentage = igstPct,
+                    cgstAmount     = totals.cgstAmt,
+                    sgstAmount     = totals.sgstAmt,
+                    igstAmount     = totals.igstAmt,
+                    invoiceValue   = totals.invoice,
+                    invoiceDate    = pickedInvoiceDate,
+                    isCredit       = rbCredit.isChecked,
+                    creditAccountId = viewModel.selectedCreditAccount.value?.id,
+                    placeOfSupplyCode = placeOfSupplyCode,
+                    reverseCharge  = reverseCharge,
+                    invoiceType    = invoiceType,
+                    supplyType     = supplyType,
+                    cessPaid       = cessPaid,
+                    availedItcIntegratedTax = availedItcIntegrated,
+                    availedItcCentralTax = availedItcCentral,
+                    availedItcStateTax = availedItcState,
+                    availedItcCess = availedItcCess,
+                    purchaseSource = if (viewModel.isImportedGoods.value) "IMPORT" else "DOMESTIC"
+                )
+            )
+        }
 
     private fun wireActions() {
         listOf(etInvoiceNumber, etSupplierName).forEach { input ->
@@ -708,16 +1188,19 @@ class PurchaseActivity : BaseActivity() {
         etState.addTextChangedListener {
             val supplierState = etState.text?.toString()?.trim().orEmpty()
             val code = com.example.easy_billing.util.GstEngine.getStateCodeFromName(supplierState)
+            // Place of Supply is read-only and always mirrors Supplier
+            // State, so it can never disagree with it.
             if (code != null) {
                 val name = com.example.easy_billing.util.GstEngine.INDIA_STATES[code]
                 if (name != null) {
                     etPlaceOfSupplyCode.setText("$code - $name", false)
                 }
             } else {
-                // State cleared or unrecognised — the old code described the
-                // previous supplier, and leaving it behind would put that
-                // state on this invoice. Save's self-heal only fires when the
-                // field is empty, so it has to actually be emptied.
+                // State cleared or unrecognised — the old code described
+                // the previous supplier, and leaving it behind would put
+                // that state on this invoice. Save's self-heal only fires
+                // when the field is empty, so it has to actually be
+                // emptied.
                 etPlaceOfSupplyCode.setText("", false)
             }
             detectSupplyType()
@@ -774,262 +1257,11 @@ class PurchaseActivity : BaseActivity() {
         }
 
         btnSave.setOnClickListener {
-            val importPart = if (switchImportedGoods.isChecked) {
-                ", port_code=${etPortCode.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "boe_number=${etBillOfEntryNumber.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "boe_date=${boeDateProvider() ?: "-"}, " +
-                    "boe_value=${etBillOfEntryValue.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "sez_gstin=${etSezSupplierGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
-            } else ""
-            com.example.easy_billing.util.UserEventLogger.logAction(
-                "Purchase",
-                "save_clicked: lines=${viewModel.lines.value.size}, " +
-                    "invoice_number=${etInvoiceNumber.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "supplier=${etSupplierName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "state=${etState.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "gstin=${etSupplierGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "invoice_date=${invoiceDateProvider() ?: "-"}, " +
-                    "place_of_supply=${etPlaceOfSupplyCode.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "invoice_type=${etInvoiceType.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "supply_type=${etSupplyType.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "cess_paid=${etCessPaid.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "availed_itc_integrated=${etAvailedItcIntegrated.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "availed_itc_central=${etAvailedItcCentral.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "availed_itc_state=${etAvailedItcState.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "availed_itc_cess=${etAvailedItcCess.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
-                    "imported_goods=${switchImportedGoods.isChecked}, reverse_charge=${switchReverseCharge.isChecked}" +
-                    importPart
-            )
-            val invoice = etInvoiceNumber.text?.toString()?.trim().orEmpty()
-            val supplier = etSupplierName.text?.toString()?.trim().orEmpty()
-            val state = etState.text?.toString()?.trim().orEmpty()
-            if (invoice.isEmpty() || supplier.isEmpty() || state.isEmpty()) {
-                Toast.makeText(this, R.string.purchase_fill_header, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "header_fields_missing")
-                return@setOnClickListener
-            }
-            // Auto-added lines (Inventory's "Add stock") start with
-            // placeholder quantity/cost — block save until each one has
-            // actually been opened and confirmed, so a header filled in
-            // while forgetting the line can't slip through.
-            val unreviewedIndex = viewModel.lines.value.indexOfFirst { !it.reviewed }
-            if (unreviewedIndex != -1) {
-                Toast.makeText(
-                    this, R.string.purchase_review_line_item,
-                    Toast.LENGTH_SHORT
-                ).show()
-                editLine(unreviewedIndex)
-                return@setOnClickListener
-            }
-            // A malformed GSTIN flows straight into GSTR-2, where it fails
-            // at filing time instead of here. Blank stays allowed —
-            // unregistered suppliers are legitimate.
-            val typedGstin = etSupplierGstin.text?.toString()?.trim()?.uppercase().orEmpty()
-            if (typedGstin.isNotEmpty() &&
-                !com.example.easy_billing.util.GstEngine.isValidGstin(typedGstin)
-            ) {
-                etSupplierGstin.error = getString(R.string.purchase_invalid_gstin_error)
-                Toast.makeText(
-                    this,
-                    R.string.purchase_invalid_gstin,
-                    Toast.LENGTH_LONG
-                ).show()
-                return@setOnClickListener
-            }
-
-            // The state on the invoice decides CGST+SGST vs IGST, so it must
-            // agree with the state the GSTIN is registered in.
-            if (typedGstin.isNotEmpty()) {
-                val gstinState = com.example.easy_billing.util.GstEngine
-                    .INDIA_STATES[typedGstin.substring(0, 2)]
-                if (gstinState != null && !gstinState.equals(state, ignoreCase = true)) {
-                    Toast.makeText(
-                        this,
-                        "GSTIN is registered in $gstinState but the state says $state",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    return@setOnClickListener
-                }
-            }
-
-            val pickedInvoiceDate = invoiceDateProvider()
-            if (pickedInvoiceDate == null) {
-                etInvoiceDate.error = getString(R.string.purchase_pick_invoice_date_error)
-                Toast.makeText(this, R.string.purchase_invoice_date_required, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_date_missing")
-                return@setOnClickListener
-            }
-
-
-            // GSTR-2 validation
-            val placeOfSupplyCodeText = etPlaceOfSupplyCode.text?.toString()?.trim().orEmpty()
-            var placeOfSupplyCode = placeOfSupplyCodeText.split(" - ").firstOrNull()?.trim() ?: ""
-            // Place of Supply auto-fills from the supplier's state the
-            // moment it's picked (see detectSupplyType/etState watcher
-            // above) — this should already be set every time. If it's
-            // somehow still blank, self-heal from the supplier state one
-            // more time before bothering the user with an error, instead
-            // of blocking save over a field that's normally automatic.
-            if (placeOfSupplyCode.isEmpty()) {
-                val fallbackCode = com.example.easy_billing.util.GstEngine.getStateCodeFromName(state)
-                if (fallbackCode != null) {
-                    placeOfSupplyCode = fallbackCode
-                    val name = com.example.easy_billing.util.GstEngine.INDIA_STATES[fallbackCode]
-                    if (name != null) etPlaceOfSupplyCode.setText("$fallbackCode - $name", false)
-                }
-            }
-            if (placeOfSupplyCode.isEmpty()) {
-                Toast.makeText(this, R.string.purchase_place_of_supply_required, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "place_of_supply_missing")
-                return@setOnClickListener
-            }
-
-            if (switchImportedGoods.isChecked) {
-                val portCode = etPortCode.text?.toString()?.trim()
-                if (portCode.isNullOrEmpty()) {
-                    Toast.makeText(this, R.string.purchase_port_code_required, Toast.LENGTH_SHORT).show()
-                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
-                    return@setOnClickListener
-                }
-                val boeNumber = etBillOfEntryNumber.text?.toString()?.trim()
-                if (boeNumber.isNullOrEmpty()) {
-                    Toast.makeText(this, R.string.purchase_boe_number_required, Toast.LENGTH_SHORT).show()
-                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
-                    return@setOnClickListener
-                }
-                val pickedBoeDate = boeDateProvider()
-                if (pickedBoeDate == null) {
-                    Toast.makeText(this, R.string.purchase_boe_date_required, Toast.LENGTH_SHORT).show()
-                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
-                    return@setOnClickListener
-                }
-                val boeValue = etBillOfEntryValue.text?.toString()?.toDoubleOrNull()
-                if (boeValue == null) {
-                    Toast.makeText(this, R.string.purchase_boe_value_required, Toast.LENGTH_SHORT).show()
-                    com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "boe_fields_missing")
-                    return@setOnClickListener
-                }
-                val type = etInvoiceType.text?.toString() ?: ""
-                val sezGstin = if (type.startsWith("SEZ")) etSezSupplierGstin.text?.toString()?.trim() else null
-
-                viewModel.setImportDetails(
-                    com.example.easy_billing.repository.PurchaseRepository.PurchaseImportDetailsDraft(
-                        portCode = portCode,
-                        billOfEntryNumber = boeNumber,
-                        billOfEntryDate = pickedBoeDate,
-                        billOfEntryValue = boeValue,
-                        documentType = "Bill of Entry",
-                        sezSupplierGstin = sezGstin
-                    )
-                )
-            } else {
-                viewModel.setImportDetails(null)
-            }
-
-            val reverseCharge = if (switchReverseCharge.isChecked) "Y" else "N"
-            val invoiceType = etInvoiceType.text?.toString()?.trim().orEmpty()
-            if (invoiceType.isEmpty()) {
-                Toast.makeText(this, R.string.purchase_invoice_type_required, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
-                return@setOnClickListener
-            }
-
-            val supplyType = etSupplyType.text?.toString()?.trim().orEmpty()
-            if (supplyType != "intrastate" && supplyType != "interstate") {
-                Toast.makeText(this, R.string.purchase_supply_type_invalid, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
-                return@setOnClickListener
-            }
-
-            val cessPaid = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
-            if (cessPaid < 0.0) {
-                Toast.makeText(this, R.string.purchase_cess_paid_invalid, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Purchase", "invoice_type_or_eligibility_invalid")
-                return@setOnClickListener
-            }
-
-            val availedItcIntegrated = etAvailedItcIntegrated.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val availedItcCentral = etAvailedItcCentral.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val availedItcState = etAvailedItcState.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val availedItcCess = etAvailedItcCess.text?.toString()?.toDoubleOrNull() ?: 0.0
-
-            if (availedItcIntegrated < 0.0 || availedItcCentral < 0.0 || availedItcState < 0.0 || availedItcCess < 0.0) {
-                Toast.makeText(this, R.string.purchase_itc_fields_negative, Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val totals = computeTotals()
-            if (availedItcIntegrated > totals.igstAmt) {
-                Toast.makeText(this, "Availed ITC Integrated Tax cannot exceed IGST amount (${totals.igstAmt})", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (availedItcCentral > totals.cgstAmt) {
-                Toast.makeText(this, "Availed ITC Central Tax cannot exceed CGST amount (${totals.cgstAmt})", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (availedItcState > totals.sgstAmt) {
-                Toast.makeText(this, "Availed ITC State Tax cannot exceed SGST amount (${totals.sgstAmt})", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (availedItcCess > cessPaid) {
-                Toast.makeText(this, "Availed ITC Cess cannot exceed Cess Paid ($cessPaid)", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // A credit purchase must name the account that owes it, else the
-            // amount is recorded against nobody and never appears in payables.
-            if (rbCredit.isChecked && viewModel.selectedCreditAccount.value == null) {
-                Toast.makeText(this, R.string.purchase_select_credit_account, Toast.LENGTH_SHORT).show()
-                com.example.easy_billing.util.CreditAccountPicker.show(
-                    activity = this,
-                    onAccountSelected = { account -> viewModel.selectCreditAccount(account) },
-                    onDismissedWithoutSelection = {
-                        if (viewModel.selectedCreditAccount.value == null) {
-                            rbNotCredit.isChecked = true
-                            Toast.makeText(
-                                this,
-                                R.string.purchase_credit_needs_account,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                )
-                return@setOnClickListener
-            }
-
-            val cgstPct = if (totals.taxable > 0) totals.cgstAmt / totals.taxable * 100 else 0.0
-            val sgstPct = if (totals.taxable > 0) totals.sgstAmt / totals.taxable * 100 else 0.0
-            val igstPct = if (totals.taxable > 0) totals.igstAmt / totals.taxable * 100 else 0.0
-
-            viewModel.save(
-                Purchase(
-                    invoiceNumber  = invoice,
-                    supplierGstin  = typedGstin.takeIf { it.isNotBlank() },
-                    supplierName   = supplier,
-                    state          = state,
-                    taxableAmount  = totals.taxable,
-                    cgstPercentage = cgstPct,
-                    sgstPercentage = sgstPct,
-                    igstPercentage = igstPct,
-                    cgstAmount     = totals.cgstAmt,
-                    sgstAmount     = totals.sgstAmt,
-                    igstAmount     = totals.igstAmt,
-                    invoiceValue   = totals.invoice,
-                    invoiceDate    = pickedInvoiceDate,
-                    isCredit       = rbCredit.isChecked,
-                    creditAccountId = viewModel.selectedCreditAccount.value?.id,
-                    placeOfSupplyCode = placeOfSupplyCode,
-                    reverseCharge  = reverseCharge,
-                    invoiceType    = invoiceType,
-                    supplyType     = supplyType,
-                    cessPaid       = cessPaid,
-                    availedItcIntegratedTax = availedItcIntegrated,
-                    availedItcCentralTax = availedItcCentral,
-                    availedItcStateTax = availedItcState,
-                    availedItcCess = availedItcCess,
-                    purchaseSource = if (viewModel.isImportedGoods.value) "IMPORT" else "DOMESTIC"
-                )
-            )
+            // One screen, no popup: the inline stock card (qty/cost/
+            // discount/taxable/invoice) plus the header fields are all
+            // validated and committed together in a single tap — see the
+            // isSingleModePurchase branch at the top of performSavePurchase().
+            performSavePurchase()
         }
 
         rgCreditOption.setOnCheckedChangeListener { _, checkedId ->
@@ -1057,9 +1289,11 @@ class PurchaseActivity : BaseActivity() {
                     )
                 } else {
                     cardSelectedAccount.visibility = View.VISIBLE
+                    cardSelectedAccountWrap.visibility = View.VISIBLE
                 }
             } else {
                 cardSelectedAccount.visibility = View.GONE
+                cardSelectedAccountWrap.visibility = View.GONE
                 // Don't let a cash purchase carry a leftover account id.
                 viewModel.clearCreditAccount()
             }
@@ -1135,6 +1369,7 @@ class PurchaseActivity : BaseActivity() {
                 launch {
                     viewModel.lines.collect { lines ->
                         adapter.submit(lines)
+                        llEmptyLineItems.visibility = if (lines.isEmpty() && !isSingleModePurchase) View.VISIBLE else View.GONE
                         // Before computeTotals(), which reads etCessPaid.
                         syncCessPaidFromLines()
                         val totals = computeTotals()
@@ -1147,7 +1382,29 @@ class PurchaseActivity : BaseActivity() {
                 launch {
                     viewModel.state.collect { state ->
                         btnSave.isEnabled = !state.loading && isHeaderValid() &&
-                                viewModel.lines.value.isNotEmpty()
+                                (isSingleModePurchase || viewModel.lines.value.isNotEmpty())
+                        // Instant feedback the instant Save/Add stock is
+                        // tapped — text swaps to "Saving…"/"Adding stock…"
+                        // and a small spinner appears, instead of the
+                        // button just going dim with no other sign the tap
+                        // registered (which read as the app freezing while
+                        // the invoice write + backend push ran).
+                        // INVISIBLE, not GONE, when idle — the row already
+                        // reserves this width, so hiding it with GONE pulled
+                        // width back into the weighted Save button and made
+                        // it visibly resize/jump each time loading toggled.
+                        progressSavePurchase.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
+                        btnSave.text = if (state.loading) {
+                            getString(
+                                if (isSingleModePurchase) R.string.purchase_adding_stock_label
+                                else R.string.purchase_saving_label
+                            )
+                        } else {
+                            getString(
+                                if (isSingleModePurchase) R.string.purchase_add_stock_button_label
+                                else R.string.save_purchase
+                            )
+                        }
                         state.error?.let {
                             Toast.makeText(this@PurchaseActivity, it, Toast.LENGTH_LONG).show()
                             viewModel.clearTransient()
@@ -1184,9 +1441,11 @@ class PurchaseActivity : BaseActivity() {
                         if (account != null) {
                             tvSelectedAccountName.text = account.name
                             cardSelectedAccount.visibility = View.VISIBLE
+                            cardSelectedAccountWrap.visibility = View.VISIBLE
                             rbCredit.isChecked = true
                         } else {
                             cardSelectedAccount.visibility = View.GONE
+                            cardSelectedAccountWrap.visibility = View.GONE
                         }
                         // Credit selection is part of header validity.
                         recomputeHeaderValid()
@@ -1210,7 +1469,7 @@ class PurchaseActivity : BaseActivity() {
     private fun recomputeHeaderValid() {
         val ok = isHeaderValid()
         btnAddLine.isEnabled = ok
-        btnSave.isEnabled = ok && viewModel.lines.value.isNotEmpty()
+        btnSave.isEnabled = ok && (isSingleModePurchase || viewModel.lines.value.isNotEmpty())
     }
 
     /* ------------------------------------------------------------------
@@ -1249,7 +1508,13 @@ class PurchaseActivity : BaseActivity() {
             igstAmt += line.taxableAmount * line.purchaseIgst / 100.0
         }
         val cess = etCessPaid.text?.toString()?.toDoubleOrNull() ?: 0.0
-        return Totals(taxable, invoice + cess, cgstAmt, sgstAmt, igstAmt)
+        // `invoice` is the sum of `line.invoiceValue`.
+        // `PurchaseLineDialog` includes `cessAmount` in `line.invoiceValue`.
+        // However, if the user manually overrides `etCessPaid` to a custom value 
+        // that differs from the sum of line cesses, we should adjust the total.
+        val lineCessSum = viewModel.lines.value.sumOf { it.cessAmount }
+        val adjustedInvoice = invoice - lineCessSum + cess
+        return Totals(taxable, adjustedInvoice, cgstAmt, sgstAmt, igstAmt)
     }
 
     private data class Totals(

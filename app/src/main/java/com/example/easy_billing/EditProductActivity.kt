@@ -540,11 +540,15 @@ class EditProductActivity : BaseActivity() {
        ManageProductsActivity.showSortPopup() ---------------- */
 
     private fun showSortStylePopup(
-        anchor: View,
+        rawAnchor: View,
         options: List<String>,
         current: String,
         onPick: (String) -> Unit
     ) {
+        val anchor = if (rawAnchor.parent is android.widget.LinearLayout && 
+            (rawAnchor.parent as android.view.View).background != null) {
+            rawAnchor.parent as android.view.View
+        } else rawAnchor
         val d = resources.displayMetrics.density
         fun dp(v: Int) = (v * d).toInt()
         val green = android.graphics.Color.parseColor("#0F6E56")
@@ -560,7 +564,7 @@ class EditProductActivity : BaseActivity() {
         val scroll = android.widget.ScrollView(this).apply { addView(container) }
 
         val popup = android.widget.PopupWindow(
-            scroll, dp(200),
+            scroll, anchor.width,
             minOf(options.size * dp(44) + dp(10), dp(320)),
             true
         ).apply {
