@@ -3,6 +3,9 @@ package com.example.easy_billing.db
 import java.io.Serializable
 
 data class ProductProfitRaw(
+    // Carried over from ProfitProduct.product_id so the chart screen can
+    // ask for one product's own trend. Nullable since it's new.
+    val productId: Int? = null,
     val productName: String,
     val variant: String?,
     val unit: String?,

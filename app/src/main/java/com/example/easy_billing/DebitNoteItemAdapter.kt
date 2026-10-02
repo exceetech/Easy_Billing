@@ -105,7 +105,6 @@ class DebitNoteItemAdapter(
         // leave a dangling "· variant · unit" with no leading label, and
         // every separator gets consistent single-space padding.
         holder.tvHsnVariant.text = listOfNotNull(
-            item.hsnCode.takeIf { it.isNotBlank() }?.let { "HSN: $it" },
             item.variant?.takeIf { it.isNotBlank() },
             item.unit.takeIf { it.isNotBlank() }
         ).joinToString(" · ")

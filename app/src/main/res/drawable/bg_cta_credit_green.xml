@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solid teal-green CTA for the "Add return / refund" (credit note)
+     button, now one of the two big buttons in Bill Details' main row. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="14dp"/>
+    <solid android:color="#0F6E56"/>
+</shape>

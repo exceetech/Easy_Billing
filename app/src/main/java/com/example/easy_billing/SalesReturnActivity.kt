@@ -201,7 +201,7 @@ class SalesReturnActivity : AppCompatActivity() {
                 btnConfirmReturn.text = if (loading)
                     "Processing…"
                 else
-                    "Confirm and issue credit note"
+                    "Confirm return"
             }
         }
 
@@ -212,7 +212,7 @@ class SalesReturnActivity : AppCompatActivity() {
                     is CreditNoteRepository.Result.Success -> {
                         Toast.makeText(
                             this@SalesReturnActivity,
-                            "Credit Note ${result.creditNote.noteNumber} issued successfully.",
+                            "Return for ${result.creditNote.noteNumber} completed successfully.",
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
@@ -313,7 +313,7 @@ class SalesReturnActivity : AppCompatActivity() {
         view.findViewById<TextView>(R.id.tvConfirmCreditEyebrow).text =
             "Invoice ${bill.billNumber}"
         view.findViewById<TextView>(R.id.tvConfirmCreditMessage).text =
-            "You're returning $unitCount unit(s) from Invoice #${bill.billNumber}. This will adjust inventory and generate a GST credit note."
+            "You're returning $unitCount unit(s) from Invoice #${bill.billNumber}. This will update stock and record the return."
         view.findViewById<TextView>(R.id.tvConfirmCreditValue).text = tvTotalReturnValue.text
 
         view.findViewById<MaterialButton>(R.id.btnConfirmIssueCredit).setOnClickListener {

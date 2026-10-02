@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -17,8 +18,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
@@ -42,13 +41,23 @@ class BillDetailsActivity : AppCompatActivity() {
     companion object {
     }
 
+    /** Same champagne-compatible (tile, ink) pairs Purchase Details cycles
+     *  across its line-item avatars — kept identical so a product looks the
+     *  same colour whether you're looking at a purchase or a bill. */
+    private val itemPalette = listOf(
+        "#F1E4CE" to "#8A6526",  // gold
+        "#E4F1EC" to "#0F6E56",  // green
+        "#F5E6DF" to "#B5623A",  // terracotta
+        "#E7EDF3" to "#37618A",  // slate blue
+        "#F0E6F1" to "#7A4A7E",  // plum
+        "#DDEEEE" to "#1D6E6E"   // deep teal
+    )
+
     private lateinit var tvBillInfo: TextView
     private lateinit var tvBillDate: TextView
     private lateinit var tvCancelledBadge: TextView
-    private lateinit var viewStatusDot: View
+    private lateinit var tvCustomerNameTitle: TextView
 
-    private lateinit var tvStoreName: TextView
-    private lateinit var tvStoreMonogram: TextView
     private lateinit var tvInvoiceTypeBadge: TextView
     private lateinit var tvCustomerAvatar: TextView
     private lateinit var tvCustomerInfo: TextView
@@ -60,17 +69,21 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var tvCess: TextView
     private lateinit var tvDiscount: TextView
     private lateinit var tvTotal: TextView
-    private lateinit var rvBillItems: RecyclerView
+    private lateinit var llBillItems: LinearLayout
     private lateinit var progressBillDetails: android.widget.ProgressBar
-    private lateinit var btnPrint: Button
-    private lateinit var btnSendToCustomer: Button
-    private lateinit var btnMarkAsPaid: MaterialButton
-    private lateinit var btnClose: Button
-    private lateinit var btnCancelBill: MaterialButton
     private lateinit var btnCreditNote: MaterialButton
     private lateinit var btnDebitNote: MaterialButton
-    private lateinit var tvBillNotesHeader: View
+    private lateinit var btnMarkAsPaid: MaterialButton
+    private lateinit var btnCancelBill: MaterialButton
+    private lateinit var btnMoreActions: MaterialButton
+    private lateinit var cardBillNotes: View
     private lateinit var llBillNotes: LinearLayout
+    private lateinit var rowNetBillNotes: View
+    private lateinit var tvNetOriginalBillAmount: TextView
+    private lateinit var tvNetAfterBillNotes: TextView
+    private lateinit var layoutOwed: View
+    private lateinit var tvOwed: TextView
+    private lateinit var toolbar: com.google.android.material.appbar.MaterialToolbar
 
     /** The server-side bill id (used for API calls). */
     private var billId: Int = -1
@@ -93,12 +106,11 @@ class BillDetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_bill_details)
         com.example.easy_billing.util.UserEventLogger.logAction("BillDetails", "opened")
 
+        toolbar          = findViewById(R.id.toolbar)
         tvBillInfo       = findViewById(R.id.tvBillInfo)
         tvBillDate       = findViewById(R.id.tvBillDate)
         tvCancelledBadge = findViewById(R.id.tvCancelledBadge)
-        viewStatusDot    = findViewById(R.id.viewStatusDot)
-        tvStoreName      = findViewById(R.id.tvStoreName)
-        tvStoreMonogram  = findViewById(R.id.tvStoreMonogram)
+        tvCustomerNameTitle = findViewById(R.id.tvCustomerNameTitle)
         tvInvoiceTypeBadge = findViewById(R.id.tvInvoiceTypeBadge)
         tvCustomerAvatar = findViewById(R.id.tvCustomerAvatar)
         tvCustomerInfo   = findViewById(R.id.tvCustomerInfo)
@@ -110,18 +122,34 @@ class BillDetailsActivity : AppCompatActivity() {
         tvCess           = findViewById(R.id.tvCess)
         tvDiscount       = findViewById(R.id.tvDiscount)
         tvTotal          = findViewById(R.id.tvTotal)
-        rvBillItems      = findViewById(R.id.rvBillItems)
+        llBillItems      = findViewById(R.id.llBillItems)
         progressBillDetails = findViewById(R.id.progressBillDetails)
-        btnPrint         = findViewById(R.id.btnPrint)
-        btnSendToCustomer = findViewById(R.id.btnSendToCustomer)
-        btnMarkAsPaid    = findViewById(R.id.btnMarkAsPaid)
-        btnClose         = findViewById(R.id.btnClose)
-        btnCancelBill    = findViewById(R.id.btnCancelBill)
         btnCreditNote    = findViewById(R.id.btnCreditNote)
         btnDebitNote     = findViewById(R.id.btnDebitNote)
-        tvBillNotesHeader = findViewById(R.id.tvBillNotesHeader)
+        btnMarkAsPaid    = findViewById(R.id.btnMarkAsPaid)
+        btnCancelBill    = findViewById(R.id.btnCancelBill)
+        btnMoreActions   = findViewById(R.id.btnMoreActions)
+        cardBillNotes    = findViewById(R.id.cardBillNotes)
         llBillNotes      = findViewById(R.id.llBillNotes)
-        llBillNotes.clipToOutline = true
+        rowNetBillNotes  = findViewById(R.id.rowNetBillNotes)
+        tvNetOriginalBillAmount = findViewById(R.id.tvNetOriginalBillAmount)
+        tvNetAfterBillNotes     = findViewById(R.id.tvNetAfterBillNotes)
+        layoutOwed       = findViewById(R.id.layoutOwed)
+        tvOwed           = findViewById(R.id.tvOwed)
+
+        // Toolbar back arrow replaces the old standalone "Close" button —
+        // same setup BaseActivity.setupToolbar does, duplicated here
+        // rather than inherited, since this screen deliberately doesn't
+        // extend BaseActivity (its forced landscape re-orientation used to
+        // race with this screen's async loads).
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayShowHomeEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
+        }
+        toolbar.setNavigationIcon(R.drawable.ic_back_arrow)
+        toolbar.setNavigationOnClickListener { finish() }
 
         billId = intent.getIntExtra("BILL_ID", -1)
 
@@ -134,20 +162,22 @@ class BillDetailsActivity : AppCompatActivity() {
             return
         }
 
-        rvBillItems.layoutManager = LinearLayoutManager(this)
-
         loadBillDetails()
 
-        btnPrint.setOnClickListener { generatePdfAndPrint() }
         // WhatsApp share needs no runtime permission or SIM, so the
         // button just stays wired — CustomerShareHelper itself shows a
         // toast if WhatsApp turns out not to be installed.
-        btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
         btnMarkAsPaid.setOnClickListener { confirmMarkAsPaid() }
-        btnClose.setOnClickListener { finish() }
         btnCancelBill.setOnClickListener { confirmCancellation() }
         btnCreditNote.setOnClickListener { openSalesReturn() }
         btnDebitNote.setOnClickListener { openDebitNote() }
+        // "More options" opens a bottom sheet with Send to Customer and
+        // Print, since Add return/refund and Add extra charge are now
+        // the two big buttons in the main row instead.
+        btnMoreActions.setOnClickListener { showMoreActionsSheet() }
+        layoutOwed.setOnClickListener {
+            startActivity(Intent(this, CreditAccountsActivity::class.java))
+        }
     }
 
     // Offline-session-timeout coverage (see SessionTimeoutGuard for why this
@@ -230,16 +260,6 @@ class BillDetailsActivity : AppCompatActivity() {
                 val bill = response.bill
                 val items = response.items
 
-                lifecycleScope.launch {
-
-                    val db = AppDatabase.getDatabase(this@BillDetailsActivity)
-                    val store = db.storeInfoDao().get()
-
-                    val storeName = store?.name ?: "My Store"
-                    tvStoreName.text = storeName
-                    tvStoreMonogram.text = storeName.trim().firstOrNull()?.uppercase() ?: "M"
-                }
-
                 val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 val outputFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
@@ -251,7 +271,7 @@ class BillDetailsActivity : AppCompatActivity() {
                     bill.created_at // fallback
                 }
 
-                tvBillInfo.text = "Invoice · ${bill.bill_number}"
+                tvBillInfo.text = "Bill · ${bill.bill_number}"
                 tvBillDate.text = cleanDate
                 resolvedBillNumber = bill.bill_number
 
@@ -298,7 +318,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 tvDiscount.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.discount)}"
                 tvTotal.text = "${CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)}"
 
-                rvBillItems.adapter = BillDetailsAdapter(items)
+                buildBillItemsList(items)
 
                 // N1: server flag too — covers bills voided from another
                 // device or after a reinstall, where Room has no record.
@@ -332,7 +352,7 @@ class BillDetailsActivity : AppCompatActivity() {
                     lifecycleScope.launch(Dispatchers.IO) {
                         val notes = db.creditNoteDao().getByOriginalInvoice(localBillId)
                         withContext(Dispatchers.Main) {
-                            buildBillNotes(notes)
+                            buildBillNotes(notes, bill.total_amount)
                         }
                     }
                 }
@@ -348,6 +368,20 @@ class BillDetailsActivity : AppCompatActivity() {
                     ?: creditAccount?.name?.takeIf { it.isNotBlank() }
                 val displayName = customerName ?: "Walk-in customer"
                 tvCustomerInfo.text = displayName
+                tvCustomerNameTitle.text = displayName
+
+                // "Still owed" banner — same purpose as Purchase Details'
+                // layoutOwed, just the other direction: a credit sale
+                // owed BY the customer TO the shop. Bills don't track a
+                // partial-payment amount against the credit balance, so
+                // the figure shown is the bill's own total.
+                val isCreditSale = bill.payment_method.contains("credit", ignoreCase = true)
+                if (isCreditSale && !alreadyCancelled) {
+                    layoutOwed.visibility = View.VISIBLE
+                    tvOwed.text = CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)
+                } else {
+                    layoutOwed.visibility = View.GONE
+                }
 
                 // Avatar monogram — first letters of the first two words.
                 val words = displayName.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
@@ -435,24 +469,29 @@ class BillDetailsActivity : AppCompatActivity() {
         lastIsUpiBill = isUpiBill
         lastUpiPaid = upiPaid
 
+        // Status pill — back in its original top-right spot, with its
+        // own tinted background again (not just plain text).
         when {
             cancelled -> {
                 tvCancelledBadge.text = "CANCELLED"
-                viewStatusDot.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F09595"))
+                tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                tvCancelledBadge.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EFEAE0"))
             }
-            // UPI bills get a real payment-status pill instead of the
+            // UPI bills get a real payment-status label instead of the
             // generic "not cancelled" one — this is the only payment
             // method with an actual webhook-confirmed paid/unpaid state.
             isUpiBill && !upiPaid -> {
                 tvCancelledBadge.text = "PENDING PAYMENT"
-                viewStatusDot.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D99C3F"))
+                tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#8A6526"))
+                tvCancelledBadge.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F5EBD8"))
             }
             isUpiBill -> {
                 tvCancelledBadge.text = "PAID"
-                viewStatusDot.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#5DCAA5"))
+                tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+                tvCancelledBadge.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E7F3EE"))
             }
             else -> {
                 // Renamed from "PAID" — this badge has only ever meant "not
@@ -460,13 +499,57 @@ class BillDetailsActivity : AppCompatActivity() {
                 // Kept it distinct from the real UPI-paid badge above so
                 // the two don't read as the same signal.
                 tvCancelledBadge.text = "ACTIVE"
-                viewStatusDot.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#5DCAA5"))
+                tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+                tvCancelledBadge.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E7F3EE"))
             }
         }
         btnCancelBill.visibility    = if (cancelled) View.GONE   else View.VISIBLE
         btnCreditNote.isEnabled     = !cancelled
         btnDebitNote.isEnabled      = !cancelled
+    }
+
+    /**
+     * "More options" dropdown — Send to Customer and Print used to be
+     * their own big buttons in the main action row; now that Add
+     * return/refund and Add extra charge are the two big buttons there
+     * instead, Send and Print live in this icon-badged dropdown card,
+     * anchored below-right of btnMoreActions (same card language as
+     * ThemedDropdown's bg_pos_dropdown elsewhere in the app).
+     */
+    private fun showMoreActionsSheet() {
+        val view = layoutInflater.inflate(R.layout.dropdown_bill_more_actions, null)
+        val rowSend = view.findViewById<LinearLayout>(R.id.rowDropdownSend)
+        val rowPrint = view.findViewById<LinearLayout>(R.id.rowDropdownPrint)
+
+        val density = resources.displayMetrics.density
+        val popup = android.widget.PopupWindow(
+            view,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        ).apply {
+            elevation = 10f * density
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
+        rowSend.setOnClickListener {
+            popup.dismiss()
+            showSendToCustomerOptions()
+        }
+        rowPrint.setOnClickListener {
+            popup.dismiss()
+            generatePdfAndPrint()
+        }
+
+        // Right-aligned, and opens upward above btnMoreActions instead of
+        // below it — this button sits right above the bottom edge of the
+        // screen, so a downward dropdown would have nowhere to go.
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        val xOff = btnMoreActions.width - view.measuredWidth
+        val gap = (6 * density).toInt()
+        val yOff = -(btnMoreActions.height + view.measuredHeight + gap)
+        popup.showAsDropDown(btnMoreActions, xOff, yOff)
     }
 
     /**
@@ -735,17 +818,49 @@ class BillDetailsActivity : AppCompatActivity() {
      * customer owes (gold, minus, "returned" caption); debit notes ("D")
      * add to it (teal, plus, "issued" caption).
      */
-    private fun buildBillNotes(notes: List<com.example.easy_billing.db.CreditNote>) {
+    private fun buildBillNotes(notes: List<com.example.easy_billing.db.CreditNote>, originalTotal: Double) {
         if (notes.isEmpty()) {
-            tvBillNotesHeader.visibility = View.GONE
+            // Whole card hidden together, not just its header — same rule
+            // Purchase Details' Returns card uses, so an ordinary bill
+            // with no notes never shows a stray half-empty third card.
+            cardBillNotes.visibility = View.GONE
             llBillNotes.removeAllViews()
-            llBillNotes.visibility = View.GONE
+            rowNetBillNotes.visibility = View.GONE
             return
         }
 
-        tvBillNotesHeader.visibility = View.VISIBLE
-        llBillNotes.visibility = View.VISIBLE
+        cardBillNotes.visibility = View.VISIBLE
         llBillNotes.removeAllViews()
+
+        // Net after notes — same rollup as Purchase Details' Card 3:
+        // credit notes ("C") reduce what the customer owes, debit notes
+        // ("D") add to it.
+        val delta = notes.sumOf { if (it.noteType == "C") -it.totalAmount else it.totalAmount }
+        val creditNotes = notes.filter { it.noteType == "C" }
+        val debitNotes = notes.filter { it.noteType != "C" }
+        val creditTotal = creditNotes.sumOf { it.totalAmount }
+        val debitTotal = debitNotes.sumOf { it.totalAmount }
+
+        fun noteWord(count: Int) = if (count == 1)
+            getString(R.string.bill_details_note_word)
+        else
+            getString(R.string.bill_details_notes_word)
+
+        tvNetAfterBillNotes.text = CurrencyHelper.format(this, originalTotal + delta)
+
+        val parts = mutableListOf(
+            "${CurrencyHelper.format(this, originalTotal)} ${getString(R.string.bill_details_billed_suffix)}"
+        )
+        if (creditNotes.isNotEmpty()) {
+            parts += "${CurrencyHelper.format(this, creditTotal)} ${getString(R.string.bill_details_returned_across)} " +
+                "${creditNotes.size} ${noteWord(creditNotes.size)}"
+        }
+        if (debitNotes.isNotEmpty()) {
+            parts += "${CurrencyHelper.format(this, debitTotal)} ${getString(R.string.bill_details_added_across)} " +
+                "${debitNotes.size} ${noteWord(debitNotes.size)}"
+        }
+        tvNetOriginalBillAmount.text = parts.joinToString(" · ")
+        rowNetBillNotes.visibility = View.VISIBLE
 
         val dateFmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
@@ -781,7 +896,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 setTextColor(Color.parseColor(hex))
             }
             card.findViewById<TextView>(R.id.tvNoteCaption).text =
-                if (isCredit) "returned" else "issued"
+                if (isCredit) "returned" else "added"
             card.findViewById<TextView>(R.id.tvValuationVariance).visibility = View.GONE
 
             card.findViewById<View>(R.id.viewNoteDivider).visibility =
@@ -1063,6 +1178,78 @@ class BillDetailsActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this@BillDetailsActivity, getString(R.string.mark_as_paid_failed), Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    /**
+     * Builds the "Items sold" card's rows by inflating item_purchase_detail_row.xml
+     * directly into llBillItems — the same manual-inflate pattern Purchase
+     * Details uses for its own item list (PurchaseDetailsActivity.buildItemsList),
+     * not a RecyclerView. A RecyclerView measured wrap_content inside this
+     * screen's outer ScrollView could end up showing only the first row;
+     * this sidesteps that entirely since every row is a real, already-measured
+     * child view the moment it's added.
+     */
+    private fun buildBillItemsList(items: List<com.example.easy_billing.network.BillItemResponse>) {
+        llBillItems.removeAllViews()
+        for ((index, item) in items.withIndex()) {
+            val row = LayoutInflater.from(this)
+                .inflate(R.layout.item_purchase_detail_row, llBillItems, false)
+
+            // Avatar — first letters of the first two words, uppercased.
+            val words = item.product_name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+            val initials = when {
+                words.size >= 2 -> "${words[0].first()}${words[1].first()}"
+                words.size == 1 && words[0].length >= 2 -> words[0].substring(0, 2)
+                words.size == 1 -> words[0]
+                else -> "?"
+            }.uppercase()
+            row.findViewById<TextView>(R.id.tvAvatar).text = initials
+
+            // A stable colour per product — same item, same colour every
+            // time, same palette Purchase Details uses for its own rows.
+            val (tileHex, inkHex) = itemPalette[
+                Math.floorMod(item.product_name.hashCode(), itemPalette.size)
+            ]
+            row.findViewById<TextView>(R.id.tvAvatar).apply {
+                backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(tileHex))
+                setTextColor(android.graphics.Color.parseColor(inkHex))
+            }
+            row.findViewById<View>(R.id.viewItemStripe)
+                .setBackgroundColor(android.graphics.Color.parseColor(inkHex))
+
+            // Variant ("type") shown inline right after the product name —
+            // e.g. "Rice . 1kg" — instead of as a separate secondary line,
+            // so the two read together as one name.
+            row.findViewById<TextView>(R.id.tvProductName).text =
+                if (!item.variant.isNullOrBlank()) "${item.product_name} . ${item.variant}"
+                else item.product_name
+
+            // Bill items don't carry a "returned" state here (that's tracked
+            // separately via credit/debit notes), so this chip stays hidden.
+            row.findViewById<TextView>(R.id.tvReturnedChip).visibility = View.GONE
+
+            val qtyLabel = if (item.quantity == item.quantity.toLong().toDouble())
+                item.quantity.toLong().toString() else item.quantity.toString()
+            val unitLabel = item.unit?.let { " $it" } ?: ""
+            row.findViewById<TextView>(R.id.tvHsnQty).text =
+                "$qtyLabel$unitLabel × ${CurrencyHelper.format(this, item.price)}"
+
+            // GROSS line amount (price × qty). The bill discount is shown once,
+            // as its own bill-level line — not baked into each row.
+            row.findViewById<TextView>(R.id.tvLineTotal).text =
+                CurrencyHelper.format(this, item.price * item.quantity)
+
+            // No per-item GST/cost breakdown exists for bill items, and the
+            // variant now shows inline with the product name above instead
+            // of here, so this secondary line always stays hidden.
+            row.findViewById<TextView>(R.id.tvCostAndGst).visibility = View.GONE
+
+            // No trailing hairline on the last line of the card.
+            row.findViewById<View>(R.id.viewItemDivider).visibility =
+                if (index == items.lastIndex) View.GONE else View.VISIBLE
+
+            llBillItems.addView(row)
         }
     }
 }

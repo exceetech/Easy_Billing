@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Black "Print" CTA — equal weight to bg_login_cta_green but visually
+     distinct, used on Bill Details' Print button next to Send to Customer. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="12dp"/>
+    <solid android:color="#1A1A18"/>
+</shape>

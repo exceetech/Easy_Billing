@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Floating tooltip bubble shown inside the profit trend chart on tap:
+     small, dark, rounded, simple by design, just the period and its
+     amount. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#123B31"/>
+    <corners android:radius="8dp"/>
+</shape>

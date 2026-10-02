@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Profit Trend tab content, extracted from the former activity_profit_chart.xml
+  into a Fragment-hosted layout as part of the single-Activity, two-Fragment
+  Profit Analytics / Trend refactor. Toolbar and the shared Overview/Trend
+  tab-switch row now live in the host activity_profit.xml.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3ECDD">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
+            <!-- ===================== PROFIT TREND CHART =====================
+                 Eyebrow/title removed here — the shared Overview/Trend header
+                 and tab row in the host activity already identify this page.
+                 A real over-time chart: one bar per hour (Today), per day
+                 (Week/Month/Custom), or per month (All) — see
+                 expos-profit-trend-chart-plan.md. Shows the whole shop by
+                 default; "Pick a product" scopes every bar to one product
+                 instead, via the same /profit/trend endpoint with
+                 product_id set. Sits above the existing per-product
+                 leaderboard card, which is unchanged below it. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_addp_card"
+                android:clipToPadding="false">
+
+                <!-- Card header — teal strip + step-circle, same language
+                     as the Profit calculation / By-product cards. -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_si_trend_up"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Profit over time"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#123B31"/>
+                        <TextView
+                            android:id="@+id/tvTrendCaption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Each point is one hour of today"
+                            android:textSize="10.5sp"
+                            android:textColor="#0F6E56"
+                            android:layout_marginTop="1dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="15dp">
+
+                    <!-- "Showing: [product] ✕" — only visible once a product
+                         is picked. -->
+                    <LinearLayout
+                        android:id="@+id/chipTrendProduct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_trend_product_chip"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="5dp"
+                        android:paddingVertical="5dp"
+                        android:visibility="gone">
+                        <TextView
+                            android:id="@+id/tvTrendProductName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Product name"
+                            android:textSize="10.5sp"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:textColor="#0F6E56"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:maxWidth="180dp"/>
+                        <ImageView
+                            android:id="@+id/btnClearTrendProduct"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="6dp"
+                            android:padding="3.5dp"
+                            android:src="@drawable/ic_close"
+                            app:tint="@android:color/white"
+                            android:background="@drawable/bg_trend_product_chip_close"
+                            android:contentDescription="Clear product"/>
+                    </LinearLayout>
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/barTrendChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvTrendEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingVertical="24dp"
+                        android:text="Nothing sold in this period yet"
+                        android:textColor="#9A8F79"
+                        android:textSize="13sp"
+                        android:visibility="gone"/>
+
+                    <!-- Total box — soft green, bordered, matches the
+                         mockup's total-row exactly. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_trend_total_box"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="Total for this chart"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#5E7A6E"/>
+                        <TextView
+                            android:id="@+id/tvTrendTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="19sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:textColor="#085041"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickProduct"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="12dp"
+                        android:text="Pick a product"
+                        android:textAllCaps="false"
+                        android:textSize="12.5sp"
+                        android:textColor="#123B31"
+                        app:icon="@drawable/ic_si_search"
+                        app:iconTint="#123B31"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp"
+                        app:backgroundTint="@android:color/white"
+                        app:strokeColor="#E4DCC8"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="12dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:elevation="0dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Chart card: same card skeleton as the Profit-over-time
+                 card above (teal header, then content), but in the
+                 champagne family so the two cards are visually distinct
+                 at a glance. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_addp_card"
+                android:clipToPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_status_header_amber"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_si_chart_columns"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/xml_profit_chart_per_product_label"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#6B4A20"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Best to worst, by profit"
+                            android:textSize="10.5sp"
+                            android:textColor="#B8895A"
+                            android:layout_marginTop="1dp"/>
+                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/btnChartInfo"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_info_circle"
+                        app:tint="#C7B899"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/xml_profit_info_eyebrow"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="15dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+                        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                        <View android:layout_width="8dp" android:layout_height="8dp"
+                            android:background="@drawable/bg_bar_fill" android:backgroundTint="#1D9E75"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp" android:layout_marginEnd="10dp"
+                            android:text="@string/xml_profit_chart_legend_profit" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                        <View android:layout_width="8dp" android:layout_height="8dp"
+                            android:background="@drawable/bg_bar_fill" android:backgroundTint="#E24B4A"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="@string/xml_profit_chart_legend_loss" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"/>
+
+                    <TextView
+                        android:id="@+id/tvEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingVertical="24dp"
+                        android:text="@string/xml_profit_chart_no_data"
+                        android:textColor="#9A8F79"
+                        android:textSize="13sp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Border overlay for item_profit_simple's outer card. Drawn as the
+     row's foreground (on top of the stripe and the detail box, not
+     behind them like the card's own bg_inv_value_card background), so
+     the thin outline always wraps the full rounded rectangle as one
+     unbroken line in both the collapsed and expanded state, no matter
+     what opaque content sits underneath it at each corner. Fixes the
+     stripe and the detail box fighting over who draws the bottom-left
+     corner. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <stroke android:width="0.5dp" android:color="#ECE7DA"/>
+    <corners android:radius="18dp"/>
+</shape>

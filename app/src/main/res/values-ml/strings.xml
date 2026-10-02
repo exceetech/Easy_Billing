@@ -559,7 +559,7 @@
     <string name="availed_itc_igst">ലഭിച്ച ITC IGST (₹)</string>
     <string name="cess_paid_rupees">അടച്ച സെസ് (₹)</string>
     <string name="eligibility">യോഗ്യത</string>
-    <string name="gst_rate_pct">GST നിരക്ക് (%%)</string>
+    <string name="gst_rate_pct" formatted="false">GST നിരക്ക് (%)</string>
     <string name="igst_calc_helper">IGST നിരക്ക് × നികുതി വിധേയ മൂല്യത്തിൽ നിന്ന് കണക്കാക്കുന്നു. ഇൻവോയ്</string>
     <string name="igst_paid_rupees">അടച്ച IGST (₹)</string>
     <string name="import_of_services_eyebrow">സേവനങ്ങളുടെ ഇറക്കുമതി</string>
@@ -1350,8 +1350,8 @@
     <string name="edit_current_stock">നിലവിലെ സ്റ്റോക്ക്</string>
     <string name="edit_product_xml_category_header">വിഭാഗം</string>
     <string name="edit_product_xml_category_label">വിഭാഗം</string>
-    <string name="edit_product_xml_cess_pct_label">Cess %%</string>
-    <string name="edit_product_xml_cgst_pct_label">CGST %%</string>
+    <string name="edit_product_xml_cess_pct_label" formatted="false">Cess %</string>
+    <string name="edit_product_xml_cgst_pct_label" formatted="false">CGST %</string>
     <string name="edit_product_xml_details">വിവരങ്ങൾ</string>
     <string name="edit_product_xml_edit">എഡിറ്റ്</string>
     <string name="edit_product_xml_gst_label">GST</string>
@@ -1362,7 +1362,7 @@
     <string name="edit_product_xml_pricing_header">വിലനിർണയം</string>
     <string name="edit_product_xml_product_label">പ്രൊഡക്റ്റ്</string>
     <string name="edit_product_xml_select_hint">തിരഞ്ഞെടുക്കുക</string>
-    <string name="edit_product_xml_sgst_pct_label">SGST %%</string>
+    <string name="edit_product_xml_sgst_pct_label" formatted="false">SGST %</string>
     <string name="edit_product_xml_tax_gstr1_header">നികുതി &amp;amp; GSTR-1 വിവരങ്ങൾ</string>
     <string name="edit_product_xml_units_to_add_hint">ചേർക്കേണ്ട യൂണിറ്റുകൾ</string>
     <string name="edit_stock_locked_helper">പർച്ചേസുകൾ വഴിയാണ് സ്റ്റോക്ക് നിയന്ത്രിക്കുന്നത് — ഒരു പുതിയ പർച്ചേസ് ഇൻവോയ്സ് രേഖപ്പെടുത്തിക്കൊണ്ട് സ്റ്റോക്ക് ചേർക്കുക.</string>
@@ -1565,7 +1565,7 @@
     <string name="xml_purchase_return_cess_label">Cess</string>
     <string name="xml_purchase_return_document_label">രേഖ</string>
     <string name="xml_purchase_return_eligibility_label">ITC-യുടെ യോഗ്യത</string>
-    <string name="xml_purchase_return_gst_pct_hint">GST %%</string>
+    <string name="xml_purchase_return_gst_pct_hint" formatted="false">GST %</string>
     <string name="xml_purchase_return_gstr2_debit_note_header">GSTR-2 ഡെബിറ്റ് നോട്ട് വിവരങ്ങൾ</string>
     <string name="xml_purchase_return_header">പർച്ചേസ് റിട്ടേൺ</string>
     <string name="xml_purchase_return_integrated_label">ഇന്റഗ്രേറ്റഡ്</string>
@@ -1764,7 +1764,7 @@
     <!-- activity_purchase_details -->
     <string name="place_of_supply">പ്ലേസ് ഓഫ് സപ്ലൈ</string>
     <string name="tax_breakdown">നികുതി വിവരണം</string>
-    <string name="txn_label_credit_note">അധിക സ്റ്റോക്ക് ചേർക്കുക</string>
+    <string name="txn_label_credit_note">Add more goods</string>
     <string name="txn_label_debit_note">സാധനങ്ങൾ തിരികെ നൽകുക</string>
     <string name="xml_purchase_details_cancel_button">പർച്ചേസ് റദ്ദാക്കുക</string>
     <string name="xml_purchase_details_cancelled_note">ഈ പർച്ചേസ് റദ്ദാക്കി</string>
@@ -2222,7 +2222,7 @@
     <string name="xml_purchase_line_dialog_category_label">വിഭാഗം</string>
     <string name="xml_purchase_line_dialog_cess_amount_label">Cess തുക</string>
     <string name="xml_purchase_line_dialog_cess_label">Cess</string>
-    <string name="xml_purchase_line_dialog_cess_pct_label">Cess %%</string>
+    <string name="xml_purchase_line_dialog_cess_pct_label" formatted="false">Cess %</string>
     <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
     <string name="xml_purchase_line_dialog_cgst_paid_label">അടച്ച CGST</string>
     <string name="xml_purchase_line_dialog_disc_label">ഡിസ്ക്</string>

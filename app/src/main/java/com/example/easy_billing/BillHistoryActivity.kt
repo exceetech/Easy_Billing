@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.network.BillResponse
 import com.example.easy_billing.network.RetrofitClient
+import retrofit2.HttpException
 import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.CurrencyHelper
 import kotlinx.coroutines.launch
@@ -35,12 +36,16 @@ class BillHistoryActivity : BaseActivity() {
 
     private lateinit var tvTodaySales: TextView
     private lateinit var tvBillsToday: TextView
+    private lateinit var tvOnCreditToday: TextView
+    private lateinit var tvCashToday: TextView
 
     private lateinit var btnFilter: android.view.View
     private lateinit var btnSort: android.view.View
     private lateinit var tvFilterBadge: TextView
     private lateinit var tvResultSummary: TextView
     private lateinit var btnResetFilters: android.view.View
+    private lateinit var tipCreateBill: android.view.View
+    private lateinit var btnCreateBill: android.view.View
 
     private val handler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
@@ -50,11 +55,27 @@ class BillHistoryActivity : BaseActivity() {
     // Filter (date range / cancelled) and sort are independent dimensions —
     // both apply together, rather than one mutually-exclusive chip value.
     private val filterKeys = listOf("ALL", "TODAY", "WEEK", "MONTH", "CANCELLED")
-    private val filterLabels = listOf("All bills", "Today", "This week", "This month", "Cancelled")
+    private val filterLabels by lazy {
+        listOf(
+            getString(R.string.bill_history_filter_all_label),
+            getString(R.string.bill_history_filter_today_label),
+            getString(R.string.bill_history_filter_week_label),
+            getString(R.string.bill_history_filter_month_label),
+            getString(R.string.bill_history_filter_cancelled_label)
+        )
+    }
     private var activeFilter: String = "ALL"
 
-    private val sortKeys = listOf("NEWEST", "OLDEST", "AMOUNT_HIGH", "AMOUNT_LOW", "BILL_NUMBER")
-    private val sortLabels = listOf("Newest first", "Oldest first", "Highest amount", "Lowest amount", "Bill number")
+    // Trimmed from five sort options to the two people actually use —
+    // amount-high/low and bill-number sorting went unused and just added
+    // noise to the dropdown (same simplification as Purchase History).
+    private val sortKeys = listOf("NEWEST", "OLDEST")
+    private val sortLabels by lazy {
+        listOf(
+            getString(R.string.sort_newest_first),
+            getString(R.string.sort_oldest_first)
+        )
+    }
     private var activeSort: String = "NEWEST"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,12 +120,16 @@ class BillHistoryActivity : BaseActivity() {
 
         tvTodaySales = findViewById(R.id.tvTodaySales)
         tvBillsToday = findViewById(R.id.tvBillsToday)
+        tvOnCreditToday = findViewById(R.id.tvOnCreditToday)
+        tvCashToday = findViewById(R.id.tvCashToday)
 
         btnFilter = findViewById(R.id.btnFilter)
         btnSort = findViewById(R.id.btnSort)
         tvFilterBadge = findViewById(R.id.tvFilterBadge)
         tvResultSummary = findViewById(R.id.tvResultSummary)
         btnResetFilters = findViewById(R.id.btnResetFilters)
+        tipCreateBill = findViewById(R.id.tipCreateBill)
+        btnCreateBill = findViewById(R.id.btnCreateBill)
     }
 
 // ================= RECYCLER =================
@@ -157,8 +182,18 @@ class BillHistoryActivity : BaseActivity() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                // Temporary diagnostic: capture the exact HTTP status/body so
+                // we can tell a device-binding/auth rejection (401/403) apart
+                // from a generic network hiccup instead of guessing blind —
+                // remove this extra detail once the real cause is confirmed.
+                val detail = if (e is HttpException) {
+                    val body = try { e.response()?.errorBody()?.string() } catch (_: Exception) { null }
+                    "HTTP ${e.code()}${if (!body.isNullOrBlank()) ": $body".take(200) else ""}"
+                } else {
+                    e.javaClass.simpleName + (e.message?.let { ": $it" } ?: "")
+                }
                 com.example.easy_billing.util.UserEventLogger.logError(
-                    "BillHistory", "load_bills_failed: ${e.javaClass.simpleName}"
+                    "BillHistory", "load_bills_failed: $detail"
                 )
                 // Distinguish "no connection" from a genuine server error so
                 // the shop owner knows whether to check their internet or
@@ -166,7 +201,7 @@ class BillHistoryActivity : BaseActivity() {
                 val message = if (!isInternetAvailable())
                     getString(R.string.bill_history_offline_note)
                 else
-                    getString(R.string.bill_history_load_failed)
+                    getString(R.string.bill_history_load_failed) + " ($detail)"
                 Toast.makeText(this@BillHistoryActivity, message, Toast.LENGTH_LONG).show()
                 showListState(allBills)
             } finally {
@@ -244,6 +279,12 @@ class BillHistoryActivity : BaseActivity() {
 // ================= FILTER + SORT =================
 
     private fun setupFilterAndSort() {
+        // Bills are created from the dashboard (add items, then checkout),
+        // not from a standalone screen, so both entry points here just
+        // return to it rather than opening something new.
+        tipCreateBill.setOnClickListener { finish() }
+        btnCreateBill.setOnClickListener { finish() }
+
         btnFilter.setOnClickListener { showFilterPopup() }
         btnSort.setOnClickListener { showSortPopup() }
         btnResetFilters.setOnClickListener {
@@ -366,7 +407,11 @@ class BillHistoryActivity : BaseActivity() {
         btnResetFilters.visibility = if (hasActiveFilter || hasActiveSort) android.view.View.VISIBLE else android.view.View.GONE
 
         val sortLabel = sortLabels[sortKeys.indexOf(activeSort)]
-        tvResultSummary.text = "$resultCount bill${if (resultCount == 1) "" else "s"} · $sortLabel"
+        val countWord = if (resultCount == 1)
+            getString(R.string.bill_history_result_count_one)
+        else
+            getString(R.string.bill_history_result_count_other)
+        tvResultSummary.text = "$resultCount $countWord · $sortLabel"
     }
 
     private fun applyFilterAndSort(source: List<BillResponse>): List<BillResponse> {
@@ -408,9 +453,6 @@ class BillHistoryActivity : BaseActivity() {
 
         return when (activeSort) {
             "OLDEST" -> filtered.sortedBy { it.created_at }
-            "AMOUNT_HIGH" -> filtered.sortedByDescending { it.total_amount }
-            "AMOUNT_LOW" -> filtered.sortedBy { it.total_amount }
-            "BILL_NUMBER" -> filtered.sortedByDescending { it.bill_number }
             else -> filtered.sortedByDescending { it.created_at } // NEWEST
         }
     }
@@ -429,7 +471,15 @@ class BillHistoryActivity : BaseActivity() {
 
         val totalToday = todayBills.sumOf { it.total_amount }
 
+        // Same "on credit vs cash" split Purchase History shows for money
+        // going out — here it's money coming in, so the owner can see at a
+        // glance how much of today's sales are still owed to them.
+        val creditToday = todayBills.filter { it.payment_method.contains("credit", ignoreCase = true) }
+        val cashToday = todayBills.filter { !it.payment_method.contains("credit", ignoreCase = true) }
+
         tvTodaySales.text = CurrencyHelper.format(this, totalToday)
         tvBillsToday.text = todayBills.size.toString()
+        tvOnCreditToday.text = CurrencyHelper.format(this, creditToday.sumOf { it.total_amount })
+        tvCashToday.text = CurrencyHelper.format(this, cashToday.sumOf { it.total_amount })
     }
 }

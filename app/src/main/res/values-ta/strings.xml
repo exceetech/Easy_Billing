@@ -559,7 +559,7 @@
     <string name="availed_itc_igst">பெறப்பட்ட ITC IGST (₹)</string>
     <string name="cess_paid_rupees">செலுத்திய செஸ் (₹)</string>
     <string name="eligibility">தகுதி</string>
-    <string name="gst_rate_pct">GST விகிதம் (%%)</string>
+    <string name="gst_rate_pct" formatted="false">GST விகிதம் (%)</string>
     <string name="igst_calc_helper">IGST விகிதம் × வரி விதிக்கத்தக்க மதிப்பிலிருந்து கணக்கிடப்படுகிறது. உங்கள் இன்வாய்ஸ் வேறுவிதமாக இருந்தால் அதற்கு மேல் தட்டச்சு செய்யவும்.</string>
     <string name="igst_paid_rupees">செலுத்திய IGST (₹)</string>
     <string name="import_of_services_eyebrow">சேவைகளின் இறக்குமதி</string>
@@ -1350,8 +1350,8 @@
     <string name="edit_current_stock">தற்போதைய இருப்பு</string>
     <string name="edit_product_xml_category_header">வகை</string>
     <string name="edit_product_xml_category_label">வகை</string>
-    <string name="edit_product_xml_cess_pct_label">செஸ் %%</string>
-    <string name="edit_product_xml_cgst_pct_label">CGST %%</string>
+    <string name="edit_product_xml_cess_pct_label" formatted="false">செஸ் %</string>
+    <string name="edit_product_xml_cgst_pct_label" formatted="false">CGST %</string>
     <string name="edit_product_xml_details">விவரங்கள்</string>
     <string name="edit_product_xml_edit">திருத்து</string>
     <string name="edit_product_xml_gst_label">GST</string>
@@ -1362,7 +1362,7 @@
     <string name="edit_product_xml_pricing_header">விலை நிர்ணயம்</string>
     <string name="edit_product_xml_product_label">பொருள்</string>
     <string name="edit_product_xml_select_hint">தேர்ந்தெடுக்கவும்</string>
-    <string name="edit_product_xml_sgst_pct_label">SGST %%</string>
+    <string name="edit_product_xml_sgst_pct_label" formatted="false">SGST %</string>
     <string name="edit_product_xml_tax_gstr1_header">வரி &amp;amp; GSTR-1 விவரங்கள்</string>
     <string name="edit_product_xml_units_to_add_hint">சேர்க்க வேண்டிய அளவு</string>
     <string name="edit_stock_locked_helper">இருப்பு வாங்குதல்கள் மூலம் நிர்வகிக்கப்படுகிறது — புதிய கொள்முதல் இன்வாய்ஸைப் பதிவு செய்வதன் மூலம் இருப்பைச் சேர்க்கவும்.</string>
@@ -1565,7 +1565,7 @@
     <string name="xml_purchase_return_cess_label">செஸ்</string>
     <string name="xml_purchase_return_document_label">ஆவணம்</string>
     <string name="xml_purchase_return_eligibility_label">ITCக்கான தகுதி</string>
-    <string name="xml_purchase_return_gst_pct_hint">GST %%</string>
+    <string name="xml_purchase_return_gst_pct_hint" formatted="false">GST %</string>
     <string name="xml_purchase_return_gstr2_debit_note_header">GSTR-2 பற்று நோட்டு விவரங்கள்</string>
     <string name="xml_purchase_return_header">கொள்முதல் திரும்ப அனுப்புதல்</string>
     <string name="xml_purchase_return_integrated_label">ஒருங்கிணைந்த</string>
@@ -1764,7 +1764,7 @@
     <!-- activity_purchase_details -->
     <string name="place_of_supply">வழங்கல் இடம்</string>
     <string name="tax_breakdown">வரி விவரம்</string>
-    <string name="txn_label_credit_note">கூடுதல் பொருட்கள் சேர்</string>
+    <string name="txn_label_credit_note">Add more goods</string>
     <string name="txn_label_debit_note">பொருட்களைத் திருப்பி அனுப்பு</string>
     <string name="xml_purchase_details_cancel_button">கொள்முதலை ரத்து செய்</string>
     <string name="xml_purchase_details_cancelled_note">இந்த கொள்முதல் ரத்து செய்யப்பட்டது</string>
@@ -2222,7 +2222,7 @@
     <string name="xml_purchase_line_dialog_category_label">வகை</string>
     <string name="xml_purchase_line_dialog_cess_amount_label">செஸ் தொகை</string>
     <string name="xml_purchase_line_dialog_cess_label">செஸ்</string>
-    <string name="xml_purchase_line_dialog_cess_pct_label">செஸ் %%</string>
+    <string name="xml_purchase_line_dialog_cess_pct_label" formatted="false">செஸ் %</string>
     <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
     <string name="xml_purchase_line_dialog_cgst_paid_label">CGST செலுத்தியது</string>
     <string name="xml_purchase_line_dialog_disc_label">தள்ளுபடி</string>

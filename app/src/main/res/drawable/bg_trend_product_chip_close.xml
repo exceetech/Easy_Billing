@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Small filled circle behind the product chip's close "x", a proper
+     tappable button instead of a bare icon floating in the chip. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#0F6E56"/>
+</shape>

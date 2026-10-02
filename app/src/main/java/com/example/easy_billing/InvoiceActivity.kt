@@ -1624,6 +1624,29 @@ class InvoiceActivity : AppCompatActivity() {
                 // snapshot (invoice type, state, scheme) and marks it
                 // synced. It is internally mutex-guarded, so a concurrent
                 // Dashboard sync can never double-post.
+                //
+                // Bug fix: syncBills() refuses to push a bill whose
+                // product doesn't have a serverId yet (see SyncManager.
+                // syncBills()'s "blocked — product has no serverId yet"
+                // check) -- that id is only assigned by syncShopProducts().
+                // syncAll() always runs products before bills, but this
+                // save path used to call syncBills() alone, so a bill
+                // using a just-created/not-yet-uploaded product was
+                // silently skipped every single time and never reached
+                // the server (so it never appeared in Bill History,
+                // which reads from the server only) -- it sat stuck
+                // until the user happened to open Dashboard, which runs
+                // the full pipeline. Calling syncShopProducts() here
+                // first closes that gap: today's new product gets its
+                // serverId immediately, then syncBills() can push the
+                // bill that references it in the very same save.
+                try {
+                    SyncManager(this@InvoiceActivity).syncShopProducts()
+                } catch (_: Exception) {
+                    // offline safe — product stays unsynced and the next
+                    // sync pass (here or elsewhere) will retry it, same
+                    // as before this fix.
+                }
                 try {
                     SyncManager(this@InvoiceActivity).syncBills()
                 } catch (_: Exception) {

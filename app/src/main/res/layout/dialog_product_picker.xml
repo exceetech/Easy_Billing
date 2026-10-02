@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Product picker sheet for the Profit trend chart's "Pick a product"
+     drill-down. Same champagne bottom-sheet skeleton as
+     dialog_customer_picker.xml (drag handle, header, glass search field,
+     scrollable list) so it reads as the same app, just without the
+     "add new" footer button this list doesn't need. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/bg_picker_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_picker_handle"/>
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROFIT CHART"
+                android:textColor="#B8895A"
+                android:textSize="10sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="1dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pick a"
+                    android:textColor="#1A1A18"
+                    android:textSize="19sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="product"
+                    android:textColor="#0F6E56"
+                    android:textSize="19sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvProductPickerCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#9A8F79"
+            android:textSize="11sp"
+            android:fontFamily="@font/googlesans_medium"/>
+    </LinearLayout>
+
+    <!-- Glass search field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_glass_input"
+        android:paddingHorizontal="13dp">
+
+        <ImageView
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_search"
+            app:tint="#B8895A"
+            android:contentDescription="@null"/>
+
+        <EditText
+            android:id="@+id/etSearchProduct"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="Search products"
+            android:textColor="#1A1A18"
+            android:textColorHint="#A99E88"
+            android:inputType="text"
+            android:singleLine="true"
+            android:textSize="13.5sp"/>
+    </LinearLayout>
+
+    <!-- List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvProductPicker"
+        android:layout_width="match_parent"
+        android:layout_height="360dp"
+        android:background="#FFFFFF"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="12dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

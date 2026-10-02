@@ -520,6 +520,18 @@ interface ApiService {
         @Query("end_date") end: String?
     ): ProfitResponse
 
+    // Bucketed profit for the trend chart (ProfitChartActivity): same
+    // filter words as getProfit above, plus an optional product_id to
+    // scope every bucket to one product instead of the whole shop.
+    @GET("profit/trend")
+    suspend fun getProfitTrend(
+        @Header("Authorization") token: String,
+        @Query("filter") filter: String,
+        @Query("start_date") start: String?,
+        @Query("end_date") end: String?,
+        @Query("product_id") productId: Int?
+    ): ProfitTrendResponse
+
     // ================= GST =================
 
     @GET("gst/lookup/{gstin}")

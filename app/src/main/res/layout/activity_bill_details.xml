@@ -1,4 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bill details — card-wise redesign matching activity_purchase_details.xml
+    (teal step-1 card, gold step-2 card, teal step-3 card), per user
+    approval of the bill_details_redesign.html mockup. Replaces the old navy
+    hero header and accent-bar section headers with the same header +
+    numbered-card language used across Purchase Details / Return Goods.
+
+    Ids bound by BillDetailsActivity: toolbar,
+    tvCustomerNameTitle, tvCancelledBadge, tvBillInfo, tvBillDate,
+    tvTotal, tvSubTotal, tvGst, rowCess, tvCess, tvDiscount, tvPaidThrough,
+    btnMarkAsPaid, layoutOwed, tvOwed, tvCustomerAvatar, tvCustomerInfo,
+    tvCustomerPhone, tvInvoiceTypeBadge, llBillItems, cardBillNotes,
+    llBillNotes, rowNetBillNotes, tvNetOriginalBillAmount,
+    tvNetAfterBillNotes, btnCreditNote, btnDebitNote, btnMoreActions,
+    btnCancelBill, progressBillDetails.
+    (Send to Customer / Print no longer have their own buttons here —
+    tapping btnMoreActions (icon-only, three dots) opens an icon-badged
+    dropdown card [dropdown_bill_more_actions.xml] with those two actions
+    instead, since Add return/refund and Add extra charge are now the two
+    big buttons in this row. The status pill is tvCancelledBadge, back in
+    its original top-right spot next to tvCustomerNameTitle; there is no
+    btnPrintHeader any more.)
+-->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,685 +34,806 @@
     android:orientation="vertical"
     android:background="#F3ECDD">
 
-    <!--
-        Bill details — phone layout (single column, stacked).
+    <!-- ===================== TOOLBAR (back only — Print moved to the
+         bottom action area, next to Send to Customer, for more visual
+         weight than a small toolbar icon) ===================== -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
 
-        This is the DEFAULT (phone) version. The original two-column tablet
-        design lives unchanged in layout-sw600dp/activity_bill_details.xml —
-        tablets load that version automatically via Android's screen-width
-        resource qualifier, phones load this one. See
-        phone_compatibility_plan.md Phase 6.
-
-        Body (stacked, top to bottom): line items + notes, then the summary
-        card (customer, totals, print/close/credit-debit-note/cancel
-        actions). Every id is preserved exactly, so findViewById keeps
-        working identically on both form factors.
-    -->
-
-    <!-- ================= NAVY HERO HEADER ================= -->
-
+    <!-- ===================== HEADER ===================== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_drawer_header_card"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="12dp"
-        android:paddingHorizontal="17dp"
-        android:paddingTop="18dp"
-        android:paddingBottom="16dp">
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bill_details_eyebrow"
+            android:textColor="#B8895A"
+            android:textSize="10sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:baselineAligned="false">
+            android:layout_marginTop="1dp">
 
-            <FrameLayout
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/bg_drawer_avatar_ring">
-
-                <TextView
-                    android:id="@+id/tvStoreMonogram"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="2dp"
-                    android:background="@drawable/bg_drawer_avatar_inner"
-                    android:gravity="center"
-                    android:text="@string/activity_bill_details_m"
-                    android:textColor="#F3E2C7"
-                    android:textSize="20sp"
-                    android:fontFamily="serif"
-                    android:textStyle="bold"/>
-            </FrameLayout>
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvCustomerNameTitle"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="13dp">
+                android:text="@string/activity_bill_details_walkin_customer"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
+                android:letterSpacing="-0.02"
+                android:fontFamily="@font/googlesans_bold"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:accessibilityHeading="true" />
 
-                <TextView
-                    android:id="@+id/tvBillInfo"
-                    android:text="@string/activity_bill_details_invoice_0001"
-                    android:textColor="#9FB0D4"
-                    android:textSize="11sp"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:id="@+id/tvStoreName"
-                    android:text="@string/activity_bill_details_my_store"
-                    android:textColor="#FFFFFF"
-                    android:textSize="22sp"
-                    android:fontFamily="serif"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:layout_marginTop="1dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/containerStatusPill"
+            <!-- Status pill — back in its original top-right spot, next
+                 to the customer name. Print has moved down to the bottom
+                 action area instead. -->
+            <TextView
+                android:id="@+id/tvCancelledBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_navy_status_pill"
-                android:paddingHorizontal="9dp"
-                android:paddingVertical="5dp">
-
-                <View
-                    android:id="@+id/viewStatusDot"
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:background="@drawable/bg_status_dot"/>
-
-                <TextView
-                    android:id="@+id/tvCancelledBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="@string/activity_bill_details_paid"
-                    android:textColor="#FFFFFF"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:letterSpacing="0.1"/>
-            </LinearLayout>
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:text="@string/activity_bill_details_paid"
+                android:textSize="10.5sp"
+                android:textColor="#0F6E56"
+                android:fontFamily="@font/googlesans_medium"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#E7F3EE" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="10dp"
-            android:background="#2C3A5C"/>
-
-        <TextView
-            android:id="@+id/tvBillDate"
-            android:text="—"
-            android:textColor="#9FB0D4"
-            android:textSize="11sp"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="3dp">
 
+            <TextView
+                android:id="@+id/tvBillInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_bill_details_invoice_0001"
+                android:textColor="#9A8F79"
+                android:textSize="11.5sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="·"
+                android:textColor="#9A8F79"
+                android:textSize="11.5sp" />
+
+            <TextView
+                android:id="@+id/tvBillDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="—"
+                android:textColor="#9A8F79"
+                android:textSize="11.5sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- ============ BODY (single column, stacked) ============ -->
-
-    <LinearLayout
+    <!-- Scrollable body -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp">
-
-    <!-- ===== LINE ITEMS ===== -->
+        android:clipToPadding="false"
+        android:paddingBottom="12dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_inv_value_card"
-            android:paddingHorizontal="14dp"
-            android:layout_marginBottom="14dp">
+            android:orientation="vertical">
 
-            <!-- ITEMS heading -->
+            <!-- ===================== CARD 1 · BILL SUMMARY (teal, step 1) ===================== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="12dp"
-                android:paddingBottom="8dp">
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:background="@drawable/bg_addp_card">
 
-                <View
-                    android:layout_width="3dp"
-                    android:layout_height="14dp"
-                    android:background="#D4A574"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_summary_card_title"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_summary_card_hint"
+                            android:textColor="#0F6E56"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
 
-                <TextView
-                    android:text="@string/activity_bill_details_items"
-                    android:textColor="#8A6526"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.13"
-                    android:layout_marginStart="9dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bill_details_total_label"
+                        android:textSize="10sp"
+                        android:textColor="#9A8F79"
+                        android:fontFamily="@font/googlesans_medium" />
+
+                    <TextView
+                        android:id="@+id/tvTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0"
+                        android:textSize="28sp"
+                        android:textColor="#1A1A18"
+                        android:textStyle="bold"
+                        android:fontFamily="serif"
+                        android:includeFontPadding="false"
+                        android:singleLine="true" />
+
+                    <!-- Taxable / GST / CESS tiles — same neutral/teal/amber
+                         treatment as Purchase Details' Card 1 tiles. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="12dp"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_avatar"
+                            android:backgroundTint="#F6F0E4"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="10dp">
+                            <TextView
+                                android:id="@+id/tvSubTotal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="14sp"
+                                android:textColor="#3A322A"
+                                android:fontFamily="serif"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="@string/bill_details_taxable_label"
+                                android:textSize="9.5sp"
+                                android:textColor="#9A8F79" />
+                        </LinearLayout>
+
+                        <View android:layout_width="6dp" android:layout_height="1dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_tile_teal"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="10dp">
+                            <TextView
+                                android:id="@+id/tvGst"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="14sp"
+                                android:textColor="#085041"
+                                android:fontFamily="serif"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="@string/activity_bill_details_gst"
+                                android:textSize="9.5sp"
+                                android:textColor="#0F6E56" />
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/dividerCessTile"
+                            android:layout_width="6dp"
+                            android:layout_height="1dp" />
+
+                        <LinearLayout
+                            android:id="@+id/rowCess"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_tile_amber"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="10dp"
+                            android:visibility="gone">
+                            <TextView
+                                android:id="@+id/tvCess"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="14sp"
+                                android:textColor="#8A6526"
+                                android:fontFamily="serif"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="CESS"
+                                android:textSize="9.5sp"
+                                android:textColor="#8A6526" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Detail lines -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginTop="12dp"
+                        android:background="#E4DFD0" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="7dp">
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:text="@string/activity_bill_details_discount" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                        <TextView android:id="@+id/tvDiscount" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="0" android:textSize="11.5sp" android:textColor="#B23A3A"
+                            android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:background="#E4DFD0" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="7dp">
+                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:text="@string/activity_bill_details_paid_via_cash" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                        <TextView android:id="@+id/tvPaidThrough" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="—" android:textSize="11.5sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMarkAsPaid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="@string/bill_details_mark_paid_inline"
+                            android:textAllCaps="false"
+                            android:textSize="10.5sp"
+                            android:textColor="#0F6E56"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:background="@android:color/transparent"
+                            app:backgroundTint="@null"
+                            app:cornerRadius="8dp"
+                            android:stateListAnimator="@null"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- Customer row — now in its own bordered box, same
+                         "accent sub-card" treatment as the Business Customer
+                         box in Add Bill, instead of sitting bare inside the
+                         summary card. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_inv_subcard_accent">
+
+                        <TextView
+                            android:id="@+id/tvCustomerAvatar"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:gravity="center"
+                            android:text="@string/activity_bill_details_wc"
+                            android:textColor="#0F6E56"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:background="@drawable/bg_type_badge_teal"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="11dp">
+
+                            <TextView
+                                android:id="@+id/tvCustomerInfo"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/activity_bill_details_walkin_customer"
+                                android:textColor="#1A1A18"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/googlesans_semibold"
+                                android:singleLine="true"
+                                android:ellipsize="end"/>
+
+                            <TextView
+                                android:id="@+id/tvCustomerPhone"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="—"
+                                android:textColor="#9A8F79"
+                                android:textSize="10.5sp"
+                                android:visibility="gone"/>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvInvoiceTypeBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/activity_bill_details_b2c"
+                            android:textColor="#0F6E56"
+                            android:textSize="9.5sp"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:letterSpacing="0.06"
+                            android:background="@drawable/bg_type_badge_teal"
+                            android:paddingHorizontal="9dp"
+                            android:paddingVertical="4dp"/>
+
+                    </LinearLayout>
+
+                    <!-- Still owed (credit bills only) — a proper bordered
+                         statement card (icon + heading + link, amount
+                         trailing), matching the Business Customer box style
+                         from Add Bill, instead of the old flat solid-red
+                         pill that just repeated "ON CREDIT" as a tiny label. -->
+                    <LinearLayout
+                        android:id="@+id/layoutOwed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_inv_subcard_accent_red"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp"
+                                android:background="@drawable/bg_circle_soft_red"/>
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lucide_credit_card"
+                                app:tint="#B23A3A"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="11dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="@string/bill_details_owed_statement"
+                                android:textSize="12.5sp" android:textStyle="bold" android:textColor="#1A1A18" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/bill_details_owed_link" android:textSize="10.5sp" android:textColor="#B23A3A" />
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/tvOwed" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="0" android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#791F1F" android:fontFamily="serif" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvBillItems"
+            <!-- ===================== CARD 2 · ITEMS SOLD (gold, step 2) ===================== -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="4dp"
-                android:paddingBottom="10dp"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never"
-                android:scrollbars="none"/>
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_addp_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_items_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="2"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_items_card_title"
+                            android:textColor="#5C4423"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_items_card_hint"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Items are inflated manually (item_purchase_detail_row.xml
+                     rows added directly to this LinearLayout), matching
+                     Purchase Details' llPurchaseItems exactly — not a
+                     RecyclerView, which could render only the first row when
+                     measured wrap_content inside this screen's outer
+                     ScrollView. See BillDetailsActivity.buildBillItemsList(). -->
+                <LinearLayout
+                    android:id="@+id/llBillItems"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:clipToOutline="true"
+                    android:clipChildren="true"/>
+            </LinearLayout>
+
+            <!-- ===================== CARD 3 · CREDIT & DEBIT NOTES (teal, step 3) =====================
+                 Whole card hidden together when there are none — same rule
+                 as Purchase Details' Returns card — so a plain paid bill
+                 never shows a stray third card. -->
+            <LinearLayout
+                android:id="@+id/cardBillNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_addp_card"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="3"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_notes_card_title"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_notes_card_hint"
+                            android:textColor="#0F6E56"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llBillNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingTop="8dp" />
+
+                <!-- ===================== NET AFTER NOTES =====================
+                     Same "Net after returns" accent-card design as
+                     activity_purchase_details.xml's Card 3, green border
+                     (bg_inv_subcard_accent_green) to read as the final
+                     settled figure. -->
+                <LinearLayout
+                    android:id="@+id/rowNetBillNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="11dp"
+                    android:background="@drawable/bg_inv_subcard_accent_green"
+                    android:visibility="gone">
+
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_soft_green">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_indian_rupee"
+                            app:tint="#16A34A"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="11dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bill_details_net_after_notes"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18" />
+                        <TextView
+                            android:id="@+id/tvNetOriginalBillAmount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text=""
+                            android:textSize="10.5sp"
+                            android:fontFamily="serif"
+                            android:textColor="#8A8578" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvNetAfterBillNotes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="0"
+                        android:textSize="22sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#16A34A"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="16sp"
+                        app:autoSizeMaxTextSize="22sp" />
+                </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
+    </ScrollView>
 
-        <!-- ===================== CREDIT / DEBIT NOTES (inline, same
-             card list as PurchaseDetailsActivity.buildPriorReturns) ===================== -->
-        <LinearLayout
-            android:id="@+id/tvBillNotesHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone">
-
-            <View
-                android:layout_width="3dp"
-                android:layout_height="14dp"
-                android:background="#D4A574"/>
-
-            <TextView
-                android:text="@string/activity_bill_details_debit_amp_credit_notes"
-                android:textColor="#8A6526"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08"
-                android:layout_marginStart="9dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/llBillNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:orientation="vertical"
-            android:background="@drawable/bg_inv_value_card"
-            android:visibility="gone" />
-
-
-    <!-- ===== SUMMARY CARD =====
-         Was a right-column panel using bg_inv_rail (asymmetric rounding:
-         flat left edge, rounded right edge, meant to sit flush against
-         the left column). Now that it's a standalone stacked section
-         instead of a side-by-side column, it uses the same fully-rounded
-         bg_inv_value_card style as every other card on this screen and
-         throughout the app. See phone_compatibility_plan.md Phase 6. -->
-
+    <!-- ===================== BOTTOM ACTIONS ===================== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_inv_value_card"
-        android:padding="16dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="6dp"
         android:layout_marginBottom="14dp">
 
-        <!-- SUMMARY heading -->
+        <!-- Add return/refund (credit note, teal-green) + Add extra
+             charge (debit note, amber) + More (white, green-bordered,
+             three-dot icon only) — all three in one row. Send to Customer
+             and Print have moved into the "more" bottom sheet instead,
+             since credit/debit note are now the two big routine buttons
+             here. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <View
-                android:layout_width="3dp"
-                android:layout_height="14dp"
-                android:background="#D4A574"/>
-
-            <TextView
-                android:text="@string/activity_bill_details_summary"
-                android:textColor="#8A6526"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.13"
-                android:layout_marginStart="9dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
-
-        <!-- ================= CUSTOMER ROW (avatar + inline tags) ================= -->
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_customer_detail_card"
-            android:padding="14dp"
-            android:layout_marginBottom="14dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tvCustomerAvatar"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:gravity="center"
-                    android:text="@string/activity_bill_details_wc"
-                    android:textColor="#0F6E56"
-                    android:textSize="13sp"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:background="@drawable/bg_type_badge_teal"/>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="11dp">
-
-                    <TextView
-                        android:id="@+id/tvCustomerInfo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/activity_bill_details_walkin_customer"
-                        android:textColor="#1A1A18"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/googlesans_semibold"
-                        android:singleLine="true"
-                        android:ellipsize="end"/>
-
-                    <TextView
-                        android:id="@+id/tvCustomerPhone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:text="—"
-                        android:textColor="#9A8F79"
-                        android:textSize="10.5sp"
-                        android:visibility="gone"/>
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvInvoiceTypeBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/activity_bill_details_b2c"
-                    android:textColor="#0F6E56"
-                    android:textSize="9.5sp"
-                    android:gravity="center"
-                    android:includeFontPadding="false"
-                    android:fontFamily="@font/googlesans_semibold"
-                    android:letterSpacing="0.06"
-                    android:background="@drawable/bg_type_badge_teal"
-                    android:paddingHorizontal="9dp"
-                    android:paddingVertical="4dp"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="10dp">
-
-                <ImageView
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    android:src="@drawable/ic_wallet"
-                    app:tint="#9A8F79"
-                    android:contentDescription="@null"/>
-
-                <TextView
-                    android:id="@+id/tvPaidThrough"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="@string/activity_bill_details_paid_via_cash"
-                    android:textColor="#9A8F79"
-                    android:textSize="11sp"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- SUBTOTAL -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:text="@string/activity_bill_details_subtotal"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvSubTotal"
-                android:text="0"
-                android:textColor="#1A1A18"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- GST -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginTop="8dp"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:text="@string/activity_bill_details_gst"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvGst"
-                android:text="0"
-                android:textColor="#1A1A18"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- CESS -->
-        <LinearLayout
-            android:id="@+id/rowCess"
-            android:layout_width="match_parent"
-            android:layout_marginTop="8dp"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:text="CESS"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvCess"
-                android:text="0"
-                android:textColor="#1A1A18"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- DISCOUNT -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_marginTop="8dp"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:text="@string/activity_bill_details_discount"
-                android:textColor="#5A5647"
-                android:textSize="12.5sp"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvDiscount"
-                android:text="0"
-                android:textColor="#B23A3A"
-                android:textSize="12.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- DIVIDER -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginVertical="12dp"
-            android:background="#F1EBDD"/>
-
-        <!-- TOTAL -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="bottom">
-
-            <TextView
-                android:text="@string/activity_bill_details_total"
-                android:textColor="#1A1A18"
-                android:textSize="13.5sp"
-                android:fontFamily="@font/googlesans_semibold"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvTotal"
-                android:text="0"
-                android:textSize="22sp"
-                android:textColor="#0F6E56"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- ================= ACTION BUTTONS (flat outline) ================= -->
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSendToCustomer"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/send_to_customer_title"
-            android:textColor="#FFFFFF"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:backgroundTint="#2563AB"
-            app:rippleColor="#1E3A8A"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_lc_send"
-            app:iconTint="#FFFFFF"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
-
-        <!-- UPI-only manual override — shown when the bill's payment_method
-             is UPI and the payment link hasn't been confirmed paid yet, for
-             when the customer paid but the Razorpay webhook hasn't landed. -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMarkAsPaid"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/mark_as_paid_button"
-            android:textColor="#0F6E56"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@android:color/transparent"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:strokeColor="#0F6E56"
-            app:strokeWidth="1.2dp"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_lc_check"
-            app:iconTint="#0F6E56"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:visibility="gone"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPrint"
+                android:id="@+id/btnCreditNote"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="46dp"
-                android:layout_marginEnd="10dp"
-                android:text="@string/activity_bill_details_print"
-                android:textColor="#1A1A18"
+                android:layout_height="50dp"
+                android:text="@string/activity_bill_details_partial_return_credit_note"
+                android:textColor="#FFFFFF"
                 android:textAllCaps="false"
-                android:textSize="12.5sp"
+                android:singleLine="true"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="1sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
-                android:background="@drawable/bg_cta_champagne_outline"
+                android:gravity="center"
+                android:paddingHorizontal="2dp"
                 app:backgroundTint="@null"
+                android:background="@drawable/bg_cta_credit_green"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:stateListAnimator="@null"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_print"
-                app:iconTint="#1A1A18"
-                app:iconSize="15dp"
+                app:icon="@drawable/ic_lc_arrow_down_left"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
                 app:iconGravity="textStart"
-                app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+                app:iconPadding="4dp"
+                app:cornerRadius="14dp"
+                android:stateListAnimator="@null"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClose"
+                android:id="@+id/btnDebitNote"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="46dp"
-                android:text="@string/activity_bill_details_close"
-                android:textColor="#B23A3A"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/activity_bill_details_additional_charge_debit_note"
+                android:textColor="#FFFFFF"
                 android:textAllCaps="false"
-                android:textSize="12.5sp"
+                android:singleLine="true"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="13sp"
+                android:autoSizeStepGranularity="1sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
-                android:background="@drawable/bg_cta_rose_tonal"
+                android:gravity="center"
+                android:paddingHorizontal="2dp"
                 app:backgroundTint="@null"
+                android:background="@drawable/bg_cta_debit_amber"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:stateListAnimator="@null"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_close"
-                app:iconTint="#B23A3A"
-                app:iconSize="15dp"
+                app:icon="@drawable/ic_lc_arrow_up_right"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
                 app:iconGravity="textStart"
-                app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+                app:iconPadding="4dp"
+                app:cornerRadius="14dp"
+                android:stateListAnimator="@null"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMoreActions"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text=""
+                app:backgroundTint="@null"
+                android:background="@drawable/bg_cta_white_green_outline"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:icon="@drawable/ic_more_horiz"
+                app:iconTint="#3C8C5D"
+                app:iconSize="20dp"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:cornerRadius="14dp"
+                android:stateListAnimator="@null"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:contentDescription="@string/bill_details_more_options"/>
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreditNote"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="9dp"
-            android:text="@string/activity_bill_details_partial_return_credit_note"
-            android:textColor="#0F6E56"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@drawable/bg_cta_teal_tonal"
-            app:backgroundTint="@null"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_lc_rotate_ccw"
-            app:iconTint="#0F6E56"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDebitNote"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="9dp"
-            android:text="@string/activity_bill_details_additional_charge_debit_note"
-            android:textColor="#8A6526"
-            android:textAllCaps="false"
-            android:textSize="12.5sp"
-            android:fontFamily="@font/googlesans_semibold"
-            android:includeFontPadding="false"
-            android:background="@drawable/bg_cta_gold_tonal"
-            app:backgroundTint="@null"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:stateListAnimator="@null"
-            app:cornerRadius="14dp"
-            app:icon="@drawable/ic_receipt_tax"
-            app:iconTint="#8A6526"
-            app:iconSize="15dp"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelBill"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="9dp"
+            android:layout_height="46dp"
+            android:layout_marginTop="10dp"
             android:text="@string/activity_bill_details_cancel_void_invoice"
             android:textColor="#B23A3A"
             android:textAllCaps="false"
@@ -713,9 +857,7 @@
 
     </LinearLayout>
 
-    </LinearLayout>
-
-    </LinearLayout>
+</LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBillDetails"

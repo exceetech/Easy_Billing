@@ -1,41 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Profit row — exact same shape as Inventory's item_inventory.xml: colored
-  left stripe + monogram avatar, name + detail line, a status line, and a
-  serif price on the right, with a hairline divider below. Colors are set
-  per-row by ProfitAdapter (teal for a net-profitable product, red for a
-  net-loss one), same as InventoryAdapter's rowPalette/stock-state coloring.
+  Profit row — tap-to-expand accordion (replaces the old popup dialog,
+  see expos-simplification-summary.md / the Overview-page audit this is
+  from). Collapsed state is unchanged: colored left stripe, monogram
+  avatar, name + detail line, serif price on the right, now with a
+  chevron that flips to point up when the row is open. Tapping the row
+  again collapses it instead of opening a separate dialog.
 
-  Bound by ProfitAdapter: viewStripe, tvAvatar, tvName, tvQty (detail line),
-  tvMargin (status line), tvProfit, viewRowDivider.
+  The detail section (gone by default, shown by ProfitAdapter) lines up
+  to the exact same left/right edges as the by-product card's search bar
+  above it — three plain-language breakdown lines, a highlighted "what
+  you kept" / "you lost money" box, then a simple three-segment stock
+  bar (sold / damaged or lost / still in stock) with a plain-word legend.
+
+  Bound by ProfitAdapter: viewStripe, tvAvatar, tvName, tvQty, tvProfit,
+  ivChevron, layoutDetail, tvEarnedLine/tvEarnedCaption,
+  tvCostLine, tvLossLine/tvLossCaption, boxKept, tvKeptLabel/
+  tvKeptCaption/tvKeptValue, segSold/segLoss/segRemaining,
+  tvLegendSold/tvLegendLoss/tvLegendRemaining.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground">
+    android:orientation="horizontal"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_inv_value_card"
+    android:foreground="@drawable/bg_profit_card_border"
+    android:clipToOutline="true">
+
+    <View
+        android:id="@+id/viewStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="#0F6E56"/>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <View
-            android:id="@+id/viewStripe"
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="#0F6E56"/>
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:id="@+id/layoutRowHead"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="14dp"
-            android:paddingVertical="13dp">
+            android:paddingVertical="13dp"
+            android:background="?attr/selectableItemBackground">
 
             <TextView
                 android:id="@+id/tvAvatar"
@@ -96,14 +111,288 @@
                 android:includeFontPadding="false"
                 android:singleLine="true"/>
 
+            <ImageView
+                android:id="@+id/ivChevron"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/ic_lc_chevron_down"
+                app:tint="#B8895A"
+                android:contentDescription="@null"/>
+        </LinearLayout>
+
+        <!-- ===================== EXPANDED DETAIL =====================
+             Gone by default; ProfitAdapter toggles visibility on tap,
+             one row open at a time. Plain-language breakdown, then a
+             highlighted kept/lost box, then the stock bar — all inset
+             to match the search bar's edges on the page above. -->
+        <LinearLayout
+            android:id="@+id/layoutDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#FFFFFF"
+            android:paddingHorizontal="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="14dp">
+
+            <!-- Money this product brought in -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="9dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_detail_earned_label"
+                        android:textSize="12.5sp"
+                        android:textColor="#1A1A18"/>
+                    <TextView
+                        android:id="@+id/tvEarnedCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="0 sold"
+                        android:textSize="10.5sp"
+                        android:textColor="#9A8F79"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvEarnedLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="14.5sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"/>
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFE8D4" android:layout_marginStart="0dp"/>
+
+            <!-- What it cost you to buy/make it -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="9dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_profit_detail_cost_label"
+                    android:textSize="12.5sp"
+                    android:textColor="#1A1A18"/>
+                <TextView
+                    android:id="@+id/tvCostLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="14.5sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#B23A3A"/>
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFE8D4"/>
+
+            <!-- Lost to damage or stock gone missing -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="9dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_detail_loss_label"
+                        android:textSize="12.5sp"
+                        android:textColor="#1A1A18"/>
+                    <TextView
+                        android:id="@+id/tvLossCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_detail_loss_none"
+                        android:textSize="10.5sp"
+                        android:textColor="#9A8F79"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvLossLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="14.5sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#B23A3A"/>
+            </LinearLayout>
+
+            <!-- What you kept / You lost money on this -->
+            <LinearLayout
+                android:id="@+id/boxKept"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_inv_subcard_accent"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="12dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/tvKeptLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_detail_kept_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#0B4B3C"/>
+                    <TextView
+                        android:id="@+id/tvKeptCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="0% of what came in"
+                        android:textSize="10.5sp"
+                        android:textColor="#3E6E62"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvKeptValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="19sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#0F6E56"/>
+            </LinearLayout>
+
+            <!-- Where the stock went -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/xml_profit_detail_stock_title"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#7A7262"
+                android:letterSpacing="0.04"/>
+
+            <LinearLayout
+                android:id="@+id/layoutStockBar"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_profit_stock_bar_track"
+                android:clipToOutline="true">
+                <View
+                    android:id="@+id/segSold"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:background="#2A5CA8"/>
+                <View
+                    android:id="@+id/segLoss"
+                    android:layout_width="0dp"
+                    android:layout_weight="0"
+                    android:layout_height="match_parent"
+                    android:background="#B23A3A"/>
+                <View
+                    android:id="@+id/segRemaining"
+                    android:layout_width="0dp"
+                    android:layout_weight="0"
+                    android:layout_height="match_parent"
+                    android:background="#C9BF9F"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical|start">
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_profit_legend_dot" android:backgroundTint="#2A5CA8"/>
+                    <TextView
+                        android:id="@+id/tvLegendSold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Sold 0"
+                        android:textSize="11.5sp"
+                        android:textColor="#4A4536"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_profit_legend_dot" android:backgroundTint="#B23A3A"/>
+                    <TextView
+                        android:id="@+id/tvLegendLoss"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Lost 0"
+                        android:textSize="11.5sp"
+                        android:textColor="#4A4536"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical|end">
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_profit_legend_dot" android:backgroundTint="#C9BF9F"/>
+                    <TextView
+                        android:id="@+id/tvLegendRemaining"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Left 0"
+                        android:textSize="11.5sp"
+                        android:textColor="#4A4536"/>
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
     </LinearLayout>
 
-    <View
-        android:id="@+id/viewRowDivider"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginStart="18dp"
-        android:background="#F1EBDD"/>
+    <!-- Kept so ProfitAdapter's findViewById(R.id.viewRowDivider) call
+         doesn't need touching; each row is its own card now, so no
+         divider is shown. -->
+    <View android:id="@+id/viewRowDivider" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
 
 </LinearLayout>

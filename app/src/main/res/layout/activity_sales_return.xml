@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Credit note (sales return) — champagne theme, same language and structure
-    as activity_debit_note.xml: eyebrow + serif-italic accent header, invoice
-    pill, one card of hairline-separated item rows, cardless footer total.
-    Recoloured teal (vs. debit note's gold) to match the "Credit Note" tint
-    used elsewhere in Bill Details.
+    Credit note (sales return) — redesigned to match the step-card language
+    used by activity_purchase_return.xml (the debit/credit note screen
+    opened from Purchase Details): same eyebrow + serif-italic accent
+    header, items wrapped in a teal step-1 card with a running-total accent
+    sub-card, cardless footer with the same confirm/cancel button styling.
+    No GSTR-2/ITC fields here — those are purchase-side only; a sales
+    credit note only needs the item list and the refund total.
 
     Ids bound by SalesReturnActivity: tvInvoiceNumber, tvInvoiceDate,
-    rvReturnItems, tvTotalReturnValue, tvGstReversal, btnConfirmReturn,
-    btnCancelReturn.
+    rvReturnItems, tvTotalReturnValue, tvTaxableTile, tvGstReversal,
+    rowCessReversal, tvCessReversal, btnConfirmReturn, btnCancelReturn.
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -56,7 +58,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="1dp">
+                android:layout_marginTop="1dp"
+                android:accessibilityHeading="true">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -66,23 +69,21 @@
                     android:textSize="21sp"
                     android:letterSpacing="-0.02"
                     android:fontFamily="@font/googlesans_bold"
-                    android:includeFontPadding="false"
-                    android:accessibilityHeading="true" />
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/activity_sales_return_note"
-                    android:textColor="#1D6E6E"
+                    android:textColor="#0F6E56"
                     android:textSize="21sp"
                     android:fontFamily="serif"
                     android:textStyle="italic"
                     android:includeFontPadding="false" />
             </LinearLayout>
 
-            <!-- Invoice pill — same pattern as activity_debit_note.xml, just
-                 recoloured teal to match the Credit Note tint. -->
+            <!-- Invoice chip — same pattern as activity_purchase_return.xml. -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -91,7 +92,7 @@
                 android:background="@drawable/bg_credit_phone_chip"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:layout_width="11dp"
@@ -109,6 +110,8 @@
                     android:textColor="#0F6E56"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="11sp"
+                    android:maxWidth="180dp"
+                    android:ellipsize="end"
                     android:singleLine="true" />
             </LinearLayout>
         </LinearLayout>
@@ -124,151 +127,247 @@
             android:textSize="11.5sp" />
     </LinearLayout>
 
-    <!-- Section label -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="18dp"
-        android:layout_marginBottom="6dp"
-        android:text="@string/activity_sales_return_select_items_and_quantity"
-        android:textSize="11sp"
-        android:textColor="#9A8F79"
-        android:letterSpacing="0.08"
-        android:fontFamily="@font/googlesans_semibold" />
-
-    <!-- Items list — each row draws its own card (see item_sales_return_row.xml)
-         with a left accent stripe, rather than one shared list card. -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvReturnItems"
+    <!-- Main Content Area (Scrollable) -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="4dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="6dp"/>
+        android:fillViewport="true">
 
-    <!-- ===================== BOTTOM SUMMARY + CONFIRM ===================== -->
-    <!-- No card here on purpose — cardless running footer, matching
-         activity_debit_note.xml. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- CARD 1 — teal, step 1: items to return -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_customer_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+
+                    <FrameLayout
+                        android:layout_width="28dp"
+                        android:layout_height="28dp">
+
+                        <View
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_step_circle_ring"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sales_return_step1_title"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sales_return_step1_hint"
+                            android:textColor="#3E6F62"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Items list — each row draws its own card (see
+                         item_sales_return_row.xml) with a left accent
+                         stripe, rather than one shared list card. -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvReturnItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:clipToPadding="false"
+                        android:paddingHorizontal="12dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="2dp"/>
+
+                    <!-- Running refund total — same accent sub-card design
+                         as activity_purchase_return.xml's debit total, teal
+                         to match this screen's Credit Note tint. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="14dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_inv_subcard_accent">
+
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_indian_rupee"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="11dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/activity_sales_return_total_return_value"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold"
+                                android:textColor="#1A1A18"/>
+
+                            <LinearLayout
+                                android:id="@+id/rowReturnBreakdown"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:visibility="gone"
+                                android:layout_marginTop="1dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/activity_sales_return_taxable"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578" />
+
+                                <TextView
+                                    android:id="@+id/tvTaxableTile"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="0"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578"
+                                    android:fontFamily="serif" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:text="@string/activity_sales_return_gst_reversal"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578" />
+
+                                <TextView
+                                    android:id="@+id/tvGstReversal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="0"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578"
+                                    android:fontFamily="serif" />
+
+                                <LinearLayout
+                                    android:id="@+id/rowCessReversal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:visibility="gone"
+                                    android:layout_marginStart="10dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/activity_sales_return_cess_reversal"
+                                        android:textSize="10.5sp"
+                                        android:textColor="#8A8578" />
+
+                                    <TextView
+                                        android:id="@+id/tvCessReversal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:text="0"
+                                        android:textSize="10.5sp"
+                                        android:textColor="#8A8578"
+                                        android:fontFamily="serif" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvTotalReturnValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textColor="#0F6E56"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="16sp"
+                            app:autoSizeMaxTextSize="22sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ===================== CONFIRM / CANCEL ===================== -->
+    <!-- Running total now lives inside Card 1; footer is just the actions,
+         same styling as activity_purchase_return.xml's buttons. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="2dp"
         android:layout_marginBottom="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="bottom">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="@string/activity_sales_return_total_return_value"
-                android:textSize="11.5sp"
-                android:textColor="#9A8F79" />
-
-            <TextView
-                android:id="@+id/tvTotalReturnValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="26sp"
-                android:textColor="#1A1A18"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:singleLine="true"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="18sp"
-                app:autoSizeMaxTextSize="26sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="2dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/activity_sales_return_taxable"
-                android:textSize="10.5sp"
-                android:textColor="#8A6526" />
-
-            <TextView
-                android:id="@+id/tvTaxableTile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="0"
-                android:textSize="10.5sp"
-                android:textColor="#8A6526"
-                android:fontFamily="serif" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:text="@string/activity_sales_return_gst_reversal"
-                android:textSize="10.5sp"
-                android:textColor="#0F6E56" />
-
-            <TextView
-                android:id="@+id/tvGstReversal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="0"
-                android:textSize="10.5sp"
-                android:textColor="#0F6E56"
-                android:fontFamily="serif" />
-
-            <LinearLayout
-                android:id="@+id/rowCessReversal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                android:layout_marginStart="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/activity_sales_return_cess_reversal"
-                    android:textSize="10.5sp"
-                    android:textColor="#B2673A" />
-
-                <TextView
-                    android:id="@+id/tvCessReversal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0"
-                    android:textSize="10.5sp"
-                    android:textColor="#B2673A"
-                    android:fontFamily="serif" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="14dp"
-            android:background="#DDD3BB" />
-
-        <!-- Confirm button — same solid-fill structure as btnConfirmDebit in
-             activity_debit_note.xml (white text/icon on a solid fill), just
-             using the teal #0F6E56 already used for the Credit Note tint
-             instead of debit note's green. -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirmReturn"
             android:layout_width="match_parent"
@@ -295,8 +394,6 @@
             app:iconPadding="8dp"
             app:cornerRadius="14dp"/>
 
-        <!-- Cancel button — same rose "ghost destructive" treatment as
-             btnCancelDebit in activity_debit_note.xml. -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelReturn"
             android:layout_width="match_parent"
@@ -310,6 +407,7 @@
             android:fontFamily="@font/googlesans_semibold"
             android:gravity="center"
             android:includeFontPadding="false"
+            app:backgroundTint="@null"
             android:background="@drawable/bg_inv_action_close"
             android:insetLeft="0dp"
             android:insetRight="0dp"
@@ -322,9 +420,8 @@
             app:iconSize="16dp"
             app:iconGravity="textStart"
             app:iconPadding="7dp"
-            app:cornerRadius="14dp"
-            app:backgroundTint="@null"
-            app:rippleColor="#F6D8D4"/>
+            app:rippleColor="#F6D8D4"
+            app:cornerRadius="14dp"/>
 
     </LinearLayout>
 

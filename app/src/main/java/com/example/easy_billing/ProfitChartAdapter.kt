@@ -23,6 +23,30 @@ class ProfitChartAdapter(
 
     private val maxAbs = (items.maxOfOrNull { abs(it.profit) } ?: 1.0).coerceAtLeast(1.0)
 
+    // Same rotating, champagne-safe avatar palette as Bill History
+    // (BillHistoryAdapter.rowPalette) -- picked per row from a stable hash
+    // of the product so colors read as "random" across the list but never
+    // jump around on scroll/rebind, matching the rest of the app's theme
+    // instead of this row's old plain gold/gray split.
+    private data class RowColor(val bg: Int, val text: Int)
+
+    private val rowPalette = listOf(
+        RowColor(Color.parseColor("#DDEEEE"), Color.parseColor("#1D6E6E")), // teal
+        RowColor(Color.parseColor("#FBEDED"), Color.parseColor("#B23A3A")), // red
+        RowColor(Color.parseColor("#FAEEDA"), Color.parseColor("#8A6526")), // gold
+        RowColor(Color.parseColor("#E5EBFA"), Color.parseColor("#3A5FB2")), // blue
+        RowColor(Color.parseColor("#EFE5F7"), Color.parseColor("#7A4FA3")), // purple
+        RowColor(Color.parseColor("#FAEBE1"), Color.parseColor("#B2673A")), // rust
+        RowColor(Color.parseColor("#E1F2EA"), Color.parseColor("#3A8F6E")), // green
+        RowColor(Color.parseColor("#FAE1F0"), Color.parseColor("#B23A85"))  // pink
+    )
+
+    private fun colorFor(item: ProductProfitRaw): RowColor {
+        val key = "${item.productName}${item.variant.orEmpty()}"
+        val index = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
+        return rowPalette[index]
+    }
+
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val rank: TextView = v.findViewById(R.id.tvRank)
         val name: TextView = v.findViewById(R.id.tvName)
@@ -42,15 +66,12 @@ class ProfitChartAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val item = items[position]
 
-        // Rank badge — gold-tinted for the #1 spot, neutral gray otherwise.
+        // Rank badge -- same themed, rotating palette as Bill History's
+        // avatar tiles, instead of a flat gold/gray split.
         holder.rank.text = "${position + 1}"
-        if (position == 0) {
-            holder.rank.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FAEEDA"))
-            holder.rank.setTextColor(Color.parseColor("#8A6526"))
-        } else {
-            holder.rank.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1EFE8"))
-            holder.rank.setTextColor(Color.parseColor("#5F5E5A"))
-        }
+        val rowColor = colorFor(item)
+        holder.rank.backgroundTintList = ColorStateList.valueOf(rowColor.bg)
+        holder.rank.setTextColor(rowColor.text)
 
         holder.name.text =
             if (item.variant.isNullOrBlank()) item.productName

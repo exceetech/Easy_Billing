@@ -128,7 +128,6 @@ class SalesReturnItemAdapter(
         // leave a dangling "· variant · unit" with no leading label, and
         // every separator gets consistent single-space padding.
         holder.tvHsnVariant.text = listOfNotNull(
-            bi.hsnCode.takeIf { it.isNotBlank() }?.let { "HSN: $it" },
             bi.variant?.takeIf { it.isNotBlank() },
             bi.unit.takeIf { it.isNotBlank() }
         ).joinToString(" · ")

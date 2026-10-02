@@ -56,6 +56,7 @@ class PurchaseReturnActivity : BaseActivity() {
     private lateinit var btnConfirmReturn:  MaterialButton
     private lateinit var btnCancelReturn:   MaterialButton
 
+    private lateinit var tvHeaderEyebrow: TextView
     private lateinit var tvHeaderSubtitle: TextView
     private lateinit var tvHeaderSubtitleAccent: TextView
     private lateinit var vHeaderDivider:   View
@@ -137,6 +138,7 @@ class PurchaseReturnActivity : BaseActivity() {
         btnConfirmReturn  = findViewById(R.id.btnConfirmReturn)
         btnCancelReturn   = findViewById(R.id.btnCancelReturn)
 
+        tvHeaderEyebrow = findViewById(R.id.tvHeaderEyebrow)
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle)
         tvHeaderSubtitleAccent = findViewById(R.id.tvHeaderSubtitleAccent)
         vHeaderDivider   = findViewById(R.id.vHeaderDivider)
@@ -184,6 +186,7 @@ class PurchaseReturnActivity : BaseActivity() {
 
         // Adapt UI colors & labels dynamically
         if (noteType == "C") {
+            tvHeaderEyebrow.text = getString(R.string.purchase_addition_header)
             tvHeaderSubtitle.text = getString(R.string.purchase_return_receive_credit)
             tvHeaderSubtitleAccent.text = getString(R.string.purchase_return_note_word)
             tvHeaderSubtitleAccent.setTextColor(android.graphics.Color.parseColor("#0F6E56"))

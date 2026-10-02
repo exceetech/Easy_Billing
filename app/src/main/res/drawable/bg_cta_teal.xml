@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Teal "Print" CTA (Option B), bottom action row of Bill Details. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="14dp"/>
+    <solid android:color="#1F7A6C"/>
+</shape>

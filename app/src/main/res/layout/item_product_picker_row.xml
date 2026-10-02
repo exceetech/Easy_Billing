@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Row in the Profit-chart product picker sheet: simplified to just the
+     product name (plus variant, when it has one) and a checkmark on the
+     selected row, no avatar circle, just a clean readable list. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="15dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvProductPickerName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Product name"
+                android:textSize="14sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:textColor="#1A1A18"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/tvProductPickerVariant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Variant"
+                android:textSize="11sp"
+                android:textColor="#9A8F79"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivProductPickerCheck"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/ic_lc_circle_check"
+            app:tint="#0F6E56"
+            android:visibility="gone"
+            android:contentDescription="@null"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewProductPickerDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#F1EBDD"/>
+
+</LinearLayout>

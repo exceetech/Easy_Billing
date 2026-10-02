@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Inactive state for the Profit-chart period pills: muted cream, same
+     shape as the active pill so switching only changes fill plus text
+     color. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#EFE7D6"/>
+    <corners android:radius="20dp"/>
+</shape>

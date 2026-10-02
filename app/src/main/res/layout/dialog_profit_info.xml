@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Simple explainer dialog for the "i" button on the Overview page's first
+  card (the tabbed Sales profit / Business profit card). Matches the app's
+  champagne dialog language from dialog_confirm_print.xml (icon badge, gold
+  eyebrow, bold+italic-serif title, white info cards, teal CTA) instead of
+  a plain system AlertDialog.
+
+  Bound by ProfitOverviewFragment.showProfitInfoDialog(): btnGotIt.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:padding="22dp"
+    android:background="@drawable/bg_dialog_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- ICON BADGE -->
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#8A6526" />
+    </FrameLayout>
+
+    <!-- EYEBROW -->
+    <TextView
+        android:text="@string/xml_profit_info_eyebrow"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- TITLE -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="1dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/xml_profit_info_title"
+            android:textColor="#1A1A18"
+            android:textSize="18sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/xml_profit_info_title_vs"
+            android:textColor="#0F6E56"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:fontFamily="serif"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <!-- SUBTITLE -->
+    <TextView
+        android:text="@string/xml_profit_info_subtitle"
+        android:textSize="12.5sp"
+        android:textColor="#6E6A60"
+        android:gravity="center"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- SALES PROFIT CARD -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="13dp"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:text="@string/xml_profit_info_sales_label"
+            android:textSize="13sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#123B31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="@string/xml_profit_info_sales_desc"
+            android:textSize="12.5sp"
+            android:textColor="#6E6A60"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- BUSINESS PROFIT CARD -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="13dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:text="@string/xml_profit_info_total_label"
+            android:textSize="13sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#123B31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="@string/xml_profit_info_total_desc"
+            android:textSize="12.5sp"
+            android:textColor="#6E6A60"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- GOT IT -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGotIt"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:text="@string/xml_profit_info_got_it"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
+
+</LinearLayout>

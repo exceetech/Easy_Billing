@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- White, green-bordered square "more options" button next to
+     Send/Print on Bill Details. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="14dp"/>
+    <solid android:color="#FFFFFF"/>
+    <stroke android:width="1.5dp" android:color="#3C8C5D"/>
+</shape>

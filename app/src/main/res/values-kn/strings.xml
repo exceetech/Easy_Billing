@@ -559,7 +559,7 @@
     <string name="availed_itc_igst">ಪಡೆದ ITC IGST (₹)</string>
     <string name="cess_paid_rupees">ಪಾವತಿಸಿದ ಸೆಸ್ (₹)</string>
     <string name="eligibility">ಅರ್ಹತೆ</string>
-    <string name="gst_rate_pct">GST ದರ (%%)</string>
+    <string name="gst_rate_pct" formatted="false">GST ದರ (%)</string>
     <string name="igst_calc_helper">IGST ಅನ್ನು ದರ × ತೆರಿಗೆಗೆ ಒಳಪಡುವ ಮೌಲ್ಯದಿಂದ ಲೆಕ್ಕ ಹಾಕಲಾಗುತ್ತದೆ. ನಿಮ್ಮ ಇನ್</string>
     <string name="igst_paid_rupees">ಪಾವತಿಸಿದ IGST (₹)</string>
     <string name="import_of_services_eyebrow">ಸೇವೆಗಳ ಆಮದು</string>
@@ -1350,8 +1350,8 @@
     <string name="edit_current_stock">ಪ್ರಸ್ತುತ ದಾಸ್ತಾನು</string>
     <string name="edit_product_xml_category_header">ವರ್ಗ</string>
     <string name="edit_product_xml_category_label">ವರ್ಗ</string>
-    <string name="edit_product_xml_cess_pct_label">Cess %%</string>
-    <string name="edit_product_xml_cgst_pct_label">CGST %%</string>
+    <string name="edit_product_xml_cess_pct_label" formatted="false">Cess %</string>
+    <string name="edit_product_xml_cgst_pct_label" formatted="false">CGST %</string>
     <string name="edit_product_xml_details">ವಿವರಗಳು</string>
     <string name="edit_product_xml_edit">ಎಡಿಟ್</string>
     <string name="edit_product_xml_gst_label">GST</string>
@@ -1362,7 +1362,7 @@
     <string name="edit_product_xml_pricing_header">ಬೆಲೆ ನಿಗದಿ</string>
     <string name="edit_product_xml_product_label">ಪ್ರಾಡಕ್ಟ್</string>
     <string name="edit_product_xml_select_hint">ಆಯ್ಕೆಮಾಡಿ</string>
-    <string name="edit_product_xml_sgst_pct_label">SGST %%</string>
+    <string name="edit_product_xml_sgst_pct_label" formatted="false">SGST %</string>
     <string name="edit_product_xml_tax_gstr1_header">ತೆರಿಗೆ ಮತ್ತು GSTR-1 ವಿವರಗಳು</string>
     <string name="edit_product_xml_units_to_add_hint">ಇನ್ವೆಂಟರಿ</string>
     <string name="edit_stock_locked_helper">ದಾಸ್ತಾನನ್ನು ಖರೀದಿಗಳ ಮೂಲಕ ನಿರ್ವಹಿಸಲಾಗುತ್ತದೆ — ಹೊಸ ಖರೀದಿ ಇನ್</string>
@@ -1565,7 +1565,7 @@
     <string name="xml_purchase_return_cess_label">Cess</string>
     <string name="xml_purchase_return_document_label">ದಾಖಲೆ</string>
     <string name="xml_purchase_return_eligibility_label">ITC ಗೆ ಅರ್ಹತೆ</string>
-    <string name="xml_purchase_return_gst_pct_hint">GST %%</string>
+    <string name="xml_purchase_return_gst_pct_hint" formatted="false">GST %</string>
     <string name="xml_purchase_return_gstr2_debit_note_header">GSTR-2 ಡೆಬಿಟ್ ನೋಟ್ ವಿವರಗಳು</string>
     <string name="xml_purchase_return_header">ಖರೀದಿ ರಿಟರ್ನ್</string>
     <string name="xml_purchase_return_integrated_label">ಇಂಟಿಗ್ರೇಟೆಡ್</string>
@@ -1764,7 +1764,7 @@
     <!-- activity_purchase_details -->
     <string name="place_of_supply">ಪೂರೈಕೆ ಸ್ಥಳ</string>
     <string name="tax_breakdown">ತೆರಿಗೆ ವಿವರ</string>
-    <string name="txn_label_credit_note">ಹೆಚ್ಚುವರಿ ಸ್ಟಾಕ್ ಸೇರಿಸಿ</string>
+    <string name="txn_label_credit_note">Add more goods</string>
     <string name="txn_label_debit_note">ಸರಕನ್ನು ಹಿಂತಿರುಗಿಸಿ</string>
     <string name="xml_purchase_details_cancel_button">ಖರೀದಿ ರದ್ದುಮಾಡಿ</string>
     <string name="xml_purchase_details_cancelled_note">ಈ ಖರೀದಿಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ</string>
@@ -2222,7 +2222,7 @@
     <string name="xml_purchase_line_dialog_category_label">ವರ್ಗ</string>
     <string name="xml_purchase_line_dialog_cess_amount_label">ಸೆಸ್ ಮೊತ್ತ</string>
     <string name="xml_purchase_line_dialog_cess_label">Cess</string>
-    <string name="xml_purchase_line_dialog_cess_pct_label">Cess %%</string>
+    <string name="xml_purchase_line_dialog_cess_pct_label" formatted="false">Cess %</string>
     <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
     <string name="xml_purchase_line_dialog_cgst_paid_label">CGST ಪಾವತಿಸಲಾಗಿದೆ</string>
     <string name="xml_purchase_line_dialog_disc_label">ರಿಯಾಯಿತಿ</string>

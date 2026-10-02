@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "More options" dropdown for Bill Details — a rounded card anchored
+    below btnMoreActions, listing Send to Customer and Print with a
+    colour-coded icon badge each. Ids bound by BillDetailsActivity:
+    rowDropdownSend, rowDropdownPrint.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_pos_dropdown"
+    android:paddingVertical="6dp">
+
+    <LinearLayout
+        android:id="@+id/rowDropdownSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minWidth="186dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="9dp">
+
+        <FrameLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/bg_circle_soft_blue">
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lc_send"
+                android:tint="#2F4C70" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/send_to_customer_title"
+            android:textColor="#1A1A18"
+            android:textSize="13.5sp"
+            android:fontFamily="@font/googlesans_semibold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="12dp"
+        android:background="#F0EADC" />
+
+    <LinearLayout
+        android:id="@+id/rowDropdownPrint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="9dp">
+
+        <FrameLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/bg_circle_soft_teal">
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_print"
+                android:tint="#1F7A6C" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/bill_details_print_action"
+            android:textColor="#1A1A18"
+            android:textSize="13.5sp"
+            android:fontFamily="@font/googlesans_semibold" />
+    </LinearLayout>
+
+</LinearLayout>

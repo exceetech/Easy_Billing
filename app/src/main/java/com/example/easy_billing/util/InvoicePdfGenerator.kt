@@ -1298,205 +1298,502 @@ object InvoicePdfGenerator {
         endDate: String?
     ) {
 
+        // Subtle default tracking applied to every sentence drawn on this
+        // report (store header, address line, table text, totals, the
+        // stat line) -- a bit of letter-spacing reads noticeably cleaner
+        // on a dense print-out than Paint's default (zero) spacing. Only
+        // the footer's all-caps "POWERED BY" label overrides this with
+        // its own wider spacing, then restores this default afterwards.
+        val defaultLetterSpacing = 0.015f
+
+        // Re-skinned to match the A4 invoice bill's visual language
+        // (see drawA4InvoicePages): serif store header, teal rule, an
+        // outlined pill badge, champagne summary boxes, a zebra-striped
+        // product table and an amber-bordered totals box -- instead of
+        // the old plain monospace text dump.
+
         val pageWidth = 595
         val pageHeight = 842
-        val margin = 40f
+        val margin = 32f
 
         val document = PdfDocument()
-        val paint = Paint()
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.letterSpacing = defaultLetterSpacing
 
-        paint.typeface = Typeface.MONOSPACE
-        paint.textSize = 12f
+        val fontRegular = ResourcesCompat.getFont(activity, R.font.googlesans_regular) ?: Typeface.DEFAULT
+        val fontMedium = ResourcesCompat.getFont(activity, R.font.googlesans_medium) ?: Typeface.DEFAULT_BOLD
+        val fontSemibold = ResourcesCompat.getFont(activity, R.font.googlesans_semibold) ?: Typeface.DEFAULT_BOLD
+        val fontSerif = Typeface.SERIF
 
-        var page = document.startPage(
-            PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-        )
-        var canvas = page.canvas
+        val teal = Color.parseColor("#0F6E56")
+        val champagne = Color.parseColor("#F3ECDD")
+        val champagneLabel = Color.parseColor("#8A6526")
+        val zebra = Color.parseColor("#FAF8F3")
+        val muted = Color.parseColor("#8A8272")
+        val ink = Color.parseColor("#1A1A18")
+        val hairline = Color.parseColor("#E4DFD0")
+        val amberBorder = Color.parseColor("#C9922E")
+        val green = Color.parseColor("#1D9E75")
+        val lossColor = Color.parseColor("#A32D2D")
+        val cur = CurrencyHelper.getCurrencySymbol(activity)
 
-        var y = 50f
+        // "-cur X" reads right ("-₹37.50"); String.format's own "%.2f"
+        // on a negative Double puts the minus after the symbol instead
+        // ("₹-37.50"), which is what this works around everywhere an
+        // amount here can actually go negative (net profit/take-home).
+        fun formatMoney(amount: Double): String {
+            return if (amount < 0) "-$cur%.2f".format(-amount) else "$cur%.2f".format(amount)
+        }
+
+        // Brand footer icon -- decoded once, reused on every page.
+        // ic_scalancer_emblem is a vector drawable (not a raster PNG), so
+        // it's rendered to a bitmap once here rather than via
+        // BitmapFactory.decodeResource (which only reads raster images).
+        fun decodeVectorDrawable(resId: Int): Bitmap? {
+            return try {
+                val d = androidx.core.content.ContextCompat.getDrawable(activity, resId) ?: return null
+                val w = d.intrinsicWidth.takeIf { it > 0 } ?: 100
+                val h = d.intrinsicHeight.takeIf { it > 0 } ?: 100
+                val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+                val bmpCanvas = Canvas(bmp)
+                d.setBounds(0, 0, w, h)
+                d.draw(bmpCanvas)
+                bmp
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        val brandIcon = decodeVectorDrawable(R.drawable.ic_scalancer_emblem)
+        val brandWordmark = decodeVectorDrawable(R.drawable.ic_scalancer_wordmark)
 
         // ================= STORE INFO =================
         val db = AppDatabase.getDatabase(activity)
         val storeInfo = db.storeInfoDao().get()
+        val storeName = storeInfo?.name ?: activity.getString(R.string.invoice_pdf_store_default_name)
 
-        val storeName = storeInfo?.name ?: "My Store"
-        val storeAddress = storeInfo?.address ?: ""
-        val storePhone = storeInfo?.phone ?: ""
-        val storeGstin = storeInfo?.gstin ?: ""
+        var pageNumber = 1
+        var page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
+        var canvas = page.canvas
+        var y = 0f
 
-        // ================= HELPERS =================
-
-        fun center(text: String, size: Float, bold: Boolean = false) {
-            paint.textSize = size
-            paint.typeface =
-                if (bold) Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-                else Typeface.MONOSPACE
-
-            val width = paint.measureText(text)
-            canvas.drawText(text, (pageWidth - width) / 2, y, paint)
-            y += size + 10
-        }
-
-        fun line() {
-            val dash = Paint().apply {
-                pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
-            }
-            canvas.drawLine(margin, y, pageWidth - margin, y, dash)
-            y += 15
-        }
-
-        fun newPage() {
-            document.finishPage(page)
-            page = document.startPage(
-                PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-            )
-            canvas = page.canvas
-            y = 50f
-        }
-
-        // ================= HEADER =================
-
-        center(activity.getString(R.string.invoice_pdf_profit_report_title), 22f, true)
-        center(storeName, 18f, true)
-
-        if (storeAddress.isNotEmpty()) center(storeAddress, 14f)
-        if (storePhone.isNotEmpty()) center("Phone: $storePhone", 14f)
-        if (storeGstin.isNotEmpty()) center("GSTIN: $storeGstin", 14f)
-
-        line()
-
-        if (startDate == "All Time") {
-            center(activity.getString(R.string.invoice_pdf_all_time_report), 14f)
+        // Period text -- same date-range formatting the old report used.
+        val periodText: String = if (startDate == "All Time") {
+            activity.getString(R.string.invoice_pdf_all_time_report)
         } else {
             val parser = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val pretty = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-
-            val startPretty = try { pretty.format(parser.parse(startDate!!)!!) } catch (e: Exception) { startDate }
-
-            if (endDate != null && endDate.isNotEmpty()) {
+            val startPretty = try { pretty.format(parser.parse(startDate!!)!!) } catch (e: Exception) { startDate ?: "" }
+            if (!endDate.isNullOrEmpty()) {
                 val endPretty = try { pretty.format(parser.parse(endDate)!!) } catch (e: Exception) { endDate }
-                if (startDate == endDate) {
-                    center("Date: $startPretty", 14f)
-                } else {
-                    center("$startPretty to $endPretty", 14f)
-                }
+                if (startDate == endDate) startPretty else "$startPretty – $endPretty"
             } else {
-                center("From: $startPretty", 14f)
+                startPretty
+            }
+        }
+        val generatedText = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date())
+
+        // Small "Powered by Scalancer" credit line, centered near the
+        // bottom of every page (not just the last one), well clear of
+        // the content area reserved by ensureSpace().
+        // Same "Powered by Scalancer" mark used on the splash screen
+        // (activity_splash.xml's poweredByFooter): emblem on top, a small
+        // "POWERED BY" caption, then the wordmark logo underneath --
+        // stacked and centered, just scaled down to fit a page footer.
+        fun drawBrandFooter() {
+            paint.style = Paint.Style.FILL
+
+            val iconSize = 16f
+            val iconGap = 4f
+            val labelTextSize = 6f
+            val labelGap = 3f
+            val wordmarkHeight = 7f
+            val wordmarkAspect = if (brandWordmark != null && brandWordmark.height > 0) {
+                brandWordmark.width.toFloat() / brandWordmark.height.toFloat()
+            } else {
+                12.5f
+            }
+            val wordmarkWidth = wordmarkHeight * wordmarkAspect
+
+            val bottomMargin = 12f
+            val wordmarkBottom = pageHeight - bottomMargin
+            val wordmarkTop = wordmarkBottom - wordmarkHeight
+
+            paint.typeface = fontMedium
+            paint.textSize = labelTextSize
+            paint.letterSpacing = 0.16f
+            val label = activity.getString(R.string.powered_by_label)
+            val labelWidth = paint.measureText(label)
+            val labelBaseline = wordmarkTop - labelGap
+            val labelTop = labelBaseline - labelTextSize
+
+            val iconBottom = labelTop - iconGap
+            val iconTop = iconBottom - iconSize
+
+            if (brandIcon != null) {
+                val iconLeft = (pageWidth - iconSize) / 2f
+                canvas.drawBitmap(
+                    brandIcon, null,
+                    android.graphics.RectF(iconLeft, iconTop, iconLeft + iconSize, iconTop + iconSize),
+                    paint
+                )
+            }
+
+            paint.color = Color.parseColor("#5A7A85")
+            canvas.drawText(label, (pageWidth - labelWidth) / 2f, labelBaseline, paint)
+            paint.letterSpacing = defaultLetterSpacing
+
+            if (brandWordmark != null) {
+                val wmLeft = (pageWidth - wordmarkWidth) / 2f
+                canvas.drawBitmap(
+                    brandWordmark, null,
+                    android.graphics.RectF(wmLeft, wordmarkTop, wmLeft + wordmarkWidth, wordmarkBottom),
+                    paint
+                )
             }
         }
 
-        center(
-            "Generated: ${
-                SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(Date())
-            }",
-            12f
-        )
+        fun drawHeaderBand(continuation: Boolean) {
+            if (!continuation) {
+                paint.color = ink
+                paint.typeface = fontSerif
+                paint.textSize = 21f
+                canvas.drawText(storeName, (pageWidth - paint.measureText(storeName)) / 2f, 44f, paint)
 
-        line()
+                paint.color = muted
+                paint.typeface = fontRegular
+                paint.textSize = 10f
+                val addrLine = listOfNotNull(
+                    storeInfo?.address?.takeIf { it.isNotBlank() },
+                    storeInfo?.phone?.takeIf { it.isNotBlank() }?.let { "Phone $it" },
+                    storeInfo?.gstin?.takeIf { it.isNotBlank() }?.let { "GSTIN $it" }
+                ).joinToString("   ·   ")
+                if (addrLine.isNotEmpty()) {
+                    canvas.drawText(addrLine, (pageWidth - paint.measureText(addrLine)) / 2f, 62f, paint)
+                }
 
-        // ================= PRODUCTS =================
+                paint.color = teal
+                paint.strokeWidth = 1.6f
+                canvas.drawLine(margin, 78f, pageWidth - margin, 78f, paint)
 
-        rows.forEach { row ->
+                val pillLabel = activity.getString(R.string.invoice_pdf_profit_report_title).uppercase()
+                paint.typeface = fontMedium
+                paint.textSize = 10f
+                val pillTextWidth = paint.measureText(pillLabel)
+                val pillPadX = 12f
+                val pillTop = 94f
+                val pillHeight = 22f
+                val pillWidth = pillTextWidth + pillPadX * 2
+                paint.style = Paint.Style.STROKE
+                paint.strokeWidth = 1f
+                paint.color = teal
+                canvas.drawRoundRect(margin, pillTop, margin + pillWidth, pillTop + pillHeight, pillHeight / 2, pillHeight / 2, paint)
+                paint.style = Paint.Style.FILL
+                paint.color = teal
+                canvas.drawText(pillLabel, margin + pillPadX, pillTop + pillHeight / 2 + 3.5f, paint)
 
-            val name = row.getOrNull(0) ?: ""
+                val metaRowLabelY = pillTop + 8f
+                val metaRowValueY = pillTop + 22f
+                val colGenCenter = pageWidth - margin - 55f
+                val colPeriodCenter = colGenCenter - 130f
+
+                fun metaColumnCentered(centerX: Float, label: String, value: String) {
+                    paint.typeface = fontMedium
+                    paint.textSize = 8.5f
+                    paint.color = muted
+                    canvas.drawText(label, centerX - paint.measureText(label) / 2f, metaRowLabelY, paint)
+                    paint.typeface = fontRegular
+                    paint.textSize = 11f
+                    paint.color = ink
+                    canvas.drawText(value, centerX - paint.measureText(value) / 2f, metaRowValueY, paint)
+                }
+
+                metaColumnCentered(colPeriodCenter, activity.getString(R.string.invoice_pdf_profit_period_label), periodText)
+                metaColumnCentered(colGenCenter, activity.getString(R.string.invoice_pdf_profit_generated_label), generatedText)
+
+                y = pillTop + pillHeight + 24f
+            } else {
+                paint.color = ink
+                paint.typeface = fontMedium
+                paint.textSize = 11f
+                canvas.drawText("$storeName — continued", margin, 30f, paint)
+                paint.color = teal
+                paint.strokeWidth = 1.6f
+                canvas.drawLine(margin, 40f, pageWidth - margin, 40f, paint)
+                y = 40f + 26f
+            }
+        }
+
+        drawHeaderBand(false)
+
+        // ── Summary boxes: money in/out on the left, result on the right ──
+        run {
+            val boxTop = y
+            val boxW = (pageWidth - margin * 2 - 14f) / 2f
+            val padX = 14f
+            val labelTopPad = 16f
+            val labelToFirstLine = 32f
+            val lineHeight = 15f
+            val padBottom = 14f
+
+            val netProfit = totalRevenue - totalCost - totalLoss
+            val marginPct = if (totalRevenue > 0.0) (netProfit / totalRevenue) * 100.0 else 0.0
+
+            val boxH = labelToFirstLine + 2 * lineHeight + padBottom
+
+            paint.style = Paint.Style.FILL
+            paint.color = champagne
+            canvas.drawRoundRect(margin, boxTop, margin + boxW, boxTop + boxH, 8f, 8f, paint)
+            canvas.drawRoundRect(margin + boxW + padX, boxTop, margin + boxW + padX + boxW, boxTop + boxH, 8f, 8f, paint)
+
+            val col1X = margin + 12f
+            val col2X = margin + boxW + padX + 12f
+            val col1Right = margin + boxW - 12f
+            val col2Right = margin + boxW + padX + boxW - 12f
+            val labelY = boxTop + labelTopPad
+            val firstLineY = boxTop + labelToFirstLine
+
+            paint.color = champagneLabel
+            paint.typeface = fontSemibold
+            paint.textSize = 8.5f
+            canvas.drawText(activity.getString(R.string.invoice_pdf_profit_money_box_title), col1X, labelY, paint)
+            canvas.drawText(activity.getString(R.string.invoice_pdf_profit_result_box_title), col2X, labelY, paint)
+
+            fun kvRow(labelX: Float, rightX: Float, lineY: Float, label: String, value: String, valueColor: Int = ink) {
+                paint.typeface = fontRegular
+                paint.textSize = 10f
+                paint.color = ink
+                canvas.drawText(label, labelX, lineY, paint)
+                paint.typeface = fontMedium
+                paint.color = valueColor
+                canvas.drawText(value, rightX - paint.measureText(value), lineY, paint)
+            }
+
+            kvRow(col1X, col1Right, firstLineY, activity.getString(R.string.invoice_pdf_summary_revenue), "$cur%.2f".format(totalRevenue))
+            kvRow(col1X, col1Right, firstLineY + lineHeight, activity.getString(R.string.invoice_pdf_summary_cost), "$cur%.2f".format(totalCost))
+            kvRow(col1X, col1Right, firstLineY + lineHeight * 2, activity.getString(R.string.invoice_pdf_summary_expense), "$cur%.2f".format(totalExpense))
+
+            kvRow(col2X, col2Right, firstLineY, activity.getString(R.string.invoice_pdf_summary_loss), "-$cur%.2f".format(totalLoss), lossColor)
+            kvRow(col2X, col2Right, firstLineY + lineHeight, activity.getString(R.string.invoice_pdf_summary_net_profit), formatMoney(netProfit), if (netProfit >= 0) green else lossColor)
+            kvRow(col2X, col2Right, firstLineY + lineHeight * 2, activity.getString(R.string.invoice_pdf_profit_margin_label), "${Math.round(marginPct)}%")
+
+            y = boxTop + boxH + 22f
+        }
+
+        // ── Product table ──
+        val colItem = margin
+        val colLeftRight = pageWidth - margin
+        val colProfitRight = colLeftRight - 62f
+        val colCostRight = colProfitRight - 76f
+        val colRevenueRight = colCostRight - 76f
+        val colSoldRight = colRevenueRight - 82f
+        val itemColMaxWidth = colSoldRight - 56f - colItem
+
+        fun truncateToWidth(text: String, maxWidth: Float): String {
+            if (paint.measureText(text) <= maxWidth) return text
+            val ellipsis = "…"
+            val ellipsisWidth = paint.measureText(ellipsis)
+            val fitChars = paint.breakText(text, true, maxWidth - ellipsisWidth, null)
+            if (fitChars <= 0) return ellipsis
+            return text.substring(0, fitChars) + ellipsis
+        }
+
+        fun drawTableHeader() {
+            paint.color = teal
+            paint.typeface = fontSemibold
+            paint.textSize = 9f
+            canvas.drawText(activity.getString(R.string.invoice_pdf_profit_col_product), colItem, y, paint)
+            val soldLabel = activity.getString(R.string.invoice_pdf_profit_col_sold); canvas.drawText(soldLabel, colSoldRight - paint.measureText(soldLabel), y, paint)
+            val revLabel = activity.getString(R.string.invoice_pdf_summary_revenue); canvas.drawText(revLabel, colRevenueRight - paint.measureText(revLabel), y, paint)
+            val costLabel = activity.getString(R.string.invoice_pdf_summary_cost); canvas.drawText(costLabel, colCostRight - paint.measureText(costLabel), y, paint)
+            val profitLabel = activity.getString(R.string.invoice_pdf_profit_col_profit); canvas.drawText(profitLabel, colProfitRight - paint.measureText(profitLabel), y, paint)
+            val leftLabel = activity.getString(R.string.invoice_pdf_profit_col_left); canvas.drawText(leftLabel, colLeftRight - paint.measureText(leftLabel), y, paint)
+            y += 6f
+            paint.strokeWidth = 1.4f
+            canvas.drawLine(margin, y, pageWidth - margin, y, paint)
+            y += 18f
+        }
+
+        fun ensureSpace(needed: Float) {
+            if (y + needed > pageHeight - 170f) {
+                drawBrandFooter()
+                document.finishPage(page)
+                pageNumber += 1
+                page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
+                canvas = page.canvas
+                drawHeaderBand(true)
+                drawTableHeader()
+            }
+        }
+
+        drawTableHeader()
+
+        rows.forEachIndexed { index, row ->
+            val name = row.getOrNull(0)?.trim() ?: ""
             val qty = row.getOrNull(1) ?: ""
-            val unit = row.getOrNull(2) ?: ""
-            val revenue = row.getOrNull(2) ?: ""
-            val cost = row.getOrNull(3) ?: ""
-            val profit = row.getOrNull(4) ?: ""
-            val flow = row.getOrNull(5) ?: ""
-            val remaining = row.getOrNull(6) ?: ""
-            val lossAmt = row.getOrNull(7) ?: ""
-            val net = row.getOrNull(8) ?: ""
-            val insight = row.getOrNull(9) ?: ""
+            val unit = row.getOrNull(2)?.trim() ?: ""
+            val revenue = row.getOrNull(3) ?: ""
+            val cost = row.getOrNull(4) ?: ""
+            val profit = row.getOrNull(5) ?: ""
+            val flow = row.getOrNull(6) ?: ""
+            val remaining = row.getOrNull(7) ?: ""
 
-            // 🔹 PRODUCT NAME
-            paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-            paint.textSize = 14f
-            canvas.drawText(name, margin, y, paint)
-            y += 22f
+            val soldText = if (unit.isNotEmpty()) "$qty $unit" else qty
+            val remainingText = if (unit.isNotEmpty()) "$remaining $unit" else remaining
 
-            paint.typeface = Typeface.MONOSPACE
-            paint.textSize = 12f
+            val subline = flow
+                .replace("Added:", "${activity.getString(R.string.invoice_pdf_profit_flow_added)} ")
+                .replace("| Sold:", "· ${activity.getString(R.string.invoice_pdf_profit_flow_sold)} ")
+                .replace("| Loss:", "· ${activity.getString(R.string.invoice_pdf_profit_flow_lost)} ")
 
-            // 🔹 BASIC DETAILS
-            canvas.drawText("Sold Qty     : $qty $unit", margin, y, paint)
-            y += 16f
+            // Extra vertical breathing room between rows -- the zebra
+            // fill is drawn a little shorter than the full row height so
+            // a visible gap separates one product from the next even on
+            // the shaded rows, not just the plain ones.
+            val rowHeight = 38f
+            ensureSpace(rowHeight)
 
-            canvas.drawText("Revenue      : $revenue", margin, y, paint)
-            y += 16f
-
-            canvas.drawText("Cost         : $cost", margin, y, paint)
-            y += 16f
-
-            canvas.drawText("Profit       : $profit", margin, y, paint)
-            y += 18f
-
-            // 🔹 STOCK FLOW
-            canvas.drawText("Stock Flow   : $flow", margin, y, paint)
-            y += 16f
-
-            canvas.drawText("Remaining    : $remaining", margin, y, paint)
-            y += 16f
-
-            canvas.drawText("Loss Amount  : $lossAmt", margin, y, paint)
-            y += 18f
-
-            // 🔹 NET + INSIGHT
-            paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-
-            canvas.drawText("Net Profit   : $net", margin, y, paint)
-            y += 16f
-
-            canvas.drawText("Insight      : $insight", margin, y, paint)
-            y += 22f
-
-            // 🔹 SEPARATOR
-            val sep = Paint().apply {
-                color = Color.LTGRAY
-                strokeWidth = 1f
+            val rowTop = y - 12f
+            if (index % 2 == 0) {
+                paint.style = Paint.Style.FILL
+                paint.color = zebra
+                canvas.drawRect(margin, rowTop, pageWidth - margin, rowTop + rowHeight - 8f, paint)
             }
 
-            canvas.drawLine(margin, y, pageWidth - margin, y, sep)
-            y += 20f
+            paint.color = ink
+            paint.typeface = fontMedium
+            paint.textSize = 9.5f
+            canvas.drawText(truncateToWidth(name, itemColMaxWidth), colItem, y, paint)
 
-            // 🔹 PAGE BREAK
-            if (y > pageHeight - 120) {
-                newPage()
-            }
+            paint.color = muted
+            paint.typeface = fontRegular
+            paint.textSize = 8f
+            canvas.drawText(truncateToWidth(subline, itemColMaxWidth), colItem, y + 12f, paint)
+
+            paint.typeface = fontRegular
+            paint.textSize = 9.5f
+            paint.color = ink
+            canvas.drawText(soldText, colSoldRight - paint.measureText(soldText), y, paint)
+            canvas.drawText(remainingText, colLeftRight - paint.measureText(remainingText), y, paint)
+
+            val isProfitNeg = profit.trim().startsWith("-")
+            paint.color = if (isProfitNeg) lossColor else green
+            paint.typeface = fontMedium
+            canvas.drawText(profit, colProfitRight - paint.measureText(profit), y, paint)
+
+            paint.color = ink
+            paint.typeface = fontRegular
+            canvas.drawText(cost, colCostRight - paint.measureText(cost), y, paint)
+            canvas.drawText(revenue, colRevenueRight - paint.measureText(revenue), y, paint)
+
+            y += rowHeight
         }
 
-        line()
+        paint.color = hairline
+        paint.strokeWidth = 0.7f
+        canvas.drawLine(margin, y, pageWidth - margin, y, paint)
+        // Extra drop before the amber box starts, so it reads as its own
+        // block rather than sitting right under the table's hairline.
+        y += 32f
 
-        // ================= SUMMARY =================
+        ensureSpace(170f)
 
-        paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-        paint.textSize = 13f
+        // ── Amber-bordered totals box ──
+        // Outer edges are flush with the page's own content margin so the
+        // border never runs past it; the 14dp pad is used only to inset
+        // the text from that border, not to grow the border beyond it.
+        val boxPad2 = 14f
+        val boxOuterRight = pageWidth - margin
+        val boxOuterLeft = boxOuterRight - 240f
+        val textRight = boxOuterRight - boxPad2
+        val textLeft = boxOuterLeft + boxPad2
 
-        fun drawSummary(label: String, value: Double) {
-            val text = "$label:"
-            val valueText = "%.2f".format(value)
+        val boxTop2 = y - 16f
+        val rowGap2 = 20f
 
-            val startX = pageWidth - margin - (paint.measureText(text) + 15 + paint.measureText(valueText))
-
-            canvas.drawText(text, startX, y, paint)
-            canvas.drawText(valueText, startX + paint.measureText(text) + 15, y, paint)
-
-            y += 20f
+        fun totalsRow(label: String, value: String, valueColor: Int = ink) {
+            paint.typeface = fontRegular
+            paint.color = muted
+            paint.textSize = 10.5f
+            canvas.drawText(label, textLeft, y, paint)
+            paint.color = valueColor
+            canvas.drawText(value, textRight - paint.measureText(value), y, paint)
+            y += rowGap2
         }
 
-        drawSummary(activity.getString(R.string.invoice_pdf_summary_revenue), totalRevenue)
-        drawSummary(activity.getString(R.string.invoice_pdf_summary_cost), totalCost)
-        drawSummary(activity.getString(R.string.invoice_pdf_summary_expense), totalExpense)
-        drawSummary(activity.getString(R.string.invoice_pdf_summary_loss), totalLoss)
+        // Expenses are deliberately left out of this box -- they're
+        // called out separately as a plain-language line below it
+        // instead, so this box stays a clean revenue -> cost -> loss ->
+        // net profit read.
+        totalsRow(activity.getString(R.string.invoice_pdf_summary_revenue), "$cur%.2f".format(totalRevenue))
+        totalsRow(activity.getString(R.string.invoice_pdf_summary_cost), "$cur%.2f".format(totalCost))
+        totalsRow(activity.getString(R.string.invoice_pdf_summary_loss), "-$cur%.2f".format(totalLoss), lossColor)
 
-        paint.textSize = 15f
+        y += 2f
+        paint.strokeWidth = 1f
+        paint.color = hairline
+        canvas.drawLine(textLeft, y - (rowGap2 - 10f), textRight, y - (rowGap2 - 10f), paint)
+        y += 8f
+
         val netProfitFinal = totalRevenue - totalCost - totalLoss
-        drawSummary(activity.getString(R.string.invoice_pdf_summary_net_profit), netProfitFinal)
+        paint.color = teal
+        paint.typeface = fontMedium
+        paint.textSize = 12f
+        canvas.drawText(activity.getString(R.string.invoice_pdf_summary_net_profit).uppercase(), textLeft, y, paint)
+        paint.color = if (netProfitFinal >= 0) ink else lossColor
+        paint.typeface = fontSerif
+        paint.textSize = 16f
+        val netText = formatMoney(netProfitFinal)
+        canvas.drawText(netText, textRight - paint.measureText(netText), y, paint)
 
-        line()
-        center("Thank You!", 14f)
+        val boxBottom2 = y + 10f
+        paint.color = amberBorder
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1.4f
+        canvas.drawRoundRect(
+            android.graphics.RectF(boxOuterLeft, boxTop2, boxOuterRight, boxBottom2),
+            10f, 10f, paint
+        )
+        paint.style = Paint.Style.FILL
 
+        y = boxBottom2 + 22f
+
+        // ── Small business-stat line, outside the amber box ──
+        // A plain-language translation of "expenses vs net profit",
+        // instead of just repeating numbers already shown above.
+        run {
+            val netAfterExpense = netProfitFinal - totalExpense
+            val statLine = if (totalExpense > 0.01) {
+                activity.getString(
+                    R.string.invoice_pdf_profit_expense_stat,
+                    "$cur%.2f".format(totalExpense),
+                    formatMoney(netAfterExpense)
+                )
+            } else {
+                activity.getString(R.string.invoice_pdf_profit_no_expense_stat)
+            }
+
+            paint.typeface = fontRegular
+            paint.textSize = 8.5f
+            paint.color = muted
+            val maxWidth = pageWidth - margin * 2f
+            val shown = truncateToWidth(statLine, maxWidth)
+            canvas.drawText(shown, (pageWidth - paint.measureText(shown)) / 2f, y, paint)
+            y += 18f
+        }
+
+        paint.color = teal
+        paint.strokeWidth = 1.6f
+        canvas.drawLine(margin, y, pageWidth - margin, y, paint)
+        y += 20f
+
+        paint.color = muted
+        paint.typeface = fontRegular
+        paint.textSize = 9.5f
+        val footer = activity.getString(R.string.invoice_pdf_footer_default)
+        canvas.drawText(footer, (pageWidth - paint.measureText(footer)) / 2f, y, paint)
+
+        drawBrandFooter()
         document.finishPage(page)
 
         // ================= SAVE =================

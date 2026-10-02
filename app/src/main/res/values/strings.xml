@@ -56,38 +56,54 @@
 
     <!-- App -->
     <string name="activity_add_import_service_of_000_paid">of ₹0.00 paid</string>
-    <string name="activity_bill_details_additional_charge_debit_note">Additional charge / debit note</string>
+    <string name="activity_bill_details_additional_charge_debit_note">Add more products</string>
     <string name="activity_bill_details_b2c">B2C</string>
-    <string name="activity_bill_details_cancel_void_invoice">Cancel / void invoice</string>
+    <string name="activity_bill_details_cancel_void_invoice">Cancel this bill</string>
     <string name="activity_bill_details_close">Close</string>
     <string name="activity_bill_details_debit_amp_credit_notes">DEBIT &amp;amp; CREDIT NOTES</string>
     <string name="activity_bill_details_discount">Discount</string>
     <string name="activity_bill_details_gst">GST</string>
-    <string name="activity_bill_details_invoice_0001">Invoice · #0001</string>
+    <string name="activity_bill_details_invoice_0001">Bill · #0001</string>
     <string name="activity_bill_details_items">ITEMS</string>
     <string name="activity_bill_details_m">M</string>
     <string name="activity_bill_details_my_store">My Store</string>
     <string name="activity_bill_details_paid">PAID</string>
     <string name="activity_bill_details_paid_via_cash">Paid via Cash</string>
-    <string name="activity_bill_details_partial_return_credit_note">Partial return / credit note</string>
+    <string name="activity_bill_details_partial_return_credit_note">Return products</string>
     <string name="activity_bill_details_print">Print</string>
     <string name="activity_bill_details_subtotal">Subtotal</string>
     <string name="activity_bill_details_summary">SUMMARY</string>
     <string name="activity_bill_details_total">Total</string>
     <string name="activity_bill_details_walkin_customer">Walk-in customer</string>
     <string name="activity_bill_details_wc">WC</string>
+    <string name="bill_details_eyebrow">BILL DETAILS</string>
+    <string name="bill_details_summary_card_title">Bill summary</string>
+    <string name="bill_details_summary_card_hint">Total, tax and who it\'s for</string>
+    <string name="bill_details_items_card_title">Items sold</string>
+    <string name="bill_details_items_card_hint">Everything in this bill</string>
+    <string name="bill_details_notes_card_title">Returns &amp; extra charges</string>
+    <string name="bill_details_notes_card_hint">Returns and extra charges on this bill</string>
+    <string name="bill_details_total_label">BILL TOTAL</string>
+    <string name="bill_details_owed_label">ON CREDIT</string>
+    <string name="bill_details_owed_statement">Still owed on this bill</string>
+    <string name="bill_details_taxable_label">Item value</string>
+    <string name="bill_details_more_options">More options</string>
+    <string name="bill_details_hide_options">Hide options</string>
+    <string name="bill_details_owed_link">View credit accounts \u203a</string>
+    <string name="bill_details_print_action">Print</string>
+    <string name="bill_details_mark_paid_inline">Mark as paid</string>
     <string name="activity_dashboard_eb">EB</string>
     <string name="activity_dashboard_up">up</string>
     <string name="activity_debit_note_0_items_adjusted">0 items adjusted</string>
-    <string name="activity_debit_note_additional_charge">ADDITIONAL CHARGE</string>
+    <string name="activity_debit_note_additional_charge">ADD PRODUCTS</string>
     <string name="activity_debit_note_cancel">Cancel</string>
-    <string name="activity_debit_note_confirm_amp_issue_debit">Confirm &amp;amp; issue debit note</string>
-    <string name="activity_debit_note_debit">Debit</string>
+    <string name="activity_debit_note_confirm_amp_issue_debit">Add products</string>
+    <string name="activity_debit_note_debit">Add more</string>
     <string name="activity_debit_note_enter_additional_quantity_per">ENTER ADDITIONAL QUANTITY PER ITEM</string>
     <string name="activity_debit_note_gst">GST</string>
     <string name="activity_debit_note_cess">CESS</string>
     <string name="activity_debit_note_invoice">Invoice #—</string>
-    <string name="activity_debit_note_note">note</string>
+    <string name="activity_debit_note_note">products</string>
     <string name="activity_debit_note_taxable">Taxable</string>
     <string name="activity_debit_note_total_additional_value">Total additional value</string>
     <string name="activity_edit_product_cancel">Cancel</string>
@@ -111,23 +127,27 @@
     <string name="activity_register_ex">Ex</string>
     <string name="activity_register_pos">POS</string>
     <string name="activity_sales_return_cancel">Cancel</string>
-    <string name="activity_sales_return_confirm_and_issue_credit">Confirm and issue credit note</string>
-    <string name="activity_sales_return_credit">Credit</string>
+    <string name="activity_sales_return_confirm_and_issue_credit">Confirm return</string>
+    <string name="activity_sales_return_credit">Return</string>
     <string name="activity_sales_return_gst_reversal">GST reversal</string>
     <string name="activity_sales_return_cess_reversal">CESS reversal</string>
     <string name="activity_sales_return_invoice">Invoice #—</string>
-    <string name="activity_sales_return_note">note</string>
-    <string name="activity_sales_return_sales_return">SALES RETURN</string>
+    <string name="activity_sales_return_note">products</string>
+    <string name="activity_sales_return_sales_return">RETURN PRODUCTS</string>
     <string name="activity_sales_return_select_items_and_quantity">SELECT ITEMS AND QUANTITY TO RETURN</string>
     <string name="activity_sales_return_taxable">Taxable</string>
     <string name="activity_sales_return_total_return_value">Total return value</string>
+    <string name="sales_return_step1_title">Items to return</string>
+    <string name="sales_return_step1_hint">Set how much of each item is being returned</string>
+    <string name="debit_note_step1_title">Items to charge for</string>
+    <string name="debit_note_step1_hint">Set the additional quantity for each item</string>
     <string name="activity_settings_expos">ExPOS</string>
     <string name="billdetailsactivity_bill_not_loaded_yet">Bill not loaded yet</string>
     <string name="billdetailsactivity_bill_not_loaded_yet_1">Bill not loaded yet. Please wait.</string>
     <string name="billdetailsactivity_bill_number_not_resolved">Bill number not resolved yet</string>
     <string name="billdetailsactivity_cancellation_failed">Cancellation failed. Please try again.</string>
-    <string name="billdetailsactivity_cannot_issue_a_credit">Cannot issue a credit note for a cancelled invoice.</string>
-    <string name="billdetailsactivity_cannot_issue_a_debit">Cannot issue a debit note for a cancelled invoice.</string>
+    <string name="billdetailsactivity_cannot_issue_a_credit">Cannot give a refund for a cancelled invoice.</string>
+    <string name="billdetailsactivity_cannot_issue_a_debit">Cannot add an extra charge for a cancelled invoice.</string>
     <string name="billdetailsactivity_couldnt_save_the_invoice">Couldn\'t save the invoice — storage permission is needed</string>
     <string name="billdetailsactivity_invalid_bill_id">Invalid Bill ID</string>
     <string name="billdetailsactivity_invoice_voided_cancellation_will">Invoice voided. Cancellation will sync automatically.</string>
@@ -135,7 +155,7 @@
     <string name="confirmpaymentactivity_couldnt_start_payment_please">Couldn\'t start payment. Please try again.</string>
     <string name="confirmpaymentactivity_couldnt_validate_coupon">Couldn\'t validate coupon</string>
     <string name="debitnoteactivity_bill_not_loaded_yet">Bill not loaded yet. Please wait.</string>
-    <string name="debitnoteactivity_cannot_issue_a_debit">Cannot issue a debit note for a cancelled invoice.</string>
+    <string name="debitnoteactivity_cannot_issue_a_debit">Cannot add an extra charge for a cancelled invoice.</string>
     <string name="debitnoteactivity_invalid_bill_id">Invalid bill ID</string>
     <string name="debitnoteactivity_please_enter_additional_quantity">Please enter additional quantity for at least one item.</string>
     <string name="dialog_account_options_clear_the_balance">Clear the balance</string>
@@ -228,13 +248,13 @@
     <string name="dialog_clear_stock_select_all">Select All</string>
     <string name="dialog_clear_stock_select_batches_to_clear">Select batches to clear</string>
     <string name="dialog_clear_stock_total_to_clear">Total to clear</string>
-    <string name="dialog_confirm_debit_note_additional_value">Additional value</string>
+    <string name="dialog_confirm_debit_note_additional_value">Products value</string>
     <string name="dialog_confirm_debit_note_invoice">Invoice #—</string>
-    <string name="dialog_confirm_debit_note_issue_debit">Issue debit</string>
-    <string name="dialog_confirm_debit_note_note">note?</string>
+    <string name="dialog_confirm_debit_note_issue_debit">Add</string>
+    <string name="dialog_confirm_debit_note_note">products?</string>
     <string name="dialog_confirm_debit_note_review">Review</string>
-    <string name="dialog_confirm_debit_note_yes_issue_debit_note">Yes, issue debit note</string>
-    <string name="dialog_confirm_debit_note_youre_issuing_a_debit">You\'re issuing a debit note for additional value on this invoice. This will generate a GST debit note.</string>
+    <string name="dialog_confirm_debit_note_yes_issue_debit_note">Yes, add products</string>
+    <string name="dialog_confirm_debit_note_youre_issuing_a_debit">You\'re adding an extra charge for additional value on this invoice. This will update the invoice.</string>
     <string name="dialog_confirm_print_cancel">Cancel</string>
     <string name="dialog_confirm_print_export_report">EXPORT REPORT</string>
     <string name="dialog_confirm_print_print">Print</string>
@@ -465,7 +485,7 @@
     <string name="profitactivity_no_data_to_print">No data to print</string>
     <string name="profitactivity_print_failed">Print failed</string>
     <string name="salesreturnactivity_bill_not_loaded_yet">Bill not loaded yet. Please wait.</string>
-    <string name="salesreturnactivity_cannot_issue_a_credit">Cannot issue a credit note for a cancelled invoice.</string>
+    <string name="salesreturnactivity_cannot_issue_a_credit">Cannot give a refund for a cancelled invoice.</string>
     <string name="salesreturnactivity_invalid_bill_id">Invalid bill ID</string>
     <string name="salesreturnactivity_please_select_at_least">Please select at least one item to return.</string>
     <string name="subscriptionactivity_failed_to_load">Failed to load</string>
@@ -623,7 +643,7 @@
     <string name="availed_itc_igst">Availed ITC IGST (₹)</string>
     <string name="cess_paid_rupees">Cess paid (₹)</string>
     <string name="eligibility">Eligibility</string>
-    <string name="gst_rate_pct">GST rate (%%)</string>
+    <string name="gst_rate_pct" formatted="false">GST rate (%)</string>
     <string name="igst_calc_helper">IGST is calculated from rate × taxable value. Type over it if your invoice says otherwise.</string>
     <string name="igst_paid_rupees">IGST paid (₹)</string>
     <string name="import_of_services_eyebrow">IMPORT OF SERVICES</string>
@@ -1466,8 +1486,8 @@
     <string name="edit_current_stock">Current stock</string>
     <string name="edit_product_xml_category_header">CATEGORY</string>
     <string name="edit_product_xml_category_label">CATEGORY</string>
-    <string name="edit_product_xml_cess_pct_label">Cess %%</string>
-    <string name="edit_product_xml_cgst_pct_label">CGST %%</string>
+    <string name="edit_product_xml_cess_pct_label" formatted="false">Cess %</string>
+    <string name="edit_product_xml_cgst_pct_label" formatted="false">CGST %</string>
     <string name="edit_product_xml_details">details</string>
     <string name="edit_product_xml_edit">Edit</string>
     <string name="edit_product_xml_gst_label">GST</string>
@@ -1478,7 +1498,7 @@
     <string name="edit_product_xml_pricing_header">PRICING</string>
     <string name="edit_product_xml_product_label">PRODUCT</string>
     <string name="edit_product_xml_select_hint">Select</string>
-    <string name="edit_product_xml_sgst_pct_label">SGST %%</string>
+    <string name="edit_product_xml_sgst_pct_label" formatted="false">SGST %</string>
     <string name="edit_product_xml_tax_gstr1_header">TAX &amp;amp; GSTR-1 DETAILS</string>
     <string name="edit_product_xml_units_to_add_hint">Units to add</string>
     <string name="edit_stock_locked_helper">Stock is managed via purchases — add stock by recording a new purchase invoice.</string>
@@ -1690,9 +1710,10 @@
     <string name="xml_purchase_return_cess_label">Cess</string>
     <string name="xml_purchase_return_document_label">DOCUMENT</string>
     <string name="xml_purchase_return_eligibility_label">Eligibility for ITC</string>
-    <string name="xml_purchase_return_gst_pct_hint">GST %%</string>
+    <string name="xml_purchase_return_gst_pct_hint" formatted="false">GST %</string>
     <string name="xml_purchase_return_gstr2_debit_note_header">GSTR-2 details</string>
     <string name="xml_purchase_return_header">PURCHASE RETURN</string>
+    <string name="purchase_addition_header">PURCHASE ADDITION</string>
     <string name="xml_purchase_return_integrated_label">Integrated</string>
     <string name="xml_purchase_return_invoice_supply_header">INVOICE AND SUPPLY</string>
     <string name="xml_purchase_return_invoice_type_label">Invoice type</string>
@@ -1829,6 +1850,21 @@
     <string name="invoice_pdf_profit_print_job_name">Profit Report</string>
     <string name="invoice_pdf_profit_report_title">Profit Report</string>
     <string name="invoice_pdf_profit_save_failed_toast">PDF save failed</string>
+    <string name="invoice_pdf_profit_period_label">PERIOD</string>
+    <string name="invoice_pdf_profit_generated_label">GENERATED</string>
+    <string name="invoice_pdf_profit_money_box_title">MONEY IN &amp; OUT</string>
+    <string name="invoice_pdf_profit_result_box_title">RESULT</string>
+    <string name="invoice_pdf_profit_margin_label">Margin</string>
+    <string name="invoice_pdf_profit_col_product">PRODUCT</string>
+    <string name="invoice_pdf_profit_col_sold">SOLD</string>
+    <string name="invoice_pdf_profit_col_profit">PROFIT</string>
+    <string name="invoice_pdf_profit_col_left">LEFT</string>
+    <string name="invoice_pdf_profit_flow_added">Added</string>
+    <string name="invoice_pdf_profit_flow_sold">Sold</string>
+    <string name="invoice_pdf_profit_flow_lost">Lost</string>
+    <string name="invoice_pdf_powered_by_scalancer">Powered by Scalancer</string>
+    <string name="invoice_pdf_profit_expense_stat">Running costs took %1$s — your real take-home is %2$s.</string>
+    <string name="invoice_pdf_profit_no_expense_stat">No running costs recorded for this period — net profit is the full take-home.</string>
     <string name="invoice_pdf_round_off_label">Round Off</string>
     <string name="invoice_pdf_sgst_label">SGST</string>
     <string name="invoice_pdf_statement_job_name">Statement</string>
@@ -1986,7 +2022,7 @@
     <!-- activity_purchase_details -->
     <string name="place_of_supply">Place of supply</string>
     <string name="tax_breakdown">Tax breakdown</string>
-    <string name="txn_label_credit_note">Add extra stock</string>
+    <string name="txn_label_credit_note">Add more goods</string>
     <string name="txn_label_debit_note">Return goods</string>
     <string name="xml_purchase_details_cancel_button">Cancel purchase</string>
     <string name="xml_purchase_details_cancelled_note">This purchase was cancelled</string>
@@ -2112,6 +2148,18 @@
     <string name="purchase_history_sort_button_label">Sort</string>
     <string name="purchase_history_result_count_one">purchase</string>
     <string name="purchase_history_result_count_other">purchases</string>
+    <string name="bill_history_result_count_one">bill</string>
+    <string name="bill_history_result_count_other">bills</string>
+    <string name="bill_history_create_button">Create a new bill</string>
+    <string name="bill_history_filter_all_label">All bills</string>
+    <string name="bill_history_filter_today_label">Today</string>
+    <string name="bill_history_filter_week_label">This week</string>
+    <string name="bill_history_filter_month_label">This month</string>
+    <string name="bill_history_filter_cancelled_label">Cancelled</string>
+    <string name="bill_history_filter_button_label">Filter</string>
+    <string name="bill_history_sort_button_label">Sort</string>
+    <string name="bill_history_tile_on_credit">On credit</string>
+    <string name="bill_history_tile_cash">Cash</string>
     <string name="purchase_history_tip_record_body">Supplier, invoice number and value</string>
     <string name="purchase_history_tip_record_title">Record your first purchase</string>
     <string name="purchase_history_record_button">Record a purchase</string>
@@ -2131,6 +2179,12 @@
     <string name="purchase_details_invoiced_suffix">invoiced</string>
     <string name="purchase_details_returned_across">returned across</string>
     <string name="purchase_details_credited_across">credited across</string>
+    <string name="bill_details_net_after_notes">Net bill value</string>
+    <string name="bill_details_note_word">note</string>
+    <string name="bill_details_notes_word">notes</string>
+    <string name="bill_details_billed_suffix">billed</string>
+    <string name="bill_details_returned_across">returned across</string>
+    <string name="bill_details_added_across">added across</string>
     <string name="purchase_details_inventory_loss_suffix">inventory loss on returns</string>
     <string name="purchase_details_inventory_gain_suffix">inventory gain on returns</string>
     <string name="purchase_details_inventory_loss_label">Inventory loss</string>
@@ -2298,13 +2352,13 @@
     <string name="xml_cant_cancel_title_line3">this</string>
 
     <!-- dialog_confirm_credit_note -->
-    <string name="xml_confirm_credit_note_body">You\'re returning items from this invoice. This will adjust inventory and generate a GST credit note.</string>
-    <string name="xml_confirm_credit_note_confirm_button">Yes, issue credit note</string>
+    <string name="xml_confirm_credit_note_body">You\'re returning items from this invoice. This will update stock and record the refund.</string>
+    <string name="xml_confirm_credit_note_confirm_button">Yes, return products</string>
     <string name="xml_confirm_credit_note_invoice_placeholder">Invoice #—</string>
     <string name="xml_confirm_credit_note_return_value_label">Return value</string>
     <string name="xml_confirm_credit_note_review_button">Review</string>
-    <string name="xml_confirm_credit_note_title_line1">Issue credit</string>
-    <string name="xml_confirm_credit_note_title_line2">note?</string>
+    <string name="xml_confirm_credit_note_title_line1">Return</string>
+    <string name="xml_confirm_credit_note_title_line2">products?</string>
 
     <!-- dialog_confirm_purchase_note -->
     <string name="xml_confirm_purchase_note_body">You are returning 0 unit(s) to the supplier. Stock will be reduced from the exact purchase batch and a debit note will be generated.</string>
@@ -2404,35 +2458,79 @@
     <string name="xml_peak_marker_revenue_default">Revenue: —</string>
 
     <!-- activity_profit -->
-    <string name="xml_profit_by_product_label">BY PRODUCT</string>
+    <string name="xml_profit_by_product_label">Product wise analysis</string>
+    <string name="xml_profit_by_product_subtitle">How much each product made?</string>
     <string name="xml_profit_empty_description">Sell something in this period and its revenue, cost and profit will break down here by product.</string>
     <string name="xml_profit_empty_no_products">No products</string>
     <string name="xml_profit_empty_yet">yet</string>
     <string name="xml_profit_expense_label">Expense</string>
+    <string name="xml_profit_expense_caption">Money spent restocking stock</string>
     <string name="xml_profit_filter_all">All</string>
     <string name="xml_profit_filter_custom">Custom</string>
     <string name="xml_profit_filter_month">Month</string>
     <string name="xml_profit_filter_today">Today</string>
     <string name="xml_profit_filter_week">Week</string>
-    <string name="xml_profit_header_title">PROFIT ANALYTICS</string>
+    <string name="xml_profit_header_title">SAVINGS ANALYTICS</string>
+    <string name="xml_profit_nav_overview">Overview</string>
+    <string name="xml_profit_nav_trend">Trend</string>
     <string name="xml_profit_hint_every_sale">Every sale updates this</string>
     <string name="xml_profit_hint_find_product">Then find any product fast</string>
     <string name="xml_profit_hint_revenue_cost_margin">Revenue, cost and margin per product</string>
     <string name="xml_profit_hint_search_by_name">Search by product name or variant</string>
     <string name="xml_profit_loss_label">Loss</string>
+    <string name="xml_profit_loss_caption">Stock lost, damaged, or returned</string>
     <string name="xml_profit_margin_default">0% margin</string>
     <string name="xml_profit_net_profit_label">Net profit</string>
+    <string name="xml_profit_net_profit_caption">What you kept after everything</string>
+    <string name="xml_profit_calc_card_title">Your profit, step by step</string>
+    <string name="xml_profit_calc_card_hint">Tap a tab below to see different totals</string>
+    <string name="xml_profit_info_eyebrow">QUICK EXPLAINER</string>
+    <string name="xml_profit_info_title">Sales profit</string>
+    <string name="xml_profit_info_title_vs">vs Business profit</string>
+    <string name="xml_profit_info_subtitle">Two ways to look at the same money</string>
+    <string name="xml_profit_info_sales_label">Sales profit</string>
+    <string name="xml_profit_info_sales_desc">What you earned from selling, minus what the stock cost and any loss</string>
+    <string name="xml_profit_info_total_label">Business profit</string>
+    <string name="xml_profit_info_total_desc">Sales profit, minus other spending like restocking — the real amount left in your pocket</string>
+    <string name="xml_profit_info_got_it">Got it</string>
+    <string name="xml_profit_op_minus">− (minus)</string>
+    <string name="xml_profit_op_equals">= (what you’re left with)</string>
+    <string name="xml_profit_calc_footnote">These are your real numbers — just explained simply.</string>
+    <string name="xml_profit_tab_sales">Sales profit</string>
+    <string name="xml_profit_tab_total">Business profit</string>
+    <string name="xml_profit_earned_label">Total earned</string>
+    <string name="xml_profit_profit_from_sales_label">Profit from sales</string>
+    <string name="xml_profit_profit_from_sales_caption">What you made from selling</string>
+    <string name="xml_profit_expense_separate_caption">Restocking spend — tracked separately, not part of profit above</string>
+    <string name="xml_profit_total_profit_label">Total profit</string>
+    <string name="xml_profit_total_profit_caption">What\'s left after all costs</string>
     <string name="xml_profit_print_report_btn">Print report</string>
     <string name="xml_profit_revenue_label">Revenue</string>
+    <string name="xml_profit_revenue_caption">Total sales</string>
     <string name="xml_profit_search_hint">Search products…</string>
     <string name="xml_profit_title_accent">analytics</string>
-    <string name="xml_profit_title_bold">Savings</string>
+    <string name="xml_profit_title_bold">Profit</string>
     <string name="xml_profit_total_cost_label">Total cost</string>
+    <string name="xml_profit_cost_caption">Cost of goods you sold</string>
+    <string name="xml_profit_detail_earned_label">Earned</string>
+    <string name="xml_profit_detail_cost_label">Cost</string>
+    <string name="xml_profit_detail_loss_label">Damaged/lost</string>
+    <string name="xml_profit_detail_loss_none">None</string>
+    <string name="xml_profit_detail_kept_label">Kept</string>
+    <string name="xml_profit_detail_lost_label">Lost money</string>
+    <string name="xml_profit_detail_stock_title">STOCK</string>
 
     <!-- activity_profit_chart -->
     <string name="xml_profit_chart_best_product_label">Best product</string>
     <string name="xml_profit_chart_header_title">PROFIT ANALYTICS</string>
     <string name="xml_profit_chart_hint">Longest bar = highest profit. Loss-making products appear in red at the bottom.</string>
+    <string name="xml_profit_chart_info_title">Reading the list</string>
+    <string name="xml_profit_chart_info_subtitle">What the bars and colors mean</string>
+    <string name="xml_profit_chart_info_green_label">Green bar</string>
+    <string name="xml_profit_chart_info_green_desc">Longer bar means more profit from that product</string>
+    <string name="xml_profit_chart_info_red_label">Red bar</string>
+    <string name="xml_profit_chart_info_red_desc">This product lost money instead of earning it</string>
+    <string name="xml_profit_trend_all_products">All products</string>
     <string name="xml_profit_chart_legend_loss">Loss</string>
     <string name="xml_profit_chart_legend_profit">Profit</string>
     <string name="xml_profit_chart_no_data">No profit data for this period</string>
@@ -2456,7 +2554,7 @@
     <string name="xml_purchase_line_dialog_category_label">Category</string>
     <string name="xml_purchase_line_dialog_cess_amount_label">Cess amount</string>
     <string name="xml_purchase_line_dialog_cess_label">Cess</string>
-    <string name="xml_purchase_line_dialog_cess_pct_label">Cess %%</string>
+    <string name="xml_purchase_line_dialog_cess_pct_label" formatted="false">Cess %</string>
     <string name="xml_purchase_line_dialog_cgst_label">CGST</string>
     <string name="xml_purchase_line_dialog_cgst_paid_label">CGST paid</string>
     <string name="xml_purchase_line_dialog_disc_label">Disc</string>

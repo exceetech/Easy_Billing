@@ -165,10 +165,6 @@
             android:name=".CustomerTransactionsActivity"
             android:screenOrientation="unspecified" />
         <activity
-            android:name=".ProfitChartActivity"
-            android:screenOrientation="unspecified"/>
-
-        <activity
             android:name=".SplashActivity"
             android:screenOrientation="unspecified"
             android:theme="@style/Theme.EasyBilling.Splash"

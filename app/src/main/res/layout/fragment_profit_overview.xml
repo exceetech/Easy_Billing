@@ -1,0 +1,1150 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Profit Overview tab content, extracted from the former activity_profit.xml
+  into a Fragment-hosted layout as part of the single-Activity, two-Fragment
+  Profit Analytics / Trend refactor. Toolbar and the shared Overview/Trend
+  tab-switch row now live in the host activity_profit.xml.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3ECDD">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="8dp">
+
+    <!-- ===================== PROFIT CALCULATION CARD (TABBED) ===================== -->
+    <!-- Two tabs share one card: "Today's sales" (Revenue - Total cost -
+         Loss = Profit from sales), shown by default, and "Total earned vs
+         spent" (Total earned - Expense - Total cost - Loss = Total profit,
+         a deliberately bigger-picture cash figure that DOES subtract
+         Expense, unlike "Profit from sales" above — see the matching
+         comment in ProfitOverviewFragment.kt's loadProfit(). Row order here
+         must start from Earned and subtract each cost in turn so the chain
+         of minus signs reads correctly — it previously opened with the
+         Expense row, which looked like Expense was being subtracted from
+         nothing). All original ids (tvRevenue, tvCost, tvExpense, tvLoss,
+         tvNetProfit, layoutMarginPill, ivMarginTrend, tvMargin) stay
+         exactly where they were bound; four new ids (tvEarned, tvCostSales,
+         tvLossSales, tvProfitFromSales) mirror the same already-computed
+         values into the "Today's sales" tab — no new calculations, just a
+         second display of the same numbers. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_addp_card">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_customer_header"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_indian_rupee"
+                    app:tint="#FFFFFF"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_profit_calc_card_title"
+                    android:textColor="#123B31"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_profit_calc_card_hint"
+                    android:textColor="#0F6E56"
+                    android:textSize="11sp"/>
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/btnProfitInfo"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:padding="4dp"
+                android:src="@drawable/ic_info_circle"
+                app:tint="#C7B899"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/xml_profit_info_eyebrow"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="12dp"
+            android:background="@drawable/bg_login_tab_track"
+            android:padding="3dp">
+
+            <TextView
+                android:id="@+id/tabProfitSales"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="9dp"
+                android:text="@string/xml_profit_tab_sales"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_login_tab_active"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <TextView
+                android:id="@+id/tabProfitTotal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="9dp"
+                android:text="@string/xml_profit_tab_total"
+                android:textColor="#8C8576"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/panelProfitSales"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent_blue">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_arrow_down_left"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_revenue_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_revenue_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvRevenue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#2A5CA8"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_minus"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_teal">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_indian_rupee"
+                        app:tint="#0F6E56"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_total_cost_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_cost_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvCostSales"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#0F6E56"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_minus"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent_red">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_red">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_alert_triangle"
+                        app:tint="#B23A3A"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_loss_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_loss_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvLossSales"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#B23A3A"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_equals"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="13dp"
+                android:background="@drawable/bg_inv_subcard_accent_green">
+
+                <FrameLayout
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_circle_soft_green">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_circle_check"
+                        app:tint="#16A34A"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_profit_from_sales_label"
+                        android:textSize="13.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_profit_from_sales_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvProfitFromSales"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="22sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#16A34A"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="16sp"
+                    app:autoSizeMaxTextSize="22sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/panelProfitTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent_blue">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_arrow_down_left"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_earned_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_revenue_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvEarned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#2A5CA8"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_minus"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent_amber">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_receipt"
+                        app:tint="#C9922E"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_expense_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_expense_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvExpense"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#C9922E"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_minus"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_teal">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_indian_rupee"
+                        app:tint="#0F6E56"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_total_cost_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_cost_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#0F6E56"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_minus"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:background="@drawable/bg_inv_subcard_accent_red">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_red">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_alert_triangle"
+                        app:tint="#B23A3A"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_loss_label"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_loss_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvLoss"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="18sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#B23A3A"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="13sp"
+                    app:autoSizeMaxTextSize="18sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_op_equals"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9A8F79"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="13dp"
+                android:background="@drawable/bg_inv_subcard_accent_green">
+
+                <FrameLayout
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_circle_soft_green">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_circle_check"
+                        app:tint="#16A34A"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_total_profit_label"
+                        android:textSize="13.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_total_profit_caption"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578" />
+                    <LinearLayout
+                        android:id="@+id/layoutMarginPill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_inv_a_trend_pill"
+                        android:backgroundTint="#DDEEEE"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp">
+                        <ImageView
+                            android:id="@+id/ivMarginTrend"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_marginEnd="3dp"
+                            android:src="@drawable/ic_si_trend_up"
+                            app:tint="#085041"
+                            android:contentDescription="@null"/>
+                        <TextView
+                            android:id="@+id/tvMargin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/xml_profit_margin_default"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#085041"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvNetProfit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0"
+                    android:textSize="24sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#16A34A"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="17sp"
+                    app:autoSizeMaxTextSize="24sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/xml_profit_calc_footnote"
+        android:textSize="10sp"
+        android:fontFamily="serif"
+        android:textStyle="italic"
+        android:textColor="#9A8F79"/>
+
+    <!-- By product — now its own card (outer teal-header card, same
+         family as the Profit calculation card above), with each product
+         rendered as its own bordered line-item card inside (see
+         item_profit_simple.xml), matching the debit-note line-item
+         design. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_addp_card"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_customer_header"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_si_chart_columns"
+                    app:tint="#FFFFFF"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_profit_by_product_label"
+                    android:textColor="#123B31"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/xml_profit_by_product_subtitle"
+                    android:textColor="#0F6E56"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_regular"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Search, moved inside this card: same premium search-bar
+             design as the Add Product page's first card (label row with
+             a diamond glyph, then the badge-icon search field). -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp"
+            android:paddingTop="14dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="&#10022;"
+                    android:textColor="#B8895A"
+                    android:textSize="11sp"
+                    android:layout_marginEnd="6dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SEARCH PRODUCTS"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#5C4A22"
+                    android:letterSpacing="0.02"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginBottom="6dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_search_premium"
+                android:elevation="3dp"
+                android:paddingHorizontal="8dp">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp">
+                    <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_search_icon_badge"/>
+                    <ImageView android:layout_width="15dp" android:layout_height="15dp" android:layout_gravity="center" android:src="@drawable/ic_search" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:layout_marginStart="12dp"
+                    android:hint="@string/xml_profit_search_hint"
+                    android:textColorHint="#A99E88"
+                    android:textColor="#1A1A18"
+                    android:textSize="14.5sp"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- The list and the empty state are both inside this, as
+             alternate contents. Transparent background now — each
+             product row carries its own card, so this is just a
+             padded wrapper, not a shared card. -->
+        <FrameLayout
+            android:id="@+id/cardProfitProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="6dp">
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"/>
+
+        <!-- ===================== EMPTY STATE =====================
+             Same design as bill/purchase history, inventory and import
+             services: 72dp icon circle, centred title with the italic serif
+             accent word, centred body copy, hairline, then two tip rows.
+             Title/accent/body switch between "nothing sold yet" and
+             "search found nothing" via Kotlin. -->
+        <LinearLayout
+            android:id="@+id/layoutProfitEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="26dp"
+            android:paddingTop="30dp"
+            android:paddingBottom="26dp"
+            android:visibility="gone"
+            android:background="@drawable/bg_inv_value_card">
+
+            <FrameLayout
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_imp_empty_circle">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_si_chart_columns"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+                <TextView
+                    android:id="@+id/tvProfitEmptyTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_profit_empty_no_products"
+                    android:textSize="19sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false" />
+                <TextView
+                    android:id="@+id/tvProfitEmptyTitleAccent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/xml_profit_empty_yet"
+                    android:textSize="19sp"
+                    android:textColor="#0F6E56"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvProfitEmptyBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="7dp"
+                android:gravity="center"
+                android:text="@string/xml_profit_empty_description"
+                android:textSize="12.5sp"
+                android:textColor="#8A8272"
+                android:lineSpacingExtra="3dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
+                android:background="#F1EBDD" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="11dp">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_marginTop="1dp"
+                    android:src="@drawable/ic_si_chart_columns"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_hint_every_sale"
+                        android:textSize="12sp"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_hint_revenue_cost_margin"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_marginTop="1dp"
+                    android:src="@drawable/ic_si_search"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_profit_hint_find_product"
+                        android:textSize="12sp"
+                        android:textColor="#1A1A18" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_profit_hint_search_by_name"
+                        android:textSize="11sp"
+                        android:textColor="#9A8F79" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+    </LinearLayout>
+
+    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Print — pinned outside the scroll, always reachable -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F3ECDD"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrint"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/xml_profit_print_report_btn"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:includeFontPadding="false"
+            app:icon="@drawable/ic_si_printer"
+            app:iconTint="#FFFFFF"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:backgroundTint="@null"
+            android:background="@drawable/bg_login_cta_green"
+            app:cornerRadius="14dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            android:elevation="0dp"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+    </LinearLayout>
+
+</LinearLayout>

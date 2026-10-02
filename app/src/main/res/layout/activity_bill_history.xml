@@ -114,7 +114,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="14dp">
+            android:layout_marginTop="14dp"
+            android:baselineAligned="false">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -122,30 +123,85 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/bg_credit_tile_teal"
-                android:padding="12dp">
-
+                android:padding="10dp">
                 <TextView
                     android:id="@+id/tvBillsToday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="0"
                     android:textColor="#085041"
                     android:textSize="16sp"
                     android:fontFamily="@font/googlesans_semibold"
-                    android:maxLines="1"
-                    android:autoSizeTextType="uniform"
-                    android:autoSizeMinTextSize="11sp"
-                    android:autoSizeMaxTextSize="16sp" />
-
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="@string/bill_history_invoices_today"
                     android:textColor="#0F6E56"
-                    android:textSize="10.5sp"
+                    android:textSize="9.5sp"
                     android:fontFamily="@font/googlesans_medium" />
+            </LinearLayout>
 
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_teal"
+                android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvCashToday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="16sp"
+                    android:textColor="#085041"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/bill_history_tile_cash"
+                    android:textSize="9.5sp"
+                    android:textColor="#0F6E56" />
+            </LinearLayout>
+
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_red"
+                android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvOnCreditToday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="16sp"
+                    android:textColor="#791F1F"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="16sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/bill_history_tile_on_credit"
+                    android:textSize="9.5sp"
+                    android:textColor="#A32D2D" />
             </LinearLayout>
 
         </LinearLayout>
@@ -211,9 +267,12 @@
         android:clipChildren="false"
         android:clipToPadding="false">
 
+        <!-- Icon alone used to be the only cue for what these buttons do —
+             a plain word next to each icon removes the guesswork (same fix
+             as activity_purchase_history.xml). -->
         <FrameLayout
             android:id="@+id/btnFilter"
-            android:layout_width="42dp"
+            android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:clipChildren="false"
             android:clipToPadding="false"
@@ -222,13 +281,29 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_filter"
-                app:tint="#B8895A"
-                android:contentDescription="Filter" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_filter"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/bill_history_filter_button_label"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvFilterBadge"
@@ -253,7 +328,7 @@
 
         <FrameLayout
             android:id="@+id/btnSort"
-            android:layout_width="42dp"
+            android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_credit_phone_chip"
@@ -261,13 +336,29 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_lc_sliders"
-                app:tint="#B8895A"
-                android:contentDescription="Sort" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_sliders"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/bill_history_sort_button_label"
+                    android:textColor="#6E6454"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textSize="12.5sp" />
+            </LinearLayout>
 
         </FrameLayout>
 
@@ -438,9 +529,14 @@
                     android:background="#F1EBDD" />
 
                 <LinearLayout
+                    android:id="@+id/tipCreateBill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:paddingVertical="4dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:layout_marginBottom="11dp">
                     <ImageView
                         android:layout_width="17dp"
@@ -505,5 +601,34 @@
         </ScrollView>
 
     </FrameLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCreateBill"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_login_cta_green"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="@string/bill_history_create_button"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/googlesans_semibold"
+        app:icon="@drawable/ic_receipt"
+        app:iconTint="@android:color/white"
+        app:iconSize="17dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:cornerRadius="14dp"/>
 
 </LinearLayout>

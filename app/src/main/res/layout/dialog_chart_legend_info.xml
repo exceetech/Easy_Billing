@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Simple explainer dialog for the "i" button on the Trend page's
+  Profit-per-product leaderboard card. Same champagne dialog language as
+  dialog_profit_info.xml, just with a colored dot in front of each label
+  so the dialog echoes the same green/red dots the card's own legend row
+  uses, instead of a loose paragraph.
+
+  Bound by ProfitTrendFragment.showChartLegendInfoDialog(): btnGotIt.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:orientation="vertical"
+    android:padding="22dp"
+    android:background="@drawable/bg_dialog_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- ICON BADGE -->
+    <FrameLayout
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_info_circle"
+            app:tint="#8A6526" />
+    </FrameLayout>
+
+    <!-- EYEBROW -->
+    <TextView
+        android:text="@string/xml_profit_info_eyebrow"
+        android:textSize="10sp"
+        android:letterSpacing="0.16"
+        android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#B8895A"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- TITLE -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:text="@string/xml_profit_chart_info_title"
+        android:textColor="#1A1A18"
+        android:textSize="18sp"
+        android:fontFamily="@font/googlesans_bold"
+        android:gravity="center"
+        android:includeFontPadding="false"/>
+
+    <!-- SUBTITLE -->
+    <TextView
+        android:text="@string/xml_profit_chart_info_subtitle"
+        android:textSize="12.5sp"
+        android:textColor="#6E6A60"
+        android:gravity="center"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- GREEN BAR CARD -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="13dp"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <View
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:background="@drawable/bg_bar_fill"
+                android:backgroundTint="#1D9E75"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/xml_profit_chart_info_green_label"
+                android:textSize="13sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#123B31"/>
+        </LinearLayout>
+
+        <TextView
+            android:text="@string/xml_profit_chart_info_green_desc"
+            android:textSize="12.5sp"
+            android:textColor="#6E6A60"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- RED BAR CARD -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_inv_value_card"
+        android:padding="13dp"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <View
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:background="@drawable/bg_bar_fill"
+                android:backgroundTint="#E24B4A"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/xml_profit_chart_info_red_label"
+                android:textSize="13sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#123B31"/>
+        </LinearLayout>
+
+        <TextView
+            android:text="@string/xml_profit_chart_info_red_desc"
+            android:textSize="12.5sp"
+            android:textColor="#6E6A60"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- GOT IT -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGotIt"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="18dp"
+        android:text="@string/xml_profit_info_got_it"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        android:textSize="13.5sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        app:backgroundTint="#0F6E56"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:stateListAnimator="@null"
+        app:cornerRadius="14dp"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"/>
+
+</LinearLayout>

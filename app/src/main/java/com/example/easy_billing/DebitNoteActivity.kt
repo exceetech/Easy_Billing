@@ -135,7 +135,7 @@ class DebitNoteActivity : BaseActivity() {
                 btnConfirmDebit.text = if (loading)
                     "Processing…"
                 else
-                    "Confirm & Issue Debit Note"
+                    "Add products"
             }
         }
 
@@ -146,7 +146,7 @@ class DebitNoteActivity : BaseActivity() {
                     is CreditNoteRepository.Result.Success -> {
                         Toast.makeText(
                             this@DebitNoteActivity,
-                            "Debit Note ${result.creditNote.noteNumber} issued successfully.",
+                            "Products added to ${result.creditNote.noteNumber} successfully.",
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
@@ -238,7 +238,7 @@ class DebitNoteActivity : BaseActivity() {
         view.findViewById<TextView>(R.id.tvConfirmDebitEyebrow).text =
             "Invoice ${bill.billNumber}"
         view.findViewById<TextView>(R.id.tvConfirmDebitMessage).text =
-            "You're issuing a debit note for additional value on Invoice #${bill.billNumber}. This will generate a GST debit note."
+            "You're adding more products worth additional value to Invoice #${bill.billNumber}. This will update the invoice."
         view.findViewById<TextView>(R.id.tvConfirmDebitValue).text = tvTotalDebitValue.text
 
         view.findViewById<MaterialButton>(R.id.btnConfirmIssueDebit).setOnClickListener {

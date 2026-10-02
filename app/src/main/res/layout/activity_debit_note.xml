@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Debit note (additional charge) — champagne theme, same language as
-    purchase details / credit accounts: eyebrow + serif-italic accent header,
-    white bg_inv_value_card summary with tinted tiles, one card of
-    hairline-separated item rows, green CTA.
+    Debit note (additional charge) — redesigned to match the step-card
+    language used by activity_sales_return.xml / activity_purchase_return.xml:
+    same eyebrow + serif-italic accent header, items wrapped in an amber
+    step-1 card (amber being this screen's existing accent color) with a
+    running-total accent sub-card, cardless footer with the same
+    confirm/cancel button styling.
 
     Ids bound by DebitNoteActivity: tvInvoiceNumber, tvInvoiceDate,
-    rvDebitItems, tvTotalDebitValue, tvAdditionalGst, btnConfirmDebit,
-    btnCancelDebit.
+    rvDebitItems, tvTotalDebitValue, tvAdditionalGst, rowAdditionalCess,
+    tvAdditionalCess, tvTaxableTile, tvGrandTotalTile, tvItemsAdjustedBadge,
+    btnConfirmDebit, btnCancelDebit.
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -55,7 +58,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="1dp">
+                android:layout_marginTop="1dp"
+                android:accessibilityHeading="true">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -65,15 +69,14 @@
                     android:textSize="21sp"
                     android:letterSpacing="-0.02"
                     android:fontFamily="@font/googlesans_bold"
-                    android:includeFontPadding="false"
-                    android:accessibilityHeading="true" />
+                    android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/activity_debit_note_note"
-                    android:textColor="#0F6E56"
+                    android:textColor="#8A6526"
                     android:textSize="21sp"
                     android:fontFamily="serif"
                     android:textStyle="italic"
@@ -90,7 +93,7 @@
                 android:background="@drawable/bg_credit_phone_chip"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:layout_width="11dp"
@@ -108,6 +111,8 @@
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="11sp"
+                    android:maxWidth="180dp"
+                    android:ellipsize="end"
                     android:singleLine="true" />
             </LinearLayout>
         </LinearLayout>
@@ -123,164 +128,264 @@
             android:textSize="11.5sp" />
     </LinearLayout>
 
-    <!-- Section label -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="18dp"
-        android:layout_marginBottom="6dp"
-        android:text="@string/activity_debit_note_enter_additional_quantity_per"
-        android:textSize="11sp"
-        android:textColor="#9A8F79"
-        android:letterSpacing="0.08"
-        android:fontFamily="@font/googlesans_semibold" />
-
-    <!-- Items list — each row draws its own card (see item_debit_note_line.xml)
-         with a left accent stripe, rather than one shared list card. -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDebitItems"
+    <!-- Main Content Area (Scrollable) -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginBottom="4dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="6dp"/>
+        android:fillViewport="true">
 
-    <!-- ===================== BOTTOM SUMMARY + CONFIRM ===================== -->
-    <!-- No card here on purpose — this reads as a running footer total
-         rather than another boxed section, unlike every card above it. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- CARD 1 — amber, step 1: items to charge for -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_card_cream"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_inv_items_header"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+
+                    <FrameLayout
+                        android:layout_width="28dp"
+                        android:layout_height="28dp">
+
+                        <View
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_step_circle_amber_ring"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/debit_note_step1_title"
+                            android:textColor="#4A3414"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/debit_note_step1_hint"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Items list — each row draws its own card (see
+                         item_debit_note_line.xml) with a left accent
+                         stripe, rather than one shared list card. -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvDebitItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:clipToPadding="false"
+                        android:paddingHorizontal="12dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="2dp"/>
+
+                    <!-- Running additional-value total — same accent
+                         sub-card design as activity_sales_return.xml's
+                         refund total, amber to match this screen's
+                         Debit Note tint. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="14dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_inv_subcard_accent_amber">
+
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_indian_rupee"
+                                app:tint="#8A6526"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="11dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/activity_debit_note_total_additional_value"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold"
+                                android:textColor="#1A1A18"/>
+
+                            <LinearLayout
+                                android:id="@+id/rowDebitBreakdown"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:visibility="gone"
+                                android:layout_marginTop="1dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/activity_debit_note_taxable"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578" />
+
+                                <TextView
+                                    android:id="@+id/tvTaxableTile"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="0"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578"
+                                    android:fontFamily="serif" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:text="@string/activity_debit_note_gst"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578" />
+
+                                <TextView
+                                    android:id="@+id/tvAdditionalGst"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="0"
+                                    android:textSize="10.5sp"
+                                    android:textColor="#8A8578"
+                                    android:fontFamily="serif" />
+
+                                <LinearLayout
+                                    android:id="@+id/rowAdditionalCess"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:visibility="gone"
+                                    android:layout_marginStart="10dp">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/activity_debit_note_cess"
+                                        android:textSize="10.5sp"
+                                        android:textColor="#8A8578" />
+
+                                    <TextView
+                                        android:id="@+id/tvAdditionalCess"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:text="0"
+                                        android:textSize="10.5sp"
+                                        android:textColor="#8A8578"
+                                        android:fontFamily="serif" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvTotalDebitValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textColor="#8A6526"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:singleLine="true"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="16sp"
+                            app:autoSizeMaxTextSize="22sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Kept for the adapter binding; not surfaced in this
+                 simplified design. -->
+            <TextView
+                android:id="@+id/tvItemsAdjustedBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                android:text="@string/activity_debit_note_0_items_adjusted"/>
+
+            <TextView
+                android:id="@+id/tvGrandTotalTile"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                android:text="0"/>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ===================== CONFIRM / CANCEL ===================== -->
+    <!-- Running total now lives inside Card 1; footer is just the actions,
+         same styling as activity_sales_return.xml's buttons. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="2dp"
         android:layout_marginBottom="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="bottom">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="@string/activity_debit_note_total_additional_value"
-                android:textSize="11.5sp"
-                android:textColor="#9A8F79" />
-
-            <TextView
-                android:id="@+id/tvTotalDebitValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="26sp"
-                android:textColor="#1A1A18"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:singleLine="true"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="18sp"
-                app:autoSizeMaxTextSize="26sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="2dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/activity_debit_note_taxable"
-                android:textSize="10.5sp"
-                android:textColor="#8A6526" />
-
-            <TextView
-                android:id="@+id/tvTaxableTile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="0"
-                android:textSize="10.5sp"
-                android:textColor="#8A6526"
-                android:fontFamily="serif" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:text="@string/activity_debit_note_gst"
-                android:textSize="10.5sp"
-                android:textColor="#0F6E56" />
-
-            <TextView
-                android:id="@+id/tvAdditionalGst"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="0"
-                android:textSize="10.5sp"
-                android:textColor="#0F6E56"
-                android:fontFamily="serif" />
-
-            <LinearLayout
-                android:id="@+id/rowAdditionalCess"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                android:layout_marginStart="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/activity_debit_note_cess"
-                    android:textSize="10.5sp"
-                    android:textColor="#B2673A" />
-
-                <TextView
-                    android:id="@+id/tvAdditionalCess"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0"
-                    android:textSize="10.5sp"
-                    android:textColor="#B2673A"
-                    android:fontFamily="serif" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Kept for the adapter binding; not surfaced in this cardless
-             footer design. -->
-        <TextView
-            android:id="@+id/tvItemsAdjustedBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            android:text="@string/activity_debit_note_0_items_adjusted"/>
-
-        <TextView
-            android:id="@+id/tvGrandTotalTile"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            android:text="0"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="14dp"
-            android:background="#DDD3BB" />
-
-        <!-- Confirm button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirmDebit"
             android:layout_width="match_parent"

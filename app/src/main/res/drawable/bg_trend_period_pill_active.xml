@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Active state for the Profit-chart "Today / Week / Month / All" period
+     pills: filled teal, fully rounded, matches the trend card's header
+     accent color. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#0F6E56"/>
+    <corners android:radius="20dp"/>
+</shape>

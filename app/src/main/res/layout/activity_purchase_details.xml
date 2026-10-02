@@ -660,7 +660,8 @@
                  bring it back. btnDebitNote takes the full width alone. -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDebitNote"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="48dp"
                 android:text="@string/txn_label_debit_note"
                 android:textColor="#FFFFFF"
@@ -708,7 +709,6 @@
                 app:strokeColor="#CDE0D8"
                 app:strokeWidth="1dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:visibility="gone"
             android:insetLeft="0dp"
             android:insetRight="0dp"/>
         </LinearLayout>
